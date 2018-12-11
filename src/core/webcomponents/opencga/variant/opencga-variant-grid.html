@@ -34,38 +34,10 @@
             }
         </style>
 
-        <div class="col-md-12" style="padding: 5px 0px 0px 0px">
-            <div id="{{prefix}}ToolbarLeft" class="col-md-6" style="padding: 15px 0px 0px 0px">
-                <span style="padding: 0px">
-                    Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> variants
-                    <template is="dom-if" if="{{approximateCountResult}}">
-                        <span style="padding-left: 10px; color: red" data-toggle="tooltip" title="Approximate count calculated, less than 5% of error">
-                            <i class="fa fa-lg fa-exclamation-triangle"></i>
-                        </span>
-                    </template>
-                </span>
-            </div>
 
-            <div id="{{prefix}}toolbar" class="col-md-6" style="padding: 0px">
-                <div class="form-inline" style="padding: 0px; float: right">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i id="{{prefix}}DownloadRefresh" class="fa fa-refresh fa-spin" aria-hidden="true" style="font-size:14px;display: none"></i>
-                            <i id="{{prefix}}DownloadIcon" class="fa fa-download" aria-hidden="true"></i> Download <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu btn-sm">
-                            <li><a id="{{prefix}}DownloadTabLink" on-click="_downloadTabFile">Tab</a></li>
-                            <li><a id="{{prefix}}DownloadJsonLink" on-click="_downloadJsonFile">JSON</a></li>
-                        </ul>
-                    </div>
-
-                    <!--Share URL-->
-                    <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" on-click="_shareLink">
-                        <i class="fa fa-share-alt" aria-hidden="true"></i> Share
-                    </button>
-                </div>
-            </div>
-        </div>
+        <opencb-grid-toolbar from="{{from}}" to="{{to}}" num-total-results-text="{{numTotalResultsText}}"
+                             config="{{toolbarConfig}}" on-columnchange="onColumnChange" on-download="onDownload" on-sharelink="onShare">
+        </opencb-grid-toolbar>
 
         <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
             <table id="{{prefix}}VariantBrowserGrid">
@@ -92,14 +64,14 @@
                 return {
                     opencgaSession: {
                         type: Object,
-                        observer: 'renderVariantTable'
+                        // observer: 'renderVariantTable'
                     },
                     opencgaClient: {
                         type: Object
                     },
                     cellbaseClient: {
                         type: Object,
-                        observer: 'renderVariantTable'
+                        // observer: 'renderVariantTable'
                     },
                     data: {
                         type: Array,
@@ -111,8 +83,7 @@
                         value: []
                     },
                     cohorts: {
-                        type: Object,
-                        observer: '_refreshTableColumns'
+                        type: Object
                     },
                     consequenceTypes: {
                         type: Object,
@@ -120,8 +91,7 @@
                     },
                     populationFrequencies: {
                         type: Object,
-                        value: {},
-                        observer: '_refreshTableColumns'
+                        value: {}
                     },
                     proteinSubstitutionScores: {
                         type: Object,
@@ -133,7 +103,7 @@
                     },
                     search: {
                         type: Object,
-                        observer: 'renderVariantTable'
+                        // observer: 'renderVariantTable'
                     },
                     queryCellbase: {
                         type: Boolean,
@@ -145,14 +115,15 @@
                     },
                     config: {
                         type: Object,
-                        observer: "configObserver"
+                        // observer: "configObserver"
                     }
                 }
             }
 
             static get observers() {
                 return [
-                    "_refreshTableColumns(samples.*)"
+                    "propertyObserver(opencgaSession, cohorts, populationFrequencies, search, config)",
+                    "_createDefaultColumns(samples.*)"
                 ];
             }
 
@@ -168,16 +139,50 @@
                 this.downloadRefreshIcon = $("#" + this.prefix + "DownloadRefresh");
                 this.downloadIcon = $("#" + this.prefix + "DownloadIcon");
 
-                this._refreshTableColumns();
+                // this._updateTableColumns();
+                this._columns = this._createDefaultColumns();
                 this.renderVariantTable();
             }
 
             _init() {
                 this.prefix = "VarBrowserGrid-" + Utils.randomString(6);
 
-                this.analysisMode = "family";
-
                 this._config = this.getDefaultConfig();
+            }
+
+            propertyObserver(opencgaSession, cohorts, populationFrequencies, search, config) {
+                // With each property change we must updated config and create the columns again. No extra checks are needed.
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
+                this._columns = this._createDefaultColumns();
+
+                // Config for the grid toolbar
+                this.toolbarConfig = {
+                    columns: [
+                        {
+                            title: 'Variant', field: "id",
+                        },
+                        {
+                            title: 'SNP ID', field: "dbSNP",
+                        },
+                        {
+                            title: 'Genes', field: "gene",
+                        },
+                        {
+                            title: 'Type', field: "type",
+                        }
+                    ]
+                };
+
+                this.renderVariantTable();
+            }
+
+            onColumnChange(e) {
+                let table = $('#' + this.prefix + 'VariantBrowserGrid');
+                if (e.detail.selected) {
+                    table.bootstrapTable("showColumn", e.detail.id);
+                } else {
+                    table.bootstrapTable("hideColumn", e.detail.id);
+                }
             }
 
             queryObserver() {
@@ -194,10 +199,6 @@
                 }
                 // this.query;
                 // debugger
-            }
-
-            configObserver() {
-                this._config = Object.assign(this.getDefaultConfig(), this.config);
             }
 
             assignColors() {
@@ -253,7 +254,7 @@
                     $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
                     $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable({
                         url: urlQueryParams.host,
-                        columns: _this.cols,
+                        columns: _this._columns,
                         method: 'get',
                         sidePagination: 'server',
 
@@ -467,9 +468,13 @@
                 let queryParams;
                 if (UtilsNew.isNotUndefinedOrNull(this.config) && UtilsNew.isNotUndefinedOrNull(this.config.grid)
                     && UtilsNew.isNotUndefinedOrNull(this.config.grid.queryParams)) {
-                    queryParams = Object.assign({sid: this.opencgaClient._config.sessionId}, this.config.grid.queryParams, this.query);
+                    queryParams = Object.assign({}, this.config.grid.queryParams, this.query);
                 } else {
-                    queryParams = Object.assign({sid: this.opencgaClient._config.sessionId}, this.query);
+                    queryParams = Object.assign({}, this.query);
+                }
+
+                if (this.opencgaClient._config.sessionId !== undefined) {
+                    queryParams = Object.assign(queryParams, {sid: this.opencgaClient._config.sessionId});
                 }
 
                 if (UtilsNew.isNotEmptyArray(this.samples)) {
@@ -521,6 +526,7 @@
                     }
                 });
             }
+
             showGene(geneName) {
 //                this.fire('selected', {gene: geneName});
                 this.dispatchEvent(new CustomEvent('selected', {detail: {gene: geneName}}));
@@ -565,20 +571,6 @@
                         ctHtml += "</div></div>";
                     }
 
-                    // if (typeof row.annotation.functionalScore !== "undefined") {
-                    //     for (let i = 0; i < row.annotation.functionalScore.length; i++) {
-                    //         if (typeof row.annotation.functionalScore[i] !== "undefined" && row.annotation.functionalScore[i].source === "cadd_scaled" && row.type === "SNV") {
-                    //             let value = Number(row.annotation.functionalScore[i].score).toFixed(2);
-                    //             if (value < 15) {
-                    //                 caddHtml += `<div class='col-md-4'>${value}</div>`;
-                    //             } else {
-                    //                 caddHtml += `<div class='col-md-4'><span style="color: red">${value}</span></div>`;
-                    //             }
-                    //             caddHtml += "</div>"
-                    //         }
-                    //     }
-                    // }
-
                     let clinvarTraits = "<span style='font-weight: bold'>ClinVar:</span> -";
                     let cosmicTraits = "<span style='font-weight: bold'>Cosmic:</span> -";
                     if (typeof row.annotation.variantTraitAssociation !== "undefined" && row.annotation.variantTraitAssociation != null) {
@@ -618,8 +610,8 @@
                 let ref = (row.reference !== "") ? row.reference : "-";
                 let alt = (row.alternate !== "") ? row.alternate : "-";
 
-                ref = (ref.length > this.field.context._config.alleleStringLengthMax) ? ref.substring(0, this.field.context._config.alleleStringLengthMax - 3) + "..." : ref;
-                alt = (alt.length > this.field.context._config.alleleStringLengthMax) ? alt.substring(0, this.field.context._config.alleleStringLengthMax - 3) + "..." : alt;
+                ref = (ref.length > this._config.alleleStringLengthMax) ? ref.substring(0, this._config.alleleStringLengthMax - 3) + "..." : ref;
+                alt = (alt.length > this._config.alleleStringLengthMax) ? alt.substring(0, this._config.alleleStringLengthMax - 3) + "..." : alt;
 
                 let id = row.id;
                 if (typeof row.annotation !== "undefined" && typeof row.annotation.xrefs !== "undefined" && row.annotation.xrefs.length > 0) {
@@ -631,7 +623,7 @@
                 }
 
                 let genomeBrowserMenuLink = "";
-                if (this.field.context.config.showGenomeBrowser) {
+                if (this.config.showGenomeBrowser) {
                     genomeBrowserMenuLink = `<li class="dropdown-header">Internal Links</li>
                                                 <li>
                                                     <a class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
@@ -642,11 +634,11 @@
 
                 // return "<span style='white-space: nowrap'>" + row.chromosome + ':' + row.start + " " + ref + '/' + alt + "</span>";
                 return `<div class="dropdown variant-link-dropdown" style="white-space: nowrap">
-                            <a id="${this.field.context.prefix}dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                            <a id="${this.prefix}dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                 class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
                                     ${row.chromosome}:${row.start} ${ref}/${alt}
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="${this.field.context.prefix}dropdownMenu1" style="font-size: 1.25rem;margin-top: 0px">
+                            <ul class="dropdown-menu" aria-labelledby="${this.prefix}dropdownMenu1" style="font-size: 1.25rem;margin-top: 0px">
                                ${genomeBrowserMenuLink}
                                 <li class="dropdown-header">External Links</li>
                                 <li><a target='_blank' href="https://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${id}">Ensembl</a></li>
@@ -666,7 +658,7 @@
                     the rs in the CellBase XRef annotations. This field is in annotation.xref when source: "dbSNP".
                 */
                 if (typeof row.id !== "undefined" && row.id.startsWith("rs")) {
-                    if (this.field.context.opencgaSession.project.organism !== undefined && this.field.context.opencgaSession.project.organism.assembly === "GRCh37") {
+                    if (this.opencgaSession.project.organism !== undefined && this.opencgaSession.project.organism.assembly === "GRCh37") {
                         return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + row.id + "'>" + row.id + "</a>";
                     } else {
                         return "<a target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + row.id + "'>" + row.id + "</a>";
@@ -690,16 +682,16 @@
                         for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                             if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName !== ""
                                 && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
-                                if (typeof this.field.context.opencgaSession.project !== "undefined" && typeof this.field.context.opencgaSession.study !== "undefined") {
-                                    geneLinks.push('<a style="cursor: pointer;white-space: nowrap" href="#gene/' + this.field.context.opencgaSession.project.alias +'/' +
-                                        this.field.context.opencgaSession.study.alias + '/' + row.annotation.consequenceTypes[i].geneName + '">' + row.annotation.consequenceTypes[i].geneName + '</a>');
+                                if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study !== "undefined") {
+                                    geneLinks.push('<a style="cursor: pointer;white-space: nowrap" href="#gene/' + this.opencgaSession.project.alias +'/' +
+                                        this.opencgaSession.study.alias + '/' + row.annotation.consequenceTypes[i].geneName + '">' + row.annotation.consequenceTypes[i].geneName + '</a>');
                                 } else {
                                     geneLinks.push('<a style="cursor: pointer;white-space: nowrap">' + row.annotation.consequenceTypes[i].geneName + '</a>')
                                 }
                                 visited[row.annotation.consequenceTypes[i].geneName] = true;
                             }
                         }
-                        return geneLinks.join(',');
+                        return geneLinks.join(', ');
                     }
                 }
                 return '-';
@@ -725,15 +717,15 @@
                                 }
 
                                 if (typeof consequenceTypeName !== "undefined" && consequenceTypeName !== "" && !visited.has(consequenceTypeName)) {
-                                    if (typeof this.field.context.consequenceTypeToImpact !== "undefined"
-                                        && typeof this.field.context.consequenceTypeToImpact[consequenceTypeName] !== "undefined") {
-                                        let imp = this.field.context.consequenceTypeToImpact[consequenceTypeName];
+                                    if (typeof this.consequenceTypeToImpact !== "undefined"
+                                        && typeof this.consequenceTypeToImpact[consequenceTypeName] !== "undefined") {
+                                        let imp = this.consequenceTypeToImpact[consequenceTypeName];
                                         if (typeof impact[imp] === "undefined") {
                                             impact[imp] = [];
                                         }
-                                        if (typeof this.field.context.consequenceTypeToColor !== "undefined"
-                                            && typeof this.field.context.consequenceTypeToColor[consequenceTypeName] !== "undefined") {
-                                            impact[imp].push('<span style="color: ' + this.field.context.consequenceTypeToColor[consequenceTypeName] + '">' + consequenceTypeName + '</span>');
+                                        if (typeof this.consequenceTypeToColor !== "undefined"
+                                            && typeof this.consequenceTypeToColor[consequenceTypeName] !== "undefined") {
+                                            impact[imp].push('<span style="color: ' + this.consequenceTypeToColor[consequenceTypeName] + '">' + consequenceTypeName + '</span>');
                                         } else {
                                             impact[imp].push('<span>' + consequenceTypeName + '</span>');
                                         }
@@ -765,9 +757,8 @@
                 return '-';
             }
 
-            proteinScoreFormatter(value, row, index) {
+            siftPproteinScoreFormatter(value, row, index) {
                 let min = 10;
-                let max = 0;
                 let description = {};
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
                     if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
@@ -775,20 +766,10 @@
                             if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined"
                                 && typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores !== "undefined") {
                                 for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
-                                    if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source === this.field.source) {
-                                        switch (this.field.source) {
-                                            case "sift":
-                                                if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score < min) {
-                                                    min = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
-                                                    description.sift = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].description;
-                                                }
-                                                break;
-                                            case "polyphen":
-                                                if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score >= max) {
-                                                    max = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
-                                                    description.polyphen = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].description;
-                                                }
-                                                break;
+                                    if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source === "sift") {
+                                        if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score < min) {
+                                            min = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
+                                            description.sift = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].description;
                                         }
                                     }
                                 }
@@ -797,19 +778,42 @@
                     }
                 }
 
-                if (this.field.source === 'sift' && min !== 10) {
-                    return '<span style="color: ' + this.field.context.pssColor.get(description.sift) + '" title="' + min + '">' + description.sift + '</span>';
-                } else if (this.field.source === 'polyphen' && max >= 0) {
-                    if(UtilsNew.isNotUndefinedOrNull(description) && UtilsNew.isNotUndefinedOrNull(description.polyphen)){
-                        let str = description.polyphen;
-                        if (str.indexOf(' ') >= 0) {
-                            str = str
-                                .replace(/\s(.)/g, function($1) { return $1.toUpperCase(); })
-                                .replace(/\s/g, '')
-                                .replace(/^(.)/, function($1) { return $1.toLowerCase(); });
+                if (min !== 10) {
+                    return '<span style="color: ' + this.pssColor.get(description.sift) + '" title="' + min + '">' + description.sift + '</span>';
+                }
+                return '-';
+            }
+
+            polyphenProteinScoreFormatter(value, row, index) {
+                let max = 0;
+                let description = {};
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+                    if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
+                        for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
+                            if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined"
+                                && typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores !== "undefined") {
+                                for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
+                                    if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source === "polyphen") {
+                                        if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score >= max) {
+                                            max = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
+                                            description.polyphen = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].description;
+                                        }
+                                    }
+                                }
+                            }
                         }
-                        return '<span style="color: ' + this.field.context.pssColor.get(str) + '" title="' + max + '">' + description.polyphen + '</span>';
                     }
+                }
+
+                if (max >= 0 && UtilsNew.isNotUndefinedOrNull(description) && UtilsNew.isNotUndefinedOrNull(description.polyphen)) {
+                    let str = description.polyphen;
+                    if (str.indexOf(' ') >= 0) {
+                        str = str
+                            .replace(/\s(.)/g, function($1) { return $1.toUpperCase(); })
+                            .replace(/\s/g, '')
+                            .replace(/^(.)/, function($1) { return $1.toLowerCase(); });
+                    }
+                    return '<span style="color: ' + this.pssColor.get(str) + '" title="' + max + '">' + description.polyphen + '</span>';
                 }
                 return '-';
             }
@@ -840,6 +844,7 @@
                 }
                 return '-';
             }
+
             cohortFormatter(value, row, index) {
                 if (typeof this.field.cohorts !== "undefined" && this.field.cohorts.length > 0) {
                     let data = new Map();
@@ -1063,191 +1068,56 @@
                 return res;
             }
 
-            _refreshTableColumns() {
-                this.cols = this._createDefaultColumns();
-
-                if (typeof this.cols !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0
-                    && this.config.filter.menu.skipSubsections !== undefined && !this.config.filter.menu.skipSubsections.includes("cohort")) {
-                    let cohortIdx = 5;
-                    let cohortStudies = Object.keys(this.cohorts);
-                    this.cols[0].splice(7, 0, {
-                        title: this.opencgaSession.project.name,
-                        field: 'cohorts',
-                        rowspan: 1,
-                        colspan: cohortStudies.length,
-                        align: 'center'
-                    });
-
-                    for(let i = 0; i < cohortStudies.length; i++) {
-                        this.cols[1].splice(i + cohortIdx, 0, {
-                            title: cohortStudies[i],
-                            field: {
-                                study: cohortStudies[i],
-                                cohorts: this.cohorts[cohortStudies[i]],
-                                colors: this.populationFrequencies.color
-                            },
-                            rowspan: 1,
-                            colspan: 1,
-                            formatter: this.cohortFormatter,
-                            align: 'center'
-                        });
-                    }
-                }
-
-                if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
-                    let popIdx = 7;
-                    let subPopIdx = 6;
-                    if (typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0
-                        && this.config.filter.menu.skipSubsections !== undefined && !this.config.filter.menu.skipSubsections.includes("cohort")) {
-                        popIdx++;
-                        subPopIdx += Object.keys(this.cohorts).length;
-                    }
-
-                    // Just one column called 'Population Frequencies'
-                    this.cols[0].splice(popIdx, 0, {
-                        title: 'Population Frequencies <a data-toggle="tooltip" title="One coloured square is shown for each cohort, e.g. population. ' +
-                        'Frequencies are visualized as colours which classify values into very rare, rare, average, common or missing, see http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg. Please, leave ' +
-                        'the cursor over each square to visualize the actual frequency value."><i class="fa fa-info-circle" aria-hidden="true"></i></a>' +
-                        '<div style="width: 60%;margin: auto"><div style="float: left">Legend:&nbsp;&nbsp;</div>' +
-                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.veryRare + '" title="Very rare:  freq < 0.001"></div>' +
-                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.rare + '" title="Rare:  freq < 0.005"></div>' +
-                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.average + '" title="Average:  freq < 0.05"></div>' +
-                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.common + '" title="Common:  freq >= 0.05"></div>' +
-                        '</div>',
-                        field: '',
-                        rowspan: 1,
-                        colspan: this.populationFrequencies.studies.length,
-                        align: 'center'
-                    });
-
-                    for (let j = 0; j < this.populationFrequencies.studies.length; j++) {
-                        let populations = [];
-                        let populationMap = {};
-                        for (let pop in this.populationFrequencies.studies[j].populations) {
-                            populations.push(this.populationFrequencies.studies[j].populations[pop].id);
-                            populationMap[this.populationFrequencies.studies[j].populations[pop].id] = true;
-                        }
-
-                        this.cols[1].splice(j + subPopIdx, 0, {
-                            title: this.populationFrequencies.studies[j].title,
-                            field: {
-                                study: this.populationFrequencies.studies[j].id,
-                                populations: populations,
-                                populationMap: populationMap,
-                                colors: this.populationFrequencies.color
-                            },
-                            rowspan: 1,
-                            colspan: 1,
-                            formatter: this.populationFrequenciesFormatter,
-                            align: 'center'
-                        });
-                    }
-                }
-
-                if (typeof this.cols !== "undefined" && typeof this.samples !== "undefined" && this.samples.length > 0) {
-                    this.cols[0].splice(4, 0, {
-                        title: 'Samples',
-                        field: 'samples',
-                        rowspan: 1,
-                        colspan: this.samples.length,
-                        align: 'center'
-                    });
-                    for(let i = 0; i < this.samples.length; i++) {
-                        this.cols[1].splice(i, 0, {
-                            title: this.samples[i].name,
-                            field: 'samples',
-                            rowspan: 1,
-                            colspan: 1,
-                            formatter: this.sampleFormatter,
-                            align: 'center',
-                            nucleotideGenotype: true,
-                        });
-                    }
-                    // switch(this.analysisMode) {
-                    //     case "family":
-                    //         // if type is 'family' we expected few samples to be provided in property 'samples'
-                    //         break;
-                    //     case "cancer":
-                    //         this.cols[0].splice(4, 0, {
-                    //             title: this.samples[0].name,
-                    //             field: 'samples',
-                    //             rowspan: 1,
-                    //             colspan: 2,
-                    //             halign: 'center'
-                    //         });
-                    //         this.cols[1].splice(0, 0, {
-                    //                 title: 'Somatic',
-                    //                 field: 'samples',
-                    //                 rowspan: 1,
-                    //                 colspan: 1,
-                    //                 halign: 'center'
-                    //             },
-                    //             {
-                    //                 title: 'Germline',
-                    //                 field: 'samples',
-                    //                 rowspan: 1,
-                    //                 colspan: 1,
-                    //                 halign: 'center'
-                    //             }
-                    //         );
-                    //         break;
-                    //     default:
-                    //         break;
-                    // }
-                }
-                // this.renderVariantTable();
-            }
-
             _createDefaultColumns() {
-                let columns = [
+                this._columns = [
                     [
                         {
                             title: 'Variant',
-                            field: {context: this},
-                            colspan: 1,
+                            field: "id",
                             rowspan: 2,
-                            formatter: this.variantFormatter,
+                            colspan: 1,
+                            formatter: this.variantFormatter.bind(this),
                             halign: 'center'
                         },
                         {
                             title: 'SNP Id',
-                            // field: 'id',
-                            field: {context: this},
-                            colspan: 1,
+                            field: 'dbSNP',
                             rowspan: 2,
-                            formatter: this.snpFormatter,
+                            colspan: 1,
+                            formatter: this.snpFormatter.bind(this),
                             halign: 'center'
                         },
                         {
                             title: 'Genes',
-                            field: {name: "genes", context: this},
-                            colspan: 1,
+                            field: "genes",
                             rowspan: 2,
-                            formatter: this.geneFormatter,
+                            colspan: 1,
+                            formatter: this.geneFormatter.bind(this),
                             halign: 'center'
                         },
                         {
                             title: 'Type',
                             field: 'type',
-                            colspan: 1,
                             rowspan: 2,
+                            colspan: 1,
                             halign: 'center'
                         },
                         {
                             title: 'Consequence Type',
-                            field: {context: this},
-                            colspan: 1,
+                            field: "consequenceType",
                             rowspan: 2,
-                            formatter: this.consequenceTypeFormatter,
+                            colspan: 1,
+                            formatter: this.consequenceTypeFormatter.bind(this),
                             halign: 'center'
                         },
                         {
                             title: 'Deleteriousness <a data-toggle="tooltip" title="SIFT scores are classified into tolerated and deleterious. ' +
-                            'Polyphen scores are classified into benign, possibly damaging, probably damaging and possibly & probably damaging. ' +
-                            'Please, leave the cursor over each tag to visualize the actual score value. ' +
-                            'SIFT score takes values in the range [0, infinite[, the lower the values, the more damaging the prediction. ' +
-                            'Polyphen score takes values in the range [0, 1[, the closer to 2, the more damaging the prediction.">' +
-                            '<i class="fa fa-info-circle" aria-hidden="true"></i></a>',
+                                'Polyphen scores are classified into benign, possibly damaging, probably damaging and possibly & probably damaging. ' +
+                                'Please, leave the cursor over each tag to visualize the actual score value. ' +
+                                'SIFT score takes values in the range [0, infinite[, the lower the values, the more damaging the prediction. ' +
+                                'Polyphen score takes values in the range [0, 1[, the closer to 2, the more damaging the prediction.">' +
+                                '<i class="fa fa-info-circle" aria-hidden="true"></i></a>',
+                            field: "deleteriousness",
                             rowspan: 1,
                             colspan: 3,
                             align: 'center'
@@ -1261,6 +1131,7 @@
                         },
                         {
                             title: 'Phenotypes',
+                            field: "phenotypes",
                             rowspan: 1,
                             colspan: 2,
                             align: 'center'
@@ -1269,22 +1140,23 @@
                     [
                         {
                             title: 'SIFT',
-                            field: {source: 'sift', context: this},
+                            field: "sift",
                             colspan: 1,
                             rowspan: 1,
-                            formatter: this.proteinScoreFormatter,
+                            formatter: this.siftPproteinScoreFormatter.bind(this),
                             halign: 'center'
                         },
                         {
                             title: 'Polyphen',
-                            field: {source: 'polyphen', context: this},
+                            field: "polyphen",
                             colspan: 1,
                             rowspan: 1,
-                            formatter: this.proteinScoreFormatter,
+                            formatter: this.siftPproteinScoreFormatter.bind(this),
                             halign: 'center'
                         },
                         {
                             title: 'CADD',
+                            field: "cadd",
                             colspan: 1,
                             rowspan: 1,
                             formatter: this.caddScaledFormatter,
@@ -1337,78 +1209,168 @@
                     ]
                 ];
 
+                // update columns dynamically
+                this._updateTableColumns();
+
+                return this._columns;
+            }
+
+            _updateTableColumns() {
                 // add last checkbox column
                 if (this._config.showSelectCheckbox) {
-                    columns[0].push({
+                    this._columns[0].push({
                         title: 'Select for <br> Interpretation',
                         field: "selectForInterpretation",
                         rowspan: 1,
                         colspan: 1,
                         align: 'center'
                     });
-                    columns[1].push({
+                    this._columns[1].push({
                         field: "stateCheckBox",
                         checkbox: true,
                         rowspan: 1,
                         colspan: 1
                     });
                 }
-                return columns;
-            }
 
-            _downloadTabFile() {
-                let urlQueryParams = this._getUrlQueryParams();
-                let params = urlQueryParams.queryParams;
-                params.limit = 1000; // Default limit is 1000 for now
-                let _this = this;
-
-                this.downloadRefreshIcon.css('display', 'inline-block');
-                this.downloadIcon.css('display', 'none');
-                this.opencgaClient.variants().query(params)
-                    .then(function (response) {
-                        let json = response.response[0].result;
-                        let dataString = VariantUtils.jsonToTabConvert(json, _this.populationFrequencies.studies, _this.samples, _this._config.nucleotideGenotype);
-                        let data = new Blob([dataString.join('\n')], {type: 'text/plain'});
-                        let file = window.URL.createObjectURL(data);
-                        let a = document.createElement("a");
-                        a.href = file;
-                        a.download = _this.opencgaSession.study.alias + ".txt";
-                        document.body.appendChild(a);
-                        a.click();
-                        setTimeout(function() {
-                            document.body.removeChild(a);
-                        }, 0);
-                    })
-                    .then(function() {
-                        _this.downloadRefreshIcon.css('display', 'none');
-                        _this.downloadIcon.css('display', 'inline-block');
+                if (typeof this._columns !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0
+                    && this.config.filter.menu.skipSubsections !== undefined && !this.config.filter.menu.skipSubsections.includes("cohort")) {
+                    let cohortIdx = 6;
+                    let cohortStudies = Object.keys(this.cohorts);
+                    this._columns[0].splice(7, 0, {
+                        title: this.opencgaSession.project.name,
+                        field: 'cohorts',
+                        rowspan: 1,
+                        colspan: cohortStudies.length,
+                        align: 'center'
                     });
-            }
 
-            _downloadJsonFile() {
-                let urlQueryParams = this._getUrlQueryParams();
-                let params = urlQueryParams.queryParams;
-                params.limit = 1000; // Default limit is 1000 for now
-                let _this = this;
+                    for(let i = 0; i < cohortStudies.length; i++) {
+                        this._columns[1].splice(i + cohortIdx, 0, {
+                            title: cohortStudies[i],
+                            field: {
+                                study: cohortStudies[i],
+                                cohorts: this.cohorts[cohortStudies[i]],
+                                colors: this.populationFrequencies.color
+                            },
+                            rowspan: 1,
+                            colspan: 1,
+                            formatter: this.cohortFormatter,
+                            align: 'center'
+                        });
+                    }
+                }
 
-                this.downloadRefreshIcon.css('display', 'inline-block');
-                this.downloadIcon.css('display', 'none');
-                this.opencgaClient.variants().query(params)
-                    .then(function (response) {
-                        let json = response.response[0].result;
-                        let dataString = [];
-                        for (let i = 0; i < json.length; i++) {
-                            dataString.push(JSON.stringify(json[i]));
+                if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
+                    let popIdx = 7;
+                    let subPopIdx = 6;
+                    if (typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0
+                        && this.config.filter.menu.skipSubsections !== undefined && !this.config.filter.menu.skipSubsections.includes("cohort")) {
+                        popIdx++;
+                        subPopIdx += Object.keys(this.cohorts).length;
+                    }
+
+                    // Just one column called 'Population Frequencies'
+                    this._columns[0].splice(popIdx, 0, {
+                        title: 'Population Frequencies <a data-toggle="tooltip" title="One coloured square is shown for each cohort, e.g. population. ' +
+                            'Frequencies are visualized as colours which classify values into very rare, rare, average, common or missing, see http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg. Please, leave ' +
+                            'the cursor over each square to visualize the actual frequency value."><i class="fa fa-info-circle" aria-hidden="true"></i></a>' +
+                            '<div style="width: 60%;margin: auto"><div style="float: left">Legend:&nbsp;&nbsp;</div>' +
+                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.veryRare + '" title="Very rare:  freq < 0.001"></div>' +
+                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.rare + '" title="Rare:  freq < 0.005"></div>' +
+                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.average + '" title="Average:  freq < 0.05"></div>' +
+                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.common + '" title="Common:  freq >= 0.05"></div>' +
+                            '</div>',
+                        field: '',
+                        rowspan: 1,
+                        colspan: this.populationFrequencies.studies.length,
+                        align: 'center'
+                    });
+
+                    for (let j = 0; j < this.populationFrequencies.studies.length; j++) {
+                        let populations = [];
+                        let populationMap = {};
+                        for (let pop in this.populationFrequencies.studies[j].populations) {
+                            populations.push(this.populationFrequencies.studies[j].populations[pop].id);
+                            populationMap[this.populationFrequencies.studies[j].populations[pop].id] = true;
                         }
 
-                        let data = new Blob([dataString.join('\n')], {type: 'application/json'});
+                        this._columns[1].splice(j + subPopIdx, 0, {
+                            title: this.populationFrequencies.studies[j].title,
+                            field: {
+                                study: this.populationFrequencies.studies[j].id,
+                                populations: populations,
+                                populationMap: populationMap,
+                                colors: this.populationFrequencies.color
+                            },
+                            rowspan: 1,
+                            colspan: 1,
+                            formatter: this.populationFrequenciesFormatter,
+                            align: 'center'
+                        });
+                    }
+                }
+
+                if (typeof this._columns !== "undefined" && typeof this.samples !== "undefined" && this.samples.length > 0) {
+                    this._columns[0].splice(4, 0, {
+                        title: 'Samples',
+                        field: 'samples',
+                        rowspan: 1,
+                        colspan: this.samples.length,
+                        align: 'center'
+                    });
+                    for(let i = 0; i < this.samples.length; i++) {
+                        this._columns[1].splice(i, 0, {
+                            title: this.samples[i].name,
+                            field: 'samples',
+                            rowspan: 1,
+                            colspan: 1,
+                            formatter: this.sampleFormatter,
+                            align: 'center',
+                            nucleotideGenotype: true,
+                        });
+                    }
+                }
+            }
+
+            onDownload(e) {
+                let urlQueryParams = this._getUrlQueryParams();
+                let params = urlQueryParams.queryParams;
+                params.limit = 1000; // Default limit is 1000 for now
+
+                this.downloadRefreshIcon.css('display', 'inline-block');
+                this.downloadIcon.css('display', 'none');
+
+                let _this = this;
+                this.opencgaClient.variants().query(params)
+                    .then(function (response) {
+                        let result = response.response[0].result;
+                        let dataString = [];
+                        let mimeType = "";
+                        let extension = "";
+
+                        // Check if user clicked in Tab or JSON format
+                        if (e.detail.option.toLowerCase() === "tab") {
+                            dataString = VariantUtils.jsonToTabConvert(result, _this.populationFrequencies.studies, _this.samples, _this._config.nucleotideGenotype);
+                            mimeType = "text/plain";
+                            extension = ".txt";
+                        } else {
+                            for (let res of result) {
+                                dataString.push(JSON.stringify(res));
+                            }
+                            mimeType = "application/json";
+                            extension = ".json";
+                        }
+
+                        // Build file and anchor link
+                        let data = new Blob([dataString.join('\n')], {type: mimeType});
                         let file = window.URL.createObjectURL(data);
                         let a = document.createElement("a");
                         a.href = file;
-                        a.download = _this.opencgaSession.study.alias + ".json";
+                        a.download = _this.opencgaSession.study.alias + extension;
                         document.body.appendChild(a);
                         a.click();
-                        setTimeout(function() {
+                        setTimeout(function () {
                             document.body.removeChild(a);
                         }, 0);
                     })
@@ -1418,7 +1380,7 @@
                     });
             }
 
-            _shareLink() {
+            onShare() {
                 let _this = this;
                 $("[data-toggle=popover]").popover({
                     content: function() {
@@ -1449,8 +1411,14 @@
                     detailFormatter: this.tableDetailFormatter,
 
                     showSelectCheckbox: false,
+                    multiSelection: false,
                     nucleotideGenotype: true,
-                    alleleStringLengthMax: 15
+                    alleleStringLengthMax: 15,
+
+                    header: {
+                        horizontalAlign: 'center',
+                        verticalAlign: 'bottom'
+                    },
                 }
             }
         }
