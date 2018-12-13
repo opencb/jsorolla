@@ -61,10 +61,10 @@
                             <button type="button" class="btn btn-success family-browser-view-buttons active" data-view="TableResult" on-click="_changeView" data-id="table">
                                 <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView" data-id="table"></i> Table Result
                             </button>
-                            <button type="button" class="btn btn-success family-browser-view-buttons" data-view="AggregationStats" on-click="_changeView">
+                            <button type="button" class="btn btn-success family-browser-view-buttons" data-view="AggregationStats" on-click="_changeView" disabled="!{{_config.showAggregationStats}}">
                                 <i class="fa fa-line-chart icon-padding" aria-hidden="true" data-view="AggregationStats" on-click="_changeView"></i> Aggregation Stats
                             </button>
-                            <button type="button" class="btn btn-success family-browser-view-buttons" data-view="FamilyComparator" on-click="_changeView" data-id="comparator">
+                            <button type="button" class="btn btn-success family-browser-view-buttons" data-view="FamilyComparator" on-click="_changeView" data-id="comparator" disabled="!{{_config.showComparator}}">
                                 <i class="fa fa-users icon-padding" aria-hidden="true" data-view="FamilyComparator" on-click="_changeView" data-id="comparator"></i> Family Comparator
                             </button>
                         </div>

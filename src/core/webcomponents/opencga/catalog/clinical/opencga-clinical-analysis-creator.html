@@ -1,0 +1,512 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<link rel="import" href="../family/opencga-family-browser.html">
+<link rel="import" href="../family/opencga-family-editor.html">
+<link rel="import" href="../individual/opencga-individual-browser.html">
+
+<dom-module id="opencga-clinical-analysis-creator">
+    <template>
+        <style>
+            .browser-subsection {
+                font-size: 1.35rem;
+                font-weight: bold;
+                padding: 5px 0px;
+                color: #444444;
+                border-bottom: 1px solid rgba(221, 221, 221, 0.8);
+            }
+
+            .ocap-text-button {
+                display: inline-block;
+                overflow: hidden;
+                width: 90px;
+                text-align: left;
+                float: left !important;
+            }
+
+            .filter-label {
+                margin: auto 10px;
+                white-space: nowrap
+            }
+        </style>
+
+        <template is="dom-if" if="{{!createFamily}}">
+            <div class="row">
+                <div class="col-md-10 col-md-offset-1">
+
+                    <div class="browser-subsection">
+                        <h3>Case Creation Tool</h3>
+                    </div>
+
+                    <div style="padding-top: 10px; display: flex;">
+                        <label class="filter-label col-md-2">Case ID:</label>
+                        <input type="text" style="width: 100%" class$="{{prefix}}-input form-control" placeholder="ID of the case">
+                    </div>
+
+                    <div style="padding-top: 10px; display: flex;">
+                        <label class="filter-label col-md-2">Description:</label>
+                        <input type="text" style="width: 100%" class$="{{prefix}}-input form-control" placeholder="Description of the case">
+                    </div>
+
+                    <div style="padding-top: 10px; display: flex;">
+                        <label class="filter-label col-md-2">Due Date:</label>
+                        <div class='input-group date' style="width: 100%;" id='{{prefix}}-datetimepicker'>
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                            <input type='text' class="form-control" />
+                        </div>
+                    </div>
+
+                    <div style="padding-top: 10px; display: flex;">
+                        <label class="filter-label col-md-2">Priority:</label>
+                        <select class="selectpicker" data-width="100%" id="{{prefix}}-priority" on-change="updateQuery">
+                            <option style="color: red; font-weight: bold;" value="URGENT">Urgent</option>
+                            <option style="color: orange; font-weight: bold;" value="HIGH">High</option>
+                            <option style="color: blue; font-weight: bold;" value="MEDIUM" selected>Medium</option>
+                            <option style="color: green; font-weight: bold;" value="LOW">Low</option>
+                        </select>
+                    </div>
+
+                    <div style="padding-top: 10px; display: flex;">
+                        <label class="filter-label col-md-2">Case Type:</label>
+                        <div style="width: 100%; padding-top: 10px;" class="btn-group btn-group-sm">
+                            <button id="singleButton" class="btn btn-primary active" value="single" on-click="changeAnalysisType">
+                                SINGLE
+                            </button>
+                            <button id="duoButton" class="btn btn-primary" value="trio" on-click="changeAnalysisType">
+                                TRIO
+                            </button>
+                            <button id="trioButton" class="btn btn-primary" value="family" on-click="changeAnalysisType">
+                                FAMILY
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="browser-subsection">
+                        <h3>Proband and Disease</h3>
+                    </div>
+
+                    <div style="padding-top: 10px;">
+                        <template is="dom-if" if="{{!isFamilyAnalysis(type)}}">
+                            <span class="col-md-12">
+                                Search proband
+                                <button id="{{prefix}}-browseIndividual" class="btn btn-sm btn-primary"
+                                        data-toggle="modal" data-placement="bottom" on-click="showIndividualSelector"
+                                        style="display: inline">Browse</button>
+                            </span>
+                        </template>
+                        <template is="dom-if" if="{{isFamilyAnalysis(type)}}">
+                            <span class="col-md-12">
+                                Search family
+                                <button id="{{prefix}}-browseFamily" class="btn btn-sm btn-primary"
+                                        data-toggle="modal" data-placement="bottom" on-click="showFamilySelector"
+                                        style="display: inline">Browse</button>
+                            </span>
+                            <a class="col-md-12" on-click="showFamilyCreator" style="cursor:pointer;">
+                                Don't have a family?
+                            </a>
+                        </template>
+
+                        <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
+                            <table id="{{prefix}}IndividualBrowserGrid">
+                                <thead style="background-color: #eee"></thead>
+                            </table>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Modal: Family browser -->
+            <div class="modal fade" id="{{prefix}}FamilyBrowser" tabindex="-1" role="dialog" aria-labelledby="familyBrowserLabel">
+                <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="{{prefix}}FamilyBrowserLabel">Family Selector</h4>
+                        </div>
+                        <div class="modal-body" style="height: 780px">
+                            <opencga-family-browser opencga-session="{{opencgaSession}}" config="[[familyBrowserConfig]]">
+                            </opencga-family-browser>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="onFamilySelected">
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal: Individual browser -->
+            <div class="modal fade" id="{{prefix}}IndividualBrowser" tabindex="-1" role="dialog" aria-labelledby="individualBrowserLabel">
+                <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="{{prefix}}IndividualBrowserLabel">Individual Selector</h4>
+                        </div>
+                        <div class="modal-body" style="height: 780px">
+                            <opencga-individual-browser opencga-session="{{opencgaSession}}" config="[[individualBrowserConfig]]">
+                            </opencga-individual-browser>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="onIndividualSelected">
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Same window: Family editor -->
+        <template is="dom-if" if="{{createFamily}}">
+            <button type="button" style="float: right; margin: 30px 30px 0px 0px;" class="btn btn-success" on-click="backToClinicalView">BACK</button>
+            <opencga-family-editor opencga-session="{{opencgaSession}}" config="[[familyBrowserConfig]]"></opencga-family-editor>
+        </template>
+
+    </template>
+    <script>
+
+        class OpencgaClinicalAnalysisCreator extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                this._init();
+            }
+
+            static get is() {
+                return 'opencga-clinical-analysis-creator';
+            }
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object
+                    },
+                    opencgaClient: {
+                        type: Object,
+                        observer: "renderAnalysisTable"
+                    },
+                    config: {
+                        type: Object,
+                        observer: "configObserver"
+                    }
+                }
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            _init() {
+                this.prefix = "ocab-" + Utils.randomString(6);
+
+                this.type = "single";
+                this.analyses = [];
+                this.selectedIndividuals = [];
+
+                this._config = this.getDefaultConfig();
+
+                this.familyBrowserConfig = {
+                    title: "Family Browser",
+                    showTitle: true,
+                    showAggregationStats: false,
+                    showComparator: false,
+                    filter: {
+
+                    },
+                    grid: {
+                        pageSize: 10,
+                        pageList: [10, 25, 50],
+                        detailView: false,
+                        multiSelection: false
+                    },
+                    variableSetIds: []
+                };
+
+                this.individualBrowserConfig = {
+                    title: "Individual Browser",
+                    showTitle: true,
+                    showAggregationStats: false,
+                    showComparator: false,
+                    filter: {
+
+                    },
+                    grid: {
+                        pageSize: 10,
+                        pageList: [10, 25, 50],
+                        detailView: false,
+                        multiSelection: false
+                    },
+                    variableSetIds: []
+                };
+
+                this.createFamily = false;
+            }
+
+            static get observers() {
+                return ['analysisObserver(analyses.*)'];
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+
+                $(`#${this.prefix}-datetimepicker`).datetimepicker({
+                    format: 'DD/MM/YYYY',
+                    minDate: moment().add(1, "days"),
+                    date: moment().add(1, "months")
+                });
+
+                this.activeMenu = {
+                    table: true
+                };
+
+                this.renderTable();
+            }
+
+            configObserver() {
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
+            }
+
+            renderTable() {
+                let columns = this._initTableColumns();
+
+                let _this = this;
+                $("#" + this.prefix + 'IndividualBrowserGrid').bootstrapTable({
+                    columns: columns,
+                    data: _this.selectedIndividuals,
+
+                    // Table properties
+                    pagination: true,
+                    pageSize: 10
+                });
+            }
+
+            changeAnalysisType(e) {
+                // Remove current active class
+                for (let i = 0; i < e.currentTarget.parentElement.children.length; i++) {
+                    e.currentTarget.parentElement.children[i].classList.remove("active")
+                }
+
+                // Add active to clicked button
+                e.currentTarget.classList.add("active");
+
+                this.type = e.currentTarget.value;
+            }
+
+            showFamilySelector(e) {
+                e.preventDefault();
+                this.familyModal = UtilsNew.isUndefined(this.familyModal) ? true : !this.familyModal;
+                $("#" + this.prefix + "FamilyBrowser").modal('show');
+            }
+
+            showIndividualSelector(e) {
+                e.preventDefault();
+                this.individualModal = UtilsNew.isUndefined(this.individualModal) ? true : !this.individualModal;
+                $("#" + this.prefix + "IndividualBrowser").modal('show');
+            }
+
+            showFamilyCreator(e) {
+                e.preventDefault();
+                this.createFamily = true;
+                // this.familyModal = UtilsNew.isUndefined(this.familyModal) ? true : !this.familyModal;
+                // $("#" + this.prefix + "FamilyBrowser").modal('show');
+            }
+
+            backToClinicalView(e) {
+                this.createFamily = false;
+            }
+
+            analysisObserver() {
+                this.dispatchEvent(new CustomEvent("analysischange", {
+                    detail: {
+                        analyses: this.analyses
+                    },
+                    bubbles: true, composed: true
+                }));
+            }
+
+            isFamilyAnalysis(type) {
+                if (type === "single") {
+                    return false;
+                }
+                return true;
+            }
+
+            onClear() {
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
+                this.query = {};
+                // this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
+                this.search = {};
+            }
+
+            onActiveFilterChange(e) {
+                this.query = e.detail;
+                this.search = e.detail;
+            }
+
+            onSelectClinicalAnalysis(e) {
+                this.analysis = e.detail.analysis;
+            }
+
+            _changeBottomTab(e) {
+                let _activeTabs = {
+                    info: e.currentTarget.dataset.id === "info",
+                    // familyGrid: e.currentTarget.dataset.id === "familyGrid"
+                };
+
+                this.set("detailActiveTabs", _activeTabs);
+            }
+
+            _changeView(e) {
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+
+                let activeMenu = {
+                    table: e.currentTarget.dataset.id === "table",
+                    // comparator: e.currentTarget.dataset.id === "comparator"
+                };
+                this.set("activeMenu", activeMenu);
+
+                $('.clinical-analysis-browser-view-content').hide(); // hides all content divs
+                if (typeof e.target !== "undefined" && typeof e.target.dataset.view !== "undefined") {
+                    PolymerUtils.show(this.prefix + e.target.dataset.view);
+                }
+
+                // Show the active button
+                $('.analysis-browser-view-buttons').removeClass("active");
+                $(e.target).addClass("active");
+
+                // if (e.target.dataset.view === "AggregationStats") {
+                //     this.executeFacet();
+                // }
+            }
+
+            _initTableColumns() {
+                let columns = [
+                    [
+                        {
+                            title: 'Individual ID',
+                            field: 'id',
+                            rowspan: 2,
+                            halign: this._config.header.horizontalAlign
+                        },
+                        {
+                            title: 'Samples',
+                            field: 'sample',
+                            rowspan: 2,
+                            formatter: this.sampleFormatter,
+                            halign: this._config.header.horizontalAlign
+                        },
+                        {
+                            title: 'Father',
+                            field: 'father.id',
+                            rowspan: 2,
+                            formatter: this.fatherFormatter,
+                            halign: this._config.header.horizontalAlign
+                        },
+                        {
+                            title: 'Mother',
+                            field: 'mother.id',
+                            rowspan: 2,
+                            formatter: this.motherFormatter,
+                            halign: this._config.header.horizontalAlign
+                        },
+                        {
+                            title: 'Proband',
+                            rowspan: 2,
+                            formatter: this.probandFormatter,
+                            halign: this._config.header.horizontalAlign
+                        },
+                        {
+                            title: 'Affected',
+                            rowspan: 2,
+                            formatter: this.affectedFormatter,
+                            halign: this._config.header.horizontalAlign
+                        },
+                        {
+                            title: 'File',
+                            rowspan: 1,
+                            colspan: 3,
+                            align: 'center'
+                        },
+                        {
+                            title: 'Flags',
+                            field: 'flags',
+                            formatter: this.flagFormatter,
+                            halign: this._config.header.horizontalAlign
+                        }
+                    ], [
+                        {
+                            title: 'VCF',
+                            field: 'vcf',
+                            formatter: this.vcfFormatter,
+                            halign: this._config.header.horizontalAlign
+                        },
+                        {
+                            title: 'BAM',
+                            field: 'bam',
+                            formatter: this.bamFormatter,
+                            halign: this._config.header.horizontalAlign
+                        },
+                        {
+                            title: 'BIGWIG',
+                            field: 'bigwig',
+                            formatter: this.bigwigFormatter,
+                            halign: this._config.header.horizontalAlign
+                        },
+                    ]
+                ];
+
+                return columns;
+            }
+
+            getDefaultConfig() {
+                return {
+                    title: "Clinical Analysis Browser",
+                    showTitle: true,
+                    showAggregationStats: true,
+                    showComparator: true,
+                    filter: {
+
+                    },
+                    header: {
+                        horizontalAlign: 'center',
+                        verticalAlign: 'bottom'
+                    },
+                    grid: {
+                        pageSize: 10,
+                        pageList: [10, 25, 50],
+                        detailView: false,
+                        multiSelection: false
+                    },
+                    gridComparator: {
+                        pageSize: 5,
+                        pageList: [5, 10],
+                        detailView: true,
+                        multiSelection: true
+                    },
+                };
+            }
+        }
+
+        customElements.define(OpencgaClinicalAnalysisCreator.is, OpencgaClinicalAnalysisCreator);
+    </script>
+</dom-module>
