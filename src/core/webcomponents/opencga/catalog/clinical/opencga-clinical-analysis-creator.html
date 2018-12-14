@@ -51,48 +51,57 @@
                         <h3>Case Creation Tool</h3>
                     </div>
 
-                    <div style="padding-top: 10px; display: flex;">
-                        <label class="filter-label col-md-2">Case ID:</label>
-                        <input type="text" style="width: 100%" class$="{{prefix}}-input form-control" placeholder="ID of the case">
-                    </div>
+                    <div class="form-horizontal" style="padding: 5px 5px">
 
-                    <div style="padding-top: 10px; display: flex;">
-                        <label class="filter-label col-md-2">Description:</label>
-                        <input type="text" style="width: 100%" class$="{{prefix}}-input form-control" placeholder="Description of the case">
-                    </div>
-
-                    <div style="padding-top: 10px; display: flex;">
-                        <label class="filter-label col-md-2">Due Date:</label>
-                        <div class='input-group date' style="width: 100%;" id='{{prefix}}-datetimepicker'>
-                        <span class="input-group-addon">
-                            <span class="glyphicon glyphicon-calendar"></span>
-                        </span>
-                            <input type='text' class="form-control" />
+                        <div class="form-group" style="padding-top: 10px">
+                            <label class="control-label col-md-2">Case ID</label>
+                            <div class="col-md-4">
+                                <input type="text" class$="{{prefix}}-input form-control" placeholder="ID of the case">
+                            </div>
                         </div>
-                    </div>
 
-                    <div style="padding-top: 10px; display: flex;">
-                        <label class="filter-label col-md-2">Priority:</label>
-                        <select class="selectpicker" data-width="100%" id="{{prefix}}-priority" on-change="updateQuery">
-                            <option style="color: red; font-weight: bold;" value="URGENT">Urgent</option>
-                            <option style="color: orange; font-weight: bold;" value="HIGH">High</option>
-                            <option style="color: blue; font-weight: bold;" value="MEDIUM" selected>Medium</option>
-                            <option style="color: green; font-weight: bold;" value="LOW">Low</option>
-                        </select>
-                    </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Due Date</label>
+                            <div class="date col-md-4" id='{{prefix}}-datetimepicker'>
+                                <!--<span class="input-group-addon">-->
+                                <!--<span class="glyphicon glyphicon-calendar"></span>-->
+                                <!--</span>-->
+                                <input type='text' class="form-control">
+                            </div>
+                        </div>
 
-                    <div style="padding-top: 10px; display: flex;">
-                        <label class="filter-label col-md-2">Case Type:</label>
-                        <div style="width: 100%; padding-top: 10px;" class="btn-group btn-group-sm">
-                            <button id="singleButton" class="btn btn-primary active" value="single" on-click="changeAnalysisType">
-                                SINGLE
-                            </button>
-                            <button id="duoButton" class="btn btn-primary" value="trio" on-click="changeAnalysisType">
-                                TRIO
-                            </button>
-                            <button id="trioButton" class="btn btn-primary" value="family" on-click="changeAnalysisType">
-                                FAMILY
-                            </button>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Priority</label>
+                            <div class="col-md-4">
+                                <select class="selectpicker" data-width="100%" id="{{prefix}}-priority" on-change="updateQuery">
+                                    <option style="color: red; font-weight: bold;" value="URGENT">Urgent</option>
+                                    <option style="color: orange; font-weight: bold;" value="HIGH">High</option>
+                                    <option style="color: blue; font-weight: bold;" value="MEDIUM" selected>Medium</option>
+                                    <option style="color: green; font-weight: bold;" value="LOW">Low</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Case Type</label>
+                            <div class="btn-group btn-group-sm col-md-4">
+                                <button id="singleButton" class="btn btn-primary active" value="single" on-click="changeAnalysisType">
+                                    SINGLE
+                                </button>
+                                <button id="duoButton" class="btn btn-primary" value="trio" on-click="changeAnalysisType">
+                                    TRIO
+                                </button>
+                                <button id="trioButton" class="btn btn-primary" value="family" on-click="changeAnalysisType">
+                                    FAMILY
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Description</label>
+                            <div class="col-md-4">
+                                <textarea class$="{{prefix}}-input form-control" placeholder="Description of the case"></textarea>
+                            </div>
                         </div>
                     </div>
 
@@ -109,16 +118,39 @@
                                         style="display: inline">Browse</button>
                             </span>
                         </template>
+
                         <template is="dom-if" if="{{isFamilyAnalysis(type)}}">
-                            <span class="col-md-12">
-                                Search family
-                                <button id="{{prefix}}-browseFamily" class="btn btn-sm btn-primary"
-                                        data-toggle="modal" data-placement="bottom" on-click="showFamilySelector"
-                                        style="display: inline">Browse</button>
-                            </span>
-                            <a class="col-md-12" on-click="showFamilyCreator" style="cursor:pointer;">
-                                Don't have a family?
-                            </a>
+                            <div class="form-horizontal" style="padding: 5px 5px">
+                                <div class="form-group">
+                                    <label class="control-label col-md-2">Search Family</label>
+                                    <div class="col-md-1">
+                                        <!--Search family-->
+                                        <button id="{{prefix}}-browseFamily2" class="btn btn-sm btn-primary"
+                                                data-toggle="modal" data-placement="bottom" on-click="showFamilySelector"
+                                                style="display: inline">Browse</button>
+
+                                    </div>
+
+                                    <div>
+                                    <a on-click="showFamilyCreator" class="col-md-2" style="cursor:pointer;">
+                                        Don't have a family?
+                                    </a>
+                                    </div>
+                                </div>
+
+                                <!--<span class="col-md-2">-->
+                                    <!--Search family-->
+                                    <!--<button id="{{prefix}}-browseFamily" class="btn btn-sm btn-primary"-->
+                                            <!--data-toggle="modal" data-placement="bottom" on-click="showFamilySelector"-->
+                                            <!--style="display: inline">Browse</button>-->
+
+                                <!--</span>-->
+                                <!--<div class="col-md-2">-->
+                                    <!--<a class="col-md-12" on-click="showFamilyCreator" style="cursor:pointer;">-->
+                                        <!--Don't have a family?-->
+                                    <!--</a>-->
+                                <!--</div>-->
+                            </div>
                         </template>
 
                         <div id="{{prefix}}GridTableDiv" style="margin-top: 10px">
@@ -128,6 +160,7 @@
                         </div>
 
                     </div>
+
 
                 </div>
             </div>
