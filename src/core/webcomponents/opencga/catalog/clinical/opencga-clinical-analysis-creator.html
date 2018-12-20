@@ -43,7 +43,7 @@
             }
         </style>
 
-        <template is="dom-if" if="{{!createFamily}}">
+        <!--<template is="dom-if" if="{{!createFamily}}">-->
             <div class="row">
                 <div class="col-md-10 col-md-offset-1">
 
@@ -56,7 +56,8 @@
                         <div class="form-group" style="padding-top: 10px">
                             <label class="control-label col-md-2">Case ID</label>
                             <div class="col-md-4">
-                                <input type="text" class$="{{prefix}}-input form-control" placeholder="ID of the case">
+                                <input type="text" id="{{prefix}}-id-input" class$="{{prefix}}-input form-control"
+                                       placeholder="ID of the case" data-id="id" on-blur="onInputChange">
                             </div>
                         </div>
 
@@ -66,7 +67,7 @@
                                 <!--<span class="input-group-addon">-->
                                 <!--<span class="glyphicon glyphicon-calendar"></span>-->
                                 <!--</span>-->
-                                <input type='text' class="form-control">
+                                <input type='text' class="form-control" data-id="dueDate" on-blur="onInputChange">
                             </div>
                         </div>
 
@@ -85,13 +86,13 @@
                         <div class="form-group">
                             <label class="control-label col-md-2">Case Type</label>
                             <div class="btn-group btn-group-sm col-md-4">
-                                <button id="singleButton" class="btn btn-primary active" value="single" on-click="changeAnalysisType">
+                                <button id="singleButton" class$="btn btn-primary active {{prefix}}-type" value="single" on-click="changeAnalysisType">
                                     SINGLE
                                 </button>
-                                <button id="duoButton" class="btn btn-primary" value="trio" on-click="changeAnalysisType">
+                                <button id="duoButton" class$="btn btn-primary {{prefix}}-type" value="trio" on-click="changeAnalysisType">
                                     TRIO
                                 </button>
-                                <button id="trioButton" class="btn btn-primary" value="family" on-click="changeAnalysisType">
+                                <button id="trioButton" class$="btn btn-primary {{prefix}}-type" value="family" on-click="changeAnalysisType">
                                     FAMILY
                                 </button>
                             </div>
@@ -100,7 +101,8 @@
                         <div class="form-group">
                             <label class="control-label col-md-2">Description</label>
                             <div class="col-md-4">
-                                <textarea class$="{{prefix}}-input form-control" placeholder="Description of the case"></textarea>
+                                <textarea id="{{prefix}}-description-input" class$="{{prefix}}-input form-control"
+                                          placeholder="Description of the case" data-id="description" on-blur="onInputChange"></textarea>
                             </div>
                         </div>
                     </div>
@@ -111,12 +113,12 @@
 
                     <div style="padding-top: 10px;">
                         <template is="dom-if" if="{{!isFamilyAnalysis(type)}}">
-                            <span class="col-md-12">
+                            <!--<span class="col-md-12">-->
                                 Search proband
                                 <button id="{{prefix}}-browseIndividual" class="btn btn-sm btn-primary"
                                         data-toggle="modal" data-placement="bottom" on-click="showIndividualSelector"
                                         style="display: inline">Browse</button>
-                            </span>
+                            <!--</span>-->
                         </template>
 
                         <template is="dom-if" if="{{isFamilyAnalysis(type)}}">
@@ -195,7 +197,8 @@
                             <h4 class="modal-title" id="{{prefix}}IndividualBrowserLabel">Individual Selector</h4>
                         </div>
                         <div class="modal-body" style="height: 780px">
-                            <opencga-individual-browser opencga-session="{{opencgaSession}}" config="[[individualBrowserConfig]]">
+                            <opencga-individual-browser opencga-session="{{opencgaSession}}" config="[[individualBrowserConfig]]"
+                                                        on-selectindividual="onSelectIndividual">
                             </opencga-individual-browser>
                         </div>
                         <div class="modal-footer">
@@ -206,13 +209,17 @@
                     </div>
                 </div>
             </div>
-        </template>
+        <!--</template>-->
+
+        <!--<table id="{{prefix}}IndividualBrowserGrid">-->
+            <!--<thead style="background-color: #eee"></thead>-->
+        <!--</table>-->
 
         <!-- Same window: Family editor -->
-        <template is="dom-if" if="{{createFamily}}">
-            <button type="button" style="float: right; margin: 30px 30px 0px 0px;" class="btn btn-success" on-click="backToClinicalView">BACK</button>
-            <opencga-family-editor opencga-session="{{opencgaSession}}" config="[[familyBrowserConfig]]"></opencga-family-editor>
-        </template>
+        <!--<template is="dom-if" if="{{createFamily}}">-->
+            <!--<button type="button" style="float: right; margin: 30px 30px 0px 0px;" class="btn btn-success" on-click="backToClinicalView">BACK</button>-->
+            <!--<opencga-family-editor opencga-session="{{opencgaSession}}" config="[[familyBrowserConfig]]"></opencga-family-editor>-->
+        <!--</template>-->
 
     </template>
     <script>
@@ -233,10 +240,6 @@
                 return {
                     opencgaSession: {
                         type: Object
-                    },
-                    opencgaClient: {
-                        type: Object,
-                        observer: "renderAnalysisTable"
                     },
                     config: {
                         type: Object,
@@ -292,11 +295,11 @@
                     variableSetIds: []
                 };
 
-                this.createFamily = false;
+                // this.createFamily = false;
             }
 
             static get observers() {
-                return ['analysisObserver(analyses.*)'];
+                return ['clinicalAnalysisObserver(opencgaSession, config)'];
             }
 
             connectedCallback() {
@@ -311,12 +314,54 @@
                 this.activeMenu = {
                     table: true
                 };
-
                 this.renderTable();
+            }
+
+            clinicalAnalysisObserver(opencgaSession, config) {
+                // if (UtilsNew.isNotUndefinedOrNull(query)) {
+                //     // Avoid the notification of url changes
+                //     this._notifyChanges = false;
+                //     for (let key in query) {
+                //         switch (key) {
+                //             case "id":
+                //                 PolymerUtils.setValue(`${this.prefix}-id-input`, query[key]);
+                //                 break;
+                //             // case "dueDate":
+                //             //     PolymerUtils.setValue(`${this.prefix}-id-input`, query[key]);
+                //             //     break;
+                //             case "priority":
+                //                 $(`#${this.prefix}-priority`).selectpicker('val', query[key]);
+                //                 break;
+                //             case "description":
+                //                 PolymerUtils.setValue(`${this.prefix}-description-input`, query[key]);
+                //                 break;
+                //         }
+                //     }
+                //     // Re-enable the notification of url changes
+                //     this._notifyChanges = true;
+                // } else {
+                //     this.query = {};
+                // }
             }
 
             configObserver() {
                 this._config = Object.assign(this.getDefaultConfig(), this.config);
+            }
+
+            onInputChange(e) {
+                // We update the value
+                this._updateURL(e.currentTarget.dataset.id, e.currentTarget.value);
+            }
+
+            _updateURL(key, value) {
+                this.query[key] = value;
+
+                // this.dispatchEvent(new CustomEvent("urlchange", {
+                //     detail: {
+                //         id: "clinicalAnalysisCreator",
+                //         query: Object.assign({}, this.query)
+                //     }
+                // }));
             }
 
             renderTable() {
@@ -329,8 +374,110 @@
 
                     // Table properties
                     pagination: true,
-                    pageSize: 10
+                    pageSize: 10,
+                    onPostBody: function (data) {
+                        $('.selectpicker').selectpicker('refresh');
+
+                        let removeIndividualButtons = PolymerUtils.querySelectorAll(".removeIndividualButton");
+                        for (let i = 0; i < removeIndividualButtons.length; i++) {
+                            removeIndividualButtons[i].addEventListener('click', _this.removeIndividualButtonClicked.bind(_this));
+                        }
+                    }
                 });
+            }
+
+            onSelectIndividual(e) {
+                this._selectedIndividual = e.detail;
+            }
+
+            onIndividualSelected(e) {
+                let samples = [];
+                for (let i = 0; i < this._selectedIndividual.individual.samples.length; i++) {
+                    samples.push(this._selectedIndividual.individual.samples[i].id);
+                }
+
+                if (samples.length > 0) {
+                    let individual = this._selectedIndividual.individual;
+                    let _this = this;
+
+                    // We look for the files related to the samples
+                    this.opencgaSession.opencgaClient.files().search({
+                        samples: samples.join(","),
+                        format: "BAM,VCF,BIGWIG",
+                        study: this.opencgaSession.study.fqn,
+                        include: "name,format"
+                    }).then(function(response) {
+                        let bams = [];
+                        let vcfs = [];
+                        let bigwigs = [];
+                        for (let i = 0; i < response.response[0].numResults; i++) {
+                            if (response.response[0].result[i].format === "BAM") {
+                                bams.push(response.response[0].result[i].name);
+                            } else if (response.response[0].result[i].format === "VCF") {
+                                vcfs.push(response.response[0].result[i].name);
+                            } else {
+                                bigwigs.push(response.response[0].result[i].name);
+                            }
+                        }
+
+                        individual["bam"] = bams;
+                        individual["vcf"] = vcfs;
+                        individual["bigwig"] = bigwigs;
+
+                        _this.selectedIndividuals.push(individual);
+                        $("#" + _this.prefix + 'IndividualBrowserGrid').bootstrapTable('load', _this.selectedIndividuals);
+
+                        if (!_this.isFamilyAnalysis(_this.type)) {
+                            // Disable individual browser button
+                            PolymerUtils.getElementById(`${_this.prefix}-browseIndividual`).disabled = true;
+
+                            // Disable type selection
+                            let buttons = PolymerUtils.getElementsByClassName(`${_this.prefix}-type`);
+                            for (let i = 0; i < buttons.length; i++) {
+                                buttons[i].disabled = true;
+                            }
+                        }
+                    }).catch(function(response) {
+                        NotificationUtils.showNotify(response.error, "ERROR");
+                    });
+                } else {
+                    this.selectedIndividuals.push(this._selectedIndividual.individual);
+                    $("#" + this.prefix + 'IndividualBrowserGrid').bootstrapTable('load', this.selectedIndividuals);
+
+                    if (!this.isFamilyAnalysis(this.type)) {
+                        // Disable individual browser button
+                        PolymerUtils.getElementById(`${this.prefix}-browseIndividual`).disabled = true;
+
+                        // Disable type selection
+                        let buttons = PolymerUtils.getElementsByClassName(`${this.prefix}-type`);
+                        for (let i = 0; i < buttons.length; i++) {
+                            buttons[i].disabled = true;
+                        }
+                    }
+                }
+            }
+
+            removeIndividualButtonClicked(e) {
+                let individuals = [];
+                for (let i = 0; i < this.selectedIndividuals.length; i++) {
+                    if (this.selectedIndividuals[i].id !== e.target.dataset.id) {
+                        individuals.push(this.selectedIndividuals[i]);
+                    }
+                }
+
+                this.selectedIndividuals = individuals;
+                // Reload data of the table
+                $("#" + this.prefix + 'IndividualBrowserGrid').bootstrapTable('load', this.selectedIndividuals);
+
+                if (this.selectedIndividuals.length === 0 && !this.isFamilyAnalysis(this.type)) {
+                    // Reenable disabled buttons
+                    PolymerUtils.getElementById(`${this.prefix}-browseIndividual`).disabled = false;
+
+                    let buttons = PolymerUtils.getElementsByClassName(`${this.prefix}-type`);
+                    for (let i = 0; i < buttons.length; i++) {
+                        buttons[i].disabled = false;
+                    }
+                }
             }
 
             changeAnalysisType(e) {
@@ -357,16 +504,16 @@
                 $("#" + this.prefix + "IndividualBrowser").modal('show');
             }
 
-            showFamilyCreator(e) {
-                e.preventDefault();
-                this.createFamily = true;
-                // this.familyModal = UtilsNew.isUndefined(this.familyModal) ? true : !this.familyModal;
-                // $("#" + this.prefix + "FamilyBrowser").modal('show');
-            }
+            // showFamilyCreator(e) {
+            //     e.preventDefault();
+            //     this.createFamily = true;
+            //     // this.familyModal = UtilsNew.isUndefined(this.familyModal) ? true : !this.familyModal;
+            //     // $("#" + this.prefix + "FamilyBrowser").modal('show');
+            // }
 
-            backToClinicalView(e) {
-                this.createFamily = false;
-            }
+            // backToClinicalView(e) {
+            //     this.createFamily = false;
+            // }
 
             analysisObserver() {
                 this.dispatchEvent(new CustomEvent("analysischange", {
@@ -432,8 +579,30 @@
                 // }
             }
 
+            probandFormatter() {
+                return `<input type="radio" name="${this.prefix}-optradio">`;
+            }
+
+            fileFormatter(files, individual) {
+                if (files.length <= 1) {
+                    return files;
+                } else {
+                    let html = '<select class="selectpicker" multiple>';
+                    for (let i = 0; i < files.length; i++) {
+                        html += `<option>${files[i]}</option>`
+                    }
+                    html += '</select>';
+                    return html;
+                }
+            }
+
+            removeButtonFormatter(value, row) {
+                return `<button data-id=${row.id} class='btn btn-danger removeIndividualButton'>
+                        <i class="fa fa-trash" aria-hidden="true"></i> Remove</button>`;
+            }
+
             _initTableColumns() {
-                let columns = [
+                return [
                     [
                         {
                             title: 'Individual ID',
@@ -445,21 +614,21 @@
                             title: 'Samples',
                             field: 'sample',
                             rowspan: 2,
-                            formatter: this.sampleFormatter,
+                            // formatter: this.sampleFormatter,
                             halign: this._config.header.horizontalAlign
                         },
                         {
                             title: 'Father',
                             field: 'father.id',
                             rowspan: 2,
-                            formatter: this.fatherFormatter,
+                            // formatter: this.fatherFormatter,
                             halign: this._config.header.horizontalAlign
                         },
                         {
                             title: 'Mother',
                             field: 'mother.id',
                             rowspan: 2,
-                            formatter: this.motherFormatter,
+                            // formatter: this.motherFormatter,
                             halign: this._config.header.horizontalAlign
                         },
                         {
@@ -471,7 +640,8 @@
                         {
                             title: 'Affected',
                             rowspan: 2,
-                            formatter: this.affectedFormatter,
+                            field: "affectationStatus",
+                            // formatter: this.affectedFormatter,
                             halign: this._config.header.horizontalAlign
                         },
                         {
@@ -483,32 +653,38 @@
                         {
                             title: 'Flags',
                             field: 'flags',
-                            formatter: this.flagFormatter,
+                            rowspan: 2,
+                            // formatter: this.flagFormatter,
+                            halign: this._config.header.horizontalAlign
+                        },
+                        {
+                            title: 'Remove?',
+                            field: 'id',
+                            rowspan: 2,
+                            formatter: this.removeButtonFormatter,
                             halign: this._config.header.horizontalAlign
                         }
                     ], [
                         {
                             title: 'VCF',
                             field: 'vcf',
-                            formatter: this.vcfFormatter,
+                            formatter: this.fileFormatter,
                             halign: this._config.header.horizontalAlign
                         },
                         {
                             title: 'BAM',
                             field: 'bam',
-                            formatter: this.bamFormatter,
+                            formatter: this.fileFormatter,
                             halign: this._config.header.horizontalAlign
                         },
                         {
                             title: 'BIGWIG',
                             field: 'bigwig',
-                            formatter: this.bigwigFormatter,
+                            formatter: this.fileFormatter,
                             halign: this._config.header.horizontalAlign
                         },
                     ]
                 ];
-
-                return columns;
             }
 
             getDefaultConfig() {

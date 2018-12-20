@@ -252,7 +252,13 @@
 
                 this.sampleSearch = {
                     id: sampleList.join(",")
-                }
+                };
+
+                this.dispatchEvent(new CustomEvent('selectindividual', {
+                    detail: {
+                        individual: this.individual
+                    }
+                }));
             }
 
             _changeBottomTab(e) {
