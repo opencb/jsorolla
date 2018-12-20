@@ -99,16 +99,16 @@ class VariantGridFormatter {
                                     ${row.chromosome}:${row.start} ${ref}/${alt}
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="${this.prefix}dropdownMenu1" style="font-size: 1.25rem;margin-top: 0px">
-                               ${genomeBrowserMenuLink}
-                                <li class="dropdown-header">External Links</li>
+                                ${genomeBrowserMenuLink}
+                                <li class="dropdown-header" style="padding-left: 15px">External Links</li>
                                 <li><a target='_blank' href="https://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${id}">Ensembl</a></li>
                                 <li><a target='_blank' href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs=${id}">dbSNP</a></li>
                                 <li><a target='_blank' href="https://www.snpedia.com/index.php/${id}">SNPedia</a></li>
-                                <li class="dropdown-header">Clinical Links</li>
+                                <li class="dropdown-header" style="padding-left: 15px">Clinical Links</li>
                                 <li><a target='_blank' href="https://www.ncbi.nlm.nih.gov/clinvar/?term=${id}">ClinVar</a></li>
                             </ul>
-                        </div>
-                        `;
+                </div>
+                `;
     }
 
     snpFormatter(value, row, index) {
@@ -135,86 +135,117 @@ class VariantGridFormatter {
     }
 
     geneFormatter(value, row, index) {
-        if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-            if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
-                let visited = {};
-                let geneLinks = [];
-                for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                    if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName !== ""
-                        && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
-                        if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study !== "undefined") {
-                            geneLinks.push("<a style=\"cursor: pointer;white-space: nowrap\" href=\"#gene/" + this.opencgaSession.project.alias +"/" +
-                                this.opencgaSession.study.alias + "/" + row.annotation.consequenceTypes[i].geneName + "\">" + row.annotation.consequenceTypes[i].geneName + "</a>");
-                        } else {
-                            geneLinks.push("<a style=\"cursor: pointer;white-space: nowrap\">" + row.annotation.consequenceTypes[i].geneName + "</a>")
+        if (typeof row !== "undefined" && row.annotation !== undefined && UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
+            let visited = {};
+            let geneLinks = [];
+            for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
+                if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName !== ""
+                    && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
+                    if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study !== "undefined") {
+                        geneLinks.push(`<a style="cursor: pointer" 
+                                                href="#gene/${this.opencgaSession.project.alias}/${this.opencgaSession.study.alias}/${row.annotation.consequenceTypes[i].geneName}">
+                                                    ${row.annotation.consequenceTypes[i].geneName}
+                                            </a>`);
+                    } else {
+                        geneLinks.push(`<a style="cursor: pointer">${row.annotation.consequenceTypes[i].geneName}</a>`)
+                    }
+                    visited[row.annotation.consequenceTypes[i].geneName] = true;
+                }
+            }
+            return geneLinks.join(", ");
+        } else {
+            return "-";
+        }
+    }
+
+    consequenceTypeFormatter(value, row, index) {
+        if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
+            let consequenceTypesArr = [];
+            let visited = new Set();
+            let impact = {};
+            for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
+                for (let j = 0; j < row.annotation.consequenceTypes[i].sequenceOntologyTerms.length; j++) {
+
+                    let consequenceTypeName = row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name;
+
+                    // FIXME This is a temporal fix for some wrong CTs. This must be removed ASAP.
+                    if (consequenceTypeName === "2KB_downstream_gene_variant") {
+                        consequenceTypeName = "2KB_downstream_variant";
+                    }
+                    if (consequenceTypeName === "2KB_upstream_gene_variant") {
+                        consequenceTypeName = "2KB_upstream_variant";
+                    }
+
+                    if (typeof consequenceTypeName !== "undefined" && consequenceTypeName !== "" && !visited.has(consequenceTypeName)) {
+                        if (typeof this.consequenceTypeToImpact !== "undefined"
+                            && typeof this.consequenceTypeToImpact[consequenceTypeName] !== "undefined") {
+                            let imp = this.consequenceTypeToImpact[consequenceTypeName];
+                            if (typeof impact[imp] === "undefined") {
+                                impact[imp] = [];
+                            }
+                            if (typeof this.consequenceTypeToColor !== "undefined"
+                                && typeof this.consequenceTypeToColor[consequenceTypeName] !== "undefined") {
+                                impact[imp].push("<span style=\"color: " + this.consequenceTypeToColor[consequenceTypeName] + "\">" + consequenceTypeName + "</span>");
+                            } else {
+                                impact[imp].push("<span>" + consequenceTypeName + "</span>");
+                            }
+
                         }
-                        visited[row.annotation.consequenceTypes[i].geneName] = true;
+                        visited.add(consequenceTypeName);
                     }
                 }
-                return geneLinks.join(", ");
             }
+
+            if (Object.keys(impact).length > 0) {
+                if (typeof impact["high"] !== "undefined" || typeof impact["moderate"] !== "undefined") {
+                    if (typeof impact["high"] !== "undefined") {
+                        Array.prototype.push.apply(consequenceTypesArr, impact["high"]);
+                    }
+                    if (typeof impact["moderate"] !== "undefined") {
+                        Array.prototype.push.apply(consequenceTypesArr, impact["moderate"]);
+                    }
+                } else if (typeof impact["low"] !== "undefined") {
+                    Array.prototype.push.apply(consequenceTypesArr, impact["low"]);
+                } else if (typeof impact["modifier"] !== "undefined") {
+                    Array.prototype.push.apply(consequenceTypesArr, impact["modifier"]);
+                }
+            }
+
+            return consequenceTypesArr.join("<br>");
         }
         return "-";
     }
 
-    consequenceTypeFormatter(value, row, index) {
-        if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-            if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
-                let consequenceTypesArr = [];
-                let visited = new Set();
-                let impact = {};
-                for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                    for (let j = 0; j < row.annotation.consequenceTypes[i].sequenceOntologyTerms.length; j++) {
-
-                        let consequenceTypeName = row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name;
-
-                        // FIXME This is a temporal fix for some wrong CTs. This must be removed ASAP.
-                        if (consequenceTypeName === "2KB_downstream_gene_variant") {
-                            consequenceTypeName = "2KB_downstream_variant";
-                        }
-                        if (consequenceTypeName === "2KB_upstream_gene_variant") {
-                            consequenceTypeName = "2KB_upstream_variant";
-                        }
-
-                        if (typeof consequenceTypeName !== "undefined" && consequenceTypeName !== "" && !visited.has(consequenceTypeName)) {
-                            if (typeof this.consequenceTypeToImpact !== "undefined"
-                                && typeof this.consequenceTypeToImpact[consequenceTypeName] !== "undefined") {
-                                let imp = this.consequenceTypeToImpact[consequenceTypeName];
-                                if (typeof impact[imp] === "undefined") {
-                                    impact[imp] = [];
-                                }
-                                if (typeof this.consequenceTypeToColor !== "undefined"
-                                    && typeof this.consequenceTypeToColor[consequenceTypeName] !== "undefined") {
-                                    impact[imp].push("<span style=\"color: " + this.consequenceTypeToColor[consequenceTypeName] + "\">" + consequenceTypeName + "</span>");
-                                } else {
-                                    impact[imp].push("<span>" + consequenceTypeName + "</span>");
-                                }
-
-                            }
-                            visited.add(consequenceTypeName);
-                        }
-                    }
+    /**
+     * Creates the colored table with one row and as many columns as populations.
+     * @param populations
+     * @param populationFrequenciesMap
+     * @param populationFrequenciesColor
+     */
+    createPopulationFrequenciesTable(populations, populationFrequenciesMap, populationFrequenciesColor) {
+        let tableSize = populations.length * 15;
+        let htmlPopFreqTable = `<table style="width: ${tableSize}px"><tr>`;
+        for (let popFreq of populations) {
+            // This array contains "study:population"
+            let color = "black";
+            if (typeof populationFrequenciesMap.get(popFreq) !== "undefined") {
+                let freq = populationFrequenciesMap.get(popFreq);
+                if (freq < 0.001) {
+                    color = populationFrequenciesColor.veryRare;
+                } else if (freq < 0.005) {
+                    color = populationFrequenciesColor.rare;
+                } else if (freq < 0.05) {
+                    color = populationFrequenciesColor.average;
+                } else {
+                    color = populationFrequenciesColor.common;
                 }
-
-                if (Object.keys(impact).length > 0) {
-                    if (typeof impact["high"] !== "undefined" || typeof impact["moderate"] !== "undefined") {
-                        if (typeof impact["high"] !== "undefined") {
-                            Array.prototype.push.apply(consequenceTypesArr, impact["high"]);
-                        }
-                        if (typeof impact["moderate"] !== "undefined") {
-                            Array.prototype.push.apply(consequenceTypesArr, impact["moderate"]);
-                        }
-                    } else if (typeof impact["low"] !== "undefined") {
-                        Array.prototype.push.apply(consequenceTypesArr, impact["low"]);
-                    } else if (typeof impact["modifier"] !== "undefined") {
-                        Array.prototype.push.apply(consequenceTypesArr, impact["modifier"]);
-                    }
-                }
-
-                return consequenceTypesArr.join("<br>");
+                htmlPopFreqTable += `<td style="width: 15px; background: ${color}" title="${popFreq}: ${freq}">&nbsp;</td>`;
+            } else {
+                htmlPopFreqTable += `<td style="width: 15px; background: ${color}" title="${popFreq}: NA">&nbsp;</td>`;
             }
         }
-        return "-";
+        htmlPopFreqTable += "</tr></table>";
+        return htmlPopFreqTable;
     }
 
 }

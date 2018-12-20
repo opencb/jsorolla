@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2015 OpenCB
+  ~ Copyright 2015-2016 OpenCB
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<dom-module id="opencga-variant-grid">
+<dom-module id="opencga-interpreted-variant-grid">
     <template>
         <style include="jso-styles">
             span.redText, span.orangeText {
@@ -47,7 +47,7 @@
     </template>
 
     <script>
-        class OpencgaVariantGrid extends Polymer.Element {
+        class OpencgaInterpretedVariantGrid extends Polymer.Element {
 
             constructor() {
                 super();
@@ -57,7 +57,7 @@
             }
 
             static get is() {
-                return 'opencga-variant-grid';
+                return 'opencga-interpreted-variant-grid';
             }
 
             static get properties() {
@@ -105,17 +105,12 @@
                         type: Object,
                         // observer: 'renderVariantTable'
                     },
-                    queryCellbase: {
-                        type: Boolean,
-                        value: false
-                    },
                     variant: {
                         type: String,
                         notify: true
                     },
                     config: {
-                        type: Object,
-                        // observer: "configObserver"
+                        type: Object
                     }
                 }
             }
@@ -162,13 +157,13 @@
                             title: 'Variant', field: "id",
                         },
                         {
-                            title: 'SNP ID', field: "dbSNP",
-                        },
-                        {
-                            title: 'Genes', field: "gene",
+                            title: 'Genes', field: "genes",
                         },
                         {
                             title: 'Type', field: "type",
+                        },
+                        {
+                            title: 'Gene Annotations', field: "consequenceType",
                         }
                     ]
                 };
@@ -245,7 +240,7 @@
                         detailView: _this._config.detailView,
                         detailFormatter: _this._config.detailFormatter,
 
-                        // this makes the opencga-variant-grid properties available in the bootstrap-table formatters
+                        // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
                         variantGrid: _this,
 
                         queryParams: function (params) {
@@ -367,54 +362,6 @@
 
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
                 }
-
-                // To query from cellbase, 'queryCellbase' property must be set to true explicitly
-                if (typeof this.queryCellbase !== "undefined" && this.queryCellbase && this.cellbaseClient instanceof CellBaseClient) {
-                    $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
-                    let _numTotal = -1;
-
-                    let url = "";
-                    if (this.cellbaseClient._config.hosts[0].startsWith("https://")) {
-                        url = this.cellbaseClient._config.hosts[0];
-                    } else {
-                        url = 'http://' + this.cellbaseClient._config.hosts[0];
-                    }
-
-                    let queryParams = {
-                        timeout: 20000
-                    };
-
-                    Object.assign(queryParams, _this.query); // Important : Adding the query object contents to queryParams
-
-                    url = url + '/webservices/rest/v4/' + this.cellbaseClient._config.species + '/feature/variation/search';
-                    $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable({
-                        url: url,
-                        method: 'get',
-                        sidePagination: 'server',
-                        queryParams: function (params) {
-                            queryParams.limit = params.limit;
-                            queryParams.skip = params.offset;
-//                            queryParams.summary = true;
-
-                            return queryParams;
-                        },
-                        responseHandler: function (res) {
-                            if (_numTotal === -1) {
-                                _numTotal = res.response[0].numTotalResults;
-                                _this.count = _numTotal;
-                            }
-                            return {total: _numTotal, rows: res.response[0].result}
-                        },
-                        columns: _this.cols,
-                        onClickRow: function (row, $element) {
-                            _this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-                            $('.success').removeClass('success');
-                            $($element).addClass('success');
-                        }
-                    });
-                    $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
-                }
-
             }
 
             _getUrlQueryParams() {
@@ -464,8 +411,9 @@
                     queryParams.includeSample = sampleNames.join(",");
                     queryParams.exclude = "annotation.geneExpression";
                     queryParams.approximateCount = true;
+                    queryParams.useSearchIndex = "no";
                 } else {
-                    queryParams.summary = true;
+                    // queryParams.summary = true;
                 }
 
                 if (typeof this.config !== "undefined" && UtilsNew.isNotUndefinedOrNull(this.config.grid)
@@ -584,175 +532,10 @@
                 return result;
             }
 
-            siftPproteinScoreFormatter(value, row, index) {
-                let min = 10;
-                let description = {};
-                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-                    if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
-                        for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                            if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined"
-                                && typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores !== "undefined") {
-                                for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
-                                    if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source === "sift") {
-                                        if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score < min) {
-                                            min = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
-                                            description.sift = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].description;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (min !== 10) {
-                    return '<span style="color: ' + this.pssColor.get(description.sift) + '" title="' + min + '">' + description.sift + '</span>';
-                }
-                return '-';
-            }
-
-            polyphenProteinScoreFormatter(value, row, index) {
-                let max = 0;
-                let description = {};
-                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-                    if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
-                        for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                            if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined"
-                                && typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores !== "undefined") {
-                                for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
-                                    if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source === "polyphen") {
-                                        if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score >= max) {
-                                            max = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
-                                            description.polyphen = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].description;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (max >= 0 && UtilsNew.isNotUndefinedOrNull(description) && UtilsNew.isNotUndefinedOrNull(description.polyphen)) {
-                    let str = description.polyphen;
-                    if (str.indexOf(' ') >= 0) {
-                        str = str
-                            .replace(/\s(.)/g, function($1) { return $1.toUpperCase(); })
-                            .replace(/\s/g, '')
-                            .replace(/^(.)/, function($1) { return $1.toLowerCase(); });
-                    }
-                    return '<span style="color: ' + this.pssColor.get(str) + '" title="' + max + '">' + description.polyphen + '</span>';
-                }
-                return '-';
-            }
-
-            caddScaledFormatter(value, row, index) {
-                if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.functionalScore !== "undefined") {
-                    for (let i = 0; i < row.annotation.functionalScore.length; i++) {
-                        if (typeof row.annotation.functionalScore[i] !== "undefined" && row.annotation.functionalScore[i].source === "cadd_scaled" && row.type !== "INDEL") {
-                            let value = Number(row.annotation.functionalScore[i].score).toFixed(2);
-                            if (value < 15) {
-                                return value;
-                            } else {
-                                return '<span style="color: red">' + value + '</span>';
-                            }
-                        }
-                    }
-                }
-                return '-';
-            }
-
-            conservationFormatter(value, row, index) {
-                if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.conservation !== "undefined") {
-                    for (let i = 0; i < row.annotation.conservation.length; i++) {
-                        if (row.annotation.conservation[i].source === this.field) {
-                            return Number(row.annotation.conservation[i].score).toFixed(3);
-                        }
-                    }
-                }
-                return '-';
-            }
-
-            cohortFormatter(value, row, index) {
-                if (typeof this.field.cohorts !== "undefined" && this.field.cohorts.length > 0) {
-                    let data = new Map();
-                    for (let i in row.studies) {
-                        // to be removed!!
-                        if (this.field.study === "BRIDGE") {
-                            this.field.study = "bridge";
-                        }
-                        if (row.studies[i].studyId === this.field.study) {
-                            let cohortNames = Object.keys(row.studies[i].stats);
-                            for (let j in cohortNames) {
-                                data.set(cohortNames[j], Number(row.studies[i].stats[cohortNames[j]].maf).toFixed(4));
-                            }
-                            break;
-                        }
-                    }
-
-                    let tableSize = this.field.cohorts.length * 15;
-                    let htmlCohortsTable = "<table style='width: " + tableSize + "px'><tr>";
-                    for (let i = 0; i < this.field.cohorts.length; i++) {
-                        let popFreq = this.field.cohorts[i].id;
-                        if (typeof data.get(popFreq) !== "undefined") {
-                            let freq = data.get(this.field.cohorts[i].id);
-                            if (freq < 0.001) {
-                                htmlCohortsTable += "<td style='width: 15px; background: " + this.field.colors.veryRare + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
-                            } else if (freq < 0.005) {
-                                htmlCohortsTable += "<td style='width: 15px; background: " + this.field.colors.rare + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
-                            } else if (freq < 0.05) {
-                                htmlCohortsTable += "<td style='width: 15px; background: " + this.field.colors.average + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
-                            } else {
-                                htmlCohortsTable += "<td style='width: 15px; background: " + this.field.colors.common + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
-                            }
-                        } else  {
-                            htmlCohortsTable += "<td style='width: 15px; background: black;' title='" + popFreq + ": NA'>&nbsp;</td>";
-                        }
-                    }
-                    htmlCohortsTable += "</tr></table>";
-
-                    return htmlCohortsTable;
-                }
-                return '-';
-            }
-
-            populationFrequenciesFormatter(value, row, index) {
-                // debugger
-                if (typeof row !== "undefined" && typeof row.annotation !== "undefined"
-                    && typeof row.annotation.populationFrequencies !== "undefined" && row.annotation.populationFrequencies.length > 0) {
-
-                    let data = new Map();
-                    for (let popFreqIdx in row.annotation.populationFrequencies) {
-                        let popFreq = row.annotation.populationFrequencies[popFreqIdx];
-                        if (this.field.study === popFreq.study && this.field.populationMap[popFreq.population] === true) {
-                            data.set(popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
-                        }
-                    }
-
-                    let tableSize = this.field.populations.length * 15;
-                    // Creates the colored table with one row and as many columns as populations
-                    let htmlPopFreqTable = "<table style='width: " + tableSize + "px'><tr>";
-                    for (let p in this.field.populations) {
-                        let popFreq = this.field.populations[p];
-                        if (typeof data.get(popFreq) !== "undefined") {
-                            let freq = data.get(this.field.populations[p]);
-                            if (freq < 0.001) {
-                                htmlPopFreqTable += "<td style='width: 15px; background: " + this.field.colors.veryRare + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
-                            } else if (freq < 0.005) {
-                                htmlPopFreqTable += "<td style='width: 15px; background: " + this.field.colors.rare + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
-                            } else if (freq < 0.05) {
-                                htmlPopFreqTable += "<td style='width: 15px; background: " + this.field.colors.average + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
-                            } else {
-                                htmlPopFreqTable += "<td style='width: 15px; background: " + this.field.colors.common + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
-                            }
-                        } else  {
-                            htmlPopFreqTable += "<td style='width: 15px; background: black;' title='" + popFreq + ": NA'>&nbsp;</td>";
-                        }
-                    }
-                    htmlPopFreqTable += "</tr></table>";
-
-                    return htmlPopFreqTable;
-                }
-                return '-';
+            variantFormatter(value, row, index) {
+                let variantHtmlDiv = this.variantGridFormatter.variantFormatter(value, row, index);
+                let snptHtmlAnchor = this.variantGridFormatter.snpFormatter(value, row, index);
+                return variantHtmlDiv + "<br>" + snptHtmlAnchor;
             }
 
             clinicalPhenotypeFormatter(value, row, index) {
@@ -784,116 +567,126 @@
                 return phenotypeHtml;
             }
 
-            sampleFormatter(value, row, index) {
-                let res = "-";
-
-                if (typeof row !== "undefined" && typeof row.studies !== "undefined" && row.studies.length > 0) {
-                    // NOTE: There are always 4 columns before the samples
-                    // This context is for row
-                    if (this.nucleotideGenotype) {
-                        let alternateSequence = row.alternate;
-                        let referenceSequence = row.reference;
-                        let genotypeMatch = new Map();
-                        let colText = "";
-                        let referenceValueColText = "-";
-                        let alternateValueColText = "-";
-
-                        genotypeMatch.set(0, referenceSequence === "" ? "-" : referenceSequence);
-                        genotypeMatch.set(1, alternateSequence === "" ? "-" : alternateSequence);
-
-                        row.studies.forEach((study) => {
-                            if (UtilsNew.isNotUndefinedOrNull(study.secondaryAlternates) && UtilsNew.isNotEmptyArray(study.secondaryAlternates)) {
-                                study.secondaryAlternates.forEach((secondary) => {
-                                    genotypeMatch.set(genotypeMatch.size, secondary.alternate === "" ? "-" : secondary.alternate);
-                                });
-                            }
-                            if (UtilsNew.isNotUndefinedOrNull(study.samplesData) && UtilsNew.isNotEmptyArray(study.samplesData)) {
-                                if (UtilsNew.isNotUndefinedOrNull(study.samplesData[this.fieldIndex - 4])) {
-                                    let currentGenotype = study.samplesData[this.fieldIndex - 4][0];
-                                    let reference = currentGenotype.split("/")[0];
-                                    let alternate = currentGenotype.split("/")[1];
-                                    let tooltipText = reference + " / " + alternate;
-                                    if (UtilsNew.isNotEqual(reference, ".") && UtilsNew.isNotEqual(alternate, ".")) {
-                                        reference = parseInt(reference);
-                                        alternate = parseInt(alternate);
-                                        let referenceValue = genotypeMatch.get(reference);
-                                        let alternateValue = genotypeMatch.get(alternate);
-                                        // Cases which this will cover.
-                                        // referenceValue.length <= 5 && alternateVAlue.length <= 5
-                                        // referenceValue.length <= 10 && alternateValue == "-"
-                                        // alternateValue.length <= 10 && referenceValue == "-"
-                                        referenceValueColText = referenceValue;
-                                        alternateValueColText = alternateValue;
-
-                                        // Not equal X/- or -/X
-                                        if (UtilsNew.isNotEqual(referenceValue, "-") && UtilsNew.isNotEqual(alternateValue, "-")) {
-                                            if ((referenceValue.length <= 5 && alternateValue.length > 5) || (referenceValue.length > 5 && alternateValue.length <= 5)) {
-                                                if (referenceValue.length > 5) {
-                                                    // referenceValue > 5
-                                                    referenceValueColText = referenceValue.substring(0, 3) + "...";
-//                                                    tooltipText += "<br>" + referenceValue +" / " + alternateValue;
-                                                }  else {
-                                                    // alternateValue > 5
-                                                    alternateValueColText = alternateValue.substring(0, 3) + "...";
-//                                                    tooltipText += "<br>" + referenceValue +" / " + alternateValue;
-                                                }
-                                            } else if (referenceValue.length > 5 && alternateValue.length > 5){
-                                                // Both > 5 It will never happen
-                                                referenceValueColText = referenceValue.substring(0, 3) + "...";
-                                                alternateValueColText = alternateValue.substring(0, 3) + "...";
-//                                                tooltipText += "<br>" +   referenceValue +" / " + alternateValue;
-                                            }
-                                        } else if (UtilsNew.isNotEqual(referenceValue, "-") && referenceValue.length > 10) {
-                                            // X/-
-                                            let substringReference = referenceValue.substring(0, 5) + "...";
-                                            referenceValueColText = substringReference;
-                                            alternateValueColText = "-";
-//                                                tooltipText += "<br>" +   referenceValue +" / " + alternateValue;
-                                        } else if (UtilsNew.isNotEqual(alternateValue, "-") && alternateValue.length > 10) {
-                                            // -/X
-                                            let substringAlternate = alternateValue.substring(0, 5) + "...";
-                                            alternateValueColText = substringAlternate;
-                                            referenceValueColText = "-";
-//                                                tooltipText += "<br>" +   referenceValue + " / " + alternateValue;
-                                        }
-                                        tooltipText += "<br>" +   referenceValue + " / " + alternateValue;
-                                    } else {
-                                        referenceValueColText = reference;
-                                        alternateValueColText = alternate;
-                                        tooltipText += "<br>" +   reference + " / " + alternate;
-                                    }
-
-                                    let referenceIndex = parseInt(reference);
-                                    let alternateIndex = parseInt(alternate);
-                                    if (referenceIndex === 1 && (referenceValueColText !== "-" && referenceValueColText !== "*")) {
-                                        referenceValueColText = "<span class='orangeText'>" + referenceValueColText +"</span>"
-                                    } else if(referenceIndex > 1 && (referenceValueColText !== "-" && referenceValueColText !== "*")) {
-                                        referenceValueColText = "<span class='redText'>" + referenceValueColText +"</span>"
-                                    }
-                                    if (alternateIndex === 1 && (alternateValueColText !== "-" && alternateValueColText !== "*")) {
-                                        alternateValueColText = "<span class='orangeText'>" + alternateValueColText +"</span>"
-                                    } else if(alternateIndex > 1 && (alternateValueColText !== "-" && alternateValueColText !== "*")) {
-                                        alternateValueColText = "<span class='redText'>" + alternateValueColText +"</span>"
-                                    }
-                                    colText = referenceValueColText + " / " + alternateValueColText;
-                                    res = "<span class='sampleGenotype' data-text='"+tooltipText+"'> "+ colText + " </span>";
-                                    return;
-                                }
-                            }
-                        });
-                    } else {
-                        row.studies.forEach((study) => {
-                            if (study.samplesData.length > 0) {
-                                let currentGenotype = study.samplesData[this.fieldIndex - 4];
-                                if (UtilsNew.isNotUndefinedOrNull(currentGenotype)) {
-                                    res = currentGenotype[0];
-                                    return;
-                                }
-                            }
-                        });
-                    }
+            predictionFormatter(value, row, index) {
+                let res = "";
+                if (UtilsNew.isNotUndefinedOrNull(row.reportEvents)){
+                    row.reportEvents.forEach((reportEvent) => {
+                        if (UtilsNew.isNotUndefinedOrNull(reportEvent.prediction)) {
+                            res += "<label>" + reportEvent.prediction + "</label>";
+                        }
+                        if (UtilsNew.isNotUndefinedOrNull(reportEvent.score)) {
+                            res += " (<label>" + reportEvent.score + "</label>)";
+                        }
+                    });
                 }
                 return res;
+            }
+
+            zigosityFormatter(value, row, index) {
+                let res = "";
+                if (UtilsNew.isNotUndefinedOrNull(row.studies)) {
+                    let left, right;
+                    if (UtilsNew.isNotUndefinedOrNull(row.studies[0]) && UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData) &&
+                        UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData[this.field.memberIdx]) && UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData[this.field.memberIdx][0])) {
+                        switch (row.studies[0].samplesData[this.field.memberIdx][0]) {
+                            case "0/0":
+                            case "0|0":
+                                left = "white";
+                                right = "white";
+                                break;
+                            case "0/1":
+                            case "1/0":
+                                left = "black";
+                                right = "white";
+                                break;
+                            case "1/1":
+                            case "1|1":
+                                left = "black";
+                                right = "black";
+                                break;
+                        }
+                    }
+                    res = `<table>
+                                <tr style="padding: 0px;">
+                                    <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: ${left}'></div></td>
+                                    <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: ${right}'></div></td>
+                                </tr>
+                           </table>`;
+                }
+                return res;
+            }
+
+            fileMetricsFormatter(value, row, index) {
+                let val;
+                if (row !== undefined && row.studies !== undefined && row.studies.length > 0 && row.studies[0].files.length > 0 && UtilsNew.isNotUndefinedOrNull(row.studies[0].files[0].attributes)) {
+                    val = `<div class="col-md-12" style="padding: 0px">
+                                <form class="form-horizontal">
+                                    <div class="form-group" style="margin: 0px 2px">
+                                        <label class="col-md-4">Quality:</label>
+                                        <span class="col-md-8">${Number(row.studies[0].files[0].attributes.QUAL).toFixed(2)}</span>
+                                    </div>
+                                    <div class="form-group" style="margin: 0px 2px">
+                                        <label class="col-md-4">Filter:</label>
+                                        <span class="col-md-8">${row.studies[0].files[0].attributes.FILTER.substring(0, 10)}</span>
+                                    </div>
+                                    <div class="form-group" style="margin: 0px 2px">
+                                        <label class="col-md-4">DP:</label>
+                                        <span class="col-md-8">${row.studies[0].files[0].attributes.DP}</span>
+                                    </div>
+                                </form>
+                            </div>`;
+                }
+                return val;
+            }
+
+            /**
+             * Create a color table with ALL cohort for all studies.
+             * @param value
+             * @param row
+             * @returns {*}
+             */
+            studyCohortsFormatter(value, row) {
+                if (typeof row !== "undefined" && typeof row.studies !== "undefined") {
+                    let cohorts = [];
+                    let cohortMap = new Map();
+                    for (let study of row.studies) {
+                        let arr = study.studyId.split(":");
+                        let s = arr[arr.length - 1] + ":ALL";
+                        cohorts.push(s);
+                        cohortMap.set(s, Number(study.stats["ALL"].altAlleleFreq).toFixed(4));
+                    }
+
+                    return this.variantGridFormatter.createPopulationFrequenciesTable(cohorts, cohortMap, this.populationFrequencies.color);
+                } else {
+                    return "-";
+                }
+            }
+
+            clinicalPopulationFrequenciesFormatter(value, row) {
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined"
+                    && typeof row.annotation.populationFrequencies !== "undefined") {
+
+                    let popFreqMap = new Map();
+                    for (let popFreq of row.annotation.populationFrequencies) {
+                        popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
+                    }
+
+                    return this.variantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies,
+                        popFreqMap, this.populationFrequencies.color);
+                } else {
+                    return "-";
+                }
+            }
+
+            interpretationFormatter(value, row, index) {
+                // let res = `<button id="v${row.id}Button" type='button' class='btn btn-success btn-xs interpretation-add-to-report' data-variant-id='${row.id}'>
+                //                     <i id="v${row.id}ButtonIcon" class="fa fa-check interpretation-add-to-report" aria-hidden="true" data-variant-id='${row.id}'></i>
+                //                     <span id="v${row.id}ButtonText" class="interpretation-add-to-report" data-variant-id='${row.id}'>Add to Report</span>
+                //                </button>`;
+                let res = "<div>Tier 1 (PVS1)</div><br>";
+
+                let comments = UtilsNew.isNotEmptyArray(row.comments) ? row.comments.length : 0;
+                return res + "<span>Comments (" + comments  + ")</span>";
             }
 
             _createDefaultColumns() {
@@ -901,41 +694,44 @@
                     return;
                 }
 
+                let ctTitle = 'Variant Stats <a data-toggle="tooltip" title="One coloured square is shown for each cohort, e.g. population. ' +
+                    'Frequencies are visualized as colours which classify values into very rare, rare, average, common or missing, see http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg. Please, leave ' +
+                    'the cursor over each square to visualize the actual frequency value."><i class="fa fa-info-circle" aria-hidden="true"></i></a>' +
+                    '<div style="width: 60%;margin: auto"><div style="float: left">Legend:&nbsp;&nbsp;</div>' +
+                    '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.veryRare + '" title="Very rare:  freq < 0.001"></div>' +
+                    '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.rare + '" title="Rare:  freq < 0.005"></div>' +
+                    '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.average + '" title="Average:  freq < 0.05"></div>' +
+                    '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.common + '" title="Common:  freq >= 0.05"></div>' +
+                    '</div>';
                 this._columns = [
                     [
                         {
-                            title: 'Variant',
+                            title: "Variant",
                             field: "id",
                             rowspan: 2,
                             colspan: 1,
-                            formatter: this.variantGridFormatter.variantFormatter.bind(this) ,
-                            halign: 'center'
+                            // formatter: this.variantGridFormatter.variantFormatter.bind(this),
+                            formatter: this.variantFormatter.bind(this),
+                            halign: 'center',
+                            sortable: true
                         },
                         {
-                            title: 'SNP Id',
-                            field: 'dbSNP',
-                            rowspan: 2,
-                            colspan: 1,
-                            formatter: this.variantGridFormatter.snpFormatter.bind(this),
-                            halign: 'center'
-                        },
-                        {
-                            title: 'Genes',
+                            title: "Genes",
                             field: "genes",
                             rowspan: 2,
                             colspan: 1,
+                            halign: 'center',
                             formatter: this.variantGridFormatter.geneFormatter.bind(this),
-                            halign: 'center'
                         },
                         {
-                            title: 'Type',
-                            field: 'type',
+                            title: "Type",
+                            field: "type",
                             rowspan: 2,
                             colspan: 1,
                             halign: 'center'
                         },
                         {
-                            title: 'Consequence Type',
+                            title: "Gene Annotation",
                             field: "consequenceType",
                             rowspan: 2,
                             colspan: 1,
@@ -943,22 +739,10 @@
                             halign: 'center'
                         },
                         {
-                            title: 'Deleteriousness <a data-toggle="tooltip" title="SIFT scores are classified into tolerated and deleterious. ' +
-                                'Polyphen scores are classified into benign, possibly damaging, probably damaging and possibly & probably damaging. ' +
-                                'Please, leave the cursor over each tag to visualize the actual score value. ' +
-                                'SIFT score takes values in the range [0, infinite[, the lower the values, the more damaging the prediction. ' +
-                                'Polyphen score takes values in the range [0, 1[, the closer to 2, the more damaging the prediction.">' +
-                                '<i class="fa fa-info-circle" aria-hidden="true"></i></a>',
-                            field: "deleteriousness",
+                            title: ctTitle,
+                            field: "frequencies",
                             rowspan: 1,
-                            colspan: 3,
-                            align: 'center'
-                        },
-                        {
-                            title: 'Conservation  <a data-toggle="tooltip" title="Positive PhyloP scores measure conservation which is slower evolution than expected, at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent -log p-values under a null hypothesis of neutral evolution. The phastCons scores represent probabilities of negative selection and range between 0 and 1. Positive GERP scores represent a substitution deficit and thus indicate that a site may be under evolutionary constraint. Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while still strongly enriching for truly constrained sites"><i class="fa fa-info-circle" aria-hidden="true"></i></a>',
-                            field: 'Conservation',
-                            rowspan: 1,
-                            colspan: 3,
+                            colspan: 2,
                             align: 'center'
                         },
                         {
@@ -968,60 +752,36 @@
                             colspan: 2,
                             align: 'center'
                         },
+                        {
+                            title: "Interpretation",
+                            field: "interpretation",
+                            rowspan: 1,
+                            colspan: 2,
+                            halign: 'center'
+                        },
                     ],
                     [
                         {
-                            title: 'SIFT',
-                            field: "sift",
+                            title: 'Study Cohorts',
+                            field: 'cohort',
                             colspan: 1,
                             rowspan: 1,
-                            formatter: this.siftPproteinScoreFormatter.bind(this),
-                            halign: 'center'
+                            formatter: this.studyCohortsFormatter.bind(this),
                         },
                         {
-                            title: 'Polyphen',
-                            field: "polyphen",
+                            title: 'Population Frequencies',
+                            field: 'populationFrequencies',
                             colspan: 1,
                             rowspan: 1,
-                            formatter: this.polyphenProteinScoreFormatter.bind(this),
-                            halign: 'center'
+                            formatter: this.clinicalPopulationFrequenciesFormatter.bind(this),
                         },
-                        {
-                            title: 'CADD',
-                            field: "cadd",
-                            colspan: 1,
-                            rowspan: 1,
-                            formatter: this.caddScaledFormatter,
-                            align: 'right',
-                            halign: 'center'
-                        },
-                        {
-                            title: 'PhyloP',
-                            field: 'phylop',
-                            colspan: 1,
-                            rowspan: 1,
-                            formatter: this.conservationFormatter,
-                            align: 'right',
-                            halign: 'center'
-                        },
-                        {
-                            title: 'PhastCons',
-                            field: 'phastCons',
-                            colspan: 1,
-                            rowspan: 1,
-                            formatter: this.conservationFormatter,
-                            align: 'right',
-                            halign: 'center'
-                        },
-                        {
-                            title: 'GERP',
-                            field: 'gerp',
-                            colspan: 1,
-                            rowspan: 1,
-                            formatter: this.conservationFormatter,
-                            align: 'right',
-                            halign: 'center'
-                        },
+                        // {
+                        //     title: "Max Allele Freq",
+                        //     field: "maxAlleleFreq",
+                        //     rowspan: 1,
+                        //     colspan: 1,
+                        //     // halign: 'center'
+                        // },
                         {
                             title: 'ClinVar',
                             field: 'clinvar',
@@ -1038,6 +798,30 @@
                             formatter: this.clinicalPhenotypeFormatter,
                             align: 'center'
                         },
+                        {
+                            title: "Prediction",
+                            field: "prediction",
+                            rowspan: 1,
+                            colspan: 1,
+                            formatter: this.interpretationFormatter,
+                            halign: 'center',
+                            // formatter: this.predictionFormatter
+                        },
+                        // {
+                        //     title: "Comments",
+                        //     field: "comments",
+                        //     rowspan: 1,
+                        //     colspan: 1,
+                        //     formatter: this.interpretationFormatter,
+                        //     halign: 'center'
+                        // },
+                        // {
+                        //     title: "Select",
+                        //     field: "selectForInterpretation",
+                        //     rowspan: 1,
+                        //     colspan: 1,
+                        //     align: 'center'
+                        // }
                     ]
                 ];
 
@@ -1050,13 +834,13 @@
             _updateTableColumns() {
                 // add last checkbox column
                 if (this._config.showSelectCheckbox) {
-                    this._columns[0].push({
-                        title: 'Select for <br> Interpretation',
-                        field: "selectForInterpretation",
-                        rowspan: 1,
-                        colspan: 1,
-                        align: 'center'
-                    });
+                    // this._columns[0].push({
+                    //     title: 'Select for <br> Interpretation',
+                    //     field: "selectForInterpretation",
+                    //     rowspan: 2,
+                    //     colspan: 1,
+                    //     align: 'center'
+                    // });
                     this._columns[1].push({
                         field: "stateCheckBox",
                         checkbox: true,
@@ -1065,103 +849,41 @@
                     });
                 }
 
-                if (typeof this._columns !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0
-                    && this.config.filter.menu.skipSubsections !== undefined && !this.config.filter.menu.skipSubsections.includes("cohort")) {
-                    let cohortIdx = 6;
-                    let cohortStudies = Object.keys(this.cohorts);
-                    this._columns[0].splice(7, 0, {
-                        title: this.opencgaSession.project.name,
-                        field: 'cohorts',
-                        rowspan: 1,
-                        colspan: cohortStudies.length,
-                        align: 'center'
-                    });
-
-                    for(let i = 0; i < cohortStudies.length; i++) {
-                        this._columns[1].splice(i + cohortIdx, 0, {
-                            title: cohortStudies[i],
-                            field: {
-                                study: cohortStudies[i],
-                                cohorts: this.cohorts[cohortStudies[i]],
-                                colors: this.populationFrequencies.color
-                            },
-                            rowspan: 1,
-                            colspan: 1,
-                            formatter: this.cohortFormatter,
-                            align: 'center'
-                        });
-                    }
-                }
-
-                if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
-                    let popIdx = 7;
-                    let subPopIdx = 6;
-                    if (typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0
-                        && this.config.filter.menu.skipSubsections !== undefined && !this.config.filter.menu.skipSubsections.includes("cohort")) {
-                        popIdx++;
-                        subPopIdx += Object.keys(this.cohorts).length;
-                    }
-
-                    // Just one column called 'Population Frequencies'
-                    this._columns[0].splice(popIdx, 0, {
-                        title: 'Population Frequencies <a data-toggle="tooltip" title="One coloured square is shown for each cohort, e.g. population. ' +
-                            'Frequencies are visualized as colours which classify values into very rare, rare, average, common or missing, see http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg. Please, leave ' +
-                            'the cursor over each square to visualize the actual frequency value."><i class="fa fa-info-circle" aria-hidden="true"></i></a>' +
-                            '<div style="width: 60%;margin: auto"><div style="float: left">Legend:&nbsp;&nbsp;</div>' +
-                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.veryRare + '" title="Very rare:  freq < 0.001"></div>' +
-                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.rare + '" title="Rare:  freq < 0.005"></div>' +
-                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.average + '" title="Average:  freq < 0.05"></div>' +
-                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.common + '" title="Common:  freq >= 0.05"></div>' +
-                            '</div>',
-                        field: '',
-                        rowspan: 1,
-                        colspan: this.populationFrequencies.studies.length,
-                        align: 'center'
-                    });
-
-                    for (let j = 0; j < this.populationFrequencies.studies.length; j++) {
-                        let populations = [];
-                        let populationMap = {};
-                        for (let pop in this.populationFrequencies.studies[j].populations) {
-                            populations.push(this.populationFrequencies.studies[j].populations[pop].id);
-                            populationMap[this.populationFrequencies.studies[j].populations[pop].id] = true;
-                        }
-
-                        this._columns[1].splice(j + subPopIdx, 0, {
-                            title: this.populationFrequencies.studies[j].title,
-                            field: {
-                                study: this.populationFrequencies.studies[j].id,
-                                populations: populations,
-                                populationMap: populationMap,
-                                colors: this.populationFrequencies.color
-                            },
-                            rowspan: 1,
-                            colspan: 1,
-                            formatter: this.populationFrequenciesFormatter,
-                            align: 'center'
-                        });
-                    }
-                }
-
                 if (typeof this._columns !== "undefined" && typeof this.samples !== "undefined" && this.samples.length > 0) {
                     this._columns[0].splice(4, 0, {
-                        title: 'Samples',
-                        field: 'samples',
+                        title: 'Zygosity',
+                        field: 'zygosity',
                         rowspan: 1,
                         colspan: this.samples.length,
                         align: 'center'
                     });
                     for(let i = 0; i < this.samples.length; i++) {
+                        let role = (i === 0) ? "proband" : (i === 1) ? "father" : "mother";
+                        // role = (i === 1) ? "father" : "mother";
+                        let color = (i === 0) ? "darkred" : "black";
                         this._columns[1].splice(i, 0, {
-                            title: this.samples[i].name,
-                            field: 'samples',
+                            title: `<span style="color: ${color}">${this.samples[i].name}</span><br><span style="font-style: italic">${role}</span>`,
+                            // field: 'samples',
+                            field: {
+                                memberIdx: i,
+                                memberName: this.samples[i].name,
+                            },
                             rowspan: 1,
                             colspan: 1,
-                            formatter: this.sampleFormatter,
+                            formatter: this.zigosityFormatter,
                             align: 'center',
                             nucleotideGenotype: true,
                         });
                     }
+                    // Add Proband File Metrics
+                    this._columns[0].splice(5, 0, {
+                        title: "Proband File Metrics",
+                        field: "fileMetrics",
+                        rowspan: 2,
+                        colspan: 1,
+                        formatter: this.fileMetricsFormatter,
+                        halign: 'center'
+                    });
                 }
             }
 
@@ -1251,10 +973,12 @@
                         horizontalAlign: 'center',
                         verticalAlign: 'bottom'
                     },
+
+                    populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"]
                 }
             }
         }
 
-        customElements.define(OpencgaVariantGrid.is, OpencgaVariantGrid);
+        customElements.define(OpencgaInterpretedVariantGrid.is, OpencgaInterpretedVariantGrid);
     </script>
 </dom-module>

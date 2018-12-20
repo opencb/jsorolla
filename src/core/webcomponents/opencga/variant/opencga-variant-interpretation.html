@@ -17,6 +17,7 @@
 <link rel="import" href="opencga-variant-filter.html">
 <link rel="import" href="../opencga-active-filters.html">
 <link rel="import" href="opencga-variant-grid.html">
+<link rel="import" href="opencga-interpreted-variant-grid.html">
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
 <link rel="import" href="variant-beacon-network.html">
 <link rel="import" href="../opencga-genome-browser.html">
@@ -125,7 +126,7 @@
                             <div id="{{prefix}}TableResult" class="variant-interpretation-content">
                                 <template is="dom-if" if="{{interactive}}">
                                     <!-- Variant Browser Grid -->
-                                    <opencga-variant-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
+                                    <opencga-interpreted-variant-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
                                                           opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                                           population-frequencies="{{populationFrequencies}}"
                                                           protein-substitution-scores="{{proteinSubstitutionScores}}"
@@ -134,11 +135,11 @@
                                                           on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
                                                           style="font-size: 12px"  on-setgenomebrowserposition="onGenomeBrowserPositionChange"
                                                           config="{{config.grid}}">
-                                    </opencga-variant-grid>
+                                    </opencga-interpreted-variant-grid>
                                 </template>
                                 <template is="dom-if" if="{{!interactive}}">
                                     <!-- Variant Browser Grid -->
-                                    <opencga-variant-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
+                                    <opencga-interpreted-variant-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
                                                           opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                                           population-frequencies="{{populationFrequencies}}"
                                                           protein-substitution-scores="{{proteinSubstitutionScores}}"
@@ -147,7 +148,7 @@
                                                           on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
                                                           style="font-size: 12px"  on-setgenomebrowserposition="onGenomeBrowserPositionChange"
                                                           config="{{config.grid}}">
-                                    </opencga-variant-grid>
+                                    </opencga-interpreted-variant-grid>
                                 </template>
 
                                 <!-- Bottom tabs with specific variant information -->
