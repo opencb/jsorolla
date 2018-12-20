@@ -720,14 +720,15 @@
                             field: "genes",
                             rowspan: 2,
                             colspan: 1,
-                            halign: 'center',
                             formatter: this.variantGridFormatter.geneFormatter.bind(this),
+                            halign: 'center',
                         },
                         {
                             title: "Type",
                             field: "type",
                             rowspan: 2,
                             colspan: 1,
+                            formatter: this.variantGridFormatter.typeFormatter.bind(this),
                             halign: 'center'
                         },
                         {

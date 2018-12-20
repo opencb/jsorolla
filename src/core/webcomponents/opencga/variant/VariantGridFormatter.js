@@ -158,6 +158,29 @@ class VariantGridFormatter {
         }
     }
 
+    typeFormatter(value, row, index) {
+        if (row !== undefined) {
+            let color = "";
+            switch (row.type) {
+                case "INDEL":
+                case "MNV":
+                    color = "orange";
+                    break;
+                case "INSERTION":
+                case "DELETION":
+                    color = "red";
+                    break;
+                default:
+                    color = "black";
+                    break;
+            }
+
+            return `<span style="color: ${color}">${row.type}</span>`;
+        } else {
+            return "-";
+        }
+    }
+
     consequenceTypeFormatter(value, row, index) {
         if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
             let consequenceTypesArr = [];
