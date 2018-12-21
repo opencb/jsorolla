@@ -617,11 +617,13 @@
                     this.opencgaSession.opencgaClient.samples()
                         .search({
                             study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
-                            name: "~^" + sampleNamePrefix,
+                            id: "~^" + sampleNamePrefix,
                             // Fetch ID and source (file)
                             include: "id,name,source",
                             includeIndividual: false,
-                            limit: 20}, {})
+                            limit: 20,
+                            // FIXME sid must be inserted by opencgaClient library
+                            sid: _this.opencgaSession.opencgaClient._config.sessionId}, {})
                         .then(function (response) {
                             let options = "";
                             for (let sample of response.response[0].result) {

@@ -325,11 +325,12 @@
                             _this.to = page * size;
                         },
                         onPostBody: function (data) {
-                            $("span.sampleGenotype").qtip({
+                            // Add qtip2 tooltips to Zygosity genotypes
+                            $("div.zygositySampleTooltip").qtip({
                                 content: {
-                                    title: "More info",
+                                    title: "File Metrics",
                                     text: function (event, api) {
-                                        return $(this).attr('data-text');
+                                        return $(this).attr('data-tooltip-text');
                                     }
                                 },
                                 position: {
@@ -340,8 +341,8 @@
                                     }
                                 },
                                 style: {
-                                    width: true,
-//                        classes:  "ocb-tooltip-font" + "  ui-tooltip ui-tooltip-shadow"},
+                                    width: "240px",
+                                    // classes: "qtip-light qtip-rounded qtip-shadow",
 //                                     classes: _this.config.filter.tooltip.classes
                                 },
                                 show: {
@@ -586,9 +587,48 @@
                 let res = "";
                 if (UtilsNew.isNotUndefinedOrNull(row.studies)) {
                     let left, right;
-                    if (UtilsNew.isNotUndefinedOrNull(row.studies[0]) && UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData) &&
-                        UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData[this.field.memberIdx]) && UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData[this.field.memberIdx][0])) {
-                        switch (row.studies[0].samplesData[this.field.memberIdx][0]) {
+                    let mutationColor = "black";
+                    debugger
+                    if (UtilsNew.isNotUndefinedOrNull(row.studies[0]) && UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData)
+                        && UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData[this.field.memberIdx])
+                        && UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData[this.field.memberIdx][0])) {
+
+                        let sampleFormat = row.studies[0].samplesData[this.field.memberIdx];
+
+                        // TODO
+                        // Check qualities values
+                        let qual, filter, dp, ad, gq;
+                        for (let formatField in row.studies[0].format) {
+                            switch (row.studies[0].format[formatField]) {
+                                case "QUAL":
+                                    qual = sampleFormat[formatField];
+                                    if (qual < this.field.quality.qual) {
+                                        mutationColor = "silver";
+                                    }
+                                    break;
+                                case "FILTER":
+                                    filter = sampleFormat[formatField];
+                                    if (filter !== "PASS") {
+                                        mutationColor = "silver";
+                                    }
+                                    break;
+                                case "DP":
+                                    dp = sampleFormat[formatField];
+                                    if (dp < this.field.quality.dp) {
+                                        mutationColor = "silver";
+                                    }
+                                    break;
+                                case "AD":
+                                    ad = sampleFormat[formatField];
+                                    break;
+                                case "GQ":
+                                    gq = sampleFormat[formatField];
+                                    break;
+                            }
+                        }
+
+                        let sampleGT = row.studies[0].samplesData[this.field.memberIdx][0];
+                        switch (sampleGT) {
                             case "0/0":
                             case "0|0":
                                 left = "white";
@@ -596,23 +636,54 @@
                                 break;
                             case "0/1":
                             case "1/0":
-                                left = "black";
-                                right = "white";
+                                left = mutationColor;
+                                right = "mutationColor";
                                 break;
                             case "1/1":
                             case "1|1":
-                                left = "black";
-                                right = "black";
+                                left = mutationColor;
+                                right = mutationColor;
                                 break;
                         }
-                    }
-                    res = `<table>
+
+                        let tooltipText = `<div class="col-md-12" style="padding: 0px">
+                                            <form class="form-horizontal">
+                                                <div class="form-group" style="margin: 0px 2px">
+                                                    <label class=" col-md-5">QUAL</label>
+                                                    <div class="col-md-7">${Number(row.studies[0].files[0].attributes.QUAL).toFixed(2)}</div>
+                                                </div>
+                                                <div class="form-group" style="margin: 0px 2px">
+                                                    <label class="col-md-5">FILTER</label>
+                                                    <div class="col-md-7">${row.studies[0].files[0].attributes.FILTER.substring(0, 10)}</div>
+                                                </div>
+                                                <div class="form-group" style="margin: 0px 2px">
+                                                    <label class="col-md-5">DP</label>
+                                                    <div class="col-md-7">${dp}</div>
+                                                </div>
+                                                <div class="form-group" style="margin: 0px 2px">
+                                                    <label class="col-md-5">AD</label>
+                                                    <div class="col-md-7">${ad}</div>
+                                                </div>
+                                                <div class="form-group" style="margin: 0px 2px">
+                                                    <label class="col-md-5">GQ</label>
+                                                    <div class="col-md-7">${gq}</div>
+                                                </div>
+                                            </form>
+                                           </div>`;
+
+                        res = `<table>
                                 <tr style="padding: 0px;">
-                                    <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: ${left}'></div></td>
-                                    <td style="padding: 0px"><div style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: ${right}'></div></td>
+                                    <td style="padding: 0px">
+                                        <div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: ${left}'></div>
+                                    </td>
+                                    <td style="padding: 0px">
+                                        <div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: ${right}'></div>
+                                    </td>
                                 </tr>
                            </table>`;
+                    }
                 }
+
                 return res;
             }
 
@@ -622,20 +693,21 @@
                     val = `<div class="col-md-12" style="padding: 0px">
                                 <form class="form-horizontal">
                                     <div class="form-group" style="margin: 0px 2px">
-                                        <label class="col-md-4">Quality:</label>
-                                        <span class="col-md-8">${Number(row.studies[0].files[0].attributes.QUAL).toFixed(2)}</span>
+                                        <label class="col-md-6">Quality:</label>
+                                        <span class="col-md-6">${Number(row.studies[0].files[0].attributes.QUAL).toFixed(2)}</span>
                                     </div>
                                     <div class="form-group" style="margin: 0px 2px">
-                                        <label class="col-md-4">Filter:</label>
-                                        <span class="col-md-8">${row.studies[0].files[0].attributes.FILTER.substring(0, 10)}</span>
+                                        <label class="col-md-6">Filter:</label>
+                                        <span class="col-md-6">${row.studies[0].files[0].attributes.FILTER.substring(0, 10)}</span>
                                     </div>
                                     <div class="form-group" style="margin: 0px 2px">
-                                        <label class="col-md-4">DP:</label>
-                                        <span class="col-md-8">${row.studies[0].files[0].attributes.DP}</span>
+                                        <label class="col-md-6">DP:</label>
+                                        <span class="col-md-6">${row.studies[0].files[0].attributes.DP}</span>
                                     </div>
                                 </form>
                             </div>`;
                 }
+
                 return val;
             }
 
@@ -703,6 +775,7 @@
                     '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.average + '" title="Average:  freq < 0.05"></div>' +
                     '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.common + '" title="Common:  freq >= 0.05"></div>' +
                     '</div>';
+
                 this._columns = [
                     [
                         {
@@ -868,6 +941,7 @@
                             field: {
                                 memberIdx: i,
                                 memberName: this.samples[i].name,
+                                quality: this._config.quality
                             },
                             rowspan: 1,
                             colspan: 1,
@@ -975,6 +1049,10 @@
                         verticalAlign: 'bottom'
                     },
 
+                    quality: {
+                        qual: 30,
+                        dp: 40
+                    },
                     populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"]
                 }
             }
