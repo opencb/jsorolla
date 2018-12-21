@@ -649,7 +649,7 @@
                         let tooltipText = `<div class="col-md-12" style="padding: 0px">
                                             <form class="form-horizontal">
                                                 <div class="form-group" style="margin: 0px 2px">
-                                                    <label class=" col-md-5">QUAL</label>
+                                                    <label class="col-md-5">QUAL</label>
                                                     <div class="col-md-7">${Number(row.studies[0].files[0].attributes.QUAL).toFixed(2)}</div>
                                                 </div>
                                                 <div class="form-group" style="margin: 0px 2px">
@@ -687,26 +687,24 @@
                 return res;
             }
 
-            fileMetricsFormatter(value, row, index) {
-                let val;
-                if (row !== undefined && row.studies !== undefined && row.studies.length > 0 && row.studies[0].files.length > 0 && UtilsNew.isNotUndefinedOrNull(row.studies[0].files[0].attributes)) {
-                    val = `<div class="col-md-12" style="padding: 0px">
+            pathogeniticyFormatter(value, row, index) {
+                // TODO we must call to PathDB to get the frequency of each variant, next code is just an example
+                let val = `<div class="col-md-12" style="padding: 0px">
                                 <form class="form-horizontal">
-                                    <div class="form-group" style="margin: 0px 2px">
-                                        <label class="col-md-6">Quality:</label>
-                                        <span class="col-md-6">${Number(row.studies[0].files[0].attributes.QUAL).toFixed(2)}</span>
-                                    </div>
-                                    <div class="form-group" style="margin: 0px 2px">
-                                        <label class="col-md-6">Filter:</label>
-                                        <span class="col-md-6">${row.studies[0].files[0].attributes.FILTER.substring(0, 10)}</span>
-                                    </div>
-                                    <div class="form-group" style="margin: 0px 2px">
-                                        <label class="col-md-6">DP:</label>
-                                        <span class="col-md-6">${row.studies[0].files[0].attributes.DP}</span>
-                                    </div>
+                                    <div class="col-md-12" style="padding: 0px">
+                                        <form class="form-horizontal">
+                                            <div class="form-group" style="margin: 0px 2px">
+                                                <label class="col-md-5">HP:00${Math.floor((Math.random() * 1000) + 1)}</label>
+                                                <div class="col-md-7">${Number(Math.random()).toFixed(2)}</div>
+                                            </div>
+                                             <div class="form-group" style="margin: 0px 2px">
+                                                <label class="col-md-5">HP:00${Math.floor((Math.random() * 1000) + 1)}</label>
+                                                <div class="col-md-7">${Number(Math.random()).toFixed(2)}</div>
+                                             </div>
+                                         </form>
+                                      </div>
                                 </form>
-                            </div>`;
-                }
+                           </div>`;
 
                 return val;
             }
@@ -952,11 +950,11 @@
                     }
                     // Add Proband File Metrics
                     this._columns[0].splice(5, 0, {
-                        title: "Proband File Metrics",
-                        field: "fileMetrics",
+                        title: "Pathogenicity",
+                        field: "pathogenicity",
                         rowspan: 2,
                         colspan: 1,
-                        formatter: this.fileMetricsFormatter,
+                        formatter: this.pathogeniticyFormatter,
                         halign: 'center'
                     });
                 }
