@@ -136,28 +136,26 @@
                             <div id="{{prefix}}TableResult" class="variant-interpretation-content">
                                 <template is="dom-if" if="{{interactive}}">
                                     <!-- Variant Browser Grid -->
-                                    <opencga-interpreted-variant-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
-                                                          opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                                          population-frequencies="{{populationFrequencies}}"
-                                                          protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                          consequence-types="{{consequenceTypes}}"
-                                                          query="[[query]]" search="[[search]]" variant="{{variant}}"
-                                                          on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
-                                                          style="font-size: 12px"  on-setgenomebrowserposition="onGenomeBrowserPositionChange"
-                                                          config="{{config.grid}}">
+                                    <opencga-interpreted-variant-grid opencga-session="{{opencgaSession}}"
+                                                                      query="{{search}}"
+                                                                      consequence-types="{{consequenceTypes}}"
+                                                                      population-frequencies="{{populationFrequencies}}"
+                                                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                      on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
+                                                                      style="font-size: 12px" on-setgenomebrowserposition="onGenomeBrowserPositionChange"
+                                                                      config="{{config.grid}}">
                                     </opencga-interpreted-variant-grid>
                                 </template>
                                 <template is="dom-if" if="{{!interactive}}">
                                     <!-- Variant Browser Grid -->
-                                    <opencga-interpreted-variant-grid opencga-session="{{opencgaSession}}" samples="{{samples}}"
-                                                          opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                                          population-frequencies="{{populationFrequencies}}"
-                                                          protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                          consequence-types="{{consequenceTypes}}"
-                                                          query="[[defaultAutomaticQuery]]" search="[[search]]" variant="{{variant}}"
-                                                          on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
-                                                          style="font-size: 12px"  on-setgenomebrowserposition="onGenomeBrowserPositionChange"
-                                                          config="{{config.grid}}">
+                                    <opencga-interpreted-variant-grid opencga-session="{{opencgaSession}}"
+                                                                      query="[[defaultAutomaticQuery]]"
+                                                                      consequence-types="{{consequenceTypes}}"
+                                                                      population-frequencies="{{populationFrequencies}}"
+                                                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                      on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
+                                                                      style="font-size: 12px" on-setgenomebrowserposition="onGenomeBrowserPositionChange"
+                                                                      config="{{config.grid}}">
                                     </opencga-interpreted-variant-grid>
                                 </template>
 
@@ -595,11 +593,15 @@
 
             onFilterChange(e) {
                 this.query = Object.assign({}, e.detail);
+
+
                 // if (UtilsNew.isUndefinedOrNull(this.query.genotype)) {
                 //     this.modeInheritance = "none";
                 //     this._initGenotypeSamples(this.samples, true)
                 // }
-                this.search = e.detail;
+                this.query.studies = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
+                // this.search = e.detail;
+                this.search = this.query;
             }
 
 

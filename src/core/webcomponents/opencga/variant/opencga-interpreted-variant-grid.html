@@ -17,18 +17,6 @@
 <dom-module id="opencga-interpreted-variant-grid">
     <template>
         <style include="jso-styles">
-            span.redText, span.orangeText {
-                margin-left: 0;
-            }
-
-            span.redText {
-                color: red;
-            }
-
-            span.orangeText {
-                color: orange;
-            }
-
             .variant-link-dropdown:hover .dropdown-menu {
                 display: block;
             }
@@ -64,50 +52,23 @@
                 return {
                     opencgaSession: {
                         type: Object,
-                        // observer: 'renderVariantTable'
                     },
-                    opencgaClient: {
-                        type: Object
-                    },
-                    cellbaseClient: {
+                    query: {
                         type: Object,
-                        // observer: 'renderVariantTable'
                     },
                     data: {
                         type: Array,
                         value: [],
                         observer: 'renderFromLocal'
                     },
-                    samples: {
-                        type: Array,
-                        value: []
-                    },
-                    cohorts: {
-                        type: Object
-                    },
                     consequenceTypes: {
                         type: Object,
-                        observer: 'assignColors'
                     },
                     populationFrequencies: {
-                        type: Object,
-                        value: {}
+                        type: Object
                     },
                     proteinSubstitutionScores: {
                         type: Object,
-                        observer: 'assignColors'
-                    },
-                    query: {
-                        type: Object,
-                        observer: "queryObserver"
-                    },
-                    search: {
-                        type: Object,
-                        // observer: 'renderVariantTable'
-                    },
-                    variant: {
-                        type: String,
-                        notify: true
                     },
                     config: {
                         type: Object
@@ -117,8 +78,7 @@
 
             static get observers() {
                 return [
-                    "propertyObserver(opencgaSession, cohorts, populationFrequencies, search, config)",
-                    "_createDefaultColumns(samples.*)"
+                    "propertyObserver(opencgaSession, query, consequenceTypes, populationFrequencies, proteinSubstitutionScores, config)"
                 ];
             }
 
@@ -130,11 +90,9 @@
                 super.connectedCallback();
 
                 // TODO Refactor
-                this.table = $('#' + this.prefix + 'VariantBrowserGrid');
                 this.downloadRefreshIcon = $("#" + this.prefix + "DownloadRefresh");
                 this.downloadIcon = $("#" + this.prefix + "DownloadIcon");
-
-                // this._updateTableColumns();
+debugger
                 this._columns = this._createDefaultColumns();
                 this.renderVariantTable();
             }
@@ -145,10 +103,29 @@
                 this._config = this.getDefaultConfig();
             }
 
-            propertyObserver(opencgaSession, cohorts, populationFrequencies, search, config) {
+            propertyObserver(opencgaSession, query, consequenceTypes, populationFrequencies, proteinSubstitutionScores, config) {
                 // With each property change we must updated config and create the columns again. No extra checks are needed.
                 this._config = Object.assign(this.getDefaultConfig(), this.config);
                 this._columns = this._createDefaultColumns();
+debugger
+
+                // We check query.sample and query.genotype to check if samples exist.
+                // We parse query fields and store a samples object array for convenience
+                this.samples = [];
+                if (UtilsNew.isNotUndefinedOrNull(this.query.sample)) {
+                    for (let sampleId of this.query.sample.split(",")) {
+                        this.samples.push({
+                            id: sampleId,
+                        });
+                    }
+                }
+                if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
+                    for (let genotype of this.query.genotype.split(";")) {
+                        this.samples.push({
+                            id: genotype.split(":")[0],
+                        });
+                    }
+                }
 
                 // Config for the grid toolbar
                 this.toolbarConfig = {
@@ -170,6 +147,10 @@
 
                 this.variantGridFormatter = new VariantGridFormatter(this.opencgaSession, this._config);
 
+                // Set colors
+                let colors = this.variantGridFormatter.assignColors(this.consequenceTypes, this.proteinSubstitutionScores);
+                Object.assign(this, colors);
+
                 this.renderVariantTable();
             }
 
@@ -182,43 +163,15 @@
                 }
             }
 
-            queryObserver() {
-                if (this.query !== undefined && this.query.genotype !== undefined) {
-                    let _samples = [];
-                    let genotypes = this.query.genotype.split(";");
-                    for (let g of genotypes) {
-                        _samples.push({
-                            id: g.split(":")[0],
-                            name: g.split(":")[0]
-                        });
-                    }
-                    this.samples = _samples;
-                }
-                // this.query;
-                // debugger
-            }
-
-            assignColors() {
-                let colors = this.variantGridFormatter.assignColors(this.consequenceTypes, this.proteinSubstitutionScores);
-                Object.assign(this, colors);
-
-                this.renderVariantTable();
-            }
-
             renderVariantTable() {
-                // let _config = Object.assign(this.getDefaultConfig(), this.config.grid);
-
-                this.variant = ""; // Empty the variant every time the grid is loaded
-
                 this.from = 1;
                 this.to = 10;
                 this.approximateCountResult = false;
 
                 let _table = $('#' + this.prefix + 'VariantBrowserGrid');
-
-                if (typeof this.opencgaClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient
-                    && typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study !== "undefined"
-                    && typeof this.opencgaSession.study.alias !== "undefined" && this.variantGridFormatter !== undefined) {
+debugger
+                if (typeof this.opencgaSession !== "undefined" && typeof this.opencgaSession.project !== "undefined"
+                    && typeof this.opencgaSession.study !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
 
                     let urlQueryParams = this._getUrlQueryParams();
                     let queryParams = urlQueryParams.queryParams;
@@ -367,23 +320,23 @@
 
             _getUrlQueryParams() {
                 // Check the opencgaClient exists
-                if (UtilsNew.isUndefinedOrNull(this.opencgaClient)) {
+                if (UtilsNew.isUndefinedOrNull(this.opencgaSession.opencgaClient)) {
                     return {host: "", queryParams: {}};
                 }
 
-                let host = this.opencgaClient.getConfig().host;
-                // By default we assume https protocol instead of http
+                // Prepare host. By default we assume https protocol instead of http
+                let host = this.opencgaSession.opencgaClient.getConfig().host;
                 if (!host.startsWith("https://") && !host.startsWith("http://")) {
-                    host = 'https://' + this.opencgaClient.getConfig().host;
+                    host += "https://";
                 }
 
                 if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
-                    if (typeof this.query === "undefined") {
-                        this.query = {};
-                    }
-                    if (UtilsNew.isEmpty(this.query.studies) || this.query.studies.split(new RegExp("[,;]")).length === 1) {
-                        this.query.studies = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
-                    }
+                    // if (typeof this.query === "undefined") {
+                    //     this.query = {};
+                    // }
+                    // if (UtilsNew.isEmpty(this.query.studies) || this.query.studies.split(new RegExp("[,;]")).length === 1) {
+                    //     this.query.studies = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
+                    // }
                     host += '/webservices/rest/v1/analysis/variant/query';
                 } else {
                     return {host: host, queryParams: {}};
@@ -399,24 +352,25 @@
                     queryParams = Object.assign({}, this.query);
                 }
 
-                if (this.opencgaClient._config.sessionId !== undefined) {
-                    queryParams = Object.assign(queryParams, {sid: this.opencgaClient._config.sessionId});
+                if (this.opencgaSession.opencgaClient._config.sessionId !== undefined) {
+                    queryParams = Object.assign(queryParams, {sid: this.opencgaSession.opencgaClient._config.sessionId});
                 }
-
+debugger
                 if (UtilsNew.isNotEmptyArray(this.samples)) {
-                    let sampleNames = [];
-                    this.samples.forEach((sample) => {
-                        sampleNames.push(sample.name);
-                    });
+                    // let sampleNames = [];
+                    // this.samples.forEach((sample) => {
+                    //     sampleNames.push(sample.name);
+                    // });
+                    debugger
                     queryParams.summary = false;
-                    queryParams.includeSample = sampleNames.join(",");
+                    // queryParams.includeSample = sampleNames.join(",");
                     queryParams.exclude = "annotation.geneExpression";
                     queryParams.approximateCount = true;
-                    queryParams.useSearchIndex = "no";
+                    // queryParams.useSearchIndex = "no";
                 } else {
                     // queryParams.summary = true;
                 }
-
+debugger
                 if (typeof this.config !== "undefined" && UtilsNew.isNotUndefinedOrNull(this.config.grid)
                     && typeof this.config.grid.includeMissing !== "undefined" && this.config.grid.includeMissing) {
                     let keys = Object.keys(queryParams);
@@ -455,8 +409,11 @@
             }
 
             showGene(geneName) {
-//                this.fire('selected', {gene: geneName});
-                this.dispatchEvent(new CustomEvent('selected', {detail: {gene: geneName}}));
+                this.dispatchEvent(new CustomEvent('selected', {
+                    detail: {
+                        gene: geneName
+                    }
+                }));
             }
 
             tableDetailFormatter(value, row, a) {
@@ -539,35 +496,6 @@
                 return variantHtmlDiv + "<br>" + snptHtmlAnchor;
             }
 
-            clinicalPhenotypeFormatter(value, row, index) {
-                let phenotypeHtml = "<span><i class='fa fa-times' style='color: red'></i></span>";
-                if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.variantTraitAssociation !== "undefined") {
-                    if (row.annotation.variantTraitAssociation != null) {
-                        let traits = [];
-                        let clinicalData = row.annotation.variantTraitAssociation[this.field];
-                        if (typeof clinicalData !== "undefined" && clinicalData.length > 0) {
-                            for (let j = 0; j < clinicalData.length; j++) {
-                                if (this.field === "clinvar" && traits.indexOf(clinicalData[j].traits[0]) === -1
-                                    && clinicalData[j].traits[0] !== "not specified" && clinicalData[j].traits[0] !== "not provided") {
-                                    traits.push(clinicalData[j].traits[0]);
-                                } else if (this.field === "cosmic" && traits.indexOf(clinicalData[j].primaryHistology) === -1) {
-                                    traits.push(clinicalData[j].primaryHistology);
-                                }
-                            }
-
-                            if (traits.length > 0) {
-                                let traitText = traits[0];
-                                if (traits.length > 1) {
-                                    traitText += ", ..."
-                                }
-                                phenotypeHtml = `<span data-toggle="tooltip" data-placement="bottom" title="${traitText}"><i class='fa fa-check' style='color: green'></i></span>`;
-                            }
-                        }
-                    }
-                }
-                return phenotypeHtml;
-            }
-
             predictionFormatter(value, row, index) {
                 let res = "";
                 if (UtilsNew.isNotUndefinedOrNull(row.reportEvents)){
@@ -583,12 +511,12 @@
                 return res;
             }
 
-            zigosityFormatter(value, row, index) {
+            zygosityFormatter(value, row, index) {
                 let res = "";
                 if (UtilsNew.isNotUndefinedOrNull(row.studies)) {
                     let left, right;
                     let mutationColor = "black";
-                    debugger
+
                     if (UtilsNew.isNotUndefinedOrNull(row.studies[0]) && UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData)
                         && UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData[this.field.memberIdx])
                         && UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData[this.field.memberIdx][0])) {
@@ -654,7 +582,7 @@
                                                 </div>
                                                 <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-5">FILTER</label>
-                                                    <div class="col-md-7">${row.studies[0].files[0].attributes.FILTER.substring(0, 10)}</div>
+                                                    <div class="col-md-7">${row.studies[0].files[0].attributes.FILTER.substring(0, 12)}</div>
                                                 </div>
                                                 <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-5">DP</label>
@@ -748,6 +676,35 @@
                 }
             }
 
+            clinicalPhenotypeFormatter(value, row, index) {
+                let phenotypeHtml = "<span><i class='fa fa-times' style='color: red'></i></span>";
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.variantTraitAssociation !== "undefined") {
+                    if (row.annotation.variantTraitAssociation != null) {
+                        let traits = [];
+                        let clinicalData = row.annotation.variantTraitAssociation[this.field];
+                        if (typeof clinicalData !== "undefined" && clinicalData.length > 0) {
+                            for (let j = 0; j < clinicalData.length; j++) {
+                                if (this.field === "clinvar" && traits.indexOf(clinicalData[j].traits[0]) === -1
+                                    && clinicalData[j].traits[0] !== "not specified" && clinicalData[j].traits[0] !== "not provided") {
+                                    traits.push(clinicalData[j].traits[0]);
+                                } else if (this.field === "cosmic" && traits.indexOf(clinicalData[j].primaryHistology) === -1) {
+                                    traits.push(clinicalData[j].primaryHistology);
+                                }
+                            }
+
+                            if (traits.length > 0) {
+                                let traitText = traits[0];
+                                if (traits.length > 1) {
+                                    traitText += ", ..."
+                                }
+                                phenotypeHtml = `<span data-toggle="tooltip" data-placement="bottom" title="${traitText}"><i class='fa fa-check' style='color: green'></i></span>`;
+                            }
+                        }
+                    }
+                }
+                return phenotypeHtml;
+            }
+
             interpretationFormatter(value, row, index) {
                 // let res = `<button id="v${row.id}Button" type='button' class='btn btn-success btn-xs interpretation-add-to-report' data-variant-id='${row.id}'>
                 //                     <i id="v${row.id}ButtonIcon" class="fa fa-check interpretation-add-to-report" aria-hidden="true" data-variant-id='${row.id}'></i>
@@ -834,7 +791,7 @@
                     ],
                     [
                         {
-                            title: 'Study Cohorts',
+                            title: 'Cohorts',
                             field: 'cohort',
                             colspan: 1,
                             rowspan: 1,
@@ -880,14 +837,6 @@
                             // formatter: this.predictionFormatter
                         },
                         // {
-                        //     title: "Comments",
-                        //     field: "comments",
-                        //     rowspan: 1,
-                        //     colspan: 1,
-                        //     formatter: this.interpretationFormatter,
-                        //     halign: 'center'
-                        // },
-                        // {
                         //     title: "Select",
                         //     field: "selectForInterpretation",
                         //     rowspan: 1,
@@ -904,15 +853,8 @@
             }
 
             _updateTableColumns() {
-                // add last checkbox column
+                // Add a checkbox column
                 if (this._config.showSelectCheckbox) {
-                    // this._columns[0].push({
-                    //     title: 'Select for <br> Interpretation',
-                    //     field: "selectForInterpretation",
-                    //     rowspan: 2,
-                    //     colspan: 1,
-                    //     align: 'center'
-                    // });
                     this._columns[1].push({
                         field: "stateCheckBox",
                         checkbox: true,
@@ -921,7 +863,7 @@
                     });
                 }
 
-                if (typeof this._columns !== "undefined" && typeof this.samples !== "undefined" && this.samples.length > 0) {
+                if (typeof this._columns !== "undefined" && UtilsNew.isNotEmptyArray(this.samples)) {
                     this._columns[0].splice(4, 0, {
                         title: 'Zygosity',
                         field: 'zygosity',
@@ -929,25 +871,27 @@
                         colspan: this.samples.length,
                         align: 'center'
                     });
-                    for(let i = 0; i < this.samples.length; i++) {
+
+                    for (let i = 0; i < this.samples.length; i++) {
                         let role = (i === 0) ? "proband" : (i === 1) ? "father" : "mother";
                         // role = (i === 1) ? "father" : "mother";
                         let color = (i === 0) ? "darkred" : "black";
                         this._columns[1].splice(i, 0, {
-                            title: `<span style="color: ${color}">${this.samples[i].name}</span><br><span style="font-style: italic">${role}</span>`,
+                            title: `<span style="color: ${color}">${this.samples[i].id}</span><br><span style="font-style: italic">${role}</span>`,
                             // field: 'samples',
                             field: {
                                 memberIdx: i,
-                                memberName: this.samples[i].name,
+                                memberName: this.samples[i].id,
                                 quality: this._config.quality
                             },
                             rowspan: 1,
                             colspan: 1,
-                            formatter: this.zigosityFormatter,
+                            formatter: this.zygosityFormatter,
                             align: 'center',
                             nucleotideGenotype: true,
                         });
                     }
+
                     // Add Proband File Metrics
                     this._columns[0].splice(5, 0, {
                         title: "Pathogenicity",
@@ -969,7 +913,7 @@
                 this.downloadIcon.css('display', 'none');
 
                 let _this = this;
-                this.opencgaClient.variants().query(params)
+                this.opencgaSession.opencgaClient.variants().query(params)
                     .then(function (response) {
                         let result = response.response[0].result;
                         let dataString = [];
