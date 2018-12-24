@@ -239,6 +239,65 @@ class VariantGridFormatter {
         return "-";
     }
 
+    consequenceTypeDetailFormatter(value, row, variantGrid) {
+        if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
+            // Sort and group CTs by Gene name
+            row.annotation.consequenceTypes.sort(function(a, b) {
+                if (a.geneName < b.geneName) {
+                    return -1;
+                }
+                if (a.geneName > b.geneName) {
+                    return 1;
+                }
+                return 0;
+            });
+
+            let ctHtml = `<table class="table table-hover table-no-bordered">
+                                <thead>
+                                    <tr class="table-header">
+                                        <th>Gene ID</th>
+                                        <th>Gene Name</th>
+                                        <th>Transcript ID</th>
+                                        <th>SO Term</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+
+            for (let ct of row.annotation.consequenceTypes) {
+                // Prepare data info for columns
+                let geneId = "NA";
+                if (UtilsNew.isNotEmpty(ct.ensemblGeneId)) {
+                    geneId = `<a href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${ct.ensemblGeneId}" target="_blank">
+                                ${ct.ensemblGeneId}
+                              </a>`;
+                }
+
+                let soArray = [];
+                for (let so of ct.sequenceOntologyTerms) {
+                    let color = "black";
+                    if (typeof variantGrid.consequenceTypeToColor !== "undefined"
+                        && typeof variantGrid.consequenceTypeToColor[so.name] !== "undefined") {
+                        color = variantGrid.consequenceTypeToColor[so.name];
+                    }
+                    soArray.push(`<span style="color: ${color}">
+                                    ${so.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">${so.accession}</a>)
+                                  </span>`);
+                }
+
+                // Create the table row
+                ctHtml += `<tr class="detail-view-row">
+                            <td>${geneId}</td>
+                            <td>${ct.geneName !== "" ? ct.geneName : "NA"}</td>
+                            <td>${ct.ensemblTranscriptId !== "" ? ct.ensemblTranscriptId : "NA"}</td>
+                            <td>${soArray.join(",")}</td>
+                           </tr>`;
+            }
+            ctHtml += "</tbody></table>";
+            return ctHtml;
+        }
+        return "-";
+    }
+
     /**
      * Creates the colored table with one row and as many columns as populations.
      * @param populations

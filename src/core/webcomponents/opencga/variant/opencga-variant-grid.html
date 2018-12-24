@@ -29,6 +29,14 @@
                 color: orange;
             }
 
+            .detail-view :hover {
+                background-color: white;
+            }
+
+            .detail-view-row :hover {
+                background-color: #f5f5f5;
+            }
+
             .variant-link-dropdown:hover .dropdown-menu {
                 display: block;
             }
@@ -512,45 +520,18 @@
 
             tableDetailFormatter(value, row, a) {
                 let result = "<div class='row'>";
-                let ctHtml = "<div class='col-md-12' style='padding: 0px 0px 10px 25px'><div class='col-md-2'><span style='font-weight: bold'>Consequence Types:</span></div>";
-                // let caddHtml = "<div class='col-md-12' style='padding: 0px 0px 10px 25px'><div class='col-md-2'><span style='font-weight: bold'>CADD Functional Score:</span></div>";
-                let clinicalHtml = "<div class='col-md-12' style='padding: 0px 0px 10px 25px'><div class='col-md-2'><span style='font-weight: bold'>Clinical Phenotypes:</span></div>";
+                let ctHtml = "";
+                let clinicalHtml = "";
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+                    ctHtml = "<div style='padding: 15px 0px 0px 25px'><label>Consequence Types</label></div>";
+                    ctHtml += "<div style='width: 90%; padding: 15px 50px'>";
+                    ctHtml += this.variantGrid.variantGridFormatter.consequenceTypeDetailFormatter(value, row, this.variantGrid);
+                    ctHtml += "</div>";
 
-                    if (typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
-                        // Sort and group CTs by Gene name
-                        row.annotation.consequenceTypes.sort(function(a, b) {
-                            if (a.geneName < b.geneName) {
-                                return -1;
-                            }
-                            if (a.geneName > b.geneName) {
-                                return 1;
-                            }
-                            return 0;
-                        });
-
-                        ctHtml += "<div class='col-md-6'>";
-                        for (let ct of row.annotation.consequenceTypes) {
-                            let soArray = [];
-                            for (let so of ct.sequenceOntologyTerms) {
-                                if (typeof this.variantGrid.consequenceTypeToColor !== "undefined"
-                                    && typeof this.variantGrid.consequenceTypeToColor[so.name] !== "undefined") {
-                                    soArray.push('<span style="color: ' + this.variantGrid.consequenceTypeToColor[so.name] + '">' + so.name + '</span>');
-                                } else {
-                                    soArray.push('<span>' + so.name + '</span>');
-                                }
-                            }
-                            if (ct.geneName !== undefined && ct.geneName !== "") {
-                                ctHtml += `${ct.ensemblGeneId} (${ct.geneName}) - ${ct.ensemblTranscriptId}:  ${soArray.join(", ")}<br>`;
-                            } else {
-                                ctHtml += `${soArray.join(", ")}<br>`;
-                            }
-                        }
-                        ctHtml += "</div></div>";
-                    }
-
-                    let clinvarTraits = "<span style='font-weight: bold'>ClinVar:</span> -";
-                    let cosmicTraits = "<span style='font-weight: bold'>Cosmic:</span> -";
+                    clinicalHtml = "<div style='padding: 15px 0px 0px 25px'><label>Clinical Phenotypes</label></div>";
+                    clinicalHtml += "<div style='padding: 10px 50px 15px 50px'>";
+                    let clinvarTraits = "";
+                    let cosmicTraits = "";
                     if (typeof row.annotation.variantTraitAssociation !== "undefined" && row.annotation.variantTraitAssociation != null) {
                         let traits = {
                             clinvar: [],
@@ -561,24 +542,30 @@
                             let clinicalData = row.annotation.variantTraitAssociation[field];
                             if (typeof clinicalData !== "undefined" && clinicalData.length > 0) {
                                 for (let j = 0; j < clinicalData.length; j++) {
-                                    if (field === "clinvar" && traits.clinvar.indexOf(clinicalData[j].traits[0]) === -1 && clinicalData[j].traits[0] !== "not specified" && clinicalData[j].traits[0] !== "not provided") {
+                                    if (field === "clinvar" && traits.clinvar.indexOf(clinicalData[j].traits[0]) === -1
+                                        && clinicalData[j].traits[0] !== "not specified" && clinicalData[j].traits[0] !== "not provided") {
                                         traits.clinvar.push(clinicalData[j].traits[0]);
                                     } else if (field === "cosmic" && traits.cosmic.indexOf(clinicalData[j].primaryHistology) === -1) {
-                                        traits.cosmic.push(clinicalData[j].primaryHistology);
+                                        let histologySubtype = (UtilsNew.isNotEmpty(clinicalData[j].histologySubtype)) ? clinicalData[j].histologySubtype : "-";
+                                        traits.cosmic.push(clinicalData[j].primaryHistology + " (" + histologySubtype + ")");
                                     }
                                 }
                             }
                         }
 
                         if (traits.clinvar.length > 0) {
-                            clinvarTraits = "<span style='font-weight: bold'>ClinVar:</span> " + traits.clinvar.join(", ");
+                            clinvarTraits = "<div><label style='padding-right: 10px'>ClinVar: </label>" + traits.clinvar.join(", ") + "</div>";
+                        } else {
+                            clinvarTraits = "<div><label style='padding-right: 10px'>ClinVar: </label>-</div>";
                         }
                         if (traits.cosmic.length > 0) {
-                            cosmicTraits = "<span style='font-weight: bold'>Cosmic:</span> " + traits.cosmic.join(", ");
+                            cosmicTraits = "<div><label style='padding-right: 10px'>Cosmic: </label>" + traits.cosmic.join(", ") + "</div>";
+                        } else {
+                            cosmicTraits = "<div><label style='padding-right: 10px'>Cosmic: </label>-</div>";
                         }
                     }
-                    clinicalHtml += "<div class='col-md-6'>" + clinvarTraits + "<br>" + cosmicTraits + "</div>";
-
+                    clinicalHtml += clinvarTraits + cosmicTraits;
+                    clinicalHtml += "</div>";
                 }
                 result += ctHtml + clinicalHtml + "</div>";
                 return result;
