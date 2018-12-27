@@ -197,6 +197,9 @@
             connectedCallback() {
                 super.connectedCallback();
 
+                // Small trick to force the warning message display after DOM is renderer
+                this.query = Object.assign({}, this.query);
+
                 // We need to init _previousQuery with query in order to work before executing any search
                 this._previousQuery = this.query;
 

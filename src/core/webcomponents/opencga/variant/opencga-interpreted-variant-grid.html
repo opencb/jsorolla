@@ -119,21 +119,24 @@ debugger
 
                 // We check query.sample and query.genotype to check if samples exist.
                 // We parse query fields and store a samples object array for convenience
-                this.samples = [];
-                if (UtilsNew.isNotUndefinedOrNull(this.query.sample)) {
-                    for (let sampleId of this.query.sample.split(",")) {
-                        this.samples.push({
-                            id: sampleId,
-                        });
+                let _samples = [];
+                if (this.query !== undefined) {
+                    if (UtilsNew.isNotUndefinedOrNull(this.query.sample)) {
+                        for (let sampleId of this.query.sample.split(",")) {
+                            _samples.push({
+                                id: sampleId,
+                            });
+                        }
+                    }
+                    if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
+                        for (let genotype of this.query.genotype.split(";")) {
+                            _samples.push({
+                                id: genotype.split(":")[0],
+                            });
+                        }
                     }
                 }
-                if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
-                    for (let genotype of this.query.genotype.split(";")) {
-                        this.samples.push({
-                            id: genotype.split(":")[0],
-                        });
-                    }
-                }
+                this.samples = _samples;
 
                 // Config for the grid toolbar
                 this.toolbarConfig = {

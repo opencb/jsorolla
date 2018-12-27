@@ -63,7 +63,7 @@
             <div class="row" style="padding: 0px 10px">
                 <div id="{{prefix}}FilterMenu" class="col-md-2">
                     <opencga-variant-filter opencga-session="{{opencgaSession}}" config="{{config.filter}}"
-                                            cohorts="[[cohorts]]" samples="[[samples]]" opencga-client="{{opencgaClient}}"
+                                            cohorts="[[cohorts]]" samples="[[samples]]" opencga-client="{{opencgaSession.opencgaClient}}"
                                             cellbase-client="{{cellbaseClient}}"
                                             population-frequencies="{{populationFrequencies}}"
                                             consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
@@ -72,7 +72,7 @@
                 </div>
 
                 <div id="{{prefix}}MainWindow" class="col-md-10">
-                    <opencga-active-filters opencga-client="{{opencgaClient}}" query="[[query]]" filters="{{config.filter.examples}}" on-filterchange="onActiveFilterChange" on-clear="onClear"
+                    <opencga-active-filters opencga-client="{{opencgaSession.opencgaClient}}" query="[[query]]" filters="{{config.filter.examples}}" on-filterchange="onActiveFilterChange" on-clear="onClear"
                                             filter-bioformat="VARIANT" default-study="{{opencgaSession.study.alias}}" alias="{{activeFilterAlias}}" refresh="[[search]]">
                     </opencga-active-filters>
 
@@ -102,14 +102,14 @@
                         <!-- First TAB -->
                         <div id="{{prefix}}TableResult" class="variant-browser-content">
                             <!-- Variant Browser Grid -->
-                            <opencga-variant-grid opencga-session="{{opencgaSession}}" cohorts="[[cohorts]]"
-                                                  opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                            <opencga-variant-grid opencga-session="{{opencgaSession}}" query="{{search}}" cohorts="[[cohorts]]"
+                                                  cellbase-client="{{cellbaseClient}}"
                                                   population-frequencies="{{populationFrequencies}}" active="{{active}}"
                                                   protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                  consequence-types="{{consequenceTypes}}" query="[[query]]" search="{{search}}"
-                                                  variant="{{variant}}" on-selected="selectedGene"
-                                                  on-selectvariant="onSelectVariant" style="font-size: 12px" config="{{config}}"
-                                                  summary="{{summary}}" samples="{{samples}}" on-setgenomebrowserposition="onGenomeBrowserPositionChange">
+                                                  consequence-types="{{consequenceTypes}}"
+                                                  on-selected="selectedGene" on-selectvariant="onSelectVariant"
+                                                  on-setgenomebrowserposition="onGenomeBrowserPositionChange"
+                                                  style="font-size: 12px" config="{{config}}">
                             </opencga-variant-grid>
 
 
@@ -204,7 +204,7 @@
                         <div id="{{prefix}}GenomeBrowser" class="variant-browser-content" style="display: none">
                             <br>
                             <br>
-                            <opencga-genome-browser opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}"
+                            <opencga-genome-browser opencga-session="{{opencgaSession}}" opencga-client="{{opencgaSession.opencgaClient}}"
                                                     cellbase-client="{{cellbaseClient}}" config="{{_config.genomeBrowser}}"
                                                     query={{query}} search={{search}} species={{config.species}}
                                                     region="{{region}}" active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">
@@ -256,11 +256,14 @@
                         type: Object,
                         observer: "onStudyUpdate"
                     },
+                    query: {
+                        type: Object
+                    },
+                    search: {
+                        type: Object,
+                    },
                     samples: {
                         type: Array
-                    },
-                    opencgaClient: {
-                        type: Object
                     },
                     cellbaseClient: {
                         type: Object
@@ -274,21 +277,6 @@
                     proteinSubstitutionScores: {
                         type: Object
                     },
-                    beaconHosts: {
-                        type: Array,
-                        observer: "beaconHostsObserver"
-                    },
-                    query: {
-                        type: Object
-                    },
-                    search: {
-                        type: Object,
-                        observer: 'renderHashQueryParams'
-                    },
-                    // checkProjects: {
-                    //     type: Boolean,
-                    //     computed: '_checkProjects()'
-                    // },
                     variant: {
                         type: String,
                         value: "No variant selected"
@@ -297,6 +285,16 @@
                         type: Object
                     }
                 }
+            }
+
+            static get observers() {
+                /*
+                 * We do not need to Observer 'query' property, when passed it will be shared (bound) with the other components.
+                 * 'search; is observed to ensure 'query' is in sync.
+                 */
+                return [
+                    "propertyObserver(opencgaSession, search, config)"
+                ];
             }
 
             _attachDom(dom) {
@@ -335,10 +333,22 @@
                 this._config = this.getDefaultConfig();
             }
 
-            beaconHostsObserver(e) {
-                this.beaconConfig = {
-                    hosts: this.beaconHosts
-                };
+            propertyObserver(opencgaSession, search, config) {
+                // With each property change we must updated config and create the columns again. No extra checks are needed.
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
+
+                // Search must set query object and force Variant Grid to be executed
+                if (UtilsNew.isNotUndefinedOrNull(this.search)) {
+                    this.query = this.search;
+                }
+
+                for (let detail of this.config.detail) {
+                    if (detail.id === "beacon" && UtilsNew.isNotEmptyArray(detail.hosts)) {
+                        this.beaconConfig = {
+                            hosts: detail.hosts
+                        };
+                    }
+                }
             }
 
             onCollapse() {
@@ -350,21 +360,6 @@
                     $("#" + this.prefix + "MainWindow").removeClass("col-md-10").addClass("browser-center");
                 }
                 this._collapsed = !this._collapsed;
-            }
-
-            // TODO send an event with the query, only iva-app.html should change the URL
-            renderHashQueryParams() {
-                let hashFrag = window.location.hash.split('?')[0];
-                if (typeof this.query !== "undefined" && Object.keys(this.query).length > 0) {
-                    let qArray = [];
-                    for (let key in this.query) {
-                        if (key !== "studies") {
-                            qArray.push(key + "=" + this.query[key]);
-                        }
-                    }
-                    hashFrag += "?" + qArray.join('&');
-                }
-                window.location.hash = hashFrag;
             }
 
             onStudyUpdate() {
@@ -390,12 +385,15 @@
             }
 
             onClear() {
-                this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
+                // debugger
+                // this.query = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
+                // this.search = this.query;
                 this.search = {};
             }
 
             onActiveFilterChange(e) {
-                this.query = e.detail;
+                // this.query = e.detail;
+                // this.search = this.query;
                 this.search = e.detail;
             }
 
@@ -453,7 +451,7 @@
 
             fetchFacets() {
                 let queryParams = {
-                    sid: this.opencgaClient._config.sessionId,
+                    sid: this.opencgaSession.opencgaClient._config.sessionId,
                     studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
                     facet: "type;genes;soAcc;studies",
                     timeout: 60000
@@ -470,7 +468,7 @@
                 $("#" + this.prefix + "LoadingModal").modal("show");
 
                 setTimeout(_ => {
-                    this.opencgaClient.variants().facet(queryParams, {})
+                    this.opencgaSession.opencgaClient.variants().facet(queryParams, {})
                         .then(function (queryResponse) {
                             _this.facetResults = queryResponse.response[0].result[0].result.fields;
                             for (let result of _this.facetResults) {

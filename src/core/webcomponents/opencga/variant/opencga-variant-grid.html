@@ -72,10 +72,9 @@
                 return {
                     opencgaSession: {
                         type: Object,
-                        // observer: 'renderVariantTable'
                     },
-                    opencgaClient: {
-                        type: Object
+                    query: {
+                        type: Object,
                     },
                     cellbaseClient: {
                         type: Object,
@@ -86,52 +85,31 @@
                         value: [],
                         observer: 'renderFromLocal'
                     },
-                    samples: {
-                        type: Array,
-                        value: []
-                    },
                     cohorts: {
                         type: Object
                     },
                     consequenceTypes: {
                         type: Object,
-                        observer: 'assignColors'
                     },
                     populationFrequencies: {
                         type: Object,
-                        value: {}
                     },
                     proteinSubstitutionScores: {
                         type: Object,
-                        observer: 'assignColors'
-                    },
-                    query: {
-                        type: Object,
-                        observer: "queryObserver"
-                    },
-                    search: {
-                        type: Object,
-                        // observer: 'renderVariantTable'
                     },
                     queryCellbase: {
                         type: Boolean,
                         value: false
                     },
-                    variant: {
-                        type: String,
-                        notify: true
-                    },
                     config: {
                         type: Object,
-                        // observer: "configObserver"
                     }
                 }
             }
 
             static get observers() {
                 return [
-                    "propertyObserver(opencgaSession, cohorts, populationFrequencies, search, config)",
-                    "_createDefaultColumns(samples.*)"
+                    "propertyObserver(opencgaSession, query, cohorts, consequenceTypes, populationFrequencies, proteinSubstitutionScores, config)"
                 ];
             }
 
@@ -158,10 +136,33 @@
                 this._config = this.getDefaultConfig();
             }
 
-            propertyObserver(opencgaSession, cohorts, populationFrequencies, search, config) {
+            propertyObserver(opencgaSession, query, cohorts, populationFrequencies, config) {
                 // With each property change we must updated config and create the columns again. No extra checks are needed.
                 this._config = Object.assign(this.getDefaultConfig(), this.config);
                 this._columns = this._createDefaultColumns();
+
+
+                // We check query.sample and query.genotype to check if samples exist.
+                // We parse query fields and store a samples object array for convenience
+                let _samples = [];
+                if (this.query !== undefined) {
+                    if (UtilsNew.isNotUndefinedOrNull(this.query.sample)) {
+                        for (let sampleId of this.query.sample.split(",")) {
+                            _samples.push({
+                                id: sampleId,
+                            });
+                        }
+                    }
+                    if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
+                        for (let genotype of this.query.genotype.split(";")) {
+                            _samples.push({
+                                id: genotype.split(":")[0],
+                            });
+                        }
+                    }
+                }
+                this.samples = _samples;
+
 
                 // Config for the grid toolbar
                 this.toolbarConfig = {
@@ -183,6 +184,10 @@
 
                 this.variantGridFormatter = new VariantGridFormatter(this.opencgaSession, this._config);
 
+                // Set colors
+                let colors = this.variantGridFormatter.assignColors(this.consequenceTypes, this.proteinSubstitutionScores);
+                Object.assign(this, colors);
+
                 this.renderVariantTable();
             }
 
@@ -195,32 +200,7 @@
                 }
             }
 
-            queryObserver() {
-                if (this.query !== undefined && this.query.genotype !== undefined) {
-                    let _samples = [];
-                    let genotypes = this.query.genotype.split(";");
-                    for (let g of genotypes) {
-                        _samples.push({
-                            id: g.split(":")[0],
-                            name: g.split(":")[0]
-                        });
-                    }
-                    this.samples = _samples;
-                }
-                // this.query;
-                // debugger
-            }
-
-            assignColors() {
-                let colors = this.variantGridFormatter.assignColors(this.consequenceTypes, this.proteinSubstitutionScores);
-                Object.assign(this, colors);
-
-                this.renderVariantTable();
-            }
-
             renderVariantTable() {
-                // let _config = Object.assign(this.getDefaultConfig(), this.config.grid);
-
                 this.variant = ""; // Empty the variant every time the grid is loaded
 
                 this.from = 1;
@@ -229,9 +209,8 @@
 
                 let _table = $('#' + this.prefix + 'VariantBrowserGrid');
 
-                if (typeof this.opencgaClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient
-                    && typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study !== "undefined"
-                    && typeof this.opencgaSession.study.alias !== "undefined" && this.variantGridFormatter !== undefined) {
+                if (typeof this.opencgaSession !== "undefined" && typeof this.opencgaSession.project !== "undefined"
+                    && typeof this.opencgaSession.study !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
 
                     let urlQueryParams = this._getUrlQueryParams();
                     let queryParams = urlQueryParams.queryParams;
@@ -275,6 +254,17 @@
                             $($element).addClass('success');
 
                             _this._onSelectVariant(row);
+                        },
+                        onDblClickRow: function (row, element, field) {
+                            // We detail view is active we expand the row automatically.
+                            // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
+                            if (_this._config.detailView) {
+                                if (element[0].innerHTML.includes("icon-plus")) {
+                                    $(PolymerUtils.getElementById(_this.prefix + 'VariantBrowserGrid')).bootstrapTable('expandRow', element[0].dataset.index);
+                                } else {
+                                    $(PolymerUtils.getElementById(_this.prefix + 'VariantBrowserGrid')).bootstrapTable('collapseRow', element[0].dataset.index);
+                                }
+                            }
                         },
                         onCheck: function (row, $element) {
 //                            $('.success').removeClass('success');
@@ -368,11 +358,6 @@
                         }
                     });
 
-                    // if (!this.showSelect) {
-                    //     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('hideColumn', "selectForInterpretation");
-                    //     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('hideColumn', "stateCheckBox");
-                    // }
-
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
                 }
 
@@ -427,23 +412,23 @@
 
             _getUrlQueryParams() {
                 // Check the opencgaClient exists
-                if (UtilsNew.isUndefinedOrNull(this.opencgaClient)) {
+                if (UtilsNew.isUndefinedOrNull(this.opencgaSession.opencgaClient)) {
                     return {host: "", queryParams: {}};
                 }
 
-                let host = this.opencgaClient.getConfig().host;
+                let host = this.opencgaSession.opencgaClient.getConfig().host;
                 // By default we assume https protocol instead of http
                 if (!host.startsWith("https://") && !host.startsWith("http://")) {
-                    host = 'https://' + this.opencgaClient.getConfig().host;
+                    host += 'https://';
                 }
 
                 if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
-                    if (typeof this.query === "undefined") {
-                        this.query = {};
-                    }
-                    if (UtilsNew.isEmpty(this.query.studies) || this.query.studies.split(new RegExp("[,;]")).length === 1) {
-                        this.query.studies = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
-                    }
+                    // if (typeof this.query === "undefined") {
+                    //     this.query = {};
+                    // }
+                    // if (UtilsNew.isEmpty(this.query.studies) || this.query.studies.split(new RegExp("[,;]")).length === 1) {
+                    //     this.query.studies = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
+                    // }
                     host += '/webservices/rest/v1/analysis/variant/query';
                 } else {
                     return {host: host, queryParams: {}};
@@ -459,17 +444,17 @@
                     queryParams = Object.assign({}, this.query);
                 }
 
-                if (this.opencgaClient._config.sessionId !== undefined) {
-                    queryParams = Object.assign(queryParams, {sid: this.opencgaClient._config.sessionId});
+                if (this.opencgaSession.opencgaClient._config.sessionId !== undefined) {
+                    queryParams = Object.assign(queryParams, {sid: this.opencgaSession.opencgaClient._config.sessionId});
                 }
 
                 if (UtilsNew.isNotEmptyArray(this.samples)) {
-                    let sampleNames = [];
-                    this.samples.forEach((sample) => {
-                        sampleNames.push(sample.name);
-                    });
+                    // let sampleNames = [];
+                    // this.samples.forEach((sample) => {
+                    //     sampleNames.push(sample.name);
+                    // });
                     queryParams.summary = false;
-                    queryParams.includeSample = sampleNames.join(",");
+                    // queryParams.includeSample = sampleNames.join(",");
                     queryParams.exclude = "annotation.geneExpression";
                     queryParams.approximateCount = true;
                 } else {
@@ -703,43 +688,22 @@
             }
 
             populationFrequenciesFormatter(value, row, index) {
-                // debugger
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined"
-                    && typeof row.annotation.populationFrequencies !== "undefined" && row.annotation.populationFrequencies.length > 0) {
+                    && typeof row.annotation.populationFrequencies !== "undefined") {
 
-                    let data = new Map();
+                    let popFreqMap = new Map();
                     for (let popFreqIdx in row.annotation.populationFrequencies) {
                         let popFreq = row.annotation.populationFrequencies[popFreqIdx];
                         if (this.field.study === popFreq.study && this.field.populationMap[popFreq.population] === true) {
-                            data.set(popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
+                            popFreqMap.set(popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
                         }
                     }
 
-                    let tableSize = this.field.populations.length * 15;
-                    // Creates the colored table with one row and as many columns as populations
-                    let htmlPopFreqTable = "<table style='width: " + tableSize + "px'><tr>";
-                    for (let p in this.field.populations) {
-                        let popFreq = this.field.populations[p];
-                        if (typeof data.get(popFreq) !== "undefined") {
-                            let freq = data.get(this.field.populations[p]);
-                            if (freq < 0.001) {
-                                htmlPopFreqTable += "<td style='width: 15px; background: " + this.field.colors.veryRare + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
-                            } else if (freq < 0.005) {
-                                htmlPopFreqTable += "<td style='width: 15px; background: " + this.field.colors.rare + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
-                            } else if (freq < 0.05) {
-                                htmlPopFreqTable += "<td style='width: 15px; background: " + this.field.colors.average + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
-                            } else {
-                                htmlPopFreqTable += "<td style='width: 15px; background: " + this.field.colors.common + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
-                            }
-                        } else  {
-                            htmlPopFreqTable += "<td style='width: 15px; background: black;' title='" + popFreq + ": NA'>&nbsp;</td>";
-                        }
-                    }
-                    htmlPopFreqTable += "</tr></table>";
-
-                    return htmlPopFreqTable;
+                    return this.field.context.variantGridFormatter.createPopulationFrequenciesTable(this.field.populations,
+                        popFreqMap, this.field.context.populationFrequencies.color);
+                } else {
+                    return '-';
                 }
-                return '-';
             }
 
             clinicalPhenotypeFormatter(value, row, index) {
@@ -919,6 +883,7 @@
                             field: 'type',
                             rowspan: 2,
                             colspan: 1,
+                            formatter: this.variantGridFormatter.typeFormatter.bind(this),
                             halign: 'center'
                         },
                         {
@@ -1037,13 +1002,6 @@
             _updateTableColumns() {
                 // add last checkbox column
                 if (this._config.showSelectCheckbox) {
-                    this._columns[0].push({
-                        title: 'Select for <br> Interpretation',
-                        field: "selectForInterpretation",
-                        rowspan: 1,
-                        colspan: 1,
-                        align: 'center'
-                    });
                     this._columns[1].push({
                         field: "stateCheckBox",
                         checkbox: true,
@@ -1120,7 +1078,8 @@
                                 study: this.populationFrequencies.studies[j].id,
                                 populations: populations,
                                 populationMap: populationMap,
-                                colors: this.populationFrequencies.color
+                                colors: this.populationFrequencies.color,
+                                context: this
                             },
                             rowspan: 1,
                             colspan: 1,
@@ -1140,7 +1099,7 @@
                     });
                     for(let i = 0; i < this.samples.length; i++) {
                         this._columns[1].splice(i, 0, {
-                            title: this.samples[i].name,
+                            title: this.samples[i].id,
                             field: 'samples',
                             rowspan: 1,
                             colspan: 1,
@@ -1161,7 +1120,7 @@
                 this.downloadIcon.css('display', 'none');
 
                 let _this = this;
-                this.opencgaClient.variants().query(params)
+                this.opencgaSession.opencgaClient.variants().query(params)
                     .then(function (response) {
                         let result = response.response[0].result;
                         let dataString = [];

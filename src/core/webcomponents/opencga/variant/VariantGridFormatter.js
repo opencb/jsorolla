@@ -107,8 +107,7 @@ class VariantGridFormatter {
                                 <li class="dropdown-header" style="padding-left: 15px">Clinical Links</li>
                                 <li><a target='_blank' href="https://www.ncbi.nlm.nih.gov/clinvar/?term=${id}">ClinVar</a></li>
                             </ul>
-                </div>
-                `;
+                </div>`;
     }
 
     snpFormatter(value, row, index) {
@@ -139,20 +138,47 @@ class VariantGridFormatter {
             let visited = {};
             let geneLinks = [];
             for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName !== ""
-                    && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
+                let geneName = row.annotation.consequenceTypes[i].geneName;
+                if (UtilsNew.isNotEmpty(geneName) && typeof visited[geneName] === "undefined") {
                     if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study !== "undefined") {
-                        geneLinks.push(`<a style="cursor: pointer" 
-                                                href="#gene/${this.opencgaSession.project.alias}/${this.opencgaSession.study.alias}/${row.annotation.consequenceTypes[i].geneName}">
-                                                    ${row.annotation.consequenceTypes[i].geneName}
-                                            </a>`);
+                        // geneLinks.push(`<a style="cursor: pointer"
+                        //                         href="#gene/${this.opencgaSession.project.alias}/${this.opencgaSession.study.alias}/${row.annotation.consequenceTypes[i].geneName}">
+                        //                             ${row.annotation.consequenceTypes[i].geneName}
+                        //                     </a>`);
+
+
+                        let genomeBrowserMenuLink = "";
+                        if (this.config.showGenomeBrowser) {
+                            genomeBrowserMenuLink = `<li>
+                                                        <a class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
+                                                            Genome Browser
+                                                        </a>
+                                                    </li>`;
+                        }
+
+                        geneLinks.push(`<span class="dropdown variant-link-dropdown" style="white-space: nowrap">
+                            <a id="${this.prefix}dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
+                                    ${geneName}
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="${this.prefix}dropdownMenu1" style="font-size: 1.25rem;margin-top: 0px">
+                                <li class="dropdown-header">Internal Links</li>                                
+                                <li><a style="cursor: pointer" href="#gene/${this.opencgaSession.project.alias}/${this.opencgaSession.study.alias}/${geneName}">${geneName}</a></li>
+                                ${genomeBrowserMenuLink}
+                                <li class="dropdown-header" style="padding-left: 15px">External Links</li>
+                                <li><a target='_blank' href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneName}">Ensembl</a></li>
+                                <li><a target='_blank' href="https://cancer.sanger.ac.uk/cosmic/gene/analysis?ln=${geneName}">COSMIC</a></li>
+                                <li><a target='_blank' href="https://www.uniprot.org/uniprot/?sort=score&query=${geneName}">UniProt</a></li>
+                            </ul>
+                        </span>`);
+
                     } else {
-                        geneLinks.push(`<a style="cursor: pointer">${row.annotation.consequenceTypes[i].geneName}</a>`)
+                        geneLinks.push(`<a style="cursor: pointer">${geneName}</a>`)
                     }
-                    visited[row.annotation.consequenceTypes[i].geneName] = true;
+                    visited[geneName] = true;
                 }
             }
-            return geneLinks.join(", ");
+            return geneLinks.join(",");
         } else {
             return "-";
         }
