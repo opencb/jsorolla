@@ -1,0 +1,148 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<dom-module id="opencga-variant-file-metrics">
+    <template>
+        <style include="jso-styles"></style>
+
+        <div id="{{prefix}}FileMetrics">
+            <div class="col-md-8 col-md-offset-1" style="padding-top: 20px;overflow: auto;">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>VCF Attribute</th>
+                        <template is="dom-repeat" items="{{clinicalAnalysis.family.members}}" as="member">
+                            <th>{{member.id}}</th>
+                        </template>
+                    </tr>
+                    </thead>
+                    <tbody id="{{prefix}}TableTBody">
+                    <template is="dom-repeat" items="{{_getFileMetricsArray(variant.studies.0.files)}}" as="attrs">
+                        <tr id="{{attrs.name}}" class$="file-metrics-table-{{attrs.name}}">
+                            <td><span style="font-weight: bold">{{attrs.name}}</span></td>
+                            <template is="dom-repeat" items="{{attrs.values}}" as="attr">
+                                <td>{{attr}}</td>
+                            </template>
+                        </tr>
+                    </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        class OpencgaVariantFileMetrics extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                // Set status and init private properties
+                this._init();
+            }
+
+            static get is() {
+                return 'opencga-variant-file-metrics'
+            };
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object
+                    },
+                    variant: {
+                        type: Object,
+                    },
+                    clinicalAnalysis: {
+                        type: Object,
+                    },
+                    // active: {
+                    //     type: Boolean,
+                    //     value: false,
+                    // },
+                    config: {
+                        type: Object,
+                    }
+                }
+            }
+            //
+            // static get observers() {
+            //     return [
+            //         "propertyObserver(opencgaSession, variant, active, config)"
+            //     ];
+            // }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            /**
+             * Init the variables you need, keep in mind this is executed before the actual Polymer properties exist
+             */
+            _init() {
+                // All id fields in the template must start with prefix, this allows components to be instantiated more than once
+                this.prefix = "ovfm" + Utils.randomString(6);
+
+                // Initially we set the default config, this will be overridden if 'config' is passed
+                this._config = this.getDefaultConfig();
+            }
+
+            // propertyObserver(opencgaSession, variant, active, config) {
+            //     // With each property change we must updated config and create the columns again. No extra checks are needed.
+            //     this._config = Object.assign(this.getDefaultConfig(), this.config);
+            //
+            //     // this.fetchData(e);
+            // }
+
+            _getFileMetricsArray() {
+                if (this.variant === undefined || this.variant.studies === undefined) {
+                    return [];
+                }
+                let files = this.variant.studies[0].files;
+                // Let's find all the existing attributes
+                let attributesSet = new Set();
+                for (let file of files) {
+                    for(let attr of Object.keys(file.attributes)) {
+                        if (attr !== "QUAL" && attr !== "FILTER") {
+                            attributesSet.add(attr);
+                        }
+                    }
+                }
+                let attributesArray = Array.from(attributesSet.values()).sort();
+                attributesArray.unshift("QUAL", "FILTER");
+
+                // We store the values as: result = [{name: "AC", values: [1, 2, 3, 4]}]
+                let result = [];
+                for (let attr of attributesArray) {
+                    let tmp = {name: attr, values: []};
+                    for (let file of files) {
+                        tmp.values.push(file.attributes[attr]);
+                    }
+                    result.push(tmp);
+                }
+                return result;
+            }
+
+            getDefaultConfig() {
+                return {
+                    property: "example property"
+                };
+            }
+        }
+
+        customElements.define(OpencgaVariantFileMetrics.is, OpencgaVariantFileMetrics);
+    </script>
+</dom-module>
