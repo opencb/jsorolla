@@ -737,8 +737,8 @@
 
                 // Consequence Type
                 let ct = [];
-                if (typeof this.query["annot-ct"] !== "undefined") {
-                    let types = this.query["annot-ct"].split(",");
+                if (typeof this.query["ct"] !== "undefined") {
+                    let types = this.query["ct"].split(",");
                     let checkBoxes = PolymerUtils.querySelectorAll("li input", this.prefix + "consequenceTypeFilter");
                     for (let i = 0; i < types.length; i++) {
                         for (let j = 0; j < checkBoxes.length; j++) {

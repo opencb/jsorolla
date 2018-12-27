@@ -72,8 +72,8 @@
                 </div>
 
                 <div id="{{prefix}}MainWindow" class="col-md-10">
-                    <opencga-active-filters opencga-client="{{opencgaSession.opencgaClient}}" query="[[query]]" filters="{{config.filter.examples}}" on-filterchange="onActiveFilterChange" on-clear="onClear"
-                                            filter-bioformat="VARIANT" default-study="{{opencgaSession.study.alias}}" alias="{{activeFilterAlias}}" refresh="[[search]]">
+                    <opencga-active-filters opencga-client="{{opencgaSession.opencgaClient}}" query="[[query]]" filters="{{_config.config.filter.examples}}" on-filterchange="onActiveFilterChange" on-clear="onClear"
+                                            filter-bioformat="VARIANT" default-study="{{opencgaSession.study.alias}}" alias="{{_config.activeFilterAlias}}" refresh="[[search]]">
                     </opencga-active-filters>
 
                     <div class="col-md-12" style="padding: 5px 0px 5px 0px">
@@ -138,13 +138,15 @@
                                     <div class="tab-content" style="height: 680px">
                                         <!-- Annotation Tab -->
                                         <div id="{{prefix}}annotation" role="tabpanel" class="tab-pane active">
-                                            <cellbase-variantannotation-view data="{{variant}}" assembly={{opencgaSession.project.organism.assembly}} prefix="{{prefix}}"
-                                                                             cellbase-client="{{cellbaseClient}}" mode="vertical"
-                                                                             hash-fragment-credentials="{{hashFragmentCredentials}}"
-                                                                             consequence-types="{{consequenceTypes}}"
-                                                                             protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                                             style="font-size: 12px">
-                                            </cellbase-variantannotation-view>
+                                            <div style="width: 75%;padding-top: 8px">
+                                                <cellbase-variantannotation-view data="{{variant}}" assembly={{opencgaSession.project.organism.assembly}} prefix="{{prefix}}"
+                                                                                 cellbase-client="{{cellbaseClient}}" mode="vertical"
+                                                                                 hash-fragment-credentials="{{hashFragmentCredentials}}"
+                                                                                 consequence-types="{{consequenceTypes}}"
+                                                                                 protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                                 style="font-size: 12px">
+                                                </cellbase-variantannotation-view>
+                                            </div>
                                         </div>
 
                                         <!-- Cohort Stats Tab -->
@@ -319,17 +321,6 @@
                     ".|.": "#000000",
                 };
 
-                this.activeFilterAlias = {
-                    "annot-xref": "XRef",
-                    "biotype": "Biotype",
-                    "annot-ct": "Consequence Types",
-                    "alternate_frequency": "Population ALT Frequency",
-                    "annot-functional-score": "CADD",
-                    "protein_substitution": "Protein Substitution",
-                    "annot-go": "GO",
-                    "annot-hpo": "HPO"
-                };
-
                 this._config = this.getDefaultConfig();
             }
 
@@ -500,7 +491,7 @@
                                     tooltip: {
                                         headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
                                         pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                                        '<td style="padding:0"><b>{point.y:.1f} </b></td></tr>',
+                                            '<td style="padding:0"><b>{point.y:.1f} </b></td></tr>',
                                         footerFormat: '</table>',
                                         shared: true,
                                         useHTML: true
@@ -637,6 +628,17 @@
 
             getDefaultConfig() {
                 return {
+                    activeFilterAlias: {
+                        "genotype": "Sample Genotypes",
+                        "annot-xref": "XRef",
+                        "biotype": "Biotype",
+                        "annot-ct": "Consequence Types",
+                        "alternate_frequency": "Population ALT Frequency",
+                        "annot-functional-score": "CADD",
+                        "protein_substitution": "Protein Substitution",
+                        "annot-go": "GO",
+                        "annot-hpo": "HPO"
+                    },
                     genomeBrowser: {
                         showTitle: false
                     }
