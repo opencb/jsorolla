@@ -183,9 +183,9 @@
                                 limit: params.limit,
                                 skip: params.offset,
                                 skipCount: skipCount,
-                                include: "id,creationDate,status,uuid,sex,version,release,father,mother,population,"
-                                    + "dateOfBirth,modificationDate,lifeStatus,affectationStatus,phenotypes,samples,"
-                                    + "parentalConsanguinity,multiples"
+                                // include: "id,creationDate,status,uuid,sex,version,release,father,mother,population,"
+                                //     + "dateOfBirth,modificationDate,lifeStatus,affectationStatus,phenotypes,samples,"
+                                //     + "parentalConsanguinity,multiples"
                             };
 
                             if (UtilsNew.isUndefined(filters)) {
@@ -370,7 +370,7 @@
                             if (UtilsNew.isNotUndefinedOrNull(_table)) {
                                 if (!_this._config.multiSelection) {
                                     PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
-                                    _this._onSelectIndividual(data.rows[0]);
+                                    _this._onSelectIndividual(data.rows[0], "onLoad");
                                 }
 
                                 if (_this.individuals !== "undefined") {
@@ -397,14 +397,16 @@
                 }
             }
 
-            _onSelectIndividual(row) {
-                if (typeof row !== "undefined") {
-                    this.dispatchEvent(new CustomEvent('selectindividual', {
-                        detail: {
-                            id: row.id,
-                            individual: row
-                        }
-                    }));
+            _onSelectIndividual(row, event) {
+                if (UtilsNew.isNotUndefinedOrNull(row)) {
+                    if (UtilsNew.isUndefinedOrNull(event) || event !== "onLoad") {
+                        this.dispatchEvent(new CustomEvent('selectindividual', {
+                            detail: {
+                                id: row.id,
+                                individual: row
+                            }
+                        }));
+                    }
                 }
             }
 
@@ -502,7 +504,7 @@
 
             sexFormatter(value, row) {
                 let sexHtml = `<span>${row.sex}</span>`;
-                if (UtilsNew.isNotUndefinedOrNull(row.karyotypicSex) && row.karyotypicSex !== "") {
+                if (UtilsNew.isNotEmpty(row.karyotypicSex)) {
                     sexHtml += ` (${row.karyotypicSex})`;
                 }
                 return sexHtml;
@@ -526,7 +528,7 @@
 
             disordersFormatter(value, row) {
                 if (UtilsNew.isNotEmptyArray(row.phenotypes)) {
-                    let disorderSources = this.field.context._config.disorderSources;
+                    let disorderSources = this._config.disorderSources;
                     let phenotypes = "<div>";
                     for (let phenotype of row.phenotypes) {
                         if (disorderSources != null && disorderSources.includes(phenotype.source)) {
@@ -542,7 +544,7 @@
 
             phenotypesFormatter(value, row) {
                 if (UtilsNew.isNotEmptyArray(row.phenotypes)) {
-                    let disorderSources = this.field.context._config.disorderSources;
+                    let disorderSources = this._config.disorderSources;
                     let counter = 0;
                     let phenotypes = "";
                     for (let phenotype of row.phenotypes) {
@@ -562,11 +564,11 @@
                     }
 
                     let html = `<div class="dropdown phenotypes-link-dropdown" style="white-space: nowrap">
-                                <a id="${this.field.context.prefix}dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                <a id="${this.prefix}dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                     style="cursor: pointer">
                                     ${counter} terms found
                                 </a>
-                                <ul class="dropdown-menu" aria-labelledby="${this.field.context.prefix}dropdownMenu1" style="font-size: 1.25rem;margin-top: 0px;padding: 10px 0px">
+                                <ul class="dropdown-menu" aria-labelledby="${this.prefix}dropdownMenu1" style="font-size: 1.25rem;margin-top: 0px;padding: 10px 0px">
                                     <!--<li class="dropdown-header">HPO</li>-->
                                     ${phenotypes}
                                 </ul>
@@ -580,12 +582,12 @@
 
             samplesFormatter(value, row) {
                 if (UtilsNew.isNotEmptyArray(row.samples)) {
-                    let samles = "<div>";
+                    let samples = "<div>";
                     for (let sample of row.samples) {
-                        samles += `<div>${sample.id}</div>`;
+                        samples += `<div>${sample.id}</div>`;
                     }
-                    samles += "</div>";
-                    return samles;
+                    samples += "</div>";
+                    return samples;
                 } else {
                     return "-";
                 }
@@ -596,10 +598,10 @@
             }
 
             dateFormatter(value, row) {
-                if (UtilsNew.isUndefinedOrNull(value)) {
-                    return "-";
+                if (UtilsNew.isNotUndefinedOrNull(value)) {
+                    return moment(value, "YYYYMMDDHHmmss").format('D MMM YYYY');
                 }
-                return moment(value, "YYYYMMDDHHmmss").format('D MMM YYYY');
+                return "-";
             }
 
             _initTableColumns() {
@@ -622,9 +624,15 @@
                     columns.concat(
                         [
                             {
-                                title: 'Individual ID',
+                                title: 'Individual',
                                 field: 'id',
                                 sortable: true,
+                                halign: this._config.header.horizontalAlign
+                            },
+                            {
+                                title: 'Samples',
+                                field: 'samples',
+                                formatter: this.samplesFormatter,
                                 halign: this._config.header.horizontalAlign
                             },
                             {
@@ -648,27 +656,21 @@
                             },
                             {
                                 title: 'Disorders',
-                                field: {id: 'phenotypes', context: this},
-                                formatter: this.disordersFormatter,
+                                field: 'disorders',
+                                formatter: this.disordersFormatter.bind(this),
                                 halign: this._config.header.horizontalAlign
                             },
                             {
                                 title: 'Phenotypes',
-                                field: {id: 'phenotypes', context: this},
-                                formatter: this.phenotypesFormatter,
+                                field: 'phenotypes',
+                                formatter: this.phenotypesFormatter.bind(this),
                                 halign: this._config.header.horizontalAlign
                             },
-                            {
-                                title: 'Samples',
-                                field: 'samples',
-                                formatter: this.samplesFormatter,
-                                halign: this._config.header.horizontalAlign
-                            },
-                            {
-                                title: 'Affectation Status',
-                                field: 'affectationStatus',
-                                halign: this._config.header.horizontalAlign
-                            },
+                            // {
+                            //     title: 'Affectation Status',
+                            //     field: 'affectationStatus',
+                            //     halign: this._config.header.horizontalAlign
+                            // },
                             {
                                 title: 'Life Status',
                                 field: 'lifeStatus',

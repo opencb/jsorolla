@@ -189,7 +189,7 @@
                                 skip: params.offset,
                                 // includeFamily: true,
                                 skipCount: skipCount,
-                                include: "id,creationDate,status,uuid,version,release,modificationDate,phenotypes,members,expectedSize"
+                                // include: "id,creationDate,status,uuid,version,release,modificationDate,phenotypes,members,expectedSize"
                             };
 
                             if (UtilsNew.isUndefined(filters)) {
@@ -611,7 +611,7 @@
                     columns.concat(
                         [
                             {
-                                title: 'Family ID',
+                                title: 'Family',
                                 field: 'id',
                                 sortable: true,
                                 halign: this._config.header.horizontalAlign

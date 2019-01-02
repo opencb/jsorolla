@@ -253,6 +253,12 @@
                 this.memberSearch = {
                     id: memberList.join(",")
                 }
+
+                this.dispatchEvent(new CustomEvent('selectfamily', {
+                    detail: {
+                        family: this.family
+                    }
+                }));
             }
 
             _changeBottomTab(e) {

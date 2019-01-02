@@ -87,8 +87,8 @@
                         </opencga-active-filters>
 
 
-                        <div class="col-md-12" style="padding: 5px 0px 5px 0px">
-                            <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px">
+                        <div class="col-md-12" style="padding: 15px 0px">
+                            <div class="btn-toolbar" role="toolbar" aria-label="..." >
                                 <div class="btn-group" role="group" aria-label="..." >
                                     <button type="button" class="btn btn-success variant-interpretation-view-buttons active" data-view="TableResult" on-click="_changeView">
                                         <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView"></i>Table Result
@@ -104,31 +104,10 @@
                                     </button>
                                 </div>
 
-                                <div style="padding: 15px 0px 0px 0px; float: right">
-                                    <!--<div class="btn-group" role="group" aria-label="..." style="padding: 0px 5px">-->
-                                    <!--<button type="button" class="hidden btn btn-success variant-interpretation-view-buttons" data-view="ClinicalData" on-click="_changeView">-->
-                                    <!--<i class="fa fa-user-md icon-padding" aria-hidden="true" data-view="ClinicalData" on-click="_changeView"></i>Analysis and Clinical Data-->
-                                    <!--</button>-->
-                                    <!--</div>-->
-
-                                    <!--<div class="btn-group" role="group" aria-label="...">-->
-                                    <!--<template is="dom-if" if="{{clinicalAnalysis}}">-->
-                                    <!--<div class="btn-group" role="group" aria-label="...">-->
-                                    <!--<button id="{{prefix}}BackToAnalysisSelector" type="button" class="btn btn-primary variant-interpretation-view-buttons"-->
-                                    <!--data-view="OpenClinicalAnalysis" on-click="_backToSelectAnalysis">-->
-                                    <!--<i class="fa fa-arrow-left icon-padding" aria-hidden="true" data-view="OpenClinicalAnalysis" on-click="_backToSelectAnalysis"></i>Back to Clinical Analysis Selector-->
-                                    <!--</button>-->
-                                    <!--</div>-->
-                                    <!--</template>-->
-                                    <!--<button id="{{prefix}}OpenClinicalButton" type="button" class="hidden btn btn-primary variant-interpretation-view-buttons"-->
-                                    <!--data-view="OpenClinicalAnalysis" on-click="_changeView">-->
-                                    <!--<i class="fa fa-search icon-padding" aria-hidden="true" data-view="OpenClinicalAnalysis" on-click="_changeView"></i>Clinical Analysis-->
-                                    <!--</button>-->
-                                    <!--<button id="{{prefix}}SaveInterpretationButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"-->
-                                    <!--data-view="SaveInterpretation" on-click="_changeView" disabled>-->
-                                    <!--<i class="fa fa-floppy-o icon-padding" aria-hidden="true" data-view="SaveInterpretation" on-click="_changeView"></i>Save Interpretation...-->
-                                    <!--</button>-->
-                                    <!--</div>-->
+                                <div class="btn-group" role="group" aria-label="..." style="float: right">
+                                    <button type="button" class="btn btn-primary variant-interpretation-view-buttons" data-view="clinicalAnalysisEditor" on-click="_changeView" >
+                                        <i class="fa fa-edit icon-padding" aria-hidden="true" data-view="clinicalAnalysisEditor" on-click="_changeView"></i>Clinical Analysis Definition
+                                    </button>
                                     <button id="{{prefix}}SaveInterpretationButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
                                             data-view="SaveInterpretation" on-click="_changeView" disabled>
                                         <i class="fa fa-floppy-o icon-padding" aria-hidden="true" data-view="SaveInterpretation" on-click="_changeView"></i>Save Interpretation...
@@ -153,16 +132,16 @@
                                     </opencga-interpreted-variant-grid>
                                 </template>
                                 <!--<template is="dom-if" if="{{!interactive}}">-->
-                                    <!--&lt;!&ndash; Variant Browser Grid &ndash;&gt;-->
-                                    <!--<opencga-interpreted-variant-grid opencga-session="{{opencgaSession}}"-->
-                                                                      <!--query="[[defaultAutomaticQuery]]"-->
-                                                                      <!--consequence-types="{{consequenceTypes}}"-->
-                                                                      <!--population-frequencies="{{populationFrequencies}}"-->
-                                                                      <!--protein-substitution-scores="{{proteinSubstitutionScores}}"-->
-                                                                      <!--on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"-->
-                                                                      <!--style="font-size: 12px" on-setgenomebrowserposition="onGenomeBrowserPositionChange"-->
-                                                                      <!--config="{{config.grid}}">-->
-                                    <!--</opencga-interpreted-variant-grid>-->
+                                <!--&lt;!&ndash; Variant Browser Grid &ndash;&gt;-->
+                                <!--<opencga-interpreted-variant-grid opencga-session="{{opencgaSession}}"-->
+                                <!--query="[[defaultAutomaticQuery]]"-->
+                                <!--consequence-types="{{consequenceTypes}}"-->
+                                <!--population-frequencies="{{populationFrequencies}}"-->
+                                <!--protein-substitution-scores="{{proteinSubstitutionScores}}"-->
+                                <!--on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"-->
+                                <!--style="font-size: 12px" on-setgenomebrowserposition="onGenomeBrowserPositionChange"-->
+                                <!--config="{{config.grid}}">-->
+                                <!--</opencga-interpreted-variant-grid>-->
                                 <!--</template>-->
 
                                 <!-- Bottom tabs with detailed variant information -->
@@ -241,25 +220,40 @@
                                 </div>
                             </div>
 
-                            <!-- GENOME BROWSER -->
+                            <!-- CLINICAL ANALYSIS VIEW -->
+                            <div id="{{prefix}}ClinicalAnalysis" class="variant-interpretation-content" style="display: none">
+                                <clinical-analysis-view clinical-analysis={{clinicalAnalysis}} opencga-session="{{opencgaSession}}" opencga-client="{{opencgaSession.opencgaClient}}" config="{{config}}"
+                                                        class="col-md-10 col-md-offset-1" style="font-size: 12px">
+                                </clinical-analysis-view>
+                            </div>
+
+                            <!-- PANEL LOW COVERAGE VIEW -->
+                            <div id="{{prefix}}LowCoverage" class="variant-interpretation-content" style="display: none">
+                                <span>Low Coverage WIP</span>
+                            </div>
+
+                            <!-- GENOME BROWSER VIEW -->
                             <div id="{{prefix}}GenomeBrowser" class="variant-interpretation-content" style="display: none">
-                                <br>
-                                <br>
                                 <opencga-genome-browser opencga-session="{{opencgaSession}}" samples="{{samples}}" opencga-client="{{opencgaSession.opencgaClient}}"
                                                         cellbase-client="{{cellbaseClient}}" query={{query}} search={{search}} region="{{search.region}}"
                                                         active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}" config="{{_config.genomeBrowser}}">
                                 </opencga-genome-browser>
                             </div>
 
-                            <!-- ANALYSIS AND CLINICAL DATA -->
-                            <div id="{{prefix}}ClinicalData" class="variant-interpretation-content" style="display: none">
-                                <br>
-                                <!--<opencga-sample-comparator opencga-client="{{opencgaClient}}" samples="{{samples}}"-->
-                                <!--variable-sets="{{variableSets}}">-->
-                                <!--</opencga-sample-comparator>-->
-                                <clinical-analysis-view clinical-analysis={{clinicalAnalysis}} opencga-session="{{opencgaSession}}" opencga-client="{{opencgaSession.opencgaClient}}" config="{{config}}"
-                                                        class="col-md-10 col-md-offset-1" style="font-size: 12px">
-                                </clinical-analysis-view>
+
+                            <!-- SAVE INTERPRETATION TAB -->
+                            <div id="{{prefix}}clinicalAnalysisEditor" class="variant-interpretation-content" style="display: none">
+                                <div id="{{prefix}}ClinicalAnalysisCreatorWarning" class="col-md-10 col-md-offset-2" style="padding: 20px 10px">
+                                    <span class="alert alert-warning" role="alert" style="padding: 10px 10px;font-weight: bold;font-size: 1.2em">
+                                        No valid Clinical Analysis found, please fill the form below to define one case. You can also save it.
+                                    </span>
+                                </div>
+                                <div style="padding: 10px 20px">
+                                    <opencga-clinical-analysis-creator opencga-session="{{opencgaSession}}"
+                                                                       clinical-analysis="{{clinicalAnalysisTess}}"
+                                                                       config="{{config.clinicalAnalysisBrowser}}">
+                                    </opencga-clinical-analysis-creator>
+                                </div>
                             </div>
 
                             <!-- SAVE INTERPRETATION TAB -->
@@ -484,6 +478,13 @@
                     biotype: "protein_coding"
                 };
 
+                this.clinicalAnalysisTest = {
+                    id: "bbb",
+                    type: "trio",
+                    priority: "HIGH",
+                    flags: ["low_tumour_purity"],
+                    description: "ABCD"
+                };
             }
 
             propertyObserver(opencgaSession, search, config) {
@@ -688,11 +689,13 @@
 
             _changeView(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                PolymerUtils.hide(this.prefix + "TableResult");
-                PolymerUtils.hide(this.prefix + "GenomeBrowser");
+
+                // PolymerUtils.hide(this.prefix + "TableResult");
+                // PolymerUtils.hide(this.prefix + "GenomeBrowser");
                 // PolymerUtils.hide(this.prefix + "Panels");
-                PolymerUtils.hide(this.prefix + "ClinicalData");
-                PolymerUtils.hide(this.prefix + "SaveInterpretation");
+                // PolymerUtils.hide(this.prefix + "ClinicalData");
+                // PolymerUtils.hide(this.prefix + "SaveInterpretation");
+                PolymerUtils.hideByClass("variant-interpretation-content");
 
                 if (typeof e.target !== "undefined" && typeof e.target.dataset.view !== "undefined") {
                     PolymerUtils.show(this.prefix + e.target.dataset.view); // get the href and use it find which div to show
@@ -700,6 +703,7 @@
 
                 // Show the active button
                 PolymerUtils.removeClass(".variant-interpretation-view-buttons", "active");
+                // debugger
                 $(e.target).addClass("active");
 
                 // Make Genome Browser active
