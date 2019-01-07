@@ -550,7 +550,7 @@
                     for (let phenotype of row.phenotypes) {
                         if (disorderSources != null && !disorderSources.includes(phenotype.source)) {
                             phenotypes += "<li style='padding: 0px 15px'>";
-                            if (phenotype.source.toUpperCase() === "HPO") {
+                            if (UtilsNew.isNotUndefinedOrNull(phenotype.source) && phenotype.source.toUpperCase() === "HPO") {
                                 phenotypes += `<span>
                                                     <a target='_blank' href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})
                                                </span>

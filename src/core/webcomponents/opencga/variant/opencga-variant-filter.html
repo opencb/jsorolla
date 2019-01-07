@@ -15,7 +15,7 @@
   -->
 
 <link rel="import" href="variant-sample-selector.html">
-<link rel="import" href="opencga-variant-filter-sample.html">
+<link rel="import" href="opencga-variant-filter-clinical.html">
 <link rel="import" href="../catalog/samples/opencga-sample-grid.html">
 <link rel="import" href="../catalog/clinical/opencga-clinical-analysis-browser.html">
 <link rel="import" href="../../commons/variant-modal-ontology.html">
@@ -125,13 +125,18 @@
 
         <div class="modal fade" id="{{prefix}}SampleFilterModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
              role="dialog" aria-hidden="true" style="padding-top: 0%; overflow-y: visible">
-            <div class="modal-dialog" style="width: 1024px">
+            <div class="modal-dialog" style="width: 1280px">
                 <div class="modal-content">
                     <div class="modal-header" style="padding: 5px 15px">
-                        <h3>Sample Selection</h3>
+                        <h3>Sample and File Filters</h3>
                     </div>
                     <div class="modal-body">
-                        <opencga-variant-filter-sample opencga-session={{opencgaSession}} on-samplefilterschange="onSampleFiltersChange" samples="{{samples}}"></opencga-variant-filter-sample>
+                        <opencga-variant-filter-clinical opencga-session={{opencgaSession}}
+                                                         clinical-analysis="{{clinicalAnalysis}}"
+                                                         query="{{query}}"
+                                                         on-samplefilterschange="onSampleFiltersChange"
+                                                         style="font-size: 12px">
+                        </opencga-variant-filter-clinical>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
@@ -172,9 +177,13 @@
                         notify: true,
                         observer: "searchObserver"
                     },
-                    family: {
+                    // family: {
+                    //     type: Object,
+                    //     observer: "familyObserver"
+                    // },
+                    clinicalAnalysis: {
                         type: Object,
-                        observer: "familyObserver"
+                        observer: "clinicalObserver"
                     },
                     opencgaClient: {
                         type: Object
@@ -336,6 +345,13 @@
                         _samples.push(sample);
                     }
                     this.samples = _samples;
+                }
+            }
+
+            clinicalObserver(clinicalAnalysis) {
+                // debugger
+                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis)) {
+                    // this.clinicalAnalysis = Object.assign({}, clinicalAnalysis);
                 }
             }
 
@@ -1646,7 +1662,7 @@
                 //             }
                 //         }
                 //         options += "</optgroup>";
-                //
+                /3/
                 //         // Search Global Panels
                 //         _this.opencgaClient.panels()
                 //             .search({
@@ -2266,12 +2282,12 @@
                     elementById.innerHTML = sampleTableTr;
                 }
 
-                // Process Sample filters
+                // Process File filters
                 let fileTableTr = "";
                 let _info = "";
                 for (let fileFilter of e.detail.fileFilters) {
                     let qual = (fileFilter.qual > 0) ? fileFilter.qual : -1;
-                    let filter = (UtilsNew.isNotUndefinedOrNull(fileFilter.filter)) ? fileFilter.filter : "none";
+                    let filter = (UtilsNew.isNotEmpty(fileFilter.filter)) ? fileFilter.filter : "none";
 
                     fileTableTr += `
                             <tr data-file="${fileFilter.name}">
@@ -2293,7 +2309,7 @@
                         if (qual !== -1) {
                             _arr.push("QUAL>" + qual)
                         }
-                        if (filter !== "none") {
+                        if (filter !== "none" && filter !== "") {
                             _arr.push("FILTER=" + filter);
                         }
                         // FIXME join should be done with ';' instead of ','

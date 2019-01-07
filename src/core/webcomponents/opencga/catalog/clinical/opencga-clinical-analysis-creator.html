@@ -22,27 +22,31 @@
     <template>
         <style>
             .browser-subsection {
-                font-size: 1.35rem;
-                font-weight: bold;
+                /*font-size: 1.35rem;*/
+                /*font-weight: bold;*/
                 padding: 5px 0px;
-                color: #444444;
-                border-bottom: 1px solid rgba(221, 221, 221, 0.8);
+                width: 80%;
+                border-bottom: 1px solid #ddd;
+            }
+
+            .form-section-title {
+                padding: 5px 0px;
+                width: 80%;
+                border-bottom-width: 1px;
+                border-bottom-style: solid;
+                border-bottom-color: #ddd
             }
 
             .jso-label-title {
                 width: 15em !important;
-            }
-
-            .table-responsive {
-                overflow-y: visible !important;
             }
         </style>
 
         <div class="row">
             <div class="col-md-12">
 
-                <div class="browser-subsection">
-                    <h3>Clinical Analysis Information</h3>
+                <div>
+                    <h3 class="form-section-title">Clinical Analysis Information</h3>
                 </div>
 
                 <div class="form-horizontal" style="padding: 5px 10px">
@@ -133,8 +137,8 @@
                 </div>
 
 
-                <div class="browser-subsection">
-                    <h3>Proband and Disease</h3>
+                <div>
+                    <h3 class="form-section-title">Proband and Disease</h3>
                 </div>
 
                 <div class="form-horizontal" style="padding: 10px 10px">
@@ -180,7 +184,7 @@
 
                     <div class="form-group">
                         <label class="control-label col-md-1 jso-label-title">Sample Configuration:</label>
-                        <div id="{{prefix}}GridTableDiv" class="col-md-12" style="padding: 10px 25px">
+                        <div id="{{prefix}}GridTableDiv" class="col-md-10 col-md-offset-1" style="padding: 10px 20px">
                             <table id="{{prefix}}IndividualBrowserGrid">
                                 <thead style="background-color: #eee"></thead>
                             </table>
@@ -193,10 +197,10 @@
 
             <div class="col-md-2 col-md-offset-2">
                 <!--<div class="form-group">-->
-                    <!--<div class="col-md-2" style="float: right">-->
-                        <button id="{{prefix}}Clear" class="btn btn-primary" on-click="onClear">Clear</button>
-                        <button id="{{prefix}}Ok" class="btn btn-primary" on-click="onOk">Ok</button>
-                    <!--</div>-->
+                <!--<div class="col-md-2" style="float: right">-->
+                <button id="{{prefix}}Clear" class="btn btn-primary" on-click="onClear">Clear</button>
+                <button id="{{prefix}}Ok" class="btn btn-primary" on-click="onOk">Create</button>
+                <!--</div>-->
                 <!--</div>-->
             </div>
         </div>
@@ -296,7 +300,8 @@
                 this.prefix = "ocab-" + Utils.randomString(6);
 
                 this._config = this.getDefaultConfig();
-                this._individuals = []
+                this._individuals = [];
+                this._disorders = [];
                 this.isCreate = false;
                 this.notifyEnabled = true;
 
@@ -355,9 +360,10 @@
                     this._clinicalAnalysis = this.getDefaultClinicalAnalysis();
                 } else {
                     // Merge default and passed clinical analysis, then notify.
-                    let defaultClinicalAnalysis = this.getDefaultClinicalAnalysis();
-                    this._clinicalAnalysis = Object.assign(defaultClinicalAnalysis, this.clinicalAnalysis);
-                    this.notifyClinicalAnalysis();
+                    // let defaultClinicalAnalysis = this.getDefaultClinicalAnalysis();
+                    // this._clinicalAnalysis = Object.assign(defaultClinicalAnalysis, this.clinicalAnalysis);
+                    this._clinicalAnalysis = this.clinicalAnalysis;
+                    // this.notifyClinicalAnalysis();
                 }
                 this.fillForm(this._clinicalAnalysis);
 
@@ -381,10 +387,11 @@
 
                 if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis)) {
                     // Merge default and passed clinical analysis, then notify.
-                    let defaultClinicalAnalysis = this.getDefaultClinicalAnalysis();
-                    this._clinicalAnalysis = Object.assign(defaultClinicalAnalysis, clinicalAnalysis);
+                    // let defaultClinicalAnalysis = this.getDefaultClinicalAnalysis();
+                    // this._clinicalAnalysis = Object.assign(defaultClinicalAnalysis, clinicalAnalysis);
+                    this._clinicalAnalysis = clinicalAnalysis;
                     this.fillForm(this._clinicalAnalysis);
-                    this.notifyClinicalAnalysis();
+                    // this.notifyClinicalAnalysis();
                 }
 
                 this.renderTable();
@@ -438,8 +445,14 @@
                 // We must first clear the form
                 this.clear();
 
-                // This does not work because of conditional Template, I'm binding '_clinicalAnalysis.id' instead
-                // PolymerUtils.setValue(this.prefix + "Id", this._clinicalAnalysis.id);
+                // Calculate some internal data and render the sample table
+                this._individuals = this.getIndividualsFromClinicalAnalysis(clinicalAnalysis);
+                this._disorders = this.getDisordersFromIndividuals(this._individuals);
+                this.renderTable();
+
+                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.id)) {
+                    PolymerUtils.setValue(this.prefix + "Id", clinicalAnalysis.id);
+                }
 
                 if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.type)) {
                     $("#" + this.prefix + "Type").selectpicker('val', clinicalAnalysis.type);
@@ -461,13 +474,7 @@
                     $("#" + this.prefix + "Disorder").selectpicker('val', clinicalAnalysis.disorder.id);
                 }
 
-                if (UtilsNew.isNotUndefinedOrNull(this._clinicalAnalysis.family)) {
-                    this.updateIndividual(this._clinicalAnalysis.family.members);
-                }
-
                 this.notifyEnabled = true;
-
-                this.notifyClinicalAnalysis();
             }
 
             clear() {
@@ -483,7 +490,7 @@
             }
 
             notifyClinicalAnalysis() {
-                debugger
+                // debugger
                 if (this.notifyEnabled) {
                     this.dispatchEvent(new CustomEvent("clinicalanalysischange", {
                         detail: {
@@ -499,10 +506,6 @@
                 let individuals = [e.detail.individual];
                 this._clinicalAnalysis.family = undefined;
                 this.updateIndividual(individuals);
-
-                // this._clinicalAnalysis = Object.assign({}, this._clinicalAnalysis);
-                this.fillForm(this._clinicalAnalysis);
-                // this.renderTable();
             }
 
             onFamilySelect(e) {
@@ -520,56 +523,52 @@
                 }).then(function(response) {
                     _this._clinicalAnalysis.family.members = response.response[0].result;
                     _this.updateIndividual(response.response[0].result);
-                    _this.fillForm(_this._clinicalAnalysis);
-                    // _this.renderTable();
                     }
                 );
             }
 
             updateIndividual(individuals) {
-                this._clinicalAnalysis.proband = undefined;
                 this._clinicalAnalysis.files = {};
-                this._individuals = individuals;
+                // this._individuals = individuals;
 
                 // Set the proband when there is just one individual
-                if (UtilsNew.isNotEmptyArray(individuals) && individuals.length === 1) {
+                this._clinicalAnalysis.proband = undefined;
+                // FIXME add this comparisson
+                // && individuals.length === 1
+                if (UtilsNew.isNotEmptyArray(individuals) ) {
                     this._clinicalAnalysis.proband = individuals[0];
                 }
 
-                let samples = [];
-                let disorders = [];
+                let sampleIds = [];
                 for (let individual of individuals) {
                     for (let sample of individual.samples) {
-                        samples.push(sample.id);
-                    }
-
-                    for (let disorder of individual.disorders) {
-                        // disorders does not contain the element we're looking for
-                        if (disorders.filter(e => e.id === disorder.id).length === 0) {
-                            disorders.push(disorder);
-                        }
+                        sampleIds.push(sample.id);
                     }
                 }
 
                 // This triggers the render of Disorder dropdown
+                let disorders = this.getDisordersFromIndividuals(individuals);
                 this._disorders = disorders;
                 if (UtilsNew.isNotEmptyArray(disorders) && disorders.length === 1) {
                     this._clinicalAnalysis.disorder = disorders[0];
                 }
 
-                if (UtilsNew.isNotEmptyArray(samples)) {
+                if (UtilsNew.isNotEmptyArray(sampleIds)) {
                     let promises = [];
-                    for (let sample of samples) {
+                    for (let sampleId of sampleIds) {
                         // We look for the files related to the samples
                         promises.push(this.opencgaSession.opencgaClient.files().search({
-                            samples: sample,
+                            samples: sampleId,
                             format: "BAM,VCF,BIGWIG",
                             study: this.opencgaSession.study.fqn,
-                            include: "id,name,format,bioformat,size"
+                            exclude: "samples"
+                            // include: "id,name,format,bioformat,size"
                         }).then(function(response) {
-                                return {sampleId: sample, files: response.response[0].result}
+                            return {
+                                sampleId: sampleId,
+                                files: response.response[0].result
                             }
-                        ));
+                        }));
                     }
 
                     let files = {};
@@ -579,15 +578,11 @@
                         }
                         this._clinicalAnalysis.files = files;
 
-                        // Set global property
-                        // this.fillForm(this._clinicalAnalysis);
-                        this.renderTable();
+                        this.fillForm(this._clinicalAnalysis);
                         this.notifyClinicalAnalysis();
                     });
                 } else {
-                    // Set global property
-                    // this.fillForm(this._clinicalAnalysis);
-                    this.renderTable();
+                    this.fillForm(this._clinicalAnalysis);
                     this.notifyClinicalAnalysis();
                 }
             }
@@ -611,6 +606,35 @@
                 // $("#" + this.prefix + "FamilyBrowser").modal('show');
             }
 
+            getIndividualsFromClinicalAnalysis(clinicalAnalysis) {
+                let individuals = [];
+                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis)) {
+                    if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.family)) {
+                        individuals = clinicalAnalysis.family.members;
+                    } else {
+                        if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.proband)) {
+                            individuals = [clinicalAnalysis.proband];
+                        }
+                    }
+                }
+                return individuals;
+            }
+
+            getDisordersFromIndividuals(individuals) {
+                let disorders = [];
+                if (UtilsNew.isNotEmptyArray(individuals)) {
+                    for (let individual of individuals) {
+                        for (let disorder of individual.disorders) {
+                            // disorders array does not contain the element we're looking for
+                            if (disorders.filter(e => e.id === disorder.id).length === 0) {
+                                disorders.push(disorder);
+                            }
+                        }
+                    }
+                }
+                return disorders;
+            }
+
             isFamilyAnalysis(type) {
                 if (type === "single" || type === "multiple" || type === "somatic") {
                     return false;
@@ -632,6 +656,7 @@
                 this._clinicalAnalysis = this.getDefaultClinicalAnalysis();
                 this.fillForm(this._clinicalAnalysis);
                 this.renderTable();
+                this.notifyClinicalAnalysis();
             }
 
 
@@ -689,19 +714,37 @@
                         buttons[i].disabled = false;
                     }
                 }
+
+                this._clinicalAnalysis.family.members = this._individuals;
+                delete this._clinicalAnalysis.files[e.target.dataset.id];
+
+                this.notifyClinicalAnalysis(this._clinicalAnalysis);
             }
 
             detailFormatter(index, row) {
-                
+                // let result = `<div class='row' style="padding: 5px 10px 15px 10px">
+                //                 <div class='col-md-12'>
+                //                     <h5 style="font-weight: bold">Samples</h5>
+                // `;
+                //
+                // if (UtilsNew.isNotEmptyArray(row.samples)) {
+                //     if (row.samples.length === 1) {
+                //         result += ""
+                //     } else {
+                //
+                //     }
+                // }
+
             }
 
             samplesFormatter(value, row) {
                 if (UtilsNew.isNotEmptyArray(row.samples)) {
-                    let samples = "<div>";
-                    for (let sample of row.samples) {
-                        samples += `<div>${sample.id}</div>`;
-                    }
-                    samples += "</div>";
+                    let samples = "<span>";
+                    // for (let sample of row.samples) {
+                    //     samples += `<div>${sample.id}</div>`;
+                    // }
+                    samples += row.samples[0].id;
+                    samples += "</span>";
                     return samples;
                 } else {
                     return "-";
@@ -749,10 +792,17 @@
                             // rowspan: 2,
                         },
                         {
-                            title: 'Samples',
+                            title: 'Sample',
                             field: 'samples',
                             // rowspan: 2,
                             formatter: this.samplesFormatter,
+                        },
+                        {
+                            title: 'Proband',
+                            // radio: true,
+                            // rowspan: 2,
+                            formatter: this.probandFormatter,
+                            align: this._config.grid.header.horizontalAlign
                         },
                         {
                             title: 'Father',
@@ -765,13 +815,6 @@
                             field: 'mother.id',
                             // rowspan: 2,
                             // formatter: this.motherFormatter,
-                        },
-                        {
-                            title: 'Proband',
-                            // radio: true,
-                            // rowspan: 2,
-                            formatter: this.probandFormatter,
-                            align: this._config.grid.header.horizontalAlign
                         },
                         {
                             title: 'Affected',

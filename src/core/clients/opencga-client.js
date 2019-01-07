@@ -1170,6 +1170,10 @@ class Variant extends OpenCGAParentClass {
         return this.get("analysis/variant", undefined, "index", params, options);
     }
 
+    familyGenotypes(params, options) {
+        return this.get("analysis/variant", undefined, "familyGenotypes", params, options);
+    }
+
 }
 
 class Ga4gh extends OpenCGAParentClass {

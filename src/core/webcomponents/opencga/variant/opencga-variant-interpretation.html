@@ -68,11 +68,11 @@
                 <div>
                     <!--<template is="dom-if" if="{{interactive}}" on-dom-change="interactiveObserver">-->
                     <div id="{{prefix}}FilterMenu" class$="{{filterClass}}">
-                        <opencga-variant-filter opencga-session="{{opencgaSession}}"
-                                                family="[[family]]"
+                        <opencga-variant-filter opencga-session="{{opencgaSession}}" query="{{query}}" search="{{search}}"
+                                                family="[[family]]" clinical-analysis="{{clinicalAnalysis}}"
                                                 opencga-client="{{opencgaSession.opencgaClient}}" cellbase-client="{{cellbaseClient}}" config="{{config.filter}}"
                                                 population-frequencies="{{populationFrequencies}}"
-                                                consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
+                                                consequence-types="{{consequenceTypes}}"
                                                 on-samplechange="onSampleChange"
                                                 on-inheritancemode="_onInheritanceMode" mode-inheritance="{{modeInheritance}}">
                         </opencga-variant-filter>
@@ -121,13 +121,13 @@
                             <div id="{{prefix}}TableResult" class="variant-interpretation-content">
                                 <template is="dom-if" if="{{interactive}}">
                                     <!-- Variant Browser Grid -->
-                                    <opencga-interpreted-variant-grid opencga-session="{{opencgaSession}}"
+                                    <opencga-interpreted-variant-grid opencga-session="{{opencgaSession}}" clinical-analysis="{{clinicalAnalysis}}"
                                                                       query="{{search}}"
                                                                       consequence-types="{{consequenceTypes}}"
                                                                       population-frequencies="{{populationFrequencies}}"
                                                                       protein-substitution-scores="{{proteinSubstitutionScores}}"
                                                                       on-selected="selectedGene" on-selectvariant="onSelectVariant" on-checkvariant="onCheckVariant"
-                                                                      style="font-size: 12px" on-setgenomebrowserposition="onGenomeBrowserPositionChange"
+                                                                      on-setgenomebrowserposition="onGenomeBrowserPositionChange"
                                                                       config="{{config.grid}}">
                                     </opencga-interpreted-variant-grid>
                                 </template>
@@ -249,8 +249,8 @@
                                     </span>
                                 </div>
                                 <div style="padding: 10px 20px">
-                                    <opencga-clinical-analysis-creator opencga-session="{{opencgaSession}}"
-                                                                       clinical-analysis="{{clinicalAnalysisTess}}"
+                                    <opencga-clinical-analysis-creator opencga-session="{{opencgaSession}}" clinical-analysis="{{clinicalAnalysisTest}}"
+                                                                       on-clinicalanalysischange="onClinicalAnalysisEditor"
                                                                        config="{{config.clinicalAnalysisBrowser}}">
                                     </opencga-clinical-analysis-creator>
                                 </div>
@@ -478,13 +478,13 @@
                     biotype: "protein_coding"
                 };
 
-                this.clinicalAnalysisTest = {
-                    id: "bbb",
-                    type: "trio",
-                    priority: "HIGH",
-                    flags: ["low_tumour_purity"],
-                    description: "ABCD"
-                };
+                // this.clinicalAnalysisTest = {
+                //     id: "bbb",
+                //     type: "trio",
+                //     priority: "HIGH",
+                //     flags: ["low_tumour_purity"],
+                //     description: "ABCD"
+                // };
             }
 
             propertyObserver(opencgaSession, search, config) {
@@ -516,7 +516,7 @@
                 let _this = this;
                 this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {})
                     .then((response) => {
-                        // this must call to clinicalAnalysisObserver function
+                        // This triggers the call to clinicalAnalysisObserver function below
                         _this.clinicalAnalysis = response.response[0].result[0];
                     })
                     .catch((response) => {
@@ -525,41 +525,53 @@
             }
 
             clinicalAnalysisObserver() {
-                let _samples = [];
+                // this.clinicalAnalysis;
+                // debugger
+                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
+                    let _samples = [];
+                    let _individuals = [];
 
-                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis) && UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.family.members)) {
-                    this.set("family", this.clinicalAnalysis.family);
-                    this.clinicalAnalysis.family.members.forEach((member) => {
-                        if (UtilsNew.isNotUndefinedOrNull(member.samples)) {
-                            member.samples.map((sample) => {
-                                _samples.push(sample)
-                            });
+                    if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.family.members)) {
+                        this.set("family", this.clinicalAnalysis.family);
+                        _individuals = this.clinicalAnalysis.family.members;
+                    } else {
+                        if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.proband)) {
+                            _individuals = [this.clinicalAnalysis.proband];
                         }
-                    });
-                } else {
-                    if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.subjects)) {
-                        this.clinicalAnalysis.subjects.forEach((individual) => {
-                            individual.samples.map((sample) => {
-                                _samples.push(sample)
-                            });
+                    }
+
+                    if (UtilsNew.isNotEmptyArray(_individuals)) {
+                        _individuals.forEach(individual => {
+                            if (UtilsNew.isNotUndefinedOrNull(individual.samples)) {
+                                individual.samples.map(sample => {
+                                    _samples.push(sample)
+                                });
+                            }
                         });
                     } else {
-                        console.warn("A Clinical Analysis with no subjects or family has been passed");
+                        console.warn("A Clinical Analysis with no proband or family has been passed");
+                    }
+
+                    if (UtilsNew.isNotEmptyArray(_samples)) {
+                        // Set samples array and notify, this must be done using Polymer API
+                        // this.samples = Object.assign({}, _samples);
+
+                        // We need a different private property for variant-browser-filter to avoid circular calls
+                        this._initGenotypeSamples(_samples);
+                        this.search = Object.assign({}, this.query);
+                        // debugger
+
+                        // this.set("samplesForMenuFilter", _samples);
+
+                        // Notify to all listeners of the new samples
+                        this.dispatchEvent(new CustomEvent('samplechange', {detail: {samples: this.samples}}));
                     }
                 }
-                if (UtilsNew.isNotEmptyArray(_samples)) {
-                    // Set samples array and notify, this must be done using Polymer API
-                    this.set("samples", _samples);
+            }
 
-                    // We need a different private property for variant-browser-filter to avoid circular calls
-                    this._initGenotypeSamples(_samples);
-                    this.search = Object.assign({}, this.query);
-
-                    // this.set("samplesForMenuFilter", _samples);
-
-                    // Notify to all listeners of the new samples
-                    this.dispatchEvent(new CustomEvent('samplechange', {detail: {samples: this.samples}}));
-                }
+            onClinicalAnalysisEditor(e) {
+                // debugger
+                this.clinicalAnalysis = Object.assign({}, e.detail.clinicalAnalysis);
             }
 
             diseasePanelIdObserver() {
@@ -675,16 +687,42 @@
                 if (UtilsNew.isUndefinedOrNull(this.genotypeSamples)) {
                     this.genotypeSamples = {};
                 }
+                let genotypeSamples = {};
                 samples.forEach((sample) => {
-                    if (UtilsNew.isUndefinedOrNull(this.genotypeSamples[sample.name]) || force){
-                        this.genotypeSamples[sample.name] = {};
+                    if (UtilsNew.isUndefinedOrNull(genotypeSamples[sample.id]) || force){
+                        genotypeSamples[sample.id] = {};
                         // this.genotypeSamples[sample.name]["0/0"] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
-                        this.genotypeSamples[sample.name]["0/1"] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
-                        this.genotypeSamples[sample.name]["1/1"] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
+                        genotypeSamples[sample.id]["0/1"] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
+                        genotypeSamples[sample.id]["1/1"] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
                         // this.genotypeSamples[sample.name]["./."] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
                     }
                 });
-                this.query = Object.assign({}, this.query, {genotype: this.getGenotypeFilter(this.genotypeSamples)});
+                // debugger
+                this.query = Object.assign({}, this.query, {genotype: this.getGenotypeFilter(genotypeSamples)});
+            }
+
+            getGenotypeFilter(genotypeSamples) {
+                let genotype = [];
+                Object.keys(genotypeSamples).forEach(sampleId => {
+                    if (UtilsNew.isNotUndefinedOrNull(genotypeSamples[sampleId])) {
+                        // genotype += sampleId+ ":";
+                        let gt = [];
+                        if (genotypeSamples[sampleId]["0/0"]) {
+                            gt.push("0/0");
+                        }
+                        if (genotypeSamples[sampleId]["0/1"]) {
+                            gt.push("0/1");
+                        }
+                        if (genotypeSamples[sampleId]["1/1"]) {
+                            gt.push("1/1");
+                        }
+                        if (genotypeSamples[sampleId]["./."]) {
+                            gt.push("./.");
+                        }
+                        genotype.push(sampleId+ ":" + gt.join(","));
+                    }
+                });
+                return genotype.join(";");
             }
 
             _changeView(e) {
@@ -896,52 +934,26 @@
                     });
             }
 
-            getGenotypeFilter(genotypeSamples) {
-                let genotype = "";
-                this.samples.forEach((sample) => {
-                    if (UtilsNew.isNotUndefinedOrNull(genotypeSamples[sample.name])) {
-                        genotype += sample.name+ ":"
-                        let gt = [];
-                        if (genotypeSamples[sample.name]["0/0"]) {
-                            gt.push("0/0");
-                        }
-                        if (genotypeSamples[sample.name]["0/1"]) {
-                            gt.push("0/1");
-                        }
-                        if (genotypeSamples[sample.name]["1/1"]) {
-                            gt.push("1/1");
-                        }
-                        if (genotypeSamples[sample.name]["./."]) {
-                            gt.push("./.");
-                        }
-                        genotype += gt.join(",") + ";"
-                    }
-                });
-
-
-                return genotype;
-            }
-
             /*
             * Inheritance Mode Methods
             * @TODO We should remove this when exists in server an endpoint to get this values
             */
-            _onInheritanceMode(e) {
-                // Recover modeInheritance selected and decisionTree from settings tools
-                this.decisionTreeInheritanceMode = e.detail.decisionTreeInheritance;
-
-                // Init for each sample its value for each genotype
-                if (this.modeInheritance !== "autoDominant" && this.modeInheritance !== "autoRecessive" && this.modeInheritance !== "xLinked" && this.modeInheritance !== "yLinked") {
-                    this._initGenotypeSamples(this.samples, true);
-                    this.genotypeSamples = Object.assign({}, this.genotypeSamples);
-                    return;
-                }
-
-                this._initGenotypeSamples(this.samples, true, false);
-                // Get genotype values
-                this.genotypeSamples = Segregations.inheritanceMode(this.modeInheritance, this.clinicalAnalysis, this.genotypeSamples, this.samples);
-                this.query = Object.assign({}, this.query, {genotype: this.getGenotypeFilter(this.genotypeSamples)});
-            }
+            // _onInheritanceMode(e) {
+            //     // Recover modeInheritance selected and decisionTree from settings tools
+            //     this.decisionTreeInheritanceMode = e.detail.decisionTreeInheritance;
+            //
+            //     // Init for each sample its value for each genotype
+            //     if (this.modeInheritance !== "autoDominant" && this.modeInheritance !== "autoRecessive" && this.modeInheritance !== "xLinked" && this.modeInheritance !== "yLinked") {
+            //         this._initGenotypeSamples(this.samples, true);
+            //         this.genotypeSamples = Object.assign({}, this.genotypeSamples);
+            //         return;
+            //     }
+            //
+            //     this._initGenotypeSamples(this.samples, true, false);
+            //     // Get genotype values
+            //     this.genotypeSamples = Segregations.inheritanceMode(this.modeInheritance, this.clinicalAnalysis, this.genotypeSamples, this.samples);
+            //     this.query = Object.assign({}, this.query, {genotype: this.getGenotypeFilter(this.genotypeSamples)});
+            // }
 
             getDefaultConfig() {
                 return {
