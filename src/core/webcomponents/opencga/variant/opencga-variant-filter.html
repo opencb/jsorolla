@@ -133,7 +133,7 @@
                     <div class="modal-body">
                         <opencga-variant-filter-clinical opencga-session={{opencgaSession}}
                                                          clinical-analysis="{{clinicalAnalysis}}"
-                                                         query="{{query}}"
+                                                         query="[[query]]"
                                                          on-samplefilterschange="onSampleFiltersChange"
                                                          style="font-size: 12px">
                         </opencga-variant-filter-clinical>
@@ -318,6 +318,7 @@
             }
 
             queryObserver(newValue, oldValue) {
+                debugger
                 if (this._reset) {
                     this.setQueryFilters();
                 } else {
@@ -2248,6 +2249,7 @@
             }
 
             onSampleFiltersChange(e) {
+                debugger
                 // Process Sample filters
                 let sampleTableTr = "";
                 let _genotypeFilter = [];

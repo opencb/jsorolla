@@ -51,7 +51,7 @@
 
             <div class="col-md-10">
                 <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" default-study="{{opencgaSession.study.alias}}"
-                                        config="{{filtersConfig}}" alias="{{activeFilterAlias}}" refresh="{{search}}" on-clear="onClear" on-filterchange="onActiveFilterChange">
+                                        config="{{_config.activeFilters}}" alias="{{activeFilterAlias}}" refresh="{{search}}" on-clear="onClear" on-filterchange="onActiveFilterChange">
                 </opencga-active-filters>
 
                 <!-- Family View Buttons -->
@@ -194,9 +194,9 @@
 
                 this._config = this.getDefaultConfig();
 
-                this.filtersConfig = {
-                    complexFields: ["annotation"]
-                };
+                // this.filtersConfig = {
+                //     complexFields: ["annotation"]
+                // };
             }
 
             static get observers() {
@@ -336,7 +336,10 @@
                     familyDetail: {
                         showTitle: false
                     },
-                    variableSetIds: []
+                    variableSetIds: [],
+                    activeFilters: {
+                        complexFields: ["annotation"]
+                    }
                 };
             }
         }

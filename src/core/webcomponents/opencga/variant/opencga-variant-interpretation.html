@@ -81,9 +81,13 @@
 
                     <div id="{{prefix}}MainWindow" class$="{{gridClass}}">
 
-                        <opencga-active-filters opencga-client="{{opencgaSession.opencgaClient}}" query="[[query]]" filters="{{_config.filter.examples}}" on-filterchange="onActiveFilterChange" on-clear="onClear"
-                                                filter-bioformat="VARIANT" default-study="{{opencgaSession.study.alias}}" alias="{{_config.activeFilterAlias}}" refresh="{{search}}" genotype-samples="{{genotypeSamples}}"
-                                                mode-inheritance="[[modeInheritance]]">
+                        <opencga-active-filters opencga-client="{{opencgaSession.opencgaClient}}"
+                                                query="[[query]]" filters="{{_config.filter.examples}}"
+                                                on-filterchange="onActiveFilterChange" on-clear="onClear"
+                                                filter-bioformat="VARIANT" default-study="{{opencgaSession.study.alias}}"
+                                                alias="{{_config.activeFilterAlias}}" refresh="{{search}}"
+                                                genotype-samples="{{genotypeSamples}}" mode-inheritance="[[modeInheritance]]"
+                                                config="{{_config.activeFilters}}">
                         </opencga-active-filters>
 
 
@@ -622,7 +626,14 @@
                 // debugger
                 // this.query = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
                 // this.search = this.query;
-                this.search = {};
+                let _search = {};
+                for (let hiddenField of this._config.activeFilters.hiddenFields) {
+                    if (UtilsNew.isNotUndefinedOrNull(this.query[hiddenField])) {
+                        _search[hiddenField] = this.query[hiddenField];
+                    }
+                }
+
+                this.search = _search;
             }
 
             onActiveFilterChange(e) {
@@ -697,8 +708,9 @@
                         // this.genotypeSamples[sample.name]["./."] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
                     }
                 });
-                // debugger
+                debugger
                 this.query = Object.assign({}, this.query, {genotype: this.getGenotypeFilter(genotypeSamples)});
+                debugger
             }
 
             getGenotypeFilter(genotypeSamples) {
@@ -957,17 +969,15 @@
 
             getDefaultConfig() {
                 return {
-                    activeFilterAlias: {
-                        "genotype": "Sample Genotypes",
-                        "annot-xref": "XRef",
-                        "biotype": "Biotype",
-                        "ct": "Consequence Types",
-                        "annot-ct": "Consequence Types",
-                        "alternate_frequency": "Population ALT Frequency",
-                        "annot-functional-score": "CADD",
-                        "protein_substitution": "Protein Substitution",
-                        "annot-go": "GO",
-                        "annot-hpo": "HPO"
+                    activeFilters: {
+                        alias: {
+                            // Example:
+                            // "region": "Region",
+                            // "gene": "Gene",
+                            // "genotype": "Sample Genotypes",
+                        },
+                        complexFields: ["genotype"],
+                        hiddenFields: ["study", "sample"]
                     },
                     genomeBrowser: {
                         showTitle: false

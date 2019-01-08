@@ -141,6 +141,7 @@
                 super();
 
                 this.prefix = "oaf" + Utils.randomString(6);
+                this._config = this.getDefaultConfig();
             }
 
             static get is() {
@@ -177,11 +178,7 @@
                     },
                     config: {
                         type: Object,
-                        value: function () {
-                            return {
-                                complexFields: []
-                            };
-                        }
+                        observer: "configObserver",
                     }
                 }
             }
@@ -213,6 +210,12 @@
                         }
                     }
                 }
+            }
+
+            configObserver(config) {
+                this._config = Object.assign(this.getDefaultConfig(), config);
+                // Overwrite default alias with the one passed
+                this._config.alias = Object.assign({}, this.getDefaultConfig().alias, config.alias);
             }
 
             clear() {
@@ -341,7 +344,8 @@
 //                    let filterFields = _queryList[name].split(new RegExp("[,;]"));
                     let filterFields;
                     if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1)
-                        || this.config.complexFields.indexOf(name) !== -1) {
+                    // if ((_queryList[name].indexOf(";") !== -1 && _queryList[name].indexOf(",") !== -1)
+                        || this._config.complexFields.indexOf(name) !== -1) {
                         filterFields = _queryList[name].split(new RegExp(";"));
                     } else {
                         filterFields = _queryList[name].split(new RegExp("[,;]"));
@@ -351,7 +355,7 @@
                     filterFields.splice(indexOfValue, 1);
 
                     if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1)
-                        || this.config.complexFields.indexOf(name) !== -1) {
+                        || this._config.complexFields.indexOf(name) !== -1) {
                         _queryList[name] = filterFields.join(";");
                     } else {
                         if (_queryList[name].indexOf(',') !== -1) {
@@ -376,7 +380,7 @@
                 let keys = Object.keys(this.query);
                 for (let keyIdx in keys) {
                     let key = keys[keyIdx];
-                    if (UtilsNew.isNotEmpty(this.query[key])) {
+                    if (UtilsNew.isNotEmpty(this.query[key]) && !this._config.hiddenFields.includes(key)) {
                         if (JSON.stringify(this.query) !== JSON.stringify(this._previousQuery)) {
                             PolymerUtils.show(this.prefix + 'Warning');
                         } else {
@@ -385,8 +389,8 @@
 
                         // We use the alias to rename the key
                         let title = key;
-                        if (UtilsNew.isNotUndefinedOrNull(this.alias) && UtilsNew.isNotUndefinedOrNull(this.alias[key])) {
-                            title = this.alias[key];
+                        if (UtilsNew.isNotUndefinedOrNull(this._config.alias) && UtilsNew.isNotUndefinedOrNull(this._config.alias[key])) {
+                            title = this._config.alias[key];
                         }
 
                         // We convert the Query entry object into an array of small objects (queryList)
@@ -399,7 +403,7 @@
                         // separate by ;
                         let filterFields = [];
                         if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1)
-                            || this.config.complexFields.indexOf(title) !== -1) {
+                            || this._config.complexFields.indexOf(key) !== -1) {
                             filterFields = value.split(new RegExp(";"));
                         } else {
                             filterFields = value.split(new RegExp("[,;]"));
@@ -461,6 +465,28 @@
 
             _isMultiValued(item) {
                 return UtilsNew.isNotUndefined(item.items);
+            }
+
+            getDefaultConfig() {
+                return {
+                    alias: {
+                        "region": "Region",
+                        "gene": "Gene",
+                        "genotype": "Sample Genotypes",
+                        "xref": "XRef",
+                        "annot-xref": "XRef",
+                        "biotype": "Biotype",
+                        "ct": "Consequence Types",
+                        "annot-ct": "Consequence Types",
+                        "alternate_frequency": "Population ALT Frequency",
+                        "annot-functional-score": "CADD",
+                        "protein_substitution": "Protein Substitution",
+                        "annot-go": "GO",
+                        "annot-hpo": "HPO"
+                    },
+                    complexFields: [],
+                    hiddenFields: ["study"]
+                }
             }
         }
 
