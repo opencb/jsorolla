@@ -62,18 +62,24 @@
 
             <div class="row" style="padding: 0px 10px">
                 <div id="{{prefix}}FilterMenu" class="col-md-2">
-                    <opencga-variant-filter opencga-session="{{opencgaSession}}" config="{{config.filter}}"
-                                            cohorts="[[cohorts]]" samples="[[samples]]" opencga-client="{{opencgaSession.opencgaClient}}"
+                    <opencga-variant-filter opencga-session="{{opencgaSession}}"
+                                            query="{{query}}"
+                                            cohorts="[[cohorts]]"
                                             cellbase-client="{{cellbaseClient}}"
                                             population-frequencies="{{populationFrequencies}}"
-                                            consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}"
-                                            on-samplechange="onSampleChange">
+                                            consequence-types="{{consequenceTypes}}"
+                                            on-querychange="onQueryFilterChange" on-querysearch="onQueryFilterSearch" on-samplechange="onSampleChange"
+                                            config="{{_config.filter}}">
                     </opencga-variant-filter>
                 </div>
 
                 <div id="{{prefix}}MainWindow" class="col-md-10">
-                    <opencga-active-filters opencga-client="{{opencgaSession.opencgaClient}}" query="[[query]]" filters="{{_config.config.filter.examples}}" on-filterchange="onActiveFilterChange" on-clear="onClear"
-                                            filter-bioformat="VARIANT" default-study="{{opencgaSession.study.alias}}" alias="{{_config.activeFilterAlias}}" refresh="[[search]]">
+                    <opencga-active-filters opencga-client="{{opencgaSession.opencgaClient}}" default-study="{{opencgaSession.study.alias}}"
+                                            query="{{preparedQuery}}" refresh="{{executedQuery}}"
+                                            filters="{{_config.filter.examples}}"
+                                            on-filterchange="onActiveFilterChange" on-clear="onClear"
+                                            filter-bioformat="VARIANT" alias="{{_config.activeFilterAlias}}"
+                                            config="{{_config.activeFilters}}">
                     </opencga-active-filters>
 
                     <div class="col-md-12" style="padding: 5px 0px 5px 0px">
@@ -102,7 +108,8 @@
                         <!-- First TAB -->
                         <div id="{{prefix}}TableResult" class="variant-browser-content">
                             <!-- Variant Browser Grid -->
-                            <opencga-variant-grid opencga-session="{{opencgaSession}}" query="{{search}}" cohorts="[[cohorts]]"
+                            <opencga-variant-grid opencga-session="{{opencgaSession}}"
+                                                  query="{{executedQuery}}" cohorts="[[cohorts]]"
                                                   cellbase-client="{{cellbaseClient}}"
                                                   population-frequencies="{{populationFrequencies}}" active="{{active}}"
                                                   protein-substitution-scores="{{proteinSubstitutionScores}}"
@@ -138,7 +145,7 @@
                                     <div class="tab-content" style="height: 680px">
                                         <!-- Annotation Tab -->
                                         <div id="{{prefix}}annotation" role="tabpanel" class="tab-pane active">
-                                            <div style="width: 75%;padding-top: 8px">
+                                            <div style="width: 90%;padding-top: 8px">
                                                 <cellbase-variantannotation-view data="{{variant}}" assembly={{opencgaSession.project.organism.assembly}} prefix="{{prefix}}"
                                                                                  cellbase-client="{{cellbaseClient}}" mode="vertical"
                                                                                  hash-fragment-credentials="{{hashFragmentCredentials}}"
@@ -207,9 +214,10 @@
                             <br>
                             <br>
                             <opencga-genome-browser opencga-session="{{opencgaSession}}" opencga-client="{{opencgaSession.opencgaClient}}"
-                                                    cellbase-client="{{cellbaseClient}}" config="{{_config.genomeBrowser}}"
-                                                    query={{query}} search={{search}} species={{config.species}}
-                                                    region="{{region}}" active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}">
+                                                    cellbase-client="{{cellbaseClient}}"
+                                                    query={{preparedQuery}} search={{executedQuery}} species={{config.species}}
+                                                    region="{{region}}" active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}"
+                                                    config="{{_config.genomeBrowser}}">
                             </opencga-genome-browser>
                         </div>
                     </div>
@@ -256,13 +264,9 @@
                 return {
                     opencgaSession: {
                         type: Object,
-                        observer: "onStudyUpdate"
                     },
                     query: {
                         type: Object
-                    },
-                    search: {
-                        type: Object,
                     },
                     samples: {
                         type: Array
@@ -279,10 +283,6 @@
                     proteinSubstitutionScores: {
                         type: Object
                     },
-                    variant: {
-                        type: String,
-                        value: "No variant selected"
-                    },
                     config: {
                         type: Object
                     }
@@ -295,7 +295,7 @@
                  * 'search; is observed to ensure 'query' is in sync.
                  */
                 return [
-                    "propertyObserver(opencgaSession, search, config)"
+                    "propertyObserver(opencgaSession, query, config)"
                 ];
             }
 
@@ -304,14 +304,13 @@
             }
 
             _init() {
-                this.prefix = "varbrowser" + Utils.randomString(6);
+                this.prefix = "ovb-" + Utils.randomString(6);
 
                 this.checkProjects = false;
                 this._collapsed = false;
                 this.genotypeColor = {
                     "0/0": "#6698FF",
                     "0/1": "#FFA500",
-                    "1/0": "#FFA500",
                     "1/1": "#FF0000",
                     "./.": "#000000",
                     "0|0": "#6698FF",
@@ -320,25 +319,44 @@
                     "1|1": "#FF0000",
                     ".|.": "#000000",
                 };
+                this.variant = "No variant selected";
 
                 this._config = this.getDefaultConfig();
             }
 
-            propertyObserver(opencgaSession, search, config) {
+            propertyObserver(opencgaSession, query, config) {
                 // With each property change we must updated config and create the columns again. No extra checks are needed.
-                this._config = Object.assign(this.getDefaultConfig(), this.config);
+                this._config = Object.assign(this.getDefaultConfig(), config);
 
-                // Search must set query object and force Variant Grid to be executed
-                if (UtilsNew.isNotUndefinedOrNull(this.search)) {
-                    this.query = this.search;
-                }
-
-                for (let detail of this.config.detail) {
+                // Check if Beacon hosts are configured
+                for (let detail of this._config.detail) {
                     if (detail.id === "beacon" && UtilsNew.isNotEmptyArray(detail.hosts)) {
                         this.beaconConfig = {
                             hosts: detail.hosts
                         };
                     }
+                }
+
+                // Update cohorts from config, this updates the Cohort filter MAF
+                if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
+                    for (let section of this._config.filter.menu.sections) {
+                        for (let subsection of section.subsections) {
+                            if (subsection.id === "cohort") {
+                                let projectFields = this.opencgaSession.project.alias.split("@");
+                                let projectId = (projectFields.length > 1) ? projectFields[1] : projectFields[0];
+                                this.cohorts = subsection.cohorts[projectId];
+                            }
+                        }
+                    }
+                    this.checkProjects = true;
+                } else {
+                    this.checkProjects = false;
+                }
+
+                // Query passed is executed and set to variant-filter, active-filters and variant-grid components
+                if (UtilsNew.isNotUndefinedOrNull(query)) {
+                    this.preparedQuery = query;
+                    this.executedQuery = query;
                 }
             }
 
@@ -353,40 +371,31 @@
                 this._collapsed = !this._collapsed;
             }
 
-            onStudyUpdate() {
-                // debugger
-                if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
-                    // Update cohorts from config, this updates the Cohort filter MAF
-                    for (let section of this.config.filter.menu.sections) {
-                        for (let subsection of section.subsections) {
-                            if (subsection.id === "cohort") {
-                                let projectFields = this.opencgaSession.project.alias.split("@");
-                                let projectId = (projectFields.length > 1) ? projectFields[1] : projectFields[0];
-                                this.cohorts = subsection.cohorts[projectId];
-                                // this.set('cohorts', subsection.cohorts[projectId]);
-                                // debugger
-                            }
-                        }
-                    }
+            /*
+             * Variant Filter component listeners
+             */
+            onQueryFilterChange(e) {
+                this.preparedQuery = e.detail.query;
+            }
 
-                    this.checkProjects = true;
-                } else {
-                    this.checkProjects = false;
-                }
+            onQueryFilterSearch(e) {
+                this.preparedQuery = e.detail.query;
+                this.executedQuery = e.detail.query;
+            }
+
+            /*
+             * Active Filters component listeners
+             */
+            onActiveFilterChange(e) {
+                this.query = e.detail;
             }
 
             onClear() {
-                // debugger
-                // this.query = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
-                // this.search = this.query;
-                this.search = {};
+                this.query = {
+                    study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
+                };
             }
 
-            onActiveFilterChange(e) {
-                // this.query = e.detail;
-                // this.search = this.query;
-                this.search = e.detail;
-            }
 
             onSampleChange(e) {
                 this.set('samples', e.detail.samples);
@@ -394,7 +403,7 @@
             }
 
             _changeBottomTab(e) {
-                let _activeTabs = {}
+                let _activeTabs = {};
                 for (let detail of this.config.detail) {
                     _activeTabs[detail.id] = (detail.id === e.currentTarget.dataset.id);
                 }
@@ -416,16 +425,6 @@
                 this.region = e.detail.genomeBrowserPosition;
             }
 
-            projectStudyObtained(project, study) {
-                if (typeof this.opencgaSession.project !== "undefined" && this.opencgaSession.project.alias !== ""
-                    && typeof this.opencgaSession.study !== "undefined" && this.opencgaSession.study.alias !== "") {
-                    this.hashFragmentCredentials = {
-                        project: this.opencgaSession.project.alias,
-                        study: this.opencgaSession.study.alias
-                    };
-                }
-            }
-
             checkVariant(variant) {
                 return variant.split(':').length > 2;
             }
@@ -433,7 +432,6 @@
             onSelectVariant(e) {
                 this.variant = e.detail.id;
 //                this.V = e.detail.variant;
-//                this.display3D();
             }
 
             selectedGene(e) {
@@ -443,7 +441,7 @@
             fetchFacets() {
                 let queryParams = {
                     sid: this.opencgaSession.opencgaClient._config.sessionId,
-                    studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
+                    study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
                     facet: "type;genes;soAcc;studies",
                     timeout: 60000
                 };
@@ -628,16 +626,15 @@
 
             getDefaultConfig() {
                 return {
-                    activeFilterAlias: {
-                        "genotype": "Sample Genotypes",
-                        "annot-xref": "XRef",
-                        "biotype": "Biotype",
-                        "annot-ct": "Consequence Types",
-                        "alternate_frequency": "Population ALT Frequency",
-                        "annot-functional-score": "CADD",
-                        "protein_substitution": "Protein Substitution",
-                        "annot-go": "GO",
-                        "annot-hpo": "HPO"
+                    activeFilters: {
+                        alias: {
+                            // Example:
+                            // "region": "Region",
+                            // "gene": "Gene",
+                            // "genotype": "Sample Genotypes",
+                        },
+                        complexFields: ["genotype"],
+                        hiddenFields: ["study"]
                     },
                     genomeBrowser: {
                         showTitle: false
