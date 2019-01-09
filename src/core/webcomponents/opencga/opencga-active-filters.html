@@ -201,11 +201,14 @@
                 this._previousQuery = this.query;
 
                 // If there is any active filter we set the first one in the initialisation
-                if (typeof this.filters !== "undefined") {
+                if (typeof this.filters !== "undefined" && UtilsNew.isEmpty(this.query)) {
                     for (let filter of this.filters) {
                         if (filter.active) {
                             let _queryList = Object.assign({}, filter.query);
-                            this.dispatchEvent(new CustomEvent("filterchange", {detail: _queryList, bubbles: true, composed: true}));
+                            this.dispatchEvent(new CustomEvent("filterchange", {
+                                detail: _queryList,
+                                bubbles: true,
+                                composed: true}));
                             break;
                         }
                     }
@@ -318,7 +321,10 @@
                             e.target.style.color = "green";
 
                             let _queryList = Object.assign({}, filter.query);
-                            this.dispatchEvent(new CustomEvent("filterchange", {detail: _queryList, bubbles: true, composed: true}));
+                            this.dispatchEvent(new CustomEvent("filterchange", {
+                                detail: _queryList,
+                                bubbles: true,
+                                composed: true}));
                             break;
                         }
                     }
@@ -372,7 +378,10 @@
                     $("#filtersList option[value='none']").prop('selected', true);
                 }
 
-                this.dispatchEvent(new CustomEvent("filterchange", {detail: _queryList, bubbles: true, composed: true}));
+                this.dispatchEvent(new CustomEvent("filterchange", {
+                    detail: _queryList,
+                    bubbles: true,
+                    composed: true}));
             }
 
             queryObserver() {
