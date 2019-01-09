@@ -820,7 +820,7 @@
                 $(PolymerUtils.getElementById(this.prefix + "LoadingModal")).modal("show");
 
                 // Join 'query' from left menu and facet filters
-                let queryParams = Object.assign(this.query,
+                let queryParams = Object.assign({}, this.query,
                     {
                         // sid: this.opencgaClient._config.sessionId,
                         study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
