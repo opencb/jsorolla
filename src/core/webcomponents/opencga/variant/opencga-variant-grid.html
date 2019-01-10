@@ -419,7 +419,7 @@
                 let host = this.opencgaSession.opencgaClient.getConfig().host;
                 // By default we assume https protocol instead of http
                 if (!host.startsWith("https://") && !host.startsWith("http://")) {
-                    host += 'https://';
+                    host = 'https://' + host;
                 }
 
                 if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
