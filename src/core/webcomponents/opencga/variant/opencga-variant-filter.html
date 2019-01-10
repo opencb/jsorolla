@@ -133,7 +133,7 @@
                     <div class="modal-body">
                         <opencga-variant-filter-clinical opencga-session={{opencgaSession}}
                                                          clinical-analysis="{{clinicalAnalysis}}"
-                                                         query="{{query}}"
+                                                         query="{{clinicalFilterQuery}}"
                                                          on-samplefilterschange="onSampleFiltersChange"
                                                          style="font-size: 12px">
                         </opencga-variant-filter-clinical>
@@ -252,6 +252,8 @@
                 // ]
 
                 this.samples = [];
+
+                this.updateClinicalFilterQuery = true;
             }
 
             opencgaSessionObserver() {
@@ -303,10 +305,18 @@
             queryObserver(newValue, oldValue) {
                 debugger
                 // if (this._reset) {
-                this.setQueryFilters();
+                // this.setQueryFilters();
                 // } else {
                 //     this._reset = true;
                 // }
+
+                if (this.updateClinicalFilterQuery) {
+                    this.clinicalFilterQuery = this.query;
+                } else {
+                    this.skipClinicalFilterQueryUpdate = true;
+                }
+
+                this.setQueryFilters();
 
                 // Parameter 'genotype' has been removed
                 // if (UtilsNew.isNotUndefinedOrNull(oldValue) && UtilsNew.isNotUndefinedOrNull(oldValue.genotype)
@@ -2150,28 +2160,34 @@
                 // this._modeOfInheritance = e.detail.modeOfInheritance;
                 // this._compoundHeterozygous = e.detail.compoundHeterozygous;
                 let needUpdateQuery = false;
+                let _query = Object.assign({}, this.query);
+                debugger
                 if (_genotypeFilter !== undefined && _genotypeFilter.length > 0) {
-                    this.query.genotype = _genotypeFilter.join(";");
+                    _query.genotype = _genotypeFilter.join(";");
                     needUpdateQuery = true;
                 }
                 if (_dpFormatFilter !== undefined && _dpFormatFilter.length > 0) {
-                    this.query.format = _dpFormatFilter.join(";");
+                    _query.format = _dpFormatFilter.join(";");
                     needUpdateQuery = true;
                 } else {
-                    if (UtilsNew.isNotUndefinedOrNull(this.query.format)) {
-                        delete this.query.format;
+                    if (UtilsNew.isNotUndefinedOrNull(_query.format)) {
+                        delete _query.format;
                         needUpdateQuery = true;
                     }
                 }
                 if (_info !== "") {
-                    this.query.info = _info;
+                    _query.info = _info;
                     needUpdateQuery = true;
                 }
 
                 // Only update query if really needed, this avoids unneeded web refresh
                 if (needUpdateQuery) {
-                    this.query = Object.assign({}, this.query);
+                    this.updateClinicalFilterQuery = false;
+                    this.query = _query;
+                    this.updateClinicalFilterQuery = true;
                 }
+
+                this.notifyQuery(this.query);
             }
 
             // onApproxCountChange(e) {

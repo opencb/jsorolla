@@ -62,10 +62,10 @@
                     opencgaSession: {
                         type: Object,
                     },
-                    query: {
+                    clinicalAnalysis: {
                         type: Object,
                     },
-                    clinicalAnalysis: {
+                    query: {
                         type: Object,
                     },
                     data: {
@@ -90,7 +90,7 @@
 
             static get observers() {
                 return [
-                    "propertyObserver(opencgaSession, query, consequenceTypes, populationFrequencies, proteinSubstitutionScores, config)"
+                    "propertyObserver(opencgaSession, clinicalAnalysis, query, consequenceTypes, populationFrequencies, proteinSubstitutionScores, config)"
                 ];
             }
 
@@ -115,31 +115,48 @@
                 this._config = this.getDefaultConfig();
             }
 
-            propertyObserver(opencgaSession, query, consequenceTypes, populationFrequencies, proteinSubstitutionScores, config) {
+            propertyObserver(opencgaSession, clinicalAnalysis, query, consequenceTypes, populationFrequencies, proteinSubstitutionScores, config) {
                 // With each property change we must updated config and create the columns again. No extra checks are needed.
                 this._config = Object.assign(this.getDefaultConfig(), config);
 
                 // We check query.sample and query.genotype to check if samples exist.
                 // We parse query fields and store a samples object array for convenience
+                let _individuals = [];
                 let _samples = [];
-                if (this.query !== undefined) {
-                    // debugger
-                    if (UtilsNew.isNotUndefinedOrNull(query.sample)) {
-                        for (let sampleId of query.sample.split(",")) {
-                            _samples.push({
-                                id: sampleId,
-                            });
+                // if (this.query !== undefined) {
+                //     // debugger
+                //     if (UtilsNew.isNotUndefinedOrNull(query.sample)) {
+                //         for (let sampleId of query.sample.split(",")) {
+                //             _samples.push({
+                //                 id: sampleId,
+                //             });
+                //         }
+                //     }
+                //     if (UtilsNew.isNotUndefinedOrNull(query.genotype)) {
+                //         for (let genotype of query.genotype.split(";")) {
+                //             _samples.push({
+                //                 id: genotype.split(":")[0],
+                //             });
+                //         }
+                //     }
+                // }
+
+                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis)) {
+                    // let _individuals = [];
+                    if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.family) && UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.family.members)) {
+                        _individuals = clinicalAnalysis.family.members;
+                    } else {
+                        if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.proband)) {
+                            _individuals = [clinicalAnalysis.proband];
                         }
                     }
-                    if (UtilsNew.isNotUndefinedOrNull(query.genotype)) {
-                        for (let genotype of query.genotype.split(";")) {
-                            _samples.push({
-                                id: genotype.split(":")[0],
-                            });
-                        }
+
+                    for (let individual of _individuals) {
+                        _samples.push(individual.samples[0]);
                     }
                 }
                 this.samples = _samples;
+                this.individuals = _individuals;
 
 
                 // Config for the grid toolbar
@@ -374,13 +391,13 @@
                 }
 
                 if (UtilsNew.isNotEmptyArray(this.samples)) {
-                    // let sampleNames = [];
-                    // this.samples.forEach((sample) => {
-                    //     sampleNames.push(sample.name);
-                    // });
+                    let sampleIds = [];
+                    this.samples.forEach((sample) => {
+                        sampleIds.push(sample.id);
+                    });
 
                     queryParams.summary = false;
-                    // queryParams.includeSample = sampleNames.join(",");
+                    queryParams.includeSample = sampleIds.join(",");
                     queryParams.exclude = "annotation.geneExpression";
                     queryParams.approximateCount = true;
                     // queryParams.useSearchIndex = "no";
@@ -859,9 +876,39 @@
                     });
                 }
 
+                let sampleInfo = {};
+                if (UtilsNew.isNotEmptyArray(this.individuals)) {
+                    let probandId = (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.proband)) ? this.clinicalAnalysis.proband.id : "";
+                    for (let individual of this.individuals) {
+                        let affected = false;
+                        for (let disorder of individual.disorders) {
+                            if (disorder.id === this.clinicalAnalysis.disorder.id) {
+                                affected = true;
+                                break;
+                            }
+                        }
+                        let role = "";
+                        for (let ind of this.individuals) {
+                            if (UtilsNew.isNotUndefinedOrNull(ind.father) && ind.father.id === individual.id) {
+                                role = "father";
+                            }
+                            if (UtilsNew.isNotUndefinedOrNull(ind.mother) && ind.mother.id === individual.id) {
+                                role = "mother";
+                            }
+                        }
+
+                        sampleInfo[individual.samples[0].id] = {
+                            proband: individual.id === probandId,
+                            affected: affected,
+                            role: role,
+                            sex: individual.sex
+                        };
+                    }
+                }
+
                 if (typeof this._columns !== "undefined" && UtilsNew.isNotEmptyArray(this.samples)) {
                     this._columns[0].splice(4, 0, {
-                        title: 'Zygosity',
+                        title: 'Sample Genotypes',
                         field: 'zygosity',
                         rowspan: 1,
                         colspan: this.samples.length,
@@ -869,11 +916,23 @@
                     });
 
                     for (let i = 0; i < this.samples.length; i++) {
-                        let role = (i === 0) ? "proband" : (i === 1) ? "father" : "mother";
-                        // role = (i === 1) ? "father" : "mother";
-                        let color = (i === 0) ? "darkred" : "black";
+                        let color = "black";
+                        if (sampleInfo[this.samples[i].id].proband) {
+                            color = "darkred";
+                            if (UtilsNew.isEmpty(sampleInfo[this.samples[i].id].role)) {
+                                sampleInfo[this.samples[i].id].role = "proband";
+                            }
+                        }
+
+                        let affected = "<span>UnAff.</span>";
+                        if (sampleInfo[this.samples[i].id].affected) {
+                            affected = "<span style='color: red'>Aff.</span>";
+                        }
+
                         this._columns[1].splice(i, 0, {
-                            title: `<span style="color: ${color}">${this.samples[i].id}</span><br><span style="font-style: italic">${role}</span>`,
+                            title: `<span style="color: ${color}">${this.samples[i].id}</span>
+                                    <br>
+                                    <span style="font-style: italic">${sampleInfo[this.samples[i].id].role}, ${affected}</span>`,
                             // field: 'samples',
                             field: {
                                 memberIdx: i,

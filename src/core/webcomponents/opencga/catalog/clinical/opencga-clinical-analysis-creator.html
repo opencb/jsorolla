@@ -533,11 +533,11 @@
 
                 // Set the proband when there is just one individual
                 this._clinicalAnalysis.proband = undefined;
-                // FIXME add this comparisson
+                // FIXME add this comparison
                 // && individuals.length === 1
-                if (UtilsNew.isNotEmptyArray(individuals) ) {
-                    this._clinicalAnalysis.proband = individuals[0];
-                }
+                // if (UtilsNew.isNotEmptyArray(individuals) ) {
+                //     this._clinicalAnalysis.proband = individuals[0];
+                // }
 
                 let sampleIds = [];
                 for (let individual of individuals) {
@@ -689,6 +689,12 @@
                         for (let i = 0; i < removeIndividualButtons.length; i++) {
                             removeIndividualButtons[i].addEventListener('click', _this.removeIndividualButtonClicked.bind(_this));
                         }
+
+                        let probandRadio = PolymerUtils.querySelectorAll(".probandRadio");
+                        for (let i = 0; i < probandRadio.length; i++) {
+                            probandRadio[i].addEventListener('click', _this.aaa.bind(_this));
+                            // removeIndividualButtons[i].addEventListener('change', _this.aaa.bind(_this));
+                        }
                     }
                 });
             }
@@ -751,8 +757,24 @@
                 }
             }
 
-            probandFormatter() {
-                return `<input type="radio" name="${this.prefix}-optradio">`;
+            probandFormatter(value, row) {
+                debugger
+                return `<input type="radio" name="${this.prefix}-optradio" class="probandRadio" data-individual-id="${row.id}">`;
+            }
+
+            aaa(e) {
+                let individualId = e.currentTarget.dataset.individualId;
+                if (UtilsNew.isNotUndefinedOrNull(this._clinicalAnalysis.family)
+                    && UtilsNew.isNotEmptyArray(this._clinicalAnalysis.family.members)) {
+                    for (let member of this._clinicalAnalysis.family.members) {
+                        if (member.id === individualId) {
+                            this._clinicalAnalysis.proband = member;
+                        }
+                    }
+                    this.notifyClinicalAnalysis(this._clinicalAnalysis);
+                }
+
+                debugger
             }
 
             fileFormatter(files, individual) {
@@ -801,7 +823,7 @@
                             title: 'Proband',
                             // radio: true,
                             // rowspan: 2,
-                            formatter: this.probandFormatter,
+                            formatter: this.probandFormatter.bind(this),
                             align: this._config.grid.header.horizontalAlign
                         },
                         {

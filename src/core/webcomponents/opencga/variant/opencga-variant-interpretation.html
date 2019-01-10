@@ -384,12 +384,6 @@
                     opencgaSession: {
                         type: Object
                     },
-                    query: {
-                        type: Object
-                    },
-                    cellbaseClient: {
-                        type: Object
-                    },
                     clinicalAnalysisId: {
                         type: String,
                         observer: 'clinicalAnalysisIdObserver',
@@ -397,7 +391,13 @@
                     clinicalAnalysis: {
                         type: Object,
                         observer: 'clinicalAnalysisObserver',
-                        notify: true
+                        // notify: true
+                    },
+                    query: {
+                        type: Object
+                    },
+                    cellbaseClient: {
+                        type: Object
                     },
                     diseasePanelId: {
                         type: String,
@@ -557,7 +557,7 @@
                         // this.samples = Object.assign({}, _samples);
 
                         // We need a different private property for variant-browser-filter to avoid circular calls
-                        this._initGenotypeSamples(_samples);
+                        // this._initGenotypeSamples(_samples);
                         this.search = Object.assign({}, this.query);
                         // debugger
 
@@ -694,7 +694,7 @@
                 let _samples = e.detail.samples;
                 this.set('samples', _samples.slice());
                 this.dispatchEvent(new CustomEvent("samplechange", {detail: e.detail, bubbles: true, composed: true}));
-                this._initGenotypeSamples(this.samples);
+                // this._initGenotypeSamples(this.samples);
             }
 
             onGenomeBrowserPositionChange(e) {
