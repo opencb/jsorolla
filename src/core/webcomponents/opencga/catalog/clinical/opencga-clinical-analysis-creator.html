@@ -494,10 +494,10 @@
                 if (this.notifyEnabled) {
                     this.dispatchEvent(new CustomEvent("clinicalanalysischange", {
                         detail: {
-                            clinicalAnalysis: this._clinicalAnalysis,
-                            bubbles: true,
-                            composed: true
-                        }
+                            clinicalAnalysis: this._clinicalAnalysis
+                        },
+                        bubbles: true,
+                        composed: true
                     }));
                 }
             }

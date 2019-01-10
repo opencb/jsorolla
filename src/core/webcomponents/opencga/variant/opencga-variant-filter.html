@@ -475,6 +475,7 @@
 
             updateConsequenceTypeFilter(e) {
                 // Select LoF term checkboxes
+                debugger
                 let lofCheckBox = PolymerUtils.getElementById(this.prefix + "LossOfFunctionCheckBox");
                 if (e.target.id === this.prefix + "LossOfFunctionCheckBox") {
                     let checkBoxes = PolymerUtils.querySelectorAll("li input", this.prefix + "consequenceTypeFilter");
@@ -998,7 +999,7 @@
 
                 // Consequence Type
                 if (UtilsNew.isNotEmptyArray(this.ct)) {
-                    _filters["annot-ct"] = this.ct.join(',');
+                    _filters["ct"] = this.ct.join(',');
                 }
 
                 // Gene Ontology and Human Phenotype Ontology
@@ -1872,7 +1873,7 @@
                     <div class="form-check" style="margin-top: 5px;">
                         <div class="form-check-label">
                             <label id="${prefix}LossOfFunctionCheckBoxLabel" class="notbold">
-                                <input id="${prefix}LossOfFunctionCheckBox" type="checkbox" class="${prefix}FilterCheckBox form-check-input">
+                                <input id="${prefix}LossOfFunctionCheckBox" type="checkbox" class="${prefix}FilterCheckBox" style="cursor: pointer">
                                 LoF terms
                             </label>
                         </div>
