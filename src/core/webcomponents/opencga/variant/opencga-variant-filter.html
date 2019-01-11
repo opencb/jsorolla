@@ -213,6 +213,10 @@
                 // Render filter menu and add event and tooltips
                 this._renderFilterMenu();
                 $('select.selectpicker').selectpicker('render');
+                $('select.selectpicker').selectpicker({
+                    iconBase: 'fa',
+                    tickIcon: 'fa-check'
+                });
 
                 this._initialised = true;
                 this.setQueryFilters();
