@@ -85,11 +85,11 @@ class VariantGridFormatter {
         let genomeBrowserMenuLink = "";
         if (this.config.showGenomeBrowser) {
             genomeBrowserMenuLink = `<li class="dropdown-header">Internal Links</li>
-                                        <li>
-                                            <a class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
-                                                <i class="fa fa-list" aria-hidden="true"></i> Genome Browser
-                                            </a>
-                                        </li>`;
+                                     <li>
+                                        <a class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
+                                            <i class="fa fa-list" aria-hidden="true"></i> Genome Browser
+                                        </a>
+                                     </li>`;
         }
 
         // return "<span style='white-space: nowrap'>" + row.chromosome + ':' + row.start + " " + ref + '/' + alt + "</span>";
@@ -104,7 +104,6 @@ class VariantGridFormatter {
                                 <li><a target='_blank' href="https://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${id}">Ensembl</a></li>
                                 <li><a target='_blank' href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs=${id}">dbSNP</a></li>
                                 <li><a target='_blank' href="https://www.snpedia.com/index.php/${id}">SNPedia</a></li>
-                                <li class="dropdown-header" style="padding-left: 15px">Clinical Links</li>
                                 <li><a target='_blank' href="https://www.ncbi.nlm.nih.gov/clinvar/?term=${id}">ClinVar</a></li>
                             </ul>
                 </div>`;
@@ -156,14 +155,14 @@ class VariantGridFormatter {
                                                     </li>`;
                         }
 
+                    // <li class="dropdown-header">Internal Links</li>
                         geneLinks.push(`<span class="dropdown variant-link-dropdown" style="white-space: nowrap">
                             <a id="${this.prefix}dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                 class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
                                     ${geneName}
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="${this.prefix}dropdownMenu1" style="font-size: 1.25rem;margin-top: 0px">
-                                <li class="dropdown-header">Internal Links</li>                                
-                                <li><a style="cursor: pointer" href="#gene/${this.opencgaSession.project.alias}/${this.opencgaSession.study.alias}/${geneName}">${geneName}</a></li>
+                                <li><a style="cursor: pointer" href="#gene/${this.opencgaSession.project.alias}/${this.opencgaSession.study.alias}/${geneName}">Gene View</a></li>
                                 ${genomeBrowserMenuLink}
                                 <li class="dropdown-header" style="padding-left: 15px">External Links</li>
                                 <li><a target='_blank' href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneName}">Ensembl</a></li>

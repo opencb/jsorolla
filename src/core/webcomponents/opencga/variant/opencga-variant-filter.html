@@ -317,7 +317,6 @@
                 }
 
                 this.setQueryFilters();
-
                 // Parameter 'genotype' has been removed
                 // if (UtilsNew.isNotUndefinedOrNull(oldValue) && UtilsNew.isNotUndefinedOrNull(oldValue.genotype)
                 //     && UtilsNew.isUndefinedOrNull(newValue.genotype)) {
@@ -583,8 +582,8 @@
                 }
 
                 // XRefs, Gene and Variant Ids
-                if (typeof this.query["annot-xref"] !== "undefined") {
-                    PolymerUtils.setValue(this.prefix + "FeatureTextarea", this.query["annot-xref"]);
+                if (typeof this.query["xref"] !== "undefined") {
+                    PolymerUtils.setValue(this.prefix + "FeatureTextarea", this.query["xref"]);
                 } else if (typeof this.query.ids !== "undefined") {
                     PolymerUtils.setValue(this.prefix + "FeatureTextarea", this.query.ids);
                 }
@@ -865,9 +864,9 @@
                 let featureTextArea = PolymerUtils.getElementById(this.prefix + "FeatureTextarea");
                 if (UtilsNew.isNotUndefinedOrNull(featureTextArea) && UtilsNew.isNotEmpty(featureTextArea.value)) {
                     if (featureTextArea.value.startsWith("rs") || featureTextArea.value.split(':').length > 2) {
-                        _filters["annot-xref"] = featureTextArea.value;
+                        _filters["xref"] = featureTextArea.value;
                     } else {
-                        _filters["annot-xref"] = featureTextArea.value.toUpperCase();
+                        _filters["xref"] = featureTextArea.value.toUpperCase();
                     }
                 }
 
@@ -1201,7 +1200,7 @@
                         content = this._getBiotypeHtml(subsection.biotypes, this.prefix);
                         break;
                     case "type":
-                        content = this._getVariantTypeHtml(this.prefix);
+                        content = this._getVariantTypeHtml(subsection.types, this.prefix);
                         break;
                     case "populationFrequency":
                         content = this._getPopulationFrequencyHtml(this.prefix);
@@ -1585,16 +1584,12 @@
                 `;
             }
 
-            _getVariantTypeHtml(prefix) {
-                return `
-                    <div id="${prefix}Type">
-                        <input type="checkbox" value="SNV,SNP" class="${prefix}FilterCheckBox"> SNV<br>
-                        <input type="checkbox" value="MNV" class="${prefix}FilterCheckBox"> MNV<br>
-                        <input type="checkbox" value="CNV" class="${prefix}FilterCheckBox"> CNV<br>
-                        <input type="checkbox" value="SV" class="${prefix}FilterCheckBox"> SV<br>
-                        <input type="checkbox" value="INDEL" class="${prefix}FilterCheckBox"> INDEL
-                    </div>
-                `;
+            _getVariantTypeHtml(types, prefix) {
+                let inputs = "";
+                for (let type of types) {
+                    inputs += `<input type="checkbox" value="${type}" class="${prefix}FilterCheckBox"> ${type}<br>`;
+                }
+                return `<div id="${prefix}Type">${inputs}</div>`;
             }
 
             _getPopulationFrequencyHtml(prefix) {
