@@ -96,7 +96,7 @@ class VariantGridFormatter {
         return `<div class="dropdown variant-link-dropdown" style="white-space: nowrap">
                             <a id="${this.prefix}dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                 class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
-                                    ${row.chromosome}:${row.start} ${ref}/${alt}
+                                    ${row.chromosome}:${row.start}&nbsp;&nbsp;${ref}/${alt}
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="${this.prefix}dropdownMenu1" style="font-size: 1.25rem;margin-top: 0px">
                                 ${genomeBrowserMenuLink}
@@ -156,7 +156,7 @@ class VariantGridFormatter {
                         }
 
                     // <li class="dropdown-header">Internal Links</li>
-                        geneLinks.push(`<span class="dropdown variant-link-dropdown" style="white-space: nowrap">
+                        geneLinks.push(`<span class="dropdown variant-link-dropdown" style="white-space: nowrap;margin-left: 1px">
                             <a id="${this.prefix}dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                 class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
                                     ${geneName}
@@ -280,9 +280,9 @@ class VariantGridFormatter {
             let ctHtml = `<table class="table table-hover table-no-bordered">
                                 <thead>
                                     <tr class="table-header">
-                                        <th>Gene ID</th>
                                         <th>Gene Name</th>
-                                        <th>Transcript ID</th>
+                                        <th>Ensembl Gene</th>
+                                        <th>Ensembl Transcript</th>
                                         <th>SO Term</th>
                                     </tr>
                                 </thead>
@@ -311,8 +311,8 @@ class VariantGridFormatter {
 
                 // Create the table row
                 ctHtml += `<tr class="detail-view-row">
-                            <td>${geneId}</td>
                             <td>${ct.geneName !== "" ? ct.geneName : "NA"}</td>
+                            <td>${geneId}</td>
                             <td>${ct.ensemblTranscriptId !== "" ? ct.ensemblTranscriptId : "NA"}</td>
                             <td>${soArray.join(",")}</td>
                            </tr>`;
@@ -330,13 +330,23 @@ class VariantGridFormatter {
      * @param populationFrequenciesColor
      */
     createPopulationFrequenciesTable(populations, populationFrequenciesMap, populationFrequenciesColor) {
+        // This is used by the tooltip function below to display all population frequencies
+        let popFreqs;
+        let popFreqsArray = [];
+        for (let population of populations) {
+            let freq = (populationFrequenciesMap.get(population) !== undefined) ? populationFrequenciesMap.get(population) : 0;
+            popFreqsArray.push(population + "::" + freq);
+        }
+        popFreqs = popFreqsArray.join(",");
+
+        // Create the table (with the tooltip info)
         let tableSize = populations.length * 15;
-        let htmlPopFreqTable = `<table style="width: ${tableSize}px"><tr>`;
-        for (let popFreq of populations) {
+        let htmlPopFreqTable = `<table style="width:${tableSize}px" class="populationFrequenciesTable" data-pop-freq="${popFreqs}"><tr>`;
+        for (let population of populations) {
             // This array contains "study:population"
             let color = "black";
-            if (typeof populationFrequenciesMap.get(popFreq) !== "undefined") {
-                let freq = populationFrequenciesMap.get(popFreq);
+            if (typeof populationFrequenciesMap.get(population) !== "undefined") {
+                let freq = populationFrequenciesMap.get(population);
                 if (freq < 0.001) {
                     color = populationFrequenciesColor.veryRare;
                 } else if (freq < 0.005) {
@@ -346,13 +356,57 @@ class VariantGridFormatter {
                 } else {
                     color = populationFrequenciesColor.common;
                 }
-                htmlPopFreqTable += `<td style="width: 15px; background: ${color}" title="${popFreq}: ${freq}">&nbsp;</td>`;
+                htmlPopFreqTable += `<td style="width: 15px; background: ${color}">&nbsp;</td>`;
             } else {
-                htmlPopFreqTable += `<td style="width: 15px; background: ${color}" title="${popFreq}: NA">&nbsp;</td>`;
+                htmlPopFreqTable += `<td style="width: 15px; background: ${color}">&nbsp;</td>`;
             }
         }
         htmlPopFreqTable += "</tr></table>";
+
         return htmlPopFreqTable;
+    }
+
+    addPopulationFrequenciesTooltip(div) {
+        if (UtilsNew.isEmpty(div)) {
+            div = "table.populationFrequenciesTable";
+        }
+
+        $(div).qtip({
+            content: {
+                title: "Population Frequencies",
+                text: function (event, api) {
+                    let popFreqs = $(this).attr('data-pop-freq').split(",");
+                    let html = "";
+                    for (let popFreq of popFreqs) {
+                        let arr = popFreq.split("::");
+                        let color = (arr[1] > 0 && arr[1] < 0.001) ? "#ff0000": "black";
+                        color = (arr[1] > 0.001 && arr[1] < 0.005) ? "#ff8080": color;
+                        html += `<div>
+                                    <span style="width: 60px"><label>${arr[0]}:</label></span>
+                                    <span style="color: ${color};font-weight: bold">${arr[1]}</span>
+                                </div>`;
+                    }
+                    return html;
+                }
+            },
+            position: {
+                target: "mouse",
+                adjust: {
+                    x: 2, y: 2,
+                    mouse: false
+                }
+            },
+            style: {
+                width: "240px",
+            },
+            show: {
+                delay: 200
+            },
+            hide: {
+                fixed: true,
+                delay: 300
+            }
+        });
     }
 
 }

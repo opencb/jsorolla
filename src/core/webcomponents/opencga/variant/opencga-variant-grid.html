@@ -171,13 +171,16 @@
                             title: 'Variant', field: "id",
                         },
                         {
-                            title: 'SNP ID', field: "dbSNP",
+                            title: 'dbSNP Id', field: "dbSNP",
                         },
                         {
-                            title: 'Genes', field: "gene",
+                            title: 'Gene', field: "gene",
                         },
                         {
                             title: 'Type', field: "type",
+                        },
+                        {
+                            title: 'Consequence Type', field: "consequenceType",
                         }
                     ]
                 };
@@ -344,8 +347,6 @@
                                 },
                                 style: {
                                     width: true,
-//                        classes:  "ocb-tooltip-font" + "  ui-tooltip ui-tooltip-shadow"},
-//                                     classes: _this.config.filter.tooltip.classes
                                 },
                                 show: {
                                     delay: 200
@@ -355,6 +356,9 @@
                                     delay: 300
                                 }
                             });
+
+                            // Add Population Frequencies tooltip
+                            _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable");
                         }
                     });
 
@@ -688,13 +692,14 @@
             }
 
             populationFrequenciesFormatter(value, row, index) {
+                debugger
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined"
                     && typeof row.annotation.populationFrequencies !== "undefined") {
 
                     let popFreqMap = new Map();
                     for (let popFreqIdx in row.annotation.populationFrequencies) {
                         let popFreq = row.annotation.populationFrequencies[popFreqIdx];
-                        if (this.field.study === popFreq.study && this.field.populationMap[popFreq.population] === true) {
+                        if (this.field.study === popFreq.study ) { //&& this.field.populationMap[popFreq.population] === true
                             popFreqMap.set(popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
                         }
                     }
@@ -863,7 +868,7 @@
                             halign: 'center'
                         },
                         {
-                            title: 'SNP Id',
+                            title: 'dbSNP Id',
                             field: 'dbSNP',
                             rowspan: 2,
                             colspan: 1,
@@ -871,8 +876,8 @@
                             halign: 'center'
                         },
                         {
-                            title: 'Genes',
-                            field: "genes",
+                            title: 'Gene',
+                            field: "gene",
                             rowspan: 2,
                             colspan: 1,
                             formatter: this.variantGridFormatter.geneFormatter.bind(this),
