@@ -77,11 +77,11 @@
                         <div class="col-md-3">
                             <select class="selectpicker" data-width="100%" id="{{prefix}}Type" data-field="type" data-field-type="string"
                                     on-change="onSelectChange">
-                                <option value="single">Single</option>
-                                <option value="multiple">Multiple</option>
-                                <option value="duo">Duo</option>
-                                <option value="trio">Trio</option>
-                                <option value="family">Family</option>
+                                <option value="SINGLE">Single</option>
+                                <option value="MULRISAMPLE">Multiple</option>
+                                <option value="DUO">Duo</option>
+                                <option value="TRIO">Trio</option>
+                                <option value="FAMILY">Family</option>
                                 <option value="autocomparative">Autocomparative</option>
                             </select>
                         </div>
@@ -102,14 +102,19 @@
 
                     <div class="form-group">
                         <label class="control-label col-md-1 jso-label-title">Due Date</label>
-                        <div class="date col-md-3" id='{{prefix}}-datetimepicker'>
-                            <div class="input-group">
-                                <input type='text' id="{{prefix}}DueDate" class$="{{prefix}}Input form-control" data-field="dueDate"
-                                       on-keyup="onInputChange">
-                                <span class="input-group-btn">
-                                    <button class="btn btn-default" type="button">
-                                        <i class="fa fa-calendar" aria-hidden="true"></i>
-                                    </button>
+                        <div class="date col-md-3">
+                            <!--<div class="input-group date" id="{{prefix}}DueDate">-->
+                                <!--<input type='text' class$="{{prefix}}Input form-control" data-field="dueDate" on-keyup="onInputChange">-->
+                                <!--<span class="input-group-btn glyphicon glyphicon-calendar">-->
+                                    <!--<button id="{{prefix}}DueDateB" class="btn btn-default" type="button">-->
+                                        <!--<i class="fa fa-calendar" aria-hidden="true"></i>-->
+                                    <!--</button>-->
+                                <!--</span>-->
+                            <!--</div>-->
+                            <div class='input-group date' id="{{prefix}}DuePickerDate">
+                                <input type='text' id="{{prefix}}DueDate" class$="{{prefix}}Input form-control" data-field="dueDate" on-keyup="onInputChange" />
+                                <span class="input-group-addon">
+                                    <span class="fa fa-calendar"></span>
                                 </span>
                             </div>
                         </div>
@@ -199,7 +204,7 @@
                 <!--<div class="form-group">-->
                 <!--<div class="col-md-2" style="float: right">-->
                 <button id="{{prefix}}Clear" class="btn btn-primary" on-click="onClear">Clear</button>
-                <button id="{{prefix}}Ok" class="btn btn-primary" on-click="onOk">Create</button>
+                <button id="{{prefix}}Ok" class="btn btn-primary" on-click="onCreate">Create</button>
                 <!--</div>-->
                 <!--</div>-->
             </div>
@@ -347,10 +352,10 @@
             connectedCallback() {
                 super.connectedCallback();
 
-                $(`#${this.prefix}-datetimepicker`).datetimepicker({
+                $("#" + this.prefix + "DuePickerDate").datetimepicker({
                     format: 'DD/MM/YYYY',
-                    minDate: moment().add(1, "days"),
-                    date: moment().add(1, "months")
+                    // minDate: moment().add(1, "days"),
+                    // date: moment().add(1, "months")
                 });
 
                 $('select.selectpicker').selectpicker('render');
@@ -368,13 +373,14 @@
                 this.fillForm(this._clinicalAnalysis);
 
                 // Render empty table
-                this.renderTable();
+                // this.renderTable();
             }
 
             getDefaultClinicalAnalysis() {
                 return {
-                    type: "family",
+                    type: "FAMILY",
                     priority: "MEDIUM",
+                    dueDate: moment().add(7, 'days').format("DD/MM/YYYY")
                 };
             }
 
@@ -462,6 +468,10 @@
                     $("#" + this.prefix + "Priority").selectpicker('val', clinicalAnalysis.priority);
                 }
 
+                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.dueDate)) {
+                    PolymerUtils.setValue(this.prefix + "DueDate", clinicalAnalysis.dueDate);
+                }
+
                 if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.flags)) {
                     $("#" + this.prefix + "Flags").selectpicker('val', clinicalAnalysis.flags);
                 }
@@ -521,8 +531,8 @@
                     id: individualIds.join(","),
                     study: this.opencgaSession.study.fqn,
                 }).then(function(response) {
-                    _this._clinicalAnalysis.family.members = response.response[0].result;
-                    _this.updateIndividual(response.response[0].result);
+                        _this._clinicalAnalysis.family.members = response.response[0].result;
+                        _this.updateIndividual(response.response[0].result);
                     }
                 );
             }
@@ -659,6 +669,63 @@
                 this.notifyClinicalAnalysis();
             }
 
+            onCreate() {
+                let _clinAn = Object.assign({}, this._clinicalAnalysis);
+                _clinAn.proband = {
+                    id: _clinAn.proband.id,
+                    samples: [
+                        {
+                            id: _clinAn.proband.samples[0].id
+                        }
+                    ]
+                };
+
+                if (UtilsNew.isNotUndefinedOrNull(_clinAn.family)) {
+                    let _family = {
+                        id: _clinAn.family.id,
+                        members: []
+                    };
+                    for (let member of _clinAn.family.members) {
+                        _family.members.push({
+                            id: member.id,
+                            samples: [
+                                {
+                                    id: member.samples[0].id
+                                }
+                            ]
+                        });
+                    }
+                    _clinAn.family = _family;
+                }
+
+                if (UtilsNew.isNotUndefinedOrNull(_clinAn.files)) {
+                    let _files = {};
+                    for (let sampleId in _clinAn.files) {
+                        let fileIds = [];
+                        for (let file of _clinAn.files[sampleId]) {
+                            fileIds.push(file.id);
+                        }
+                        _files[sampleId] = fileIds;
+                    }
+                    _clinAn.files = _files;
+                }
+
+                let x = JSON.stringify(_clinAn);
+                console.log(x)
+                debugger
+                let _this = this;
+                this.opencgaSession.opencgaClient.clinical().create({study: this.opencgaSession.study.fqn}, _clinAn)
+                    .then(function(response) {
+                        debugger
+                        _this.onClear();
+                        NotificationUtils.showNotify(`Family ${response.response[0].result[0].id} created successfully`, "SUCCESS");
+                    })
+                    .catch(function (response) {
+                        debugger
+                        console.error(response);
+                        NotificationUtils.showNotify(response.error, "ERROR");
+                    });
+            }
 
             /*
              * TABLE AND FORMATTERS

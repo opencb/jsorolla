@@ -452,17 +452,13 @@
                     queryParams = Object.assign(queryParams, {sid: this.opencgaSession.opencgaClient._config.sessionId});
                 }
 
-                if (UtilsNew.isNotEmptyArray(this.samples)) {
-                    // let sampleNames = [];
-                    // this.samples.forEach((sample) => {
-                    //     sampleNames.push(sample.name);
-                    // });
-                    queryParams.summary = false;
-                    // queryParams.includeSample = sampleNames.join(",");
-                    queryParams.exclude = "annotation.geneExpression";
-                    queryParams.approximateCount = true;
-                } else {
+                if (UtilsNew.isEmptyArray(this.samples)) {
                     queryParams.summary = true;
+                    // queryParams.exclude = "annotation.geneExpression";
+                } else {
+                    queryParams.summary = false;
+                    queryParams.approximateCount = true;
+                    queryParams.exclude = "annotation.geneExpression";
                 }
 
                 if (typeof this.config !== "undefined" && UtilsNew.isNotUndefinedOrNull(this.config.grid)

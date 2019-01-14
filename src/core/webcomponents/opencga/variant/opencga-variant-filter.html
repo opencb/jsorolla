@@ -171,10 +171,6 @@
                         // value: {},
                         observer: 'queryObserver'
                     },
-                    // search: {
-                    //     type: Object,
-                    //     observer: "searchObserver"
-                    // },
                     clinicalAnalysis: {
                         type: Object,
                         observer: "clinicalObserver"
@@ -188,10 +184,6 @@
                     consequenceTypes: {
                         type: Object
                     },
-                    // modeInheritance: {
-                    //     type: String,
-                    //     notify: true
-                    // },
                     config: {
                         type: Object
                     }
@@ -235,25 +227,6 @@
                 this.modalGoActive = false;
 
                 this._genotypes = ["0/0", "0/1", "1/1"];
-
-                // TO DELETE
-                // this.samplesTest = ["NA12877"];
-                // this._sampleFilters = {
-                //     sampleFilters: [
-                //         {
-                //             id: "NA12877", genotypes: ["0/1"], dp: 5
-                //         }
-                //     ],
-                //     fileFilters: [],
-                //     modeOfInheritance: "recessive",
-                //     compoundHeterozygous: true,
-                //     missing: true
-                // };
-                // this.samples = [
-                //     {
-                //         id: "NA12877", genotypes: ["0/1"], dp: 5
-                //     }
-                // ]
 
                 this.samples = [];
 
@@ -345,12 +318,6 @@
                 // }
             }
 
-            // searchObserver(e) {
-            //     if (Object.keys(this.search).length === 0) {
-            //         this.samples = [];
-            //     }
-            // }
-
             clinicalObserver(clinicalAnalysis) {
                 // debugger
                 if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis)) {
@@ -417,6 +384,73 @@
 
             onSampleFilterClick() {
                 $("#" + this.prefix + "SampleFilterModal").modal("show");
+            }
+
+            onSampleFiltersChange(e) {
+                // Process Sample filters
+                let _genotypeFilter = [];
+                let _dpFormatFilter = [];
+                for (let sampleFilter of e.detail.sampleFilters) {
+                    // let color = (sampleFilter.affected) ? "red" : "black";
+                    let genotypes = (sampleFilter.genotypes.length > 0) ? sampleFilter.genotypes.join(",") : "none";
+                    let dp = (sampleFilter.dp > 0) ? sampleFilter.dp : -1;
+
+                    if (genotypes !== "none") {
+                        _genotypeFilter.push(sampleFilter.id + ":" + genotypes);
+                    }
+                    if (dp !== -1) {
+                        _dpFormatFilter.push(sampleFilter.id + ":DP>=" + dp);
+                    }
+                }
+
+                // Process File filters
+                let _info = "";
+                for (let fileFilter of e.detail.fileFilters) {
+                    let qual = (fileFilter.qual > 0) ? fileFilter.qual : -1;
+                    let filter = (UtilsNew.isNotEmpty(fileFilter.filter)) ? fileFilter.filter : "none";
+
+                    if (qual !== -1 || filter !== "none") {
+                        _info += `${fileFilter.name}:`;
+                        let _arr = [];
+                        if (qual !== -1) {
+                            _arr.push("QUAL>" + qual)
+                        }
+                        if (filter !== "none" && filter !== "") {
+                            _arr.push("FILTER=" + filter);
+                        }
+                        // FIXME join should be done with ';' instead of ','
+                        _info += _arr.join(",") + ";";
+                    }
+                }
+
+                let needUpdateQuery = false;
+                let _query = Object.assign({}, this.query);
+                if (_genotypeFilter !== undefined && _genotypeFilter.length > 0) {
+                    _query.genotype = _genotypeFilter.join(";");
+                    needUpdateQuery = true;
+                }
+                if (_dpFormatFilter !== undefined && _dpFormatFilter.length > 0) {
+                    _query.format = _dpFormatFilter.join(";");
+                    needUpdateQuery = true;
+                } else {
+                    if (UtilsNew.isNotUndefinedOrNull(_query.format)) {
+                        delete _query.format;
+                        needUpdateQuery = true;
+                    }
+                }
+                if (_info !== "") {
+                    _query.info = _info;
+                    needUpdateQuery = true;
+                }
+
+                // Only update query if really needed, this avoids unneeded web refresh
+                if (needUpdateQuery) {
+                    this.updateClinicalFilterQuery = false;
+                    this.query = _query;
+                    this.updateClinicalFilterQuery = true;
+                }
+
+                this.notifyQuery(this.query);
             }
 
             propagateOkHPO(e) {
@@ -532,8 +566,97 @@
             }
 
 
+            renderClinicalQuerySummary() {
+                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
+                    // Get Individuals (and samples) from Clinical Analysis
+                    let individuals = [];
+                    if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.family.members)) {
+                        individuals = this.clinicalAnalysis.family.members;
+                    } else {
+                        if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.proband)) {
+                            individuals = this.clinicalAnalysis.proband;
+                        }
+                    }
+
+                    // First, render Genotype table
+                    let sampleGenotypeMap = {};
+                    if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
+                        for (let genotype of this.query.genotype.split(";")) {
+                            let sampleGt = genotype.split(":");
+                            sampleGenotypeMap[sampleGt[0]] = sampleGt[1].split(",");
+                        }
+                    } else {
+                        if (UtilsNew.isNotUndefinedOrNull(this.query.sample)) {
+                            for (let sample of this.query.sample.split(",")) {
+                                sampleGenotypeMap[sample] = ["0/1", "1/1"];
+                            }
+                        }
+                    }
+
+                    // Render Genotype table
+                    let sampleTableTr = "";
+                    for (let individual of individuals) {
+                        let color = (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.proband)
+                            && individual.id === this.clinicalAnalysis.proband.id)
+                            ? "darkred"
+                            : "black";
+                        let genotype = (UtilsNew.isNotUndefinedOrNull(sampleGenotypeMap[individual.samples[0].id]))
+                            ? sampleGenotypeMap[individual.samples[0].id]
+                            : "any";
+
+                        sampleTableTr += `
+                            <tr data-sample="${individual.samples[0].id}">
+                                <td>
+                                    <span style="color: ${color}">${individual.samples[0].id}</span>
+                                </td>
+                                <td>
+                                    ${genotype}
+                                </td>
+                            </tr>
+                    `;
+                    }
+
+                    // Set HTML into the table body
+                    let elementById = PolymerUtils.getElementById(this.prefix + "SampleFiltersSummaryTBody");
+                    if (UtilsNew.isNotUndefinedOrNull(elementById)) {
+                        elementById.innerHTML = sampleTableTr;
+                    }
+
+
+                    // Second, render File table
+                    let qual = (UtilsNew.isNotUndefinedOrNull(this.query.qual) && this.query.qual > 0) ? this.query.qual : -1;
+                    let filter = (UtilsNew.isNotEmpty(this.query.filter)) ? this.query.filter : "none";
+                    let fileTableTr = "";
+                    for (let sampleId in this.clinicalAnalysis.files) {
+                        let sampleFiles = this.clinicalAnalysis.files[sampleId];
+                        for (let file of sampleFiles) {
+                            if (UtilsNew.isNotUndefinedOrNull(file.format) && file.format.toUpperCase() === "VCF") {
+                                fileTableTr += `
+                                            <tr data-file="${file.name}">
+                                                <td>
+                                                    <span>${file.name}</span>
+                                                </td>
+                                                <td>
+                                                    ${qual}
+                                                </td>
+                                                <td>
+                                                    ${filter}
+                                                </td>
+                                            </tr>
+                                `;
+                            }
+                        }
+                    }
+
+                    elementById = PolymerUtils.getElementById(this.prefix + "FileFiltersSummaryTBody");
+                    if (UtilsNew.isNotUndefinedOrNull(elementById)) {
+                        elementById.innerHTML = fileTableTr;
+                    }
+                }
+            }
+
             setQueryFilters() {
-                // Empty everything before rendering
+                // Clear fitler menu before rendering
                 this._clearHtmlDom();
 
                 // Check 'query' is not null or empty there is nothing else to do
@@ -541,13 +664,8 @@
                     return;
                 }
 
-                // Genotypes
-                // this.renderGenotypes();
-
-                // inheritance Mode
-                // if (UtilsNew.isNotUndefinedOrNull(this.modeInheritance)) {
-                //     PolymerUtils.setValue(this.prefix + "SegregationOperator", this.modeInheritance)
-                // }
+                // Render Clinical filters: sample and file
+                this.renderClinicalQuerySummary();
 
                 // Cohorts
                 let cohortArray = [];
@@ -798,6 +916,12 @@
                 }
                 if (UtilsNew.isNotUndefinedOrNull(this.query.format)) {
                     _filters.format = this.query.format;
+                }
+                if (UtilsNew.isNotUndefinedOrNull(this.query.file)) {
+                    _filters.file = this.query.file;
+                }
+                if (UtilsNew.isNotUndefinedOrNull(this.query.qual)) {
+                    _filters.qual = this.query.qual;
                 }
                 if (UtilsNew.isNotUndefinedOrNull(this.query.info)) {
                     _filters.info = this.query.info;
@@ -1233,9 +1357,9 @@
                     case "fullTextSearch":
                         content = this._getFullTextSearchAccessionsHtml(this.prefix);
                         break;
-                    case "vcfFilterDropdown":
-                        content = this._getVCFFilterHTML(subsection.filterValues, this.prefix);
-                        break;
+                    // case "vcfFilterDropdown":
+                    //     content = this._getVCFFilterHTML(subsection.filterValues, this.prefix);
+                    //     break;
                 }
 
                 // Add subsection footer
@@ -1263,7 +1387,7 @@
                 if (subsection.showSelectSamples) {
                     res = `
                         <div>
-                            <div style="padding: 10px 0px">Select Samples and Genotypes:</div>
+                            <div style="padding: 10px 0px">Select Sample and File Filters:</div>
                             <div style="padding-left: 20px">
                                 <button id="${prefix}SampleFilterModalButton" type="button" class="btn btn-default" style="width: 80%">Sample Selection ...</button>
                             </div>
@@ -1932,18 +2056,25 @@
                 return categoriesStart + categoriesCheckbox + categoriesEnd;
             }
 
-            _getVCFFilterHTML(filterValues, prefix) {
-                let options = "";
-                for (let val of filterValues) {
-                    options += `<option value="${val}">${val}</option>`;
-                }
-                return `
-                    <select class="selectpicker" id="${prefix}vcfFilterSelect" data-size="10" data-live-search="true"
-                            data-selected-text-format="count" multiple>
-                        ${options}
-                    </select>
-                `;
-            }
+            /**
+             * DEPRECATED!!
+             * @param filterValues
+             * @param prefix
+             * @returns {string}
+             * @private
+             */
+            // _getVCFFilterHTML(filterValues, prefix) {
+            //     let options = "";
+            //     for (let val of filterValues) {
+            //         options += `<option value="${val}">${val}</option>`;
+            //     }
+            //     return `
+            //         <select class="selectpicker" id="${prefix}vcfFilterSelect" data-size="10" data-live-search="true"
+            //                 data-selected-text-format="count" multiple>
+            //             ${options}
+            //         </select>
+            //     `;
+            // }
 
 
             _addEventListeners() {
@@ -2080,115 +2211,6 @@
                 PolymerUtils.getElementById(this.prefix + "buttonOpenHpoAccesions").addEventListener('click', this.openModalHpo.bind(this));
             }
 
-            onSampleFiltersChange(e) {
-                debugger
-                // Process Sample filters
-                let sampleTableTr = "";
-                let _genotypeFilter = [];
-                let _dpFormatFilter = [];
-                for (let sampleFilter of e.detail.sampleFilters) {
-                    let color = (sampleFilter.affected) ? "red" : "black";
-                    let genotypes = (sampleFilter.genotypes.length > 0) ? sampleFilter.genotypes.join(",") : "none";
-                    let dp = (sampleFilter.dp > 0) ? sampleFilter.dp : -1;
-
-                    sampleTableTr += `
-                            <tr data-sample="${sampleFilter.id}">
-                                <td>
-                                    <span style="color: ${color}">${sampleFilter.id}</span>
-                                </td>
-                                <td>
-                                    ${genotypes}
-                                </td>
-                            </tr>
-                    `;
-
-                    if (genotypes !== "none") {
-                        _genotypeFilter.push(sampleFilter.id + ":" + genotypes);
-                    }
-                    if (dp !== -1) {
-                        _dpFormatFilter.push(sampleFilter.id + ":DP>=" + dp);
-                    }
-                }
-
-                let elementById = PolymerUtils.getElementById(this.prefix + "SampleFiltersSummaryTBody");
-                if (UtilsNew.isNotUndefinedOrNull(elementById)) {
-                    // Set HTML into the table body
-                    elementById.innerHTML = sampleTableTr;
-                }
-
-                // Process File filters
-                let fileTableTr = "";
-                let _info = "";
-                for (let fileFilter of e.detail.fileFilters) {
-                    let qual = (fileFilter.qual > 0) ? fileFilter.qual : -1;
-                    let filter = (UtilsNew.isNotEmpty(fileFilter.filter)) ? fileFilter.filter : "none";
-
-                    fileTableTr += `
-                            <tr data-file="${fileFilter.name}">
-                                <td>
-                                    <span>${fileFilter.name}</span>
-                                </td>
-                                <td>
-                                    ${qual}
-                                </td>
-                                <td>
-                                    ${filter}
-                                </td>
-                            </tr>
-                    `;
-
-                    if (qual !== -1 || filter !== "none") {
-                        _info += `${fileFilter.name}:`;
-                        let _arr = [];
-                        if (qual !== -1) {
-                            _arr.push("QUAL>" + qual)
-                        }
-                        if (filter !== "none" && filter !== "") {
-                            _arr.push("FILTER=" + filter);
-                        }
-                        // FIXME join should be done with ';' instead of ','
-                        _info += _arr.join(",") + ";";
-                    }
-                }
-
-                elementById = PolymerUtils.getElementById(this.prefix + "FileFiltersSummaryTBody");
-                if (UtilsNew.isNotUndefinedOrNull(elementById)) {
-                    elementById.innerHTML = fileTableTr;
-                }
-
-
-                // this._modeOfInheritance = e.detail.modeOfInheritance;
-                // this._compoundHeterozygous = e.detail.compoundHeterozygous;
-                let needUpdateQuery = false;
-                let _query = Object.assign({}, this.query);
-                debugger
-                if (_genotypeFilter !== undefined && _genotypeFilter.length > 0) {
-                    _query.genotype = _genotypeFilter.join(";");
-                    needUpdateQuery = true;
-                }
-                if (_dpFormatFilter !== undefined && _dpFormatFilter.length > 0) {
-                    _query.format = _dpFormatFilter.join(";");
-                    needUpdateQuery = true;
-                } else {
-                    if (UtilsNew.isNotUndefinedOrNull(_query.format)) {
-                        delete _query.format;
-                        needUpdateQuery = true;
-                    }
-                }
-                if (_info !== "") {
-                    _query.info = _info;
-                    needUpdateQuery = true;
-                }
-
-                // Only update query if really needed, this avoids unneeded web refresh
-                if (needUpdateQuery) {
-                    this.updateClinicalFilterQuery = false;
-                    this.query = _query;
-                    this.updateClinicalFilterQuery = true;
-                }
-
-                this.notifyQuery(this.query);
-            }
 
             // onApproxCountChange(e) {
             //     // this.query.approximateCount = e.target.checked;
@@ -2223,7 +2245,6 @@
                     },
                     style: {
                         width: true,
-//                        classes:  "ocb-tooltip-font" + "  ui-tooltip ui-tooltip-shadow"},
                         classes: this.config.menu.tooltip.classes
                     },
                     show: {

@@ -121,8 +121,7 @@
 
                 // We check query.sample and query.genotype to check if samples exist.
                 // We parse query fields and store a samples object array for convenience
-                let _individuals = [];
-                let _samples = [];
+
                 // if (this.query !== undefined) {
                 //     // debugger
                 //     if (UtilsNew.isNotUndefinedOrNull(query.sample)) {
@@ -141,6 +140,8 @@
                 //     }
                 // }
 
+                let _individuals = [];
+                let _samples = [];
                 if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis)) {
                     // let _individuals = [];
                     if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.family) && UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.family.members)) {
@@ -401,9 +402,10 @@
                     queryParams.includeSample = sampleIds.join(",");
                     queryParams.exclude = "annotation.geneExpression";
                     queryParams.approximateCount = true;
-                    // queryParams.useSearchIndex = "no";
+                    queryParams.useSearchIndex = "yes";
                 } else {
-                    // queryParams.summary = true;
+                    queryParams.summary = true;
+                    // queryParams.exclude = "annotation.geneExpression";
                 }
 
                 if (typeof this.config !== "undefined" && UtilsNew.isNotUndefinedOrNull(this.config.grid)
@@ -527,6 +529,7 @@
 
             zygosityFormatter(value, row, index) {
                 let res = "";
+                let res2 = "";
                 if (UtilsNew.isNotUndefinedOrNull(row.studies)) {
                     let left, right;
                     let mutationColor = "black";
@@ -578,8 +581,8 @@
                                 break;
                             case "0/1":
                             case "1/0":
-                                left = mutationColor;
-                                right = "mutationColor";
+                                left = "white";
+                                right = mutationColor;
                                 break;
                             case "1/1":
                             case "1|1":
@@ -623,10 +626,18 @@
                                     </td>
                                 </tr>
                            </table>`;
+
+                        res2 = `<div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style="width: 70px" align="center">
+                                    <svg viewBox="0 0 70 30" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="20" cy="15" r="8" style="stroke: black;fill: ${left}"/>
+                                        <circle cx="50" cy="15" r="8" style="stroke: black;fill: ${right}"/>
+                                    </svg>
+                                </div>
+                            `;
                     }
                 }
 
-                return res;
+                return res2;
             }
 
             pathogeniticyFormatter(value, row, index) {
@@ -725,9 +736,7 @@
                 //                     <span id="v${row.id}ButtonText" class="interpretation-add-to-report" data-variant-id='${row.id}'>Add to Report</span>
                 //                </button>`;
                 let res = "<div>Tier 1 (PVS1)</div><br>";
-
-                let comments = UtilsNew.isNotEmptyArray(row.comments) ? row.comments.length : 0;
-                return res + "<span>Comments (" + comments  + ")</span>";
+                return res;
             }
 
             _createDefaultColumns() {
