@@ -277,13 +277,22 @@ class VariantGridFormatter {
                 return 0;
             });
 
-            let ctHtml = `<table class="table table-hover table-no-bordered">
+            let ctHtml = `<table id="{{prefix}}ConsqTypeTable" class="table table-hover table-no-bordered">
                                 <thead>
-                                    <tr class="table-header">
-                                        <th>Gene Name</th>
-                                        <th>Ensembl Gene</th>
-                                        <th>Ensembl Transcript</th>
-                                        <th>SO Term</th>
+                                    <tr>
+                                        <th rowspan="2">Gene Name</th>
+                                        <th rowspan="2">Ensembl Gene</th>                                     
+                                        <th rowspan="2">Ensembl Transcript</th>
+                                        <th rowspan="2">Biotype</th>
+                                        <th rowspan="2">Transcript Flags</th>
+                                        <th rowspan="2">SO Term</th>
+                                        <th rowspan="1" colspan="4" style="text-align: center">Protein Variant Annotation</th>
+                                    </tr>
+                                    <tr>
+                                        <th rowspan="1">UniProt Acc</th>
+                                        <th rowspan="1">Position</th>
+                                        <th rowspan="1">Ref/Alt</th>
+                                        <th rowspan="1">Sift/Polyphen</th>
                                     </tr>
                                 </thead>
                                 <tbody>`;
@@ -297,6 +306,11 @@ class VariantGridFormatter {
                               </a>`;
                 }
 
+                let pva = {};
+                if (UtilsNew.isNotUndefinedOrNull(ct.proteinVariantAnnotation)) {
+                    pva = ct.proteinVariantAnnotation;
+                }
+
                 let soArray = [];
                 for (let so of ct.sequenceOntologyTerms) {
                     let color = "black";
@@ -304,17 +318,43 @@ class VariantGridFormatter {
                         && typeof variantGrid.consequenceTypeToColor[so.name] !== "undefined") {
                         color = variantGrid.consequenceTypeToColor[so.name];
                     }
-                    soArray.push(`<span style="color: ${color}">
+                    soArray.push(`<div style="color: ${color}">
                                     ${so.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">${so.accession}</a>)
-                                  </span>`);
+                                  </div>`);
+                }
+
+                let uniprotAccession = "-";
+                if (UtilsNew.isNotUndefinedOrNull(pva.uniprotAccession)) {
+                    uniprotAccession = `<a href="https://www.uniprot.org/uniprot/${pva.uniprotAccession}" target="_blank">${pva.uniprotAccession}</a>`;
+                }
+
+                let deleteriousness = "";
+                if (UtilsNew.isNotEmptyArray(pva.substitutionScores)) {
+                    let sift = "-";
+                    let polyphen = "-";
+                    for (let score of pva.substitutionScores) {
+                        if (score.source === "sift") {
+                            sift = score.description;
+                        }
+                        if (score.source === "polyphen") {
+                            polyphen = score.description;
+                        }
+                    }
+                    deleteriousness = sift + "/" + polyphen;
                 }
 
                 // Create the table row
                 ctHtml += `<tr class="detail-view-row">
-                            <td>${ct.geneName !== "" ? ct.geneName : "NA"}</td>
+                            <td>${UtilsNew.isNotEmpty(ct.geneName) ? ct.geneName : "NA"}</td>
                             <td>${geneId}</td>
-                            <td>${ct.ensemblTranscriptId !== "" ? ct.ensemblTranscriptId : "NA"}</td>
-                            <td>${soArray.join(",")}</td>
+                            <td>${UtilsNew.isNotEmpty(ct.ensemblTranscriptId) ? ct.ensemblTranscriptId : "NA"}</td>
+                            <td>${UtilsNew.isNotUndefinedOrNull(ct.biotype) ? ct.biotype: "NA"}</td>
+                            <td>${UtilsNew.isNotEmptyArray(ct.transcriptAnnotationFlags) ? ct.transcriptAnnotationFlags.join(", ") : "NA"}</td>
+                            <td>${soArray.join("")}</td>
+                            <td>${uniprotAccession}</td>
+                            <td>${pva.position !== undefined ? pva.position : "-"}</td>
+                            <td>${pva.reference !== undefined ? pva.reference + "/" + pva.alternate : "-"}</td>
+                            <td>${deleteriousness}</td>
                            </tr>`;
             }
             ctHtml += "</tbody></table>";

@@ -508,13 +508,13 @@
                 let ctHtml = "";
                 let clinicalHtml = "";
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-                    ctHtml = "<div style='padding: 15px 0px 0px 25px'><label>Consequence Types</label></div>";
-                    ctHtml += "<div style='width: 90%; padding: 15px 50px'>";
+                    ctHtml = "<div style='padding: 20px 0px 10px 25px'><label>Consequence Types</label></div>";
+                    ctHtml += "<div style='padding: 5px 50px'>";
                     ctHtml += this.variantGrid.variantGridFormatter.consequenceTypeDetailFormatter(value, row, this.variantGrid);
                     ctHtml += "</div>";
 
-                    clinicalHtml = "<div style='padding: 15px 0px 0px 25px'><label>Clinical Phenotypes</label></div>";
-                    clinicalHtml += "<div style='padding: 10px 50px 15px 50px'>";
+                    clinicalHtml = "<div style='padding: 20px 0px 15px 25px'><label>Clinical Phenotypes</label></div>";
+                    clinicalHtml += "<div style='padding: 5px 50px'>";
                     let clinvarTraits = "";
                     let cosmicTraits = "";
                     if (typeof row.annotation.variantTraitAssociation !== "undefined" && row.annotation.variantTraitAssociation != null) {
@@ -688,7 +688,6 @@
             }
 
             populationFrequenciesFormatter(value, row, index) {
-                debugger
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined"
                     && typeof row.annotation.populationFrequencies !== "undefined") {
 
