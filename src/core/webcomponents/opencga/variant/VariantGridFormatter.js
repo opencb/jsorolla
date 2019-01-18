@@ -406,6 +406,44 @@ class VariantGridFormatter {
         return htmlPopFreqTable;
     }
 
+    addPopulationFrequenciesInfoTooltip(div, populationFrequencies) {
+        $("#" + div).qtip({
+            content: {
+                title: "Population Frequencies",
+                text: function(event, api) {
+                    return `One coloured square is shown for each population. Frequencies are coded with colours which classify values 
+                            into 'very rare', 'rare', 'average', 'common' or 'missing', see 
+                            <a href="http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg" target="_blank">
+                                http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg
+                            </a>. Please, leave the cursor over each square to visualize the actual frequency values.
+                            <div style="padding: 10px 0px 0px 0px"><label>Legend: </label></div>
+                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.color.veryRare}" aria-hidden="true"></i> Very rare:  freq < 0.001</span></div>
+                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.color.rare}" aria-hidden="true"></i> Rare:  freq < 0.005</span></div>
+                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.color.average}" aria-hidden="true"></i> Average:  freq < 0.05</span></div>
+                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.color.common}" aria-hidden="true"></i> Common:  freq >= 0.05</span></div>
+                            <div><span><i class="fa fa-square" style="color: black" aria-hidden="true"></i> Not observed</span></div>`
+                },
+            },
+            position: {
+                target: "mouse",
+                adjust: {
+                    x: 2, y: 2,
+                    mouse: false
+                }
+            },
+            style: {
+                width: "240px",
+            },
+            show: {
+                delay: 200
+            },
+            hide: {
+                fixed: true,
+                delay: 300
+            }
+        });
+    }
+
     addPopulationFrequenciesTooltip(div) {
         if (UtilsNew.isEmpty(div)) {
             div = "table.populationFrequenciesTable";

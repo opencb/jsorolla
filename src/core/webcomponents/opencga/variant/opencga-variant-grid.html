@@ -358,6 +358,7 @@
                             });
 
                             // Add Population Frequencies tooltip
+                            _this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("popFreqInfoIcon", _this.populationFrequencies);
                             _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable");
                         }
                     });
@@ -1049,15 +1050,7 @@
 
                     // Just one column called 'Population Frequencies'
                     this._columns[0].splice(popIdx, 0, {
-                        title: 'Population Frequencies <a data-toggle="tooltip" title="One coloured square is shown for each cohort, e.g. population. ' +
-                            'Frequencies are visualized as colours which classify values into very rare, rare, average, common or missing, see http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg. Please, leave ' +
-                            'the cursor over each square to visualize the actual frequency value."><i class="fa fa-info-circle" aria-hidden="true"></i></a>' +
-                            '<div style="width: 60%;margin: auto"><div style="float: left">Legend:&nbsp;&nbsp;</div>' +
-                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.veryRare + '" title="Very rare:  freq < 0.001"></div>' +
-                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.rare + '" title="Rare:  freq < 0.005"></div>' +
-                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.average + '" title="Average:  freq < 0.05"></div>' +
-                            '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.common + '" title="Common:  freq >= 0.05"></div>' +
-                            '</div>',
+                        title: 'Population Frequencies <span id="popFreqInfoIcon"><i class="fa fa-info-circle" style="color: #337ab7" aria-hidden="true"></i></span>',
                         field: '',
                         rowspan: 1,
                         colspan: this.populationFrequencies.studies.length,
