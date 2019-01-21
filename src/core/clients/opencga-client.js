@@ -657,6 +657,10 @@ class Projects extends OpenCGAParentClass {
         return this.get("projects", ids, "info", params, options);
     }
 
+    stats(ids, params, options) {
+        return this.get("projects", ids, "stats", params, options);
+    }
+
     search(params, options) {
         return this.get("projects", undefined, "search", params, options);
     }
@@ -693,6 +697,13 @@ class Studies extends Acls {
         return this.get("studies", id, "info", params, options);
     }
 
+    stats(ids, params, options) {
+        return this.get("studies", ids, "stats", params, options);
+    }
+
+    /*
+    * @deprecated since version 1.4.0. Use stats instead.
+    * */
     summary(id, params, options) {
         return this.get("studies", id, "summary", params, options);
     }
@@ -701,20 +712,33 @@ class Studies extends Acls {
         return this.get("studies", undefined, "search", params, options);
     }
 
+    /*
+    * @deprecated since version 1.4.0. Use files().search() instead.
+    * */
     getFiles(id, params, options) {
         return this.get("studies", id, "files", params, options);
     }
 
+    /*
+    * @deprecated since version 1.4.0. Use jobs().search() instead.
+    * */
     getJobs(id, params, options) {
         return this.get("studies", id, "jobs", params, options);
     }
 
+    /*
+    * @deprecated since version 1.4.0. Use samples().search() instead.
+    * */
     getSamples(id, params, options) {
         return this.get("studies", id, "samples", params, options);
     }
 
     getGroups(id, params) {
         return this.get("studies", id, "groups", params);
+    }
+
+    getVariableSets(id, params) {
+        return this.get("studies", id, "variableSets", params);
     }
 
     createGroup(id, params, body, options) {
@@ -729,14 +753,28 @@ class Studies extends Acls {
         return this.extendedPost("studies", id, "groups", groupId, "update", params, body, options);
     }
 
+    updateVariableSets(id, params, body) {
+        return this.extendedPost("studies", id, "variableSets", undefined, "update", params, body, {});
+    }
+
+    updateVariableSetVariables(id, variableSet, params, body) {
+        return this.extendedPost("studies", id, "variableSets", variableSet, "variables/update", params, body, {});
+    }
+
     update(id, params, body, options) {
         return this.post("studies", id, "update", params, body, options);
     }
 
+    /*
+    * @deprecated since version 1.4.0. Use variants().query() instead.
+    * */
     getVariants(id, params, options) {
         return this.get("studies", id, "variants", params, options);
     }
 
+    /*
+    * @deprecated since version 1.4.0. Use alignments().query() instead.
+    * */
     getAlignments(id, params, options) {
         return this.get("studies", id, "alignments", params, options);
     }
@@ -833,6 +871,10 @@ class Files extends Acls {
         return this.post("files", undefined, "upload", undefined, params, options);
     }
 
+    updateAnnotationSetAnnotations(id, annotationSet, params, body) {
+        return this.extendedPost("files", id, "annotationSets", annotationSet, "annotations/update", params, body, {});
+    }
+
 }
 
 class Jobs extends Acls {
@@ -897,12 +939,22 @@ class Individuals extends Acls {
         return this.get("individuals", id, "delete", params, options);
     }
 
+    /*
+    * @deprecated since version 1.4.0. Use update() instead.
+    * */
     annotationsetsCreate(id, params, body, options) {
-        return this.post("individuals", id, "annotationsets/create", params, body, options);
+        return this.post("individuals", id, "annotationSets/create", params, body, options);
     }
 
+    /*
+    * @deprecated since version 1.4.0. Use update() instead.
+    * */
     annotationsetsUpdate(id, name, params, body, options) {
-        return this.extendedPost("individuals", id, "annotationsets", name, "update", params, body, options);
+        return this.extendedPost("individuals", id, "annotationSets", name, "update", params, body, options);
+    }
+
+    updateAnnotationSetAnnotations(id, annotationSet, params, body) {
+        return this.extendedPost("individuals", id, "annotationSets", annotationSet, "annotations/update", params, body, {});
     }
 
 }
@@ -933,12 +985,22 @@ class Families extends Acls {
         return this.post("families", id, "update", params, body, options);
     }
 
+    /*
+    * @deprecated since version 1.4.0. Use update() instead.
+    * */
     annotationsetsCreate(id, params, body, options) {
         return this.post("families", id, "annotationsets/create", params, body, options);
     }
 
+    /*
+    * @deprecated since version 1.4.0. Use update() instead.
+    * */
     annotationsetsUpdate(id, name, params, body, options) {
         return this.extendedPost("families", id, "annotationsets", name, "update", params, body, options);
+    }
+
+    updateAnnotationSetAnnotations(id, annotationSet, params, body) {
+        return this.extendedPost("families", id, "annotationSets", annotationSet, "annotations/update", params, body, {});
     }
 
 }
@@ -981,16 +1043,29 @@ class Samples extends Acls {
         return this.get("samples", id, "delete", params, options);
     }
 
+    /*
+    * @deprecated since version 1.4.0. Use update() instead.
+    * */
     annotationsetsCreate(id, params, body, options) {
         return this.post("samples", id, "annotationsets/create", params, body, options);
     }
 
+    /*
+    * @deprecated since version 1.4.0. Use update() instead.
+    * */
     annotationsetsUpdate(id, name, params, body, options) {
         return this.extendedPost("samples", id, "annotationsets", name, "update", params, body, options);
     }
 
+    updateAnnotationSetAnnotations(id, annotationSet, params, body) {
+        return this.extendedPost("samples", id, "annotationSets", annotationSet, "annotations/update", params, body, {});
+    }
+
 }
 
+/*
+* @deprecated since version 1.4.0. Use studies() instead.
+* */
 class Variables extends OpenCGAParentClass {
 
     constructor(config) {
