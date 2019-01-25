@@ -158,7 +158,7 @@
                 }
                 this.samples = _samples;
                 this.individuals = _individuals;
-
+debugger
 
                 // Config for the grid toolbar
                 this.toolbarConfig = {
@@ -243,7 +243,7 @@
                             // Format the number string with commas
                             _this.numTotalResultsText = _numTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                             _this.approximateCountResult = resp.response[0].approximateCount;
-                            return {total: _numTotal, rows: resp.response[0].result}
+                            return {total: _numTotal, rows: resp.response[0].result[0].result.reportedVariants}
                         },
                         onClickRow: function (row, $element, field) {
                             $('.success').removeClass('success');
@@ -288,7 +288,7 @@
                         },
                         onLoadSuccess: function (data) {
                             // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
-                            if (UtilsNew.isNotUndefinedOrNull(_table)) {
+                            if (UtilsNew.isNotEmptyArray(data.rows) && UtilsNew.isNotUndefinedOrNull(_table)) {
                                 PolymerUtils.querySelector(_table.selector).rows[2].setAttribute('class', 'success');
                                 _this._onSelectVariant(data.rows[0]);
 
@@ -341,7 +341,7 @@
                             });
 
                             // Add Population Frequencies tooltip
-                            _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable");
+                            _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", _this.populationFrequencies);
                         }
                     });
 
@@ -373,7 +373,8 @@
                     if (UtilsNew.isEmpty(this.query.study) ) {
                         this.query.study = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
                     }
-                    host += '/webservices/rest/v1/analysis/variant/query';
+                    // host += '/webservices/rest/v1/analysis/variant/query';
+                    host += '/webservices/rest/v1/analysis/clinical/interpretation/tools/custom';
                 } else {
                     return {host: host, queryParams: {}};
                 }

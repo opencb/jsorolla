@@ -363,48 +363,6 @@ class VariantGridFormatter {
         return "-";
     }
 
-    /**
-     * Creates the colored table with one row and as many columns as populations.
-     * @param populations
-     * @param populationFrequenciesMap
-     * @param populationFrequenciesColor
-     */
-    createPopulationFrequenciesTable(populations, populationFrequenciesMap, populationFrequenciesColor) {
-        // This is used by the tooltip function below to display all population frequencies
-        let popFreqs;
-        let popFreqsArray = [];
-        for (let population of populations) {
-            let freq = (populationFrequenciesMap.get(population) !== undefined) ? populationFrequenciesMap.get(population) : 0;
-            popFreqsArray.push(population + "::" + freq);
-        }
-        popFreqs = popFreqsArray.join(",");
-
-        // Create the table (with the tooltip info)
-        let tableSize = populations.length * 15;
-        let htmlPopFreqTable = `<table style="width:${tableSize}px" class="populationFrequenciesTable" data-pop-freq="${popFreqs}"><tr>`;
-        for (let population of populations) {
-            // This array contains "study:population"
-            let color = "black";
-            if (typeof populationFrequenciesMap.get(population) !== "undefined") {
-                let freq = populationFrequenciesMap.get(population);
-                if (freq < 0.001) {
-                    color = populationFrequenciesColor.veryRare;
-                } else if (freq < 0.005) {
-                    color = populationFrequenciesColor.rare;
-                } else if (freq < 0.05) {
-                    color = populationFrequenciesColor.average;
-                } else {
-                    color = populationFrequenciesColor.common;
-                }
-                htmlPopFreqTable += `<td style="width: 15px; background: ${color}">&nbsp;</td>`;
-            } else {
-                htmlPopFreqTable += `<td style="width: 15px; background: ${color}">&nbsp;</td>`;
-            }
-        }
-        htmlPopFreqTable += "</tr></table>";
-
-        return htmlPopFreqTable;
-    }
 
     addPopulationFrequenciesInfoTooltip(div, populationFrequencies) {
         $("#" + div).qtip({
@@ -444,11 +402,46 @@ class VariantGridFormatter {
         });
     }
 
-    addPopulationFrequenciesTooltip(div) {
+    /**
+     * Creates the colored table with one row and as many columns as populations.
+     * @param populations
+     * @param populationFrequenciesMap
+     * @param populationFrequenciesColor
+     */
+    createPopulationFrequenciesTable(populations, populationFrequenciesMap, populationFrequenciesColor) {
+        // This is used by the tooltip function below to display all population frequencies
+        let popFreqs;
+        let popFreqsArray = [];
+        for (let population of populations) {
+            let freq = (populationFrequenciesMap.get(population) !== undefined) ? populationFrequenciesMap.get(population) : 0;
+            popFreqsArray.push(population + "::" + freq);
+        }
+        popFreqs = popFreqsArray.join(",");
+
+        // Create the table (with the tooltip info)
+        let tableSize = populations.length * 15;
+        let htmlPopFreqTable = `<table style="width:${tableSize}px" class="populationFrequenciesTable" data-pop-freq="${popFreqs}"><tr>`;
+        for (let population of populations) {
+            // This array contains "study:population"
+            let color = "black";
+            if (typeof populationFrequenciesMap.get(population) !== "undefined") {
+                let freq = populationFrequenciesMap.get(population);
+                let color = this._getPopulationFrequencyColor(freq, populationFrequenciesColor);
+                htmlPopFreqTable += `<td style="width: 15px; background: ${color}">&nbsp;</td>`;
+            } else {
+                htmlPopFreqTable += `<td style="width: 15px; background: ${color}">&nbsp;</td>`;
+            }
+        }
+        htmlPopFreqTable += "</tr></table>";
+        return htmlPopFreqTable;
+    }
+
+    addPopulationFrequenciesTooltip(div, populationFrequencies) {
         if (UtilsNew.isEmpty(div)) {
             div = "table.populationFrequenciesTable";
         }
 
+        let _this = this;
         $(div).qtip({
             content: {
                 title: "Population Frequencies",
@@ -457,11 +450,13 @@ class VariantGridFormatter {
                     let html = "";
                     for (let popFreq of popFreqs) {
                         let arr = popFreq.split("::");
-                        let color = (arr[1] > 0 && arr[1] < 0.001) ? "#ff0000": "black";
-                        color = (arr[1] > 0.001 && arr[1] < 0.005) ? "#ff8080": color;
+                        let color = _this._getPopulationFrequencyColor(arr[1], populationFrequencies.color);
+                        let freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] : "0.0 (not observed)";
                         html += `<div>
-                                    <span style="width: 60px"><label>${arr[0]}:</label></span>
-                                    <span style="color: ${color};font-weight: bold">${arr[1]}</span>
+                                    <span><i class="fa fa-xs fa-square" style="color: ${color}" aria-hidden="true"></i>
+                                        <label style="padding-left: 5px">${arr[0]}:</label>
+                                    </span>
+                                    <span style="font-weight: bold">${freq}</span>
                                 </div>`;
                     }
                     return html;
@@ -485,6 +480,22 @@ class VariantGridFormatter {
                 delay: 300
             }
         });
+    }
+
+    _getPopulationFrequencyColor(freq, populationFrequenciesColor) {
+        let color;
+        if (freq === 0 || freq === "0") {
+            color = populationFrequenciesColor.unobserved;
+        } else if (freq < 0.001) {
+            color = populationFrequenciesColor.veryRare;
+        } else if (freq < 0.005) {
+            color = populationFrequenciesColor.rare;
+        } else if (freq < 0.05) {
+            color = populationFrequenciesColor.average;
+        } else {
+            color = populationFrequenciesColor.common;
+        }
+        return color;
     }
 
 }
