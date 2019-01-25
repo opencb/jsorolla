@@ -71,7 +71,7 @@
                     },
                     active: {
                         type: Boolean,
-                        value: false
+                        value: true
                     },
                     config: {
                         type: Object
@@ -102,14 +102,15 @@
                 this.toolbarConfig = {
                     columns: this._columns[0]
                 };
+                debugger
 
                 this.renderTable(active);
             }
 
             renderTable(active) {
-                if (!active) {
-                    return;
-                }
+                // if (!active) {
+                //     return;
+                // }
 
                 this.opencgaClient = this.opencgaSession.opencgaClient;
 
@@ -121,17 +122,17 @@
                 this.from = 1;
                 this.to = this._config.pageSize;
 
-                if (UtilsNew.isNotUndefined(this.opencgaClient) && UtilsNew.isNotUndefined(this.opencgaSession.study)
-                    && UtilsNew.isNotUndefined(this.opencgaSession.study.fqn)) {
+debugger
+                if (UtilsNew.isNotUndefined(this.opencgaSession.study) && UtilsNew.isNotUndefined(this.opencgaSession.study.fqn)) {
 
                     filters.study = this.opencgaSession.study.fqn;
-                    if (UtilsNew.isNotUndefinedOrNull(this.lastFilters)
-                        && JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
-                        // Abort destroying and creating again the grid. The filters have not changed
-                        return;
-                    }
-                    // Store the current filters
-                    this.lastFilters = Object.assign({}, filters);
+                    // if (UtilsNew.isNotUndefinedOrNull(this.lastFilters)
+                    //     && JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
+                    //     // Abort destroying and creating again the grid. The filters have not changed
+                    //     return;
+                    // }
+                    // // Store the current filters
+                    // this.lastFilters = Object.assign({}, filters);
 
                     // Make a copy of the analyses (if they exist), we will use this private copy until it is assigned to this.analyses
                     if (UtilsNew.isNotUndefined(this.analyses)) {
@@ -141,18 +142,18 @@
                     }
 
                     // Check that HTTP protocol is present and complete the URL
-                    let opencgaHostUrl = this.opencgaClient.getConfig().host;
+                    let opencgaHostUrl = this.opencgaSession.opencgaClient.getConfig().host;
                     if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
                         opencgaHostUrl = 'http://' + opencgaHostUrl;
                     }
-                    opencgaHostUrl += '/webservices/rest/v1/clinical/search';
-
+                    opencgaHostUrl += '/webservices/rest/v1/analysis/clinical/search';
+                    debugger
                     let skipCount = false;
 
                     let _table = $('#' + this.prefix + 'ClinicalAnalysisBrowserGrid');
 
                     let _this = this;
-                   _table.bootstrapTable('destroy');
+                    _table.bootstrapTable('destroy');
                     _table.bootstrapTable({
                         url: opencgaHostUrl,
                         columns: _this._columns,
@@ -177,18 +178,19 @@
                             }
 
                             let auxParams = {
-                                sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
+                                sid: _this.opencgaSession.opencgaClient._config.sessionId,
                                 order: params.order,
                                 sort: params.sort,
                                 limit: params.limit,
                                 skip: params.offset,
                                 skipCount: skipCount,
-                                include: "id,name,priority,proband,family,disease,type,creationDate,interpretations,status,dueDate"
+                                // include: "id,name,priority,proband,family,disease,type,creationDate,interpretations,status,dueDate"
                             };
 
                             if (UtilsNew.isUndefined(filters)) {
                                 filters = {};
                             }
+                            debugger
                             return Object.assign({}, filters, auxParams);
                         },
                         responseHandler: function (response) {
@@ -514,7 +516,19 @@
             reviewCaseFormatter(value, row) {
                 return `<button data-id=${row.id} style="cursor: pointer; color: #5a4444; border-radius: 5px; padding: 4px;
                         background: #eae7d8; border: 1px solid #8a6d3b;" class='reviewCaseButton'>
-                        <i class="fa fa-search" aria-hidden="true"></i> Review case</button>`;
+                        <i class="fa fa-search" aria-hidden="true"></i> Review Case</button>`;
+            }
+
+            interpretationFormatter(value, row) {
+                return `<button data-id=${row.id} style="cursor: pointer; color: #5a4444; border-radius: 5px; padding: 4px;
+                        background: #eae7d8; border: 1px solid #8a6d3b;" class='reviewCaseButton btn-link'>
+                        <i class="fa fa-filter" aria-hidden="true"></i> Interpreter</button>`;
+            }
+
+            reportFormatter(value, row) {
+                return `<button data-id=${row.id} style="cursor: pointer; border-radius: 5px; padding: 4px;
+                        background: #eae7d8; border: 1px solid #8a6d3b;" class='reviewCaseButton'>
+                        <i class="fa fa-search" aria-hidden="true"></i> Create Report</button>`;
             }
 
             reviewCaseButtonClicked(e) {
@@ -555,8 +569,8 @@
                                 formatter: this.familyFormatter
                             },
                             {
-                                title: 'Disease',
-                                field: 'disease.name',
+                                title: 'Disorder',
+                                field: 'disorder.id',
                                 valign: 'middle',
                                 // formatter: this.diseaseFormatter
                             },
@@ -596,6 +610,20 @@
                                 align: 'center',
                                 visible: this._config.showReviewCase,
                                 formatter: this.reviewCaseFormatter.bind(this)
+                            },
+                            {
+                                title: 'Intepretation',
+                                eligible: false,
+                                align: 'center',
+                                visible: this._config.showInterpretation,
+                                formatter: this.interpretationFormatter.bind(this)
+                            },
+                            {
+                                title: 'Report',
+                                eligible: false,
+                                align: 'center',
+                                visible: this._config.showReport,
+                                formatter: this.reportFormatter.bind(this)
                             }
                         ])
                 ];
@@ -609,7 +637,9 @@
                     pageSize: 10,
                     pageList: [10, 25, 50],
                     showExport: false,
-                    showReviewCase: false,
+                    showReviewCase: true,
+                    showInterpretation: true,
+                    showReport: true,
                     detailView: false,
                     detailFormatter: this.detailFormatter, // function with the detail formatter
                     multiSelection: false,

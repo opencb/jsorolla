@@ -42,7 +42,7 @@
         </style>
 
         <div class="row">
-            <div class="col-md-10 col-md-offset-1">
+            <div class="col-md-12 ">
 
                 <div class="browser-subsection">
                     <h3>Case Portal</h3>
@@ -174,7 +174,7 @@
                     <opencga-clinical-analysis-grid opencga-session="{{opencgaSession}}" config="[[_config.grid]]"
                                                     search="{{search}}" style="font-size: 12px"
                                                     on-selectanalysis="onSelectClinicalAnalysis"
-                                                    active>
+                                                    active="{{active}}">
                     </opencga-clinical-analysis-grid>
                 </div>
             </div>
@@ -204,8 +204,7 @@
                         notify: true
                     },
                     config: {
-                        type: Object,
-                        observer: "configObserver"
+                        type: Object
                     }
                 }
             }
@@ -220,11 +219,16 @@
 
             connectedCallback() {
                 super.connectedCallback();
+
                 this.search = {};
 
                 this.case = "";
                 this.proband = "All";
                 this.family = "All";
+
+                this.active = true;
+
+                $('select.selectpicker').selectpicker('render');
             }
 
             propertyObserver(opencgaSession, config) {
@@ -287,7 +291,7 @@
 
                 let defaultValue = "All";
 
-                if (this.case !== defaultValue) {
+                if (this.case !== defaultValue && this.case !== "") {
                     search['id'] = this.case;
                 }
 

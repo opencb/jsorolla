@@ -514,7 +514,7 @@
 
             clinicalAnalysisIdObserver() {
                 let _this = this;
-                this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {})
+                this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                     .then((response) => {
                         // This triggers the call to clinicalAnalysisObserver function below
                         _this.clinicalAnalysis = response.response[0].result[0];
@@ -525,14 +525,12 @@
             }
 
             clinicalAnalysisObserver() {
-                // this.clinicalAnalysis;
-                // debugger
                 if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
                     let _samples = [];
                     let _individuals = [];
 
                     if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.family.members)) {
-                        this.set("family", this.clinicalAnalysis.family);
+                        // this.set("family", this.clinicalAnalysis.family);
                         _individuals = this.clinicalAnalysis.family.members;
                     } else {
                         if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.proband)) {
