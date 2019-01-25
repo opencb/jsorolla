@@ -299,6 +299,14 @@ class VariantGridFormatter {
 
             for (let ct of row.annotation.consequenceTypes) {
                 // Prepare data info for columns
+
+                let geneName = "NA";
+                if (UtilsNew.isNotEmpty(ct.geneName)) {
+                    geneName = `<a href="https://www.genenames.org/tools/search/#!/all?query=${ct.geneName}" target="_blank">
+                                ${ct.geneName}
+                              </a>`;
+                }
+
                 let geneId = "NA";
                 if (UtilsNew.isNotEmpty(ct.ensemblGeneId)) {
                     geneId = `<a href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${ct.ensemblGeneId}" target="_blank">
@@ -345,7 +353,7 @@ class VariantGridFormatter {
 
                 // Create the table row
                 ctHtml += `<tr class="detail-view-row">
-                            <td>${UtilsNew.isNotEmpty(ct.geneName) ? ct.geneName : "NA"}</td>
+                            <td>${geneName}</td>
                             <td>${geneId}</td>
                             <td>${UtilsNew.isNotEmpty(ct.ensemblTranscriptId) ? ct.ensemblTranscriptId : "NA"}</td>
                             <td>${UtilsNew.isNotUndefinedOrNull(ct.biotype) ? ct.biotype: "NA"}</td>
