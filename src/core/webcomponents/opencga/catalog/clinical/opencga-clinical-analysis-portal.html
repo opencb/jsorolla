@@ -18,7 +18,7 @@
 
 <dom-module id="opencga-clinical-analysis-portal">
     <template>
-        <style>
+        <style include="jso-styles">
             .browser-subsection {
                 font-size: 1.35rem;
                 font-weight: bold;
@@ -42,10 +42,10 @@
         </style>
 
         <div class="row">
-            <div class="col-md-12 ">
+            <div class="col-md-12">
 
-                <div class="browser-subsection">
-                    <h3>Case Portal</h3>
+                <div>
+                    <h2 style="margin-top: 10px"><i class="fa fa-list" style="padding: 0px 5px"></i> {{_config.title}}</h2>
                 </div>
 
                 <div style="padding: 5px 10px;">
@@ -59,9 +59,9 @@
                                             type="button" title="{{case}}" id="{{prefix}}caseMenu"
                                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                         <span class="ocap-text-button">Case: {{case}}</span>&nbsp;
-                                        <span class="bs-caret">
+                                        <!--<span class="bs-caret">-->
                                             <span class="caret"></span>
-                                        </span>
+                                        <!--</span>-->
                                     </button>
                                     <ul class="dropdown-menu" aria-labelledby="{{prefix}}caseMenu">
                                         <li style="padding: 5px;">
@@ -79,9 +79,9 @@
                                             data-id="proband" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"
                                             title="{{proband}}">
                                         <span class="ocap-text-button">Proband: {{proband}}</span>&nbsp;
-                                        <span class="bs-caret">
+                                        <!--<span class="bs-caret">-->
                                             <span class="caret"></span>
-                                        </span>
+                                        <!--</span>-->
                                     </button>
                                     <ul class="dropdown-menu" aria-labelledby="{{prefix}}probandMenu">
                                         <li style="padding: 5px;">
@@ -96,14 +96,14 @@
                                 <!-- Family -->
                                 <div class="btn-group">
                                     <button class="dropdown-toggle btn btn-default" style="width:125px; color: rgb(153, 153, 153);"
-                                            type="button" id="{{prefix}}familyMenu" title="{{family}}"
+                                            type="button" id="{{prefix}}FamilyMenu" title="{{family}}"
                                             data-id="family" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                         <span class="ocap-text-button">Family: {{family}}</span>&nbsp;
-                                        <span class="bs-caret">
+                                        <!--<span class="bs-caret">-->
                                             <span class="caret"></span>
-                                        </span>
+                                        <!--</span>-->
                                     </button>
-                                    <ul class="dropdown-menu" aria-labelledby="{{prefix}}familyMenu">
+                                    <ul class="dropdown-menu" aria-labelledby="{{prefix}}FamilyMenu">
                                         <li style="padding: 5px;">
                                             <div style="display: inline-flex; width: 300px;">
                                                 <label class="filter-label">Family ID:</label>
@@ -112,6 +112,36 @@
                                         </li>
                                     </ul>
                                 </div>
+
+                                <!-- Disorder -->
+                                <div class="btn-group">
+                                    <button class="dropdown-toggle btn btn-default" style="width:125px; color: rgb(153, 153, 153);"
+                                            type="button" id="{{prefix}}DisorderMenu" title="{{disorder}}"
+                                            data-id="disorder" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                        <span class="ocap-text-button">Disorder: {{disorder}}</span>&nbsp;
+                                        <!--<span class="bs-caret">-->
+                                            <span class="caret"></span>
+                                        <!--</span>-->
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="{{prefix}}DisorderMenu">
+                                        <li style="padding: 5px;">
+                                            <div style="display: inline-flex; width: 300px;">
+                                                <label class="filter-label">Disorder ID:</label>
+                                                <input type="text" class$="{{prefix}}-input form-control" placeholder="All" on-keyup="onDisorderInput">
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <!-- Type -->
+                                <select class="selectpicker" data-width="125px" id="{{prefix}}-type" multiple title="Type: All"
+                                        on-change="updateQuery" style="width:125px; color: rgb(153, 153, 153);">
+                                    <option value="SINGLE">Single</option>
+                                    <option value="FAMILY">Family</option>
+                                    <option value="CANCER">Cancer</option>
+                                    <option value="COHORT">Cohort</option>
+                                    <option value="AUTOCOMPARATIVE">Autocomparative</option>
+                                </select>
 
                                 <!-- Status -->
                                 <select class="selectpicker" data-width="125px" id="{{prefix}}-status" multiple title="Status: All"
@@ -141,45 +171,58 @@
 
 
                                 <!--<template is="dom-if" if="{{showSelectFilters(opencgaClient._config)}}">-->
-                                    <div class="btn-group" style="float: right">
-                                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i> Filters <span class="caret"></span>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-right">
-                                            <li><a style="font-weight: bold">Saved Filters</a></li>
-                                            <template is="dom-repeat" items="{{filters}}">
-                                                <li>
-                                                    <template is="dom-if" if="{{!item.active}}">
-                                                        <a data-filter-name$="{{item.name}}" style="cursor: pointer" on-click="onServerFilterChange" class="filtersLink">&nbsp;&nbsp;{{item.name}}</a>
-                                                    </template>
-                                                    <template is="dom-if" if="{{item.active}}">
-                                                        <a data-filter-name$="{{item.name}}" style="cursor: pointer;color: green" on-click="onServerFilterChange" class="filtersLink">&nbsp;&nbsp;{{item.name}}</a>
-                                                    </template>
-                                                </li>
-                                            </template>
-                                            <template is="dom-if" if="{{checkSid(opencgaClient._config)}}">
-                                                <li role="separator" class="divider"></li>
-                                                <li>
-                                                    <a style="cursor: pointer" on-click="launchModal"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save...</a>
-                                                </li>
-                                            </template>
-                                        </ul>
-                                    </div>
+                                <div class="btn-group" style="float: right">
+                                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i> Filters <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li><a style="font-weight: bold">Saved Filters</a></li>
+                                        <template is="dom-repeat" items="{{filters}}">
+                                            <li>
+                                                <template is="dom-if" if="{{!item.active}}">
+                                                    <a data-filter-name$="{{item.name}}" style="cursor: pointer" on-click="onServerFilterChange" class="filtersLink">&nbsp;&nbsp;{{item.name}}</a>
+                                                </template>
+                                                <template is="dom-if" if="{{item.active}}">
+                                                    <a data-filter-name$="{{item.name}}" style="cursor: pointer;color: green" on-click="onServerFilterChange" class="filtersLink">&nbsp;&nbsp;{{item.name}}</a>
+                                                </template>
+                                            </li>
+                                        </template>
+                                        <template is="dom-if" if="{{checkSid(opencgaClient._config)}}">
+                                            <li role="separator" class="divider"></li>
+                                            <li>
+                                                <a style="cursor: pointer" on-click="launchModal"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save...</a>
+                                            </li>
+                                        </template>
+                                    </ul>
+                                </div>
                                 <!--</template>-->
 
                             </div>
                         </div>
                     </div>
 
-                    <opencga-clinical-analysis-grid opencga-session="{{opencgaSession}}" config="[[_config.grid]]"
-                                                    search="{{search}}" style="font-size: 12px"
-                                                    on-selectanalysis="onSelectClinicalAnalysis"
-                                                    active="{{active}}">
-                    </opencga-clinical-analysis-grid>
+                    <div>
+                        <opencga-clinical-analysis-grid opencga-session="{{opencgaSession}}"
+                                                        search="{{search}}" style="font-size: 12px"
+                                                        on-selectanalysis="onSelectClinicalAnalysis"
+                                                        active="{{active}}"
+                                                        config="{{_config.grid}}">
+                        </opencga-clinical-analysis-grid>
+
+                        <div>
+                            <h3 style="margin-bottom: 5px">Case Study: {{clinicalAnalysis.id}}</h3>
+                            <clinical-analysis-view opencga-session="{{opencgaSession}}"
+                                                    clinical-analysis={{clinicalAnalysis}}
+                                                    opencga-client="{{opencgaSession.opencgaClient}}"
+                                                    style="font-size: 12px"
+                                                    config="{{config}}">
+                            </clinical-analysis-view>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
-
     </template>
 
     <script>
@@ -222,9 +265,10 @@
 
                 this.search = {};
 
-                this.case = "";
+                this.case = "All";
                 this.proband = "All";
                 this.family = "All";
+                this.disorder = "All";
 
                 this.active = true;
 
@@ -233,6 +277,19 @@
 
             propertyObserver(opencgaSession, config) {
                 this._config = Object.assign(this.getDefaultConfig(), this.config);
+            }
+
+
+            onCaseInput(e) {
+                let buttonElem = e.target.parentElement.parentElement.parentElement.previousSibling.previousElementSibling;
+
+                if (UtilsNew.isNotEmpty(e.target.value)) {
+                    this.case = e.target.value;
+                    buttonElem.style.color = "#333";
+                } else {
+                    this.case = "All";
+                    buttonElem.style.color = "rgb(153, 153, 153)";
+                }
             }
 
             onProbandInput(e) {
@@ -259,14 +316,14 @@
                 }
             }
 
-            onCaseInput(e) {
+            onDisorderInput(e) {
                 let buttonElem = e.target.parentElement.parentElement.parentElement.previousSibling.previousElementSibling;
 
                 if (UtilsNew.isNotEmpty(e.target.value)) {
-                    this.case = e.target.value;
+                    this.disorder = e.target.value;
                     buttonElem.style.color = "#333";
                 } else {
-                    this.case = "All";
+                    this.disorder = "All";
                     buttonElem.style.color = "rgb(153, 153, 153)";
                 }
             }
@@ -286,43 +343,58 @@
                 this.updateQuery();
             }
 
+            onSelectClinicalAnalysis(e) {
+
+                debugger
+                this.clinicalAnalysis = e.detail.analysis;
+            }
+
             updateQuery() {
-                let search = {};
+                let _search = {};
 
                 let defaultValue = "All";
 
                 if (this.case !== defaultValue && this.case !== "") {
-                    search['id'] = this.case;
-                }
-
-                if (this.family !== defaultValue) {
-                    search['family'] = this.family;
+                    _search.id = this.case;
                 }
 
                 if (this.proband !== defaultValue) {
-                    search['proband'] = this.proband;
+                    _search.proband = this.proband;
+                }
+
+                if (this.family !== defaultValue) {
+                    _search.family = this.family;
+                }
+
+                if (this.disorder !== defaultValue) {
+                    _search.disorder = this.disorder;
                 }
 
                 let priority = $(`#${this.prefix}-priority`).selectpicker('val');
                 if (UtilsNew.isNotEmpty(priority)) {
-                    search["priority"] = priority.join(",");
+                    _search.priority = priority.join(",");
+                }
+
+                let type = $(`#${this.prefix}-type`).selectpicker('val');
+                if (UtilsNew.isNotEmpty(type)) {
+                    _search.type = type.join(",");
                 }
 
                 let status = $(`#${this.prefix}-status`).selectpicker('val');
                 if (UtilsNew.isNotEmpty(status)) {
-                    search["status"] = status.join(",");
+                    _search.status = status.join(",");
                 }
 
-                this.search = search;
+                this.search = _search;
             }
 
             getDefaultConfig() {
                 return {
-                    title: "Clinical Analysis Portal",
+                    title: "Review Cases",
                     showTitle: true,
                     grid: {
-                        pageSize: 10,
-                        pageList: [10, 25, 50],
+                        pageSize: 5,
+                        pageList: [5, 10, 25],
                         detailView: false,
                         multiSelection: false
                     }

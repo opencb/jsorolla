@@ -68,9 +68,9 @@
                     query: {
                         type: Object,
                     },
-                    data: {
+                    reportedVariants: {
                         type: Array,
-                        value: [],
+                        // value: [],
                         observer: 'renderFromLocal'
                     },
                     consequenceTypes: {
@@ -106,39 +106,23 @@
                 this.downloadIcon = $("#" + this.prefix + "DownloadIcon");
 
                 this._columns = this._createDefaultColumns();
-                this.renderVariantTable();
+                if (UtilsNew.isUndefinedOrNull(this.reportedVariants)) {
+                    this.renderVariantTable();
+                } else {
+                    this.renderFromLocal();
+                }
             }
 
             _init() {
                 this.prefix = "VarBrowserGrid-" + Utils.randomString(6);
 
+                this.query = {};
                 this._config = this.getDefaultConfig();
             }
 
             propertyObserver(opencgaSession, clinicalAnalysis, query, consequenceTypes, populationFrequencies, proteinSubstitutionScores, config) {
                 // With each property change we must updated config and create the columns again. No extra checks are needed.
                 this._config = Object.assign(this.getDefaultConfig(), config);
-
-                // We check query.sample and query.genotype to check if samples exist.
-                // We parse query fields and store a samples object array for convenience
-
-                // if (this.query !== undefined) {
-                //     // debugger
-                //     if (UtilsNew.isNotUndefinedOrNull(query.sample)) {
-                //         for (let sampleId of query.sample.split(",")) {
-                //             _samples.push({
-                //                 id: sampleId,
-                //             });
-                //         }
-                //     }
-                //     if (UtilsNew.isNotUndefinedOrNull(query.genotype)) {
-                //         for (let genotype of query.genotype.split(";")) {
-                //             _samples.push({
-                //                 id: genotype.split(":")[0],
-                //             });
-                //         }
-                //     }
-                // }
 
                 let _individuals = [];
                 let _samples = [];
@@ -158,7 +142,7 @@
                 }
                 this.samples = _samples;
                 this.individuals = _individuals;
-debugger
+
 
                 // Config for the grid toolbar
                 this.toolbarConfig = {
@@ -186,7 +170,11 @@ debugger
                 let colors = this.variantGridFormatter.assignColors(this.consequenceTypes, this.proteinSubstitutionScores);
                 Object.assign(this, colors);
 
-                this.renderVariantTable();
+                if (UtilsNew.isUndefinedOrNull(this.reportedVariants)) {
+                    this.renderVariantTable();
+                } else {
+                    this.renderFromLocal();
+                }
             }
 
             onColumnChange(e) {
@@ -243,7 +231,7 @@ debugger
                             // Format the number string with commas
                             _this.numTotalResultsText = _numTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                             _this.approximateCountResult = resp.response[0].approximateCount;
-                            return {total: _numTotal, rows: resp.response[0].result[0].result.reportedVariants}
+                            return {total: _numTotal, rows: resp.response[0].result.reportedVariants}
                         },
                         onClickRow: function (row, $element, field) {
                             $('.success').removeClass('success');
@@ -436,8 +424,8 @@ debugger
                 let _this = this;
                 $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
                 $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable({
-                    data: this.data,
-                    columns: this.cols,
+                    data: _this.reportedVariants,
+                    columns: _this._columns,
                     onClickRow: function (row, $element) {
                         _this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
                         $('.success').removeClass('success');
@@ -704,11 +692,11 @@ debugger
 
             clinicalPhenotypeFormatter(value, row, index) {
                 let phenotypeHtml = "<span><i class='fa fa-times' style='color: red'></i></span>";
-                if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.variantTraitAssociation !== "undefined") {
-                    if (row.annotation.variantTraitAssociation != null) {
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+                    if (UtilsNew.isNotUndefinedOrNull(row.annotation.variantTraitAssociation)) {
                         let traits = [];
                         let clinicalData = row.annotation.variantTraitAssociation[this.field];
-                        if (typeof clinicalData !== "undefined" && clinicalData.length > 0) {
+                        if (UtilsNew.isNotEmptyArray(clinicalData)) {
                             for (let j = 0; j < clinicalData.length; j++) {
                                 if (this.field === "clinvar" && traits.indexOf(clinicalData[j].traits[0]) === -1
                                     && clinicalData[j].traits[0] !== "not specified" && clinicalData[j].traits[0] !== "not provided") {

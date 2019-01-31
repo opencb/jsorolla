@@ -46,157 +46,167 @@
             <div class="col-md-12">
 
                 <div>
-                    <h3 class="form-section-title">Clinical Analysis Information</h3>
+                    <h2 style="margin-top: 10px"><i class="fa fa-file" style="padding: 0px 5px"></i> {{_config.title}}</h2>
                 </div>
 
-                <div class="form-horizontal" style="padding: 5px 10px">
+                <div style="padding: 5px 10px;">
+                    <div>
+                        <h3 class="form-section-title">Clinical Analysis Information</h3>
+                    </div>
 
-                    <div class="form-group" style="padding-top: 10px">
-                        <label class="control-label col-md-1 jso-label-title">Analysis ID</label>
-                        <div class="col-md-3">
-                            <template is="dom-if" if="{{isCreate}}">
-                                <input type="text" id="{{prefix}}Id" class$="{{prefix}}Input form-control"
-                                       placeholder="ID of the case" data-field="id" on-keyup="onInputChange" value="{{_clinicalAnalysis.id}}">
-                            </template>
-                            <template is="dom-if" if="{{!isCreate}}">
-                                <div class="input-group">
+                    <div class="form-horizontal" style="padding: 5px 10px">
+
+                        <div class="form-group" style="padding-top: 10px">
+                            <label class="control-label col-md-1 jso-label-title">Analysis ID</label>
+                            <div class="col-md-3">
+                                <template is="dom-if" if="{{isCreate}}">
                                     <input type="text" id="{{prefix}}Id" class$="{{prefix}}Input form-control"
-                                           placeholder="ID of the case" data-field="id" on-keyup="onInputChange">
-                                    <span class="input-group-btn">
+                                           placeholder="ID of the case" data-field="id" on-keyup="onInputChange" value="{{_clinicalAnalysis.id}}">
+                                </template>
+                                <template is="dom-if" if="{{!isCreate}}">
+                                    <div class="input-group">
+                                        <input type="text" id="{{prefix}}Id" class$="{{prefix}}Input form-control"
+                                               placeholder="ID of the case" data-field="id" on-keyup="onInputChange">
+                                        <span class="input-group-btn">
                                         <button class="btn btn-default" type="button">
                                             <i class="fa fa-search" aria-hidden="true"></i>
                                         </button>
                                     </span>
-                                </div>
-                            </template>
+                                    </div>
+                                </template>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label class="control-label col-md-1 jso-label-title">Analysis Type</label>
-                        <div class="col-md-3">
-                            <select class="selectpicker" data-width="100%" id="{{prefix}}Type" data-field="type" data-field-type="string"
-                                    on-change="onSelectChange">
-                                <option value="SINGLE">Single</option>
-                                <option value="FAMILY">Family</option>
-                                <option value="CANCER">Cancer</option>
-                                <option value="MULRISAMPLE">Cohort</option>
-                                <option value="autocomparative">Autocomparative</option>
-                            </select>
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Analysis Type</label>
+                            <div class="col-md-3">
+                                <select class="selectpicker" data-width="100%" id="{{prefix}}Type" data-field="type" data-field-type="string"
+                                        on-change="onSelectChange">
+                                    <option value="SINGLE">Single</option>
+                                    <option value="FAMILY">Family</option>
+                                    <option value="CANCER">Cancer</option>
+                                    <option value="COHORT">Cohort</option>
+                                    <option value="AUTOCOMPARATIVE">Autocomparative</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label class="control-label col-md-1 jso-label-title">Priority</label>
-                        <div class="col-md-3">
-                            <select class="selectpicker" data-width="100%" id="{{prefix}}Priority" data-field="priority" data-field-type="string"
-                                    on-change="onSelectChange">
-                                <option style="color: red" value="URGENT">Urgent</option>
-                                <option style="color: orange" value="HIGH">High</option>
-                                <option style="color: blue" value="MEDIUM" selected>Medium</option>
-                                <option style="color: green" value="LOW">Low</option>
-                            </select>
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Interpretation Flags</label>
+                            <div class="col-md-3">
+                                <select class="selectpicker" data-width="100%" id="{{prefix}}Flags" data-field="flags" data-field-type="array"
+                                        on-change="onSelectChange" on-dom-change="renderDomRepeat" multiple data-selected-text-format="count > 2">
+                                    <template is="dom-repeat" items="{{_config.flags}}">
+                                        <option value="{{item}}">{{item}}</option>
+                                    </template>
+                                </select>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label class="control-label col-md-1 jso-label-title">Due Date</label>
-                        <div class="date col-md-3">
-                            <!--<div class="input-group date" id="{{prefix}}DueDate">-->
-                                <!--<input type='text' class$="{{prefix}}Input form-control" data-field="dueDate" on-keyup="onInputChange">-->
-                                <!--<span class="input-group-btn glyphicon glyphicon-calendar">-->
-                                    <!--<button id="{{prefix}}DueDateB" class="btn btn-default" type="button">-->
-                                        <!--<i class="fa fa-calendar" aria-hidden="true"></i>-->
-                                    <!--</button>-->
-                                <!--</span>-->
-                            <!--</div>-->
-                            <div class='input-group date' id="{{prefix}}DuePickerDate">
-                                <input type='text' id="{{prefix}}DueDate" class$="{{prefix}}Input form-control" data-field="dueDate" on-keyup="onInputChange" />
-                                <span class="input-group-addon">
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Priority</label>
+                            <div class="col-md-3">
+                                <select class="selectpicker" data-width="100%" id="{{prefix}}Priority" data-field="priority" data-field-type="string"
+                                        on-change="onSelectChange">
+                                    <option style="color: red" value="URGENT">Urgent</option>
+                                    <option style="color: orange" value="HIGH">High</option>
+                                    <option style="color: blue" value="MEDIUM" selected>Medium</option>
+                                    <option style="color: green" value="LOW">Low</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Assigned To</label>
+                            <div class="col-md-3">
+                                <select class="selectpicker" data-width="100%" id="{{prefix}}Assigned" data-field="assigned" data-field-type="object"
+                                        on-change="onSelectChange" on-dom-change="renderDomRepeat">
+                                    <template is="dom-repeat" items="{{_studyUsers}}">
+                                        <option value="{{item}}" data-value$="{{item}}">{{item}}</option>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Due Date</label>
+                            <div class="date col-md-3">
+                                <div class='input-group date' id="{{prefix}}DuePickerDate">
+                                    <input type='text' id="{{prefix}}DueDate" class$="{{prefix}}Input form-control" data-field="dueDate" on-keyup="onInputChange" />
+                                    <span class="input-group-addon">
                                     <span class="fa fa-calendar"></span>
                                 </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label class="control-label col-md-1 jso-label-title">Interpretation Flags</label>
-                        <div class="col-md-3">
-                            <select class="selectpicker" data-width="100%" id="{{prefix}}Flags" data-field="flags" data-field-type="array"
-                                    on-change="onSelectChange" on-dom-change="renderDomRepeat" multiple data-selected-text-format="count > 2">
-                                <template is="dom-repeat" items="{{_config.flags}}">
-                                    <option value="{{item}}">{{item}}</option>
-                                </template>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="control-label col-md-1 jso-label-title">Description</label>
-                        <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Description</label>
+                            <div class="col-md-3">
                                 <textarea id="{{prefix}}Description" class$="{{prefix}}Input form-control"
                                           placeholder="Description of the case" data-field="description" on-keyup="onInputChange"></textarea>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div>
-                    <h3 class="form-section-title">Proband and Disease</h3>
-                </div>
-
-                <div class="form-horizontal" style="padding: 10px 10px">
-                    <template is="dom-if" if="{{!isFamilyAnalysis(_clinicalAnalysis.type)}}">
-                        <div class="form-group" style="padding-top: 10px">
-                            <label class="control-label col-md-1 jso-label-title">Search Proband</label>
-                            <div class="col-md-1">
-                                <button id="{{prefix}}-browseIndividual2" class="btn btn-sm btn-primary"
-                                        data-toggle="modal" data-placement="bottom" on-click="showIndividualSelector"
-                                        style="display: inline">Browse...</button>
                             </div>
-                        </div>
-                    </template>
-
-                    <template is="dom-if" if="{{isFamilyAnalysis(_clinicalAnalysis.type)}}">
-                        <div class="form-group" style="padding-top: 10px">
-                            <label class="control-label col-md-1 jso-label-title">Search Family</label>
-                            <div class="col-md-1">
-                                <!--Search family-->
-                                <button id="{{prefix}}-browseFamily2" class="btn btn-sm btn-primary"
-                                        data-toggle="modal" data-placement="bottom" on-click="showFamilySelector"
-                                        style="display: inline">Browse...</button>
-                            </div>
-                            <div>
-                                <a on-click="showFamilyCreator" class="col-md-2" style="cursor:pointer;">
-                                    Don't have a family?
-                                </a>
-                            </div>
-                        </div>
-                    </template>
-
-                    <div class="form-group">
-                        <label class="control-label col-md-1 jso-label-title">Disorder</label>
-                        <div class="col-md-3">
-                            <select class="selectpicker" data-width="100%" id="{{prefix}}Disorder" data-field="disorder" data-field-type="object"
-                                    on-change="onSelectChange" on-dom-change="renderDomRepeat">
-                                <template is="dom-repeat" items="{{_disorders}}">
-                                    <option value="{{item.id}}" data-value$="{{item}}">{{item.id}}</option>
-                                </template>
-                            </select>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="control-label col-md-1 jso-label-title">Sample Configuration:</label>
-                        <div id="{{prefix}}GridTableDiv" class="col-md-10 col-md-offset-1" style="padding: 10px 20px">
-                            <table id="{{prefix}}IndividualBrowserGrid">
-                                <thead style="background-color: #eee"></thead>
-                            </table>
+
+                    <div>
+                        <h3 class="form-section-title">Proband and Disease</h3>
+                    </div>
+
+                    <div class="form-horizontal" style="padding: 10px 10px">
+                        <template is="dom-if" if="{{!isFamilyAnalysis(_clinicalAnalysis.type)}}">
+                            <div class="form-group" style="padding-top: 10px">
+                                <label class="control-label col-md-1 jso-label-title">Search Proband</label>
+                                <div class="col-md-1">
+                                    <button id="{{prefix}}-browseIndividual2" class="btn btn-sm btn-primary"
+                                            data-toggle="modal" data-placement="bottom" on-click="showIndividualSelector"
+                                            style="display: inline">Browse...</button>
+                                </div>
+                            </div>
+                        </template>
+
+                        <template is="dom-if" if="{{isFamilyAnalysis(_clinicalAnalysis.type)}}">
+                            <div class="form-group" style="padding-top: 10px">
+                                <label class="control-label col-md-1 jso-label-title">Search Family</label>
+                                <div class="col-md-1">
+                                    <!--Search family-->
+                                    <button id="{{prefix}}-browseFamily2" class="btn btn-sm btn-primary"
+                                            data-toggle="modal" data-placement="bottom" on-click="showFamilySelector"
+                                            style="display: inline">Browse...</button>
+                                </div>
+                                <div>
+                                    <a on-click="showFamilyCreator" class="col-md-2" style="cursor:pointer;">
+                                        Don't have a family?
+                                    </a>
+                                </div>
+                            </div>
+                        </template>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Disorder</label>
+                            <div class="col-md-3">
+                                <select class="selectpicker" data-width="100%" id="{{prefix}}Disorder" data-field="disorder" data-field-type="object"
+                                        on-change="onSelectChange" on-dom-change="renderDomRepeat">
+                                    <template is="dom-repeat" items="{{_disorders}}">
+                                        <option value="{{item.id}}" data-value$="{{item}}">{{item.id}}</option>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Sample Configuration:</label>
+                            <div id="{{prefix}}GridTableDiv" class="col-md-10 col-md-offset-1" style="padding: 10px 20px">
+                                <table id="{{prefix}}IndividualBrowserGrid">
+                                    <thead style="background-color: #eee"></thead>
+                                </table>
+                            </div>
                         </div>
                     </div>
+
+
                 </div>
-
-
             </div>
 
             <div class="col-md-2 col-md-offset-2">
@@ -309,6 +319,8 @@
                 this.isCreate = false;
                 this.notifyEnabled = true;
 
+                this.createButtonStatus = "disabled";
+
                 this.familyBrowserConfig = {
                     title: "Family Browser",
                     showTitle: true,
@@ -371,6 +383,8 @@
                 }
                 this.fillForm(this._clinicalAnalysis);
 
+                this._updateCreateButtonStatus();
+
                 // Render empty table
                 // this.renderTable();
             }
@@ -379,12 +393,26 @@
                 return {
                     type: "FAMILY",
                     priority: "MEDIUM",
+                    assigned: {
+                        assignee: this.opencgaSession.user.id,
+                    },
                     dueDate: moment().add(7, 'days').format("DD/MM/YYYY")
                 };
             }
 
             propertyObserver(opencgaSession, clinicalAnalysis, mode, config) {
                 this._config = Object.assign(this.getDefaultConfig(), config);
+
+                // Set a private variable with all the users in this study: owner + @members group.
+                // By default, the user creating the Case is selected as default
+                if (UtilsNew.isNotUndefinedOrNull(opencgaSession) && UtilsNew.isNotEmptyArray(opencgaSession.study.groups)) {
+                    // let _studyUsers = [opencgaSession.user.id];
+                    for (let group of opencgaSession.study.groups) {
+                        if (group.id === "@members" || group.name === "@members") {
+                            this._studyUsers = group.userIds;
+                        }
+                    }
+                }
 
                 if (UtilsNew.isNotUndefinedOrNull(mode)) {
                     this.isCreate = mode.toLowerCase() === "create";
@@ -431,11 +459,21 @@
                 let fieldCapital = field.charAt(0).toUpperCase() + field.slice(1);
 
                 let text = PolymerUtils.getElementById(this.prefix + fieldCapital);
-                if (UtilsNew.isNotUndefinedOrNull(text) && UtilsNew.isNotEmpty(text.value)) {
+                if (UtilsNew.isNotUndefinedOrNull(text)) {  // && UtilsNew.isNotEmpty(text.value)
                     this._clinicalAnalysis[field] = text.value;
 
                     this._clinicalAnalysis = Object.assign({}, this._clinicalAnalysis);
                     this.notifyClinicalAnalysis();
+
+                    this._updateCreateButtonStatus();
+                }
+            }
+
+            _updateCreateButtonStatus() {
+                if (UtilsNew.isNotEmpty(this._clinicalAnalysis.id) && UtilsNew.isNotUndefinedOrNull(this._clinicalAnalysis.proband)) {
+                    PolymerUtils.getElementById(`${this.prefix}Ok`).disabled = false;
+                } else {
+                    PolymerUtils.getElementById(`${this.prefix}Ok`).disabled = true;
                 }
             }
 
@@ -461,6 +499,10 @@
 
                 if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.type)) {
                     $("#" + this.prefix + "Type").selectpicker('val', clinicalAnalysis.type);
+                }
+
+                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.assigned)) {
+                    $("#" + this.prefix + "Assigned").selectpicker('val', clinicalAnalysis.assigned.assignee);
                 }
 
                 if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.priority)) {
@@ -493,6 +535,7 @@
 
                 // Deselect bootstrap-select dropdowns
                 $("#" + this.prefix + "Type").selectpicker('val', []);
+                $("#" + this.prefix + "Assigned").selectpicker('val', []);
                 $("#" + this.prefix + "Priority").selectpicker('val', []);
                 $("#" + this.prefix + "Flags").selectpicker('val', []);
                 $("#" + this.prefix + "Disorder").selectpicker('val', []);
@@ -669,22 +712,25 @@
             }
 
             onCreate() {
-                let _clinAn = Object.assign({}, this._clinicalAnalysis);
-                _clinAn.proband = {
-                    id: _clinAn.proband.id,
+                let _clinicalAnalysis = Object.assign({}, this._clinicalAnalysis);
+                _clinicalAnalysis.proband = {
+                    id: _clinicalAnalysis.proband.id,
                     samples: [
                         {
-                            id: _clinAn.proband.samples[0].id
+                            id: _clinicalAnalysis.proband.samples[0].id
                         }
                     ]
                 };
 
-                if (UtilsNew.isNotUndefinedOrNull(_clinAn.family)) {
+                _clinicalAnalysis.assignee = _clinicalAnalysis.assigned.assignee;
+                delete _clinicalAnalysis.assigned;
+
+                if (UtilsNew.isNotUndefinedOrNull(_clinicalAnalysis.family)) {
                     let _family = {
-                        id: _clinAn.family.id,
+                        id: _clinicalAnalysis.family.id,
                         members: []
                     };
-                    for (let member of _clinAn.family.members) {
+                    for (let member of _clinicalAnalysis.family.members) {
                         _family.members.push({
                             id: member.id,
                             samples: [
@@ -694,33 +740,33 @@
                             ]
                         });
                     }
-                    _clinAn.family = _family;
+                    _clinicalAnalysis.family = _family;
                 }
 
-                if (UtilsNew.isNotUndefinedOrNull(_clinAn.files)) {
+                if (UtilsNew.isNotUndefinedOrNull(_clinicalAnalysis.files)) {
                     let _files = {};
-                    for (let sampleId in _clinAn.files) {
+                    for (let sampleId in _clinicalAnalysis.files) {
                         let fileIds = [];
-                        for (let file of _clinAn.files[sampleId]) {
+                        for (let file of _clinicalAnalysis.files[sampleId]) {
                             fileIds.push(file.id);
                         }
                         _files[sampleId] = fileIds;
                     }
-                    _clinAn.files = _files;
+                    _clinicalAnalysis.files = _files;
                 }
 
-                let x = JSON.stringify(_clinAn);
-                console.log(x)
-                debugger
+                if (UtilsNew.isNotUndefinedOrNull(_clinicalAnalysis.dueDate)) {
+                    let dueDate = moment(_clinicalAnalysis.dueDate, "DD/MM/YYYY").format("YYYYMMDDHHMMSS");
+                    _clinicalAnalysis.dueDate = dueDate;
+                }
+
                 let _this = this;
-                this.opencgaSession.opencgaClient.clinical().create({study: this.opencgaSession.study.fqn}, _clinAn)
+                this.opencgaSession.opencgaClient.clinical().create({study: this.opencgaSession.study.fqn}, _clinicalAnalysis)
                     .then(function(response) {
-                        debugger
                         _this.onClear();
                         NotificationUtils.showNotify(`Family ${response.response[0].result[0].id} created successfully`, "SUCCESS");
                     })
                     .catch(function (response) {
-                        debugger
                         console.error(response);
                         NotificationUtils.showNotify(response.error, "ERROR");
                     });
@@ -839,8 +885,8 @@
                     }
                     this.notifyClinicalAnalysis(this._clinicalAnalysis);
                 }
-
-                debugger
+                this._updateCreateButtonStatus();
+                // debugger
             }
 
             fileFormatter(files, individual) {
@@ -956,7 +1002,7 @@
 
             getDefaultConfig() {
                 return {
-                    title: "Clinical Analysis Browser",
+                    title: "Create Case",
                     showTitle: true,
                     grid: {
                         pagination: false,

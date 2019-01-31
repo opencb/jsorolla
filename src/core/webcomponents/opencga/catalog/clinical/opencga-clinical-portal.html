@@ -19,7 +19,7 @@
 
 <dom-module id="opencga-clinical-portal">
     <template>
-        <style>
+        <style include="jso-styles">
             .browser-subsection {
                 font-size: 1.35rem;
                 font-weight: bold;
@@ -30,35 +30,50 @@
         </style>
 
         <div class="row">
-            <!--<div class="col-md-12">-->
-                <!--<button type="button" class="btn btn-link clinical-portal-button" data-view="ReviewCases" on-click="_changeView">Home</button>-->
-                <!--<button type="button" class="btn btn-link clinical-portal-button" data-view="ReviewCases" on-click="_changeView">Create...</button>-->
-                <!--&lt;!&ndash;<a type="button" class="btn btn-success variant-browser-view-buttons active" data-view="TableResult" on-click="_changeView">&ndash;&gt;-->
-                    <!--&lt;!&ndash;<i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView"></i> Table Result&ndash;&gt;-->
-                <!--&lt;!&ndash;</a>&ndash;&gt;-->
-            <!--</div>-->
+
+            <div id="{{prefix}}ClinicalPortal"  class="col-md-10 col-md-offset-1">
+                <nav class="navbar" style="border-bottom: 1px solid rgba(221, 221, 221, 0.8)">
+                    <div class="container-fluid" style="padding: 0px 5px">
+                        <!-- Brand and toggle get grouped for better mobile display -->
+                        <div class="navbar-header">
+                            <!--<a href="#home" class="navbar-brand" style="padding-top: 10px" on-click="changeTool">-->
+                                <!--<img src="{{config.logo}}" width="100px">-->
+                            <!--</a>-->
+                            <a class="navbar-brand" href="#" on-click="changeTool">
+                                <h1 style="color: black">{{_config.title}}</h1>
+                            </a>
+                        </div>
+                    </div>
+
+                    <ul class="nav navbar-nav navbar-right" style="padding: 0px 20px">
+                        <li>
+                            <button type="button" class="btn btn-link clinical-portal-button" data-view="ReviewCases" on-click="_changeView">
+                                <i class="fa fa-list" style="padding: 0px 5px"></i>Review Cases
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="btn btn-link clinical-portal-button" data-view="CreateCase" on-click="_changeView">
+                                <i class="fa fa-file" style="padding: 0px 5px"></i>Create Case
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="btn btn-link clinical-portal-button" data-view="DiseasePanel" on-click="_changeView">
+                                <i class="fa fa-columns" style="padding: 0px 5px"></i>Disease Panel (Experimental)
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="btn btn-link clinical-portal-button" data-view="ReviewCases" on-click="_changeView">
+                                <i class="fa fa-database" style="padding: 0px 5px"></i>CVA (pending)
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
 
             <div id="{{prefix}}MainWindow" class="col-md-10 col-md-offset-1">
-                <div style="background: #f0ce88">
-                    <div>
-                        <h1 style="padding: 10px 0px 0px 10px">Clinical Portal</h1>
-                    </div>
-                    <div style="float: right">
-                        <button type="button" class="btn btn-link clinical-portal-button" data-view="ReviewCases" on-click="_changeView">Review Cases</button>
-                        <button type="button" class="btn btn-link clinical-portal-button" data-view="CreateCase" on-click="_changeView">Create</button>
-                        <!--<button type="button" class="btn btn-link clinical-portal-button" data-view="CreateReport" on-click="_changeView">Report</button>-->
-                        <button type="button" class="btn btn-link clinical-portal-button" data-view="ReviewCases" on-click="_changeView">CVA (pending)</button>
-                        <!--<a type="button" class="btn btn-success variant-browser-view-buttons active" data-view="TableResult" on-click="_changeView">-->
-                        <!--<i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView"></i> Table Result-->
-                        <!--</a>-->
-                    </div>
-                    <!--<hr>-->
-                </div>
 
-
-
-
-                <div>
+                <div style="padding: 0px 10px">
                     <div id="{{prefix}}ReviewCases" class="clinical-portal-content">
                         <opencga-clinical-analysis-portal opencga-session="{{opencgaSession}}"
                                                           config="{{config.clinicalAnalysisBrowser}}">
@@ -72,11 +87,12 @@
                         </opencga-clinical-analysis-creator>
                     </div>
 
-                    <div id="{{prefix}}CreateReport" class="clinical-portal-content" style="display: none">
-                        <opencga-clinical-analysis-creator opencga-session="{{opencgaSession}}"
-                                                           on-clinicalanalysischange="onClinicalAnalysisEditor"
-                                                           config="{{config.clinicalAnalysisBrowser}}">
-                        </opencga-clinical-analysis-creator>
+                    <div id="{{prefix}}DiseasePanel" class="clinical-portal-content" style="display: none">
+                        <opencga-panel-browser opencga-session="{{opencgaSession}}" opencga-client="{{opencgaSession.opencgaClient}}"
+                                               cellbase-client="{{cellbaseClient}}"
+                                               on-notifymessage="onNotifyMessage"
+                                               event-notify-name="{{config.notifyEventMessage}}">
+                        </opencga-panel-browser>
                     </div>
                 </div>
             </div>
@@ -99,6 +115,9 @@
             static get properties() {
                 return {
                     opencgaSession: {
+                        type: Object
+                    },
+                    cellbaseClient: {
                         type: Object
                     },
                     config: {
@@ -147,7 +166,7 @@
 
             getDefaultConfig() {
                 return {
-                    title: "Clinical Analysis Portal",
+                    title: "Clinical Interpretation Portal",
                     showTitle: true,
                     grid: {
                         pageSize: 10,
