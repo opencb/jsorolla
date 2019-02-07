@@ -38,6 +38,10 @@
             .variant-link-dropdown:hover .dropdown-menu {
                 display: block;
             }
+
+            .myCustomClass .qtip-content{
+                font-size: 12px;
+            }
         </style>
 
         <opencb-grid-toolbar from="{{from}}" to="{{to}}" num-total-results-text="{{numTotalResultsText}}"
@@ -399,6 +403,35 @@ debugger
                             _this.from = (page - 1) * size + 1;
                             _this.to = page * size;
                         },
+                        onPostBody: function (data) {
+                            // Add qtip2 tooltips to Interpretation genotypes
+                            $("div.interpretation-tooltip").qtip({
+                                content: {
+                                    title: "Clinical Interpreters",
+                                    text: function (event, api) {
+                                        return $(this).attr('data-tooltip-text');
+                                    }
+                                },
+                                position: {
+                                    target: "mouse",
+                                    adjust: {
+                                        x: 2, y: 2,
+                                        mouse: false
+                                    }
+                                },
+                                style: {
+                                    classes: "qtip-light qtip-rounded qtip-shadow myCustomClass",
+                                    width: "240px",
+                                },
+                                show: {
+                                    delay: 200
+                                },
+                                hide: {
+                                    fixed: true,
+                                    delay: 300
+                                }
+                            });
+                        }
                     });
                 } else {
                     // Delete table
@@ -452,7 +485,15 @@ debugger
             }
 
             analysisIdFormatter(value, row) {
-                let html = `<span style="font-size: 1.1em">${value}</span>`;
+                let html = `<span style="font-size: 1.1em">
+                                <a style="cursor: pointer" class="btn btn-link" href="#reviewCase">
+                                    ${value} <i class="fa fa-search" aria-hidden="true" style="padding-left: 5px"></i>
+                                </a>
+                            </span>
+                `;
+            // <a style="cursor: pointer" class="btn btn-link" href="#reviewCase">
+            //         <i class="fa fa-search" aria-hidden="true"></i> Review
+            //         </a>
                 return html;
             }
 
@@ -529,6 +570,13 @@ debugger
                 }
             }
 
+            assigneeFormatter(value, row) {
+                if (UtilsNew.isUndefinedOrNull(value)) {
+                    return "-";
+                }
+                return moment(value, "YYYYMMDDHHmmss").format('D MMM YYYY');
+            }
+
             dateFormatter(value, row) {
                 if (UtilsNew.isUndefinedOrNull(value)) {
                     return "-";
@@ -536,38 +584,34 @@ debugger
                 return moment(value, "YYYYMMDDHHmmss").format('D MMM YYYY');
             }
 
-            reviewCaseFormatter(value, row) {
-                // return `<button data-id=${row.id} style="cursor: pointer; color: #5a4444; border-radius: 5px; padding: 4px;
-                //         background: #eae7d8; border: 1px solid #8a6d3b;" class='reviewCaseButton'>
-                //         <i class="fa fa-search" aria-hidden="true"></i> Review Case</button>`;
-                return `<a style="cursor: pointer" class="btn btn-link" href="#reviewCase">
-                            <i class="fa fa-search" aria-hidden="true"></i> Review
-                        </a>`;
-            }
+            // reviewCaseFormatter(value, row) {
+            //     // return `<button data-id=${row.id} style="cursor: pointer; color: #5a4444; border-radius: 5px; padding: 4px;
+            //     //         background: #eae7d8; border: 1px solid #8a6d3b;" class='reviewCaseButton'>
+            //     //         <i class="fa fa-search" aria-hidden="true"></i> Review Case</button>`;
+            //     return `<a style="cursor: pointer" class="btn btn-link" href="#reviewCase">
+            //                 <i class="fa fa-search" aria-hidden="true"></i> Review
+            //             </a>`;
+            // }
 
             interpretationFormatter(value, row) {
-                let html = `<span class="dropdown variant-link-dropdown" style="white-space: nowrap;margin-left: 1px">
-                                <a id="${this.prefix}dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="cursor: pointer">
-                                    Interpreters
-                                </a>
-                                <ul class="dropdown-menu" aria-labelledby="${this.prefix}dropdownMenu1" style="font-size: 1.25rem;margin-top: 0px">
-                                    <li><a style="cursor: pointer" href="#interpretation/${this.opencgaSession.project.alias}/${this.opencgaSession.study.alias}/${row.id}"><i class="fa fa-filter" aria-hidden="true"></i> IVA Variant Interpreter</a></li>
-                                    <li class="dropdown-header" style="padding-left: 15px">Rare Disease</li>
-                                    <li><a href="#analysis/${this.opencgaSession.project.alias}/${this.opencgaSession.study.alias}/tiering/${row.id}">Tiering</a></li>
-                                    <li><a href="#analysis/${this.opencgaSession.project.alias}/${this.opencgaSession.study.alias}/team/${row.id}">TEAM</a></li>
-                                </ul>
-                        </span>`;
-                return html;
-                // return `<a style="cursor: pointer" class="btn btn-link" href="#interpretation/${this.opencgaSession.project.alias}/${this.opencgaSession.study.alias}/${row.id}">
-                //             <i class="fa fa-filter" aria-hidden="true"></i> Open Interpreter
-                //         </a>`;
+                let tooltipText = `<div style="padding: 5px"><a style="cursor: pointer" href="#interpretation/${this.opencgaSession.project.alias}/${this.opencgaSession.study.alias}/${row.id}"><i class="fa fa-filter" aria-hidden="true"></i> IVA Variant Interpreter</a></div>
+                                   <div style="padding: 5px 15px; color: darkgray; font-weight: bolder">Rare Disease</div>
+                                   <div style="padding: 5px"><a href="#analysis/${this.opencgaSession.project.alias}/${this.opencgaSession.study.alias}/tiering/${row.id}">Tiering</a></div>
+                                   <div style="padding: 5px"><a href="#analysis/${this.opencgaSession.project.alias}/${this.opencgaSession.study.alias}/team/${row.id}">TEAM</a></div>
+                                   `;
+
+                return `<div class="interpretation-tooltip" data-tooltip-text='${tooltipText}'>
+                            <a style="cursor: pointer">
+                                Interpreters
+                            </a>
+                        </div>`;
             }
 
             reportFormatter(value, row) {
                 // return `<button data-id=${row.id} style="cursor: pointer; border-radius: 5px; padding: 4px;
                 //         background: #eae7d8; border: 1px solid #8a6d3b;" class='reviewCaseButton'>
                 //         <i class="fa fa-search" aria-hidden="true"></i> Create Report</button>`;
-                return `<a style="cursor: pointer" class="btn btn-link" href="#createReport" title="No report tool available yet" disabled>
+                return `<a style="cursor: pointer" href="#createReport" title="No report tool available yet" disabled>
                             <i class="fa fa-id-card" aria-hidden="true"></i> Create
                         </a>`;
             }
@@ -633,6 +677,20 @@ debugger
                                 halign: this._config.header.horizontalAlign
                             },
                             {
+                                title: 'Priority',
+                                field: 'priority',
+                                align: 'center',
+                                valign: 'middle',
+                                formatter: this.priorityFormatter
+                            },
+                            {
+                                title: 'Assigned To',
+                                field: 'assigned.assignee',
+                                align: 'center',
+                                valign: 'middle',
+                                // formatter: this.assigneeFormatter
+                            },
+                            {
                                 title: 'Creation Date',
                                 field: 'creationDate',
                                 valign: 'middle',
@@ -644,20 +702,13 @@ debugger
                                 valign: 'middle',
                                 formatter: this.dateFormatter
                             },
-                            {
-                                title: 'Priority',
-                                field: 'priority',
-                                align: 'center',
-                                valign: 'middle',
-                                formatter: this.priorityFormatter
-                            },
-                            {
-                                title: 'Review',
-                                eligible: false,
-                                align: 'center',
-                                visible: this._config.showReviewCase,
-                                formatter: this.reviewCaseFormatter.bind(this)
-                            },
+                            // {
+                            //     title: 'Review',
+                            //     eligible: false,
+                            //     align: 'center',
+                            //     visible: this._config.showReviewCase,
+                            //     formatter: this.reviewCaseFormatter.bind(this)
+                            // },
                             {
                                 title: 'Intepreter',
                                 eligible: false,
@@ -670,6 +721,7 @@ debugger
                                 title: 'Report',
                                 eligible: false,
                                 align: 'center',
+                                valign: 'middle',
                                 visible: this._config.showReport,
                                 formatter: this.reportFormatter.bind(this)
                             }
