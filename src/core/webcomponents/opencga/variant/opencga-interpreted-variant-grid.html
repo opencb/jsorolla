@@ -464,7 +464,7 @@
                         let fields = ["clinvar", "cosmic"];
                         for (let field of fields) {
                             let clinicalData = row.annotation.variantTraitAssociation[field];
-                            if (typeof clinicalData !== "undefined" && clinicalData.length > 0) {
+                            if (UtilsNew.isNotEmptyArray(clinicalData)) {
                                 for (let j = 0; j < clinicalData.length; j++) {
                                     if (field === "clinvar" && traits.clinvar.indexOf(clinicalData[j].traits[0]) === -1
                                         && clinicalData[j].traits[0] !== "not specified" && clinicalData[j].traits[0] !== "not provided") {

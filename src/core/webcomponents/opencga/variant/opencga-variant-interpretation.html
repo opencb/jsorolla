@@ -120,7 +120,7 @@
                             </div>
 
                             <div class="btn-group" role="group" aria-label="..." style="float: right">
-                                <button type="button" class="btn btn-primary variant-interpretation-view-buttons" data-view="clinicalAnalysisEditor" on-click="_changeView" >
+                                <button id="{{prefix}}ClinicalAnalysisButton" type="button" class="btn btn-primary variant-interpretation-view-buttons" data-view="clinicalAnalysisEditor" on-click="_changeView" >
                                     <i class="fa fa-edit icon-padding" aria-hidden="true" data-view="clinicalAnalysisEditor" on-click="_changeView"></i>Clinical Analysis Definition
                                 </button>
                                 <button id="{{prefix}}SaveInterpretationButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
@@ -442,6 +442,7 @@
                     },
                     clinicalAnalysisId: {
                         type: String,
+                        value: "CA6",
                         observer: 'clinicalAnalysisIdObserver',
                     },
                     clinicalAnalysis: {
