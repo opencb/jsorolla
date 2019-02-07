@@ -119,15 +119,25 @@
                                 </button>
                             </div>
 
-                            <div class="btn-group" role="group" aria-label="..." style="float: right">
-                                <button id="{{prefix}}ClinicalAnalysisButton" type="button" class="btn btn-primary variant-interpretation-view-buttons" data-view="clinicalAnalysisEditor" on-click="_changeView" >
-                                    <i class="fa fa-edit icon-padding" aria-hidden="true" data-view="clinicalAnalysisEditor" on-click="_changeView"></i>Clinical Analysis Definition
-                                </button>
-                                <button id="{{prefix}}SaveInterpretationButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
-                                        data-view="SaveInterpretation" on-click="_changeView">
-                                    <i class="fa fa-floppy-o icon-padding" aria-hidden="true" data-view="SaveInterpretation" on-click="_changeView"></i>Review and Save Interpretation ({{checkedVariants.length}})
-                                </button>
-                            </div>
+                            <template is="dom-if" if="{{hasClinicalAnalysis}}">
+                                <div class="btn-group" role="group" aria-label="..." style="float: right">
+                                    <button id="{{prefix}}SaveInterpretationButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
+                                            data-view="SaveInterpretation" on-click="_changeView">
+                                        <i class="fa fa-floppy-o icon-padding" aria-hidden="true" data-view="SaveInterpretation" on-click="_changeView"></i>Review and Save Interpretation ({{checkedVariants.length}})
+                                    </button>
+                                </div>
+                            </template>
+                            <template is="dom-if" if="{{!hasClinicalAnalysis}}">
+                                <div class="btn-group" role="group" aria-label="..." style="float: right">
+                                    <button id="{{prefix}}ClinicalAnalysisButton" class="btn btn-primary variant-interpretation-view-buttons" data-view="clinicalAnalysisEditor" on-click="_changeView" >
+                                        <i class="fa fa-edit icon-padding" aria-hidden="true" data-view="clinicalAnalysisEditor" on-click="_changeView"></i>Clinical Analysis Definition
+                                    </button>
+                                    <button id="{{prefix}}SaveInterpretationButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
+                                            data-view="SaveInterpretation" on-click="_changeView">
+                                        <i class="fa fa-floppy-o icon-padding" aria-hidden="true" data-view="SaveInterpretation" on-click="_changeView"></i>Review and Save Interpretation ({{checkedVariants.length}})
+                                    </button>
+                                </div>
+                            </template>
                         </div>
                     </div>
 
@@ -512,6 +522,8 @@
             _init() {
                 this.prefix = "ovi-" + Utils.randomString(6);
 
+                this.hasClinicalAnalysis = false;
+
                 this.checkProjects = false;
                 this.interactive = true;
                 this.filterClass = "col-md-2";
@@ -621,6 +633,8 @@
                         // Notify to all listeners of the new samples
                         this.dispatchEvent(new CustomEvent('samplechange', {detail: {samples: this.samples}}));
                     }
+
+                    this.hasClinicalAnalysis = true;
                 }
             }
 
@@ -884,9 +898,9 @@
                     let userID = this.opencgaSession.opencgaClient._config.userId;
                     let interpretation = {};
                     interpretation.id = this.clinicalAnalysis.id + "_" + PolymerUtils.getValue(this.prefix + "IDInterpretation");
-                    interpretation.name = PolymerUtils.getValue(this.prefix + "NameInterpretation");
+                    // interpretation.name = PolymerUtils.getValue(this.prefix + "NameInterpretation");
                     interpretation.description = PolymerUtils.getValue(this.prefix + "DescriptionInterpretation");
-                    interpretation.clinicalAnalysis = this.clinicalAnalysis;
+                    interpretation.clinicalAnalysisId = this.clinicalAnalysisId;
                     interpretation.software = {
                         name: "TEAM",
                         version: "2.0",
