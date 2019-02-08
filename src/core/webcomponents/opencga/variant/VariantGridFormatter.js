@@ -285,7 +285,7 @@ class VariantGridFormatter {
                                         <th rowspan="2">Ensembl Transcript</th>
                                         <th rowspan="2">Biotype</th>
                                         <th rowspan="2">Transcript Flags</th>
-                                        <th rowspan="2">SO Term</th>
+                                        <th rowspan="2">Consequence Types (SO Term)</th>
                                         <th rowspan="1" colspan="4" style="text-align: center">Protein Variant Annotation</th>
                                     </tr>
                                     <tr>
@@ -314,6 +314,13 @@ class VariantGridFormatter {
                               </a>`;
                 }
 
+                let transcriptId = "NA";
+                if (UtilsNew.isNotEmpty(ct.ensemblTranscriptId)) {
+                    transcriptId = `<a href="http://www.ensembl.org/Homo_sapiens/Transcript/Idhistory?t=${ct.ensemblTranscriptId}" target="_blank">
+                                        ${ct.ensemblTranscriptId}
+                                    </a>`;
+                }
+
                 let pva = {};
                 if (UtilsNew.isNotUndefinedOrNull(ct.proteinVariantAnnotation)) {
                     pva = ct.proteinVariantAnnotation;
@@ -336,7 +343,7 @@ class VariantGridFormatter {
                     uniprotAccession = `<a href="https://www.uniprot.org/uniprot/${pva.uniprotAccession}" target="_blank">${pva.uniprotAccession}</a>`;
                 }
 
-                let deleteriousness = "";
+                let deleteriousness = "-/-";
                 if (UtilsNew.isNotEmptyArray(pva.substitutionScores)) {
                     let sift = "-";
                     let polyphen = "-";
@@ -355,8 +362,8 @@ class VariantGridFormatter {
                 ctHtml += `<tr class="detail-view-row">
                             <td>${geneName}</td>
                             <td>${geneId}</td>
-                            <td>${UtilsNew.isNotEmpty(ct.ensemblTranscriptId) ? ct.ensemblTranscriptId : "NA"}</td>
-                            <td>${UtilsNew.isNotUndefinedOrNull(ct.biotype) ? ct.biotype: "NA"}</td>
+                            <td>${transcriptId}</td>
+                            <td>${UtilsNew.isNotEmpty(ct.biotype) ? ct.biotype : "NA"}</td>
                             <td>${UtilsNew.isNotEmptyArray(ct.transcriptAnnotationFlags) ? ct.transcriptAnnotationFlags.join(", ") : "NA"}</td>
                             <td>${soArray.join("")}</td>
                             <td>${uniprotAccession}</td>
@@ -506,4 +513,116 @@ class VariantGridFormatter {
         return color;
     }
 
+
+    /*
+     * Reported Variant formatters
+     */
+    reportedEventDetailFormatter(value, row, variantGrid) {
+        if (typeof row !== "undefined" && UtilsNew.isNotEmptyArray(row.reportedEvents)) {
+            let ctHtml = `<table id="{{prefix}}ConsqTypeTable" class="table table-hover table-no-bordered">
+                                <thead>
+                                    <tr>
+                                        <th rowspan="2">Gene</th>
+                                        <th rowspan="2">Ensembl Transcript</th>
+                                        <th rowspan="2">Consequence Types</th>
+                                        <th rowspan="2">Panel</th>
+                                        <th rowspan="2">Mode of Inheritance</th>
+                                        <th rowspan="1" colspan="2" style="text-align: center">Classification</th>
+                                        <th rowspan="2">Tier</th>
+                                    </tr>
+                                    <tr>
+                                        <th rowspan="1">ACMG</th>
+                                        <th rowspan="1">Clinical Significance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+
+            // row.reportedEvents.sort(function(a, b) {
+            //     if (a.tier === null || b.tier === null) {
+            //         return 0;
+            //     }
+            //     if (a.tier < b.tier) {
+            //         return -1;
+            //     }
+            //     if (a.tier > b.tier) {
+            //         return 1;
+            //     }
+            //     return 0;
+            // });
+
+            for (let re of row.reportedEvents) {
+                // Prepare data info for columns
+                let gene = "NA";
+                if (UtilsNew.isNotEmpty(re.genomicFeature.geneName)) {
+                    gene = `<a href="https://www.genenames.org/tools/search/#!/all?query=${re.genomicFeature.geneName}" target="_blank">
+                                ${re.genomicFeature.geneName}
+                            </a> (<a href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${re.genomicFeature.ensemblGeneId}" target="_blank">
+                                    ${re.genomicFeature.ensemblGeneId}
+                                  </a>)`;
+                }
+
+                let transcriptId = "NA";
+                if (UtilsNew.isNotEmpty(re.genomicFeature.ensemblTranscriptId)) {
+                    transcriptId = `<a href="http://www.ensembl.org/Homo_sapiens/Transcript/Idhistory?t=${re.genomicFeature.ensemblTranscriptId}" target="_blank">
+                                        ${re.genomicFeature.ensemblTranscriptId}
+                                    </a>`;
+                }
+
+                let soArray = [];
+                for (let so of re.consequenceTypeIds) {
+                    let color = "black";
+                    if (typeof variantGrid.consequenceTypeToColor !== "undefined" && typeof variantGrid.consequenceTypeToColor[so] !== "undefined") {
+                        color = variantGrid.consequenceTypeToColor[so];
+                    }
+                    soArray.push(`<div style="color: ${color}">
+                                    ${so}
+                                  </div>`);
+                }
+
+                let panel = "-";
+                if (UtilsNew.isNotUndefinedOrNull(re.panelId)) {
+                    panel = re.panelId;
+                }
+
+                let moi = "-";
+                if (UtilsNew.isNotUndefinedOrNull(re.modeOfInheritance)) {
+                    moi = re.modeOfInheritance;
+                }
+
+                let acmg = "-";
+                if (UtilsNew.isNotEmptyArray(re.classification.acmg)) {
+                    acmg = re.classification.acmg.join(", ");
+                }
+
+                let clinicalSignificance = "-";
+                if (UtilsNew.isNotEmptyArray(re.classification.clinicalSignificance)) {
+                    clinicalSignificance = re.classification.clinicalSignificance;
+                }
+
+                let tier = "none";
+                let color = "black";
+                if (UtilsNew.isNotUndefinedOrNull(re.tier)) {
+                    color = (re.tier === "Tier1") ? "red" : color;
+                    color = (re.tier === "Tier2") ? "orange" : color;
+                    color = (re.tier === "Tier3") ? "blue" : color;
+                    tier = `<span style="color: ${color}">${re.tier}</span>`;
+                }
+
+                // Create the table row
+                ctHtml += `<tr class="detail-view-row">
+                            <td>${gene}</td>
+                            <td>${transcriptId}</td>
+                            <td>${soArray.join("")}</td>
+                            <td>${panel}</td>
+                            <td>${moi}</td>
+                            <td>${acmg}</td>
+                            <td>${clinicalSignificance}</td>
+                            <td>${tier}</td>
+                           </tr>`;
+            }
+            ctHtml += "</tbody></table>";
+            return ctHtml;
+        }
+        return "-";
+    }
 }
