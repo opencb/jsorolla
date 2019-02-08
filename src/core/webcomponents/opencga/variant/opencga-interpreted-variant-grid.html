@@ -444,18 +444,22 @@
 
             tableDetailFormatter(value, row, a) {
                 let result = "<div class='row'>";
-                let ctHtml = "";
-                let clinicalHtml = "";
+                let detailHtml = "";
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-                    ctHtml = "<div style='padding: 20px 0px 10px 25px'><label>Consequence Types</label></div>";
-                    ctHtml += "<div style='padding: 5px 50px'>";
-                    ctHtml += this.variantGrid.variantGridFormatter.consequenceTypeDetailFormatter(value, row, this.variantGrid);
-                    ctHtml += "</div>";
+                    detailHtml = "<div style='padding: 20px 0px 5px 25px'><label>Reported Events</label></div>";
+                    detailHtml += "<div style='padding: 5px 50px'>";
+                    detailHtml += this.variantGrid.variantGridFormatter.reportedEventDetailFormatter(value, row, this.variantGrid);
+                    detailHtml += "</div>";
 
-                    clinicalHtml = "<div style='padding: 20px 0px 15px 25px'><label>Clinical Phenotypes</label></div>";
-                    clinicalHtml += "<div style='padding: 5px 50px'>";
-                    let clinvarTraits = "";
-                    let cosmicTraits = "";
+                    detailHtml += "<div style='padding: 25px 0px 5px 25px'><label>Consequence Types</label></div>";
+                    detailHtml += "<div style='padding: 5px 50px'>";
+                    detailHtml += this.variantGrid.variantGridFormatter.consequenceTypeDetailFormatter(value, row, this.variantGrid);
+                    detailHtml += "</div>";
+
+                    detailHtml += "<div style='padding: 20px 0px 5px 25px'><label>Clinical Phenotypes</label></div>";
+                    detailHtml += "<div style='padding: 5px 50px'>";
+                    let clinvarTraits = "<div><label style='padding-right: 10px'>ClinVar: </label>-</div>";
+                    let cosmicTraits = "<div><label style='padding-right: 10px'>Cosmic: </label>-</div>";
                     if (typeof row.annotation.variantTraitAssociation !== "undefined" && row.annotation.variantTraitAssociation != null) {
                         let traits = {
                             clinvar: [],
@@ -479,19 +483,15 @@
 
                         if (traits.clinvar.length > 0) {
                             clinvarTraits = "<div><label style='padding-right: 10px'>ClinVar: </label>" + traits.clinvar.join(", ") + "</div>";
-                        } else {
-                            clinvarTraits = "<div><label style='padding-right: 10px'>ClinVar: </label>-</div>";
                         }
                         if (traits.cosmic.length > 0) {
                             cosmicTraits = "<div><label style='padding-right: 10px'>Cosmic: </label>" + traits.cosmic.join(", ") + "</div>";
-                        } else {
-                            cosmicTraits = "<div><label style='padding-right: 10px'>Cosmic: </label>-</div>";
                         }
                     }
-                    clinicalHtml += clinvarTraits + cosmicTraits;
-                    clinicalHtml += "</div>";
+                    detailHtml += clinvarTraits + cosmicTraits;
+                    detailHtml += "</div>";
                 }
-                result += ctHtml + clinicalHtml + "</div>";
+                result += detailHtml + "</div>";
                 return result;
             }
 
