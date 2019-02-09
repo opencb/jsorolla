@@ -358,8 +358,8 @@
                             });
 
                             // Add Population Frequencies tooltip
-                            _this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("popFreqInfoIcon", _this.populationFrequencies);
                             _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", _this.populationFrequencies);
+                            _this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("popFreqInfoIcon", _this.populationFrequencies);
                         }
                     });
 
@@ -504,18 +504,17 @@
                 this.dispatchEvent(new CustomEvent('selected', {detail: {gene: geneName}}));
             }
 
-            tableDetailFormatter(value, row, a) {
+            detailFormatter(value, row, a) {
                 let result = "<div class='row'>";
-                let ctHtml = "";
-                let clinicalHtml = "";
+                let detailHtml = "";
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-                    ctHtml = "<div style='padding: 20px 0px 10px 25px'><label>Consequence Types</label></div>";
-                    ctHtml += "<div style='padding: 5px 50px'>";
-                    ctHtml += this.variantGrid.variantGridFormatter.consequenceTypeDetailFormatter(value, row, this.variantGrid);
-                    ctHtml += "</div>";
+                    detailHtml = "<div style='padding: 10px 0px 10px 25px'><h4>Consequence Types</h4></div>";
+                    detailHtml += "<div style='padding: 5px 50px'>";
+                    detailHtml += this.variantGrid.variantGridFormatter.consequenceTypeDetailFormatter(value, row, this.variantGrid);
+                    detailHtml += "</div>";
 
-                    clinicalHtml = "<div style='padding: 20px 0px 15px 25px'><label>Clinical Phenotypes</label></div>";
-                    clinicalHtml += "<div style='padding: 5px 50px'>";
+                    detailHtml += "<div style='padding: 20px 0px 15px 25px'><h4>Clinical Phenotypes</h4></div>";
+                    detailHtml += "<div style='padding: 5px 50px'>";
                     let clinvarTraits = "";
                     let cosmicTraits = "";
                     if (typeof row.annotation.variantTraitAssociation !== "undefined" && row.annotation.variantTraitAssociation != null) {
@@ -550,10 +549,10 @@
                             cosmicTraits = "<div><label style='padding-right: 10px'>Cosmic: </label>-</div>";
                         }
                     }
-                    clinicalHtml += clinvarTraits + cosmicTraits;
-                    clinicalHtml += "</div>";
+                    detailHtml += clinvarTraits + cosmicTraits;
+                    detailHtml += "</div>";
                 }
-                result += ctHtml + clinicalHtml + "</div>";
+                result += detailHtml + "</div>";
                 return result;
             }
 
@@ -1179,7 +1178,7 @@
                     pageList: [10, 25, 50],
                     showExport: false,
                     detailView: true,
-                    detailFormatter: this.tableDetailFormatter,
+                    detailFormatter: this.detailFormatter,
 
                     showSelectCheckbox: false,
                     multiSelection: false,

@@ -268,6 +268,12 @@ class VariantGridFormatter {
         if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
             // Sort and group CTs by Gene name
             row.annotation.consequenceTypes.sort(function(a, b) {
+                if (a.geneName === "" && b.geneName !== "") {
+                    return 1;
+                }
+                if (a.geneName !== "" && b.geneName === "") {
+                    return -1;
+                }
                 if (a.geneName < b.geneName) {
                     return -1;
                 }
@@ -527,8 +533,11 @@ class VariantGridFormatter {
                                         <th rowspan="2">Consequence Types</th>
                                         <th rowspan="2">Panel</th>
                                         <th rowspan="2">Mode of Inheritance</th>
+                                        <th rowspan="2">Role in Cancer</th>
+                                        <th rowspan="2">Actionable</th>
                                         <th rowspan="1" colspan="2" style="text-align: center">Classification</th>
                                         <th rowspan="2">Tier</th>
+                                        <th rowspan="2">Select</th>
                                     </tr>
                                     <tr>
                                         <th rowspan="1">ACMG</th>
@@ -537,18 +546,22 @@ class VariantGridFormatter {
                                 </thead>
                                 <tbody>`;
 
-            // row.reportedEvents.sort(function(a, b) {
-            //     if (a.tier === null || b.tier === null) {
-            //         return 0;
-            //     }
-            //     if (a.tier < b.tier) {
-            //         return -1;
-            //     }
-            //     if (a.tier > b.tier) {
-            //         return 1;
-            //     }
-            //     return 0;
-            // });
+            row.reportedEvents.sort(function(a, b) {
+                // debugger
+                if (a.tier === null || b.tier !== null) {
+                    return 1;
+                }
+                if (a.tier !== null || b.tier === null) {
+                    return -1;
+                }
+                if (a.tier < b.tier) {
+                    return -1;
+                }
+                if (a.tier > b.tier) {
+                    return 1;
+                }
+                return 0;
+            });
 
             for (let re of row.reportedEvents) {
                 // Prepare data info for columns
@@ -589,6 +602,16 @@ class VariantGridFormatter {
                     moi = re.modeOfInheritance;
                 }
 
+                let roleInCancer = "-";
+                if (UtilsNew.isNotUndefinedOrNull(re.roleInCancer)) {
+                    roleInCancer = re.roleInCancer;
+                }
+
+                let actionable = "-";
+                if (UtilsNew.isNotUndefinedOrNull(re.actionable) && re.actionable) {
+                    actionable = "Yes";
+                }
+
                 let acmg = "-";
                 if (UtilsNew.isNotEmptyArray(re.classification.acmg)) {
                     acmg = re.classification.acmg.join(", ");
@@ -608,6 +631,11 @@ class VariantGridFormatter {
                     tier = `<span style="color: ${color}">${re.tier}</span>`;
                 }
 
+                let checked = "";
+                if (tier !== "none") {
+                    checked = "checked";
+                }
+
                 // Create the table row
                 ctHtml += `<tr class="detail-view-row">
                             <td>${gene}</td>
@@ -615,9 +643,12 @@ class VariantGridFormatter {
                             <td>${soArray.join("")}</td>
                             <td>${panel}</td>
                             <td>${moi}</td>
+                            <td>${roleInCancer}</td>
+                            <td>${actionable}</td>
                             <td>${acmg}</td>
                             <td>${clinicalSignificance}</td>
                             <td>${tier}</td>
+                            <td><input type="checkbox" ${checked}></td>
                            </tr>`;
             }
             ctHtml += "</tbody></table>";

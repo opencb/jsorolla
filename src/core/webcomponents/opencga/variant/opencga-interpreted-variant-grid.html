@@ -330,6 +330,7 @@
 
                             // Add Population Frequencies tooltip
                             _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", _this.populationFrequencies);
+                            _this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("popFreqInfoIcon", _this.populationFrequencies);
                         }
                     });
 
@@ -442,21 +443,21 @@
                 }));
             }
 
-            tableDetailFormatter(value, row, a) {
+            detailFormatter(value, row, a) {
                 let result = "<div class='row'>";
                 let detailHtml = "";
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-                    detailHtml = "<div style='padding: 20px 0px 5px 25px'><label>Reported Events</label></div>";
+                    detailHtml = "<div style='padding: 10px 0px 5px 25px'><h4>Reported Events</h4></div>";
                     detailHtml += "<div style='padding: 5px 50px'>";
                     detailHtml += this.variantGrid.variantGridFormatter.reportedEventDetailFormatter(value, row, this.variantGrid);
                     detailHtml += "</div>";
 
-                    detailHtml += "<div style='padding: 25px 0px 5px 25px'><label>Consequence Types</label></div>";
+                    detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Consequence Types</h4></div>";
                     detailHtml += "<div style='padding: 5px 50px'>";
                     detailHtml += this.variantGrid.variantGridFormatter.consequenceTypeDetailFormatter(value, row, this.variantGrid);
                     detailHtml += "</div>";
 
-                    detailHtml += "<div style='padding: 20px 0px 5px 25px'><label>Clinical Phenotypes</label></div>";
+                    detailHtml += "<div style='padding: 20px 0px 5px 25px'><h4>Clinical Phenotypes</h4></div>";
                     detailHtml += "<div style='padding: 5px 50px'>";
                     let clinvarTraits = "<div><label style='padding-right: 10px'>ClinVar: </label>-</div>";
                     let cosmicTraits = "<div><label style='padding-right: 10px'>Cosmic: </label>-</div>";
@@ -720,28 +721,45 @@
             }
 
             interpretationFormatter(value, row, index) {
-                // let res = `<button id="v${row.id}Button" type='button' class='btn btn-success btn-xs interpretation-add-to-report' data-variant-id='${row.id}'>
-                //                     <i id="v${row.id}ButtonIcon" class="fa fa-check interpretation-add-to-report" aria-hidden="true" data-variant-id='${row.id}'></i>
-                //                     <span id="v${row.id}ButtonText" class="interpretation-add-to-report" data-variant-id='${row.id}'>Add to Report</span>
-                //                </button>`;
-                let res = "<div>Tier 1 (PVS1)</div><br>";
-                return res;
+                let tier = "-";
+                let tiers = {
+                    tier1: [], tier2: [], tier3: []
+                };
+
+                for (let re of row.reportedEvents) {
+                    if (UtilsNew.isNotUndefinedOrNull(re.tier)) {
+                        let obj = {tier: re.tier, acmg: re.classification.acmg.join(",")};
+                        switch (re.tier.toLowerCase()) {
+                            case "tier 1":
+                            case "tier1":
+                                tiers.tier1.push(obj);
+                                break;
+                            case "tier 2":
+                            case "tier2":
+                                tiers.tier2.push(obj);
+                                break;
+                            case "tier 3":
+                            case "tier3":
+                                tiers.tier3.push(obj);
+                                break;
+                        }
+                    }
+
+                    if (tiers.tier1.length > 0) {
+                        tier = tiers.tier1[0].tier + " (" + tiers.tier1[0].acmg + ")";
+                    } else if (tiers.tier2.length > 0) {
+                        tier = tiers.tier2[0].tier + " (" + tiers.tier2[0].acmg + ")";
+                    } else if (tiers.tier3.length > 0) {
+                        tier = tiers.tier3[0].tier + " (" + tiers.tier3[0].acmg + ")";
+                    }
+                }
+                return `<div>${tier}</div><br>`;
             }
 
             _createDefaultColumns() {
                 if (this.variantGridFormatter === undefined) {
                     return;
                 }
-
-                let ctTitle = 'Variant Stats <a data-toggle="tooltip" title="One coloured square is shown for each cohort, e.g. population. ' +
-                    'Frequencies are visualized as colours which classify values into very rare, rare, average, common or missing, see http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg. Please, leave ' +
-                    'the cursor over each square to visualize the actual frequency value."><i class="fa fa-info-circle" aria-hidden="true"></i></a>' +
-                    '<div style="width: 60%;margin: auto"><div style="float: left">Legend:&nbsp;&nbsp;</div>' +
-                    '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.veryRare + '" title="Very rare:  freq < 0.001"></div>' +
-                    '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.rare + '" title="Rare:  freq < 0.005"></div>' +
-                    '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.average + '" title="Average:  freq < 0.05"></div>' +
-                    '<div style="float: left; width: 10px;height: 10px;margin: 6px 2px; border: 1px solid rgba(0, 0, 0, .2); background:' + this.populationFrequencies.color.common + '" title="Common:  freq >= 0.05"></div>' +
-                    '</div>';
 
                 this._columns = [
                     [
@@ -780,7 +798,7 @@
                             halign: 'center'
                         },
                         {
-                            title: ctTitle,
+                            title: "Variant Stats <span id='popFreqInfoIcon'><i class='fa fa-info-circle' style='color: #337ab7' aria-hidden='true'></i></span>",
                             field: "frequencies",
                             rowspan: 1,
                             colspan: 2,
@@ -1033,7 +1051,7 @@
                     pageList: [10, 25, 50],
                     showExport: false,
                     detailView: true,
-                    detailFormatter: this.tableDetailFormatter,
+                    detailFormatter: this.detailFormatter,
 
                     showSelectCheckbox: false,
                     multiSelection: false,
