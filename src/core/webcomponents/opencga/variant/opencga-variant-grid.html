@@ -40,6 +40,10 @@
             .variant-link-dropdown:hover .dropdown-menu {
                 display: block;
             }
+
+            .qtip-custom-class .qtip-content{
+                font-size: 12px;
+            }
         </style>
 
 
@@ -357,7 +361,9 @@
                                 }
                             });
 
-                            // Add Population Frequencies tooltip
+                            // Add tooltips
+                            _this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
+                            _this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
                             _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", _this.populationFrequencies);
                             _this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("popFreqInfoIcon", _this.populationFrequencies);
                         }

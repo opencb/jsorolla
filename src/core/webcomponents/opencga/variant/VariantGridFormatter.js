@@ -84,28 +84,25 @@ class VariantGridFormatter {
 
         let genomeBrowserMenuLink = "";
         if (this.config.showGenomeBrowser) {
-            genomeBrowserMenuLink = `<li class="dropdown-header">Internal Links</li>
-                                     <li>
+            genomeBrowserMenuLink = `<div>
                                         <a class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
                                             <i class="fa fa-list" aria-hidden="true"></i> Genome Browser
                                         </a>
-                                     </li>`;
+                                     </div>`;
         }
 
-        // return "<span style='white-space: nowrap'>" + row.chromosome + ':' + row.start + " " + ref + '/' + alt + "</span>";
-        return `<div class="dropdown variant-link-dropdown" style="white-space: nowrap">
-                            <a id="${this.prefix}dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                                class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
-                                    ${row.chromosome}:${row.start}&nbsp;&nbsp;${ref}/${alt}
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="${this.prefix}dropdownMenu1" style="font-size: 1.25rem;margin-top: 0px">
-                                ${genomeBrowserMenuLink}
-                                <li class="dropdown-header" style="padding-left: 15px">External Links</li>
-                                <li><a target='_blank' href="https://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${id}">Ensembl</a></li>
-                                <li><a target='_blank' href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs=${id}">dbSNP</a></li>
-                                <li><a target='_blank' href="https://www.snpedia.com/index.php/${id}">SNPedia</a></li>
-                                <li><a target='_blank' href="https://www.ncbi.nlm.nih.gov/clinvar/?term=${id}">ClinVar</a></li>
-                            </ul>
+        // <div style="padding: 5px 15px; color: darkgray; font-weight: bolder">External Links</div>
+        let tooltipText = `${genomeBrowserMenuLink}
+                            <div style="padding: 5px"><a target="_blank" href="https://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${id}">Ensembl</a></div>
+                            <div style="padding: 5px"><a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs=${id}">dbSNP</a></div>
+                            <div style="padding: 5px"><a target="_blank" href="https://www.snpedia.com/index.php/${id}">SNPedia</a></div>
+                            <div style="padding: 5px"><a target="_blank" href="https://www.ncbi.nlm.nih.gov/clinvar/?term=${id}">ClinVar</a></div>
+                            `;
+
+        return `<div class="variant-tooltip" data-tooltip-text='${tooltipText}'>
+                    <a style="cursor: pointer">
+                        ${row.chromosome}:${row.start}&nbsp;&nbsp;${ref}/${alt}
+                    </a>
                 </div>`;
     }
 
@@ -140,36 +137,28 @@ class VariantGridFormatter {
                 let geneName = row.annotation.consequenceTypes[i].geneName;
                 if (UtilsNew.isNotEmpty(geneName) && typeof visited[geneName] === "undefined") {
                     if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study !== "undefined") {
-                        // geneLinks.push(`<a style="cursor: pointer"
-                        //                         href="#gene/${this.opencgaSession.project.alias}/${this.opencgaSession.study.alias}/${row.annotation.consequenceTypes[i].geneName}">
-                        //                             ${row.annotation.consequenceTypes[i].geneName}
-                        //                     </a>`);
-
-
                         let genomeBrowserMenuLink = "";
                         if (this.config.showGenomeBrowser) {
-                            genomeBrowserMenuLink = `<li>
+                            genomeBrowserMenuLink = `<div>
                                                         <a class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
                                                             Genome Browser
                                                         </a>
-                                                    </li>`;
+                                                     </div>`;
                         }
 
-                    // <li class="dropdown-header">Internal Links</li>
-                        geneLinks.push(`<span class="dropdown variant-link-dropdown" style="white-space: nowrap;margin-left: 1px">
-                            <a id="${this.prefix}dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                                class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
-                                    ${geneName}
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="${this.prefix}dropdownMenu1" style="font-size: 1.25rem;margin-top: 0px">
-                                <li><a style="cursor: pointer" href="#gene/${this.opencgaSession.project.alias}/${this.opencgaSession.study.alias}/${geneName}">Gene View</a></li>
-                                ${genomeBrowserMenuLink}
-                                <li class="dropdown-header" style="padding-left: 15px">External Links</li>
-                                <li><a target='_blank' href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneName}">Ensembl</a></li>
-                                <li><a target='_blank' href="https://cancer.sanger.ac.uk/cosmic/gene/analysis?ln=${geneName}">COSMIC</a></li>
-                                <li><a target='_blank' href="https://www.uniprot.org/uniprot/?sort=score&query=${geneName}">UniProt</a></li>
-                            </ul>
-                        </span>`);
+                        let tooltipText = `<div style="padding: 5px"><a style="cursor: pointer" href="#gene/${this.opencgaSession.project.alias}/${this.opencgaSession.study.alias}/${geneName}">Gene View</a></div>
+                                            ${genomeBrowserMenuLink}
+                                            <div class="dropdown-header" style="padding-left: 10px">External Links</div>
+                                            <div style="padding: 5px"><a target="_blank" href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneName}">Ensembl</a></div>
+                                            <div style="padding: 5px"><a target="_blank" href="https://cancer.sanger.ac.uk/cosmic/gene/analysis?ln=${geneName}">COSMIC</a></div>
+                                            <div style="padding: 5px"><a target="_blank" href="https://www.uniprot.org/uniprot/?sort=score&query=${geneName}">UniProt</a></div>
+                                        `;
+
+                        geneLinks.push(`<span class="gene-tooltip" data-tooltip-text='${tooltipText}' style="margin-left: 2px">
+                                            <a style="cursor: pointer">
+                                                ${geneName}
+                                            </a>
+                                        </span>`);
 
                     } else {
                         geneLinks.push(`<a style="cursor: pointer">${geneName}</a>`)
@@ -189,7 +178,7 @@ class VariantGridFormatter {
             switch (row.type) {
                 case "INDEL":
                 case "MNV":
-                    color = "orange";
+                    color = "darkorange";
                     break;
                 case "INSERTION":
                 case "DELETION":
@@ -266,23 +255,6 @@ class VariantGridFormatter {
 
     consequenceTypeDetailFormatter(value, row, variantGrid) {
         if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
-            // Sort and group CTs by Gene name
-            row.annotation.consequenceTypes.sort(function(a, b) {
-                if (a.geneName === "" && b.geneName !== "") {
-                    return 1;
-                }
-                if (a.geneName !== "" && b.geneName === "") {
-                    return -1;
-                }
-                if (a.geneName < b.geneName) {
-                    return -1;
-                }
-                if (a.geneName > b.geneName) {
-                    return 1;
-                }
-                return 0;
-            });
-
             let ctHtml = `<table id="{{prefix}}ConsqTypeTable" class="table table-hover table-no-bordered">
                                 <thead>
                                     <tr>
@@ -302,6 +274,23 @@ class VariantGridFormatter {
                                     </tr>
                                 </thead>
                                 <tbody>`;
+
+            // Sort and group CTs by Gene name
+            row.annotation.consequenceTypes.sort(function(a, b) {
+                if (a.geneName === "" && b.geneName !== "") {
+                    return 1;
+                }
+                if (a.geneName !== "" && b.geneName === "") {
+                    return -1;
+                }
+                if (a.geneName < b.geneName) {
+                    return -1;
+                }
+                if (a.geneName > b.geneName) {
+                    return 1;
+                }
+                return 0;
+            });
 
             for (let ct of row.annotation.consequenceTypes) {
                 // Prepare data info for columns
@@ -472,7 +461,7 @@ class VariantGridFormatter {
                     for (let popFreq of popFreqs) {
                         let arr = popFreq.split("::");
                         let color = _this._getPopulationFrequencyColor(arr[1], populationFrequencies.color);
-                        let freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] : "0.0 (not observed)";
+                        let freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] : "0.00 (NA)";
                         html += `<div>
                                     <span><i class="fa fa-xs fa-square" style="color: ${color}" aria-hidden="true"></i>
                                         <label style="padding-left: 5px">${arr[0]}:</label>
@@ -547,7 +536,6 @@ class VariantGridFormatter {
                                 <tbody>`;
 
             row.reportedEvents.sort(function(a, b) {
-                // debugger
                 if (a.tier === null || b.tier !== null) {
                     return 1;
                 }
@@ -625,9 +613,9 @@ class VariantGridFormatter {
                 let tier = "none";
                 let color = "black";
                 if (UtilsNew.isNotUndefinedOrNull(re.tier)) {
-                    color = (re.tier === "Tier1") ? "red" : color;
-                    color = (re.tier === "Tier2") ? "orange" : color;
-                    color = (re.tier === "Tier3") ? "blue" : color;
+                    color = (re.tier === "Tier1" || re.tier === "Tier 1") ? "red" : color;
+                    color = (re.tier === "Tier2" || re.tier === "Tier 2") ? "darkorange" : color;
+                    color = (re.tier === "Tier3" || re.tier === "Tier 3") ? "blue" : color;
                     tier = `<span style="color: ${color}">${re.tier}</span>`;
                 }
 
@@ -656,4 +644,35 @@ class VariantGridFormatter {
         }
         return "-";
     }
+
+
+    addTooltip(selector, title) {
+        $(selector).qtip({
+            content: {
+                title: title,
+                text: function (event, api) {
+                    return $(this).attr('data-tooltip-text');
+                }
+            },
+            position: {
+                target: "mouse",
+                adjust: {
+                    x: 2, y: 2,
+                    mouse: false
+                }
+            },
+            style: {
+                classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class",
+                width: "240px",
+            },
+            show: {
+                delay: 250
+            },
+            hide: {
+                fixed: true,
+                delay: 300
+            }
+        });
+    }
+
 }
