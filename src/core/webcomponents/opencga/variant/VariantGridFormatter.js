@@ -166,7 +166,23 @@ class VariantGridFormatter {
                     visited[geneName] = true;
                 }
             }
-            return geneLinks.join(",");
+
+            // Do not write more than 4 genes per line, this could be easily configurable
+            let resultHtml = "";
+            for (let i = 0; i < geneLinks.length; i++) {
+                resultHtml += geneLinks[i];
+                if (i + 1 !== geneLinks.length) {
+                    if (i === 0) {
+                        resultHtml += ",";
+                    } else if ((i + 1) % 4 !== 0) {
+                        resultHtml += ",";
+                    } else {
+                        resultHtml += "<br>";
+                    }
+                }
+            }
+
+            return resultHtml;
         } else {
             return "-";
         }
@@ -646,7 +662,7 @@ class VariantGridFormatter {
     }
 
 
-    addTooltip(selector, title) {
+    addTooltip(selector, title, config) {
         $(selector).qtip({
             content: {
                 title: title,
@@ -662,7 +678,7 @@ class VariantGridFormatter {
                 }
             },
             style: {
-                classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class",
+                classes: (config !== undefined && config.style !== undefined && config.style.classes !== undefined) ? config.style.classes : "qtip-light qtip-rounded qtip-shadow qtip-custom-class",
                 width: "240px",
             },
             show: {
