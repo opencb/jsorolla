@@ -116,7 +116,7 @@
             }
 
             _fetchCohortStats(e) {
-                if (this.variant.split(':').length > 2 && this.active) {
+                if (UtilsNew.isNotUndefinedOrNull(this.variant) && this.variant.split(':').length > 2 && this.active) {
                     let [chromosome, start, ref, alt] = this.variant.split(":");
                     this.region = new Region(chromosome + ":" + start);
                     let params = {

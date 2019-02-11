@@ -19,21 +19,21 @@
         <style include="jso-styles"></style>
 
         <div id="{{prefix}}FileMetrics">
-            <div class="col-md-8 col-md-offset-1" style="padding-top: 20px;overflow: auto;">
+            <div class="col-md-10 col-md-offset-1" style="padding-top: 20px;overflow: auto;">
                 <table class="table table-hover">
                     <thead>
                     <tr>
-                        <th>VCF Attribute</th>
-                        <template is="dom-repeat" items="{{clinicalAnalysis.family.members}}" as="member">
-                            <th>{{member.id}}</th>
+                        <th>VCF Attributes</th>
+                        <template is="dom-repeat" items="{{variant.studies.0.files}}" as="member">
+                            <th>{{member.fileId}}</th>
                         </template>
                     </tr>
                     </thead>
                     <tbody id="{{prefix}}TableTBody">
-                    <template is="dom-repeat" items="{{_getFileMetricsArray(variant.studies.0.files)}}" as="attrs">
-                        <tr id="{{attrs.name}}" class$="file-metrics-table-{{attrs.name}}">
-                            <td><span style="font-weight: bold">{{attrs.name}}</span></td>
-                            <template is="dom-repeat" items="{{attrs.values}}" as="attr">
+                    <template is="dom-repeat" items="{{_attributes}}" as="attribute">
+                        <tr id="{{attribute.name}}" class$="file-metrics-table-{{attribute.name}}">
+                            <td><span style="font-weight: bold">{{attribute.name}}</span></td>
+                            <template is="dom-repeat" items="{{attribute.values}}" as="attr">
                                 <td>{{attr}}</td>
                             </template>
                         </tr>
@@ -46,17 +46,6 @@
 
     <script>
         class OpencgaVariantFileMetrics extends Polymer.Element {
-
-            constructor() {
-                super();
-
-                // Set status and init private properties
-                this._init();
-            }
-
-            static get is() {
-                return 'opencga-variant-file-metrics'
-            };
 
             static get properties() {
                 return {
@@ -78,42 +67,49 @@
                     }
                 }
             }
-            //
-            // static get observers() {
-            //     return [
-            //         "propertyObserver(opencgaSession, variant, active, config)"
-            //     ];
-            // }
 
             _attachDom(dom) {
                 this.appendChild(dom);
             }
 
-            /**
-             * Init the variables you need, keep in mind this is executed before the actual Polymer properties exist
-             */
+            static get is() {
+                return 'opencga-variant-file-metrics'
+            };
+
+            constructor() {
+                super();
+
+                // Set status and init private properties
+                this._init();
+            }
+
+            // This is executed before the actual Polymer properties exist
             _init() {
                 // All id fields in the template must start with prefix, this allows components to be instantiated more than once
                 this.prefix = "ovfm" + Utils.randomString(6);
-
-                // Initially we set the default config, this will be overridden if 'config' is passed
-                this._config = this.getDefaultConfig();
             }
 
-            // propertyObserver(opencgaSession, variant, active, config) {
-            //     // With each property change we must updated config and create the columns again. No extra checks are needed.
-            //     this._config = Object.assign(this.getDefaultConfig(), this.config);
-            //
-            //     // this.fetchData(e);
-            // }
+            static get observers() {
+                return [
+                    "propertyObserver(opencgaSession, variant, config)"
+                ];
+            }
 
-            _getFileMetricsArray() {
-                if (this.variant === undefined || this.variant.studies === undefined) {
+            propertyObserver(opencgaSession, variant, config) {
+                this.renderTable();
+            }
+
+            renderTable() {
+                if (UtilsNew.isUndefinedOrNull(this.variant) || UtilsNew.isEmptyArray(this.variant.studies)) {
                     return [];
                 }
+
+                // We take the first study by default. Two possible improvements are:
+                // 1. we could pass a new studyId parameter to choose the study
+                // 2. render all of the studies in different tables or the same table with two-level columns
                 let files = this.variant.studies[0].files;
-                // Let's find all the existing attributes
                 let attributesSet = new Set();
+                // We find all the existing attributes
                 for (let file of files) {
                     for(let attr of Object.keys(file.attributes)) {
                         if (attr !== "QUAL" && attr !== "FILTER") {
@@ -133,7 +129,8 @@
                     }
                     result.push(tmp);
                 }
-                return result;
+                this._attributes = result;
+                // return result;
             }
 
             getDefaultConfig() {

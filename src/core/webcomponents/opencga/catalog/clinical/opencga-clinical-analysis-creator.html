@@ -385,7 +385,7 @@
                 return {
                     type: "FAMILY",
                     priority: "MEDIUM",
-                    assigned: {
+                    analyst: {
                         assignee: this.opencgaSession.user.id,
                     },
                     dueDate: moment().add(7, 'days').format("DD/MM/YYYY")
@@ -494,7 +494,7 @@
                 }
 
                 if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.assigned)) {
-                    $("#" + this.prefix + "Assigned").selectpicker('val', clinicalAnalysis.assigned.assignee);
+                    $("#" + this.prefix + "Assigned").selectpicker('val', clinicalAnalysis.analyst.assignee);
                 }
 
                 if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.priority)) {
@@ -714,8 +714,8 @@
                     ]
                 };
 
-                _clinicalAnalysis.assignee = _clinicalAnalysis.assigned.assignee;
-                delete _clinicalAnalysis.assigned;
+                _clinicalAnalysis.analyst = {assignee: _clinicalAnalysis.analyst.assignee};
+                // delete _clinicalAnalysis.assigned;
 
                 if (UtilsNew.isNotUndefinedOrNull(_clinicalAnalysis.family)) {
                     let _family = {

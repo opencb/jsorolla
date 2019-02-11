@@ -1,4 +1,4 @@
-<!--
+  <!--
   ~ Copyright 2015-2016 OpenCB
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -74,7 +74,6 @@
                     },
                     reportedVariants: {
                         type: Array,
-                        // value: [],
                         observer: 'renderFromLocal'
                     },
                     consequenceTypes: {
@@ -233,20 +232,18 @@
                                 _numTotal = resp.response[0].numTotalResults;
                             }
                             // Format the number string with commas
+                            _this.to = Math.min(resp.response[0].numResults, this.pageSize);
                             _this.numTotalResultsText = _numTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                             _this.approximateCountResult = resp.response[0].approximateCount;
                             return {total: _numTotal, rows: resp.response[0].result.reportedVariants}
                         },
                         onClickRow: function (row, $element, field) {
-                            $('.success').removeClass('success');
+                            $("#" + _this.prefix + "VariantBrowserGrid tr").removeClass('success');
                             $($element).addClass('success');
 
                             _this._onSelectVariant(row);
                         },
                         onCheck: function (row, $element) {
-//                            $('.success').removeClass('success');
-//                            $($element).addClass('success');
-
                             let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
                             _this.dispatchEvent(new CustomEvent('checkvariant', {
                                 detail: {
@@ -265,9 +262,6 @@
                             }));
                         },
                         onUncheck: function (row, $element) {
-//                            $('.success').removeClass('success');
-//                            $($element).addClass('success');
-
                             let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
                             _this.dispatchEvent(new CustomEvent('checkvariant', {
                                 detail: {
@@ -305,34 +299,8 @@
                             _this.to = page * size;
                         },
                         onPostBody: function (data) {
-                            // Add qtip2 tooltips to Zygosity genotypes
-                            $("div.zygositySampleTooltip").qtip({
-                                content: {
-                                    title: "File Metrics",
-                                    text: function (event, api) {
-                                        return $(this).attr('data-tooltip-text');
-                                    }
-                                },
-                                position: {
-                                    target: "mouse",
-                                    adjust: {
-                                        x: 2, y: 2,
-                                        mouse: false
-                                    }
-                                },
-                                style: {
-                                    width: "240px",
-                                },
-                                show: {
-                                    delay: 200
-                                },
-                                hide: {
-                                    fixed: true,
-                                    delay: 300
-                                }
-                            });
-
                             // Add tooltips
+                            _this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "File metrics", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
                             _this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
                             _this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
                             _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", _this.populationFrequencies);
@@ -389,16 +357,21 @@
                 }
 
                 if (UtilsNew.isNotEmptyArray(this.samples)) {
-                    let sampleIds = [];
-                    this.samples.forEach((sample) => {
-                        sampleIds.push(sample.id);
-                    });
+                    // Filters sample and genotype are exclusive
+                    if (UtilsNew.isUndefinedOrNull(queryParams.genotype)) {
+                        let sampleIds = [];
+                        this.samples.forEach((sample) => {
+                            sampleIds.push(sample.id);
+                        });
+                        queryParams.sample = sampleIds.join(";");
+                        // queryParams.includeSample = sampleIds.join(",");
+                    }
 
                     queryParams.summary = false;
-                    queryParams.includeSample = sampleIds.join(",");
                     queryParams.exclude = "annotation.geneExpression";
                     queryParams.approximateCount = true;
                     queryParams.useSearchIndex = "yes";
+                    queryParams.unknownGenotype = "0/0";
                 } else {
                     queryParams.summary = true;
                     // queryParams.exclude = "annotation.geneExpression";
@@ -428,17 +401,62 @@
             }
 
             renderFromLocal() {
+                this.from = 1;
+                this.to = Math.min(this.reportedVariants.length, this._config.pageSize);
+                this.numTotalResultsText = this.reportedVariants.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+                let _table = $('#' + this.prefix + 'VariantBrowserGrid');
                 let _this = this;
                 $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
                 $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable({
                     data: _this.reportedVariants,
                     columns: _this._columns,
+                    sidePagination: 'local',
+
+                    // Set table properties, these are read from config property
+                    uniqueId: "id",
+                    pagination: _this._config.pagination,
+                    pageSize: _this._config.pageSize,
+                    pageList: _this._config.pageList,
+                    showExport: _this._config.showExport,
+                    detailView: _this._config.detailView,
+                    detailFormatter: _this._config.detailFormatter,
+
+                    // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
+                    variantGrid: _this,
+
                     onClickRow: function (row, $element) {
-                        _this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-                        $('.success').removeClass('success');
+                        $("#" + _this.prefix + "VariantBrowserGrid tr").removeClass('success');
                         $($element).addClass('success');
+
+                        _this._onClickSelectedVariant(row);
+                    },
+                    onPageChange: function (page, size) {
+                        _this.from = (page - 1) * size + 1;
+                        _this.to = page * size;
+                    },
+                    onPostBody: function (data) {
+                        // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
+                        if (UtilsNew.isNotEmptyArray(data) && UtilsNew.isNotUndefinedOrNull(_table)) {
+                            PolymerUtils.querySelector(_table.selector).rows[2].setAttribute('class', 'success');
+                            _this._onClickSelectedVariant(data[0]);
+                        }
+
+                        // Add tooltips
+                        _this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "File metrics", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}})
+                        _this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
+                        _this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
+                        _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", _this.populationFrequencies);
+                        _this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("popFreqInfoIcon", _this.populationFrequencies);
                     }
                 });
+            }
+
+            _onClickSelectedVariant(row) {
+                if (typeof row !== "undefined") {
+                    let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+                    this.dispatchEvent(new CustomEvent('selectvariant2', {detail: {id: _variant, variant: row}}));
+                }
             }
 
             showGene(geneName) {
@@ -449,6 +467,9 @@
                 }));
             }
 
+            /*
+             *  GRID FORMATTERS
+             */
             detailFormatter(value, row, a) {
                 let result = "<div class='row'>";
                 let detailHtml = "";
@@ -524,35 +545,41 @@
             }
 
             zygosityFormatter(value, row, index) {
-                let res = "";
-                let res2 = "";
-                if (UtilsNew.isNotUndefinedOrNull(row.studies)) {
-                    let left, right;
-                    let mutationColor = "black";
+                let resultHtml = "";
 
-                    if (UtilsNew.isNotUndefinedOrNull(row.studies[0]) && UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData)
+                if (UtilsNew.isNotEmptyArray(row.studies)) {
+                    if (UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData)
                         && UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData[this.field.memberIdx])
                         && UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData[this.field.memberIdx][0])) {
 
+                        // First, get and check info fields QUAL, FILTER; and format fields DP, AD and GQ
+                        let qual = "-";
+                        let filter = "-";
+                        let dp, ad, gq;
+                        let mutationColor = "black";
                         let sampleFormat = row.studies[0].samplesData[this.field.memberIdx];
+                        // INFO fields
+                        for (let file of this.field.clinicalAnalysis.files[this.field.memberName]) {
+                            // Find the sample VCF file, if exists
+                            if (file.format === "VCF") {
+                                for (let studyFile of row.studies[0].files) {
+                                    if (studyFile.fileId === file.name) {
+                                        qual = Number(studyFile.attributes.QUAL).toFixed(2);
+                                        if (qual < this.field.quality.qual) {
+                                            mutationColor = "silver";
+                                        }
 
-                        // TODO
-                        // Check qualities values
-                        let qual, filter, dp, ad, gq;
+                                        filter = studyFile.attributes.FILTER;
+                                        if (filter !== "PASS") {
+                                            mutationColor = "silver";
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        // FORMAT fields
                         for (let formatField in row.studies[0].format) {
                             switch (row.studies[0].format[formatField]) {
-                                case "QUAL":
-                                    qual = sampleFormat[formatField];
-                                    if (qual < this.field.quality.qual) {
-                                        mutationColor = "silver";
-                                    }
-                                    break;
-                                case "FILTER":
-                                    filter = sampleFormat[formatField];
-                                    if (filter !== "PASS") {
-                                        mutationColor = "silver";
-                                    }
-                                    break;
                                 case "DP":
                                     dp = sampleFormat[formatField];
                                     if (dp < this.field.quality.dp) {
@@ -568,34 +595,54 @@
                             }
                         }
 
+                        // Second, prepare the visual representation of genotypes
+                        let left, right;
+                        let leftRadio = 8;
+                        let rightRadio = 8;
+                        let genotypeSplitRegExp = new RegExp("[/|]");
                         let sampleGT = row.studies[0].samplesData[this.field.memberIdx][0];
-                        switch (sampleGT) {
-                            case "0/0":
-                            case "0|0":
-                                left = "white";
-                                right = "white";
-                                break;
-                            case "0/1":
-                            case "1/0":
-                                left = "white";
-                                right = mutationColor;
-                                break;
-                            case "1/1":
-                            case "1|1":
-                                left = mutationColor;
-                                right = mutationColor;
-                                break;
+                        if (sampleGT === "0/1" || sampleGT === "1/0") {
+                            // If genotype si 0/1 or 1/0 they must be displayed like 0/1 (not phased)
+                            left = "white";
+                            right = mutationColor;
+                        } else {
+                            let genotypes = sampleGT.split(genotypeSplitRegExp);
+                            switch (genotypes[0]) {
+                                case "0":
+                                    left = "white";
+                                    break;
+                                case "1":
+                                    left = mutationColor;
+                                    break;
+                                case ".":
+                                    left = "red";
+                                    leftRadio = 1;
+                                    break;
+                            }
+                            switch (genotypes[1]) {
+                                case "0":
+                                    right = "white";
+                                    break;
+                                case "1":
+                                    right = mutationColor;
+                                    break;
+                                case ".":
+                                    right = "red";
+                                    rightRadio = 1;
+                                    break;
+                            }
                         }
 
+                        // Third, prepare the tooltip information
                         let tooltipText = `<div class="col-md-12" style="padding: 0px">
                                             <form class="form-horizontal">
                                                 <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-5">QUAL</label>
-                                                    <div class="col-md-7">${Number(row.studies[0].files[0].attributes.QUAL).toFixed(2)}</div>
+                                                    <div class="col-md-7">${qual}</div>
                                                 </div>
                                                 <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-5">FILTER</label>
-                                                    <div class="col-md-7">${row.studies[0].files[0].attributes.FILTER.substring(0, 12)}</div>
+                                                    <div class="col-md-7">${filter}</div>
                                                 </div>
                                                 <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-5">DP</label>
@@ -612,28 +659,18 @@
                                             </form>
                                            </div>`;
 
-                        res = `<table>
-                                <tr style="padding: 0px;">
-                                    <td style="padding: 0px">
-                                        <div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: ${left}'></div>
-                                    </td>
-                                    <td style="padding: 0px">
-                                        <div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style='width: 15px;height: 15px;border: 1px solid black;border-radius: 50%;background-color: ${right}'></div>
-                                    </td>
-                                </tr>
-                           </table>`;
-
-                        res2 = `<div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style="width: 70px" align="center">
-                                    <svg viewBox="0 0 70 30" xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="20" cy="15" r="8" style="stroke: black;fill: ${left}"/>
-                                        <circle cx="50" cy="15" r="8" style="stroke: black;fill: ${right}"/>
-                                    </svg>
-                                </div>
-                            `;
+                        // Last, put everything together and display
+                        resultHtml = `<div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style="width: 70px" align="center">
+                                        <svg viewBox="0 0 70 30" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="20" cy="15" r="${leftRadio}" style="stroke: black;fill: ${left}"/>
+                                            <circle cx="50" cy="15" r="${rightRadio}" style="stroke: black;fill: ${right}"/>
+                                        </svg>
+                                      </div>
+                                `;
                     }
                 }
 
-                return res2;
+                return resultHtml;
             }
 
             pathogeniticyFormatter(value, row, index) {
@@ -960,7 +997,8 @@
                             field: {
                                 memberIdx: i,
                                 memberName: this.samples[i].id,
-                                quality: this._config.quality
+                                quality: this._config.quality,
+                                clinicalAnalysis: this.clinicalAnalysis
                             },
                             rowspan: 1,
                             colspan: 1,
@@ -971,14 +1009,14 @@
                     }
 
                     // Add Proband File Metrics
-                    this._columns[0].splice(5, 0, {
-                        title: "Pathogenicity",
-                        field: "pathogenicity",
-                        rowspan: 2,
-                        colspan: 1,
-                        formatter: this.pathogeniticyFormatter,
-                        halign: 'center'
-                    });
+                    // this._columns[0].splice(5, 0, {
+                    //     title: "Pathogenicity",
+                    //     field: "pathogenicity",
+                    //     rowspan: 2,
+                    //     colspan: 1,
+                    //     formatter: this.pathogeniticyFormatter,
+                    //     halign: 'center'
+                    // });
                 }
             }
 
@@ -1071,7 +1109,7 @@
 
                     quality: {
                         qual: 30,
-                        dp: 40
+                        dp: 20
                     },
                     populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"]
                 }

@@ -252,12 +252,13 @@
                                 _numTotal = resp.response[0].numTotalResults;
                             }
                             // Format the number string with commas
+                            _this.to = Math.min(resp.response[0].numResults, this.pageSize);
                             _this.numTotalResultsText = _numTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                             _this.approximateCountResult = resp.response[0].approximateCount;
                             return {total: _numTotal, rows: resp.response[0].result}
                         },
                         onClickRow: function (row, $element, field) {
-                            $('.success').removeClass('success');
+                            $("#" + _this.prefix + "VariantBrowserGrid tr").removeClass('success');
                             $($element).addClass('success');
 
                             _this._onSelectVariant(row);

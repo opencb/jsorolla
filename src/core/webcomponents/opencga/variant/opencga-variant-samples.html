@@ -367,7 +367,7 @@
             // }
 
             _querySamples(e) {
-                if (this.variant.split(':').length > 2 && this.active) {
+                if (UtilsNew.isNotUndefinedOrNull(this.variant) && this.variant.split(':').length > 2 && this.active) {
                     let params = {
                         id: this.variant,
                         study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
