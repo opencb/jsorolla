@@ -127,6 +127,13 @@ class OpenCGAClient {
         return this._clinical;
     }
 
+    interpretations() {
+        if (typeof this._interpretations === "undefined") {
+            this._interpretations = new Interpretation(this._config);
+        }
+        return this._interpretations;
+    }
+
     variables() {
         if (typeof this._variables === "undefined") {
             this._variables = new Variables(this._config);
@@ -1182,6 +1189,20 @@ class Clinical extends Acls {
 
     search(params, options) {
         return this.get("analysis/clinical", undefined, "search", params, options);
+    }
+
+}
+
+class Interpretation extends OpenCGAParentClass {
+
+    constructor(config) {
+        super(config);
+    }
+
+    create(clinicalAnalysis, params, body, options) {
+        let _params = Object.assign({}, params);
+        _params["action"] = "ADD";
+        return this.extendedPost("analysis/clinical", clinicalAnalysis, "interpretations", undefined, "update", _params, body, options);
     }
 
 }
