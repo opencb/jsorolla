@@ -55,76 +55,157 @@ class ExonViewer {
             SVG.addChild(svg, "rect", {width: config.width, height: config.height, style: "fill: white;stroke: black"});
         }
 
-        let scaleFactor = this._calculateScaleFactor(config);
+        let features = this._parseExons(config);
+        let scaleFactor = this._calculateScaleFactor(features, config);
         let height = config.tracks.height;
 
-        console.log("Number of exons: " + this.exons.length);
+        console.log("Number of features: " + exons.length);
 
-        this._renderTranscript(scaleFactor, height, config.display.compact, svg);
+        this._renderTranscript(features, scaleFactor, height, config.display.compact, svg);
 
         for (let i = 0; i < this.tracks.length; i++) {
             if (this.tracks[i].type === "feature") {
-                this._renderFeatures(this.tracks[i], scaleFactor, height + 15, height, config.display.compact, svg);
+                let groupHeight = this._renderFeatures(this.tracks[i], features, scaleFactor, height, config.display.compact, svg);
+                svg.lastChild.setAttribute("transform", `translate(0 ${height + 10}) scale (1 ${height / groupHeight})`);
             }
         }
-
 
         return svg;
     }
 
-    _calculateScaleFactor(config) {
-        let length = 0;
-        let width = config.width;
+    _parseExons(config) {
+        // We transform the list of exons and extend it to a list of features containing 5`UTR regions, exons, introns..
+        let features = [];
+        let virtualStart = 0;
+
+        let UTR_bps = 200;
+        let pixelsOfIntronsInCompactMode = 5;
+        let scaleFactor = 1;
 
         if (config.display.compact) {
+            // We will need to calculate first the scale factor to be able to convert the number of pixels we want to represent introns with
+            // to bps
+
+            // The number of pixels we will have available to represent the whole exon structure will be:
+            // width - (n_introns * pixels_of_intron)
+            let effectiveWidth = config.width - ((this.exons.length - 1) * pixelsOfIntronsInCompactMode);
+
+            // Now we calculate the total bp area without taking into account the introns
+            let area = UTR_bps * 2;
             for (let i = 0; i < this.exons.length; i++) {
-                length += this.exons[i].end - this.exons[i].start + 1;
+                area += this.exons[i].end - this.exons[i].start + 1;
             }
 
-            // We substract 5px for every intron we have to the width
-            if (this.exons.length > 1) {
-                width -= (this.exons.length - 1) * 5;
-            }
-
-            console.log("Total exon length: " + length);
-        } else {
-            length = this.exons[this.exons.length - 1].end - this.exons[0].start + 1;
-
-            console.log("Total transcript length: " + length);
+            scaleFactor = effectiveWidth / area;
         }
 
+        features.push({
+            start: this.exons[0].start - UTR_bps - 1,
+            end: this.exons[0].start - 1,
+            vStart: virtualStart,
+            vEnd: virtualStart + UTR_bps,
+            type: "UTR"
+        });
 
-        return width / length;
+        virtualStart += UTR_bps;
+
+        for (let i = 0; i < this.exons.length; i++) {
+            features.push(Object.assign(this.exons[i], {
+                start: this.exons[i].start,
+                end: this.exons[i].end,
+                vStart: virtualStart,
+                vEnd: virtualStart + this.exons[i].end - this.exons[i].start + 1,
+                type: "EXON"
+            }));
+
+            virtualStart += this.exons[i].end - this.exons[i].start + 1;
+
+            if (this.exons.length > (i + 1)) {
+                // We must represent an intron
+                let intronStart = 0;
+                let intronEnd = 0;
+                if (config.display.compact) {
+                    intronStart = this.exons[i].end;
+                    intronEnd = intronStart + (pixelsOfIntronsInCompactMode / scaleFactor);
+                } else {
+                    intronStart = this.exons[i].end;
+                    intronEnd = this.exons[i + 1].start;
+                }
+                features.push({
+                    start: this.exons[i].end,
+                    end: this.exons[i + 1].start,
+                    vStart: virtualStart,
+                    vEnd: virtualStart + intronEnd - intronStart + 1,
+                    type: "INTRON"
+                });
+
+                virtualStart += intronEnd - intronStart + 1;
+            }
+        }
+
+        features.push({
+            start: this.exons[this.exons.length - 1].end,
+            end: this.exons[this.exons.length - 1].end + UTR_bps,
+            vStart: virtualStart,
+            vEnd: virtualStart + UTR_bps,
+            type: "UTR"
+        });
+
+        return features;
     }
 
-    _renderTranscript(scaleFactor, height, compact, svg) {
+    _calculateScaleFactor(exons, config) {
+        let length = exons[exons.length - 1].vEnd - exons[0].vStart + 1;
+        let width = config.width;
+
+        return width / length;
+
+        // if (config.display.compact) {
+        //     for (let i = 0; i < this.exons.length; i++) {
+        //         length += this.exons[i].end - this.exons[i].start + 1;
+        //     }
+        //
+        //     // We substract 5px for every intron we have to the width
+        //     if (this.exons.length > 1) {
+        //         width -= (this.exons.length - 1) * 5;
+        //     }
+        //
+        //     console.log("Total exon length: " + length);
+        // } else {
+        //     length = this.exons[this.exons.length - 1].end - this.exons[0].start + 1;
+        //
+        //     console.log("Total transcript length: " + length);
+        // }
+
+
+        // return width / length;
+    }
+
+    _renderTranscript(features, scaleFactor, height, compact, svg) {
+        let quarterHeight = height/4;
         let medium = height/2;
 
         // Draw the exons
         let path = [];
 
         let start = 0;
-        for (let i = 0; i < this.exons.length; i++) {
-            let exonWidth = this.exons[i].end - this.exons[i].start + 1;
+        for (let i = 0; i < features.length; i++) {
+            let featureWidth = features[i].vEnd - features[i].vStart + 1;
 
-            // Move to the right
-            path.push(`M ${start} 0 H ${start + (exonWidth * scaleFactor)} V ${height} H ${(start)} V 0`);
+            if (features[i].type === "EXON") {
+                // Move to the right
+                path.push(`M ${start} 0 H ${start + (featureWidth * scaleFactor)} V ${height} H ${(start)} V 0`);
+            } else if (features[i].type === "INTRON") {
+                // There is an intron we need to draw
+                path.push(`M ${start} ${medium} H ${start + (featureWidth * scaleFactor)}`);
+            } else if (features[i].type === "UTR") {
+                // There is UTR we need to draw
+                path.push(`M ${start} ${quarterHeight + medium} H ${start + (featureWidth * scaleFactor)} V ${quarterHeight} H ${(start)} 
+                           V 0`);
+            }
 
             // Move the start point
-            start += (exonWidth * scaleFactor);
-
-            if (this.exons.length > (i + 1)) {
-
-                let intronWidth = 5;
-                if (!compact) {
-                    intronWidth = (this.exons[i + 1].start - this.exons[i].end + 1) * scaleFactor;
-                }
-                // There is an intron we need to draw
-                path.push(`M ${start} ${medium} H ${start + intronWidth}`);
-
-                // Increase the start point
-                start += intronWidth;
-            }
+            start += (featureWidth * scaleFactor);
         }
         path.push("Z");
 
@@ -137,10 +218,11 @@ class ExonViewer {
         });
     }
 
-    _renderFeatures(track, pixelBase, yAxisBase, trackHeight, compact, svg) {
+    _renderFeatures(track, globalFeatures, scaleFactor, trackHeight, compact, svg) {
         // Draw the features
         let path = [];
 
+        let maxHeight = 0;
         let heightInc = 10;
         let renderedArea = {};
 
@@ -156,9 +238,14 @@ class ExonViewer {
 
                 let enc = renderedArea[currentHeight].add({ start: feature.start, end: feature.end });
                 if (enc) {
+                    if (maxHeight < currentHeight) {
+                        maxHeight = currentHeight;
+                    }
+
                     featureFitted = true;
 
-                    let [start, end] = this._calculatePixelPositions(feature, pixelBase, compact);
+                    let start = this._calculatePixelPosition(feature.start, globalFeatures, scaleFactor, compact);
+                    let end = this._calculatePixelPosition(feature.end, globalFeatures, scaleFactor, compact);
                     path.push(`M ${start} ${currentHeight} H ${end} V ${currentHeight + trackHeight} H ${start} V ${currentHeight}`);
                 }
 
@@ -168,82 +255,54 @@ class ExonViewer {
         }
         path.push("Z");
 
-        SVG.addChild(svg, "path", {
+        let group = SVG.addChild(svg, "g", {
+        });
+
+        SVG.addChild(group, "path", {
             d: path.join(" "),
-            stroke: "black",
+            stroke: "red",
             "stroke-width": 0.5,
-            fill: "grey",
+            fill: "orange",
             "fill-opacity": 0.5,
         });
+
+        return maxHeight;
     }
 
-    _calculatePixelPositions(feature, pixelBase, compact) {
-        if (!compact) {
-            let exonStart = this.exons[0].start;
-            return [(feature.start - exonStart) * pixelBase, (feature.end- exonStart) * pixelBase];
+    _calculatePixelPosition(position, globalFeatures, scaleFactor) {
+        if (position < globalFeatures[0].start) {
+            return globalFeatures[0].vStart * scaleFactor;
+        } else if (position > globalFeatures[globalFeatures.length - 1].end) {
+            return globalFeatures[globalFeatures.length - 1].vEnd * scaleFactor;
+        }
+
+        // Find the pixel
+        for (let i = 0; i < globalFeatures.length; i++) {
+            if (position > globalFeatures[i].start && position <= globalFeatures[i].end) {
+                let featureLength = globalFeatures[i].end - globalFeatures[i].start + 1;
+                let pctgRegion = (position - globalFeatures[i].start) / featureLength;
+
+                // We calculate the region within the virtual start/end
+                let positionVirtualRegion = globalFeatures[i].vStart + ((globalFeatures[i].vEnd - globalFeatures[i].vStart + 1)
+                    * pctgRegion);
+                return positionVirtualRegion * scaleFactor;
+            }
         }
     }
 
-    // // This function create the different color Patterns in a SVG 'defs' section
-    // _createSvgDefs(family, config) {
-    //     let svgDefs = SVG.create("defs");
-    //
-    //     // Default color pattern when no disease exist
-    //     let pattern = SVG.create("pattern", {id: "PatternWhite", x: 0, y: 0, width: 1, height: 1});
-    //     let rect = SVG.create("rect", {
-    //         x: 0,                   y: 0,
-    //         width: config.box,    height: config.box,
-    //         fill: "white"});
-    //     pattern.appendChild(rect);
-    //     svgDefs.appendChild(pattern);
-    //
-    //     // We create all possible combination (incrementally with no reptition, eg. 0, 01, 02, 1, 12, ...)
-    //     for (let i = 0; i < family.phenotypes.length; i++) {
-    //         // Add the single disease color, eg. 0, 1, 2
-    //         let pattern = SVG.create("pattern", {id: "Pattern_" + i, x: 0, y: 0, width: 1, height: 1});
-    //         let rect = SVG.create("rect", {
-    //             x: 0,                   y: 0,
-    //             width: config.box,    height: config.box,
-    //             fill: config.colors[i]});
-    //         pattern.appendChild(rect);
-    //         svgDefs.appendChild(pattern);
-    //
-    //         // Add the double disease color, eg. 01, 02, 12, ...
-    //         for (let j = i + 1; j < family.phenotypes.length; j++) {
-    //             let pattern = SVG.create("pattern", {id: "Pattern_" + i + j, x: 0, y: 0, width: 1, height: 1});
-    //             let rect1 = SVG.create("rect", {
-    //                 x: 0,                       y: 0,
-    //                 width: config.box / 2,    height: config.box,
-    //                 fill: config.colors[i]});
-    //             let rect2 = SVG.create("rect", {
-    //                 x: config.box / 2,        y: 0,
-    //                 width: config.box / 2,    height: config.box,
-    //                 fill: config.colors[j]});
-    //             pattern.appendChild(rect1);
-    //             pattern.appendChild(rect2);
-    //             svgDefs.appendChild(pattern);
-    //         }
-    //     }
-    //
-    //     return svgDefs;
-    // }
-    //
-    // _isOrphan(member) {
-    //     return (member.father === undefined || member.father=== null) && (member.mother === undefined || member.mother.id === null)
-    // }
 
     getDefaultConfig() {
         return {
             width: 1500,
             height: 100,
             tracks: {
-                height: 20
+                height: 30
             },
             display: {
-                compact: false
+                compact: true
             },
             colors: {
-                
+
             },
             border: true
         };
