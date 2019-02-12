@@ -406,7 +406,7 @@
 
                 let assigned = $(`#${this.prefix}-assigned`).selectpicker('val');
                 if (UtilsNew.isNotEmpty(assigned)) {
-                    _query.assigned = assigned.join(",");
+                    _query.analystAssignee = assigned.join(",");
                 }
 
                 this._query = _query;
@@ -446,7 +446,7 @@
                 }
 
                 if (UtilsNew.isNotUndefinedOrNull(query.assigned)) {
-                    $("#" + this.prefix + "-assigned").selectpicker('val', query.assigned.split(","));
+                    $("#" + this.prefix + "-assigned").selectpicker('val', query.analystAssignee.split(","));
                 }
             }
 
