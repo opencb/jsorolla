@@ -570,13 +570,6 @@ debugger
                 }
             }
 
-            assigneeFormatter(value, row) {
-                if (UtilsNew.isUndefinedOrNull(value)) {
-                    return "-";
-                }
-                return moment(value, "YYYYMMDDHHmmss").format('D MMM YYYY');
-            }
-
             dateFormatter(value, row) {
                 if (UtilsNew.isUndefinedOrNull(value)) {
                     return "-";
@@ -685,10 +678,9 @@ debugger
                             },
                             {
                                 title: 'Assigned To',
-                                field: 'assigned.assignee',
+                                field: 'analyst.assignee',
                                 align: 'center',
                                 valign: 'middle',
-                                // formatter: this.assigneeFormatter
                             },
                             {
                                 title: 'Creation Date',
