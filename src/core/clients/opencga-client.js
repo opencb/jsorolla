@@ -1238,6 +1238,15 @@ class Alignment extends OpenCGAParentClass {
         return this.get("analysis/alignment", undefined, "coverage", _params, options);
     }
 
+    lowCoverage(id, params, options) {
+        let _params = params;
+        if (_params === undefined) {
+            _params = {};
+        }
+        _params.file = id;
+        return this.get("analysis/alignment", undefined, "lowCoverage", _params, options);
+    }
+
 }
 
 class Variant extends OpenCGAParentClass {

@@ -69,7 +69,7 @@ class ExonViewer {
         let scaleFactor = this._calculateScaleFactor(features, config);
         let height = config.tracks.height;
 
-        console.log("Number of features: " + exons.length);
+        console.log("Number of features: " + features.length);
 
         this._renderCoverage(features, scaleFactor, svg, config);
         this._adjustLastSVGGroupAndAddText(svg, "Coverage", 0, 100, 100, config);
@@ -109,7 +109,12 @@ class ExonViewer {
             }
         }
 
-        return svg;
+        if (this.div.childElementCount > 0) {
+            // Remove old svg
+            this.div.firstChild.remove();
+        }
+        // Add current svg
+        this.div.appendChild(svg);
     }
 
     _parseExons(config) {

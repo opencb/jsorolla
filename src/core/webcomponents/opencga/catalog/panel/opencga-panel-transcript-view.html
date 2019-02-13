@@ -1,0 +1,225 @@
+<dom-module id="opencga-panel-transcript-view">
+    <template>
+
+        <div style="margin: 15px">
+            <select class="selectpicker" id="{{prefix}}-geneSelect" data-width="100%">
+                <template is="dom-repeat" items="{{genes}}">
+                    <option data-gene="{{item}}">{{item.name}}</option>
+                </template>
+            </select>
+
+            <div id="{{prefix}}-svg" style="width: 100%; height: 500px; margin-top: 10px;"></div>
+
+
+        </div>
+
+    </template>
+
+    <script>
+        class OpencgaPanelTranscriptView extends Polymer.Element {
+
+            constructor() {
+                super();
+                this._init();
+            }
+
+            static get is() {
+                return 'opencga-panel-transcript-view';
+            }
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object
+                    },
+                    cellbaseClient: {
+                        type: Object
+                    },
+                    panel: {
+                        type: Object
+                    },
+                    config: {
+                        type: Object
+                    }
+                }
+            }
+
+            static get observers() {
+                return ['propertyObserver(opencgaSession, cellbaseClient, panel, config)'];
+            }
+
+            _init() {
+                this.prefix = "PanelTranscriptView" + Utils.randomString(6);
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+
+                // We add this first listener to get a call whenever the first element is loaded
+                $(`#${this.prefix}-geneSelect`).on('loaded.bs.select', this.onGeneChange.bind(this));
+                // We add this listener to receive any future change over the selected genes
+                $(`#${this.prefix}-geneSelect`).on('changed.bs.select', this.onGeneChange.bind(this));
+            }
+
+            propertyObserver(opencgaSession, cellbaseClient, panel, config) {
+                this._config = Object.assign(this.getDefaultConfig(), config);
+
+                if (UtilsNew.isNotUndefinedOrNull(opencgaSession) && UtilsNew.isNotUndefinedOrNull(cellbaseClient)
+                    && UtilsNew.isNotUndefinedOrNull(panel)) {
+                    this._fetchGenesFromPanel();
+                }
+            }
+
+            _fetchGenesFromPanel() {
+                let _this = this;
+                this.opencgaSession.opencgaClient.panels().info(this.panel, {study: this.opencgaSession.study.fqn})
+                    .then(function(response) {
+                        _this.genes = response.response[0].result[0].genes;
+                    });
+            }
+
+            onGeneChange(e, clickedIndex, isSelected, previousValue) {
+                // TODO: Remove hardcoded file
+                let file = "NA12877_S1.bam";
+
+                let _this = this;
+                let promises = [];
+                promises.push(this.cellbaseClient.get('feature', 'gene', e.currentTarget.value, 'info',
+                    { assembly: this.opencgaSession.project.organism.assembly }, {}));
+                    // .then(function(response) {
+                    //     let metatranscript = _this._createMetaTranscript(response.response[0].result[0]);
+                    //
+                    // });
+                promises.push(this.opencgaSession.opencgaClient.alignments().coverage(file,
+                    { study: this.opencgaSession.study.fqn, gene: e.currentTarget.value, geneOffset: 300,
+                      windowSize: 100 }));
+
+                promises.push(this.opencgaSession.opencgaClient.alignments().lowCoverage(file,
+                    { study: this.opencgaSession.study.fqn, gene: e.currentTarget.value, geneOffset: 300,
+                      minCoverage: 40 }));
+
+                Promise.all(promises).then(function(responses) {
+                    let metaTranscript = _this._createMetaTranscript(responses[0].response[0].result[0]);
+
+                    let tracks = [];
+                    // tracks.push({
+                    //     name: "TFBS",
+                    //     type: "feature",
+                    //     data: responses[0].response[0].result[0].tfbs
+                    // });
+                    tracks.push({
+                        name: "Coverage",
+                        type: "coverage",
+                        data: responses[1].response[0].result[0]
+                    });
+                    tracks.push({
+                        name: "Low coverage",
+                        type: "lowcoverage",
+                        data: responses[1].response[0].result[0].values
+                    });
+
+                    let exonViewer = new ExonViewer(`${_this.prefix}-svg`, metaTranscript, tracks);
+                    exonViewer.render();
+                });
+            }
+
+            _createMetaTranscript(gene) {
+                let exons = [];
+
+                // We create a copy of all the exons from the first transcript
+                for (let i = 0; i < gene.transcripts[0].exons.length; i++) {
+                    exons.push(Object.assign({}, gene.transcripts[0].exons[i]));
+                }
+                if (gene.transcripts.length === 1) {
+                    return exons;
+                }
+
+                // We need to modify the information we have to include the exons of each of the transcripts
+                for (let i = 1; i < gene.transcripts.length; i++) {
+                    // lastIndex visited from the final list of exons to avoid looping again the first positions
+                    // if it is not necessary
+                    let lastIndex = 0;
+                    for (let j = 0; j < gene.transcripts[i].exons.length; j++) {
+                        let exon = gene.transcripts[i].exons[j];
+
+                        for (let w = lastIndex; w < exons.length; w++) {
+                            // We check if the current exon is located before the first of the exons we have stored
+                            if (exons[w].start > exon.end) {
+                                exons.splice(lastIndex + w, 0, Object.assign({}, exon));
+                                lastIndex += w + 1;
+                                break;
+                            }
+
+                            let changed = false;
+                            // Exon stored                   |---------|
+                            // Exon analysed             |-------
+                            if (exons.start < exons[w].start && exon.end >= exons[w].start) {
+                                // We modify the start value of the stored exon
+                                exons[w].start = exon.start;
+                                changed = true;
+                            }
+
+                            // Exon stored                   |---------|
+                            // Exon analysed                       -------|
+                            if (exons.start >= exons[w].start && exon.end > exons[w].end) {
+                                // We modify the end value of the stored exon
+                                exons[w].end = exon.end;
+                                changed = true;
+                            }
+
+                            if (changed) {
+                                lastIndex = w;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // Once we have merged all the exons, we need to remove any overlapping exon that might have resulted
+                // from the previous merge
+                let finalListOfExons = [];
+                do {
+                    for (let i = 0; i < exons.length - 1; i++) {
+                        let exon = exons[i];
+                        finalListOfExons.push(exon);
+
+                        if (i === exons.length - 2) {
+                            if (exons[i + 1].start <= exon.end) {
+                                exon.end = Math.max(exon.end, exons[i + 1].end);
+                                // We increment i to skip the next exon
+                                i++;
+                            } else {
+                                finalListOfExons.push(exons[i + 1]);
+                            }
+                        } else {
+                            if (exons[i + 1].start <= exon.end) {
+                                exon.end = Math.max(exon.end, exons[i + 1].end);
+                                // We increment i to skip the next exon
+                                i++;
+                            }
+                        }
+                    }
+
+                    if (finalListOfExons.length !== exons.length) {
+                        // We copy finalListOfExons into exons (source) and empty finalListOfExons to do another iteration
+                        exons = finalListOfExons;
+                        finalListOfExons = [];
+                    }
+                } while (finalListOfExons.length !== exons.length);
+
+                return finalListOfExons;
+            }
+
+            getDefaultConfig() {
+                return {
+                }
+            }
+        }
+
+        customElements.define(OpencgaPanelTranscriptView.is, OpencgaPanelTranscriptView);
+    </script>
+</dom-module>
