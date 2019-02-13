@@ -61,12 +61,23 @@ class ExonViewer {
 
         console.log("Number of features: " + exons.length);
 
-        this._renderTranscript(features, scaleFactor, height, config.display.compact, svg);
+        this._renderTranscript(features, scaleFactor, height, config, svg);
 
         for (let i = 0; i < this.tracks.length; i++) {
             if (this.tracks[i].type === "feature") {
                 let groupHeight = this._renderFeatures(this.tracks[i], features, scaleFactor, height, config.display.compact, svg);
-                svg.lastChild.setAttribute("transform", `translate(0 ${height + 10}) scale (1 ${height / groupHeight})`);
+                svg.lastChild.setAttribute("transform", `translate(${config.display.titleWidth + 20} ${height + 10}) 
+                                                         scale (1 ${height / groupHeight})`);
+
+                // Add the text to the left of the SVG
+                SVG.addChild(svg, "text", {
+                    x: 10,
+                    y: height/2 + height/4 + ((height + 10) * (i + 1)),
+                    // textLength: config.display.titleWidth,
+                    stroke: "black",
+                    fill: "black",
+                    // lengthAdjust: "spacing"
+                }).append(this.tracks[i].name);
             }
         }
 
@@ -76,7 +87,7 @@ class ExonViewer {
     _parseExons(config) {
         // We transform the list of exons and extend it to a list of features containing 5`UTR regions, exons, introns..
         let features = [];
-        let virtualStart = 0;
+        let virtualStart = config.display.titleWidth + 20;
 
         let UTR_bps = 200;
         let pixelsOfIntronsInCompactMode = 5;
@@ -88,7 +99,7 @@ class ExonViewer {
 
             // The number of pixels we will have available to represent the whole exon structure will be:
             // width - (n_introns * pixels_of_intron)
-            let effectiveWidth = config.width - ((this.exons.length - 1) * pixelsOfIntronsInCompactMode);
+            let effectiveWidth = (config.width - config.display.titleWidth - 20) - ((this.exons.length - 1) * pixelsOfIntronsInCompactMode);
 
             // Now we calculate the total bp area without taking into account the introns
             let area = UTR_bps * 2;
@@ -156,7 +167,7 @@ class ExonViewer {
 
     _calculateScaleFactor(exons, config) {
         let length = exons[exons.length - 1].vEnd - exons[0].vStart + 1;
-        let width = config.width;
+        let width = config.width - config.display.titleWidth - 20;
 
         return width / length;
 
@@ -181,14 +192,23 @@ class ExonViewer {
         // return width / length;
     }
 
-    _renderTranscript(features, scaleFactor, height, compact, svg) {
+    _renderTranscript(features, scaleFactor, height, config, svg) {
         let quarterHeight = height/4;
         let medium = height/2;
+
+        SVG.addChild(svg, "text", {
+            x: 10,
+            y: medium + quarterHeight,
+            // textLength: config.display.titleWidth,
+            stroke: "black",
+            fill: "black",
+            // lengthAdjust: "spacing"
+        }).append(features[1].id);
 
         // Draw the exons
         let path = [];
 
-        let start = 0;
+        let start = config.display.titleWidth + 20;
         for (let i = 0; i < features.length; i++) {
             let featureWidth = features[i].vEnd - features[i].vStart + 1;
 
@@ -201,7 +221,7 @@ class ExonViewer {
             } else if (features[i].type === "UTR") {
                 // There is UTR we need to draw
                 path.push(`M ${start} ${quarterHeight + medium} H ${start + (featureWidth * scaleFactor)} V ${quarterHeight} H ${(start)} 
-                           V 0`);
+                           V ${quarterHeight + medium}`);
             }
 
             // Move the start point
@@ -299,6 +319,7 @@ class ExonViewer {
                 height: 30
             },
             display: {
+                titleWidth: 150,
                 compact: true
             },
             colors: {

@@ -35,8 +35,19 @@
     function render() {
         let tracks = [];
         tracks.push({
+            name: "TFBS",
             type: "feature",
             data: brca2.transcripts[0].tfbs
+        });
+        tracks.push({
+            name: "Coverage",
+            type: "coverage",
+            data: coverage
+        });
+        tracks.push({
+           name: "Low coverage",
+           type: "lowcoverage",
+           data: lowCoverage
         });
 
         let exonViewer = new ExonViewer("transcriptDiv", brca2.transcripts[0].exons, tracks);
