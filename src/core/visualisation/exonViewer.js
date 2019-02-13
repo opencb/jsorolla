@@ -26,7 +26,17 @@ class ExonViewer {
             this.div = div;
         }
         this.exons = exons;
-        this.tracks = tracks;
+        let featureTracks = [];
+        for (let i = 0; i < tracks.length; i++) {
+            if (tracks[i].type === "feature") {
+                featureTracks.push(tracks[i]);
+            } else if (tracks[i].type === "coverage") {
+                this.coverage = tracks[i].data;
+            } else if (tracks[i].type === "lowcoverage") {
+                this.lowCoverage = tracks[i].data;
+            }
+        }
+        this.tracks = featureTracks;
         this.config = config;
     }
 
@@ -61,23 +71,41 @@ class ExonViewer {
 
         console.log("Number of features: " + exons.length);
 
-        this._renderTranscript(features, scaleFactor, height, config, svg);
+        this._renderCoverage(features, scaleFactor, svg, config);
+        this._adjustLastSVGGroupAndAddText(svg, "Coverage", 0, 100, 100, config);
+        // this._adjustSVGGroupAndAddText("Coverage", svg.lastChild, currentHeight, trackHeight);
+        // svg.lastChild.setAttribute("transform", `translate(${config.display.titleWidth + 20} 0)
+        //                                                  scale (1 ${(height * 2) / 100})`);
+        // // Add the text to the left of the SVG
+        // SVG.addChild(svg, "text", {
+        //     x: 10,
+        //     y: height/2 + height/4,
+        //     // textLength: config.display.titleWidth,
+        //     stroke: "black",
+        //     fill: "black",
+        //     // lengthAdjust: "spacing"
+        // }).append("Coverage");
 
+        this._renderTranscript(features, scaleFactor, height, config, svg);
+        this._adjustLastSVGGroupAndAddText(svg, features[1].id, 110, height, height, config);
+
+        let currentY = 110 +  height + 10;
         for (let i = 0; i < this.tracks.length; i++) {
             if (this.tracks[i].type === "feature") {
                 let groupHeight = this._renderFeatures(this.tracks[i], features, scaleFactor, height, config.display.compact, svg);
-                svg.lastChild.setAttribute("transform", `translate(${config.display.titleWidth + 20} ${height + 10}) 
-                                                         scale (1 ${height / groupHeight})`);
-
-                // Add the text to the left of the SVG
-                SVG.addChild(svg, "text", {
-                    x: 10,
-                    y: height/2 + height/4 + ((height + 10) * (i + 1)),
-                    // textLength: config.display.titleWidth,
-                    stroke: "black",
-                    fill: "black",
-                    // lengthAdjust: "spacing"
-                }).append(this.tracks[i].name);
+                this._adjustLastSVGGroupAndAddText(svg, this.tracks[i].name, currentY, height, groupHeight, config);
+                // svg.lastChild.setAttribute("transform", `translate(${config.display.titleWidth + 20} ${height + 10})
+                //                                          scale (1 ${height / groupHeight})`);
+                //
+                // // Add the text to the left of the SVG
+                // SVG.addChild(svg, "text", {
+                //     x: 10,
+                //     y: height/2 + height/4 + ((height + 10) * (i + 1)),
+                //     // textLength: config.display.titleWidth,
+                //     stroke: "black",
+                //     fill: "black",
+                //     // lengthAdjust: "spacing"
+                // }).append(this.tracks[i].name);
             }
         }
 
@@ -112,7 +140,7 @@ class ExonViewer {
 
         features.push({
             start: this.exons[0].start - UTR_bps - 1,
-            end: this.exons[0].start - 1,
+            end: this.exons[0].start,
             vStart: virtualStart,
             vEnd: virtualStart + UTR_bps,
             type: "UTR"
@@ -192,23 +220,98 @@ class ExonViewer {
         // return width / length;
     }
 
+    _renderCoverage(features, scaleFactor, svg) {
+        if (UtilsNew.isUndefinedOrNull(this.coverage) || UtilsNew.isUndefinedOrNull(this.lowCoverage)) {
+            return;
+        }
+
+        // Draw the features
+        let polyline = [];
+
+        let maxHeight = 100;
+
+        let windowSize = this.coverage.windowSize;
+        let start = this.coverage.start;
+
+        let maximumCoverage = 0;
+        // We get the maximum value to be able to scale
+        for (let i = 0; i < this.coverage.values.length; i++) {
+            if (maximumCoverage < this.coverage.values[i]) {
+                maximumCoverage = this.coverage.values[i];
+            }
+        }
+
+        let x = 0;
+        let y = 0;
+        for (let i = 0; i < this.coverage.values.length; i++) {
+            let chromosomicPosition = start + (windowSize * i);
+            if (chromosomicPosition < features[0].start) {
+                continue;
+            }
+            if (chromosomicPosition > features[features.length - 1].end) {
+                break;
+            }
+
+            x = this._calculatePixelPosition(chromosomicPosition, features, scaleFactor);
+            y = maxHeight - ((this.coverage.values[i] / maximumCoverage) * maxHeight);
+
+            polyline.push(`${x},${y}`);
+        }
+
+        let group = SVG.addChild(svg, "g", {
+        });
+
+        SVG.addChild(group, "polyline", {
+            points: polyline.join(" "),
+            stroke: "blue",
+            "stroke-width": 0.5
+        });
+
+        // Analyse the low coverage track
+        let path = [];
+        for (let i = 0; i < this.lowCoverage.length; i++) {
+            let start = this.lowCoverage[i].start;
+            let end = this.lowCoverage[i].end;
+            if (end < features[0].start) {
+                continue;
+            }
+            if (start > features[features.length - 1].end) {
+                break;
+            }
+
+            let pixelStart = this._calculatePixelPosition(start, features, scaleFactor);
+            let pixelEnd = this._calculatePixelPosition(end, features, scaleFactor);
+
+            path.push(`M ${pixelStart} 0 H ${pixelEnd} V 100 H ${pixelStart}`);
+        }
+
+        SVG.addChild(group, "path", {
+            d: path.join(" "),
+            // stroke: "black",
+            // "stroke-width": 0.5,
+            fill: "red",
+            "fill-opacity": 0.5,
+        });
+
+    }
+
     _renderTranscript(features, scaleFactor, height, config, svg) {
         let quarterHeight = height/4;
         let medium = height/2;
 
-        SVG.addChild(svg, "text", {
-            x: 10,
-            y: medium + quarterHeight,
-            // textLength: config.display.titleWidth,
-            stroke: "black",
-            fill: "black",
-            // lengthAdjust: "spacing"
-        }).append(features[1].id);
+        // SVG.addChild(svg, "text", {
+        //     x: 10,
+        //     y: medium + quarterHeight,
+        //     // textLength: config.display.titleWidth,
+        //     stroke: "black",
+        //     fill: "black",
+        //     // lengthAdjust: "spacing"
+        // }).append(features[1].id);
 
         // Draw the exons
         let path = [];
 
-        let start = config.display.titleWidth + 20;
+        let start = 0;
         for (let i = 0; i < features.length; i++) {
             let featureWidth = features[i].vEnd - features[i].vStart + 1;
 
@@ -229,7 +332,10 @@ class ExonViewer {
         }
         path.push("Z");
 
-        SVG.addChild(svg, "path", {
+        let group = SVG.addChild(svg, "g", {
+        });
+
+        SVG.addChild(group, "path", {
             d: path.join(" "),
             stroke: "black",
             "stroke-width": 0.5,
@@ -289,6 +395,19 @@ class ExonViewer {
         return maxHeight;
     }
 
+    _adjustLastSVGGroupAndAddText(svg, title, currentHeight, trackHeight, svgGroupHeight, config) {
+        svg.lastChild.setAttribute("transform", `translate(${config.display.titleWidth + 20} ${currentHeight}) 
+                                                 scale (1 ${trackHeight / svgGroupHeight})`);
+
+        // Add the text to the left of the SVG
+        SVG.addChild(svg, "text", {
+            x: 10,
+            y: trackHeight/2 + trackHeight/4 + currentHeight,
+            stroke: "black",
+            fill: "black",
+        }).append(title);
+    }
+
     _calculatePixelPosition(position, globalFeatures, scaleFactor) {
         if (position < globalFeatures[0].start) {
             return globalFeatures[0].vStart * scaleFactor;
@@ -314,7 +433,7 @@ class ExonViewer {
     getDefaultConfig() {
         return {
             width: 1500,
-            height: 100,
+            height: 400,
             tracks: {
                 height: 30
             },
