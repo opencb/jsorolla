@@ -40,7 +40,7 @@
                     <template is="dom-repeat" items="{{queryList}}">
                         <!-- No multi=valued fitlers -->
                         <template is="dom-if" if="{{!_isMultiValued(item)}}">
-                            <button type="button" class$="btn btn-warning btn-sm {{item.name}}" data-filter-name$="{{item.name}}" data-filter-value=""
+                            <button type="button" class$="btn btn-warning btn-sm {{item.name}}ActiveFilter" data-filter-name$="{{item.name}}" data-filter-value=""
                                     on-click="onQueryFilterDelete" on-mouseover="_onMouseOver" on-mouseout="_onMouseOut">
                                 {{item.text}}
                             </button>
@@ -49,7 +49,7 @@
                         <!-- Multi-valued filters -->
                         <template is="dom-if" if="{{_isMultiValued(item)}}">
                             <div class="btn-group">
-                                <button type="button" class$="btn btn-warning btn-sm {{item.name}}" data-filter-name$="{{item.name}}" data-filter-value=""
+                                <button type="button" class$="btn btn-warning btn-sm {{item.name}}ActiveFilter" data-filter-name$="{{item.name}}" data-filter-value=""
                                         on-click="onQueryFilterDelete" on-mouseover="_onMouseOver" on-mouseout="_onMouseOut">
                                     {{item.text}}
                                 </button>
@@ -229,11 +229,11 @@
             }
 
             _onMouseOver(e) {
-                PolymerUtils.addStyleByClass(e.target.dataset.filterName, "text-decoration", "line-through");
+                PolymerUtils.addStyleByClass(e.target.dataset.filterName + "ActiveFilter", "text-decoration", "line-through");
             }
 
             _onMouseOut(e) {
-                PolymerUtils.addStyleByClass(e.target.dataset.filterName, "text-decoration", "none");
+                PolymerUtils.addStyleByClass(e.target.dataset.filterName + "ActiveFilter", "text-decoration", "none");
             }
 
             launchModal() {
@@ -481,12 +481,13 @@
                     alias: {
                         "region": "Region",
                         "gene": "Gene",
-                        "genotype": "Sample Genotypes",
+                        "genotype": "Sample Genotype",
                         "xref": "XRef",
+                        "panel": "Disease Panel",
                         "annot-xref": "XRef",
                         "biotype": "Biotype",
-                        "ct": "Consequence Types",
-                        "annot-ct": "Consequence Types",
+                        "ct": "Consequence Type",
+                        "annot-ct": "Consequence Type",
                         "alternate_frequency": "Population ALT Frequency",
                         "annot-functional-score": "CADD",
                         "protein_substitution": "Protein Substitution",

@@ -517,7 +517,6 @@
 
             updateConsequenceTypeFilter(e) {
                 // Select LoF term checkboxes
-                debugger
                 let lofCheckBox = PolymerUtils.getElementById(this.prefix + "LossOfFunctionCheckBox");
                 if (e.target.id === this.prefix + "LossOfFunctionCheckBox") {
                     let checkBoxes = PolymerUtils.querySelectorAll("li input", this.prefix + "consequenceTypeFilter");
@@ -661,7 +660,7 @@
             }
 
             setQueryFilters() {
-                // Clear fitler menu before rendering
+                // Clear filter menu before rendering
                 this._clearHtmlDom();
 
                 // Check 'query' is not null or empty there is nothing else to do
@@ -723,8 +722,8 @@
                 // Panel - annot-panel
                 // TODO Genes must be displayed in Xref textarea
                 if (typeof this.query["gene"] !== "undefined") {
-                    PolymerUtils.setValue(this.prefix + "PanelAppsTextarea", this.query.gene);
-                    let geneTextarea = PolymerUtils.getElementById(this.prefix + "PanelAppsTextarea");
+                    // PolymerUtils.setValue(this.prefix + "PanelAppsTextarea", this.query.gene);
+                    let geneTextarea = PolymerUtils.getElementById(this.prefix + "FeatureTextarea");
                     if (UtilsNew.isNotUndefinedOrNull(geneTextarea)) {
                         geneTextarea.value = this.query.gene;
                     }
@@ -1013,9 +1012,11 @@
                     let selectedPanels = PolymerUtils.querySelectorAll("option:checked", panelsDropdown);
                     let panels = [];
                     selectedPanels.forEach(option => panels.push(option.value));
-                    _filters["panel"] = panels.join(",");
+                    if (panels.length > 0) {
+                        _filters["panel"] = panels.join(",");
+                    }
                 }
-debugger
+
                 // Biotype
                 let biotypeDropdown = PolymerUtils.getElementById(this.prefix + "GeneBiotypes");
                 if (UtilsNew.isNotUndefinedOrNull(biotypeDropdown) && UtilsNew.isNotEmpty(biotypeDropdown.value)) {
@@ -1453,65 +1454,6 @@ debugger
                     `;
                 }
                 return res;
-                // if (subsection.showSelectSamples) {
-                //     res += `<div id="${prefix}AutocompleteSampleSelect" style="margin: 25px 0px">
-                //         <div style="font-weight: bold">OLD:</div>
-                //         <span>Select Sample:</span>
-                //
-                //         <div class="row">
-                //             <div class="col-md-9">
-                //                 <input id="${prefix}AutocompleteSampleSearchInput" type="text" class="form-control" placeholder="Search name..."
-                //                             list="${prefix}AutocompleteSampleSearchDataList"">
-                //                 <datalist id="${prefix}AutocompleteSampleSearchDataList"></datalist>
-                //             </div>
-                //             <div class="col-md-3">
-                //                 <button id="${prefix}SampleAddButton" type="button" class="btn btn-default btn-sm form-control">
-                //                     <i class="fa fa-plus"></i>
-                //                 </button>
-                //             </div>
-                //         </div>
-                //     </div>`
-                // }
-                // return `
-                //     ${res}
-                //     <div style="margin: 15px 0px">
-                //         <span>Select Sample Genotypes:</span>
-                //         <div id="${prefix}SampleGenotypeMessage">
-                //             <span style="color: darkred;padding: 5px 0px 0px 10px">No samples selected</span>
-                //         </div>
-                //         <div id="${prefix}SampleSegregation" style="display: none">
-                //             <div style="padding-left: 10px;padding-top: 10px">
-                //                 <span class="control-label">Inheritance Mode:</span>
-                //                 <select id="${prefix}SegregationOperator" name="${prefix}Segregation"
-                //                      class="form-control input-sm ${prefix}FilterSelect">
-                //                  ${options}
-                //                 </select>
-                //             </div>
-                //         </div>
-                //
-                //         <div id="${prefix}SampleGenotypeDivTable" style="display: none">
-                //             <div style="padding-left: 10px;padding-top: 10px">
-                //                 <table id="${prefix}SampleGenotypeTable" class="table table-hover" style="margin-bottom: 10px">
-                //                     <thead>
-                //                         <tr>
-                //                             <th>Sample</th><th>0/0</th><th>0/1</th><th>1/1</th>
-                //                             <!--<th>Sample</th><th>HOM_REF</th><th>HET</th><th>HOM_ALT</th><th>MISS</th>-->
-                //                         </tr>
-                //                     </thead>
-                //                     <tbody></tbody>
-                //                 </table>
-                //             </div>
-                //         </div>
-                //
-                //         <div id="${prefix}SampleGenotypeOptions" style="display: inline">
-                //             <span>Sample Genotypes Query Options</span>
-                //             <div id="${prefix}GenotypeQueryOptions" style="padding-left: 10px;padding-top: 5px">
-                //                 ${approxCountCheckbox}
-                //                 <input type="checkbox" value="multiAllelic" class="${prefix}FilterCheckBox"> Select all multi-allelic variants<br>
-                //             </div>
-                //         </div>
-                //     </div>`
-                //     ;
             }
 
             _getCohortHtml(cohorts, prefix) {
@@ -1615,106 +1557,7 @@ debugger
             }
 
             _getGeneDiseasePanelsHtml(prefix) {
-                let options = "";
-                let _this = this;
-                let html = `<div id="${this.prefix}DiseasePanelDropdown"></div>`;
-                // this.opencgaSession.opencgaClient.panels()
-                //     .search({
-                //         study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
-                //         include: "id,name,stats"
-                //     }, {})
-                //     .then(function (response) {
-                //         options += `<optgroup label="Study Panels of ${_this.opencgaSession.study.alias}">`;
-                //         if (response.response[0].result.length === 0) {
-                //             options += "<option disabled>None</option>";
-                //         } else {
-                //             for (let panel of response.response[0].result) {
-                //                 if (panel.stats.numberOfGenes > 0) {
-                //                     options += `<option value="${panel.name}">${panel.name} (${panel.stats.numberOfGenes})</option>`;
-                //                 }
-                //             }
-                //         }
-                //         options += "</optgroup>";
-                //
-                //         // Search Global Panels
-                //         _this.opencgaSession.opencgaClient.panels()
-                //             .search({
-                //                 study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
-                //                 global: true,
-                //                 include: "id,name,stats"
-                //             }, {})
-                //             .then(function (response) {
-                //                 options += `<optgroup label="Global Panels">`;
-                //                 for (let panel of response.response[0].result) {
-                //                     if (panel.stats.numberOfGenes > 0) {
-                //                         options += `<option value="${panel.name}">${panel.name} (${panel.stats.numberOfGenes})</option>`;
-                //                     }
-                //                 }
-                //                 options += "</optgroup>";
-                //                 debugger
-                //                 let content = `
-                //                         <select id="${prefix}PanelApps" class="selectpicker show-tick ${prefix}FilterSelect" data-size="10" data-live-search="true"
-                //                             data-max-options="1" data-selected-text-format="count" multiple>
-                //                             ${options}
-                //                         </select>
-                //                         <div style="padding-top: 5px">
-                //                             <textarea id="${prefix}PanelAppsTextarea" name="panelAppsTextarea"
-                //                               class="form-control clearable ${prefix}FilterTextInput"
-                //                               rows="3" placeholder="No panel selected"></textarea>
-                //                         </div>
-                //                 `;
-                //                 html = content;
-                //                 // PolymerUtils.innerHTML(_this.prefix + "DiseasePanelDropdown", content);
-                //             });
-                //         //
-                //     //     let content = `
-                //     //      <select id="${prefix}PanelApps" class="selectpicker show-tick ${prefix}FilterSelect" data-size="10" data-live-search="true"
-                //     //             data-max-options="1" data-selected-text-format="count" multiple>
-                //     //         ${options}
-                //     //     </select>
-                //     //     <div style="padding-top: 5px">
-                //     //         <textarea id="${prefix}PanelAppsTextarea" name="panelAppsTextarea"
-                //     //                   class="form-control clearable ${prefix}FilterTextInput"
-                //     //                   rows="3" placeholder="No panel selected"></textarea>
-                //     //     </div>
-                //     // `;
-                //     //     PolymerUtils.innerHTML(_this.prefix + "DiseasePanelDropdown", content);
-                //     });
-
-                return html;
-
-
-
-                // if (UtilsNew.isNotUndefinedOrNull(this.panelList)) {
-                //     let options = "";
-                //     this.panelList.sort((a, b) => {
-                //         if (a.title === b.title) {
-                //             return 0;
-                //         }
-                //         return a.title < b.title ? -1 : 1;
-                //     }).forEach((item) => {
-                //         options += `<option value="${item.name}">${item.title} (${item.genes.length})</option>`;
-                //     });
-                //
-                //     // <select class="form-control ${prefix}FilterSelect" id="${prefix}PanelApps">
-                //     //     <option value="none">Select a panel...</option>
-                //     //     ${options}
-                //     // </select>
-                //
-                //     return `
-                //          <select id="${prefix}PanelApps" class="selectpicker show-tick ${prefix}FilterSelect" data-size="10" data-live-search="true"
-                //                 data-max-options="1" data-selected-text-format="count" multiple>
-                //             ${options}
-                //         </select>
-                //         <div style="padding-top: 5px">
-                //             <textarea id="${prefix}PanelAppsTextarea" name="panelAppsTextarea"
-                //                       class="form-control clearable ${prefix}FilterTextInput"
-                //                       rows="3" placeholder="No panel selected"></textarea>
-                //         </div>
-                //     `;
-                //
-                //     // return `<div id="${prefix}DiseasePanelDropdown"></div>`;
-                // }
+                return `<div id="${prefix}DiseasePanelDropdown"></div>`;
             }
 
             _getBiotypeHtml(biotypes, prefix) {
@@ -2084,7 +1927,7 @@ debugger
                         include: "id,name,stats,source"
                     }, {})
                     .then(function (response) {
-                        options += `<optgroup label="Disease Panels for Study '${_this.opencgaSession.study.alias}'">`;
+                        // options += `<optgroup label="Disease Panels for Study '${_this.opencgaSession.study.alias}'">`;
                         if (response.response[0].result.length === 0) {
                             options += "<option disabled>None</option>";
                         } else {
@@ -2101,51 +1944,60 @@ debugger
                                 }
                                 options += `<option value="${panel.id}">${panel.name} ${version} (${numberOfGenes} genes, ${numberOfVariants} variants)</option>`;
                             }
+
+                            let content = `<select id="${_this.prefix}DiseasePanels" class="selectpicker"
+                                            data-size="10" data-live-search="true" data-selected-text-format="count" multiple>
+                                                ${options}
+                                           </select>
+                                        `;
+                            PolymerUtils.innerHTML(_this.prefix + "DiseasePanelDropdown", content);
+                            let element = PolymerUtils.getElementById(_this.prefix + "DiseasePanelDropdown");
+                            if (UtilsNew.isNotUndefinedOrNull(element)) {
+                                element.addEventListener('change', _this.updateQueryFilters.bind(_this));
+                            }
+
+                            // $('select.selectpicker').selectpicker('render');
+                            // $('select.selectpicker').selectpicker({
+                            //     iconBase: 'fa',
+                            //     tickIcon: 'fa-check'
+                            // });
                         }
-                        options += "</optgroup>";
+                        // options += "</optgroup>";
 
                         // Search Global Panels
-                        _this.opencgaSession.opencgaClient.panels()
-                            .search({
-                                study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
-                                global: true,
-                                include: "id,name,stats,source"
-                            }, {})
-                            .then(function (response) {
-                                options += `<optgroup label="Global Disease Panels">`;
-                                for (let panel of response.response[0].result) {
-                                    let version = "";
-                                    let numberOfGenes = 0;
-                                    let numberOfVariants = 0;
-                                    if (UtilsNew.isNotUndefinedOrNull(panel.source)) {
-                                        version = "v" + panel.source.version;
-                                    }
-                                    if (UtilsNew.isNotUndefinedOrNull(panel.stats)) {
-                                        numberOfGenes = panel.stats.numberOfGenes;
-                                        numberOfVariants = panel.stats.numberOfVariants;
-                                    }
-                                    options += `<option value="${panel.id}">${panel.name} ${version} (${numberOfGenes} genes, ${numberOfVariants} variants)</option>`;
-                                }
-                                options += "</optgroup>";
-                            //     debugger
-                            // <div style="padding-top: 5px">
-                            //         <textarea id="${_this.prefix}PanelAppsTextarea" name="panelAppsTextarea"
-                            // class="form-control clearable ${_this.prefix}FilterTextInput"
-                            //     rows="3" placeholder="No panel selected"></textarea>
-                            //         </div>
-                                let content = `<select id="${_this.prefix}DiseasePanels" class="selectpicker ${_this.prefix}FilterSelect"
-                                                  data-size="12" data-live-search="true" data-max-options="5" data-selected-text-format="count" multiple>
-                                                    ${options}
-                                               </select>
-                                            `;
-                                // debugger
-                                // html = content;
-                                PolymerUtils.innerHTML(_this.prefix + "DiseasePanelDropdown", content);
-                                let element = PolymerUtils.getElementById(_this.prefix + "DiseasePanelDropdown");
-                                if (UtilsNew.isNotUndefinedOrNull(element)) {
-                                    element.addEventListener('change', _this.updateQueryFilters.bind(_this));
-                                }
-                            });
+                        // _this.opencgaSession.opencgaClient.panels()
+                        //     .search({
+                        //         study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
+                        //         global: true,
+                        //         include: "id,name,stats,source"
+                        //     }, {})
+                        //     .then(function (response) {
+                        //         options += `<optgroup label="Global Disease Panels">`;
+                        //         for (let panel of response.response[0].result) {
+                        //             let version = "";
+                        //             let numberOfGenes = 0;
+                        //             let numberOfVariants = 0;
+                        //             if (UtilsNew.isNotUndefinedOrNull(panel.source)) {
+                        //                 version = "v" + panel.source.version;
+                        //             }
+                        //             if (UtilsNew.isNotUndefinedOrNull(panel.stats)) {
+                        //                 numberOfGenes = panel.stats.numberOfGenes;
+                        //                 numberOfVariants = panel.stats.numberOfVariants;
+                        //             }
+                        //             options += `<option value="${panel.id}">${panel.name} ${version} (${numberOfGenes} genes, ${numberOfVariants} variants)</option>`;
+                        //         }
+                        //         options += "</optgroup>";
+                        //         let content = `<select id="${_this.prefix}DiseasePanels" class="selectpicker ${_this.prefix}FilterSelect"
+                        //                           data-size="12" data-live-search="true" data-max-options="5" data-selected-text-format="count" multiple>
+                        //                             ${options}
+                        //                        </select>
+                        //                     `;
+                        //         PolymerUtils.innerHTML(_this.prefix + "DiseasePanelDropdown", content);
+                        //         let element = PolymerUtils.getElementById(_this.prefix + "DiseasePanelDropdown");
+                        //         if (UtilsNew.isNotUndefinedOrNull(element)) {
+                        //             element.addEventListener('change', _this.updateQueryFilters.bind(_this));
+                        //         }
+                        //     });
                     });
             }
 
