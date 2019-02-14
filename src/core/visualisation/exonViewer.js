@@ -27,15 +27,19 @@ class ExonViewer {
         }
         this.exons = exons;
         let featureTracks = [];
+        let coverage = [];
         for (let i = 0; i < tracks.length; i++) {
             if (tracks[i].type === "feature") {
                 featureTracks.push(tracks[i]);
             } else if (tracks[i].type === "coverage") {
-                this.coverage = tracks[i].data;
-            } else if (tracks[i].type === "lowcoverage") {
-                this.lowCoverage = tracks[i].data;
+                coverage.push(tracks[i]);
+            //     this.coverage = tracks[i].data;
+            // } else if (tracks[i].type === "lowcoverage") {
+            //     this.lowCoverage = tracks[i].data;
             }
         }
+
+        this.coverage = coverage.sort(this._compare);
         this.tracks = featureTracks;
         this.config = config;
     }
@@ -43,6 +47,16 @@ class ExonViewer {
     render(config) {
         return this._render(config);
     }
+
+    // Function to compare different coverage tracks to sort them by order field
+    _compare(a,b) {
+        if (a.order < b.order)
+            return -1;
+        if (a.order > b.order)
+            return 1;
+        return 0;
+    }
+
 
     _render(config) {
         // If no config is provided we use the one passed in the constructor
@@ -71,8 +85,16 @@ class ExonViewer {
 
         console.log("Number of features: " + features.length);
 
-        this._renderCoverage(features, scaleFactor, svg, config);
-        this._adjustLastSVGGroupAndAddText(svg, "Coverage", 0, 100, 100, config);
+        let currentY = 0;
+        for (let i = 0; i < this.coverage.length; i++) {
+            if (UtilsNew.isUndefinedOrNull(this.coverage[i].data.coverage)
+                || UtilsNew.isUndefinedOrNull(this.coverage[i].data.lowCoverage)) {
+                continue;
+            }
+            this._renderCoverage(this.coverage[i], features, scaleFactor, svg, config);
+            this._adjustLastSVGGroupAndAddText(svg, this.coverage[i].name, currentY, 100, 100, config);
+            currentY += 100 + 10;
+        }
         // this._adjustSVGGroupAndAddText("Coverage", svg.lastChild, currentHeight, trackHeight);
         // svg.lastChild.setAttribute("transform", `translate(${config.display.titleWidth + 20} 0)
         //                                                  scale (1 ${(height * 2) / 100})`);
@@ -87,9 +109,10 @@ class ExonViewer {
         // }).append("Coverage");
 
         this._renderTranscript(features, scaleFactor, height, config, svg);
-        this._adjustLastSVGGroupAndAddText(svg, features[1].id, 110, height, height, config);
+        this._adjustLastSVGGroupAndAddText(svg, features[1].id, currentY, height, height, config);
 
-        let currentY = 110 +  height + 10;
+        currentY += height + 10;
+
         for (let i = 0; i < this.tracks.length; i++) {
             if (this.tracks[i].type === "feature") {
                 let groupHeight = this._renderFeatures(this.tracks[i], features, scaleFactor, height, config.display.compact, svg);
@@ -120,7 +143,7 @@ class ExonViewer {
     _parseExons(config) {
         // We transform the list of exons and extend it to a list of features containing 5`UTR regions, exons, introns..
         let features = [];
-        let virtualStart = config.display.titleWidth + 20;
+        let virtualStart = 0;
 
         let UTR_bps = 200;
         let pixelsOfIntronsInCompactMode = 5;
@@ -225,43 +248,73 @@ class ExonViewer {
         // return width / length;
     }
 
-    _renderCoverage(features, scaleFactor, svg) {
-        if (UtilsNew.isUndefinedOrNull(this.coverage) || UtilsNew.isUndefinedOrNull(this.lowCoverage)) {
-            return;
-        }
+    _renderCoverage(coverageTrack, features, scaleFactor, svg, config) {
+        // if (UtilsNew.isUndefinedOrNull(this.coverage) || UtilsNew.isUndefinedOrNull(this.lowCoverage)) {
+        //     return;
+        // }
+
+        let coverage = coverageTrack.data.coverage;
+        let lowCoverage = coverageTrack.data.lowCoverage;
 
         // Draw the features
         let polyline = [];
 
         let maxHeight = 100;
 
-        let windowSize = this.coverage.windowSize;
-        let start = this.coverage.start;
+        let windowSize = coverage.windowSize;
+        let start = coverage.start;
 
         let maximumCoverage = 0;
         // We get the maximum value to be able to scale
-        for (let i = 0; i < this.coverage.values.length; i++) {
-            if (maximumCoverage < this.coverage.values[i]) {
-                maximumCoverage = this.coverage.values[i];
+        for (let i = 0; i < coverage.values.length; i++) {
+            if (maximumCoverage < coverage.values[i]) {
+                maximumCoverage = coverage.values[i];
             }
         }
 
         let x = 0;
         let y = 0;
-        for (let i = 0; i < this.coverage.values.length; i++) {
+        let firstHeight = 0;
+        let negativeX = 0;
+        let yOfNegativeX = 0;
+
+        for (let i = 0; i < coverage.values.length; i++) {
             let chromosomicPosition = start + (windowSize * i);
-            if (chromosomicPosition < features[0].start) {
-                continue;
-            }
+            // if (chromosomicPosition < features[0].start) {
+            //     continue;
+            // }
             if (chromosomicPosition > features[features.length - 1].end) {
                 break;
             }
 
             x = this._calculatePixelPosition(chromosomicPosition, features, scaleFactor);
-            y = maxHeight - ((this.coverage.values[i] / maximumCoverage) * maxHeight);
+            y = maxHeight - ((coverage.values[i] / maximumCoverage) * maxHeight);
+
+            if (x < 0) {
+                negativeX = x;
+                yOfNegativeX = y;
+                continue;
+            }
+            if (typeof negativeX !== "undefined") {
+                // Calculate slope
+                let slope = (y - yOfNegativeX) / (x - negativeX);
+                // y = mx + b
+                let b = y - (slope * x);
+
+                // Now we can calculate which would be the Y at the first start point (x = 0)
+                firstHeight = b; // because x = 0 -> y = b
+
+                polyline.push(`0,${firstHeight}`);
+
+                // We don't want to do this calculation again, so we simply deactivate negativeX variable
+                negativeX = undefined;
+            }
 
             polyline.push(`${x},${y}`);
         }
+
+        // We will close the polyline
+        polyline.push(`${config.width},100 0,100 0,${firstHeight}`);
 
         let group = SVG.addChild(svg, "g", {
         });
@@ -269,14 +322,15 @@ class ExonViewer {
         SVG.addChild(group, "polyline", {
             points: polyline.join(" "),
             stroke: "blue",
-            "stroke-width": 0.5
+            fill: "gainsboro",
+            "stroke-width": 0.2
         });
 
         // Analyse the low coverage track
         let path = [];
-        for (let i = 0; i < this.lowCoverage.length; i++) {
-            let start = this.lowCoverage[i].start;
-            let end = this.lowCoverage[i].end;
+        for (let i = 0; i < lowCoverage.length; i++) {
+            let start = lowCoverage[i].start;
+            let end = lowCoverage[i].end;
             if (end < features[0].start) {
                 continue;
             }
@@ -318,18 +372,23 @@ class ExonViewer {
 
         let start = 0;
         for (let i = 0; i < features.length; i++) {
-            let featureWidth = features[i].vEnd - features[i].vStart + 1;
+            let featureWidth = features[i].vEnd - features[i].vStart;
 
             if (features[i].type === "EXON") {
                 // Move to the right
                 path.push(`M ${start} 0 H ${start + (featureWidth * scaleFactor)} V ${height} H ${(start)} V 0`);
             } else if (features[i].type === "INTRON") {
                 // There is an intron we need to draw
-                path.push(`M ${start} ${medium} H ${start + (featureWidth * scaleFactor)}`);
+                if (config.display.compact) {
+                    path.push(`M ${start} ${medium} H ${start + 2} M ${start + 3} ${medium} H ${start + 5}`);
+                    // path.push(`M ${start} ${medium} H ${start + (featureWidth * scaleFactor)}`);
+                } else {
+                    path.push(`M ${start} ${medium} H ${start + (featureWidth * scaleFactor)}`);
+                }
             } else if (features[i].type === "UTR") {
                 // There is UTR we need to draw
-                path.push(`M ${start} ${quarterHeight + medium} H ${start + (featureWidth * scaleFactor)} V ${quarterHeight} H ${(start)} 
-                           V ${quarterHeight + medium}`);
+                path.push(`M ${start} ${quarterHeight + medium} H ${start + (featureWidth * scaleFactor)} V ${quarterHeight}`);
+                path.push(`H ${(start)} V ${quarterHeight + medium}`);
             }
 
             // Move the start point
@@ -359,6 +418,12 @@ class ExonViewer {
 
         for (let i = 0; i < track.data.length; i++) {
             let feature = track.data[i];
+
+            if (feature.end < globalFeatures[0].start) {
+                // We skip the feature as we will not be able to represent it
+                continue;
+            }
+
             let currentHeight = 0;
             let featureFitted = false;
 
@@ -397,7 +462,7 @@ class ExonViewer {
             "fill-opacity": 0.5,
         });
 
-        return maxHeight;
+        return maxHeight + trackHeight;
     }
 
     _adjustLastSVGGroupAndAddText(svg, title, currentHeight, trackHeight, svgGroupHeight, config) {
@@ -415,7 +480,9 @@ class ExonViewer {
 
     _calculatePixelPosition(position, globalFeatures, scaleFactor) {
         if (position < globalFeatures[0].start) {
-            return globalFeatures[0].vStart * scaleFactor;
+            return (position -
+                globalFeatures[0].start) * scaleFactor;
+            // return globalFeatures[0].vStart * scaleFactor;
         } else if (position > globalFeatures[globalFeatures.length - 1].end) {
             return globalFeatures[globalFeatures.length - 1].vEnd * scaleFactor;
         }
@@ -434,7 +501,6 @@ class ExonViewer {
         }
     }
 
-
     getDefaultConfig() {
         return {
             width: 1500,
@@ -444,7 +510,7 @@ class ExonViewer {
             },
             display: {
                 titleWidth: 150,
-                compact: true
+                compact: false
             },
             colors: {
 
