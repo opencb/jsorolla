@@ -21,6 +21,7 @@
 <link rel="import" href="opencga-variant-samples.html">
 <link rel="import" href="variant-beacon-network.html">
 <link rel="import" href="variant-genome-browser.html">
+<link rel="import" href="../../reactome/reactome-variant-network.html">
 <link rel="import" href="../opencga-genome-browser.html">
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
 <link rel="import" href="opencga-variant-detail-template.html">
@@ -177,6 +178,13 @@
                                             </div>
                                         </div>
 
+                                        <!-- Reactome network tab -->
+                                        <div id="{{prefix}}network" role="tabpanel" class="tab-pane">
+                                            <div style="width: 75%;padding-top: 8px">
+                                                <reactome-variant-network opencga-session="{{opencgaSession}}" reactome-client="{{reactomeClient}}" genes="{{genes}}" active="{{detailActiveTabs.network}}"></reactome-variant-network>
+                                            </div>
+                                        </div>
+
                                         <!-- Example Template Tab-->
                                         <div id="{{prefix}}template" role="tabpanel" class="tab-pane">
                                             <div style="width: 75%;padding-top: 8px">
@@ -264,6 +272,9 @@
                 return {
                     opencgaSession: {
                         type: Object,
+                    },
+                    reactomeClient: {
+                        type: Object
                     },
                     query: {
                         type: Object
@@ -431,7 +442,15 @@
 
             onSelectVariant(e) {
                 this.variant = e.detail.id;
-//                this.V = e.detail.variant;
+
+                let genes = [];
+                for (let i = 0; i < e.detail.variant.annotation.consequenceTypes.length; i++) {
+                    let gene = e.detail.variant.annotation.consequenceTypes[i].geneName;
+                    if (UtilsNew.isNotEmpty(gene) && genes.indexOf(gene) === -1) {
+                        genes.push(gene);
+                    }
+                }
+                this.genes = genes;
             }
 
             selectedGene(e) {

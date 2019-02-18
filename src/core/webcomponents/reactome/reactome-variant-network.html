@@ -1,0 +1,198 @@
+<dom-module id="reactome-variant-network">
+    <template>
+
+        <div class="row" style="margin: 15px">
+
+            <div style="margin: 2px 2px">
+                <label class="col-md-2">Gene:</label>
+                <select class="selectpicker col-md-10" id="{{prefix}}-geneSelect" on-change="onGeneChange" on-dom-change="renderDomRepeat">
+                    <template is="dom-repeat" items="{{genes}}">
+                        <option>{{item}}</option>
+                    </template>
+                </select>
+            </div>
+
+            <div style="margin: 5px 2px">
+                <label class="col-md-2">Pathway:</label>
+                <select class="selectpicker col-md-10" id="{{prefix}}-pathwaySelect" on-change="onPathwayChange" on-dom-change="renderDomRepeat">
+                    <template is="dom-repeat" items="{{pathways}}">
+                        <option value={{item.stId}}>{{item.displayName}}</option>
+                    </template>
+                </select>
+            </div>
+
+            <div id="{{prefix}}-diagram" style="width: 100%; height: 500px; margin-top: 10px;"></div>
+            <div id="{{prefix}}-not-available-diagram" hidden=true>
+                <h3 style="text-align: center; padding-top: 20px;">Pathway not available</h3>
+            </div>
+
+        </div>
+
+    </template>
+
+    <script>
+        class ReactomeVariantNetwork extends Polymer.Element {
+
+            constructor() {
+                super();
+                this._init();
+            }
+
+            static get is() {
+                return 'reactome-variant-network';
+            }
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object
+                    },
+                    reactomeClient: {
+                        type: Object
+                    },
+                    genes: {
+                        type: Array
+                    },
+                    active: {
+                        type: Boolean,
+                        value: false
+                    },
+                    config: {
+                        type: Object
+                    }
+                }
+            }
+
+            static get observers() {
+                return ['propertyObserver(opencgaSession, reactomeClient, genes, active, config)'];
+            }
+
+            _init() {
+                this.prefix = "ReactomeVariantNetwork-" + Utils.randomString(6);
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+
+                // We add this first listener to get a call whenever the first element is loaded
+                $(`#${this.prefix}-pathwaySelect`).on('loaded.bs.select', this.onPathwayChange.bind(this));
+                $(`#${this.prefix}-geneSelect`).on('loaded.bs.select', this.onGeneChange.bind(this));
+                // We add this listener to receive any future change over the selected pathways
+                $(`#${this.prefix}-pathwaySelect`).on('changed.bs.select', this.onPathwayChange.bind(this));
+                $(`#${this.prefix}-geneSelect`).on('changed.bs.select', this.onGeneChange.bind(this));
+            }
+
+            propertyObserver(opencgaSession, reactomeClient, genes, active, config) {
+                this._config = Object.assign(this.getDefaultConfig(), config);
+
+                if (active && UtilsNew.isNotEmptyArray(genes) && UtilsNew.isNotUndefinedOrNull(reactomeClient)
+                    && UtilsNew.isNotUndefinedOrNull(opencgaSession)) {
+
+                    // Get the position of the current selected element
+                    let position = $(`#${this.prefix}-geneSelect`)[0].selectedIndex;
+
+                    let gene = "";
+                    if (position + 1 > genes.length) {
+                        gene = genes[genes.length - 1];
+                    } else {
+                        gene = genes[position];
+                    }
+
+                    // So I can now have the new element
+                    this._fetchPathwaysForGene(gene);
+                }
+            }
+
+            onGeneChange(e) {
+                if (this.active) {
+                    this._fetchPathwaysForGene(e.currentTarget.value);
+                }
+            }
+
+            onPathwayChange(e) {
+                if (UtilsNew.isNotEmpty(e.currentTarget.value)) {
+                    this._fetchPathwayForDisplay(e.currentTarget.value);
+                }
+            }
+
+            _fetchPathwayForDisplay(stableId) {
+                if (typeof this._diagram === "undefined") {
+                    this._diagram = Reactome.Diagram.create({
+                        "placeHolder" : this.prefix + "-diagram",
+                        "width" : 1500,
+                        "height" : 500
+                    });
+                }
+
+                // Show selected diagram
+                this._diagram.loadDiagram(stableId);
+
+                let _this = this;
+                this._diagram.onDiagramLoaded(function (loaded) {
+                    // We look for the stable ids where the gene is represented in the diagram
+                    let gene = $(`#${_this.prefix}-geneSelect`).selectpicker('val');
+                    _this._diagram.flagItems(gene);
+                });
+
+                // let _this = this;
+                // this.reactomeClient.contentServiceClient().searchClient().diagram(stableId, gene)
+                //     .then(function (response) {
+                //         debugger
+                //         for (let i = 0; i < response.entries.length; i++) {
+                //             _this._diagram.highlightItem(response.entries[i].stId);
+                //         }
+                //     });
+            }
+
+            _fetchPathwaysForGene(gene) {
+                let _this = this;
+
+                // check species
+                this.reactomeClient.contentServiceClient().mappingClient().pathways("ENSEMBL", gene,
+                    {species: 9606})
+                    .then(function (response) {
+                        let diagrammedPathways = [];
+                        for (let i = 0; i < response.length; i++) {
+                            let pathway = response[i];
+                            if (pathway.hasDiagram) {
+                                diagrammedPathways.push(pathway);
+                            }
+                        }
+                        _this.pathways = diagrammedPathways;
+
+                        // Show diagram div
+                        $(`#${_this.prefix}-diagram`).show();
+                        $(`#${_this.prefix}-not-available-diagram`).hide();
+
+                        _this._fetchPathwayForDisplay(diagrammedPathways[0].stId);
+                    })
+                    .catch(function (response) {
+                        console.log(response);
+                        _this.pathways = [];
+
+                        // Hide diagram div
+                        $(`#${_this.prefix}-diagram`).hide();
+                        $(`#${_this.prefix}-not-available-diagram`).show();
+                    });
+            }
+
+            renderDomRepeat(e) {
+                $(`#${this.prefix}-geneSelect`).selectpicker('refresh');
+                $(`#${this.prefix}-geneSelect`).selectpicker('deselectAll');
+                $(`#${this.prefix}-pathwaySelect`).selectpicker('refresh');
+                $(`#${this.prefix}-pathwaySelect`).selectpicker('deselectAll');
+            }
+
+            getDefaultConfig() {
+                return {
+                }
+            }
+        }
+
+        customElements.define(ReactomeVariantNetwork.is, ReactomeVariantNetwork);
+    </script>
+</dom-module>
