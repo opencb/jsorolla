@@ -21,6 +21,7 @@
 <link rel="import" href="opencga-interpreted-variant-grid.html">
 <link rel="import" href="opencga-interpreted-variant-detail.html">
 <link rel="import" href="../opencga-genome-browser.html">
+<link rel="import" href="../alignment/opencga-panel-transcript-view.html">
 <link rel="import" href="../clinical/clinical-analysis-view.html">
 <link rel="import" href="../clinical/clinical-interpretation-view.html">
 
@@ -176,7 +177,7 @@
 
                         <!-- PANEL LOW COVERAGE VIEW -->
                         <div id="{{prefix}}LowCoverage" class="variant-interpretation-content" style="display: none">
-                            <span>Low Coverage WIP</span>
+                            <opencga-panel-transcript-view opencga-session="{{opencgaSession}}" panel-ids="{{diseasePanelId}}"></opencga-panel-transcript-view>
                         </div>
 
                         <!-- GENOME BROWSER VIEW -->
