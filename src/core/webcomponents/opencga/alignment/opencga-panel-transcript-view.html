@@ -6,7 +6,7 @@
             <div style="margin: 2px 2px">
                 <label class="col-md-2">Gene:</label>
                 <select class="selectpicker col-md-10" id="{{prefix}}-geneSelect">
-                    <template is="dom-repeat" items="{{genes}}">
+                    <template is="dom-repeat" items="{{_genes}}">
                         <option data-gene="{{item}}">{{item.name}}</option>
                     </template>
                 </select>
@@ -14,8 +14,7 @@
 
             <div style="margin: 4px 2px">
                 <label class="col-md-2">Low coverage threshold:</label>
-                <select class="selectpicker col-md-10" id="{{prefix}}-lowCoverageThreshold"
-                        on-change="onLowCoverageThresholdChange">
+                <select class="selectpicker col-md-10" id="{{prefix}}-lowCoverageThreshold" on-change="onLowCoverageThresholdChange">
                     <option>5</option>
                     <option>10</option>
                     <option>15</option>
@@ -31,16 +30,10 @@
             <div id="{{prefix}}-othersvg" style="width: 100%; height: 500px; margin-top: 10px; overflow-y: auto;"></div>
 
         </div>
-
     </template>
 
     <script>
         class OpencgaPanelTranscriptView extends Polymer.Element {
-
-            constructor() {
-                super();
-                this._init();
-            }
 
             static get is() {
                 return 'opencga-panel-transcript-view';
@@ -54,8 +47,18 @@
                     cellbaseClient: {
                         type: Object
                     },
-                    panel: {
-                        type: Object
+                    clinicalAnalysis: {
+                        type: Object,
+                    },
+                    panelId: {
+                        type: String,
+                        // observer: "panelIdObserver"
+                    },
+                    // panel: {
+                    //     type: Object
+                    // },
+                    geneIds: {
+                        type: Array
                     },
                     config: {
                         type: Object
@@ -64,41 +67,51 @@
             }
 
             static get observers() {
-                return ['propertyObserver(opencgaSession, cellbaseClient, panel, config)'];
-            }
-
-            _init() {
-                this.prefix = "PanelTranscriptView" + Utils.randomString(6);
+                return ['propertyObserver(opencgaSession, clinicalAnalysis, panelId, geneIds, config)'];
             }
 
             _attachDom(dom) {
                 this.appendChild(dom);
             }
 
+            constructor() {
+                super();
+
+                this._init();
+            }
+
+            _init() {
+                this.prefix = "PanelTranscriptView" + Utils.randomString(6);
+
+                // Initially we set the default config, this will be overridden if 'config' is passed
+                this._config = this.getDefaultConfig();
+            }
+
+
             connectedCallback() {
                 super.connectedCallback();
 
                 // We add this first listener to get a call whenever the first element is loaded
                 $(`#${this.prefix}-geneSelect`).on('loaded.bs.select', this.onGeneChange.bind(this));
+
                 // We add this listener to receive any future change over the selected genes
                 $(`#${this.prefix}-geneSelect`).on('changed.bs.select', this.onGeneChange.bind(this));
             }
 
-            propertyObserver(opencgaSession, cellbaseClient, panel, config) {
-                this._config = Object.assign(this.getDefaultConfig(), config);
-
-                if (UtilsNew.isNotUndefinedOrNull(opencgaSession) && UtilsNew.isNotUndefinedOrNull(cellbaseClient)
-                    && UtilsNew.isNotUndefinedOrNull(panel)) {
-                    this._fetchGenesFromPanel();
+            propertyObserver(opencgaSession, clinicalAnalysis, panelId, genes, config) {
+                if (UtilsNew.isNotUndefinedOrNull(config)) {
+                    this._config = Object.assign(this.getDefaultConfig(), config);
                 }
-            }
 
-            _fetchGenesFromPanel() {
+                let _genes = [];
                 let _this = this;
-                this.opencgaSession.opencgaClient.panels().info(this.panel, {study: this.opencgaSession.study.fqn})
-                    .then(function(response) {
-                        _this.genes = response.response[0].result[0].genes;
-                    });
+                if (UtilsNew.isNotUndefinedOrNull(opencgaSession) && UtilsNew.isNotEmpty(panelId)) {
+                    this.opencgaSession.opencgaClient.panels().info(panelId, {study: this.opencgaSession.study.fqn})
+                        .then(function(response) {
+                            _this._genes = response.response[0].result[0].genes;
+                        });
+                }
+                // this._genes = _genes;
             }
 
             onLowCoverageThresholdChange(e) {
@@ -351,6 +364,7 @@
 
             getDefaultConfig() {
                 return {
+                    offset: 2500
                 }
             }
         }

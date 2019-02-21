@@ -30,17 +30,6 @@
     <script>
         class OpencgaVariantDetailTemplate extends Polymer.Element {
 
-            constructor() {
-                super();
-
-                // Set status and init private properties
-                this._init();
-            }
-
-            static get is() {
-                return 'opencga-variant-detail-template'
-            };
-
             static get properties() {
                 return {
                     opencgaSession: {
@@ -51,16 +40,13 @@
                     },
                     variant: {
                         type: String,
-                        observer: "variantObserver"
                     },
                     active: {
                         type: Boolean,
                         value: false,
-                        observer: "activeObserver"
                     },
                     config: {
                         type: Object,
-                        observer: "configObserver"
                     }
                 }
             }
@@ -68,6 +54,17 @@
             _attachDom(dom) {
                 this.appendChild(dom);
             }
+
+            constructor() {
+                super();
+
+                // Set status and init private properties
+                this._init();
+            }
+
+            static get is() {
+                return 'opencga-variant-detail-template'
+            };
 
             /**
              * Init the variables you need, keep in mind this is executed before the actual Polymer properties exist
@@ -80,23 +77,19 @@
                 this._config = this.getDefaultConfig();
             }
 
-            variantObserver(e) {
-                this.fetchData(e);
+            static get observers() {
+                return [
+                    "propertyObserver(opencgaSession, variant, active, config)"
+                ];
             }
 
-            activeObserver(e) {
-                // fetchData method checks if 'active' is true
-                this.fetchData(e);
+            propertyObserver(opencgaSession, variant, active, config) {
+                this._config = Object.assign(this.getDefaultConfig(), config);
+
+                this.fetchData();
             }
 
-            /**
-             * Apply the 'config' properties on the default
-             */
-            configObserver() {
-                this._config = Object.assign(this.getDefaultConfig(), this.config);
-            }
-
-            fetchData(e) {
+            fetchData() {
                 // Make sure variant exists and that this plugin is active
                 if (UtilsNew.isNotUndefinedOrNull(this.variant) && this.variant.split(':').length > 2 && this.active) {
                     let [chromosome, start, ref, alt] = this.variant.split(":");

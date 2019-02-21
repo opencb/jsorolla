@@ -123,6 +123,17 @@
                                 selected-terms="{{selectedTermsOntology}}">
         </variant-modal-ontology>
 
+
+
+        <!--<div id="{{prefix}}tobemoved">-->
+            <!--<select id="{{prefix}}DiseasePanels" class="selectpicker"-->
+                    <!--data-size="10" data-live-search="true" data-selected-text-format="count" on-dom-change="renderDomRepeat" multiple>-->
+                    <!--<template is="dom-repeat" items="{{paneles}}">-->
+                        <!--<option value="{{item.value}}">{{item.name}}</option>-->
+                    <!--</template>-->
+            <!--</select>-->
+        <!--</div>-->
+
         <div class="modal fade" id="{{prefix}}SampleFilterModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
              role="dialog" aria-hidden="true" style="padding-top: 0%; overflow-y: visible">
             <div class="modal-dialog" style="width: 1280px">
@@ -233,6 +244,8 @@
 
                 this._genotypes = ["0/0", "0/1", "1/1"];
 
+                this.paneles = ["a", "b"];
+
                 this.samples = [];
 
                 this.updateClinicalFilterQuery = true;
@@ -285,7 +298,7 @@
             }
 
             queryObserver(newValue, oldValue) {
-                debugger
+                // debugger
                 // if (this._reset) {
                 // this.setQueryFilters();
                 // } else {
@@ -1557,7 +1570,9 @@
             }
 
             _getGeneDiseasePanelsHtml(prefix) {
-                return `<div id="${prefix}DiseasePanelDropdown"></div>`;
+                return `<div id="${prefix}DiseasePanelDropdown">
+
+                        </div>`;
             }
 
             _getBiotypeHtml(biotypes, prefix) {
@@ -1931,6 +1946,7 @@
                         if (response.response[0].result.length === 0) {
                             options += "<option disabled>None</option>";
                         } else {
+                            // let _panels = [];
                             for (let panel of response.response[0].result) {
                                 let version = "";
                                 let numberOfGenes = 0;
@@ -1943,24 +1959,34 @@
                                     numberOfVariants = panel.stats.numberOfVariants;
                                 }
                                 options += `<option value="${panel.id}">${panel.name} ${version} (${numberOfGenes} genes, ${numberOfVariants} variants)</option>`;
+                                // _panels.push({name: `${panel.name} ${version} (${numberOfGenes} genes, ${numberOfVariants} variants)`, value: panel.id});
                             }
+                            // _this.paneles = _panels;
 
                             let content = `<select id="${_this.prefix}DiseasePanels" class="selectpicker"
-                                            data-size="10" data-live-search="true" data-selected-text-format="count" multiple>
+                                            data-size="10" data-live-search="true" data-selected-text-format="count"
+                                            on-dom-change="renderDomRepeat" multiple>
                                                 ${options}
                                            </select>
                                         `;
                             PolymerUtils.innerHTML(_this.prefix + "DiseasePanelDropdown", content);
-                            let element = PolymerUtils.getElementById(_this.prefix + "DiseasePanelDropdown");
+
+
+
+                            // PolymerUtils.innerHTML(_this.prefix + "DiseasePanels", options);
+                            // $("#" + _this.prefix + "tobemoved").appendTo("#" + _this.prefix + "DiseasePanelDropdown");
+
+
+                            // let element = PolymerUtils.getElementById(_this.prefix + "DiseasePanelDropdown");
+                            let element = PolymerUtils.getElementById(_this.prefix + "DiseasePanels");
                             if (UtilsNew.isNotUndefinedOrNull(element)) {
                                 element.addEventListener('change', _this.updateQueryFilters.bind(_this));
                             }
-
-                            // $('select.selectpicker').selectpicker('render');
-                            // $('select.selectpicker').selectpicker({
-                            //     iconBase: 'fa',
-                            //     tickIcon: 'fa-check'
-                            // });
+                            $("#" + _this.prefix + 'DiseasePanels').selectpicker('render');
+                            $("#" + _this.prefix + 'DiseasePanels').selectpicker({
+                                iconBase: 'fa',
+                                tickIcon: 'fa-check'
+                            });
                         }
                         // options += "</optgroup>";
 
@@ -1999,6 +2025,11 @@
                         //         }
                         //     });
                     });
+            }
+
+            renderDomRepeat(e) {
+                $('select.selectpicker').selectpicker('refresh');
+                // $('select.selectpicker').selectpicker('deselectAll');
             }
 
             _addEventListeners() {
