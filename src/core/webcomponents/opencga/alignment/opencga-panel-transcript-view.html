@@ -132,9 +132,7 @@
                     this.fatherTrack = new LinearCoverageTrack({
                         name: "Father",
                         opencga: {
-                            client: this.opencgaSession.opencgaClient,
-                            study: this.opencgaSession.study.fqn,
-                            file: fatherFile
+                            client: this.opencgaSession.opencgaClient
                         },
                         targetId: `${this.prefix}-othersvg`,
                         width: $(`#${this.prefix}-othersvg`).width()
@@ -145,9 +143,7 @@
                     this.motherTrack = new LinearCoverageTrack({
                         name: "Mother",
                         opencga: {
-                            client: this.opencgaSession.opencgaClient,
-                            study: this.opencgaSession.study.fqn,
-                            file: motherFile
+                            client: this.opencgaSession.opencgaClient
                         },
                         targetId: `${this.prefix}-othersvg`,
                         width: $(`#${this.prefix}-othersvg`).width()
@@ -158,9 +154,7 @@
                     this.daughterTrack = new LinearCoverageTrack({
                         name: "Daughter",
                         opencga: {
-                            client: this.opencgaSession.opencgaClient,
-                            study: this.opencgaSession.study.fqn,
-                            file: daughterFile
+                            client: this.opencgaSession.opencgaClient
                         },
                         targetId: `${this.prefix}-othersvg`,
                         width: $(`#${this.prefix}-othersvg`).width()
@@ -181,13 +175,31 @@
                     .then(function (response) {
                         let gene = response.response[0].result[0];
 
-                        _this.fatherTrack.setRegion(`${gene.chromosome}:${gene.start}-${gene.end}`);
-                        _this.motherTrack.setRegion(`${gene.chromosome}:${gene.start}-${gene.end}`);
-                        _this.daughterTrack.setRegion(`${gene.chromosome}:${gene.start}-${gene.end}`);
+                        let region = new Region(`${gene.chromosome}:${gene.start}-${gene.end}`);
 
-                        _this.fatherTrack.draw(threshold);
-                        _this.motherTrack.draw(threshold);
-                        _this.daughterTrack.draw(threshold);
+                        _this.fatherTrack.draw({
+                            region: region,
+                            regionOffset: _this._config.offset,
+                            study: _this.opencgaSession.study.fqn,
+                            fileId: fatherFile,
+                            lowCoverageThreshold: threshold
+                        });
+
+                        _this.motherTrack.draw({
+                            region: region,
+                            regionOffset: _this._config.offset,
+                            study: _this.opencgaSession.study.fqn,
+                            fileId: motherFile,
+                            lowCoverageThreshold: threshold
+                        });
+
+                        _this.daughterTrack.draw({
+                            region: region,
+                            regionOffset: _this._config.offset,
+                            study: _this.opencgaSession.study.fqn,
+                            fileId: daughterFile,
+                            lowCoverageThreshold: threshold
+                        });
 
                         _this.geneTrack.draw(gene);
 

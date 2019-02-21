@@ -242,7 +242,7 @@ class OpencgaAdapter extends FeatureAdapter {
 
         let study = params.study;
 
-        let minCoverage = args.minCoverage;
+        let minCoverage = params.minCoverage;
         if (UtilsNew.isUndefinedOrNull(minCoverage)) {
             minCoverage = 20;
         }

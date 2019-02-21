@@ -19,7 +19,7 @@ class LinearCoverageTrack extends LinearFeatureTrack {
         super(args);
 
         if (UtilsNew.isUndefinedOrNull(this.renderer)) {
-            this.renderer = new CoverageRenderer(new CoverageRendererConfig(this.width, this.height));
+            this.renderer = new CoverageRenderer();
         }
 
         if (UtilsNew.isUndefinedOrNull(this.dataAdapter)) {
@@ -35,29 +35,63 @@ class LinearCoverageTrack extends LinearFeatureTrack {
         this.init(this.targetId);
     }
 
-    draw(minCoverage) {
-        let _this = this;
+    _checkAllParams(params) {
+        if (UtilsNew.isEmpty(params.study)) {
+            throw "Missing study parameter";
+        }
+        if (UtilsNew.isEmpty(params.fileId)) {
+            throw "Missing fileId parameter";
+        }
+        if (UtilsNew.isUndefinedOrNull(params.region)) {
+            throw "Missing region parameter";
+        }
+    }
 
+    /**
+     *
+      * @param query: Object containing:
+     *   {
+     *       lowCoverageThreshold: ,
+     *       regionOffset: ,
+     *       study: ,
+     *       fileId: ,
+     *       region: ,
+     *       data: ,
+     *   }
+     */
+    draw(query) {
+        let _this = Object.assign({}, this._getDefaultConfig(), this, query);
 
-        this.coverageConfiguration = new CoverageRendererConfig(this.width, this.height, this.svgCanvasFeatures, this._getScaleFactor(),
-            this.region.start, this.region.end);
+        this._checkAllParams(_this);
 
+        let coverageConfiguration = {
+            width: _this.width,
+            height: _this.height,
+            svgCanvas: _this.svgCanvasFeatures,
+            scaleFactor: this._getScaleFactor(_this.width, _this.region.start, _this.region.end),
+            start: _this.region.start,
+            end: _this.region.end
+        };
 
         this.clean();
-        if (UtilsNew.isNotUndefinedOrNull(this.data)) {
-            this.renderer.render(this.data, this.coverageConfiguration);
+        if (UtilsNew.isNotUndefinedOrNull(_this.data)) {
+            this.renderer.render(_this.data, coverageConfiguration);
         } else {
-            // We will obtain a region with an offset of 300 bps
-            let start = (this.region.start - 300) < 0 ? 0 : this.region.start - 300;
-            let end = this.region.end + 300;
+            // We will obtain a region with an the offset defined
+            let start = (_this.region.start - _this.regionOffset) < 0 ? 0 : _this.region.start - _this.regionOffset;
+            let end = _this.region.end + _this.regionOffset;
 
             this.dataAdapter.getData({
+                params: {
+                    study: _this.study,
+                    fileId: _this.fileId,
+                    minCoverage: _this.lowCoverageThreshold
+                },
                 dataType: this.dataType,
-                region: new Region(`${this.region.chromosome}:${start}-${end}`),
-                width: this.width,
-                minCoverage: minCoverage
+                region: new Region(`${_this.region.chromosome}:${start}-${end}`),
+                width: _this.width
             }).then(function(data) {
-                _this.renderer.render(data, _this.coverageConfiguration);
+                _this.renderer.render(data, coverageConfiguration);
             })
         }
     }
@@ -105,12 +139,15 @@ class LinearCoverageTrack extends LinearFeatureTrack {
         $(this.titleDiv).html(`<h5>${this.name}</h5>`);
     }
 
-    _getScaleFactor() {
-        return this.width / (this.region.end - this.region.start + 1);
+    _getScaleFactor(width, start, end) {
+        return width / (end - start + 1);
     }
 
     _getDefaultConfig() {
-        return super._getDefaultConfig();
+        return Object.assign(super._getDefaultConfig(), {
+            lowCoverageThreshold: 20,
+            regionOffset: 500
+        });
     }
 
 }

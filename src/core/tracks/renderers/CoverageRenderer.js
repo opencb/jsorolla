@@ -1,7 +1,6 @@
 class CoverageRenderer {
 
-    constructor(config) {
-        this.config = this._getDefaultConfig().combine(config);
+    constructor() {
     }
 
     /*
@@ -31,28 +30,20 @@ class CoverageRenderer {
     * }
     * */
     render(data, config) {
-        this.config = this.config.combine(config);
+        let _config = Object.assign({}, this._getDefaultConfig(), config);
 
-        this._renderCoverage(data.coverage);
-        this._renderLowCoverage(data.lowCoverage);
+        this._renderCoverage(data.coverage, _config);
+        this._renderLowCoverage(data.lowCoverage, _config);
     }
 
-    _renderCoverage(data) {
+    _renderCoverage(data, config) {
         // Draw the features
         let polyline = [];
 
-        let maxHeight = this.config.height;
+        let maxHeight = config.height;
 
         let windowSize = data.windowSize;
         let start = data.start;
-
-        let maximumCoverage = 0;
-        // We get the maximum value to be able to scale
-        for (let i = 0; i < data.values.length; i++) {
-            if (maximumCoverage < data.values[i]) {
-                maximumCoverage = data.values[i];
-            }
-        }
 
         let x = 0;
         let y = 0;
@@ -63,12 +54,12 @@ class CoverageRenderer {
         for (let i = 0; i < data.values.length; i++) {
             let chromosomicPosition = start + (windowSize * i);
 
-            if (chromosomicPosition > this.config.end) {
+            if (chromosomicPosition > config.end) {
                 break;
             }
 
-            x = this._calculatePixelPosition(chromosomicPosition);
-            y = maxHeight - ((data.values[i] / maximumCoverage) * maxHeight);
+            x = this._calculatePixelPosition(chromosomicPosition, config);
+            y = maxHeight - ((Math.min(data.values[i] / config.maxCoverage, 1)) * maxHeight);
 
             if (x < 0) {
                 negativeX = x;
@@ -92,9 +83,9 @@ class CoverageRenderer {
         }
 
         // We will close the polyline
-        polyline.push(`${this.config.width},100 0,100 0,${firstHeight}`);
+        polyline.push(`${config.width},100 0,100 0,${firstHeight}`);
 
-        SVG.addChild(this.config.svgCanvas, "polyline", {
+        SVG.addChild(config.svgCanvas, "polyline", {
             points: polyline.join(" "),
             stroke: "blue",
             fill: "gainsboro",
@@ -102,29 +93,29 @@ class CoverageRenderer {
         });
     }
 
-    _renderLowCoverage(data) {
+    _renderLowCoverage(data, config) {
         let path = [];
 
         for (let i = 0; i < data.length; i++) {
             let start = data[i].start;
             let end = data[i].end;
 
-            if (end < this.config.start) {
+            if (end < config.start) {
                 // We skip regions of low coverage that fall before the starting region that will be actually represented
                 continue;
             }
-            if (start > this.config.end) {
+            if (start > config.end) {
                 // We stop if we find regions of low coverage that fall after the ending region that will be actually represented
                 break;
             }
 
-            let pixelStart = this._calculatePixelPosition(start);
-            let pixelEnd = this._calculatePixelPosition(end);
+            let pixelStart = this._calculatePixelPosition(start, config);
+            let pixelEnd = this._calculatePixelPosition(end, config);
 
             path.push(`M ${pixelStart} 0 H ${pixelEnd} V 100 H ${pixelStart}`);
         }
 
-        SVG.addChild(this.config.svgCanvas, "path", {
+        SVG.addChild(config.svgCanvas, "path", {
             d: path.join(" "),
             // stroke: "black",
             // "stroke-width": 0.5,
@@ -133,107 +124,20 @@ class CoverageRenderer {
         });
     }
 
-    _calculatePixelPosition(position) {
-        return (position - this.config.start) * this.config.scaleFactor;
+    _calculatePixelPosition(position, config) {
+        return (position - config.start) * config.scaleFactor;
     }
 
     _getDefaultConfig() {
-        return new CoverageRendererConfig();
+        return {
+            svgCanvas: undefined,
+            scaleFactor: undefined,
+            height: undefined,
+            width: undefined,
+            start: undefined,
+            end: undefined,
+            maxCoverage: 60
+        }
     }
 
-}
-
-class CoverageRendererConfig {
-
-    constructor(width, height, svgCanvas, scaleFactor, start, end) {
-        /*
-        * SVG component
-        * */
-        this._svgCanvas = svgCanvas;
-
-        /*
-        * Scale factor (old pixelBase) -> width (pixels) / length (bps)
-        * */
-        this._scaleFactor = scaleFactor;
-
-        /*
-        * Height of the window where the coverage will be rendered
-        * */
-        this._height = height;
-
-        /*
-        * Width of the window where the coverage will be rendered
-        * */
-        this._width = width;
-
-        /*
-        * First position of the chromosomic region to be fitted in the window
-        * */
-        this._start = start;
-
-        /*
-        * Last position of the chromosomic region to be fitted in the window
-        * */
-        this._end = end;
-
-    }
-
-    combine(config) {
-        let coverageConfig = new CoverageRendererConfig();
-        coverageConfig.svgCanvas = UtilsNew.isNotUndefinedOrNull(config.svgCanvas) ? config.svgCanvas : this.svgCanvas;
-        coverageConfig.scaleFactor = UtilsNew.isNotUndefinedOrNull(config.scaleFactor) ? config.scaleFactor : this.scaleFactor;
-        coverageConfig.height = UtilsNew.isNotUndefinedOrNull(config.height) ? config.height : this.height;
-        coverageConfig.width = UtilsNew.isNotUndefinedOrNull(config.width) ? config.width : this.width;
-        coverageConfig.start = UtilsNew.isNotUndefinedOrNull(config.start) ? config.start : this.start;
-        coverageConfig.end = UtilsNew.isNotUndefinedOrNull(config.end) ? config.end : this.end;
-        return coverageConfig;
-    }
-
-    get svgCanvas() {
-        return this._svgCanvas;
-    }
-
-    set svgCanvas(value) {
-        this._svgCanvas = value;
-    }
-
-    get scaleFactor() {
-        return this._scaleFactor;
-    }
-
-    set scaleFactor(value) {
-        this._scaleFactor = value;
-    }
-
-    get width() {
-        return this._width;
-    }
-
-    set width(value) {
-        this._width = value;
-    }
-
-    get height() {
-        return this._height;
-    }
-
-    set height(value) {
-        this._height = value;
-    }
-
-    get start() {
-        return this._start;
-    }
-
-    set start(value) {
-        this._start = value;
-    }
-
-    get end() {
-        return this._end;
-    }
-
-    set end(value) {
-        this._end = value;
-    }
 }
