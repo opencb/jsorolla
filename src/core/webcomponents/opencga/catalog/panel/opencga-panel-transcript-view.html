@@ -27,7 +27,8 @@
                 </select>
             </div>
 
-            <div id="{{prefix}}-svg" style="width: 100%; height: 500px; margin-top: 10px;"></div>
+            <!--<div id="{{prefix}}-svg" style="width: 100%; height: 500px; margin-top: 10px;"></div>-->
+            <div id="{{prefix}}-othersvg" style="width: 100%; height: 500px; margin-top: 10px; overflow-y: auto;"></div>
 
         </div>
 
@@ -112,94 +113,151 @@
                 // TODO: Remove hardcoded file
                 let fatherFile = "NA12877_S1.bam"; // father
                 let motherFile = "NA12878_S1.bam"; // mother
-                let sonFile = "NA12879_S1.bam"; // daughter
+                let daughterFile = "NA12879_S1.bam"; // daughter
 
+                if (UtilsNew.isUndefinedOrNull(this.fatherTrack)) {
+                    this.fatherTrack = new LinearCoverageTrack({
+                        name: "Father",
+                        opencga: {
+                            client: this.opencgaSession.opencgaClient,
+                            study: this.opencgaSession.study.fqn,
+                            file: fatherFile
+                        },
+                        targetId: `${this.prefix}-othersvg`,
+                        width: $(`#${this.prefix}-othersvg`).width()
+                    });
+                }
+
+                if (UtilsNew.isUndefinedOrNull(this.motherTrack)) {
+                    this.motherTrack = new LinearCoverageTrack({
+                        name: "Mother",
+                        opencga: {
+                            client: this.opencgaSession.opencgaClient,
+                            study: this.opencgaSession.study.fqn,
+                            file: motherFile
+                        },
+                        targetId: `${this.prefix}-othersvg`,
+                        width: $(`#${this.prefix}-othersvg`).width()
+                    });
+                }
+
+                if (UtilsNew.isUndefinedOrNull(this.daughterTrack)) {
+                    this.daughterTrack = new LinearCoverageTrack({
+                        name: "Daughter",
+                        opencga: {
+                            client: this.opencgaSession.opencgaClient,
+                            study: this.opencgaSession.study.fqn,
+                            file: daughterFile
+                        },
+                        targetId: `${this.prefix}-othersvg`,
+                        width: $(`#${this.prefix}-othersvg`).width()
+                    });
+                }
+
+                if (UtilsNew.isUndefinedOrNull(this.geneTrack)) {
+                    this.geneTrack = new LinearGeneTrack({
+                        name: geneId,
+                        targetId: `${this.prefix}-othersvg`,
+                        width: $(`#${this.prefix}-othersvg`).width()
+                    })
+                }
 
                 let _this = this;
                 this.cellbaseClient.get('feature', 'gene', geneId, 'info',
                     { assembly: this.opencgaSession.project.organism.assembly }, {})
                     .then(function (response) {
                         let gene = response.response[0].result[0];
-                        let metaTranscript = _this._createMetaTranscript(gene);
 
-                        let svgDiv = document.getElementById(`${_this.prefix}-svg`);
-                        let windowSize = Math.round(((gene.end - gene.start) * 1.85 ) / svgDiv.offsetWidth);
+                        _this.fatherTrack.setRegion(`${gene.chromosome}:${gene.start}-${gene.end}`);
+                        _this.motherTrack.setRegion(`${gene.chromosome}:${gene.start}-${gene.end}`);
+                        _this.daughterTrack.setRegion(`${gene.chromosome}:${gene.start}-${gene.end}`);
 
-                        let promises = [];
-                        promises.push(_this.opencgaSession.opencgaClient.alignments().coverage(fatherFile,
-                            { study: _this.opencgaSession.study.fqn, gene: geneId, geneOffset: 300,
-                                windowSize: windowSize }));
+                        _this.fatherTrack.draw(threshold);
+                        _this.motherTrack.draw(threshold);
+                        _this.daughterTrack.draw(threshold);
 
-                        promises.push(_this.opencgaSession.opencgaClient.alignments().lowCoverage(fatherFile,
-                            { study: _this.opencgaSession.study.fqn, gene: geneId, geneOffset: 300,
-                                minCoverage: threshold }));
+                        _this.geneTrack.draw(gene);
 
-                        promises.push(_this.opencgaSession.opencgaClient.alignments().coverage(motherFile,
-                            { study: _this.opencgaSession.study.fqn, gene: geneId, geneOffset: 300,
-                                windowSize: windowSize }));
-
-                        promises.push(_this.opencgaSession.opencgaClient.alignments().lowCoverage(motherFile,
-                            { study: _this.opencgaSession.study.fqn, gene: geneId, geneOffset: 300,
-                                minCoverage: threshold }));
-
-                        promises.push(_this.opencgaSession.opencgaClient.alignments().coverage(sonFile,
-                            { study: _this.opencgaSession.study.fqn, gene: geneId, geneOffset: 300,
-                                windowSize: windowSize }));
-
-                        promises.push(_this.opencgaSession.opencgaClient.alignments().lowCoverage(sonFile,
-                            { study: _this.opencgaSession.study.fqn, gene: geneId, geneOffset: 300,
-                                minCoverage: threshold }));
-
-                        Promise.all(promises).then(function(responses) {
-                            let tracks = [];
-
-                            tracks.push({
-                                name: "Father",
-                                type: "coverage",
-                                data: {
-                                    coverage: responses[0].response[0].result[0],
-                                    lowCoverage: responses[1].response[0].result
-                                },
-                                order: 1
-                            });
-
-                            tracks.push({
-                                name: "Mother",
-                                type: "coverage",
-                                data: {
-                                    coverage: responses[2].response[0].result[0],
-                                    lowCoverage: responses[3].response[0].result
-                                },
-                                order: 2
-                            });
-
-                            tracks.push({
-                                name: "Daughter",
-                                type: "coverage",
-                                data: {
-                                    coverage: responses[4].response[0].result[0],
-                                    lowCoverage: responses[5].response[0].result
-                                },
-                                order: 0
-                            });
-
-                            if (UtilsNew.isNotEmptyArray(gene.transcripts[0].tfbs)) {
-                                tracks.push({
-                                    name: "TFBS",
-                                    type: "feature",
-                                    data: gene.transcripts[0].tfbs
-                                });
-                            }
-
-                            let exonViewer = new ExonViewer(`${_this.prefix}-svg`, metaTranscript, tracks);
-
-                            // Modify the width to use the whole width of the div
-                            let config = exonViewer.getDefaultConfig();
-                            config.width = svgDiv.offsetWidth;
-                            // config.display.compact = true;
-
-                            exonViewer.render(config);
-                        });
+                        // let metaTranscript = _this._createMetaTranscript(gene);
+                        //
+                        // let svgDiv = document.getElementById(`${_this.prefix}-svg`);
+                        // let windowSize = Math.round(((gene.end - gene.start) * 1.85 ) / svgDiv.offsetWidth);
+                        //
+                        // let promises = [];
+                        // promises.push(_this.opencgaSession.opencgaClient.alignments().coverage(fatherFile,
+                        //     { study: _this.opencgaSession.study.fqn, gene: geneId, geneOffset: 300,
+                        //         windowSize: windowSize }));
+                        //
+                        // promises.push(_this.opencgaSession.opencgaClient.alignments().lowCoverage(fatherFile,
+                        //     { study: _this.opencgaSession.study.fqn, gene: geneId, geneOffset: 300,
+                        //         minCoverage: threshold }));
+                        //
+                        // promises.push(_this.opencgaSession.opencgaClient.alignments().coverage(motherFile,
+                        //     { study: _this.opencgaSession.study.fqn, gene: geneId, geneOffset: 300,
+                        //         windowSize: windowSize }));
+                        //
+                        // promises.push(_this.opencgaSession.opencgaClient.alignments().lowCoverage(motherFile,
+                        //     { study: _this.opencgaSession.study.fqn, gene: geneId, geneOffset: 300,
+                        //         minCoverage: threshold }));
+                        //
+                        // promises.push(_this.opencgaSession.opencgaClient.alignments().coverage(daughterFile,
+                        //     { study: _this.opencgaSession.study.fqn, gene: geneId, geneOffset: 300,
+                        //         windowSize: windowSize }));
+                        //
+                        // promises.push(_this.opencgaSession.opencgaClient.alignments().lowCoverage(daughterFile,
+                        //     { study: _this.opencgaSession.study.fqn, gene: geneId, geneOffset: 300,
+                        //         minCoverage: threshold }));
+                        //
+                        // Promise.all(promises).then(function(responses) {
+                        //     let tracks = [];
+                        //
+                        //     tracks.push({
+                        //         name: "Father",
+                        //         type: "coverage",
+                        //         data: {
+                        //             coverage: responses[0].response[0].result[0],
+                        //             lowCoverage: responses[1].response[0].result
+                        //         },
+                        //         order: 1
+                        //     });
+                        //
+                        //     tracks.push({
+                        //         name: "Mother",
+                        //         type: "coverage",
+                        //         data: {
+                        //             coverage: responses[2].response[0].result[0],
+                        //             lowCoverage: responses[3].response[0].result
+                        //         },
+                        //         order: 2
+                        //     });
+                        //
+                        //     tracks.push({
+                        //         name: "Daughter",
+                        //         type: "coverage",
+                        //         data: {
+                        //             coverage: responses[4].response[0].result[0],
+                        //             lowCoverage: responses[5].response[0].result
+                        //         },
+                        //         order: 0
+                        //     });
+                        //
+                        //     if (UtilsNew.isNotEmptyArray(gene.transcripts[0].tfbs)) {
+                        //         tracks.push({
+                        //             name: "TFBS",
+                        //             type: "feature",
+                        //             data: gene.transcripts[0].tfbs
+                        //         });
+                        //     }
+                        //
+                        //     let exonViewer = new ExonViewer(`${_this.prefix}-svg`, metaTranscript, tracks);
+                        //
+                        //     // Modify the width to use the whole width of the div
+                        //     let config = exonViewer.getDefaultConfig();
+                        //     config.width = svgDiv.offsetWidth;
+                        //     // config.display.compact = true;
+                        //
+                        //     exonViewer.render(config);
+                        // });
 
                     });
             }

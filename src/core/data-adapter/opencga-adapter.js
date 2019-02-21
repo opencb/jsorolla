@@ -54,10 +54,10 @@ class OpencgaAdapter extends FeatureAdapter {
         switch(this.category) {
             case "analysis/variant":
                 return this._getVariant(args);
-                break;
             case "analysis/alignment":
                 return this._getAlignmentData(args);
-                break;
+            case "coverage":
+                return this._getCoverageData(args);
             default:
                 return this._getExpressionData(args);
         }
@@ -203,6 +203,81 @@ class OpencgaAdapter extends FeatureAdapter {
 
         });
 
+    }
+
+    _getCoverageData(args) {
+        let params = {};
+
+        Object.assign(params, this.params);
+        Object.assign(params, args.params);
+
+        /** 1 region check **/
+        let region = args.region;
+        if (region.start > 300000000 || region.end < 1) {
+            return;
+        }
+        region.start = (region.start < 1) ? 1 : region.start;
+        region.end = (region.end > 300000000) ? 300000000 : region.end;
+
+        /** 2 category check **/
+        // let categories = this.resource.toString().split(',');   // in this adapter each category is each file
+
+        /** 3 dataType check **/
+        let dataType = args.dataType;
+        if (_.isUndefined(dataType)) {
+            console.log("dataType must be provided!!!");
+        }
+
+        // /** 4 chunkSize check **/
+        // let chunkSize = params.interval ? params.interval : this.options.chunkSize; // this.cache.defaultChunkSize should be the same
+        // if (this.debug) {
+        //     console.log(chunkSize);
+        // }
+
+        /** 5 file check **/
+        let fileId = params.fileId;
+        if (UtilsNew.isUndefinedOrNull(fileId)) {
+            return;
+        }
+
+        let study = params.study;
+
+        let minCoverage = args.minCoverage;
+        if (UtilsNew.isUndefinedOrNull(minCoverage)) {
+            minCoverage = 20;
+        }
+
+        if (UtilsNew.isUndefinedOrNull(args.visibleWindowLength)) {
+            args.visibleWindowLength = region.length();
+        }
+
+        // Calculate some coverage metrics to know the window size we should be using
+        let bpsPerPixel = args.visibleWindowLength / args.width;
+        let regionLength = region.length();
+        let widthInPixels = regionLength / bpsPerPixel;
+        // We will only want to draw 1 point for every 4 pixels
+        let totalPointsNeeded = widthInPixels / 4;
+        // Therefore, we will need a window size of...
+        let windowSize = Math.max(regionLength / totalPointsNeeded, 1);
+
+        let coverage = this.client.alignments().coverage(fileId, {
+            region: region,
+            study: study,
+            windowSize: Math.round(windowSize)
+        });
+        let lowCoverage = this.client.alignments().lowCoverage(fileId, {
+            region: region,
+            study: study,
+            windowSize: 1,
+            minCoverage: minCoverage
+        });
+
+        return Promise.all([coverage, lowCoverage]).then(function(responses) {
+            return {
+                coverage: responses[0].response[0].result[0],
+                lowCoverage: responses[1].response[0].result
+            };
+        });
     }
 
     _getAlignmentData(args) {
