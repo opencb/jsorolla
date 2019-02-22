@@ -98,7 +98,7 @@
                 $(`#${this.prefix}-geneSelect`).on('changed.bs.select', this.onGeneChange.bind(this));
             }
 
-            propertyObserver(opencgaSession, clinicalAnalysis, panelId, genes, config) {
+            propertyObserver(opencgaSession, clinicalAnalysis, panelId, gene, config) {
                 if (UtilsNew.isNotUndefinedOrNull(config)) {
                     this._config = Object.assign(this.getDefaultConfig(), config);
                 }
