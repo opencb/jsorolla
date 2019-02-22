@@ -1,36 +1,25 @@
 class LinearFeatureTrack {
 
-    constructor(args) {
+    constructor(args, config) {
         this.id = Utils.genId("track");
+
+        this.config = Object.assign({}, this._getDefaultConfig(), config);
+
         this.dataAdapter;
         this.renderer;
-        this.histogramRendererName = "HistogramRenderer";
-        this.resizable = true;
-        this.autoHeight = false;
         this.targetId;
         this.title;
-        this.minHistogramRegionSize = 300000000;
-        this.maxLabelRegionSize = 300000000;
-        this.width = 200;
-        this.height = 100;
-        this.visibleRegionSize;
-        this.visible = true;
-        this.contentVisible = true;
-        this.closable = false;
-        this.showSettings = false;
-        this.fontClass = "ocb-font-roboto ocb-font-size-14";
-        this.externalLink = "";
-        this.autoRender = false;
-        this.exclude;
+        // this.visibleRegionSize;
+        // this.externalLink = "";
+        // this.exclude;
 
         Object.assign(this, args);
-        if (this.renderer != null) {
-            this.renderer.track = this;
-        }
+        // if (this.renderer != null) {
+        //     this.renderer.track = this;
+        // }
 
         this.pixelBase;
-        this.svgCanvasWidth = 500000;
-        this.pixelPosition = this.svgCanvasWidth / 2;
+        this.pixelPosition = this.config.svgCanvasWidth / 2;
         this.svgCanvasOffset;
 
         this.status;

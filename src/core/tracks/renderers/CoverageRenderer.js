@@ -1,6 +1,9 @@
 class CoverageRenderer {
 
-    constructor() {
+    constructor(target, config) {
+        this.target = target;
+
+        this.config = Object.assign({}, this._getDefaultConfig(), config);
     }
 
     /*
@@ -30,7 +33,9 @@ class CoverageRenderer {
     * }
     * */
     render(data, config) {
-        let _config = Object.assign({}, this._getDefaultConfig(), config);
+        let _config = Object.assign({}, this.config, config);
+
+        this._calculateScaleFactor(_config);
 
         this._renderCoverage(data.coverage, _config);
         this._renderLowCoverage(data.lowCoverage, _config);
@@ -54,7 +59,7 @@ class CoverageRenderer {
         for (let i = 0; i < data.values.length; i++) {
             let chromosomicPosition = start + (windowSize * i);
 
-            if (chromosomicPosition > config.end) {
+            if (chromosomicPosition > config.visibleEndPosition) {
                 break;
             }
 
@@ -85,7 +90,7 @@ class CoverageRenderer {
         // We will close the polyline
         polyline.push(`${config.width},100 0,100 0,${firstHeight}`);
 
-        SVG.addChild(config.svgCanvas, "polyline", {
+        SVG.addChild(config.target, "polyline", {
             points: polyline.join(" "),
             stroke: "blue",
             fill: "gainsboro",
@@ -94,17 +99,21 @@ class CoverageRenderer {
     }
 
     _renderLowCoverage(data, config) {
+        if (UtilsNew.isUndefinedOrNull(data)) {
+            return;
+        }
+        
         let path = [];
 
         for (let i = 0; i < data.length; i++) {
             let start = data[i].start;
             let end = data[i].end;
 
-            if (end < config.start) {
+            if (end < config.visibleStartPosition) {
                 // We skip regions of low coverage that fall before the starting region that will be actually represented
                 continue;
             }
-            if (start > config.end) {
+            if (start > config.visibleEndPosition) {
                 // We stop if we find regions of low coverage that fall after the ending region that will be actually represented
                 break;
             }
@@ -115,7 +124,7 @@ class CoverageRenderer {
             path.push(`M ${pixelStart} 0 H ${pixelEnd} V 100 H ${pixelStart}`);
         }
 
-        SVG.addChild(config.svgCanvas, "path", {
+        SVG.addChild(config.target, "path", {
             d: path.join(" "),
             // stroke: "black",
             // "stroke-width": 0.5,
@@ -124,19 +133,28 @@ class CoverageRenderer {
         });
     }
 
+    _calculateScaleFactor(config) {
+        if (UtilsNew.isUndefinedOrNull(config.visibleStartPosition) || UtilsNew.isUndefinedOrNull(config.visibleEndPosition)) {
+            throw "Missing 'visibleStartPosition' or 'visibleEndPosition' configuration fields."
+        }
+
+        config.scaleFactor = config.width / (config.visibleEndPosition - config.visibleStartPosition + 1);
+    }
+
     _calculatePixelPosition(position, config) {
-        return (position - config.start) * config.scaleFactor;
+        return (position - config.visibleStartPosition) * config.scaleFactor;
     }
 
     _getDefaultConfig() {
         return {
-            svgCanvas: undefined,
-            scaleFactor: undefined,
-            height: undefined,
-            width: undefined,
-            start: undefined,
-            end: undefined,
-            maxCoverage: 60
+            // svgCanvas: undefined,
+            // scaleFactor: undefined,
+
+            height: 40,
+            width: 240,
+            // start: undefined,
+            // end: undefined,
+            maxCoverage: 75
         }
     }
 
