@@ -551,6 +551,7 @@ class VariantGridFormatter {
                                 </thead>
                                 <tbody>`;
 
+            // Sort by Tier level
             row.reportedEvents.sort(function(a, b) {
                 if (a.tier === null || b.tier !== null) {
                     return 1;
@@ -567,7 +568,27 @@ class VariantGridFormatter {
                 return 0;
             });
 
+            // FIXME Maybe this should happen in the server?
+            let consequenceTypeSet = new Set();
+            if (UtilsNew.isNotUndefinedOrNull(variantGrid.query) && UtilsNew.isNotUndefinedOrNull(variantGrid.query.ct)) {
+                consequenceTypeSet = new Set(variantGrid.query.ct.split(","));
+            }
+
             for (let re of row.reportedEvents) {
+                // FIXME Maybe this should happen in the server?
+                // If ct exist and there are some consequenceTypeIds then we check that the report event matches the query
+                if (UtilsNew.isNotEmptyArray(re.consequenceTypeIds) && consequenceTypeSet.size > 0) {
+                    let hasConsequenceType = false;
+                    for (let ct of re.consequenceTypeIds) {
+                        if (consequenceTypeSet.has(ct)) {
+                            hasConsequenceType = true;
+                        }
+                    }
+                    if (!hasConsequenceType) {
+                        continue;
+                    }
+                }
+
                 // Prepare data info for columns
                 let gene = "NA";
                 if (UtilsNew.isNotEmpty(re.genomicFeature.geneName)) {
