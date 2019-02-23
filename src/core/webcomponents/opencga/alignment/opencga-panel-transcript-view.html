@@ -27,7 +27,7 @@
             </div>
 
             <!--<div id="{{prefix}}-svg" style="width: 100%; height: 500px; margin-top: 10px;"></div>-->
-            <div id="{{prefix}}-othersvg" style="width: 100%; height: 500px; margin-top: 10px; overflow-y: auto;"></div>
+            <div id="{{prefix}}-othersvg" style="width: 100%; margin-top: 10px;"></div>
 
         </div>
     </template>
@@ -135,7 +135,9 @@
                             client: this.opencgaSession.opencgaClient
                         },
                         targetId: `${this.prefix}-othersvg`,
-                        width: $(`#${this.prefix}-othersvg`).width()
+                        config: {
+                            width: $(`#${this.prefix}-othersvg`).width()
+                        }
                     });
                 }
 
@@ -146,7 +148,9 @@
                             client: this.opencgaSession.opencgaClient
                         },
                         targetId: `${this.prefix}-othersvg`,
-                        width: $(`#${this.prefix}-othersvg`).width()
+                        config: {
+                            width: $(`#${this.prefix}-othersvg`).width()
+                        }
                     });
                 }
 
@@ -157,7 +161,9 @@
                             client: this.opencgaSession.opencgaClient
                         },
                         targetId: `${this.prefix}-othersvg`,
-                        width: $(`#${this.prefix}-othersvg`).width()
+                        config: {
+                            width: $(`#${this.prefix}-othersvg`).width()
+                        }
                     });
                 }
 
@@ -178,27 +184,36 @@
                         let region = new Region(`${gene.chromosome}:${gene.start}-${gene.end}`);
 
                         _this.fatherTrack.draw({
-                            region: region,
-                            regionOffset: _this._config.offset,
-                            study: _this.opencgaSession.study.fqn,
-                            fileId: fatherFile,
-                            lowCoverageThreshold: threshold
+                            query: {
+                                region: region,
+                                study: _this.opencgaSession.study.fqn,
+                                fileId: fatherFile
+                            }, config: {
+                                regionOffset: _this._config.offset,
+                                lowCoverageThreshold: threshold
+                            }
                         });
 
                         _this.motherTrack.draw({
-                            region: region,
-                            regionOffset: _this._config.offset,
-                            study: _this.opencgaSession.study.fqn,
-                            fileId: motherFile,
-                            lowCoverageThreshold: threshold
+                            query: {
+                                region: region,
+                                study: _this.opencgaSession.study.fqn,
+                                fileId: motherFile
+                            }, config: {
+                                regionOffset: _this._config.offset,
+                                lowCoverageThreshold: threshold
+                            }
                         });
 
                         _this.daughterTrack.draw({
-                            region: region,
-                            regionOffset: _this._config.offset,
-                            study: _this.opencgaSession.study.fqn,
-                            fileId: daughterFile,
-                            lowCoverageThreshold: threshold
+                            query: {
+                                region: region,
+                                study: _this.opencgaSession.study.fqn,
+                                fileId: daughterFile
+                            }, config: {
+                                regionOffset: _this._config.offset,
+                                lowCoverageThreshold: threshold
+                            }
                         });
 
                         _this.geneTrack.draw(gene);

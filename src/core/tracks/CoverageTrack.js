@@ -15,8 +15,10 @@ class LinearCoverageTrack extends LinearFeatureTrack {
         {configArgs}
     }
     */
-    constructor(args) {
-        super(args);
+    constructor(args, config) {
+        super(args, config);
+
+        this.config = Object.assign(this._getDefaultConfig(), this.config);
 
         if (UtilsNew.isUndefinedOrNull(this.renderer)) {
             this.renderer = new CoverageRenderer();
@@ -24,10 +26,7 @@ class LinearCoverageTrack extends LinearFeatureTrack {
 
         if (UtilsNew.isUndefinedOrNull(this.dataAdapter)) {
             if (UtilsNew.isNotUndefinedOrNull(this.opencga)) {
-                this.dataAdapter = new OpencgaAdapter(this.opencga.client, "coverage", "", "", {
-                    study: this.opencga.study,
-                    fileId: this.opencga.file
-                }, {});
+                this.dataAdapter = new OpencgaAdapter(this.opencga.client, "coverage");
             }
         }
 
@@ -37,62 +36,73 @@ class LinearCoverageTrack extends LinearFeatureTrack {
 
     _checkAllParams(params) {
         if (UtilsNew.isEmpty(params.study)) {
-            throw "Missing study parameter";
+            throw "Missing 'study' query parameter";
         }
         if (UtilsNew.isEmpty(params.fileId)) {
-            throw "Missing fileId parameter";
+            throw "Missing 'fileId' query parameter";
         }
         if (UtilsNew.isUndefinedOrNull(params.region)) {
-            throw "Missing region parameter";
+            throw "Missing 'region' query parameter";
         }
     }
 
     /**
      *
-      * @param query: Object containing:
+      * @param args: Object containing:
      *   {
-     *       lowCoverageThreshold: ,
-     *       regionOffset: ,
-     *       study: ,
-     *       fileId: ,
-     *       region: ,
-     *       data: ,
+     *       data: {},
+     *       query: {},
+     *       config: {}
      *   }
      */
-    draw(query) {
-        let _this = Object.assign({}, this._getDefaultConfig(), this, query);
-
-        this._checkAllParams(_this);
+    draw(args) {
+        let config = Object.assign({}, this.config, args.config);
 
         let coverageConfiguration = {
-            width: _this.width,
-            height: _this.height,
-            svgCanvas: _this.svgCanvasFeatures,
-            scaleFactor: this._getScaleFactor(_this.width, _this.region.start, _this.region.end),
-            start: _this.region.start,
-            end: _this.region.end
+            width: config.width,
+            height: config.height,
+            target: this.svgCanvasFeatures
         };
 
-        this.clean();
-        if (UtilsNew.isNotUndefinedOrNull(_this.data)) {
-            this.renderer.render(_this.data, coverageConfiguration);
+        if (UtilsNew.isUndefinedOrNull(args.query)) {
+            let data = UtilsNew.isUndefinedOrNull(args.data) ? this.data : args.data;
+
+            if (UtilsNew.isUndefinedOrNull(data)) {
+                throw "Missing 'data' or 'query'";
+            }
+
+            // Adjust to see the whole coverage window
+            coverageConfiguration["visibleStartPosition"] = data.coverage.start;
+            coverageConfiguration["visibleEndPosition"] = data.coverage.end;
+
+            this.clean();
+            this.renderer.render(data, coverageConfiguration);
         } else {
+            this._checkAllParams(args.query);
+
+            // Adjust to see the whole coverage window
+            coverageConfiguration["visibleStartPosition"] = args.query.region.start;
+            coverageConfiguration["visibleEndPosition"] = args.query.region.end;
+
             // We will obtain a region with an the offset defined
-            let start = (_this.region.start - _this.regionOffset) < 0 ? 0 : _this.region.start - _this.regionOffset;
-            let end = _this.region.end + _this.regionOffset;
+            let start = (args.query.region.start - config.regionOffset) < 0 ? 0 : args.query.region.start - config.regionOffset;
+            let end = args.query.region.end + config.regionOffset;
+
+            let _this = this;
 
             this.dataAdapter.getData({
                 params: {
-                    study: _this.study,
-                    fileId: _this.fileId,
-                    minCoverage: _this.lowCoverageThreshold
+                    study: args.query.study,
+                    fileId: args.query.fileId,
+                    minCoverage: config.lowCoverageThreshold
                 },
                 dataType: this.dataType,
-                region: new Region(`${_this.region.chromosome}:${start}-${end}`),
-                width: _this.width
+                region: new Region(`${args.query.region.chromosome}:${start}-${end}`),
+                width: config.width
             }).then(function(data) {
+                _this.clean();
                 _this.renderer.render(data, coverageConfiguration);
-            })
+            });
         }
     }
 
@@ -101,8 +111,8 @@ class LinearCoverageTrack extends LinearFeatureTrack {
 
         this.svgCanvasFeatures = SVG.addChild(this.contentDiv, "svg", {
             "class": "features",
-            "width": this.width,
-            "height": this.height,
+            "width": this.config.width,
+            "height": this.config.height,
             "style": "fill: white",
             "xmlns": "http://www.w3.org/2000/svg"
         });
@@ -124,7 +134,7 @@ class LinearCoverageTrack extends LinearFeatureTrack {
 
         $(this.contentDiv).css({
             "position": "relative",
-            "box-sizing": "boder-box",
+            "box-sizing": "border-box",
             "z-index": 3,
             "height": this.height,
             "overflow-y": "hidden",
