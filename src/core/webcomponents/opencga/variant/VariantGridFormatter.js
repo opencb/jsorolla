@@ -535,6 +535,7 @@ class VariantGridFormatter {
                                     <tr>
                                         <th rowspan="2">Gene</th>
                                         <th rowspan="2">Ensembl Transcript</th>
+                                        <th rowspan="2">Biotype</th>
                                         <th rowspan="2">Consequence Types</th>
                                         <th rowspan="2">Panel</th>
                                         <th rowspan="2">Mode of Inheritance</th>
@@ -606,6 +607,16 @@ class VariantGridFormatter {
                                     </a>`;
                 }
 
+                let biotype = "NA";
+                if (UtilsNew.isNotUndefinedOrNull(row.annotation) && UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
+                    for (let ct of row.annotation.consequenceTypes) {
+                        if (ct.ensemblTranscriptId === re.genomicFeature.ensemblTranscriptId) {
+                            biotype = ct.biotype;
+                            break;
+                        }
+                    }
+                }
+
                 let soArray = [];
                 for (let so of re.consequenceTypeIds) {
                     let color = "black";
@@ -665,6 +676,7 @@ class VariantGridFormatter {
                 ctHtml += `<tr class="detail-view-row">
                             <td>${gene}</td>
                             <td>${transcriptId}</td>
+                            <td>${biotype}</td>
                             <td>${soArray.join("")}</td>
                             <td>${panel}</td>
                             <td>${moi}</td>
