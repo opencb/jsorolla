@@ -288,13 +288,6 @@
             }
 
             queryObserver(newValue, oldValue) {
-                // debugger
-                // if (this._reset) {
-                // this.setQueryFilters();
-                // } else {
-                //     this._reset = true;
-                // }
-
                 if (this.updateClinicalFilterQuery) {
                     this.clinicalFilterQuery = this.query;
                 } else {
@@ -302,28 +295,6 @@
                 }
 
                 this.setQueryFilters();
-                // Parameter 'genotype' has been removed
-                // if (UtilsNew.isNotUndefinedOrNull(oldValue) && UtilsNew.isNotUndefinedOrNull(oldValue.genotype)
-                //     && UtilsNew.isUndefinedOrNull(newValue.genotype)) {
-                //     let _samples = [];
-                //     for (let sample of this.samples) {
-                //         sample.genotypes = [];
-                //         sample.dp = undefined;
-                //         _samples.push(sample);
-                //     }
-                //     this.samples = _samples;
-                // }
-
-                // Parameter 'format' has been removed
-                // if (UtilsNew.isNotUndefinedOrNull(oldValue) && UtilsNew.isNotUndefinedOrNull(oldValue.format)
-                //     && UtilsNew.isUndefinedOrNull(newValue.format)) {
-                //     let _samples = [];
-                //     for (let sample of this.samples) {
-                //         sample.dp = undefined;
-                //         _samples.push(sample);
-                //     }
-                //     this.samples = _samples;
-                // }
             }
 
             clinicalObserver(clinicalAnalysis) {
@@ -357,39 +328,6 @@
                 }));
             }
 
-            /**
-             * TO DELETE!
-             * @param e
-             */
-            // samplesObserver(e) {
-            //     if (UtilsNew.isNotEmptyArray(this.samples)) {
-            //         PolymerUtils.addStyle(this.prefix + "SampleGenotypeMessage", "display", "none");
-            //     } else {
-            //         PolymerUtils.addStyle(this.prefix + "SampleGenotypeMessage", "display", "inline");
-            //     }
-            //
-            //     this._calculateFilesSamples();
-            //     this.updateQueryFilters();
-            // }
-
-            /**
-             * TO DELETE!
-             * @private
-             */
-            // _calculateFilesSamples() {
-            //     this.samplesFiles = [];
-            //     let _this = this;
-            //     let params = {
-            //         study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
-            //     };
-            //     this.samples.forEach((sample) => {
-            //         params.samples = [sample.source];
-            //         if (!UtilsNew.containsArray(_this.samplesFiles, sample.source)) {
-            //             _this.samplesFiles.push(sample.source);
-            //         }
-            //     });
-            // }
-
             onSampleFilterClick() {
                 $("#" + this.prefix + "SampleFilterModal").modal("show");
             }
@@ -412,26 +350,17 @@
                 }
 
                 // Process File filters
-                let _info = "";
+                let _files = [];
+                let _qual = e.detail.qual;
+                let _filter = e.detail.filter;
                 for (let fileFilter of e.detail.fileFilters) {
-                    let qual = (fileFilter.qual > 0) ? fileFilter.qual : -1;
-                    let filter = (UtilsNew.isNotEmpty(fileFilter.filter)) ? fileFilter.filter : "none";
-
-                    if (qual !== -1 || filter !== "none") {
-                        _info += `${fileFilter.name}:`;
-                        let _arr = [];
-                        if (qual !== -1) {
-                            _arr.push("QUAL>" + qual)
-                        }
-                        if (filter !== "none" && filter !== "") {
-                            _arr.push("FILTER=" + filter);
-                        }
-                        // FIXME join should be done with ';' instead of ','
-                        _info += _arr.join(",") + ";";
+                    if (fileFilter.selected) {
+                        _files.push(fileFilter.name);
                     }
                 }
 
                 let needUpdateQuery = false;
+                // Add sample filters to query
                 let _query = Object.assign({}, this.query);
                 if (_genotypeFilter !== undefined && _genotypeFilter.length > 0) {
                     _query.genotype = _genotypeFilter.join(";");
@@ -446,9 +375,21 @@
                         needUpdateQuery = true;
                     }
                 }
-                if (_info !== "") {
-                    _query.info = _info;
+
+                // Add file filters to query
+                if (_files.length > 0) {
+                    _query.file = _files.join(";");
+                    if (UtilsNew.isNotEmpty(_qual)) {
+                        _query.qual = ">=" + _qual;
+                    }
+                    if (UtilsNew.isNotEmpty(_filter)) {
+                        _query.filter = _filter;
+                    }
                     needUpdateQuery = true;
+                } else {
+                    delete _query.file;
+                    delete _query.qual;
+                    delete _query.filter;
                 }
 
                 // Only update query if really needed, this avoids unneeded web refresh
@@ -631,17 +572,15 @@
 
 
                     // Second, render File table
-                    let qual = (UtilsNew.isNotUndefinedOrNull(this.query.qual) && this.query.qual > 0) ? this.query.qual : -1;
-                    let filter = (UtilsNew.isNotEmpty(this.query.filter)) ? this.query.filter : "none";
                     let fileTableTr = "";
-                    for (let sampleId in this.clinicalAnalysis.files) {
-                        let sampleFiles = this.clinicalAnalysis.files[sampleId];
-                        for (let file of sampleFiles) {
-                            if (UtilsNew.isNotUndefinedOrNull(file.format) && file.format.toUpperCase() === "VCF") {
-                                fileTableTr += `
-                                            <tr data-file="${file.name}">
+                    if (UtilsNew.isNotEmptyArray(this.query.file)) {
+                        let qual = (UtilsNew.isNotEmpty(this.query.qual)) ? this.query.qual : "NA";
+                        let filter = (UtilsNew.isNotEmpty(this.query.filter)) ? this.query.filter : "NA";
+                        let _files = this.query.file.split(";");
+                        for (let fileName of _files) {
+                            fileTableTr += `<tr data-file="${fileName}">
                                                 <td>
-                                                    <span>${file.name}</span>
+                                                    <span>${fileName}</span>
                                                 </td>
                                                 <td>
                                                     ${qual}
@@ -649,10 +588,18 @@
                                                 <td>
                                                     ${filter}
                                                 </td>
-                                            </tr>
+                                           </tr>
                                 `;
-                            }
                         }
+                    } else {
+                        fileTableTr = `<tr>
+                                            <td>
+                                                No Files selected</span>
+                                            </td>
+                                            <td></td>
+                                            <td></td>
+                                       </tr>
+                                `;
                     }
 
                     elementById = PolymerUtils.getElementById(this.prefix + "FileFiltersSummaryTBody");
@@ -1263,12 +1210,6 @@
                 // Add events and tooltips to the filter menu
                 this._addEventListeners();
                 this._addAllTooltips();
-
-                // If Samples or Family properties have been passed then we hide the Sample selector
-                // if (UtilsNew.isNotEmptyArray(this.samples)) {
-                //     PolymerUtils.hide(this.prefix + "AutocompleteSampleSelect");
-                //     PolymerUtils.addStyle(this.prefix + "SampleGenotypeMessage", "display", "none");
-                // }
             }
 
             _createSection(section, prefix) {
@@ -1389,17 +1330,6 @@
             }
 
             _getSampleHtml(subsection, prefix) {
-                // let options = "";
-                // if (UtilsNew.isNotUndefinedOrNull(subsection) && UtilsNew.isNotEmptyArray(subsection.inheritanceModes)) {
-                //     for (let inheritanceMode of subsection.inheritanceModes) {
-                //         options += `<option value="${inheritanceMode.key}">${inheritanceMode.text}</option>`;
-                //     }
-                // }
-                // let approxCountCheckbox = "";
-                // if (subsection.showApproximateCount) {
-                //     // approxCountCheckbox = `<input id="${prefix}ApproxCountCheckbox" type="checkbox" value="approximateCount" class="${prefix}FilterCheckBox" checked> Approximate Count<br>`;
-                //     approxCountCheckbox = '<input id="${prefix}ApproxCountCheckbox" type="checkbox" value="approximateCount" class="${prefix}FilterCheckBox" style="display: none;" checked> Approximate Count<br>';
-                // }
                 let res = "";
                 if (subsection.showSelectSamples) {
                     res = `
@@ -1431,31 +1361,26 @@
                                 </tbody>
                             </table>
 
-                            <!--
-                                <div>Other filters:</div>
-                                <ul>
-                                    <li>Mode of Inheritance: ${this._modeOfInheritance}</li>
-                                    <li>Compound heterozygous: ${this._compoundHeterozygous}</li>
-                                </ul>
-                            -->
-
-                            <div>File Filters:</div>
-                            <table class="table" style="margin-bottom: 5px">
-                                <thead>
-                                <tr>
-                                    <th scope="col">File Name</th>
-                                    <th scope="col">QUAL</th>
-                                    <th scope="col">FILTER</th>
-                                </tr>
-                                </thead>
-                                <tbody id="${prefix}FileFiltersSummaryTBody">
-                                    <tr>
-                                        <td>No files selected</td>
-                                        <td></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                            <div id="${prefix}FileFilterSummary" style="display: inline">
+                                <div>File Filters:</div>
+                                    <table class="table" style="margin-bottom: 5px">
+                                        <thead>
+                                        <tr>
+                                            <th scope="col">File Name</th>
+                                            <th scope="col">QUAL</th>
+                                            <th scope="col">FILTER</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="${prefix}FileFiltersSummaryTBody">
+                                            <tr>
+                                                <td>No files selected</td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                     `;
                 }
                 return res;

@@ -96,8 +96,6 @@
                             <th scope="col" rowspan="1">Sample ID</th>
                             <th scope="col" rowspan="1">File Path</th>
                             <th scope="col" rowspan="1">Select</th>
-                            <!--<th scope="col" rowspan="2">Min. QUAL</th>-->
-                            <!--<th scope="col" rowspan="2">FILTER</th>-->
                         </tr>
                         </thead>
                         <tbody id="{{prefix}}FileTBody"></tbody>
@@ -115,11 +113,11 @@
                     <form class="form-horizontal">
                         <div class="form-group col-md-12" style="margin-bottom: 5px">
                             <div class="col-md-2">
-                                <input id="{{prefix}}QualCheckbox" type="checkbox" on-click="onFileQualClick"><span style="padding-left: 5px">Introduce min. QUAL</span>
+                                <input id="{{prefix}}FileFilterQualCheckbox" type="checkbox" on-click="onFileQualClick"><span style="padding-left: 5px">Introduce min. QUAL</span>
                                 <!--<span style="padding-left: 5px"><i class="fa fa-circle fa-xs" aria-hidden="true"> Introduce min. QUAL</i></span>-->
                             </div>
                             <div class="col-md-10" style="width: 120px;padding-left: 5px">
-                                <input id="{{prefix}}QualInput" type="text" class="form-control input-sm" style="padding: 5px 2px" on-keyup="onFileQualChange" disabled>
+                                <input id="{{prefix}}FileFilterQualInput" type="text" class="form-control input-sm" style="padding: 5px 2px" on-keyup="onFileQualChange" disabled>
                             </div>
                         </div>
                     </form>
@@ -364,26 +362,29 @@
                     }
                     this.renderSampleTable();
 
-                    // this.notify();
 
-                    // if (UtilsNew.isNotUndefinedOrNull(query.format)) {
-                    //     // Reset all genotypes
-                    //     for (let sampleFilter of this.sampleFilters) {
-                    //         sampleFilter.dp = "";
-                    //     }
-                    //     // Assign new passed genotypes to EXISTING samples
-                    //     let formats = query.format.split(";");
-                    //     for (let format of formats) {
-                    //         let sampleAndGenotype = format.split(":");
-                    //         for (let sampleFilter of this.sampleFilters) {
-                    //             if (sampleFilter.id === sampleAndGenotype[0]) {
-                    //                 sampleFilter.genotypes = sampleAndGenotype[1].split(",");
-                    //                 break;
-                    //             }
-                    //         }
-                    //     }
-                    //     this.renderSampleTable();
-                    // }
+                    // Set FILE filters
+                    let _files = UtilsNew.isNotEmpty(query.file) ? query.file.split(";") : [];
+                    for (let fileFilter of this.fileFilters) {
+                        fileFilter.selected = _files.includes(fileFilter.name);
+                    }
+
+                    if (UtilsNew.isNotEmpty(query.qual)) {
+                        PolymerUtils.getElementById(this.prefix + "FileFilterQualCheckbox").checked = true;
+                        PolymerUtils.getElementById(this.prefix + "FileFilterQualInput").value = query.qual;
+                        PolymerUtils.removeAttribute(this.prefix + "FileFilterQualInput", "disabled");
+                    } else {
+                        PolymerUtils.getElementById(this.prefix + "FileFilterQualCheckbox").checked = false;
+                        PolymerUtils.getElementById(this.prefix + "FileFilterQualInput").value = "";
+                        PolymerUtils.setAttribute(this.prefix + "FileFilterQualInput", "disabled", true);
+                    }
+
+                    if (UtilsNew.isNotEmpty(query.filter) && query.filter === "PASS") {
+                        PolymerUtils.getElementById(this.prefix + "FileFilterPass").checked = true;
+                    } else {
+                        PolymerUtils.getElementById(this.prefix + "FileFilterPass").checked = false;
+                    }
+                    this.renderFileTable();
                 }
             }
 
@@ -397,14 +398,27 @@
                     missing = PolymerUtils.getElementById(this.prefix + "MissingCheckbox").checked;
                 }
 
+                // File Filters
+                let _qual = undefined;
+                if (PolymerUtils.getElementById(this.prefix + "FileFilterQualCheckbox").checked) {
+                    _qual = PolymerUtils.getElementById(this.prefix + "FileFilterQualInput").value;
+                }
+
+                let _filter = undefined;
+                if (PolymerUtils.getElementById(this.prefix + "FileFilterPass").checked) {
+                    _filter = "PASS";
+                }
+
                 // Notify the sample change
                 this.dispatchEvent(new CustomEvent("samplefilterschange", {
                     detail: {
                         sampleFilters: this.sampleFilters,
-                        fileFilters: this.fileFilters,
                         modeOfInheritance: this.modeOfInheritance,
                         compoundHeterozygous: compHet,
-                        missing: missing
+                        missing: missing,
+                        fileFilters: this.fileFilters,
+                        qual: _qual,
+                        filter: _filter
                     },
                     bubbles: true,
                     composed: true
@@ -566,15 +580,8 @@
                     return;
                 }
 
-                // let filterValues  =["PASS"];
-debugger
                 let tr = "";
                 for (let fileFilter of this.fileFilters) {
-                    // let defaultValues = {
-                    //     qual: (fileFilter.qual !== undefined && fileFilter.qual > 0) ? fileFilter.qual : "",
-                    //     filter: (fileFilter.filter !== undefined && fileFilter !== "") ? fileFilter.filter : "none",
-                    // };
-
                     // Prepare the options in the FILTER dropdown and set the selected option
                     // let options = "<option value='none'>None</option>";
                     // for (let filterOption of filterValues) {
@@ -598,14 +605,6 @@ debugger
                                 <td style="vertical-align: middle; padding-left: 20px"><input type="checkbox" class="file-filter-checkbox" ${selected}></td>
                             </tr>
                     `;
-                // <td>
-                //     <input id="${this.prefix}${fileFilter.name}Qual" type="text" value="${defaultValues.qual}" class="form-control input-sm file-qual-textbox" aria-label="..." placeholder="15" style="width: 60px">
-                //         </td>
-                //         <td>
-                //         <select id="${this.prefix}FileFilter" class="form-control input-sm file-filter-select" data-size="5" data-width="120px" style="display: inline-block">
-                //         ${options}
-                //         </select>
-                //         </td>
                 }
 
                 let elementById = PolymerUtils.getElementById(this.prefix + "FileTBody");
@@ -625,7 +624,7 @@ debugger
                     //     dpTextbox.addEventListener('keyup', this.onFileTableChange.bind(this));
                     // }
                     //
-                    // // Add event listener to FILTER textbox
+                    // Add event listener to FILTER textbox
                     // let filterSelects = PolymerUtils.getElementsByClassName("file-filter-select");
                     // for (let filterSelect of filterSelects) {
                     //     filterSelect.addEventListener('change', this.onFileTableChange.bind(this));
@@ -644,11 +643,7 @@ debugger
                 let counter = 0;
                 for (let row of table.rows) {
                     if (row.dataset.file !== undefined) {
-                        // Set QUAL and FILTER value
-                        // this.fileFilters[counter].qual = row.children[3].children[0].value;
-                        // this.fileFilters[counter].filter = row.children[4].children[0].value;
                         this.fileFilters[counter].selected = row.children[3].children[0].checked;
-
                         counter++;
                     }
                 }
@@ -658,10 +653,12 @@ debugger
 
             onFileQualClick(e) {
                 if (e.currentTarget.checked) {
-                    PolymerUtils.removeAttribute(this.prefix + "QualInput", "disabled");
+                    PolymerUtils.removeAttribute(this.prefix + "FileFilterQualInput", "disabled");
                 } else {
-                    PolymerUtils.setAttribute(this.prefix + "QualInput", "disabled", true);
+                    PolymerUtils.setAttribute(this.prefix + "FileFilterQualInput", "disabled", true);
                 }
+
+                this.notify();
             }
 
             onFileQualChange(e) {
