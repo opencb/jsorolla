@@ -1228,7 +1228,7 @@
                     <div class="form-group">
                         <div class="browser-subsection" id="${subsection.id}" name="${subsection.title}">${subsection.title}
                             <div style="float: right" class="tooltip-div">
-                                <a><i class="fa fa-info-circle" aria-hidden="true" id="${subsection.id}Tooltip"></i></a>
+                                <a><i class="fa fa-info-circle" aria-hidden="true" id="${this.prefix}${subsection.id}Tooltip"></i></a>
                             </div>
                         </div>
                         <div id="${this.prefix}${subsection.id}" class="subsection-content ${ctScroll}">
@@ -1971,7 +1971,7 @@
                 for (let section of this.config.menu.sections) {
                     for (let subsection of section.subsections) {
                         if (UtilsNew.isNotEmpty(subsection.tooltip)) {
-                            let tooltipIcon = $("#" + subsection.id + "Tooltip");
+                            let tooltipIcon = $("#" + this.prefix + subsection.id + "Tooltip");
                             if (UtilsNew.isNotUndefinedOrNull(tooltipIcon)) {
                                 this._addTooltip(tooltipIcon, subsection.title, subsection.tooltip);
                             }
