@@ -15,14 +15,12 @@ class LinearGeneTrack extends LinearFeatureTrack {
         {configArgs}
     }
     */
-    constructor(args) {
-        super(args);
+    constructor(args, config) {
+        super(args, config);
 
         if (UtilsNew.isUndefinedOrNull(this.renderer)) {
             // this.renderer = new GeneRenderer(new GeneRendererConfig(this.width, this.height));
-
-            this.renderer = new GeneRenderer({
-            });
+            this.renderer = new GeneRenderer({});
         }
 
         if (UtilsNew.isUndefinedOrNull(this.dataAdapter)) {
@@ -44,20 +42,33 @@ class LinearGeneTrack extends LinearFeatureTrack {
         this.init(this.targetId);
     }
 
-    draw(data) {
-        let _this = this;
+    /**
+     *
+     * @param args: Object containing:
+     *   {
+     *       data: {},
+     *       query: {},
+     *       config: {}
+     *   }
+     */
+    draw(args) {
+        let config = Object.assign({}, this.config, args.config);
 
-        // this.rendererConfiguration = new GeneRendererConfig(this.width, this.height, this.svgCanvasFeatures, this._getScaleFactor(),
-        //     this.region.start, this.region.end);
         this.clean();
 
-        if (UtilsNew.isNotUndefinedOrNull(data)) {
+        if (UtilsNew.isUndefinedOrNull(args.query)) {
+            let data = UtilsNew.isUndefinedOrNull(args.data) ? this.data : args.data;
+
+            if (UtilsNew.isUndefinedOrNull(data)) {
+                throw "Missing 'data' or 'query'";
+            }
+
             $(this.titleDiv).html(`<h5>${data.name}</h5>`);
 
             this.rendererConfiguration = {
                 svgCanvasFeatures: this.svgCanvasFeatures,
                 pixelBase: this._getScaleFactor(data),
-                width: this.width,
+                width: config.width,
                 position: ((data.end - data.start + 1) / 2) + data.start,
                 regionSize: data.end - data.start + 1,
                 pixelPosition: 0,
@@ -67,15 +78,15 @@ class LinearGeneTrack extends LinearFeatureTrack {
             this.renderer.render([this._extractMetaTranscript(data)], this.rendererConfiguration);
         } else {
             // We will obtain a region with an offset of 300 bps
-            let start = (this.region.start - 300) < 0 ? 0 : this.region.start - 300;
-            let end = this.region.end + 300;
+            let start = (args.query.region.start - 300) < 0 ? 0 : args.query.region.start - 300;
+            let end = args.query.region.end + 300;
 
             this.dataAdapter.getData({
                 dataType: this.dataType,
-                region: new Region(`${this.region.chromosome}:${start}-${end}`),
+                region: new Region(`${args.query.region.chromosome}:${start}-${end}`),
                 width: this.width,
-                position: ((data.end - data.start + 1) / 2) + data.start,
-                regionSize: data.end - data.start + 1,
+                position: ((args.query.region.end - args.query.region.start + 1) / 2) + args.query.region.start,
+                regionSize: args.query.region.end - args.query.region.start + 1,
                 pixelPosition: 0,
                 renderedArea: {}
             }).then(function(data) {
@@ -97,8 +108,8 @@ class LinearGeneTrack extends LinearFeatureTrack {
 
         this.svgCanvasFeatures = SVG.addChild(this.contentDiv, "svg", {
             "class": "features",
-            "width": this.width,
-            "height": this.height,
+            "width": this.config.width,
+            "height": this.config.height,
             "style": "fill: white",
             "xmlns": "http://www.w3.org/2000/svg"
         });
@@ -207,7 +218,7 @@ class LinearGeneTrack extends LinearFeatureTrack {
 
         $(this.contentDiv).css({
             "position": "relative",
-            "box-sizing": "boder-box",
+            "box-sizing": "border-box",
             "z-index": 3,
             "height": this.height,
             "overflow-y": "hidden",
@@ -221,7 +232,7 @@ class LinearGeneTrack extends LinearFeatureTrack {
     }
 
     _getScaleFactor(data) {
-        return this.width / (data.end - data.start + 1);
+        return this.config.width / (data.end - data.start + 1);
     }
 
     _getDefaultConfig() {
