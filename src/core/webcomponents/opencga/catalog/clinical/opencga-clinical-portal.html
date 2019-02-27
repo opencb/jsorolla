@@ -15,7 +15,7 @@
   -->
 
 <link rel="import" href="opencga-clinical-analysis-portal.html">
-<link rel="import" href="opencga-clinical-analysis-creator.html">
+<link rel="import" href="opencga-clinical-analysis-editor.html">
 
 <dom-module id="opencga-clinical-portal">
     <template>
@@ -81,10 +81,10 @@
                     </div>
 
                     <div id="{{prefix}}CreateCase" class="clinical-portal-content" style="display: none">
-                        <opencga-clinical-analysis-creator opencga-session="{{opencgaSession}}"
+                        <opencga-clinical-analysis-editor opencga-session="{{opencgaSession}}"
                                                            on-clinicalanalysischange="onClinicalAnalysisEditor"
                                                            config="{{config.clinicalAnalysisBrowser}}">
-                        </opencga-clinical-analysis-creator>
+                        </opencga-clinical-analysis-editor>
                     </div>
 
                     <div id="{{prefix}}DiseasePanel" class="clinical-portal-content" style="display: none">

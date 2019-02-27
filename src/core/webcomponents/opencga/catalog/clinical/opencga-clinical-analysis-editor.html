@@ -18,7 +18,7 @@
 <link rel="import" href="../family/opencga-family-browser.html">
 <link rel="import" href="../family/opencga-family-editor.html">
 
-<dom-module id="opencga-clinical-analysis-creator">
+<dom-module id="opencga-clinical-analysis-editor">
     <template>
         <style>
             .form-section-title {
@@ -268,7 +268,7 @@
     </template>
 
     <script>
-        class OpencgaClinicalAnalysisCreator extends Polymer.Element {
+        class OpencgaClinicalAnalysisEditor extends Polymer.Element {
 
             constructor() {
                 super();
@@ -277,7 +277,7 @@
             }
 
             static get is() {
-                return 'opencga-clinical-analysis-creator';
+                return 'opencga-clinical-analysis-editor';
             }
 
             static get properties() {
@@ -1069,6 +1069,6 @@
             }
         }
 
-        customElements.define(OpencgaClinicalAnalysisCreator.is, OpencgaClinicalAnalysisCreator);
+        customElements.define(OpencgaClinicalAnalysisEditor.is, OpencgaClinicalAnalysisEditor);
     </script>
 </dom-module>
