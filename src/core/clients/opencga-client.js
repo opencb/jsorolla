@@ -236,84 +236,32 @@ class OpenCGAClient {
                                     // this sets the current active project and study
                                     session.project = session.projects[0];
                                     session.study = session.projects[0].studies[0];
-                                    // FIXME This is a TEST - to delete!!
-                                    session.study.panels = [
-                                        {
-                                            "id": "391",
-                                            "name": "Adult solid tumours for rare disease",
-                                            "stats": {
-                                                "numberOfRegions": 0,
-                                                "numberOfVariants": 0,
-                                                "numberOfGenes": 58
-                                            },
-                                            "source": {
-                                                "id": "391",
-                                                "name": "Adult solid tumours for rare disease",
-                                                "version": "1.21",
-                                                "project": "PanelApp (GEL)"
+
+                                    // Fetch the Disease Panels for each Study
+                                    let panelPromises = [];
+                                    for (let study of studies) {
+                                        let promise = _this.panels().search({
+                                            study: study,
+                                            include: "id,name,stats,source,genes.name"
+                                        }).then(function (response) {
+                                            return response.response[0].result;
+                                        });
+                                        panelPromises.push(promise);
+                                    }
+
+                                    Promise.all(panelPromises)
+                                        .then(function(values) {
+                                            let studiesMap = {};
+                                            for (let i = 0; i < studies.length; i++) {
+                                                studiesMap[studies[i]] = values[i];
                                             }
-                                        },
-                                        {
-                                            "id": "245",
-                                            "name": "Adult solid tumours pertinent cancer susceptibility",
-                                            "stats": {
-                                                "numberOfRegions": 0,
-                                                "numberOfVariants": 0,
-                                                "numberOfGenes": 54
-                                            },
-                                            "source": {
-                                                "id": "245",
-                                                "name": "Adult solid tumours pertinent cancer susceptibility",
-                                                "version": "1.0",
-                                                "project": "PanelApp (GEL)"
+                                            // This set the panels in the object reference of the session object
+                                            for (let project of session.projects) {
+                                                for (let study of project.studies) {
+                                                    study.panels = studiesMap[project.id + ":" + study.id];
+                                                }
                                             }
-                                        },
-                                        {
-                                            "id": "510",
-                                            "name": "Aniridia",
-                                            "stats": {
-                                                "numberOfRegions": 0,
-                                                "numberOfVariants": 0,
-                                                "numberOfGenes": 3
-                                            },
-                                            "source": {
-                                                "id": "510",
-                                                "name": "Aniridia",
-                                                "version": "1.0",
-                                                "project": "PanelApp (GEL)"
-                                            }
-                                        },
-                                        {
-                                            "id": "34",
-                                            "name": "Anophthalmia or microphthalmia",
-                                            "stats": {
-                                                "numberOfRegions": 0,
-                                                "numberOfVariants": 0,
-                                                "numberOfGenes": 57
-                                            },
-                                            "source": {
-                                                "id": "34",
-                                                "name": "Anophthalmia or microphthalmia",
-                                                "version": "1.16",
-                                                "project": "PanelApp (GEL)"
-                                            }
-                                        },
-                                        {
-                                            "id": "134",
-                                            "name": "Arrhythmogenic cardiomyopathy",
-                                            "stats": {
-                                                "numberOfRegions": 0,
-                                                "numberOfVariants": 0,
-                                                "numberOfGenes": 16
-                                            },
-                                            "source": {
-                                                "id": "134",
-                                                "name": "Arrhythmogenic cardiomyopathy",
-                                                "version": "1.15",
-                                                "project": "PanelApp (GEL)"
-                                            }
-                                        }
-                                    ]
+                                        });
                                 }
 
                                 resolve(session);
