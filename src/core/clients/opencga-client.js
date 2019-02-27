@@ -213,6 +213,7 @@ class OpenCGAClient {
                             .then(function (response) {
                                 session.projects = response.response[0].result;
                                 if (UtilsNew.isNotEmptyArray(session.projects) && UtilsNew.isNotEmptyArray(session.projects[0].studies)) {
+                                    let studies = [];
                                     // FIXME This is needed to keep backward compatibility with OpenCGA 1.3.x
                                     for (let project of session.projects) {
                                         project.alias = project.alias || project.fqn || null;
@@ -226,6 +227,8 @@ class OpenCGAClient {
                                                         study.alias = study.fqn;
                                                     }
                                                 }
+                                                // Keep track of the studies to fetch Disease Panels
+                                                studies.push(project.id + ":" + study.id);
                                             }
                                         }
                                     }
