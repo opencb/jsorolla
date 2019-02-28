@@ -46,6 +46,28 @@
             .LOW-priority {
                 color: green;
             }
+
+            .form-section-title {
+                padding: 5px 0px;
+                width: 80%;
+                border-bottom-width: 1px;
+                border-bottom-style: solid;
+                border-bottom-color: #ddd
+            }
+
+            .jso-label-title {
+                width: 15em !important;
+            }
+
+            .pad-top-5 {
+                padding-top: 5px !important;
+            }
+
+            /*.control-label2 {*/
+            /*padding-top: 5px;*/
+            /*margin-bottom: 0;*/
+            /*text-align: right;*/
+            /*}*/
         </style>
 
         <!--<template is="dom-if" if="{{showSummary}}">-->
@@ -62,54 +84,91 @@
 
 
             <div id="{{prefix}}Summary" class="col-md-12 section-padding">
-                <h3><span style="color: #8a6d3b;">{{clinicalAnalysis.id}}</span> - Analysis Summary</h3>
-                <hr class="hr-underline">
+                <!--<h3><span style="color: #8a6d3b;">{{clinicalAnalysis.id}}</span> - Analysis Summary</h3>-->
+                <!--<hr class="hr-underline">-->
 
-                <form class="form-horizontal" style="padding: 10px 0px 0px 0px;">
-                    <div class="form-group" style="margin: 0px 2px">
-                        <label class="col-md-2">Analysis ID:</label>
-                        <span class="col-md-10">{{clinicalAnalysis.id}}</span>
-                    </div>
-                    <div class="form-group" style="margin: 0px 2px">
-                        <label class="col-md-2">Disorder:</label>
-                        <span class="col-md-10">{{clinicalAnalysis.disorder.name}} ({{clinicalAnalysis.disorder.id}})</span>
-                    </div>
-                    <div class="form-group" style="margin: 0px 2px">
-                        <label class="col-md-2">Type:</label>
-                        <span class="col-md-10">{{clinicalAnalysis.type}}</span>
-                    </div>
-                    <div class="form-group" style="margin: 0px 2px">
-                        <label class="col-md-2">Creation Date:</label>
-                        <span class="col-md-10">{{clinicalAnalysisCreationDateFormat}}</span>
-                    </div>
-                    <div class="form-group" style="margin: 0px 2px">
-                        <label class="col-md-2">Due Date:</label>
-                        <span class="col-md-10">{{clinicalAnalysisDueDateFormat}}</span>
-                    </div>
-                    <div class="form-group" style="margin: 0px 2px">
-                        <label class="col-md-2">Priority:</label>
-                        <span class$="col-md-10 {{clinicalAnalysis.priority}}-priority">{{clinicalAnalysis.priority}}</span>
-                    </div>
-                    <div class="form-group" style="margin: 0px 2px">
-                        <label class="col-md-2">Status:</label>
-                        <span class="col-md-10">{{clinicalAnalysis.status.name}}</span>
-                    </div>
+                <div>
+                    <h3 class="form-section-title">General Information</h3>
+                </div>
 
-                    <!--<div class="form-group" style="margin: 0px 2px">-->
-                    <!--<label class="col-md-4">File:</label>-->
-                    <!--<span class="col-md-8">{{clinicalAnalysis.germline.name}}</span>-->
-                    <!--</div>-->
-                    <!--<div class="form-group" style="margin: 0px 2px">-->
-                    <!--<label class="col-md-4">Genome Assembly:</label>-->
-                    <!--<span class="col-md-8">{{clinicalAnalysis.germline.assembly}}</span>-->
-                    <!--</div>-->
+                <form class="form-horizontal" style="padding: 5px 10px">
 
-                    <template is="dom-if" if="{{clinicalAnalysis.description}}">
-                        <div class="form-group" style="margin: 0px 2px">
-                            <label class="col-md-2">Description:</label>
-                            <span class="col-md-10">{{clinicalAnalysis.description}}</span>
+                    <div class="form-group" style="margin-bottom: 5px">
+                        <label class="control-label col-md-1 jso-label-title">Analysis ID</label>
+                        <div class="col-md-3 pad-top-5">
+                            <span>{{clinicalAnalysis.id}}</span>
                         </div>
-                    </template>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 5px">
+                        <label class="control-label col-md-1 jso-label-title pad-top-5">Proband</label>
+                        <div class="col-md-3 pad-top-5">
+                            <span>{{clinicalAnalysis.proband.id}}</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 5px">
+                        <label class="control-label col-md-1 jso-label-title pad-top-5">Disorder</label>
+                        <div class="col-md-3 pad-top-5">
+                            <span>{{clinicalAnalysis.disorder.name}} ({{clinicalAnalysis.disorder.id}})</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 5px">
+                        <label class="control-label col-md-1 jso-label-title pad-top-5">Analysis Type</label>
+                        <div class="col-md-3 pad-top-5">
+                            <span>{{clinicalAnalysis.type}}</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 5px">
+                        <label class="control-label col-md-1 jso-label-title pad-top-5">Flags</label>
+                        <div class="col-md-3 pad-top-5">
+                            <span>{{_flags}}</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 5px">
+                        <label class="control-label col-md-1 jso-label-title pad-top-5">Status</label>
+                        <div class="col-md-3 pad-top-5">
+                            <span>{{clinicalAnalysis.status.name}}</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 5px">
+                        <label class="control-label col-md-1 jso-label-title pad-top-5">Priority</label>
+                        <div class="col-md-3 pad-top-5">
+                            <span class$="{{clinicalAnalysis.priority}}-priority">{{clinicalAnalysis.priority}}</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 5px">
+                        <label class="control-label col-md-1 jso-label-title pad-top-5">Assigned To</label>
+                        <div class="col-md-3 pad-top-5">
+                            <span>{{_assignee}}</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 5px">
+                        <label class="control-label col-md-1 jso-label-title pad-top-5">Creation Date</label>
+                        <div class="col-md-3 pad-top-5">
+                            <span>{{_creationDate}}</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 5px">
+                        <label class="control-label col-md-1 jso-label-title pad-top-5">Due Date</label>
+                        <div class="col-md-3 pad-top-5">
+                            <span>{{_dueDate}}</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 5px">
+                        <label class="control-label col-md-1 jso-label-title pad-top-5">Description</label>
+                        <div class="col-md-3 pad-top-5">
+                            <span>{{_description}}</span>
+                        </div>
+                    </div>
                 </form>
             </div>
 
@@ -119,53 +178,68 @@
                 <hr class="hr-underline">
 
                 <form class="form-horizontal" style="padding: 10px 0px 0px 0px;">
-                    <div class="form-group" style="margin: 0px 2px">
-                        <label class="col-md-2">Proband:</label>
-                        <span class="col-md-10">{{clinicalAnalysis.proband.id}}</span>
+                    <div class="form-group" style="margin-bottom: 5px">
+                        <label class="control-label col-md-1 jso-label-title pad-top-5">Proband</label>
+                        <div class="col-md-3 pad-top-5">
+                            <span>{{clinicalAnalysis.proband.id}}</span>
+                        </div>
                     </div>
-                    <div class="form-group" style="margin: 0px 2px">
-                        <label class="col-md-2">Sex (karyotype):</label>
-                        <span class="col-md-10">{{clinicalAnalysis.proband.sex}} &nbsp;&nbsp; ({{clinicalAnalysis.proband.karyotypicSex}})</span>
+
+                    <div class="form-group" style="margin-bottom: 5px">
+                        <label class="control-label col-md-1 jso-label-title pad-top-5">Sex (karyotype)</label>
+                        <div class="col-md-3 pad-top-5">
+                            <span>{{clinicalAnalysis.proband.sex}} &nbsp;&nbsp; ({{clinicalAnalysis.proband.karyotypicSex}})</span>
+                        </div>
                     </div>
-                    <div class="form-group" style="margin: 0px 2px">
-                        <label class="col-md-2">Date of Birth:</label>
-                        <span class="col-md-10">{{clinicalAnalysis.proband.dateOfBirth}} &nbsp;&nbsp; ({{clinicalAnalysis.proband.lifeStatus}})</span>
+
+                    <div class="form-group" style="margin-bottom: 5px">
+                        <label class="control-label col-md-1 jso-label-title pad-top-5">Date of Birth</label>
+                        <div class="col-md-3 pad-top-5">
+                            <span>{{clinicalAnalysis.proband.dateOfBirth}} &nbsp;&nbsp; ({{clinicalAnalysis.proband.lifeStatus}})</span>
+                        </div>
                     </div>
-                    <div class="form-group" style="margin: 0px 2px">
-                        <label class="col-md-2">Phenotypes:</label>
-                        <span class="col-md-9">
-                            <template is="dom-repeat" items="{{clinicalAnalysis.proband.phenotypes}}">
-                                <span style="padding-left: 2px">{{item.name}} ({{item.status}}), </span>
-                            </template>
-                        </span>
+
+                    <div class="form-group" style="margin-bottom: 5px">
+                        <label class="control-label col-md-1 jso-label-title pad-top-5">Disorders</label>
+                        <div class="col-md-3 pad-top-5">
+                            <span>{{_probandDisorders}}</span>
+                        </div>
                     </div>
-                    <div class="form-group" style="margin: 0px 2px">
+
+                    <div class="form-group" style="margin-bottom: 5px">
+                        <label class="control-label col-md-1 jso-label-title pad-top-5">Phenotypes</label>
+                        <div class="col-md-3 pad-top-5">
+                            <span>{{_probandPhenotypes}}</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 5px">
                         <!--<label class="col-md-12">Sample:</label>-->
                         <h4 style="padding-left: 5px">Sample</h4>
                         <div class="col-md-12">
                             <div style="width: 90%;padding-left: 10px">
                                 <table class="table">
                                     <thead>
-                                        <tr class="table-header">
-                                            <th>ID</th>
-                                            <th>Source</th>
-                                            <th>Collection Method</th>
-                                            <th>Preparation Method</th>
-                                            <th>Somatic</th>
-                                            <th>Creation Date</th>
-                                            <th>Status</th>
-                                        </tr>
+                                    <tr class="table-header">
+                                        <th>ID</th>
+                                        <th>Source</th>
+                                        <th>Collection Method</th>
+                                        <th>Preparation Method</th>
+                                        <th>Somatic</th>
+                                        <th>Creation Date</th>
+                                        <th>Status</th>
+                                    </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>{{clinicalAnalysis.proband.samples.0.id}}</td>
-                                            <td>{{clinicalAnalysis.proband.samples.0.source}}</td>
-                                            <td>{{clinicalAnalysis.proband.samples.0.collection.method}}</td>
-                                            <td>{{clinicalAnalysis.proband.samples.0.processing.preparationMethod}}</td>
-                                            <td>{{clinicalAnalysis.proband.samples.0.somatic}}</td>
-                                            <td>{{clinicalAnalysis.proband.samples.0.creationDate}}</td>
-                                            <td>{{clinicalAnalysis.proband.samples.0.status.name}}</td>
-                                        </tr>
+                                    <tr>
+                                        <td>{{clinicalAnalysis.proband.samples.0.id}}</td>
+                                        <td>{{clinicalAnalysis.proband.samples.0.source}}</td>
+                                        <td>{{clinicalAnalysis.proband.samples.0.collection.method}}</td>
+                                        <td>{{clinicalAnalysis.proband.samples.0.processing.preparationMethod}}</td>
+                                        <td>{{clinicalAnalysis.proband.samples.0.somatic}}</td>
+                                        <td>{{clinicalAnalysis.proband.samples.0.creationDate}}</td>
+                                        <td>{{clinicalAnalysis.proband.samples.0.status.name}}</td>
+                                    </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -238,157 +312,6 @@
 
                 <span>No interpretations found.</span>
             </div>
-
-
-
-            <!--<div id="{{prefix}}ClinicalAnalysisViewPanel" class="col-md-12" style="padding: 10px 15px">-->
-                <!--<div class="col-md-4">-->
-                    <!--<label>Clinical Analysis</label>-->
-                    <!--<hr style="margin: 2px 0px;border-top: 2px solid #eee">-->
-                    <!--<form class="form-horizontal">-->
-                        <!--<div class="form-group" style="margin: 0px 2px">-->
-                            <!--<label class="col-md-4">Name:</label>-->
-                            <!--<span class="col-md-8">{{clinicalAnalysis.name}}</span>-->
-                        <!--</div>-->
-                        <!--&lt;!&ndash;<div class="form-group" style="margin: 0px 5px">&ndash;&gt;-->
-                        <!--&lt;!&ndash;<label class="col-md-2">Subject:</label>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<span class="col-md-10">NA0001</span>&ndash;&gt;-->
-                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                        <!--<div class="form-group" style="margin: 0px 2px">-->
-                            <!--<label class="col-md-4">Disease:</label>-->
-                            <!--<span class="col-md-8">{{clinicalAnalysis.disease.name}} ({{clinicalAnalysis.disease.id}})</span>-->
-                        <!--</div>-->
-                        <!--<div class="form-group" style="margin: 0px 2px">-->
-                            <!--<label class="col-md-4">Type:</label>-->
-                            <!--<span class="col-md-8">{{clinicalAnalysis.type}}</span>-->
-                        <!--</div>-->
-                        <!--<div class="form-group" style="margin: 0px 2px">-->
-                            <!--<label class="col-md-4">Date:</label>-->
-                            <!--<span class="col-md-8">{{clinicalAnalysisCreationDateFormat}}</span>-->
-                        <!--</div>-->
-                        <!--<template is="dom-if" if="{{clinicalAnalysis.description}}">-->
-                            <!--<div class="form-group" style="margin: 0px 2px">-->
-                                <!--<label class="col-md-4">Description:</label>-->
-                                <!--<span class="col-md-8">{{clinicalAnalysis.description}}</span>-->
-                            <!--</div>-->
-                        <!--</template>-->
-                    <!--</form>-->
-                <!--</div>-->
-                <!--<div class="col-md-4">-->
-                    <!--<label>Sample</label>-->
-                    <!--<hr style="margin: 2px 0px;border-top: 2px solid #eee">-->
-                    <!--<form class="form-horizontal">-->
-                        <!--<div class="form-group" style="margin: 0px 2px">-->
-                            <!--<label class="col-md-4">Id:</label>-->
-                            <!--<span class="col-md-8">-->
-                                <!--{{clinicalAnalysis.proband.samples.0.id}}-->
-                            <!--</span>-->
-                        <!--</div>-->
-                        <!--&lt;!&ndash;<div class="form-group" style="margin: 0px 2px">&ndash;&gt;-->
-                        <!--&lt;!&ndash;<label class="col-md-4">File:</label>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<span class="col-md-8">{{clinicalAnalysis.germline.name}}</span>&ndash;&gt;-->
-                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<div class="form-group" style="margin: 0px 2px">&ndash;&gt;-->
-                        <!--&lt;!&ndash;<label class="col-md-4">Genome Assembly:</label>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<span class="col-md-8">{{clinicalAnalysis.germline.assembly}}</span>&ndash;&gt;-->
-                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                        <!--<div class="form-group" style="margin: 0px 2px">-->
-                            <!--<label class="col-md-4">Somatic:</label>-->
-                            <!--<span class="col-md-8">{{clinicalAnalysis.proband.samples.0.somatic}}</span>-->
-                        <!--</div>-->
-                        <!--<div class="form-group" style="margin: 0px 2px">-->
-                            <!--<label class="col-md-4">Phenotypes:</label>-->
-                            <!--<span class="col-md-8">-->
-                                <!--<template is="dom-repeat" items="{{clinicalAnalysis.proband.samples.0.phenotypes}}">-->
-                                    <!--<span>{{item.name}} (<a href="http://compbio.charite.de/hpoweb/showterm?id={{item.id}}" target="_blank">{{item.id}}</a>)</span>-->
-                                    <!--<br>-->
-                                <!--</template>-->
-                            <!--</span>-->
-                        <!--</div>-->
-                        <!--&lt;!&ndash;<div class="form-group" style="margin: 0px 2px">&ndash;&gt;-->
-                        <!--&lt;!&ndash;<label class="col-md-4">Description:</label>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<span class="col-md-8">{{clinicalAnalysis.subjects.0.samples.0.description}}</span>&ndash;&gt;-->
-                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                    <!--</form>-->
-                <!--</div>-->
-                <!--<div class="col-md-4">-->
-                    <!--<label>Subject</label>-->
-                    <!--<hr style="margin: 2px 0px;border-top: 2px solid #eee">-->
-                    <!--<form class="form-horizontal">-->
-                        <!--<div class="form-group" style="margin: 0px 2px">-->
-                            <!--<label class="col-md-4">Id:</label>-->
-                            <!--<span class="col-md-8">-->
-                                <!--{{clinicalAnalysis.proband.id}}-->
-                            <!--</span>-->
-                        <!--</div>-->
-                        <!--<div class="form-group" style="margin: 0px 2px">-->
-                            <!--<label class="col-md-4">Sex (karyotype):</label>-->
-                            <!--<span class="col-md-8">{{clinicalAnalysis.proband.sex}} &nbsp;&nbsp; ({{clinicalAnalysis.proband.karyotypicSex}})</span>-->
-                        <!--</div>-->
-                        <!--<div class="form-group" style="margin: 0px 2px">-->
-                            <!--<label class="col-md-4">Date of Birth:</label>-->
-                            <!--<span class="col-md-8">{{clinicalAnalysis.proband.dateOfBirth}} &nbsp;&nbsp; ({{clinicalAnalysis.proband.lifeStatus}})</span>-->
-                        <!--</div>-->
-                        <!--<div class="form-group" style="margin: 0px 2px">-->
-                            <!--<label class="col-md-4">Pedigree:</label>-->
-                            <!--<div class="col-md-12">-->
-                                <!--<div id="{{prefix}}PedigreeViewOld"></div>-->
-                            <!--</div>-->
-                        <!--</div>-->
-                        <!--<div class="form-group" style="margin: 0px 2px">-->
-                            <!--<label class="col-md-4">Phenotypes:</label>-->
-                            <!--<span class="col-md-8">-->
-                                <!--<template is="dom-repeat" items="{{clinicalAnalysis.proband.phenotypes}}">-->
-                                    <!--<span>{{item.name}} (<a href="http://compbio.charite.de/hpoweb/showterm?id={{item.id}}" target="_blank">{{item.id}}</a>)</span>-->
-                                    <!--<br>-->
-                                <!--</template>-->
-                            <!--</span>-->
-                        <!--</div>-->
-                        <!--&lt;!&ndash;<div class="form-group" style="margin: 0px 2px">&ndash;&gt;-->
-                        <!--&lt;!&ndash;<label class="col-md-4">Description:</label>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<span class="col-md-8">{{clinicalAnalysis.subjects.0.description}}</span>&ndash;&gt;-->
-                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                    <!--</form>-->
-                <!--</div>-->
-            <!--</div>-->
-
-            <!--<div id="{{prefix}}OtherPrioritisationsPanel" class="col-md-12" style="padding: 10px 15px">-->
-            <!--<div class="col-md-12">-->
-            <!--<label>Other prioritisations</label>-->
-            <!--<div style="padding: 10px 5px">-->
-            <!--<table class="table">-->
-            <!--<thead>-->
-            <!--<tr>-->
-            <!--<th colspan="1">Name</th>-->
-            <!--<th colspan="1">Tool</th>-->
-            <!--<th colspan="1">Date</th>-->
-            <!--<th colspan="1">No. of Reported Variants</th>-->
-            <!--<th colspan="1">No. of Affected Genes</th>-->
-            <!--<th colspan="1">View</th>-->
-            <!--</tr>-->
-            <!--</thead>-->
-            <!--<tbody>-->
-            <!--<tr>-->
-            <!--<td>Prioritizaton-1</td>-->
-            <!--<td>TEAM</td>-->
-            <!--<td>5-9-2017</td>-->
-            <!--<td>26</td>-->
-            <!--<td>6</td>-->
-            <!--<td><a href="">Pending</a></td>-->
-            <!--</tr>-->
-            <!--<tr>-->
-            <!--<td>Tiering-1</td>-->
-            <!--<td>Tiering</td>-->
-            <!--<td>6-9-2017</td>-->
-            <!--<td>66</td>-->
-            <!--<td>12</td>-->
-            <!--<td><a href="">Pending</a></td>-->
-            <!--</tr>-->
-            <!--</tbody>-->
-            <!--</table>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--</div>-->
         </div>
         <!--</template>-->
     </template>
@@ -412,43 +335,37 @@
                 opencgaSession: {
                     type: Object
                 },
-                opencgaClient: {
+                clinicalAnalysis: {
                     type: Object
                 },
                 clinicalAnalysisId: {
-                    type: Number,
-                    observer: "searchAnalysis"
-                },
-                clinicalAnalysis: {
-                    type: Object,
-                    notify: true
-                },
-                title: {
                     type: String,
-                    value: "Clinical Analysis Summary"
+                    observer: "clinicalAnalysisIdObserver"
                 },
-                showTitle: {
-                    type: Boolean,
-                    value: true
-                },
-                showSummary: {
-                    type: Boolean,
-                    value: true,
-                    notify: true
-                },
+                // title: {
+                //     type: String,
+                //     value: "Clinical Analysis Summary"
+                // },
+                // showTitle: {
+                //     type: Boolean
+                // },
+                // showSummary: {
+                //     type: Boolean,
+                //     value: true,
+                //     notify: true
+                // },
                 config: {
                     type: Object
                 }
             }
         }
 
-        // ready() {
-        //     super.ready();
-        //     this._summaryCollapsed = false;
-        // }
-
         _attachDom(dom) {
             this.appendChild(dom);
+        }
+
+        static get observers() {
+            return ['propertyObserver(opencgaSession, clinicalAnalysis, mode, config)'];
         }
 
         connectedCallback() {
@@ -459,7 +376,40 @@
         _init() {
             this.prefix = "ocav-" + Utils.randomString(6);
 
-            this._config = Object.assign(this.getDefaultConfig(), this.config);
+            this._config = this.getDefaultConfig();
+        }
+
+        propertyObserver(opencgaSession, clinicalAnalysis, config) {
+            this._config = Object.assign(this.getDefaultConfig(), config);
+
+            if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis)) {
+                this._flags = (UtilsNew.isNotEmptyArray(clinicalAnalysis.flags)) ? clinicalAnalysis.flags.join(", ") : "-";
+                this._assignee = (UtilsNew.isNotEmpty(clinicalAnalysis.analyst.assignee)) ? clinicalAnalysis.analyst.assignee : "-";
+                this._description = (UtilsNew.isNotEmpty(clinicalAnalysis.description)) ? clinicalAnalysis.description : "-";
+
+                this._dueDate = moment(clinicalAnalysis.dueDate, "YYYYMMDDHHmmss").format('D MMM YY');
+                this._creationDate = moment(clinicalAnalysis.creationDate, "YYYYMMDDHHmmss").format('D MMM YY');
+
+                this._probandDisorders = "-";
+                if (UtilsNew.isNotEmptyArray(clinicalAnalysis.proband.disorders)) {
+                    let disorders = [];
+                    for (let disorder of clinicalAnalysis.proband.disorders) {
+                        disorders.push(disorder.name + " (" + disorder.id + ")");
+                    }
+                    this._probandDisorders = disorders.join(", ");
+                }
+
+                this._probandPhenotypes= "-";
+                if (UtilsNew.isNotEmptyArray(clinicalAnalysis.proband.disorders)) {
+                    let phenotypes = [];
+                    for (let phenotype of clinicalAnalysis.proband.phenotypes) {
+                        phenotypes.push(phenotype.name + " (" + phenotype.id + ")");
+                    }
+                    this._probandPhenotypes = phenotypes.join(", ");
+                }
+            }
+
+            this.pedigreeRender();
         }
 
         _summaryOnClick() {
@@ -475,19 +425,19 @@
             this._summaryCollapsed = !this._summaryCollapsed;
         }
 
-        searchAnalysis(){
+        clinicalAnalysisIdObserver(){
             if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId)) {
                 let params = {
                     study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
                 };
                 let _this = this;
-                this.opencgaClient.clinical().info(this.clinicalAnalysisId, params, {})
+                this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, params, {})
                     .then(function(response){
                         _this.showSummary = false;
                         if (response.response[0].numResults === 1) {
                             _this.clinicalAnalysis = response.response[0].result[0];
-                            _this.clinicalAnalysisDueDateFormat = moment(_this.clinicalAnalysis.dueDate, "YYYYMMDDHHmmss").format('D MMM YY');
-                            _this.clinicalAnalysisCreationDateFormat = moment(_this.clinicalAnalysis.creationDate, "YYYYMMDDHHmmss").format('D MMM YY');
+                            _this._dueDate = moment(_this.clinicalAnalysis.dueDate, "YYYYMMDDHHmmss").format('D MMM YY');
+                            _this._creationDate = moment(_this.clinicalAnalysis.creationDate, "YYYYMMDDHHmmss").format('D MMM YY');
                             _this.showSummary = true;
 //                                _this.title =  "Clinical Analysis Summary: " + _this.clinicalAnalysis.name;
                             _this.pedigreeRender();
@@ -496,18 +446,19 @@
             }
         }
 
+
         pedigreeRender() {
             if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis) && UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family)) {
                 if (UtilsNew.isNotUndefined(this.svg) && PolymerUtils.getElementById(this.prefix + "PedigreeView").hasChildNodes()) {
                     PolymerUtils.getElementById(this.prefix + "PedigreeView").removeChild(this.svg);
                 }
-                let body = Object.assign({},this.clinicalAnalysis.family);
+                let family = Object.assign({}, this.clinicalAnalysis.family);
                 let membersNew =[];
-                if (UtilsNew.isNotUndefinedOrNull(body) && UtilsNew.isNotEmpty(body.members)) {
-                    body.members.forEach((member) => {
+                if (UtilsNew.isNotEmpty(family.members)) {
+                    family.members.forEach((member) => {
                         let newMember = Object.assign({}, member);
                         if (UtilsNew.isNotUndefinedOrNull(newMember.father)) {
-                            let newFather = body.members.find((member) => {
+                            let newFather = family.members.find((member) => {
                                 return member.id === newMember.father.id;
                             });
                             if (UtilsNew.isNotUndefinedOrNull(newFather)) {
@@ -518,7 +469,7 @@
                         }
 
                         if (UtilsNew.isNotUndefinedOrNull(newMember.mother)) {
-                            let newMother = body.members.find((member) => {
+                            let newMother = family.members.find((member) => {
                                 return member.id === newMember.mother.id;
                             });
                             if (UtilsNew.isNotUndefinedOrNull(newMother)) {
@@ -529,15 +480,18 @@
                         }
                         membersNew.push(newMember);
                     });
-                    body.members = membersNew;
+                    family.members = membersNew;
                     // Render new Pedigree
                     let querySelector = PolymerUtils.getElementById(this.prefix + "PedigreeView");
-                    let pedigree = new Pedigree(body, {selectShowSampleNames: true});
+                    let pedigree = new Pedigree(family, {selectShowSampleNames: true});
                     this.svg = pedigree.pedigreeFromFamily(pedigree.pedigree, {
                         width: 640,
                         height: 240
                     });
-                    querySelector.appendChild(this.svg);
+
+                    if (UtilsNew.isNotUndefinedOrNull(querySelector)) {
+                        querySelector.appendChild(this.svg);
+                    }
                 }
 
             }

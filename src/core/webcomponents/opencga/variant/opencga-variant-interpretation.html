@@ -176,11 +176,11 @@
                         </div>
 
                         <!-- CLINICAL ANALYSIS VIEW -->
-                        <div id="{{prefix}}ClinicalAnalysis" class="variant-interpretation-content" style="display: none">
+                        <div id="{{prefix}}ClinicalAnalysis" class="variant-interpretation-content" style="padding: 0px 20px;display: none">
                             <opencga-clinical-analysis-view clinical-analysis={{clinicalAnalysis}}
                                                             opencga-session="{{opencgaSession}}"
-                                                            opencga-client="{{opencgaSession.opencgaClient}}" config="{{config}}"
-                                                            class="col-md-10 col-md-offset-1" style="font-size: 12px">
+                                                            style="font-size: 12px"
+                                                            config="{{config}}">
                             </opencga-clinical-analysis-view>
                         </div>
 
