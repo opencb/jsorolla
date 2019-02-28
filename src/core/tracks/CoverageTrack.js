@@ -3,6 +3,7 @@ class LinearCoverageTrack extends LinearFeatureTrack {
     /*
     args = {
         name: ,          // Name to be displayed
+        htmlTitle: ,     // If passed, it will be displayed the html string passed in the variable
         targetId: ,
         dataAdapter: ,   // Adapter to retrieve data
         data: ,          // Static data if no data adapter is passed (mainly for testing purposes)
@@ -146,7 +147,8 @@ class LinearCoverageTrack extends LinearFeatureTrack {
         $(div).append(this.titleDiv);
         $(div).append(this.contentDiv);
 
-        $(this.titleDiv).html(`<h5>${this.name}</h5>`);
+        this.htmlTitle = UtilsNew.isEmpty(this.htmlTitle) ? `<h5>${this.name}</h5>` : this.htmlTitle;
+        $(this.titleDiv).html(this.htmlTitle);
     }
 
     _getScaleFactor(width, start, end) {

@@ -186,7 +186,9 @@
 
                         <!-- PANEL LOW COVERAGE VIEW -->
                         <div id="{{prefix}}LowCoverage" class="variant-interpretation-content" style="display: none">
-                            <opencga-panel-transcript-view opencga-session="{{opencgaSession}}" panel-id="{{diseasePanelId}}"></opencga-panel-transcript-view>
+                            <opencga-panel-transcript-view opencga-session="{{opencgaSession}}" cellbase-client="{{cellbaseClient}}"
+                                                           panel-id="{{diseasePanelId}}" clinical-analysis="{{clinicalAnalysisId}}">
+                            </opencga-panel-transcript-view>
                         </div>
 
                         <!-- GENOME BROWSER VIEW -->
