@@ -15,7 +15,7 @@
   -->
 
 <link rel="import" href="opencga-clinical-analysis-portal.html">
-<link rel="import" href="opencga-clinical-analysis-creator.html">
+<link rel="import" href="opencga-clinical-analysis-editor.html">
 
 <dom-module id="opencga-clinical-portal">
     <template>
@@ -47,22 +47,22 @@
 
                     <ul class="nav navbar-nav navbar-right" style="padding: 0px 20px">
                         <li>
-                            <button type="button" class="btn btn-link clinical-portal-button" data-view="ReviewCases" on-click="_changeView">
+                            <button type="button" class="btn btn-link clinical-portal-button" style="font-size: 1.1em" data-view="ReviewCases" on-click="_changeView">
                                 <i class="fa fa-list" style="padding: 0px 5px" data-view="ReviewCases" on-click="_changeView"></i>Review Cases
                             </button>
                         </li>
                         <li>
-                            <button type="button" class="btn btn-link clinical-portal-button" data-view="CreateCase" on-click="_changeView">
+                            <button type="button" class="btn btn-link clinical-portal-button" style="font-size: 1.1em" data-view="CreateCase" on-click="_changeView">
                                 <i class="fa fa-file" style="padding: 0px 5px" data-view="CreateCase" on-click="_changeView"></i>Create Case
                             </button>
                         </li>
                         <li>
-                            <button type="button" class="btn btn-link clinical-portal-button" data-view="DiseasePanel" on-click="_changeView">
+                            <button type="button" class="btn btn-link clinical-portal-button" style="font-size: 1.1em" data-view="DiseasePanel" on-click="_changeView">
                                 <i class="fa fa-columns" style="padding: 0px 5px" data-view="DiseasePanel" on-click="_changeView"></i>Disease Panel (Experimental)
                             </button>
                         </li>
                         <li>
-                            <button type="button" class="btn btn-link clinical-portal-button" data-view="ReviewCases" on-click="_changeView">
+                            <button type="button" class="btn btn-link clinical-portal-button" style="font-size: 1.1em" data-view="ReviewCases" on-click="_changeView">
                                 <i class="fa fa-database" style="padding: 0px 5px" data-view="ReviewCases" on-click="_changeView"></i>CVA (pending)
                             </button>
                         </li>
@@ -81,10 +81,10 @@
                     </div>
 
                     <div id="{{prefix}}CreateCase" class="clinical-portal-content" style="display: none">
-                        <opencga-clinical-analysis-creator opencga-session="{{opencgaSession}}"
+                        <opencga-clinical-analysis-editor opencga-session="{{opencgaSession}}"
                                                            on-clinicalanalysischange="onClinicalAnalysisEditor"
                                                            config="{{config.clinicalAnalysisBrowser}}">
-                        </opencga-clinical-analysis-creator>
+                        </opencga-clinical-analysis-editor>
                     </div>
 
                     <div id="{{prefix}}DiseasePanel" class="clinical-portal-content" style="display: none">

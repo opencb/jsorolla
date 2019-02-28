@@ -16,7 +16,7 @@
 
 <!--<link rel="import" href="opencga-clinical-analysis-browser.html">-->
 
-<dom-module id="clinical-analysis-view">
+<dom-module id="opencga-clinical-analysis-view">
 
     <template>
         <style include="jso-styles">
@@ -71,8 +71,8 @@
                         <span class="col-md-10">{{clinicalAnalysis.id}}</span>
                     </div>
                     <div class="form-group" style="margin: 0px 2px">
-                        <label class="col-md-2">Disease:</label>
-                        <span class="col-md-10">{{clinicalAnalysis.disease.name}} ({{clinicalAnalysis.disease.id}})</span>
+                        <label class="col-md-2">Disorder:</label>
+                        <span class="col-md-10">{{clinicalAnalysis.disorder.name}} ({{clinicalAnalysis.disorder.id}})</span>
                     </div>
                     <div class="form-group" style="margin: 0px 2px">
                         <label class="col-md-2">Type:</label>
@@ -395,7 +395,7 @@
 
 </dom-module>
 <script>
-    class ClinicalAnalysisView extends Polymer.Element {
+    class OpencgaClinicalAnalysisView extends Polymer.Element {
 
         constructor() {
             super();
@@ -404,7 +404,7 @@
         }
 
         static get is() {
-            return 'clinical-analysis-view'
+            return 'opencga-clinical-analysis-view'
         }
 
         static get properties() {
@@ -457,7 +457,7 @@
         }
 
         _init() {
-            this.prefix = "clinical-analysis-view-" + Utils.randomString(6);
+            this.prefix = "ocav-" + Utils.randomString(6);
 
             this._config = Object.assign(this.getDefaultConfig(), this.config);
         }
@@ -545,12 +545,12 @@
 
         getDefaultConfig() {
             return {
-                title: "Clinical Analysis Browser",
+                title: "Clinical Analysis View",
                 showTitle: false,
             }
         }
 
     }
 
-    customElements.define(ClinicalAnalysisView.is, ClinicalAnalysisView);
+    customElements.define(OpencgaClinicalAnalysisView.is, OpencgaClinicalAnalysisView);
 </script>

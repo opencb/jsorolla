@@ -15,15 +15,15 @@
   -->
 
 <link rel="import" href="opencga-variant-filter.html">
-<link rel="import" href="../opencga-active-filters.html">
 <link rel="import" href="opencga-variant-interpretation-editor.html">
 <link rel="import" href="opencga-variant-grid.html">
 <link rel="import" href="opencga-interpreted-variant-grid.html">
 <link rel="import" href="opencga-interpreted-variant-detail.html">
-<link rel="import" href="../opencga-genome-browser.html">
 <link rel="import" href="../alignment/opencga-panel-transcript-view.html">
-<link rel="import" href="../clinical/clinical-analysis-view.html">
+<link rel="import" href="../catalog/clinical/opencga-clinical-analysis-view.html">
 <link rel="import" href="../clinical/clinical-interpretation-view.html">
+<link rel="import" href="../opencga-active-filters.html">
+<link rel="import" href="../opencga-genome-browser.html">
 
 <dom-module id="opencga-variant-interpretation">
     <template>
@@ -177,9 +177,11 @@
 
                         <!-- CLINICAL ANALYSIS VIEW -->
                         <div id="{{prefix}}ClinicalAnalysis" class="variant-interpretation-content" style="display: none">
-                            <clinical-analysis-view clinical-analysis={{clinicalAnalysis}} opencga-session="{{opencgaSession}}" opencga-client="{{opencgaSession.opencgaClient}}" config="{{config}}"
-                                                    class="col-md-10 col-md-offset-1" style="font-size: 12px">
-                            </clinical-analysis-view>
+                            <opencga-clinical-analysis-view clinical-analysis={{clinicalAnalysis}}
+                                                            opencga-session="{{opencgaSession}}"
+                                                            opencga-client="{{opencgaSession.opencgaClient}}" config="{{config}}"
+                                                            class="col-md-10 col-md-offset-1" style="font-size: 12px">
+                            </opencga-clinical-analysis-view>
                         </div>
 
                         <!-- PANEL LOW COVERAGE VIEW -->
@@ -206,11 +208,11 @@
                             <!--</span>-->
                             <!--</div>-->
                             <div style="padding: 10px 20px">
-                                <opencga-clinical-analysis-creator opencga-session="{{opencgaSession}}"
-                                                                   clinical-analysis="{{clinicalAnalysis}}"
-                                                                   on-clinicalanalysischange="onClinicalAnalysisEditor"
-                                                                   config="{{config.clinicalAnalysisBrowser}}">
-                                </opencga-clinical-analysis-creator>
+                                <opencga-clinical-analysis-editor opencga-session="{{opencgaSession}}"
+                                                                  clinical-analysis="{{clinicalAnalysis}}"
+                                                                  on-clinicalanalysischange="onClinicalAnalysisEditor"
+                                                                  config="{{config.clinicalAnalysisBrowser}}">
+                                </opencga-clinical-analysis-editor>
                             </div>
                         </div>
 

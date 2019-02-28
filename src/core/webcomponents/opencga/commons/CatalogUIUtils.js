@@ -1,5 +1,9 @@
 class CatalogUIUtils {
 
+    constructor() {
+
+    }
+
     static parseVariableSetVariablesForDisplay(variables, tags, margin, config) {
         config = Object.assign({
             marginStep: 15,
@@ -51,6 +55,35 @@ class CatalogUIUtils {
         }
 
         return displayVariables;
+    }
+
+    addTooltip(selector, title, config) {
+        $(selector).qtip({
+            content: {
+                title: title,
+                text: function (event, api) {
+                    return $(this).attr('data-tooltip-text');
+                }
+            },
+            position: {
+                target: "mouse",
+                adjust: {
+                    x: 2, y: 2,
+                    mouse: false
+                }
+            },
+            style: {
+                classes: (config !== undefined && config.style !== undefined && config.style.classes !== undefined) ? config.style.classes : "qtip-light qtip-rounded qtip-shadow qtip-custom-class",
+                width: "240px",
+            },
+            show: {
+                delay: 250
+            },
+            hide: {
+                fixed: true,
+                delay: 300
+            }
+        });
     }
 
 }

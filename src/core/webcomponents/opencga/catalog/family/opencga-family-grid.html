@@ -56,7 +56,7 @@
             constructor() {
                 super();
 
-                this.prefix = "VarFamilyGrid" + Utils.randomString(6);
+                this._init();
             }
 
             static get is() {
@@ -96,6 +96,12 @@
                 super.connectedCallback();
 
                 this.renderTable(this.active);
+            }
+
+            _init() {
+                this.prefix = "VarFamilyGrid" + Utils.randomString(6);
+
+                this.catalogUiUtils = new CatalogUIUtils();
             }
 
             propertyObserver(opencgaSession, search, config, active) {
@@ -393,6 +399,11 @@
                             _this.from = (page - 1) * size + 1;
                             _this.to = page * size;
                         },
+                        onPostBody: function (data) {
+                            // Add tooltips
+                            _this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
+                            _this.catalogUiUtils.addTooltip("div.membersTooltip", "Members");
+                        }
                     });
                 } else {
                     // Delete table
@@ -423,7 +434,7 @@
 
 
             detailFormatter(value, row) {
-                let result = `<div class='row' style="padding: 5px 10px 15px 10px">
+                let result = `<div class='row' style="padding: 5px 10px 20px 10px">
                                 <div class='col-md-12'>
                                     <h5 style="font-weight: bold">Members</h5>
                 `;
@@ -499,27 +510,22 @@
             }
 
             membersFormatter(value, row) {
-                if (UtilsNew.isNotEmptyArray(row.members)) {
+                if (UtilsNew.isNotEmptyArray(value)) {
                     let members = "";
-                    for (let member of row.members) {
-                        members += `<li style='padding: 0px 15px'>
-                                            <span>
-                                                ${member.id} (${member.sex})
-                                            </span>
-                                       </li>`;
+                    for (let member of value) {
+                        members += `<div style="padding: 5px">
+                                        <span>
+                                            ${member.id} (${member.sex})
+                                        </span>
+                                    </div>`;
                     }
 
-                    let html = `<div class="dropdown members-link-dropdown" style="white-space: nowrap">
-                                <a id="${this.prefix}dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                                    style="cursor: pointer">
-                                    ${row.members.length} members found
-                                </a>
-                                <ul class="dropdown-menu" aria-labelledby="${this.prefix}dropdownMenu1" style="font-size: 1.25rem;margin-top: 0px;padding: 10px 0px">
-                                    <!--<li class="dropdown-header">HPO</li>-->
-                                    ${members}
-                                </ul>
-                            </div>`;
-
+                    let html = `<div class="membersTooltip" data-tooltip-text='${members}' align="center">
+                                    <a style="cursor: pointer">
+                                        ${value.length} members found
+                                    </a>
+                                </div>
+                    `;
                     return html;
                 } else {
                     return 'No members found';
@@ -527,53 +533,40 @@
             }
 
             disordersFormatter(value, row) {
-                if (UtilsNew.isNotEmptyArray(row.phenotypes)) {
-                    let disorderSources = this._config.disorderSources;
-                    let phenotypes = "<div>";
-                    for (let phenotype of row.phenotypes) {
-                        if (disorderSources != null && disorderSources.includes(phenotype.source)) {
-                            phenotypes += `<span>${phenotype.id}</span>`;
-                        }
+                if (UtilsNew.isNotEmpty(value)) {
+                    let disordersHtml = "<div>";
+                    for (let disorder of value) {
+                        disordersHtml += `<span>${disorder.id}</span>`;
                     }
-                    phenotypes += "</div>";
-                    return phenotypes;
+                    disordersHtml += "</div>";
+                    return disordersHtml;
                 } else {
                     return '-';
                 }
             }
 
             phenotypesFormatter(value, row) {
-                if (UtilsNew.isNotEmptyArray(row.phenotypes)) {
-                    let disorderSources = this._config.disorderSources;
-                    let counter = 0;
-                    let phenotypes = "";
-                    for (let phenotype of row.phenotypes) {
-                        if (disorderSources != null && !disorderSources.includes(phenotype.source)) {
-                            phenotypes += "<li style='padding: 0px 15px'>";
-                            if (UtilsNew.isNotUndefinedOrNull(phenotype.source) && phenotype.source.toUpperCase() === "HPO") {
-                                phenotypes += `<span>
-                                                    <a target='_blank' href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})
-                                               </span>
-                                               `;
-                                counter++;
-                            } else {
-                                phenotypes += `${phenotype.id} (${phenotype.status})`;
-                            }
-                            phenotypes += "</li>";
+                if (UtilsNew.isNotEmptyArray(value)) {
+                    let phenotypeTooltipText = "";
+                    for (let phenotype of value) {
+                        phenotypeTooltipText += `<div style="padding: 5px">`;
+                        if (UtilsNew.isNotUndefinedOrNull(phenotype.source) && phenotype.source.toUpperCase() === "HPO") {
+                            phenotypeTooltipText += `<span>
+                                                        <a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})
+                                                    </span>
+                                `;
+                        } else {
+                            phenotypeTooltipText += `<span>${phenotype.id} (${phenotype.status})</span>`;
                         }
+                        phenotypeTooltipText += "</div>";
                     }
 
-                    let html = `<div class="dropdown phenotypes-link-dropdown" style="white-space: nowrap">
-                                <a id="${this.prefix}dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                                    style="cursor: pointer">
-                                    ${counter} terms found
-                                </a>
-                                <ul class="dropdown-menu" aria-labelledby="${this.prefix}dropdownMenu1" style="font-size: 1.25rem;margin-top: 0px;padding: 10px 0px">
-                                    <!--<li class="dropdown-header">HPO</li>-->
-                                    ${phenotypes}
-                                </ul>
-                            </div>`;
-
+                    let html = `<div class="phenotypesTooltip" data-tooltip-text='${phenotypeTooltipText}' align="center">
+                                    <a style="cursor: pointer">
+                                        ${value.length} terms found
+                                    </a>
+                                </div>
+                    `;
                     return html;
                 } else {
                     return '-';

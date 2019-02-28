@@ -18,7 +18,7 @@
 <link rel="import" href="../family/opencga-family-browser.html">
 <link rel="import" href="../family/opencga-family-editor.html">
 
-<dom-module id="opencga-clinical-analysis-creator">
+<dom-module id="opencga-clinical-analysis-editor">
     <template>
         <style>
             .form-section-title {
@@ -189,7 +189,7 @@
 
                         <div class="form-group">
                             <label class="control-label col-md-1 jso-label-title">Sample Configuration:</label>
-                            <div id="{{prefix}}GridTableDiv" class="col-md-10 col-md-offset-1" style="padding: 10px 20px">
+                            <div id="{{prefix}}GridTableDiv" class="col-md-11 col-md-offset-1" style="padding: 10px 20px">
                                 <table id="{{prefix}}IndividualBrowserGrid">
                                     <thead style="background-color: #eee"></thead>
                                 </table>
@@ -268,7 +268,7 @@
     </template>
 
     <script>
-        class OpencgaClinicalAnalysisCreator extends Polymer.Element {
+        class OpencgaClinicalAnalysisEditor extends Polymer.Element {
 
             constructor() {
                 super();
@@ -277,7 +277,7 @@
             }
 
             static get is() {
-                return 'opencga-clinical-analysis-creator';
+                return 'opencga-clinical-analysis-editor';
             }
 
             static get properties() {
@@ -310,6 +310,8 @@
                 this._disorders = [];
                 this.isCreate = false;
                 this.notifyEnabled = true;
+
+                this.catalogUiUtils = new CatalogUIUtils();
 
                 this.createButtonStatus = "disabled";
 
@@ -688,7 +690,6 @@
 
             renderDomRepeat(e) {
                 $('select.selectpicker').selectpicker('refresh');
-                // $('select.selectpicker').selectpicker('deselectAll');
             }
 
             onClear() {
@@ -799,6 +800,8 @@
                             probandRadio[i].addEventListener('click', _this.aaa.bind(_this));
                             // removeIndividualButtons[i].addEventListener('change', _this.aaa.bind(_this));
                         }
+                        // Add tooltips
+                        _this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
                     }
                 });
             }
@@ -847,6 +850,31 @@
 
             }
 
+            individualFormatter(value, row) {
+                if (UtilsNew.isNotUndefinedOrNull(value) && UtilsNew.isNotUndefinedOrNull(row)) {
+                    let sampleIcon = this._config.sexIconMap[row.sex];
+                    let sampleIdStyle = "color: black";
+                    if (UtilsNew.isNotEmptyArray(row.disorders)) {
+                        for (let disorder of row.disorders) {
+                            if (disorder.id === this._clinicalAnalysis.disorder.id) {
+                                sampleIdStyle = "color: red";
+                                break;
+                            }
+                        }
+                    }
+
+                    let html = `<div>
+                                    <span data-toggle="tooltip" data-placement="bottom" style="${sampleIdStyle}" title="" >
+                                        ${value} <i class='fa ${sampleIcon} fa-lg' style='padding-left: 5px'></i>
+                                    </span>
+                               </div>
+                        `;
+                    return html;
+                } else {
+                    return "-";
+                }
+            }
+
             samplesFormatter(value, row) {
                 if (UtilsNew.isNotEmptyArray(row.samples)) {
                     let samples = "<span>";
@@ -877,18 +905,58 @@
                     this.notifyClinicalAnalysis(this._clinicalAnalysis);
                 }
                 this._updateCreateButtonStatus();
-                // debugger
             }
 
-            fileFormatter(files, individual) {
-                if (files.length <= 1) {
-                    return files;
-                } else {
-                    let html = '<select class="selectpicker" multiple>';
-                    for (let i = 0; i < files.length; i++) {
-                        html += `<option>${files[i]}</option>`
+            disordersFormatter(value, row) {
+                if (UtilsNew.isNotEmpty(value)) {
+                    let disordersHtml = "<div>";
+                    for (let disorder of value) {
+                        disordersHtml += `<span>${disorder.id}</span>`;
                     }
-                    html += '</select>';
+                    disordersHtml += "</div>";
+                    return disordersHtml;
+                } else {
+                    return '-';
+                }
+            }
+
+            phenotypesFormatter(value, row) {
+                if (UtilsNew.isNotEmptyArray(value)) {
+                    let phenotypeTooltipText = "";
+                    for (let phenotype of value) {
+                        phenotypeTooltipText += `<div style="padding: 5px">`;
+                        if (UtilsNew.isNotUndefinedOrNull(phenotype.source) && phenotype.source.toUpperCase() === "HPO") {
+                            phenotypeTooltipText += `<span>
+                                                        <a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})
+                                                    </span>
+                                `;
+                        } else {
+                            phenotypeTooltipText += `<span>${phenotype.id} (${phenotype.status})</span>`;
+                        }
+                        phenotypeTooltipText += "</div>";
+                    }
+
+                    let html = `<div class="phenotypesTooltip" data-tooltip-text='${phenotypeTooltipText}'>
+                                    <a style="cursor: pointer">
+                                        ${value.length} terms found
+                                    </a>
+                                </div>
+                    `;
+                    return html;
+                } else {
+                    return '-';
+                }
+            }
+
+            filesFormatter(value, row) {
+                if (UtilsNew.isNotUndefinedOrNull(this._clinicalAnalysis.files)) {
+                    debugger
+                    let sampleId = row.samples[0].id;
+                    let html = '<div>';
+                    for (let file of this._clinicalAnalysis.files[sampleId]) {
+                        html += `<div>${file.name}</div>`;
+                    }
+                    html += '</div>';
                     return html;
                 }
             }
@@ -914,80 +982,64 @@
                         {
                             title: 'Individual',
                             field: 'id',
-                            // rowspan: 2,
+                            formatter: this.individualFormatter.bind(this),
+                            halign: this._config.grid.header.horizontalAlign
                         },
                         {
                             title: 'Sample',
                             field: 'samples',
-                            // rowspan: 2,
                             formatter: this.samplesFormatter,
+                            halign: this._config.grid.header.horizontalAlign
                         },
                         {
                             title: 'Proband',
-                            // radio: true,
-                            // rowspan: 2,
                             formatter: this.probandFormatter.bind(this),
-                            align: this._config.grid.header.horizontalAlign
+                            align: this._config.grid.header.horizontalAlign,
+                            halign: this._config.grid.header.horizontalAlign
                         },
                         {
                             title: 'Father',
                             field: 'father.id',
-                            // rowspan: 2,
-                            // formatter: this.fatherFormatter,
+                            halign: this._config.grid.header.horizontalAlign
                         },
                         {
                             title: 'Mother',
                             field: 'mother.id',
-                            // rowspan: 2,
-                            // formatter: this.motherFormatter,
+                            halign: this._config.grid.header.horizontalAlign
                         },
                         {
-                            title: 'Affected',
-                            // rowspan: 2,
-                            field: "affectationStatus",
-                            // formatter: this.affectedFormatter,
-                            align: this._config.grid.header.horizontalAlign
+                            title: 'Disorders',
+                            field: "disorders",
+                            formatter: this.disordersFormatter,
+                            halign: this._config.grid.header.horizontalAlign
+                        },
+                        {
+                            title: 'Phenotypes',
+                            field: "phenotypes",
+                            formatter: this.phenotypesFormatter,
+                            halign: this._config.grid.header.horizontalAlign
                         },
                         {
                             title: 'Files',
-                            // rowspan: 1,
-                            // colspan: 1,
-                            align: 'center'
+                            field: "files",
+                            formatter: this.filesFormatter.bind(this),
+                            halign: this._config.grid.header.horizontalAlign
                         },
-                        {
-                            title: 'Flags',
-                            field: 'flags',
-                            // rowspan: 2,
-                            formatter: this.flagsFormatter.bind(this),
-                            align: this._config.grid.header.horizontalAlign
-                        },
+                        // {
+                        //     title: 'Flags',
+                        //     field: 'flags',
+                        //     // rowspan: 2,
+                        //     formatter: this.flagsFormatter.bind(this),
+                        //     align: this._config.grid.header.horizontalAlign
+                        // },
                         {
                             title: 'Remove',
                             field: 'id',
-                            // rowspan: 2,
                             formatter: this.removeButtonFormatter,
-                            align: this._config.grid.header.horizontalAlign
+                            align: this._config.grid.header.horizontalAlign,
+                            halign: this._config.grid.header.horizontalAlign
                         }
-                    ], [
-                        // {
-                        //     title: 'VCF',
-                        //     field: 'vcf',
-                        //     formatter: this.fileFormatter,
-                        //     halign: this._config.grid.header.horizontalAlign
-                        // },
-                        // {
-                        //     title: 'BAM',
-                        //     field: 'bam',
-                        //     formatter: this.fileFormatter,
-                        //     halign: this._config.grid.header.horizontalAlign
-                        // },
-                        // {
-                        //     title: 'BIGWIG',
-                        //     field: 'bigwig',
-                        //     formatter: this.fileFormatter,
-                        //     halign: this._config.grid.header.horizontalAlign
-                        // },
-                    ]
+                    ], []
                 ];
             }
 
@@ -1007,11 +1059,16 @@
                         }
                     },
                     flags: ["mixed_chemistries", "low_tumour_purity", "uniparental_isodisomy", "uniparental_heterodisomy",
-                        "unusual_karyotype", "suspected_mosaicism", "low_quality_sample"]
+                        "unusual_karyotype", "suspected_mosaicism", "low_quality_sample"],
+                    sexIconMap: {
+                        MALE: "fa-mars",
+                        FEMALE: "fa-venus",
+                        UNKNOWN: "fa-genderless"
+                    }
                 };
             }
         }
 
-        customElements.define(OpencgaClinicalAnalysisCreator.is, OpencgaClinicalAnalysisCreator);
+        customElements.define(OpencgaClinicalAnalysisEditor.is, OpencgaClinicalAnalysisEditor);
     </script>
 </dom-module>
