@@ -173,9 +173,10 @@
             </div>
 
 
-            <div id="{{prefix}}Family" class="col-md-12 section-padding">
-                <h3>Proband and Family</h3>
-                <hr class="hr-underline">
+            <div id="{{prefix}}Proband" class="col-md-12 section-padding">
+                <div>
+                    <h3 class="form-section-title">Proband</h3>
+                </div>
 
                 <form class="form-horizontal" style="padding: 10px 0px 0px 0px;">
                     <div class="form-group" style="margin-bottom: 5px">
@@ -213,9 +214,10 @@
                         </div>
                     </div>
 
-                    <div class="form-group" style="margin-bottom: 5px">
+                    <div class="form-group" style="padding-left: 25px; margin-bottom: 5px">
                         <!--<label class="col-md-12">Sample:</label>-->
-                        <h4 style="padding-left: 5px">Sample</h4>
+                        <h4>Sample</h4>
+                        <!--<label class="control-label col-md-1 jso-label-title pad-top-5">Sample</label>-->
                         <div class="col-md-12">
                             <div style="width: 90%;padding-left: 10px">
                                 <table class="table">
@@ -246,20 +248,27 @@
                         </div>
                     </div>
                 </form>
+            </div>
 
-                <h4 style="padding-left: 10px">Family</h4>
+            <div id="{{prefix}}Family" class="col-md-12 section-padding">
+                <div>
+                    <h3 class="form-section-title">Family</h3>
+                </div>
 
                 <template is="dom-if" if="{{clinicalAnalysis.family.members}}">
                     <form class="form-horizontal" style="padding: 10px 0px 0px 0px;">
 
-                        <div class="form-group" style="margin: 0px 2px">
-                            <label class="col-md-2">Family:</label>
-                            <span class="col-md-10">{{clinicalAnalysis.family.id}}</span>
+                        <div class="form-group" style="margin-bottom: 5px">
+                            <label class="control-label col-md-1 jso-label-title pad-top-5">Family</label>
+                            <div class="col-md-3 pad-top-5">
+                                <span>{{clinicalAnalysis.family.id}}</span>
+                            </div>
                         </div>
 
-                        <div class="form-group" style="margin: 0px 2px">
-                            <label class="col-md-12">Members:</label>
-                            <span class="col-md-12">
+                        <div class="form-group" style="padding-left: 25px; margin-bottom: 5px">
+                            <!--<label class="col-md-12">Members:</label>-->
+                            <h4>Members</h4>
+                            <div class="col-md-12">
                                 <div style="width: 90%;padding-left: 10px">
                                     <table class="table">
                                         <thead>
@@ -268,7 +277,8 @@
                                             <th>Sex</th>
                                             <th>Father</th>
                                             <th>Mother</th>
-                                            <th>Affectation Status</th>
+                                            <th>Disorders</th>
+                                            <th>Phenotypes</th>
                                             <th>Life Status</th>
                                             <th>Year of Birth</th>
                                             <th>Creation Date</th>
@@ -283,7 +293,8 @@
                                                 <td>{{member.sex}}</td>
                                                 <td>{{member.father.id}}</td>
                                                 <td>{{member.mother.id}}</td>
-                                                <td>{{member.affectationStatus}}</td>
+                                                <td>{{member.disorders.0.name}}</td>
+                                                <td>{{member.phenotypes.0.name}}</td>
                                                 <td>{{member.lifeStatus}}</td>
                                                 <td>{{member.dateOfBirth}}</td>
                                                 <td>{{member.creationDate}}</td>
@@ -293,7 +304,7 @@
                                         </tbody>
                                     </table>
                                 </div>
-                            </span>
+                            </div>
                         </div>
 
                         <div class="form-group" style="margin: 0px 2px">
@@ -305,15 +316,14 @@
                     </form>
                 </template>
             </div>
-
-            <div id="{{prefix}}Interperetations" class="col-md-12 section-padding">
-                <h3>Interpretation Summary</h3>
-                <hr class="hr-underline">
-
-                <span>No interpretations found.</span>
-            </div>
         </div>
-        <!--</template>-->
+
+        <div id="{{prefix}}Interperetations" class="col-md-12 section-padding">
+            <div>
+                <h3 class="form-section-title">Interpretation Summary</h3>
+            </div>
+            <div>No interpretations found.</div>
+        </div>
     </template>
 
 </dom-module>
@@ -384,7 +394,9 @@
 
             if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis)) {
                 this._flags = (UtilsNew.isNotEmptyArray(clinicalAnalysis.flags)) ? clinicalAnalysis.flags.join(", ") : "-";
-                this._assignee = (UtilsNew.isNotEmpty(clinicalAnalysis.analyst.assignee)) ? clinicalAnalysis.analyst.assignee : "-";
+                this._assignee = (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.analyst) && UtilsNew.isNotEmpty(clinicalAnalysis.analyst.assignee))
+                    ? clinicalAnalysis.analyst.assignee
+                    : "-";
                 this._description = (UtilsNew.isNotEmpty(clinicalAnalysis.description)) ? clinicalAnalysis.description : "-";
 
                 this._dueDate = moment(clinicalAnalysis.dueDate, "YYYYMMDDHHmmss").format('D MMM YY');
@@ -400,12 +412,24 @@
                 }
 
                 this._probandPhenotypes= "-";
-                if (UtilsNew.isNotEmptyArray(clinicalAnalysis.proband.disorders)) {
+                if (UtilsNew.isNotEmptyArray(clinicalAnalysis.proband.phenotypes)) {
                     let phenotypes = [];
                     for (let phenotype of clinicalAnalysis.proband.phenotypes) {
                         phenotypes.push(phenotype.name + " (" + phenotype.id + ")");
                     }
                     this._probandPhenotypes = phenotypes.join(", ");
+                }
+
+                this._memberPhenotypes= [];
+                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(clinicalAnalysis.family.members)) {
+                    for (let member of clinicalAnalysis.family.members) {
+                        let phenotypes = [];
+                        for (let phenotype of member.phenotypes) {
+                            phenotypes.push(phenotype.name + " (" + phenotype.id + ")");
+                        }
+                        this._memberPhenotypes.push(phenotypes.join(", "));
+                        // PolymerUtils.setValue(this.prefix + member.id + "Cell", "bbb");
+                    }
                 }
             }
 
