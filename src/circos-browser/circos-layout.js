@@ -10,9 +10,13 @@ class CircosLayout {
         this.totalSize = 0;
         let currentTotalSize = 0;
         data.forEach(function (item) {
+            if (typeof self.blocks[item.name] !== "undefined") {
+                console.log(item);
+                return null;
+            }
             //Build the block object
             let block = {
-                "length": (typeof item.length === "number") ? item.length : item.end - item.start + 1,
+                "length": (typeof item.size === "number") ? item.size : item.end - item.start + 1,
                 "startAngle": null,
                 "endAngle": null,
                 "diffAngle": null,
@@ -25,8 +29,9 @@ class CircosLayout {
             self.blocks[item.name] = block;
         });
         this.totalSize = currentTotalSize;
+        let blocksCount = Object.keys(this.blocks).length;
         //Calculate the total space gap angle between blocks
-        let remainAngle = 2 * Math.PI - (data.length * this.config.gap);
+        let remainAngle = 2 * Math.PI - (blocksCount * this.config.gap);
         //Set the blocks start and end angle positions
         Object.keys(this.blocks).forEach(function (key, index) {
             let block = self.blocks[key];
