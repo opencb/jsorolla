@@ -224,7 +224,7 @@
                                     <thead>
                                     <tr class="table-header">
                                         <th>ID</th>
-                                        <th>Source</th>
+                                        <th>Files</th>
                                         <th>Collection Method</th>
                                         <th>Preparation Method</th>
                                         <th>Somatic</th>
@@ -235,7 +235,8 @@
                                     <tbody>
                                     <tr>
                                         <td>{{clinicalAnalysis.proband.samples.0.id}}</td>
-                                        <td>{{clinicalAnalysis.proband.samples.0.source}}</td>
+                                        <!--<td>{{clinicalAnalysis.proband.samples.0.source}}</td>-->
+                                        <td>{{_probandFiles}}</td>
                                         <td>{{clinicalAnalysis.proband.samples.0.collection.method}}</td>
                                         <td>{{clinicalAnalysis.proband.samples.0.processing.preparationMethod}}</td>
                                         <td>{{clinicalAnalysis.proband.samples.0.somatic}}</td>
@@ -418,6 +419,15 @@
                         phenotypes.push(phenotype.name + " (" + phenotype.id + ")");
                     }
                     this._probandPhenotypes = phenotypes.join(", ");
+                }
+
+                this._probandFiles= "-";
+                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.files)) {
+                    let files = [];
+                    for (let file of clinicalAnalysis.files[clinicalAnalysis.proband.samples[0].id]) {
+                        files.push(file.name);
+                    }
+                    this._probandFiles = files.join(", ");
                 }
 
                 this._memberPhenotypes= [];
