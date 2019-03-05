@@ -618,13 +618,13 @@ class VariantGridFormatter {
                 }
 
                 let soArray = [];
-                for (let so of re.consequenceTypeIds) {
+                for (let so of re.consequenceTypes) {
                     let color = "black";
-                    if (typeof variantGrid.consequenceTypeToColor !== "undefined" && typeof variantGrid.consequenceTypeToColor[so] !== "undefined") {
-                        color = variantGrid.consequenceTypeToColor[so];
+                    if (typeof variantGrid.consequenceTypeToColor !== "undefined" && typeof variantGrid.consequenceTypeToColor[so.name] !== "undefined") {
+                        color = variantGrid.consequenceTypeToColor[so.name];
                     }
                     soArray.push(`<div style="color: ${color}">
-                                    ${so}
+                                    ${so.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">${so.accession}</a>)
                                   </div>`);
                 }
 

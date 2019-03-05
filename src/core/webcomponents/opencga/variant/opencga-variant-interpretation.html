@@ -83,7 +83,8 @@
                                             cellbase-client="{{cellbaseClient}}"
                                             population-frequencies="{{populationFrequencies}}"
                                             consequence-types="{{consequenceTypes}}"
-                                            on-querychange="onQueryFilterChange" on-querysearch="onQueryFilterSearch" on-samplechange="onSampleChange"
+                                            on-querychange="onQueryFilterChange"
+                                            on-querysearch="onQueryFilterSearch" on-samplechange="onSampleChange"
                                             on-inheritancemode="_onInheritanceMode"
                                             config="{{_config.filter}}">
                     </opencga-variant-filter>
@@ -107,11 +108,14 @@
                                     <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView"></i>Table Result
                                 </button>
                                 <!--<button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="ClinicalAnalysis" on-click="_changeView">-->
-                                    <!--<i class="fa fa-user-md icon-padding" aria-hidden="true" data-view="ClinicalAnalysis" on-click="_changeView"></i>Case Summary-->
+                                <!--<i class="fa fa-user-md icon-padding" aria-hidden="true" data-view="ClinicalAnalysis" on-click="_changeView"></i>Case Summary-->
                                 <!--</button>-->
                                 <!--<button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="LowCoverage" on-click="_changeView">-->
-                                    <!--<i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="LowCoverage" on-click="_changeView"></i>Low Coverage Regions-->
+                                <!--<i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="LowCoverage" on-click="_changeView"></i>Low Coverage Regions-->
                                 <!--</button>-->
+                                <button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="LowCoverage" on-click="_changeView">
+                                    <i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="LowCoverage" on-click="_changeView"></i>Low Coverage Regions
+                                </button>
                                 <button id="{{prefix}}GenomeBrowserButton" type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="GenomeBrowser" on-click="_changeView">
                                     <i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i>Genome Browser (Beta)
                                 </button>
@@ -122,10 +126,6 @@
                                     <button type="button" class="btn btn-primary variant-interpretation-view-buttons" data-view="ClinicalAnalysis" on-click="_changeView">
                                         <i class="fa fa-user-md icon-padding" aria-hidden="true" data-view="ClinicalAnalysis" on-click="_changeView"></i>Case Summary
                                     </button>
-                                    <button type="button" class="btn btn-primary variant-interpretation-view-buttons" data-view="LowCoverage" on-click="_changeView">
-                                        <i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="LowCoverage" on-click="_changeView"></i>Low Coverage Regions
-                                    </button>
-
                                     <button id="{{prefix}}InterpretationEditorButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
                                             data-view="InterpretationEditor" on-click="_changeView">
                                         <i class="fa fa-floppy-o icon-padding" aria-hidden="true" data-view="InterpretationEditor" on-click="_changeView"></i>Review and Save Interpretation ({{checkedVariants.length}})
@@ -175,19 +175,13 @@
                             </opencga-interpreted-variant-detail>
                         </div>
 
-                        <!-- CLINICAL ANALYSIS VIEW -->
-                        <div id="{{prefix}}ClinicalAnalysis" class="variant-interpretation-content" style="padding: 0px 20px;display: none">
-                            <opencga-clinical-analysis-view clinical-analysis={{clinicalAnalysis}}
-                                                            opencga-session="{{opencgaSession}}"
-                                                            style="font-size: 12px"
-                                                            config="{{config}}">
-                            </opencga-clinical-analysis-view>
-                        </div>
-
                         <!-- PANEL LOW COVERAGE VIEW -->
                         <div id="{{prefix}}LowCoverage" class="variant-interpretation-content" style="display: none">
-                            <opencga-panel-transcript-view opencga-session="{{opencgaSession}}" cellbase-client="{{cellbaseClient}}"
-                                                           panel-id="{{diseasePanelId}}" clinical-analysis="{{clinicalAnalysisId}}">
+                            <opencga-panel-transcript-view opencga-session="{{opencgaSession}}"
+                                                           cellbase-client="{{cellbaseClient}}"
+                                                           clinical-analysis="{{clinicalAnalysis}}"
+                                                           gene-ids="{{geneIds}}"
+                                                           panel-ids="{{diseasePanelIds}}">
                             </opencga-panel-transcript-view>
                         </div>
 
@@ -199,6 +193,15 @@
                             </opencga-genome-browser>
                         </div>
 
+
+                        <!-- CLINICAL ANALYSIS VIEW -->
+                        <div id="{{prefix}}ClinicalAnalysis" class="variant-interpretation-content" style="padding: 0px 20px;display: none">
+                            <opencga-clinical-analysis-view opencga-session="{{opencgaSession}}"
+                                                            clinical-analysis={{clinicalAnalysis}}
+                                                            style="font-size: 12px"
+                                                            config="{{config}}">
+                            </opencga-clinical-analysis-view>
+                        </div>
 
                         <!-- CREATE CLINICAL ANALYSIS TAB -->
                         <div id="{{prefix}}clinicalAnalysisEditor" class="variant-interpretation-content" style="display: none">
@@ -334,6 +337,7 @@
             _init() {
                 this.prefix = "ovi-" + Utils.randomString(6);
 
+                this.diseasePanelIds = [];
                 this.hasClinicalAnalysis = false;
 
                 this.checkProjects = false;
@@ -384,17 +388,21 @@
                 }
             }
 
-
+            /**
+             * Fetch the CinicalAnalysis object from REST and trigger the observer call.
+             */
             clinicalAnalysisIdObserver() {
-                let _this = this;
-                this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-                    .then((response) => {
-                        // This triggers the call to clinicalAnalysisObserver function below
-                        _this.clinicalAnalysis = response.response[0].result[0];
-                    })
-                    .catch((response) => {
-                        console.error("An error occurred fetching clinicalAnalysis: ", response)
-                    });
+                if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotEmpty(this.clinicalAnalysisId)) {
+                    let _this = this;
+                    this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                        .then((response) => {
+                            // This triggers the call to clinicalAnalysisObserver function below
+                            _this.clinicalAnalysis = response.response[0].result[0];
+                        })
+                        .catch((response) => {
+                            console.error("An error occurred fetching clinicalAnalysis: ", response)
+                        });
+                }
             }
 
             clinicalAnalysisObserver() {
@@ -497,11 +505,31 @@
              */
             onQueryFilterChange(e) {
                 this.preparedQuery = e.detail.query;
+
+                this._setPropertiesForTools();
             }
 
             onQueryFilterSearch(e) {
                 this.preparedQuery = e.detail.query;
                 this.executedQuery = e.detail.query;
+
+                // this._setPropertiesForTools();
+            }
+
+            /**
+             * Set properties for LowCoverage tools and others
+             */
+            _setPropertiesForTools() {
+                this.diseasePanelIds = (UtilsNew.isNotEmpty(this.preparedQuery.panel)) ? this.preparedQuery.panel.split(",") : [];
+                if (UtilsNew.isNotUndefinedOrNull(this.preparedQuery.xref)) {
+                    let _geneIds = [];
+                    for (let geneId of this.preparedQuery.xref.split(",")) {
+                        if (!geneId.startsWith("ENS") && !geneId.startsWith("rs") && !geneId.startsWith("RCV")) {
+                            _geneIds.push(geneId);
+                        }
+                    }
+                    this.geneIds = _geneIds;
+                }
             }
 
             /*
@@ -509,6 +537,8 @@
              */
             onActiveFilterChange(e) {
                 this.query = e.detail;
+
+                this._setPropertiesForTools();
             }
 
             onClear() {

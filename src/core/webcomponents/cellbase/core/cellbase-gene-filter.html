@@ -1,8 +1,21 @@
+
 <dom-module id="cellbase-gene-filter">
     <template>
-        <input id="{{prefix}}FeatureIdText" type="text" class="form-control" list$="{{prefix}}FeatureDatalist"
-               placeholder="Search for Gene Symbols" value="" on-change="onGeneChange">
-        <datalist id="{{prefix}}FeatureDatalist"></datalist>
+        <!--<input id="{{prefix}}FeatureIdText" type="text" class="form-control" list$="{{prefix}}FeatureDatalist"-->
+               <!--placeholder="Search for Gene Symbols" value="" on-change="onGeneChange">-->
+        <!--<datalist id="{{prefix}}FeatureDatalist"></datalist>-->
+
+        <div class="input-group">
+            <input id="{{prefix}}FeatureIdText" type="text" class="form-control" list$="{{prefix}}FeatureDatalist"
+                   placeholder="Search for Gene Symbols" value="" on-change="onGeneChange">
+            <datalist id="{{prefix}}FeatureDatalist"></datalist>
+
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="button" on-click="onEraserClicked">
+                    <i class="fa fa-eraser" aria-hidden="true"></i>
+                </button>
+            </span>
+        </div>
     </template>
 
     <script>
@@ -16,6 +29,10 @@
                 return {
                     cellbaseClient: {
                         type: Object
+                    },
+                    erase: {
+                        type: Boolean,
+                        observer: "eraseObserver"
                     },
                     config: {
                         type: Object
@@ -59,6 +76,12 @@
             //     }
             // }
 
+            eraseObserver(newValue, oldValue) {
+                if (newValue !== oldValue) {
+                    PolymerUtils.setValue(this.prefix + "FeatureIdText", "");
+                }
+            }
+
             callAutocomplete(e) {
                 // Only gene symbols are going to be searched and not Ensembl IDs
                 let featureId = PolymerUtils.getElementById(this.prefix  + "FeatureIdText").value;
@@ -83,6 +106,10 @@
                     bubbles: false,
                     composed: true
                 }));
+            }
+
+            onEraserClicked() {
+                PolymerUtils.setValue(this.prefix + "FeatureIdText", "");
             }
 
             getDefaultConfig() {

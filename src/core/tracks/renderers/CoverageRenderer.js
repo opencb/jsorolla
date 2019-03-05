@@ -154,7 +154,7 @@ class CoverageRenderer {
             width: 240,
             // start: undefined,
             // end: undefined,
-            maxCoverage: 75
+            maxCoverage: 100
         }
     }
 
