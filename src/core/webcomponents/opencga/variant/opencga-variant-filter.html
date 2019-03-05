@@ -1955,10 +1955,16 @@
                 }
 
                 // Add events GO accessions
-                PolymerUtils.getElementById(this.prefix + "buttonOpenGoAccesions").addEventListener('click', this.openModalGo.bind(this));
+                let goModalButton = PolymerUtils.getElementById(this.prefix + "buttonOpenGoAccesions");
+                if (UtilsNew.isNotUndefinedOrNull(goModalButton)) {
+                    goModalButton.addEventListener('click', this.openModalGo.bind(this));
+                }
 
                 // Add events hpo accessions
-                PolymerUtils.getElementById(this.prefix + "buttonOpenHpoAccesions").addEventListener('click', this.openModalHpo.bind(this));
+                let hpoModalButton = PolymerUtils.getElementById(this.prefix + "buttonOpenHpoAccesions");
+                if (UtilsNew.isNotUndefinedOrNull(hpoModalButton)) {
+                    hpoModalButton.addEventListener('click', this.openModalHpo.bind(this));
+                }
             }
 
 
