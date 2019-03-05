@@ -367,6 +367,7 @@
                             _this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
                             _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", _this.populationFrequencies);
                             _this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("popFreqInfoIcon", _this.populationFrequencies);
+                            _this.variantGridFormatter.addPhenotypesInfoTooltip("phenotypesInfoIcon");
                         }
                     });
 
@@ -392,7 +393,8 @@
                     Object.assign(queryParams, _this.query); // Important : Adding the query object contents to queryParams
 
                     url = url + '/webservices/rest/v4/' + this.cellbaseClient._config.species + '/feature/variation/search';
-                    $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable({
+                    let _this = this;
+                    $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable({
                         url: url,
                         method: 'get',
                         sidePagination: 'server',
@@ -417,7 +419,7 @@
                             $($element).addClass('success');
                         }
                     });
-                    $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
+                    $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
                 }
 
             }
@@ -921,7 +923,7 @@
                             align: 'center'
                         },
                         {
-                            title: 'Phenotypes',
+                            title: 'Phenotypes <span id="phenotypesInfoIcon"><i class="fa fa-info-circle" style="color: #337ab7" aria-hidden="true"></i></span>',
                             field: "phenotypes",
                             rowspan: 1,
                             colspan: 2,

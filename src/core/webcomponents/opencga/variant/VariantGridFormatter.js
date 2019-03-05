@@ -524,6 +524,42 @@ class VariantGridFormatter {
         return color;
     }
 
+    addPhenotypesInfoTooltip(div) {
+        $("#" + div).qtip({
+            content: {
+                title: "Phenotypes",
+                text: function(event, api) {
+                    return `<div>
+                                <span style="font-weight: bold">ClinVar</span> is a freely accessible, public archive of reports of the relationships among human variations 
+                                and phenotypes, with supporting evidence.
+                            </div>
+                            <div style="padding-top: 10px">
+                                <span style="font-weight: bold">COSMIC</span> is the world's largest and most comprehensive resource for exploring the impact of somatic mutations in human cancer.
+                            </div>
+
+                           `
+                },
+            },
+            position: {
+                target: "mouse",
+                my: "top right",
+                adjust: {
+                    x: 2, y: 2,
+                    mouse: false
+                }
+            },
+            style: {
+                width: "240px",
+            },
+            show: {
+                delay: 200
+            },
+            hide: {
+                fixed: true,
+                delay: 300
+            }
+        });
+    }
 
     /*
      * Reported Variant formatters
