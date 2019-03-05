@@ -35,9 +35,23 @@
         <div class="row" style="padding: 0px 10px; margin: 10px 0px;">
 
             <div class="col-md-12">
-                <h3 class="form-section-title">Low Coverage Filter</h3>
+                <!--<h3 class="form-section-title">Low Coverage Filters</h3>-->
 
-                <div class="form-horizontal" style="padding: 5px 10px">
+                <div style="display: block; cursor:pointer;" on-click="toggleCollapsedFilter"
+                     data-toggle="collapse" href$="#{{prefix}}collapsibleFilter">
+                    <h3 class="form-section-title">
+                        <template is="dom-if" if="{{_filtersCollapsed}}">
+                            <i class="fa fa-caret-right" aria-hidden="true" style="padding-right: 5px"></i>
+                        </template>
+                        <template is="dom-if" if="{{!_filtersCollapsed}}">
+                            <i class="fa fa-caret-down" aria-hidden="true" style="padding-right: 5px"></i>
+                        </template>
+                        Low Coverage Filters
+                    </h3>
+                </div>
+
+
+                <div id="{{prefix}}collapsibleFilter" class="form-horizontal collapse in" style="padding: 5px 10px">
 
                     <div class="form-group">
                         <label class="control-label col-md-1 jso-label-title">Search by Gene</label>
@@ -163,10 +177,8 @@
             _init() {
                 this.prefix = "PanelTranscriptView" + Utils.randomString(6);
 
-                // this._genesAvailable = false;
-                // this._panelGenesAvailable = true;
-
                 this.eraseSearchGene = false;
+                this._filtersCollapsed = false;
 
                 // Initially we set the default config, this will be overridden if 'config' is passed
                 this._config = this.getDefaultConfig();
@@ -361,6 +373,12 @@
             renderDomRepeat(e) {
                 $(`#${this.prefix}-geneSelect`).selectpicker('refresh');
                 $(`#${this.prefix}-geneSelect`).selectpicker('deselectAll');
+            }
+
+            toggleCollapsedFilter() {
+                // this.set("_filtersCollapsed", !this._filtersCollapsed);
+
+                this._filtersCollapsed = !this._filtersCollapsed;
             }
 
             onInputGeneChange(e) {

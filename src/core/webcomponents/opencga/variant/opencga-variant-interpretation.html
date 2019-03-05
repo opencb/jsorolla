@@ -24,6 +24,7 @@
 <link rel="import" href="../clinical/clinical-interpretation-view.html">
 <link rel="import" href="../opencga-active-filters.html">
 <link rel="import" href="../opencga-genome-browser.html">
+<link rel="import" href="opencga-variant-interpreter-genome-browser.html">
 
 <dom-module id="opencga-variant-interpretation">
     <template>
@@ -187,10 +188,17 @@
 
                         <!-- GENOME BROWSER VIEW -->
                         <div id="{{prefix}}GenomeBrowser" class="variant-interpretation-content" style="display: none">
-                            <opencga-genome-browser opencga-session="{{opencgaSession}}" samples="{{samples}}" opencga-client="{{opencgaSession.opencgaClient}}"
-                                                    cellbase-client="{{cellbaseClient}}" query={{query}} search={{search}} region="{{search.region}}"
-                                                    active="{{_genomeBrowserActive}}" full-screen="{{fullScreen}}" config="{{_config.genomeBrowser}}">
-                            </opencga-genome-browser>
+                            <opencga-variant-interpreter-genome-browser opencga-session="{{opencgaSession}}"
+                                                                        samples="{{samples}}"
+                                                                        cellbase-client="{{cellbaseClient}}"
+                                                                        query={{query}}
+                                                                        search={{search}}
+                                                                        region="{{search.region}}"
+                                                                        gene-ids="{{geneIds}}"
+                                                                        panel-ids="{{diseasePanelIds}}"
+                                                                        active="{{_genomeBrowserActive}}"
+                                                                        full-screen="{{fullScreen}}" config="{{_config.genomeBrowser}}">
+                            </opencga-variant-interpreter-genome-browser>
                         </div>
 
 
