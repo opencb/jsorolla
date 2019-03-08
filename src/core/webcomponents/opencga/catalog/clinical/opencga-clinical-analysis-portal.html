@@ -41,11 +41,11 @@
         <div class="row">
             <div class="col-md-12">
 
-                <div>
-                    <h2 style="margin-top: 10px">{{_config.title}}</h2>
-                </div>
+                <!--<div>-->
+                    <!--<h2 style="margin-top: 10px">{{_config.title}}</h2>-->
+                <!--</div>-->
 
-                <div style="padding: 5px 10px;">
+                <div style="padding: 10px 10px;">
 
                     <div class="panel panel-default" style="margin-bottom: 10px">
                         <!--<div class="panel-heading">Case Filters</div>-->
@@ -121,48 +121,56 @@
                             </div>
 
                             <!-- Type -->
-                            <select class="selectpicker" data-width="125px" id="{{prefix}}-type" multiple
-                                    title="Type: All" on-change="updateQuery" style="width:125px; color: rgb(153, 153, 153);">
-                                <option value="SINGLE">Single</option>
-                                <option value="FAMILY">Family</option>
-                                <option value="CANCER">Cancer</option>
-                                <option value="COHORT">Cohort</option>
-                                <option value="AUTOCOMPARATIVE">Autocomparative</option>
-                            </select>
+                            <div class="btn-group">
+                                <select class="selectpicker" data-width="125px" id="{{prefix}}-type" multiple
+                                        title="Type: All" on-change="updateQuery" style="width:125px; color: rgb(153, 153, 153);">
+                                    <option value="SINGLE">Single</option>
+                                    <option value="FAMILY">Family</option>
+                                    <option value="CANCER">Cancer</option>
+                                    <option value="COHORT">Cohort</option>
+                                    <option value="AUTOCOMPARATIVE">Autocomparative</option>
+                                </select>
+                            </div>
 
                             <!-- Status -->
-                            <select class="selectpicker" data-width="125px" id="{{prefix}}-status" multiple
-                                    title="Status: All" on-change="updateQuery">
-                                <option value="INCOMPLETE">Incomplete</option>
-                                <option value="READY_FOR_VALIDATION">Ready for Validation</option>
-                                <option value="READY_FOR_INTERPRETATION">Ready for Interpretation</option>
-                                <option value="INTERPRETATION_IN_PROGRESS">Interpretation in Progress</option>
-                                <option value="READY_FOR_INTEPRETATION_REVIEW">Ready for Interpretation Review</option>
-                                <option value="INTERPRETATION_REVIEW_IN_PROGRESS">Interpretation Review in Progress</option>
-                                <option value="READY_FOR_REPORT">Ready for Report</option>
-                                <option value="REPORT_IN_PROGRESS">Report in Progress</option>
-                                <option value="DONE">Done</option>
-                                <option value="REVIEW_IN_PROGRESS">Final Review in Progress</option>
-                                <option value="REJECTED">Rejected</option>
-                                <option value="CLOSED">Closed</option>
-                            </select>
+                            <div class="btn-group">
+                                <select class="selectpicker" data-width="125px" id="{{prefix}}-status" multiple
+                                        title="Status: All" on-change="updateQuery">
+                                    <option value="INCOMPLETE">Incomplete</option>
+                                    <option value="READY_FOR_VALIDATION">Ready for Validation</option>
+                                    <option value="READY_FOR_INTERPRETATION">Ready for Interpretation</option>
+                                    <option value="INTERPRETATION_IN_PROGRESS">Interpretation in Progress</option>
+                                    <option value="READY_FOR_INTEPRETATION_REVIEW">Ready for Interpretation Review</option>
+                                    <option value="INTERPRETATION_REVIEW_IN_PROGRESS">Interpretation Review in Progress</option>
+                                    <option value="READY_FOR_REPORT">Ready for Report</option>
+                                    <option value="REPORT_IN_PROGRESS">Report in Progress</option>
+                                    <option value="DONE">Done</option>
+                                    <option value="REVIEW_IN_PROGRESS">Final Review in Progress</option>
+                                    <option value="REJECTED">Rejected</option>
+                                    <option value="CLOSED">Closed</option>
+                                </select>
+                            </div>
 
                             <!-- Priority -->
-                            <select class="selectpicker" data-width="125px" id="{{prefix}}-priority" multiple
-                                    title="Priority: All" on-change="updateQuery">
-                                <option style="color: red; font-weight: bold;" value="URGENT">Urgent</option>
-                                <option style="color: orange; font-weight: bold;" value="HIGH">High</option>
-                                <option style="color: blue; font-weight: bold;" value="MEDIUM">Medium</option>
-                                <option style="color: green; font-weight: bold;" value="LOW">Low</option>
-                            </select>
+                            <div class="btn-group">
+                                <select class="selectpicker" data-width="125px" id="{{prefix}}-priority" multiple
+                                        title="Priority: All" on-change="updateQuery">
+                                    <option style="color: red; font-weight: bold;" value="URGENT">Urgent</option>
+                                    <option style="color: orange; font-weight: bold;" value="HIGH">High</option>
+                                    <option style="color: blue; font-weight: bold;" value="MEDIUM">Medium</option>
+                                    <option style="color: green; font-weight: bold;" value="LOW">Low</option>
+                                </select>
+                            </div>
 
                             <!-- Assignees -->
-                            <select class="selectpicker" data-width="125px" id="{{prefix}}-assigned" multiple
-                                    title="Assignee: All" on-change="updateQuery">
-                                <template is="dom-repeat" items="{{_studyUsers}}" on-dom-change="_updateValidateFormFields">
-                                    <option value="{{item}}">{{item}}</option>
-                                </template>
-                            </select>
+                            <div class="btn-group">
+                                <select class="selectpicker" data-width="125px" id="{{prefix}}-assigned" multiple
+                                        title="Assignee: All" on-change="updateQuery">
+                                    <template is="dom-repeat" items="{{_studyUsers}}" on-dom-change="_updateValidateFormFields">
+                                        <option value="{{item}}">{{item}}</option>
+                                    </template>
+                                </select>
+                            </div>
 
                             <!-- Buttons -->
                             <button class="btn btn-default" style="margin-left: 15px;" type="button" on-click="onClearQuery">
@@ -217,11 +225,11 @@
                             <div style="padding-top: 20px">
                                 <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
                                     <li role="presentation" class="active">
-                                        <a href="#{{prefix}}Info" role="tab" data-toggle="tab" class="browser-variant-tab-title">Clinical Analysis Info</a>
+                                        <a href="#{{prefix}}Info" role="tab" data-toggle="tab" class="browser-variant-tab-title">Case Information</a>
                                     </li>
-                                    <li role="presentation">
-                                        <a href="#{{prefix}}Proband" role="tab" data-toggle="tab" class="browser-variant-tab-title">Proband Info</a>
-                                    </li>
+                                    <!--<li role="presentation">-->
+                                        <!--<a href="#{{prefix}}Proband" role="tab" data-toggle="tab" class="browser-variant-tab-title">Proband Info</a>-->
+                                    <!--</li>-->
                                 </ul>
 
                                 <div class="tab-content" style="height: 680px">
@@ -236,11 +244,11 @@
                                         </div>
                                     </div>
 
-                                    <div id="{{prefix}}Proband" role="tabpanel" class="tab-pane">
-                                        <div style="padding: 10px 20px; width: 90%">
-                                            <span>Work in progress</span>
-                                        </div>
-                                    </div>
+                                    <!--<div id="{{prefix}}Proband" role="tabpanel" class="tab-pane">-->
+                                        <!--<div style="padding: 10px 20px; width: 90%">-->
+                                            <!--<span>Work in progress</span>-->
+                                        <!--</div>-->
+                                    <!--</div>-->
                                 </div>
                             </div>
                         </div>

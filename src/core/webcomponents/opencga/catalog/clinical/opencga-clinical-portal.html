@@ -27,6 +27,12 @@
                 color: #444444;
                 border-bottom: 1px solid rgba(221, 221, 221, 0.8);
             }
+
+            .myactive {
+                color: darkorange !important;
+                border-top-color: darkorange !important;
+                border-top-width: 1px !important;
+            }
         </style>
 
         <div class="row">
@@ -47,25 +53,25 @@
 
                     <ul class="nav navbar-nav navbar-right" style="padding: 0px 20px">
                         <li>
-                            <button type="button" class="btn btn-link clinical-portal-button" style="font-size: 1.1em" data-view="ReviewCases" on-click="_changeView">
-                                <i class="fa fa-list" style="padding: 0px 5px" data-view="ReviewCases" on-click="_changeView"></i>Review Cases
+                            <button type="button" class="btn btn-link clinical-portal-button active myactive" style="font-size: 1.1em" data-view="ReviewCases" on-click="_changeView" active>
+                                <i class="fa fa-list clinical-portal-button" style="padding: 0px 5px" data-view="ReviewCases" on-click="_changeView"></i>Review Cases
                             </button>
                         </li>
                         <li>
                             <button type="button" class="btn btn-link clinical-portal-button" style="font-size: 1.1em" data-view="CreateCase" on-click="_changeView">
-                                <i class="fa fa-file" style="padding: 0px 5px" data-view="CreateCase" on-click="_changeView"></i>Create Case
+                                <i class="fa fa-file clinical-portal-button" style="padding: 0px 5px" data-view="CreateCase" on-click="_changeView"></i>Create Case
                             </button>
                         </li>
                         <li>
                             <button type="button" class="btn btn-link clinical-portal-button" style="font-size: 1.1em" data-view="DiseasePanel" on-click="_changeView">
-                                <i class="fa fa-columns" style="padding: 0px 5px" data-view="DiseasePanel" on-click="_changeView"></i>Disease Panel (Experimental)
+                                <i class="fa fa-columns clinical-portal-button" style="padding: 0px 5px" data-view="DiseasePanel" on-click="_changeView"></i>Disease Panel (Experimental)
                             </button>
                         </li>
-                        <li>
-                            <button type="button" class="btn btn-link clinical-portal-button" style="font-size: 1.1em" data-view="ReviewCases" on-click="_changeView">
-                                <i class="fa fa-database" style="padding: 0px 5px" data-view="ReviewCases" on-click="_changeView"></i>CVA (pending)
-                            </button>
-                        </li>
+                        <!--<li>-->
+                            <!--<button type="button" class="btn btn-link clinical-portal-button" style="font-size: 1.1em" style="font-size: 1.1em" data-view="ReviewCases" on-click="_changeView">-->
+                                <!--<i class="fa fa-database" style="padding: 0px 5px" data-view="ReviewCases" on-click="_changeView"></i>CVA (pending)-->
+                            <!--</button>-->
+                        <!--</li>-->
                     </ul>
                 </nav>
             </div>
@@ -160,7 +166,9 @@
 
                 // Show the active button
                 $('.clinical-portal-button').removeClass("active");
+                $('.clinical-portal-button').removeClass("myactive");
                 $(e.target).addClass("active");
+                $(e.target).addClass("myactive");
             }
 
 

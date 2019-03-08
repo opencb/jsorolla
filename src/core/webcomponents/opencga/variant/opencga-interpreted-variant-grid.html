@@ -235,7 +235,7 @@
                             _this.to = Math.min(resp.response[0].numResults, this.pageSize);
                             _this.numTotalResultsText = _numTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                             _this.approximateCountResult = resp.response[0].approximateCount;
-                            return {total: _numTotal, rows: resp.response[0].result.reportedVariants}
+                            return {total: _numTotal, rows: resp.response[0].result.primaryFindings}
                         },
                         onClickRow: function (row, $element, field) {
                             $("#" + _this.prefix + "VariantBrowserGrid tr").removeClass('success');
@@ -526,7 +526,7 @@
             variantFormatter(value, row, index) {
                 let variantHtmlDiv = this.variantGridFormatter.variantFormatter(value, row, index);
                 let snptHtmlAnchor = this.variantGridFormatter.snpFormatter(value, row, index);
-                return variantHtmlDiv + "<br>" + snptHtmlAnchor;
+                return variantHtmlDiv + "<div style='padding-top: 10px'>" + snptHtmlAnchor + "</div>";
             }
 
             predictionFormatter(value, row, index) {
@@ -764,12 +764,16 @@
             }
 
             interpretationFormatter(value, row, index) {
-                let tier = "-";
                 let tiers = {
                     tier1: [], tier2: [], tier3: []
                 };
+                let modeOfInheritances = [];
 
                 for (let re of row.reportedEvents) {
+                    if (UtilsNew.isNotUndefinedOrNull(re.modeOfInheritance) && !modeOfInheritances.includes(re.modeOfInheritance)) {
+                        modeOfInheritances.push(re.modeOfInheritance);
+                    }
+
                     if (UtilsNew.isNotUndefinedOrNull(re.tier)) {
                         let obj = {tier: re.tier, acmg: re.classification.acmg.join(", ")};
                         switch (re.tier.toLowerCase()) {
@@ -787,16 +791,21 @@
                                 break;
                         }
                     }
-
-                    if (tiers.tier1.length > 0) {
-                        tier = `<span style="color: red">${tiers.tier1[0].tier}</span> (${tiers.tier1[0].acmg})`;
-                    } else if (tiers.tier2.length > 0) {
-                        tier = `<span style="color: darkorange">${tiers.tier2[0].tier}</span> (${tiers.tier2[0].acmg})`;
-                    } else if (tiers.tier3.length > 0) {
-                        tier = `<span style="color: blue">${tiers.tier3[0].tier}</span> (${tiers.tier3[0].acmg})`;
-                    }
                 }
-                return `<div>${tier}</div><br>`;
+
+                let tierHtml = "<div>" + "-";
+                if (tiers.tier1.length > 0) {
+                    tierHtml = `<span style="color: red">${tiers.tier1[0].tier}</span> (${tiers.tier1[0].acmg})`;
+                } else if (tiers.tier2.length > 0) {
+                    tierHtml = `<span style="color: darkorange">${tiers.tier2[0].tier}</span> (${tiers.tier2[0].acmg})`;
+                } else if (tiers.tier3.length > 0) {
+                    tierHtml = `<span style="color: blue">${tiers.tier3[0].tier}</span> (${tiers.tier3[0].acmg})`;
+                }
+                tierHtml += "</div>";
+
+                let moiHtml = `<div style='padding-top: 10px'>${modeOfInheritances.join(", ")}</div>`;
+
+                return `${tierHtml}${moiHtml}`;
             }
 
             _createDefaultColumns() {
