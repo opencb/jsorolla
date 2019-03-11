@@ -5,9 +5,8 @@
 
     <template>
         <div id="gb-div" style="margin:15px 30px">
-            <genome-browser cellbase-client="{{cellbaseClient}}" opencga-client="{{opencgaClient}}"
-                            region="{{region}}" tracks="{{tracks}}" track-configs="{{trackConfigs}}"
-                            settings="{{settings}}">
+            <genome-browser cellbase-client="{{cellbaseClient}}" opencga-session="{{opencgaSession}}"
+                            region="{{region}}" tracks="{{tracks}}" settings="{{settings}}" active="true">
             </genome-browser>
         </div>
     </template>
@@ -60,12 +59,18 @@
 
                 var opencgaClientConfig = new OpenCGAClientConfig(OPENCGA_HOST);
                 opencgaClientConfig.setPrefix("gm");
-                this.opencgaClient = new OpenCGAClient(opencgaClientConfig);
+                let opencgaClient = new OpenCGAClient(opencgaClientConfig);
 
-                this.opencgaClient.users().login(OPENCGA_USER, OPENCGA_PASSWORD)
-                    .then(function() {
+                let _this = this;
+                opencgaClient.users().login(OPENCGA_USER, OPENCGA_PASSWORD)
+                    .then(function(response) {
                         console.log("User " + OPENCGA_USER + " successfully logged in in opencga.");
-                        opencgaClient = new OpenCGAClient(opencgaClientConfig);
+                        opencgaClient._config.sessionId = response.response[0].result[0].token;
+
+                        opencgaClient.createSession().then(function (response) {
+                            _this.opencgaSession = response;
+                        });
+
                     })
                     .catch(function(e) {
                         console.log("Error logging in " + OPENCGA_USER, e);
@@ -86,23 +91,27 @@
                     width: $("#gb-div").width() - 10
                 };
 
-                this.tracks = ['sequence', 'gene'];
+                let tracks = [{
+                    type: "sequence"
+                }, {
+                    type: "gene"
+                }];
+
                 let fileIdsSplitted = fileIds.split(",");
-                let configTracks = {};
                 for (let i in fileIdsSplitted) {
                     let fileId = fileIdsSplitted[i];
-                    let name = "alignment" + i;
-                    this.tracks.push(name);
-                    configTracks[name] = {
-                        type: 'alignment',
-                        source: 'opencga',
-                        data: {
-                            study: study,
-                            fileId: fileId
+                    tracks.push({
+                        type: "alignment",
+                        config: {
+                            source: 'opencga',
+                            data: {
+                                study: study,
+                                fileId: fileId
+                            }
                         }
-                    };
+                    });
                 }
-                this.trackConfigs = configTracks;
+                this.tracks = tracks;
             }
         }
 
