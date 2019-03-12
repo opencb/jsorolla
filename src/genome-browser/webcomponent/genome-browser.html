@@ -28,9 +28,9 @@
                         type: Object
 //                        observer: "init"
                     },
-                    opencgaClient: {
-                        type: Object
-                    },
+                    // opencgaClient: {
+                    //     type: Object
+                    // },
                     region: {
                         type: Object,
                         observer: "_setRegion"
@@ -44,13 +44,21 @@
                         }
                     },
                     tracks: {
-                        type: Object,
-                        value: {
-                            sequence: {type: "sequence"},
-                            gene: {type: "gene"},
-                            variant: {type: "variant", config: {}},
-                            alignment: {type: "alignment", config: {}}
-                        },
+                        type: Array,
+                        value: [
+                            {
+                                type: "sequence"
+                            }, {
+                                type: "gene"
+                            }
+                            // , {
+                            //     type: "variant",
+                            //     config: {}
+                            // }, {
+                            //     type: "alignment",
+                            //     config: {}
+                            // }
+                        ],
                         observer: "init"
                     },
                     width: {
@@ -69,6 +77,16 @@
                 };
             }
 
+            static get observers() {
+                /*
+                 * We do not need to Observer 'query' property, when passed it will be shared (bound) with the other components.
+                 * 'search; is observed to ensure 'query' is in sync.
+                 */
+                return [
+                    "propertyObserver(opencgaSession, cellbaseClient, tracks, active)"
+                ];
+            }
+
             ready() {
                 super.ready();
 
@@ -84,13 +102,19 @@
             }
 
             init() {
-                if (typeof this.cellbaseClient === "undefined" || typeof  this.opencgaSession === "undefined"
-                    || typeof this.opencgaClient === "undefined" || typeof this.region === "undefined") {
+            }
+
+            propertyObserver() {
+                if (typeof this.cellbaseClient === "undefined" || typeof this.opencgaSession === "undefined") {
                     return;
                 }
 
                 if (!this.active) {
                     return;
+                }
+
+                if (typeof this.region === "undefined") {
+                    this.region = new Region("13:32889611-32973805"); // BRCA2
                 }
 
                 if (typeof this.genomeBrowser !== "undefined") {
@@ -132,7 +156,8 @@
                 this.genomeBrowser = new GenomeBrowser(settings);
 
                 let _tracks = [];
-                for (let track of Object.values(this.tracks)){
+                for (let i = 0; i < this.tracks.length; i++) {
+                    let track = this.tracks[i];
                     switch (track.type) {
                         case 'sequence':
                             _tracks.push(this._addSequenceTrack(track.config));
@@ -146,15 +171,13 @@
                             break;
                         case 'alignment':
                             // One track per file
-                            let alignmentTracks = this.addAlignmentTrack(track.config);
-                            if (UtilsNew.isNotEmptyArray(alignmentTracks)) {
-                                for (let alignmentTrack of alignmentTracks) {
-                                    _tracks.push(alignmentTrack);
-                                }
-                            }
-//                                if (typeof this.samples !== "undefined" && this.samples.length > 0) {
-//                                    tracks.push(this._addAlignmentTrack(this.trackConfigs[this.tracks[i]]));
-//                                }
+                            _tracks.push(this.getAlignmentTrack(track.config));
+                            // let alignmentTracks = this.addAlignmentTrack(track.config);
+                            // if (UtilsNew.isNotEmptyArray(alignmentTracks)) {
+                            //     for (let alignmentTrack of alignmentTracks) {
+                            //         _tracks.push(alignmentTrack);
+                            //     }
+                            // }
                             break;
                         case 'template':
                             _tracks.push(this._addTemplateTrack(track.config));
@@ -282,7 +305,7 @@
                     visibleRegionSize: 100000000,
                     height: 300,
                     opencga: {
-                        client: this.opencgaClient,
+                        client: this.opencgaSession.opencgaClient,
                         studies: `${this.opencgaSession.project.alias}:${this.opencgaSession.study.alias}`,
 //                        config: {height:1},
                         // By default no custom config
@@ -296,7 +319,8 @@
                 // You have to pass opencga.config to renderer if you use your own renderer. If you customize config yo have to change opencga.config.
                 let renderer = {
                     renderer: new AlignmentRenderer({config: mySettings.opencga.config}),
-                    dataAdapter: new OpencgaAdapter(this.opencgaClient, "analysis/alignment", undefined, "query", settings.data)
+                    dataAdapter: new OpencgaAdapter(this.opencgaSession.opencgaClient, "analysis/alignment", undefined, "query",
+                        settings.data)
                 };
                 mySettings = Object.assign(mySettings, settings.config, renderer);
                 return new AlignmentTrack(mySettings);
