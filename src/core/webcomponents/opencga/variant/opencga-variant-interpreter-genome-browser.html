@@ -46,13 +46,13 @@
                 <div style="display: block; cursor:pointer;" on-click="toggleCollapsedFilter"
                      data-toggle="collapse" href$="#{{prefix}}collapsibleFilter">
                     <h3 class="form-section-title">
-                    <template is="dom-if" if="{{_filtersCollapsed}}">
-                        <i class="fa fa-caret-right" aria-hidden="true" style="padding-right: 5px"></i>
-                    </template>
-                    <template is="dom-if" if="{{!_filtersCollapsed}}">
-                        <i class="fa fa-caret-down" aria-hidden="true" style="padding-right: 5px"></i>
-                    </template>
-                    Genome Browser Filters</h3>
+                        <template is="dom-if" if="{{_filtersCollapsed}}">
+                            <i class="fa fa-caret-right" aria-hidden="true" style="padding-right: 5px"></i>
+                        </template>
+                        <template is="dom-if" if="{{!_filtersCollapsed}}">
+                            <i class="fa fa-caret-down" aria-hidden="true" style="padding-right: 5px"></i>
+                        </template>
+                        Genome Browser Filters</h3>
                 </div>
 
                 <div id="{{prefix}}collapsibleFilter" class="form-horizontal collapse in">
@@ -130,14 +130,14 @@
                 <h3 class="form-section-title">Genome Browser</h3>
 
                 <!--<div style$="padding: 20px 0px;display: {{displayGenomeBrowserMessage}};">-->
-                    <!--<div style="padding: 20px">-->
-                        <!--<span style="font-weight: bolder">Please select some data above</span>-->
-                    <!--</div>-->
+                <!--<div style="padding: 20px">-->
+                <!--<span style="font-weight: bolder">Please select some data above</span>-->
+                <!--</div>-->
                 <!--</div>-->
 
                 <div style="padding: 20px">
                     <genome-browser id="{{prefix}}gb" opencga-session={{opencgaSession}} cellbase-client="{{cellbaseClient}}"
-                                    opencga-client="{{opencgaSession.opencgaClient}}" region="{{genomeBrowserRegion}}" tracks="{{tracks}}">
+                                    region="{{genomeBrowserRegion}}" tracks="{{tracks}}" settings="{{settings}}">
                     </genome-browser>
                 </div>
             </div>
@@ -213,22 +213,17 @@
                 this.prefix = "OpencgaVariantInterpreterGenomeBrowser" + Utils.randomString(6);
 
                 this._availableFiles = [];
-                if (!UtilsNew.isNotUndefinedOrNull(this.region)) {
-                    this.region = new Region({chromosome: "11", start: 68177378, end: 68177510});
+                if (!UtilsNew.isNotEmpty(this.region)) {
+                    this.genomeBrowserRegion = new Region({chromosome: "11", start: 68177378, end: 68177510});
                 }
-
-                this.tracks = {
-                    sequence: {type: "sequence"},
-                    gene: {type: "gene"},
-                    variant: {type: "variant", config: {}},
-                    alignment: {type: "alignment", config: {}}
-                };
 
                 this._filtersCollapsed = false;
 
                 this.displayGenomeBrowserMessage = "inline";
 
                 this._config = this.getDefaultConfig();
+
+                this.tracks = this._config.tracks;
             }
 
             propertyObserver(opencgaSession, clinicalAnalysis, panelIds, geneIds, config) {
@@ -257,6 +252,10 @@
                         this._genePanels = [];
                     }
                 }
+
+                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
+                    this.addTracks(this.clinicalAnalysis);
+                }
             }
 
             /**
@@ -269,6 +268,7 @@
                         .then(function(response) {
                             // This will trigger the call clinicalAnalysis observer
                             _this.clinicalAnalysis = response.response[0].result[0];
+                            _this.addTracks(_this.clinicalAnalysis);
                         })
                         .catch((response) => {
                             console.error("An error occurred fetching clinicalAnalysis: ", response)
@@ -286,7 +286,9 @@
             }
 
             regionObserver() {
-                this.genomeBrowserRegion = new Region(this.region);
+                if (!UtilsNew.isNotEmpty(this.region)) {
+                    this.genomeBrowserRegion = new Region(this.region);
+                }
             }
 
             onStudyUpdate() {
@@ -304,7 +306,7 @@
 
                 let genomeBrowser = PolymerUtils.getElementById(this.prefix  + "gb");
 
-                if (genomeBrowser !== undefined && genomeBrowser !== null) {
+                if (UtilsNew.isNotUndefinedOrNull(genomeBrowser)) {
                     let inputArray = document.querySelectorAll('input[name=' + this.prefix + 'file-checkbox]:checked');
 
                     let myVariantFiles = [];
@@ -318,12 +320,6 @@
                         }
                     });
 
-                    // In order to notify of the changes to the genome browser, we make a copy of the tracks object
-                    let _tracks = this.tracks;
-                    _tracks.variant.config.files = myVariantFiles;
-                    _tracks.alignment.config.files = myAlignmentFiles;
-                    this.tracks = Object.assign({}, _tracks);
-
                     // Activate genome browser
                     // if (myVariantFiles.length > 0 || myAlignmentFiles.length > 0) {
                     // Hide Genome Browser initial message
@@ -331,6 +327,115 @@
                     genomeBrowser.active = true;
                     // }
                 }
+            }
+
+            addTracks(clinicalAnalysis) {
+                if (UtilsNew.isUndefinedOrNull(clinicalAnalysis.files)) {
+                    return;
+                }
+                let roleToProband = {};
+                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.roleToProband)) {
+                    roleToProband = clinicalAnalysis.roleToProband;
+                }
+
+                let samples = Object.keys(clinicalAnalysis.files);
+                let variants = {};
+                let alignments = {};
+                for (let i = 0; i < samples.length; i++) {
+                    let files = clinicalAnalysis.files[samples[i]];
+                    let role = UtilsNew.isNotEmpty(roleToProband[samples[i]]) ? roleToProband[samples[i]] : samples[i];
+                    let display = role === samples[i] ? role : `${samples[i]} (${role})`;
+                    for (let j = 0; j < files.length; j++) {
+                        files[j].display = display;
+                        if (files[j].bioformat === "VARIANT") {
+                            variants[role] = files[j];
+                        } else if (files[j].bioformat === "ALIGNMENT") {
+                            alignments[role] = files[j];
+                        }
+                    }
+                }
+
+                let tracks = this._config.tracks.slice();
+                // let alignmentTracks = [];
+                // let variantTracks = [];
+                let roles = ["PROBAND", "FATHER", "MOTHER", "OTHER"];
+                for (let i = 0; i < roles.length; i++) {
+                    if (roles[i] !== "OTHER") {
+                        let alignment = alignments[roles[i]];
+                        if (UtilsNew.isNotUndefinedOrNull(alignment)) {
+                            // Remove role from alignments map
+                            delete alignments[roles[i]];
+
+                            tracks.push(this._generateAlignmentTrack(alignment));
+                        }
+                        // let variant = variants[roles[i]];
+                        // if (UtilsNew.isNotUndefinedOrNull(variant)) {
+                        //     // Remove role from variants map
+                        //     delete variants[roles[i]];
+                        //
+                        //     tracks.push(this._generateVariantTrack(variant));
+                        // }
+                    } else {
+                        // Add the rest of the tracks
+                        let _this = this;
+                        Object.entries(alignments).forEach(
+                            ([key, value]) => tracks.push(_this._generateAlignmentTrack(value))
+                        );
+                        // Object.entries(variants).forEach(
+                        //     ([key, value]) => tracks.push(_this._generateVariantTrack(value))
+                        // );
+                    }
+                }
+
+                this.tracks = tracks;
+
+                // tracks = tracks.concat(alignment)
+
+                // this.tracks = Object.assign(this.tracks, {
+                //     'alignment': alignmentTracks,
+                //     'variant': variantTracks
+                // });
+            }
+
+            _generateTrack(file) {
+                return {
+                    type: file.bioformat === "VARIANT" ? "variant" : "alignment",
+                    config: {
+                        source: 'opencga',
+                        data: {
+                            study: this.opencgaSession.study.fqn,
+                            fileId: file.id
+                        }
+                    }
+                };
+            }
+
+            _generateAlignmentTrack(file) {
+                return {
+                    type: "alignment",
+                    config: {
+                        source: 'opencga',
+                        data: {
+                            study: this.opencgaSession.study.fqn,
+                            fileId: file.id,
+                            name: file.display
+                        }
+                    }
+                };
+            }
+
+            _generateVariantTrack(file) {
+                return {
+                    type: "variant",
+                    config: {
+                        source: 'opencga',
+                        data: {
+                            study: this.opencgaSession.study.fqn,
+                            fileId: file.id,
+                            name: file.display
+                        }
+                    }
+                };
             }
 
             // showSampleBrowser(e) {
@@ -426,7 +531,12 @@
             getDefaultConfig() {
                 return {
                     title: "Genome Browser",
-                    showTitle: true
+                    showTitle: true,
+                    tracks: [{
+                        type: "sequence"
+                    }, {
+                        type: "gene"
+                    }]
                 };
             }
         }

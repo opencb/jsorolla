@@ -244,8 +244,10 @@
                         for (let i = 0; i < clinicalAnalysis.family.members.length; i++) {
                             let member = clinicalAnalysis.family.members[i];
                             members[member.id] = member;
-                            for (let j = 0; j < member.samples.length; j++) {
-                                samples[member.samples[j].id] = member;
+                            if (UtilsNew.isNotEmptyArray(member.samples)) {
+                                for (let j = 0; j < member.samples.length; j++) {
+                                    samples[member.samples[j].id] = member;
+                                }
                             }
                         }
 
@@ -279,7 +281,8 @@
                         if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.proband.mother)
                             && UtilsNew.isNotEmpty(clinicalAnalysis.proband.mother.id)) {
                             let motherId = clinicalAnalysis.proband.mother.id;
-                            if (members.hasOwnProperty(motherId) && availableBams.hasOwnProperty(members[motherId].samples[0].id)) {
+                            if (members.hasOwnProperty(motherId) && UtilsNew.isNotEmptyArray(members[motherId].samples)
+                                && availableBams.hasOwnProperty(members[motherId].samples[0].id)) {
                                 files.push({
                                     id: availableBams[members[motherId].samples[0].id],
                                     name: "Mother '" + motherId + "'",
@@ -297,7 +300,8 @@
                         if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.proband.father)
                             && UtilsNew.isNotEmpty(clinicalAnalysis.proband.father.id)) {
                             let fatherId = clinicalAnalysis.proband.father.id;
-                            if (members.hasOwnProperty(fatherId) && availableBams.hasOwnProperty(members[fatherId].samples[0].id)) {
+                            if (members.hasOwnProperty(fatherId) && UtilsNew.isNotEmptyArray(members[fatherId].samples)
+                                && availableBams.hasOwnProperty(members[fatherId].samples[0].id)) {
                                 files.push({
                                     id: availableBams[members[fatherId].samples[0].id],
                                     name: "Father '" + fatherId + "'",
@@ -361,10 +365,12 @@
 
             _getAffectationStatus(member, disorderId) {
                 let status = "UNAFFECTED";
-                for (let disorder of member.disorders) {
-                    if (UtilsNew.isNotUndefinedOrNull(disorder) && disorder.id === disorderId) {
-                        status = "AFFECTED";
-                        break;
+                if (UtilsNew.isNotEmptyArray(member.disorders)) {
+                    for (let disorder of member.disorders) {
+                        if (UtilsNew.isNotUndefinedOrNull(disorder) && disorder.id === disorderId) {
+                            status = "AFFECTED";
+                            break;
+                        }
                     }
                 }
                 return status;
