@@ -431,8 +431,9 @@
                 this.opencgaSession.opencgaClient.variants().familyGenotypes({
                     study: this.opencgaSession.study.fqn,
                     family: this.clinicalAnalysis.family.id,
-                    disease: this.clinicalAnalysis.family.phenotypes[0].id,
+                    disorder: this.clinicalAnalysis.disorder.id,
                     modeOfInheritance: this.modeOfInheritance,
+                    completePenetrance: true
                 }).then(function(response) {
                     let genotypeResults = response.response[0].result[0];
                     if (UtilsNew.isNotUndefinedOrNull(genotypeResults)) {

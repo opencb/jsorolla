@@ -104,24 +104,50 @@
 
                     <div class="col-md-12" style="padding: 15px 0px">
                         <div class="btn-toolbar" role="toolbar" aria-label="..." >
+                            <!-- Right green buttons -->
                             <div class="btn-group" role="group" aria-label="..." >
                                 <button type="button" class="btn btn-success variant-interpretation-view-buttons active" data-view="TableResult" on-click="_changeView">
-                                    <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView"></i>Table Result
+                                    <i class="fa fa-filter icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView"></i>Search Result ({{counters.rv}})
                                 </button>
-                                <!--<button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="ClinicalAnalysis" on-click="_changeView">-->
-                                <!--<i class="fa fa-user-md icon-padding" aria-hidden="true" data-view="ClinicalAnalysis" on-click="_changeView"></i>Case Summary-->
-                                <!--</button>-->
+                                <button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="CompoundHeterozygous" on-click="_changeView">
+                                    <i class="fas fa-divide icon-padding" aria-hidden="true" data-view="ClinicalAnalysis" on-click="_changeView"></i>Compound Heterozygous ({{counters.ch}})
+                                </button>
+                                <button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="DeNovo" on-click="_changeView">
+                                    <i class="fa fa-exclamation icon-padding" aria-hidden="true" data-view="LowCoverage" on-click="_changeView"></i>de Novo ({{counters.dn}})
+                                </button>
                                 <!--<button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="LowCoverage" on-click="_changeView">-->
                                 <!--<i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="LowCoverage" on-click="_changeView"></i>Low Coverage Regions-->
                                 <!--</button>-->
-                                <button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="LowCoverage" on-click="_changeView">
-                                    <i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="LowCoverage" on-click="_changeView"></i>Low Coverage Regions
-                                </button>
-                                <button id="{{prefix}}GenomeBrowserButton" type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="GenomeBrowser" on-click="_changeView">
-                                    <i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i>Genome Browser (Beta)
+                                <!--<button id="{{prefix}}GenomeBrowserButton" type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="GenomeBrowser" on-click="_changeView">-->
+                                <!--<i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i>Genome Browser (Beta)-->
+                                <!--</button>-->
+                            </div>
+
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="SecondaryFindings" on-click="_changeView">
+                                    <i class="fa fa-comment-medical icon-padding" aria-hidden="true" data-view="SecondaryFindings" on-click="_changeView"></i>Secondary Findings
                                 </button>
                             </div>
 
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa fa-wrench" aria-hidden="true" style="padding-right: 5px"></i> Other Tools <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    <li>
+                                        <a data-view="LowCoverage" on-click="_changeView" style="cursor: pointer">
+                                            <i class="fa fa-water icon-padding" aria-hidden="true" data-view="LowCoverage" on-click="_changeView"></i>Low Coverage Regions
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a data-view="GenomeBrowser" on-click="_changeView" data-view="GenomeBrowser" style="cursor: pointer">
+                                            <i class="fa fa-stream icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i>Genome Browser (Beta)
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Left blue buttons -->
                             <template is="dom-if" if="{{hasClinicalAnalysis}}">
                                 <div class="btn-group" role="group" aria-label="..." style="float: right">
                                     <button type="button" class="btn btn-primary variant-interpretation-view-buttons" data-view="ClinicalAnalysis" on-click="_changeView">
@@ -129,7 +155,7 @@
                                     </button>
                                     <button id="{{prefix}}InterpretationEditorButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
                                             data-view="InterpretationEditor" on-click="_changeView">
-                                        <i class="fa fa-floppy-o icon-padding" aria-hidden="true" data-view="InterpretationEditor" on-click="_changeView"></i>Review and Save Interpretation ({{checkedVariants.length}})
+                                        <i class="fa fa-save icon-padding" aria-hidden="true" data-view="InterpretationEditor" on-click="_changeView"></i>Review and Save ({{counters.total}})
                                     </button>
                                 </div>
                             </template>
@@ -140,7 +166,7 @@
                                     </button>
                                     <button id="{{prefix}}InterpretationEditorButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
                                             data-view="InterpretationEditor" on-click="_changeView">
-                                        <i class="fa fa-floppy-o icon-padding" aria-hidden="true" data-view="InterpretationEditor" on-click="_changeView"></i>Review and Save Interpretation ({{checkedVariants.length}})
+                                        <i class="fa fa-save icon-padding" aria-hidden="true" data-view="InterpretationEditor" on-click="_changeView"></i>Review and Save ({{checkedVariants.length}})
                                     </button>
                                 </div>
                             </template>
@@ -150,20 +176,20 @@
                     <div>
                         <!-- TABLE RESULT -->
                         <div id="{{prefix}}TableResult" class="variant-interpretation-content">
-                            <template is="dom-if" if="{{interactive}}">
-                                <!-- Variant Browser Grid -->
-                                <opencga-interpreted-variant-grid opencga-session="{{opencgaSession}}" clinical-analysis="{{clinicalAnalysis}}"
-                                                                  query="{{executedQuery}}"
-                                                                  consequence-types="{{consequenceTypes}}"
-                                                                  population-frequencies="{{populationFrequencies}}"
-                                                                  protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                                  on-selected="selectedGene"
-                                                                  on-selectvariant="onSelectVariant"
-                                                                  on-checkvariant="onCheckVariant"
-                                                                  on-setgenomebrowserposition="onGenomeBrowserPositionChange"
-                                                                  config="{{config.grid}}">
-                                </opencga-interpreted-variant-grid>
-                            </template>
+                            <!--<template is="dom-if" if="{{interactive}}">-->
+                            <!-- Variant Browser Grid -->
+                            <opencga-interpreted-variant-grid opencga-session="{{opencgaSession}}" clinical-analysis="{{clinicalAnalysis}}"
+                                                              query="{{executedQuery}}"
+                                                              consequence-types="{{consequenceTypes}}"
+                                                              population-frequencies="{{populationFrequencies}}"
+                                                              protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                              on-selected="selectedGene"
+                                                              on-selectvariant="onSelectVariant"
+                                                              on-checkvariant="onCheckVariant"
+                                                              on-setgenomebrowserposition="onGenomeBrowserPositionChange"
+                                                              config="{{config.grid}}">
+                            </opencga-interpreted-variant-grid>
+                            <!--</template>-->
 
                             <!-- Bottom tabs with detailed variant information -->
                             <opencga-interpreted-variant-detail opencga-session={{opencgaSession}}
@@ -174,6 +200,152 @@
                                                                 protein-substitution-scores="{{proteinSubstitutionScores}}"
                                                                 config={{config.detail}}>
                             </opencga-interpreted-variant-detail>
+                        </div>
+
+                        <!-- COMPOUND HETEROZYGOUS -->
+                        <div id="{{prefix}}CompoundHeterozygous" class="variant-interpretation-content" style="display: none">
+                            <div style="padding: 40px 0px 10px 5px; margin-top: 25px">
+                                <div style="display: inline; cursor:pointer" on-click="toggleCompHetInformationCollapsed"
+                                     data-toggle="collapse" href$="#{{prefix}}collapsibleCompHetFilter">
+                                    <h4 class="form-section-title">
+                                        <template is="dom-if" if="{{compHetInformationCollapsed}}">
+                                            <i class="fa fa-caret-right" aria-hidden="true" style="padding-right: 5px"></i>
+                                        </template>
+                                        <template is="dom-if" if="{{!compHetInformationCollapsed}}">
+                                            <i class="fa fa-caret-down" aria-hidden="true" style="padding-right: 5px"></i>
+                                        </template>
+                                        Information and Filters
+                                    </h4>
+                                </div>
+
+
+                                <div id="{{prefix}}collapsibleCompHetFilter" class="form-horizontal collapse in" style="padding: 5px 10px">
+                                    <div class="form-group col-md-10 col-md-offset-1" style="font-size: 1.1em">
+                                        <p>
+                                            <span style="font-weight: bold">Compound Heterozygous</span> in medical genetics is the
+                                            condition of having two heterozygous recessive alleles at a particular gene locus that can cause a
+                                            genetic disease in a heterozygous state, one on each chromosome of a pair. You can find more
+                                            information at <a href="https://en.wikipedia.org/wiki/Compound_heterozygosity" target="_blank">Wikipedia</a>.
+                                        </p>
+                                        <p>
+                                            Compound Heterozygous analysis sets automatically <span style="font-weight: bold">three mandatory</span> filters,
+                                            these are: <span style="font-weight: bold;margin-left: 0px">biotype</span> (protein coding genes),
+                                            <span style="font-weight: bold;margin-left: 0px">consequence type</span> (missense and loss-of-function variants)
+                                            and <span style="font-weight: bold;margin-left: 0px">genotype</span> of the samples.
+                                            However, you can use any other selected filter from the left menu, filters being applied are:
+                                        <div>
+                                            <input type="checkbox" checked disabled> <span style="font-weight: bold">biotype</span>: protein_coding
+                                        </div>
+                                        <div>
+                                            <input type="checkbox" checked disabled> <span style="font-weight: bold">consequenceType</span>: {{lofe}}
+                                        </div>
+                                        <template is="dom-repeat" items="{{compHetQueryArray}}">
+                                            <div><input type="checkbox" value="{{item.key}}" on-click="onCompHetFilterClick" checked> <span style="font-weight: bold">{{item.key}}</span>: {{item.value}}</div>
+                                        </template>
+                                        </p>
+                                        <p>Note that finding Compound Heterozygous can take few seconds depending on the OpenCGA server installation. </p>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-md-8 col-md-offset-4">
+                                            <button type="submit" class="btn btn-primary" on-click="onCompHetSearch">Search Compound Heterozygous</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style="padding-top: 10px">
+                                    <h4 class="form-section-title">Compound Heterozygous Results</h4>
+                                    <!-- Variant Browser Grid -->
+                                    <opencga-interpreted-variant-grid opencga-session="{{opencgaSession}}" clinical-analysis="{{clinicalAnalysis}}"
+                                                                      query="{{compHetQuery}}"
+                                                                      consequence-types="{{consequenceTypes}}"
+                                                                      population-frequencies="{{populationFrequencies}}"
+                                                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                      on-selected="selectedGene"
+                                                                      on-selectvariant="onSelectCompHetVariant"
+                                                                      on-checkvariant="onCheckCompHetVariant"
+                                                                      on-setgenomebrowserposition="onGenomeBrowserPositionChange"
+                                                                      config="{{config.grid}}">
+                                    </opencga-interpreted-variant-grid>
+
+                                    <!-- Bottom tabs with detailed variant information -->
+                                    <opencga-interpreted-variant-detail opencga-session={{opencgaSession}}
+                                                                        cellbase-client={{cellbaseClient}}
+                                                                        variant={{compHetVariant}}
+                                                                        clinical-analysis={{clinicalAnalysis}}
+                                                                        consequence-types={{consequenceTypes}}
+                                                                        protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                        config={{config.detail}}>
+                                    </opencga-interpreted-variant-detail>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DE NOVO -->
+                        <div id="{{prefix}}DeNovo" class="variant-interpretation-content" style="display: none">
+                            <div style="padding: 40px 0px 10px 5px; margin-top: 25px">
+                                <div style="display: inline; cursor:pointer" on-click="toggleDeNovoInformationCollapsed"
+                                     data-toggle="collapse" href$="#{{prefix}}collapsibleDeNovoFilter">
+                                    <h4 class="form-section-title">
+                                        <template is="dom-if" if="{{deNovoInformationCollapsed}}">
+                                            <i class="fa fa-caret-right" aria-hidden="true" style="padding-right: 5px"></i>
+                                        </template>
+                                        <template is="dom-if" if="{{!deNovoInformationCollapsed}}">
+                                            <i class="fa fa-caret-down" aria-hidden="true" style="padding-right: 5px"></i>
+                                        </template>
+                                        Information and Filters
+                                    </h4>
+                                </div>
+
+
+                                <div id="{{prefix}}collapsibleDeNovoFilter" class="form-horizontal collapse in" style="padding: 5px 10px">
+                                    <div class="form-group col-md-10 col-md-offset-1" style="font-size: 1.1em">
+                                        <p>
+                                            <span style="font-weight: bold">de Novo Variant</span> is a genetic alteration that is present
+                                            for the first time in one family member as a result of a variant (or mutation) in a germ cell (egg or sperm)
+                                            of one of the parents, or a variant that arises in the fertilized egg itself during early embryogenesis.
+                                        </p>
+                                        <p>
+                                            de Novo variant analysis sets automatically the <span style="font-weight: bold">genotype</span> filter.
+                                            However, you can use any other selected filter from the left menu, filters being applied are:
+                                        <template is="dom-repeat" items="{{deNovoQueryArray}}">
+                                            <div><input type="checkbox" value="{{item.key}}" on-click="onDeNovoFilterClick" checked> <span style="font-weight: bold">{{item.key}}</span>: {{item.value}}</div>
+                                        </template>
+                                        </p>
+                                        <p>Note that finding de Novo variants can take few seconds depending on the OpenCGA server installation and the number of actionables variants. </p>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-md-8 col-md-offset-4">
+                                            <button type="submit" class="btn btn-primary" on-click="onDeNovoSearch">Search de Novo</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style="padding-top: 10px">
+                                    <h4 class="form-section-title">de Novo Results</h4>
+                                    <!-- Variant Browser Grid -->
+                                    <opencga-interpreted-variant-grid opencga-session="{{opencgaSession}}" clinical-analysis="{{clinicalAnalysis}}"
+                                                                      query="{{deNovoQuery}}"
+                                                                      consequence-types="{{consequenceTypes}}"
+                                                                      population-frequencies="{{populationFrequencies}}"
+                                                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                      on-selected="selectedGene"
+                                                                      on-selectvariant="onSelectDeNovoVariant"
+                                                                      on-checkvariant="onCheckDeNovoVariant"
+                                                                      on-setgenomebrowserposition="onGenomeBrowserPositionChange"
+                                                                      config="{{config.grid}}">
+                                    </opencga-interpreted-variant-grid>
+
+                                    <!-- Bottom tabs with detailed variant information -->
+                                    <opencga-interpreted-variant-detail opencga-session={{opencgaSession}}
+                                                                        cellbase-client={{cellbaseClient}}
+                                                                        variant={{deNovoVariant}}
+                                                                        clinical-analysis={{clinicalAnalysis}}
+                                                                        consequence-types={{consequenceTypes}}
+                                                                        protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                        config={{config.detail}}>
+                                    </opencga-interpreted-variant-detail>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- PANEL LOW COVERAGE VIEW -->
@@ -301,10 +473,10 @@
                     proteinSubstitutionScores: {
                         type: Object
                     },
-                    interactive: {
-                        type: Boolean,
-                        observer: "interactiveObserver"
-                    },
+                    // interactive: {
+                    //     type: Boolean,
+                    //     observer: "interactiveObserver"
+                    // },
                     config: {
                         type: Object
                     }
@@ -328,9 +500,9 @@
             connectedCallback() {
                 super.connectedCallback();
 
-                if (!this.interactive) {
-                    this.collapseFilter();
-                }
+                // if (!this.interactive) {
+                //     this.collapseFilter();
+                // }
 
                 // CellBase version
                 this.cellbaseClient.getMeta("about").then(response => {
@@ -364,8 +536,24 @@
                     biotype: "protein_coding"
                 };
 
+                this.compHetInformationCollapsed = false;
+                this.deNovoInformationCollapsed = false;
+
+                this.compHetQuery = undefined;
+                this.deNovoQuery = undefined;
+
                 this.variant = null;
                 this.reportedVariants = [];
+
+                this.counters = {
+                    rv: 0,
+                    ch: 0,
+                    dn: 0,
+                    total: 0
+                };
+
+                this.lofe = ["missense_variant", "transcript_ablation", "splice_acceptor_variant", "splice_donor_variant", "stop_gained",
+                    "frameshift_variant", "stop_lost", "start_lost", "transcript_amplification", "inframe_insertion", "inframe_deletion"].join(", ");
 
                 this._config = this.getDefaultConfig();
             }
@@ -477,13 +665,13 @@
                 }
             }
 
-            interactiveObserver() {
-                if (!this.interactive) {
-                    this.collapseFilter();
-                } else {
-                    this.unCollapseFilter();
-                }
-            }
+            // interactiveObserver() {
+            //     if (!this.interactive) {
+            //         this.collapseFilter();
+            //     } else {
+            //         this.unCollapseFilter();
+            //     }
+            // }
 
             onCollapse() {
                 if (this._collapsed) {
@@ -508,11 +696,16 @@
             }
 
 
+
             /*
              * Variant Filter component listeners
              */
             onQueryFilterChange(e) {
                 this.preparedQuery = e.detail.query;
+debugger
+                // Prepare object for Comp. Het. query
+                this.setCompHetQuery(this.preparedQuery);
+                this.setDeNovoQuery(this.preparedQuery);
 
                 this._setPropertiesForTools();
             }
@@ -521,7 +714,20 @@
                 this.preparedQuery = e.detail.query;
                 this.executedQuery = e.detail.query;
 
-                // this._setPropertiesForTools();
+                // Prepare object for Comp. Het. query
+                this.setCompHetQuery(this.executedQuery);
+                this.setDeNovoQuery(this.executedQuery);
+            }
+
+            onActiveFilterChange(e) {
+                this.query = e.detail;
+                this.search = e.detail;
+
+                // Prepare object for Comp. Het. query
+                this.setCompHetQuery(this.preparedQuery);
+                this.setDeNovoQuery(this.preparedQuery);
+
+                this._setPropertiesForTools();
             }
 
             /**
@@ -540,14 +746,6 @@
                 }
             }
 
-            /*
-             * Active Filters component listeners
-             */
-            onActiveFilterChange(e) {
-                this.query = e.detail;
-
-                this._setPropertiesForTools();
-            }
 
             onClear() {
                 let _search = {};
@@ -563,14 +761,126 @@
                 };
             }
 
-
-            onActiveFilterChange(e) {
-                // this.query = e.detail;
-                // this.search = this.query;
-                this.query = e.detail;
-                // debugger
-                this.search = e.detail;
+            /*
+            * Compound Heterozygous Analysis functions
+            */
+            toggleCompHetInformationCollapsed(e) {
+                this.compHetInformationCollapsed = !this.compHetInformationCollapsed;
             }
+
+            onCompHetSearch(e) {
+                this.compHetQuery = this._compHetQuery;
+            }
+
+            onCompHetFilterClick(e) {
+                let key = e.currentTarget.value;
+                let _compHetQuery = this._compHetQuery;
+                if (e.currentTarget.checked) {
+                    _compHetQuery[key] = this.executedQuery[key];
+                } else {
+                    delete _compHetQuery[key];
+                }
+                this._compHetQuery = Object.assign({}, _compHetQuery);
+            }
+
+            setCompHetQuery(query) {
+                // Prepare object for Comp. Het. query
+                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
+                    this._compHetQuery = Object.assign({}, query, {
+                        biotype: "protein_coding",
+                        ct: this.lofe.replace(", ", ","),
+                        // Replace family and familyDisorder with clinicalAnalysisId
+                        family: this.clinicalAnalysis.family.id,
+                        familyDisorder: this.clinicalAnalysis.disorder.id,
+                        familySegregation: "Compound_Heterozygous"
+                    });
+                    delete this._compHetQuery.genotype;
+                    delete this._compHetQuery.sample;
+                    // this.compHetQuery = Object.assign({}, this._compHetQuery);
+
+                    let _compHetQueryArray = [];
+                    for (let key of Object.keys(this._compHetQuery)) {
+                        if (key !== "study" && key !== "biotype" && key !== "ct" && key !== "consequenceType" && !key.startsWith("family")) {
+                            _compHetQueryArray.push({key: key, value: this._compHetQuery[key].replace(",", ", ").replace(";", "; ")});
+                        }
+                    }
+                    this.compHetQueryArray = _compHetQueryArray;
+                    debugger
+                }
+            }
+
+            onSelectCompHetVariant(e) {
+                this.compHetVariant = e.detail.variant;
+            }
+
+            onCheckCompHetVariant(e) {
+                this.counters.ch = e.detail.variants.length;
+                this.counters.total = this.counters.rv + this.counters.ch + this.counters.dn;
+                this.counters = Object.assign({}, this.counters);
+
+                this.checkedCompHetVariants = e.detail.variants;
+            }
+
+
+            /*
+             * De Novo Analysis functions
+             */
+            toggleDeNovoInformationCollapsed(e) {
+                this.deNovoInformationCollapsed = !this.deNovoInformationCollapsed;
+            }
+
+            onDeNovoSearch(e) {
+                this.deNovoQuery = this._deNovoQuery;
+            }
+
+            onDeNovoFilterClick(e) {
+                let key = e.currentTarget.value;
+                let _deNovoQuery = this._deNovoQuery;
+                if (e.currentTarget.checked) {
+                    _deNovoQuery[key] = this.executedQuery[key];
+                } else {
+                    delete _deNovoQuery[key];
+                }
+                this._deNovoQuery = Object.assign({}, _deNovoQuery);
+            }
+
+            setDeNovoQuery(query) {
+                // Prepare object for Comp. Het. query
+                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
+                    this._deNovoQuery = Object.assign({}, query, {
+                        // Replace family and familyDisorder with clinicalAnalysisId
+                        family: this.clinicalAnalysis.family.id,
+                        familySegregation: "De_Novo"
+                    });
+                    delete this._deNovoQuery.genotype;
+                    delete this._deNovoQuery.sample;
+
+                    let _deNovoQueryArray = [];
+                    for (let key of Object.keys(this._deNovoQuery)) {
+                        if (key !== "study" && key !== "biotype" && key !== "ct" && key !== "consequenceType" && !key.startsWith("family")) {
+                            _deNovoQueryArray.push({key: key, value: this._deNovoQuery[key].replace(",", ", ").replace(";", "; ")});
+                        }
+                    }
+                    this.deNovoQueryArray = _deNovoQueryArray;
+                }
+            }
+
+            onSelectCDeNovoVariant(e) {
+                this.deNovoVariant = e.detail.variant;
+            }
+
+            onCheckDeNovoVariant(e) {
+                this.counters.ch = e.detail.variants.length;
+                this.counters.total = this.counters.rv + this.counters.ch + this.counters.dn;
+                this.counters = Object.assign({}, this.counters);
+
+                this.checkedDeNovoVariants = e.detail.variants;
+            }
+            /*
+             **********************************************************************
+             */
+
+
 
             _changeBottomTab(e) {
                 let _activeTabs = {}
@@ -590,17 +900,17 @@
                 // this.variantObj = e.detail.variant;
             }
 
-            onSelectVariant2(e) {
-                debugger
-                this.selectedVariant = e.detail.variant;
-                // this.variant = e.detail.id;
-                // this.variantObj = e.detail.variant;
-            }
-
             onCheckVariant(e) {
-                // Alexis: we need to do something like this:
-                this.checkedVariants = e.detail.variants;
+                // let _counters = {};
+                // _counters.rv = e.detail.variants.length;
+                // _counters.total = _counters.rv + this.counters.ch + this.counters.dn;
+                // this.counters = Object.assign({}, this.counters, _counters);
 
+                this.counters.rv = e.detail.variants.length;
+                this.counters.total = this.counters.rv + this.counters.ch + this.counters.dn;
+                this.counters = Object.assign({}, this.counters);
+
+                this.checkedVariants = e.detail.variants;
                 // We set/remove disable status to Save button
                 // if (this.checkedVariants.length > 0 && UtilsNew.isNotEmptyArray(this.samples)) {
                 //     PolymerUtils.removeAttribute(this.prefix + 'SaveInterpretationButton', 'disabled');
@@ -608,6 +918,8 @@
                 //     PolymerUtils.setAttribute(this.prefix + 'SaveInterpretationButton', 'disabled', true);
                 // }
             }
+
+
 
             onSampleChange(e) {
                 let _samples = e.detail.samples;
@@ -630,24 +942,24 @@
                 this.region = e.detail.genomeBrowserPosition;
             }
 
-            _initGenotypeSamples(samples, force, value) {
-                if (UtilsNew.isUndefinedOrNull(this.genotypeSamples)) {
-                    this.genotypeSamples = {};
-                }
-                let genotypeSamples = {};
-                samples.forEach((sample) => {
-                    if (UtilsNew.isUndefinedOrNull(genotypeSamples[sample.id]) || force){
-                        genotypeSamples[sample.id] = {};
-                        // this.genotypeSamples[sample.name]["0/0"] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
-                        genotypeSamples[sample.id]["0/1"] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
-                        genotypeSamples[sample.id]["1/1"] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
-                        // this.genotypeSamples[sample.name]["./."] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
-                    }
-                });
-                debugger
-                this.query = Object.assign({}, this.query, {genotype: this.getGenotypeFilter(genotypeSamples)});
-                debugger
-            }
+            // _initGenotypeSamples(samples, force, value) {
+            //     if (UtilsNew.isUndefinedOrNull(this.genotypeSamples)) {
+            //         this.genotypeSamples = {};
+            //     }
+            //     let genotypeSamples = {};
+            //     samples.forEach((sample) => {
+            //         if (UtilsNew.isUndefinedOrNull(genotypeSamples[sample.id]) || force){
+            //             genotypeSamples[sample.id] = {};
+            //             // this.genotypeSamples[sample.name]["0/0"] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
+            //             genotypeSamples[sample.id]["0/1"] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
+            //             genotypeSamples[sample.id]["1/1"] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
+            //             // this.genotypeSamples[sample.name]["./."] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
+            //         }
+            //     });
+            //     debugger
+            //     this.query = Object.assign({}, this.query, {genotype: this.getGenotypeFilter(genotypeSamples)});
+            //     debugger
+            // }
 
             getGenotypeFilter(genotypeSamples) {
                 let genotype = [];
