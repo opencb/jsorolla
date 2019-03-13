@@ -140,7 +140,9 @@
                     }
 
                     for (let individual of _individuals) {
-                        _samples.push(individual.samples[0]);
+                        if (UtilsNew.isNotEmptyArray(individual.samples)) {
+                            _samples.push(individual.samples[0]);
+                        }
                     }
                 }
                 this.samples = _samples;
@@ -950,29 +952,33 @@
                 if (UtilsNew.isNotEmptyArray(this.individuals)) {
                     let probandId = (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.proband)) ? this.clinicalAnalysis.proband.id : "";
                     for (let individual of this.individuals) {
-                        let affected = false;
-                        for (let disorder of individual.disorders) {
-                            if (disorder.id === this.clinicalAnalysis.disorder.id) {
-                                affected = true;
-                                break;
+                        if (UtilsNew.isNotEmptyArray(individual.samples)) {
+                            let affected = false;
+                            if (UtilsNew.isNotEmptyArray(individual.disorders)) {
+                                for (let disorder of individual.disorders) {
+                                    if (disorder.id === this.clinicalAnalysis.disorder.id) {
+                                        affected = true;
+                                        break;
+                                    }
+                                }
                             }
-                        }
-                        let role = "";
-                        for (let ind of this.individuals) {
-                            if (UtilsNew.isNotUndefinedOrNull(ind.father) && ind.father.id === individual.id) {
-                                role = "father";
+                            let role = "";
+                            for (let ind of this.individuals) {
+                                if (UtilsNew.isNotUndefinedOrNull(ind.father) && ind.father.id === individual.id) {
+                                    role = "father";
+                                }
+                                if (UtilsNew.isNotUndefinedOrNull(ind.mother) && ind.mother.id === individual.id) {
+                                    role = "mother";
+                                }
                             }
-                            if (UtilsNew.isNotUndefinedOrNull(ind.mother) && ind.mother.id === individual.id) {
-                                role = "mother";
-                            }
-                        }
 
-                        sampleInfo[individual.samples[0].id] = {
-                            proband: individual.id === probandId,
-                            affected: affected,
-                            role: role,
-                            sex: individual.sex
-                        };
+                            sampleInfo[individual.samples[0].id] = {
+                                proband: individual.id === probandId,
+                                affected: affected,
+                                role: role,
+                                sex: individual.sex
+                            };
+                        }
                     }
                 }
 

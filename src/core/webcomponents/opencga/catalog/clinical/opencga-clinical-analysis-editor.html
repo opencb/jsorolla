@@ -671,10 +671,12 @@
                 let disorders = [];
                 if (UtilsNew.isNotEmptyArray(individuals)) {
                     for (let individual of individuals) {
-                        for (let disorder of individual.disorders) {
-                            // disorders array does not contain the element we're looking for
-                            if (disorders.filter(e => e.id === disorder.id).length === 0) {
-                                disorders.push(disorder);
+                        if (UtilsNew.isNotEmptyArray(individual.disorders)) {
+                            for (let disorder of individual.disorders) {
+                                // disorders array does not contain the element we're looking for
+                                if (disorders.filter(e => e.id === disorder.id).length === 0) {
+                                    disorders.push(disorder);
+                                }
                             }
                         }
                     }
@@ -951,11 +953,14 @@
 
             filesFormatter(value, row) {
                 if (UtilsNew.isNotUndefinedOrNull(this._clinicalAnalysis.files)) {
-                    // debugger
-                    let sampleId = row.samples[0].id;
                     let html = '<div>';
-                    for (let file of this._clinicalAnalysis.files[sampleId]) {
-                        html += `<div>${file.name}</div>`;
+                    if (UtilsNew.isNotEmptyArray(row.samples)) {
+                        let files = this._clinicalAnalysis.files[row.samples[0].id];
+                        if (UtilsNew.isNotEmptyArray(files)) {
+                            for (let file of files) {
+                                html += `<div>${file.name}</div>`;
+                            }
+                        }
                     }
                     html += '</div>';
                     return html;

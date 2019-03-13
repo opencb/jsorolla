@@ -422,10 +422,14 @@
                 }
 
                 this._probandFiles= "-";
-                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.files)) {
+                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.files) && UtilsNew.isNotEmptyArray(clinicalAnalysis.proband.samples)) {
                     let files = [];
-                    for (let file of clinicalAnalysis.files[clinicalAnalysis.proband.samples[0].id]) {
-                        files.push(file.name);
+
+                    let probandFiles = clinicalAnalysis.files[clinicalAnalysis.proband.samples[0].id];
+                    if (UtilsNew.isNotEmptyArray(probandFiles)) {
+                        for (let file of clinicalAnalysis.files[clinicalAnalysis.proband.samples[0].id]) {
+                            files.push(file.name);
+                        }
                     }
                     this._probandFiles = files.join(", ");
                 }

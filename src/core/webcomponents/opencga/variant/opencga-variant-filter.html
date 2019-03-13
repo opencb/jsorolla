@@ -534,15 +534,16 @@
                     // Render Genotype table
                     let sampleTableTr = "";
                     for (let individual of individuals) {
-                        let color = (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.proband)
-                            && individual.id === this.clinicalAnalysis.proband.id)
-                            ? "darkred"
-                            : "black";
-                        let genotype = (UtilsNew.isNotUndefinedOrNull(sampleGenotypeMap[individual.samples[0].id]))
-                            ? sampleGenotypeMap[individual.samples[0].id]
-                            : "any";
+                        if (UtilsNew.isNotEmptyArray(individual.samples)) {
+                            let color = (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.proband)
+                                && individual.id === this.clinicalAnalysis.proband.id)
+                                ? "darkred"
+                                : "black";
+                            let genotype = (UtilsNew.isNotUndefinedOrNull(sampleGenotypeMap[individual.samples[0].id]))
+                                ? sampleGenotypeMap[individual.samples[0].id]
+                                : "any";
 
-                        sampleTableTr += `
+                            sampleTableTr += `
                             <tr data-sample="${individual.samples[0].id}">
                                 <td>
                                     <span style="color: ${color}">${individual.samples[0].id}</span>
@@ -552,6 +553,7 @@
                                 </td>
                             </tr>
                     `;
+                        }
                     }
 
                     // Set HTML into the table body
