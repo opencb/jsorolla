@@ -250,13 +250,15 @@
             }
 
             filterAvailableVariableSets(opencgaSession, config) {
-                if (this._config.variableSetIds.length === 0) {
+                if (this._config.variableSetIds.length === 0 && UtilsNew.isNotUndefinedOrNull(opencgaSession.study)) {
                     this.variableSets = opencgaSession.study.variableSets;
                 } else {
                     let variableSets = [];
-                    for (let i = 0; i < opencgaSession.study.variableSets.length; i++) {
-                        if (this._config.variableSetIds.indexOf(opencgaSession.study.variableSets[i].id) !== -1) {
-                            variableSets.push(opencgaSession.study.variableSets[i]);
+                    if (UtilsNew.isNotUndefinedOrNull(opencgaSession.study) && UtilsNew.isNotEmptyArray(opencgaSession.study.variableSets)) {
+                        for (let i = 0; i < opencgaSession.study.variableSets.length; i++) {
+                            if (this._config.variableSetIds.indexOf(opencgaSession.study.variableSets[i].id) !== -1) {
+                                variableSets.push(opencgaSession.study.variableSets[i]);
+                            }
                         }
                     }
                     this.variableSets = variableSets;

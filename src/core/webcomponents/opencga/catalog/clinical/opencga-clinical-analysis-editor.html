@@ -399,7 +399,8 @@
 
                 // Set a private variable with all the users in this study: owner + @members group.
                 // By default, the user creating the Case is selected as default
-                if (UtilsNew.isNotUndefinedOrNull(opencgaSession) && UtilsNew.isNotEmptyArray(opencgaSession.study.groups)) {
+                if (UtilsNew.isNotUndefinedOrNull(opencgaSession) && UtilsNew.isNotUndefinedOrNull(opencgaSession.study)
+                    && UtilsNew.isNotEmptyArray(opencgaSession.study.groups)) {
                     // let _studyUsers = [opencgaSession.user.id];
                     for (let group of opencgaSession.study.groups) {
                         if (group.id === "@members" || group.name === "@members") {

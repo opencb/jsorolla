@@ -788,12 +788,17 @@ debugger
                 if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
                     this._compHetQuery = Object.assign({}, query, {
                         biotype: "protein_coding",
-                        ct: this.lofe.replace(", ", ","),
+                        ct: this.lofe.replace(/ /g, ""),
                         // Replace family and familyDisorder with clinicalAnalysisId
                         family: this.clinicalAnalysis.family.id,
                         familyDisorder: this.clinicalAnalysis.disorder.id,
                         familySegregation: "Compound_Heterozygous"
                     });
+                    if (UtilsNew.isNotEmpty(this.clinicalAnalysis)) {
+                        this._compHetQuery.clinicalAnalysisId = this.clinicalAnalysisId;
+                        delete this._compHetQuery.family;
+                        delete this._compHetQuery.familyDisorder;
+                    }
                     delete this._compHetQuery.genotype;
                     delete this._compHetQuery.sample;
                     // this.compHetQuery = Object.assign({}, this._compHetQuery);

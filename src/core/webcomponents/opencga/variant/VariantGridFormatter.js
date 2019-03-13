@@ -62,7 +62,7 @@ class VariantGridFormatter {
         return result;
     }
 
-    variantFormatter(value, row, index) {
+    variantFormatter(value, row, alleleStringLengthMax) {
         if (row === undefined) {
             return;
         }
@@ -70,8 +70,8 @@ class VariantGridFormatter {
         let ref = (row.reference !== "") ? row.reference : "-";
         let alt = (row.alternate !== "") ? row.alternate : "-";
 
-        ref = (ref.length > this.config.alleleStringLengthMax) ? ref.substring(0, this.config.alleleStringLengthMax - 3) + "..." : ref;
-        alt = (alt.length > this.config.alleleStringLengthMax) ? alt.substring(0, this.config.alleleStringLengthMax - 3) + "..." : alt;
+        ref = (ref.length > this._config.alleleStringLengthMax) ? ref.substring(0, this._config.alleleStringLengthMax - 3) + "..." : ref;
+        alt = (alt.length > this._config.alleleStringLengthMax) ? alt.substring(0, this._config.alleleStringLengthMax - 3) + "..." : alt;
 
         let id = row.id;
         if (typeof row.annotation !== "undefined" && typeof row.annotation.xrefs !== "undefined" && row.annotation.xrefs.length > 0) {
@@ -83,7 +83,7 @@ class VariantGridFormatter {
         }
 
         let genomeBrowserMenuLink = "";
-        if (this.config.showGenomeBrowser) {
+        if (this._config.showGenomeBrowser) {
             genomeBrowserMenuLink = `<div>
                                         <a class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
                                             <i class="fa fa-list" aria-hidden="true"></i> Genome Browser

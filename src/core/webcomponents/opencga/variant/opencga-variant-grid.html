@@ -218,7 +218,7 @@
 
                 if (typeof this.opencgaSession !== "undefined" && typeof this.opencgaSession.project !== "undefined"
                     && typeof this.opencgaSession.study !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
-
+debugger
                     let urlQueryParams = this._getUrlQueryParams();
                     let queryParams = urlQueryParams.queryParams;
                     let _numTotal = -1;
@@ -489,7 +489,9 @@
 
             _onSelectVariant(row) {
                 if (typeof row !== "undefined") {
-                    let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+                    let reference = row.reference !== "" ? row.reference : "-";
+                    let alternate = row.alternate !== "" ? row.alternate : "-";
+                    let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + alternate;
                     this.dispatchEvent(new CustomEvent('selectvariant', {detail: {id: _variant, variant: row}}));
                 }
             }
@@ -1192,7 +1194,7 @@
                     showSelectCheckbox: false,
                     multiSelection: false,
                     nucleotideGenotype: true,
-                    alleleStringLengthMax: 15,
+                    alleleStringLengthMax: 10,
 
                     header: {
                         horizontalAlign: 'center',

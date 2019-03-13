@@ -447,6 +447,8 @@
                 study.populations.forEach((popFreq) => {
                     PolymerUtils.setValue(this.prefix + studyId +  popFreq.id, e.target.value);
                 });
+
+                this.updateQueryFilters();
             }
 
             updateConsequenceTypeFilter(e) {
@@ -931,11 +933,17 @@
                 // Features: Gene, SNP ID
                 let featureTextArea = PolymerUtils.getElementById(this.prefix + "FeatureTextarea");
                 if (UtilsNew.isNotUndefinedOrNull(featureTextArea) && UtilsNew.isNotEmpty(featureTextArea.value)) {
-                    if (featureTextArea.value.startsWith("rs") || featureTextArea.value.split(':').length > 2) {
-                        _filters["xref"] = featureTextArea.value;
-                    } else {
-                        _filters["xref"] = featureTextArea.value.toUpperCase();
+                    let features = featureTextArea.value.replace(/ /g, "");
+                    let featureArray = [];
+                    for (let feature of features.split(",")) {
+                        if (feature.startsWith("rs") || feature.split(':').length > 2) {
+                            featureArray.push(feature);
+                        } else {
+                            // Genes must be uppercase
+                            featureArray.push(feature.toUpperCase());
+                        }
                     }
+                    _filters.xref = featureArray.join(",");
                 }
 
                 // Disease Panel - panel

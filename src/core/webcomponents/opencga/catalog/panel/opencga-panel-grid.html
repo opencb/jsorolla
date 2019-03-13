@@ -226,7 +226,7 @@
                         }
 
                         queryParams.skip = params.offset;
-                        queryParams.globalPanels = true;
+                        queryParams.global = true;
                         return queryParams;
                     },
                     responseHandler: function (response) {
@@ -291,7 +291,7 @@
                     if (UtilsNew.isEmpty(this.query.studies) || this.query.studies.split(new RegExp("[,;]")).length === 1) {
                         this.query.study = this.opencgaSession.study.fqn;
                     }
-                    host += '/webservices/rest/v1/diseasePanels/search';
+                    host += '/webservices/rest/v1/panels/search';
                 } else {
                     return {host: host, queryParams: {}};
                 }

@@ -308,7 +308,8 @@
             propertyObserver(opencgaSession, query, config) {
                 this._config = Object.assign(this.getDefaultConfig(), config);
 
-                if (UtilsNew.isNotUndefinedOrNull(opencgaSession) && UtilsNew.isNotEmptyArray(opencgaSession.study.groups)) {
+                if (UtilsNew.isNotUndefinedOrNull(opencgaSession) && UtilsNew.isNotUndefinedOrNull(opencgaSession.study)
+                    && UtilsNew.isNotEmptyArray(opencgaSession.study.groups)) {
                     // let _studyUsers = [opencgaSession.user.id];
                     for (let group of opencgaSession.study.groups) {
                         if (group.id === "@members" || group.name === "@members") {
