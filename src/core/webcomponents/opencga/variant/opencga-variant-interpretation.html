@@ -115,19 +115,13 @@
                                 <button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="DeNovo" on-click="_changeView">
                                     <i class="fa fa-exclamation icon-padding" aria-hidden="true" data-view="LowCoverage" on-click="_changeView"></i>de Novo ({{counters.dn}})
                                 </button>
-                                <!--<button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="LowCoverage" on-click="_changeView">-->
-                                <!--<i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="LowCoverage" on-click="_changeView"></i>Low Coverage Regions-->
-                                <!--</button>-->
-                                <!--<button id="{{prefix}}GenomeBrowserButton" type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="GenomeBrowser" on-click="_changeView">-->
-                                <!--<i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i>Genome Browser (Beta)-->
-                                <!--</button>-->
                             </div>
 
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="SecondaryFindings" on-click="_changeView">
-                                    <i class="fa fa-comment-medical icon-padding" aria-hidden="true" data-view="SecondaryFindings" on-click="_changeView"></i>Secondary Findings
-                                </button>
-                            </div>
+                            <!--<div class="btn-group">-->
+                                <!--<button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="SecondaryFindings" on-click="_changeView">-->
+                                    <!--<i class="fa fa-comment-medical icon-padding" aria-hidden="true" data-view="SecondaryFindings" on-click="_changeView"></i>Secondary Findings-->
+                                <!--</button>-->
+                            <!--</div>-->
 
                             <div class="btn-group">
                                 <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -704,7 +698,7 @@
              */
             onQueryFilterChange(e) {
                 this.preparedQuery = e.detail.query;
-debugger
+
                 // Prepare object for Comp. Het. query
                 this.setCompHetQuery(this.preparedQuery);
                 this.setDeNovoQuery(this.preparedQuery);
@@ -857,8 +851,14 @@ debugger
                     this._deNovoQuery = Object.assign({}, query, {
                         // Replace family and familyDisorder with clinicalAnalysisId
                         family: this.clinicalAnalysis.family.id,
+                        familyDisorder: this.clinicalAnalysis.disorder.id,
                         familySegregation: "De_Novo"
                     });
+                    if (UtilsNew.isNotEmpty(this.clinicalAnalysis)) {
+                        this._deNovoQuery.clinicalAnalysisId = this.clinicalAnalysisId;
+                        delete this._deNovoQuery.family;
+                        delete this._deNovoQuery.familyDisorder;
+                    }
                     delete this._deNovoQuery.genotype;
                     delete this._deNovoQuery.sample;
 

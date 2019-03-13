@@ -527,7 +527,7 @@
             }
 
             variantFormatter(value, row, index) {
-                let variantHtmlDiv = this.variantGridFormatter.variantFormatter(value, row, index);
+                let variantHtmlDiv = this.variantGridFormatter.variantFormatter(value, row, this._config);
                 let snptHtmlAnchor = this.variantGridFormatter.snpFormatter(value, row, index);
                 return variantHtmlDiv + "<div style='padding-top: 10px'>" + snptHtmlAnchor + "</div>";
             }
@@ -1116,7 +1116,7 @@
                     showSelectCheckbox: false,
                     multiSelection: false,
                     nucleotideGenotype: true,
-                    alleleStringLengthMax: 15,
+                    alleleStringLengthMax: 10,
 
                     header: {
                         horizontalAlign: 'center',

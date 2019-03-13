@@ -218,7 +218,7 @@
 
                 if (typeof this.opencgaSession !== "undefined" && typeof this.opencgaSession.project !== "undefined"
                     && typeof this.opencgaSession.study !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
-debugger
+
                     let urlQueryParams = this._getUrlQueryParams();
                     let queryParams = urlQueryParams.queryParams;
                     let _numTotal = -1;
@@ -567,6 +567,10 @@ debugger
                 return result;
             }
 
+            variantFormatter(value, row, index) {
+                let variantHtmlDiv = this.variantGridFormatter.variantFormatter(value, row, this._config);
+                return variantHtmlDiv;
+            }
             siftPproteinScoreFormatter(value, row, index) {
                 let min = 10;
                 let description = {};
@@ -870,7 +874,7 @@ debugger
                             field: "id",
                             rowspan: 2,
                             colspan: 1,
-                            formatter: this.variantGridFormatter.variantFormatter.bind(this) ,
+                            formatter: this.variantFormatter.bind(this) ,
                             halign: 'center'
                         },
                         {
