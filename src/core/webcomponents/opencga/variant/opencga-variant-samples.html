@@ -43,7 +43,9 @@
                     <table class="table table-bordered" >
                         <thead style="background-color: #eee;">
                         <tr>
-                            <th scope="col" rowspan="2">ID</th>
+                            <th scope="col" rowspan="2">Sample ID</th>
+                            <th scope="col" rowspan="2">Individual ID</th>
+                            <th scope="col" rowspan="2">Disorders</th>
                             <th scope="col" rowspan="2">Phenotypes</th>
                             <th scope="col" rowspan="2">File</th>
                             <th scope="col" rowspan="2">Description</th>
@@ -52,7 +54,9 @@
                         <tbody>
                         <template is="dom-repeat" items="{{samplesHet}}" as="sample">
                             <tr>
-                                <td>{{sample.name}}</td>
+                                <td>{{sample.id}}</td>
+                                <td>{{sample.individualId}}</td>
+                                <td>{{sample.disorders}}</td>
                                 <td>{{sample.phenotypes}}</td>
                                 <td>{{sample.source}}</td>
                                 <td>{{sample.description}}</td>
@@ -82,7 +86,9 @@
                     <table class="table table-bordered" >
                         <thead style="background-color: #eee;">
                         <tr>
-                            <th scope="col" rowspan="2">ID</th>
+                            <th scope="col" rowspan="2">Sample ID</th>
+                            <th scope="col" rowspan="2">Individual ID</th>
+                            <th scope="col" rowspan="2">Disorders</th>
                             <th scope="col" rowspan="2">Phenotypes</th>
                             <th scope="col" rowspan="2">File</th>
                             <th scope="col" rowspan="2">Description</th>
@@ -91,7 +97,9 @@
                         <tbody>
                         <template is="dom-repeat" items="{{samplesHomAlt}}" as="sample">
                             <tr>
-                                <td>{{sample.name}}</td>
+                                <td>{{sample.id}}</td>
+                                <td>{{sample.individualId}}</td>
+                                <td>{{sample.disorders}}</td>
                                 <td>{{sample.phenotypes}}</td>
                                 <td>{{sample.source}}</td>
                                 <td>{{sample.description}}</td>
@@ -372,7 +380,7 @@
                         id: this.variant,
                         study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
                         genotype: "0/1,0|1",
-                        exclude: "annotation",
+                        exclude: "annotation"
                     };
 
                     // empty tables
@@ -387,7 +395,43 @@
                         this.opencgaSession.opencgaClient.variants().samples(params)
                             .then(function (response) {
                                 if (response.response[0].result.length > 0) {
-                                    _this.set("samplesHet", response.response[0].result);
+                                    let samplesHet = response.response[0].result;
+
+                                    let sampleIds = [];
+                                    for (let sample of response.response[0].result) {
+                                        sampleIds.push(sample.id);
+                                    }
+                                    debugger
+                                    _this.opencgaSession.opencgaClient.samples().info(sampleIds.join(","),
+                                        {
+                                            study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
+                                            includeIndividual: true
+                                        })
+                                        .then(function (response) {
+                                            debugger
+                                            for (let i = 0; i < samplesHet.length; i++) {
+                                                let individual = response.response[i].result[0].attributes.individual;
+                                                if (UtilsNew.isNotEmpty(individual)) {
+                                                    samplesHet[i].individualId = individual.id;
+
+                                                    let disordersHtml = [];
+                                                    for (let disorder of individual.disorders) {
+                                                        disordersHtml.push(disorder.name + " (" + disorder.id + ")");
+                                                    }
+                                                    samplesHet[i].disorders = disordersHtml.join(", ");
+
+                                                    let phenotypesHtml = [];
+                                                    for (let phenotype of individual.phenotypes) {
+                                                        phenotypesHtml.push(phenotype.name + " (" + phenotype.id + ")");
+                                                    }
+                                                    samplesHet[i].phenotypes = phenotypesHtml.join(", ");
+                                                }
+                                            }
+
+                                            _this.set("samplesHet", samplesHet);
+                                        });
+
+                                    // _this.set("samplesHet", samplesHet);
                                 }
                                 // _this.set("showSamplesHet", response.response[0].result.length > 0);
 
@@ -404,7 +448,41 @@
                         this.opencgaSession.opencgaClient.variants().samples(params)
                             .then(function (response) {
                                 if (response.response[0].result.length > 0) {
-                                    _this.set("samplesHomAlt", response.response[0].result);
+                                    let samplesHomAlt = response.response[0].result;
+
+                                    let sampleIds = [];
+                                    for (let sample of response.response[0].result) {
+                                        sampleIds.push(sample.id);
+                                    }
+                                    _this.opencgaSession.opencgaClient.samples().info(sampleIds.join(","),
+                                        {
+                                            study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
+                                            includeIndividual: true
+                                        })
+                                        .then(function (response) {
+                                            for (let i = 0; i < samplesHomAlt.length; i++) {
+                                                let individual = response.response[i].result[0].attributes.individual;
+                                                if (UtilsNew.isNotEmpty(individual)) {
+                                                    samplesHomAlt[i].individualId = individual.id;
+
+                                                    let disordersHtml = [];
+                                                    for (let disorder of individual.disorders) {
+                                                        disordersHtml.push(disorder.name + " (" + disorder.id + ")");
+                                                    }
+                                                    samplesHomAlt[i].disorders = disordersHtml.join(", ");
+
+                                                    let phenotypesHtml = [];
+                                                    for (let phenotype of individual.phenotypes) {
+                                                        phenotypesHtml.push(phenotype.name + " (" + phenotype.id + ")");
+                                                    }
+                                                    samplesHomAlt[i].phenotypes = phenotypesHtml.join(", ");
+                                                }
+                                            }
+
+                                            _this.set("samplesHomAlt", samplesHomAlt);
+                                        });
+
+                                    // _this.set("samplesHomAlt", response.response[0].result);
                                 }
                                 // _this.set("showSamplesHomAlt", response.response[0].result.length > 0);
                             })
