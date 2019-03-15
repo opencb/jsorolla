@@ -82,39 +82,37 @@
                                              active="{{activeMenu.table}}">
                         </opencga-family-grid>
 
-                        <div style="padding-top: 5px">
-                            <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
-                                <li role="presentation" class="active">
-                                    <a href="#{{prefix}}FamilyViewer" role="tab" data-toggle="tab" class="detail-tab-title"
-                                       data-id="info" on-click="_changeBottomTab">
-                                        Family Info
-                                    </a>
-                                </li>
+                        <!--<div style="padding-top: 5px">-->
+                            <!--<ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">-->
+                                <!--<li role="presentation" class="active">-->
+                                    <!--<a href="#{{prefix}}FamilyViewer" role="tab" data-toggle="tab" class="detail-tab-title"-->
+                                       <!--data-id="info" on-click="_changeBottomTab">-->
+                                        <!--Family Info-->
+                                    <!--</a>-->
+                                <!--</li>-->
 
-                                <li role="presentation">
-                                    <a href="#{{prefix}}FamilyViewer" role="tab" data-toggle="tab" class="detail-tab-title"
-                                       data-id="familyGrid" on-click="_changeBottomTab">
-                                        Family
-                                    </a>
-                                </li>
-                            </ul>
+                                <!--<li role="presentation">-->
+                                    <!--<a href="#{{prefix}}FamilyViewer" role="tab" data-toggle="tab" class="detail-tab-title"-->
+                                       <!--data-id="familyGrid" on-click="_changeBottomTab">-->
+                                        <!--Family-->
+                                    <!--</a>-->
+                                <!--</li>-->
+                            <!--</ul>-->
 
-                            <div class="tab-content" style="height: 680px">
-                                <div role="tabpanel" class="tab-pane active" id="{{prefix}}CohortViewer">
-                                    Work in progress:  {{family.id}}
-                                </div>
-                                <div role="tabpanel" class="tab-pane" id="{{prefix}}FamilyViewer">
-                                    Work in progress:  {{family.id}}
-                                    <!--<opencga-sample-grid opencga-client="{{opencgaSession.opencgaClient}}"-->
-                                    <!--opencga-session="{{opencgaSession}}" search="{{sampleSearch}}"-->
-                                    <!--style="font-size: 12px" active="{{detailActiveTabs.sampleGrid}}">-->
-                                    <!--</opencga-sample-grid>-->
-                                </div>
+                            <!--<div class="tab-content" style="height: 680px">-->
+                                <!--<div role="tabpanel" class="tab-pane active" id="{{prefix}}CohortViewer">-->
+                                    <!--Work in progress:  {{family.id}}-->
+                                <!--</div>-->
+                                <!--<div role="tabpanel" class="tab-pane" id="{{prefix}}FamilyViewer">-->
+                                    <!--Work in progress:  {{family.id}}-->
+                                    <!--&lt;!&ndash;<opencga-sample-grid opencga-client="{{opencgaSession.opencgaClient}}"&ndash;&gt;-->
+                                    <!--&lt;!&ndash;opencga-session="{{opencgaSession}}" search="{{sampleSearch}}"&ndash;&gt;-->
+                                    <!--&lt;!&ndash;style="font-size: 12px" active="{{detailActiveTabs.sampleGrid}}">&ndash;&gt;-->
+                                    <!--&lt;!&ndash;</opencga-sample-grid>&ndash;&gt;-->
+                                <!--</div>-->
 
-                            </div>
-                        </div>
-
-
+                            <!--</div>-->
+                        <!--</div>-->
                     </div>
 
                     <div id="{{prefix}}AggregationStats" class="family-browser-view-content" style="display: none">
