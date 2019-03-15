@@ -341,6 +341,7 @@
                 let samples = Object.keys(clinicalAnalysis.files);
                 let variants = {};
                 let alignments = {};
+                let coverage = {};
                 for (let i = 0; i < samples.length; i++) {
                     let files = clinicalAnalysis.files[samples[i]];
                     let role = UtilsNew.isNotEmpty(roleToProband[samples[i]]) ? roleToProband[samples[i]] : samples[i];
@@ -351,7 +352,16 @@
                             variants[role] = files[j];
                         } else if (files[j].bioformat === "ALIGNMENT") {
                             alignments[role] = files[j];
+                        } else if (files[j].bioformat === "COVERAGE") {
+                            coverage[role] = files[j];
                         }
+                    }
+                }
+
+                // Merge alignment and coverage files
+                for (let role in alignments) {
+                    if (UtilsNew.isNotUndefinedOrNull(coverage[role])) {
+                        alignments[role]['bigwig'] = coverage[role];
                     }
                 }
 
@@ -411,7 +421,7 @@
             }
 
             _generateAlignmentTrack(file) {
-                return {
+                let track = {
                     type: "alignment",
                     config: {
                         source: 'opencga',
@@ -422,6 +432,12 @@
                         }
                     }
                 };
+
+                if (UtilsNew.isNotUndefinedOrNull(file['bigwig'])) {
+                    track['config']['data']['bigwig'] = file['bigwig']['id'];
+                }
+
+                return track;
             }
 
             _generateVariantTrack(file) {

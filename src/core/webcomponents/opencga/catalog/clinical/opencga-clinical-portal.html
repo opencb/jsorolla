@@ -153,7 +153,6 @@
 
             propertyObserver(opencgaSession, config) {
                 this._config = Object.assign(this.getDefaultConfig(), this.config);
-debugger
                 if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
                     this.checkProjects = true;
                 } else {

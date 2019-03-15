@@ -251,21 +251,21 @@
                             }
                         }
 
-                        let availableBams = {}; // sample id - file id
+                        let availableBigWigs = {}; // sample id - file id
                         for (let key in clinicalAnalysis.files) {
                             for (let i = 0; i < clinicalAnalysis.files[key].length; i++) {
-                                if (clinicalAnalysis.files[key][i].format === "BAM") {
-                                    availableBams[key] = clinicalAnalysis.files[key][i].id;
+                                if (clinicalAnalysis.files[key][i].format === "BIGWIG") {
+                                    availableBigWigs[key] = clinicalAnalysis.files[key][i].id;
                                 }
                             }
                         }
 
                         // Get proband sample
                         for (let i = 0; i < clinicalAnalysis.proband.samples.length; i++) {
-                            if (availableBams.hasOwnProperty(clinicalAnalysis.proband.samples[i].id)) {
+                            if (availableBigWigs.hasOwnProperty(clinicalAnalysis.proband.samples[i].id)) {
                                 // In theory, there should only be one BAM file available for each member
                                 files.push({
-                                    id: availableBams[clinicalAnalysis.proband.samples[i].id],
+                                    id: availableBigWigs[clinicalAnalysis.proband.samples[i].id],
                                     name: "Proband '" + clinicalAnalysis.proband.id + "'",
                                     sex: clinicalAnalysis.proband.sex,
                                     isProband: true,
@@ -273,7 +273,7 @@
                                 });
 
                                 // Take the bam out of the map
-                                delete availableBams[clinicalAnalysis.proband.samples[i].id];
+                                delete availableBigWigs[clinicalAnalysis.proband.samples[i].id];
                             }
                         }
 
@@ -282,9 +282,9 @@
                             && UtilsNew.isNotEmpty(clinicalAnalysis.proband.mother.id)) {
                             let motherId = clinicalAnalysis.proband.mother.id;
                             if (members.hasOwnProperty(motherId) && UtilsNew.isNotEmptyArray(members[motherId].samples)
-                                && availableBams.hasOwnProperty(members[motherId].samples[0].id)) {
+                                && availableBigWigs.hasOwnProperty(members[motherId].samples[0].id)) {
                                 files.push({
-                                    id: availableBams[members[motherId].samples[0].id],
+                                    id: availableBigWigs[members[motherId].samples[0].id],
                                     name: "Mother '" + motherId + "'",
                                     sex: members[motherId].sex,
                                     isProband: false,
@@ -292,7 +292,7 @@
                                 });
 
                                 // Take the bam out of the map
-                                delete availableBams[members[motherId].samples[0].id];
+                                delete availableBigWigs[members[motherId].samples[0].id];
                             }
                         }
 
@@ -301,9 +301,9 @@
                             && UtilsNew.isNotEmpty(clinicalAnalysis.proband.father.id)) {
                             let fatherId = clinicalAnalysis.proband.father.id;
                             if (members.hasOwnProperty(fatherId) && UtilsNew.isNotEmptyArray(members[fatherId].samples)
-                                && availableBams.hasOwnProperty(members[fatherId].samples[0].id)) {
+                                && availableBigWigs.hasOwnProperty(members[fatherId].samples[0].id)) {
                                 files.push({
-                                    id: availableBams[members[fatherId].samples[0].id],
+                                    id: availableBigWigs[members[fatherId].samples[0].id],
                                     name: "Father '" + fatherId + "'",
                                     sex: members[fatherId].sex,
                                     isProband: false,
@@ -311,15 +311,15 @@
                                 });
 
                                 // Take the bam out of the map
-                                delete availableBams[members[fatherId].samples[0].id];
+                                delete availableBigWigs[members[fatherId].samples[0].id];
                             }
                         }
 
                         // If there are any remaining BAM files, we will add them in a random position
-                        for (let key in availableBams) {
+                        for (let key in availableBigWigs) {
                             if (samples.hasOwnProperty(key)) {
                                 files.push({
-                                    id: availableBams[key],
+                                    id: availableBigWigs[key],
                                     name: "Member '" + samples[key].id + "'",
                                     sex: samples[key].sex,
                                     isProband: false,
@@ -327,7 +327,7 @@
                                 });
                             } else {
                                 files.push({
-                                    id: availableBams[key],
+                                    id: availableBigWigs[key],
                                     name: "Sample '" + key + "'",
                                     isProband: false
                                 });

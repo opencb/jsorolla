@@ -317,6 +317,8 @@ class OpencgaAdapter extends FeatureAdapter {
             return;
         }
 
+        let bigwig = UtilsNew.isNotEmpty(params.bigwig) ? params.bigwig : fileId;
+
         let study = params.study;
 
         // Create the chunks to be retrieved
@@ -347,7 +349,7 @@ class OpencgaAdapter extends FeatureAdapter {
 
             let auxArray = [];
             let coverageRegion = `chr${region.chromosome}:${start}-${auxStart - 1}`;
-            let coverage = _this.client.alignments().coverage(fileId,
+            let coverage = _this.client.alignments().coverage(bigwig,
                 {
                     region: coverageRegion,
                     study: study,

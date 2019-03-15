@@ -110,7 +110,6 @@
                 this.toolbarConfig = {
                     columns: this._columns[0]
                 };
-                debugger
 
                 this.renderTable(active);
             }
@@ -130,7 +129,6 @@
                 this.from = 1;
                 this.to = this._config.pageSize;
 
-debugger
                 if (UtilsNew.isNotUndefined(this.opencgaSession.study) && UtilsNew.isNotUndefined(this.opencgaSession.study.fqn)) {
 
                     filters.study = this.opencgaSession.study.fqn;
@@ -155,7 +153,7 @@ debugger
                         opencgaHostUrl = 'http://' + opencgaHostUrl;
                     }
                     opencgaHostUrl += '/webservices/rest/v1/analysis/clinical/search';
-                    debugger
+                    
                     let skipCount = false;
 
                     let _table = $('#' + this.prefix + 'ClinicalAnalysisBrowserGrid');
@@ -198,7 +196,7 @@ debugger
                             if (UtilsNew.isUndefined(filters)) {
                                 filters = {};
                             }
-                            debugger
+                            
                             return Object.assign({}, filters, auxParams);
                         },
                         responseHandler: function (response) {

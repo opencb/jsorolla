@@ -87,7 +87,7 @@
                 let featureId = PolymerUtils.getElementById(this.prefix  + "FeatureIdText").value;
                 if (UtilsNew.isNotUndefinedOrNull(featureId) && featureId.length >= 3 && !featureId.startsWith("ENS")) {
                     let _this = this;
-                    _this.cellbaseClient.get('feature', 'id', featureId.toUpperCase(), 'starts_with', {}, {})
+                    _this.cellbaseClient.get('feature', 'id', featureId.toUpperCase(), 'starts_with', {limit: 15}, {})
                         .then(function (response) {
                             let options = "";
                             for (let id of response.response[0].result) {
