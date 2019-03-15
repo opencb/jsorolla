@@ -271,6 +271,11 @@
                             }
                         }
                     }
+
+                    // Render filter menu and add event and tooltips
+                    if (this._initialised) {
+                        this._renderFilterMenu();
+                    }
                 }
             }
 
@@ -1211,7 +1216,7 @@
                 let content = "";
                 for (let subsection of section.subsections) {
                     // CADD values are only available for GRCh37
-                    if (subsection.id === "cadd" && this.opencgaSession.project.organism.assembly === "grch38") {
+                    if (subsection.id === "cadd" && this.opencgaSession.project.organism.assembly.toLowerCase() === "grch38") {
                         continue;
                     }
                     // We check if this subsection is not disabled in the configuration file
