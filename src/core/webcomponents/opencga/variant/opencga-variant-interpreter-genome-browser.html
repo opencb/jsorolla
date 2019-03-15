@@ -32,116 +32,125 @@
             }
         </style>
 
-        <template is="dom-if" if="{{_config.showTitle}}">
-            <div class="panel" style="margin-bottom: 15px">
-                <h3 style="margin: 10px 10px 10px 15px">
-                    <i class="fa fa-list" aria-hidden="true"></i> &nbsp;{{_config.title}}
-                </h3>
-            </div>
+        <template is="dom-if" if="{{_disabled}}">
+            <h4 style="color: #940303; margin: 20px 0px; text-align: center">
+                No files available.
+            </h4>
         </template>
 
-        <div class="row " style="padding: 0px 10px; margin: 10px 0px;">
-            <div class="col-md-12">
+        <template is="dom-if" if="{{!_disabled}}">
 
-                <div style="display: block; cursor:pointer;" on-click="toggleCollapsedFilter"
-                     data-toggle="collapse" href$="#{{prefix}}collapsibleFilter">
-                    <h3 class="form-section-title">
-                        <template is="dom-if" if="{{_filtersCollapsed}}">
-                            <i class="fa fa-caret-right" aria-hidden="true" style="padding-right: 5px"></i>
-                        </template>
-                        <template is="dom-if" if="{{!_filtersCollapsed}}">
-                            <i class="fa fa-caret-down" aria-hidden="true" style="padding-right: 5px"></i>
-                        </template>
-                        Genome Browser Filters</h3>
+            <template is="dom-if" if="{{_config.showTitle}}">
+                <div class="panel" style="margin-bottom: 15px">
+                    <h3 style="margin: 10px 10px 10px 15px">
+                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;{{_config.title}}
+                    </h3>
                 </div>
+            </template>
 
-                <div id="{{prefix}}collapsibleFilter" class="form-horizontal collapse in">
+            <div class="row " style="padding: 0px 10px; margin: 10px 0px;">
+                <div class="col-md-12">
 
-                    <div class="form-group">
-                        <label class="control-label col-md-1 jso-label-title">Search by Region</label>
-                        <div class="input-group col-md-3" style="padding-left: 15px;padding-right: 15px">
-                            <input id="{{prefix}}RegionInputText" type="text" class="form-control" placeholder="e.g. 3:55555-666666">
-                            <span class="input-group-btn">
+                    <div style="display: block; cursor:pointer;" on-click="toggleCollapsedFilter"
+                         data-toggle="collapse" href$="#{{prefix}}collapsibleFilter">
+                        <h3 class="form-section-title">
+                            <template is="dom-if" if="{{_filtersCollapsed}}">
+                                <i class="fa fa-caret-right" aria-hidden="true" style="padding-right: 5px"></i>
+                            </template>
+                            <template is="dom-if" if="{{!_filtersCollapsed}}">
+                                <i class="fa fa-caret-down" aria-hidden="true" style="padding-right: 5px"></i>
+                            </template>
+                            Genome Browser Filters</h3>
+                    </div>
+
+                    <div id="{{prefix}}collapsibleFilter" class="form-horizontal collapse in">
+
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Search by Region</label>
+                            <div class="input-group col-md-3" style="padding-left: 15px;padding-right: 15px">
+                                <input id="{{prefix}}RegionInputText" type="text" class="form-control" placeholder="e.g. 3:55555-666666">
+                                <span class="input-group-btn">
                                 <button class="btn btn-default" type="button" on-click="onEraserClicked">
                                     <i class="fa fa-eraser" aria-hidden="true"></i>
                                 </button>
                             </span>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label class="control-label col-md-1 jso-label-title">Search by Gene</label>
-                        <div class="col-md-3">
-                            <cellbase-gene-filter cellbase-client="{{cellbaseClient}}"
-                                                  erase="{{eraseSearchGene}}"
-                                                  on-genechange="onInputGeneChange">
-                            </cellbase-gene-filter>
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Search by Gene</label>
+                            <div class="col-md-3">
+                                <cellbase-gene-filter cellbase-client="{{cellbaseClient}}"
+                                                      erase="{{eraseSearchGene}}"
+                                                      on-genechange="onInputGeneChange">
+                                </cellbase-gene-filter>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label class="control-label col-md-1 jso-label-title">Select a Gene from Panel</label>
-                        <div class="col-md-3">
-                            <select class="selectpicker" id="{{prefix}}-geneSelect" data-live-search="true" data-max-options="1"
-                                    on-dom-change="renderDomRepeat" multiple>
-                                <optgroup label="Selected Genes">
-                                    <template is="dom-repeat" items="{{geneIds}}" as="geneId">
-                                        <option>{{geneId}}</option>
-                                    </template>
-                                </optgroup>
-
-                                <template is="dom-repeat" items="{{_genePanels}}" as="panel">
-                                    <optgroup label="{{panel.name}}">
-                                        <template is="dom-repeat" items="{{panel.genes}}" as="gene">
-                                            <option>{{gene.name}}</option>
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Select a Gene from Panel</label>
+                            <div class="col-md-3">
+                                <select class="selectpicker" id="{{prefix}}-geneSelect" data-live-search="true" data-max-options="1"
+                                        on-dom-change="renderDomRepeat" multiple>
+                                    <optgroup label="Selected Genes">
+                                        <template is="dom-repeat" items="{{geneIds}}" as="geneId">
+                                            <option>{{geneId}}</option>
                                         </template>
                                     </optgroup>
-                                </template>
-                            </select>
+
+                                    <template is="dom-repeat" items="{{_genePanels}}" as="panel">
+                                        <optgroup label="{{panel.name}}">
+                                            <template is="dom-repeat" items="{{panel.genes}}" as="gene">
+                                                <option>{{gene.name}}</option>
+                                            </template>
+                                        </optgroup>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Show Alignments (BAM)</label>
+                            <div class="col-md-3">
+                                <input type="checkbox">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-offset-3 col-md-9">
+                                <button type="submit" class="btn btn-primary" on-click="onClear">Clear</button>
+                                <button type="submit" class="btn btn-primary" on-click="showSelectionInGenomeBrowser">Render</button>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="control-label col-md-1 jso-label-title">Show Alignments (BAM)</label>
-                        <div class="col-md-3">
-                            <input type="checkbox">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="col-md-offset-3 col-md-9">
-                            <button type="submit" class="btn btn-primary" on-click="onClear">Clear</button>
-                            <button type="submit" class="btn btn-primary" on-click="showSelectionInGenomeBrowser">Render</button>
-                        </div>
-                    </div>
+                    <!--<div class="col-md-6" style="margin-top: 15px;">-->
+                    <!--<button id="{{prefix}}RunGenomeBrowser" type="button" class="btn btn-primary"-->
+                    <!--on-click="showSelectionInGenomeBrowser" style="float: right">-->
+                    <!--Show Genome Browser-->
+                    <!--</button>-->
+                    <!--</div>-->
                 </div>
 
-                <!--<div class="col-md-6" style="margin-top: 15px;">-->
-                <!--<button id="{{prefix}}RunGenomeBrowser" type="button" class="btn btn-primary"-->
-                <!--on-click="showSelectionInGenomeBrowser" style="float: right">-->
-                <!--Show Genome Browser-->
-                <!--</button>-->
-                <!--</div>-->
-            </div>
 
+                <!-- Genome browser -->
+                <div class="col-md-12">
+                    <h3 class="form-section-title">Genome Browser</h3>
 
-            <!-- Genome browser -->
-            <div class="col-md-12">
-                <h3 class="form-section-title">Genome Browser</h3>
+                    <!--<div style$="padding: 20px 0px;display: {{displayGenomeBrowserMessage}};">-->
+                    <!--<div style="padding: 20px">-->
+                    <!--<span style="font-weight: bolder">Please select some data above</span>-->
+                    <!--</div>-->
+                    <!--</div>-->
 
-                <!--<div style$="padding: 20px 0px;display: {{displayGenomeBrowserMessage}};">-->
-                <!--<div style="padding: 20px">-->
-                <!--<span style="font-weight: bolder">Please select some data above</span>-->
-                <!--</div>-->
-                <!--</div>-->
-
-                <div style="padding: 20px">
-                    <genome-browser id="{{prefix}}gb" opencga-session={{opencgaSession}} cellbase-client="{{cellbaseClient}}"
-                                    region="{{genomeBrowserRegion}}" tracks="{{tracks}}" settings="{{settings}}">
-                    </genome-browser>
+                    <div style="padding: 20px">
+                        <genome-browser id="{{prefix}}gb" opencga-session={{opencgaSession}} cellbase-client="{{cellbaseClient}}"
+                                        region="{{genomeBrowserRegion}}" tracks="{{tracks}}" settings="{{settings}}">
+                        </genome-browser>
+                    </div>
                 </div>
             </div>
-        </div>
+        </template>
 
     </template>
 
@@ -219,6 +228,9 @@
 
                 this._filtersCollapsed = false;
 
+                // The component will show an error message instead of the whole app if no alignment files are found
+                this._disabled = true;
+
                 this.displayGenomeBrowserMessage = "inline";
 
                 this._config = this.getDefaultConfig();
@@ -271,6 +283,7 @@
                             _this.addTracks(_this.clinicalAnalysis);
                         })
                         .catch((response) => {
+                            this._disabled = true;
                             console.error("An error occurred fetching clinicalAnalysis: ", response)
                         });
                 }
@@ -331,6 +344,7 @@
 
             addTracks(clinicalAnalysis) {
                 if (UtilsNew.isUndefinedOrNull(clinicalAnalysis.files)) {
+                    this._disabled = true;
                     return;
                 }
                 let roleToProband = {};
@@ -399,6 +413,7 @@
 
                 this.tracks = tracks;
 
+                this._disabled = tracks.length === this._config.tracks.length;
                 // tracks = tracks.concat(alignment)
 
                 // this.tracks = Object.assign(this.tracks, {

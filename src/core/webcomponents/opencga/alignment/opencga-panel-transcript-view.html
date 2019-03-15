@@ -34,95 +34,103 @@
 
         <div class="row" style="padding: 0px 10px; margin: 10px 0px;">
 
-            <div class="col-md-12">
-                <!--<h3 class="form-section-title">Low Coverage Filters</h3>-->
+            <template is="dom-if" if="{{_disabled}}">
+                <h4 style="color: #940303; margin: 20px 0px; text-align: center">
+                    No files available.
+                </h4>
+            </template>
 
-                <div style="display: block; cursor:pointer;" on-click="toggleCollapsedFilter"
-                     data-toggle="collapse" href$="#{{prefix}}collapsibleFilter">
-                    <h3 class="form-section-title">
-                        <template is="dom-if" if="{{_filtersCollapsed}}">
-                            <i class="fa fa-caret-right" aria-hidden="true" style="padding-right: 5px"></i>
-                        </template>
-                        <template is="dom-if" if="{{!_filtersCollapsed}}">
-                            <i class="fa fa-caret-down" aria-hidden="true" style="padding-right: 5px"></i>
-                        </template>
-                        Low Coverage Filters
-                    </h3>
-                </div>
+            <template is="dom-if" if="{{!_disabled}}">
+                <div class="col-md-12">
+                    <!--<h3 class="form-section-title">Low Coverage Filters</h3>-->
 
-
-                <div id="{{prefix}}collapsibleFilter" class="form-horizontal collapse in" style="padding: 5px 10px">
-
-                    <div class="form-group">
-                        <label class="control-label col-md-1 jso-label-title">Search by Gene</label>
-                        <div class="col-md-3">
-                            <cellbase-gene-filter cellbase-client="{{cellbaseClient}}"
-                                                  erase="{{eraseSearchGene}}"
-                                                  on-genechange="onInputGeneChange">
-                            </cellbase-gene-filter>
-                            <!--<button type="button" class="btn btn-primary" on-click="onSearchGeneClicked">Search</button>-->
-                            <!--<span class="input-group-btn">-->
-                                <!--<button class="btn btn-default" type="button" on-click="onSearchGeneClicked">-->
-                                    <!--<i class="fa fa-eraser" aria-hidden="true"></i>-->
-                                <!--</button>-->
-                            <!--</span>-->
-                        </div>
+                    <div style="display: block; cursor:pointer;" on-click="toggleCollapsedFilter"
+                         data-toggle="collapse" href$="#{{prefix}}collapsibleFilter">
+                        <h3 class="form-section-title">
+                            <template is="dom-if" if="{{_filtersCollapsed}}">
+                                <i class="fa fa-caret-right" aria-hidden="true" style="padding-right: 5px"></i>
+                            </template>
+                            <template is="dom-if" if="{{!_filtersCollapsed}}">
+                                <i class="fa fa-caret-down" aria-hidden="true" style="padding-right: 5px"></i>
+                            </template>
+                            Low Coverage Filters
+                        </h3>
                     </div>
 
-                    <div class="form-group">
-                        <label class="control-label col-md-1 jso-label-title">Select a Gene from Panel</label>
-                        <div class="col-md-3">
-                            <select class="selectpicker" id="{{prefix}}-geneSelect" data-live-search="true" data-max-options="1"
-                                    on-dom-change="renderDomRepeat" multiple>
-                                <optgroup label="Selected Genes">
-                                    <template is="dom-repeat" items="{{geneIds}}" as="geneId">
-                                        <option>{{geneId}}</option>
-                                    </template>
-                                </optgroup>
 
-                                <template is="dom-repeat" items="{{_genePanels}}" as="panel">
-                                    <optgroup label="{{panel.name}}">
-                                        <template is="dom-repeat" items="{{panel.genes}}" as="gene">
-                                            <option>{{gene.name}}</option>
+                    <div id="{{prefix}}collapsibleFilter" class="form-horizontal collapse in" style="padding: 5px 10px">
+
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Search by Gene</label>
+                            <div class="col-md-3">
+                                <cellbase-gene-filter cellbase-client="{{cellbaseClient}}"
+                                                      erase="{{eraseSearchGene}}"
+                                                      on-genechange="onInputGeneChange">
+                                </cellbase-gene-filter>
+                                <!--<button type="button" class="btn btn-primary" on-click="onSearchGeneClicked">Search</button>-->
+                                <!--<span class="input-group-btn">-->
+                                <!--<button class="btn btn-default" type="button" on-click="onSearchGeneClicked">-->
+                                <!--<i class="fa fa-eraser" aria-hidden="true"></i>-->
+                                <!--</button>-->
+                                <!--</span>-->
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Select a Gene from Panel</label>
+                            <div class="col-md-3">
+                                <select class="selectpicker" id="{{prefix}}-geneSelect" data-live-search="true" data-max-options="1"
+                                        on-dom-change="renderDomRepeat" multiple>
+                                    <optgroup label="Selected Genes">
+                                        <template is="dom-repeat" items="{{geneIds}}" as="geneId">
+                                            <option>{{geneId}}</option>
                                         </template>
                                     </optgroup>
-                                </template>
-                            </select>
+
+                                    <template is="dom-repeat" items="{{_genePanels}}" as="panel">
+                                        <optgroup label="{{panel.name}}">
+                                            <template is="dom-repeat" items="{{panel.genes}}" as="gene">
+                                                <option>{{gene.name}}</option>
+                                            </template>
+                                        </optgroup>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!--on-change="onLowCoverageThresholdChange"-->
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Select Low Coverage</label>
+                            <div class="col-md-3">
+                                <select class="selectpicker" id="{{prefix}}-lowCoverageThreshold" data-width="fit">
+                                    <option>5</option>
+                                    <option>10</option>
+                                    <option>15</option>
+                                    <option selected>20</option>
+                                    <option>25</option>
+                                    <option>30</option>
+                                    <option>35</option>
+                                    <option>40</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-offset-3 col-md-9">
+                                <button type="submit" class="btn btn-primary" on-click="onClear">Clear</button>
+                                <button type="submit" class="btn btn-primary" on-click="onRender">Render</button>
+                            </div>
                         </div>
                     </div>
 
-                    <!--on-change="onLowCoverageThresholdChange"-->
-                    <div class="form-group">
-                        <label class="control-label col-md-1 jso-label-title">Select Low Coverage</label>
-                        <div class="col-md-3">
-                            <select class="selectpicker" id="{{prefix}}-lowCoverageThreshold" data-width="fit">
-                                <option>5</option>
-                                <option>10</option>
-                                <option>15</option>
-                                <option selected>20</option>
-                                <option>25</option>
-                                <option>30</option>
-                                <option>35</option>
-                                <option>40</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="col-md-offset-3 col-md-9">
-                            <button type="submit" class="btn btn-primary" on-click="onClear">Clear</button>
-                            <button type="submit" class="btn btn-primary" on-click="onRender">Render</button>
-                        </div>
-                    </div>
                 </div>
 
-            </div>
+                <div class="col-md-12">
+                    <h3 class="form-section-title">{{selectedGene}} Gene Low Coverage</h3>
 
-            <div class="col-md-12">
-                <h3 class="form-section-title">{{selectedGene}} Gene Low Coverage</h3>
-
-                <div id="{{prefix}}-svg" style="padding: 20px"></div>
-            </div>
+                    <div id="{{prefix}}-svg" style="padding: 20px"></div>
+                </div>
+            </template>
         </div>
     </template>
 
@@ -179,6 +187,9 @@
 
                 this.eraseSearchGene = false;
                 this._filtersCollapsed = false;
+
+                // The component will show an error message instead of the whole app if no alignment files are found
+                this._disabled = true;
 
                 // Initially we set the default config, this will be overridden if 'config' is passed
                 this._config = this.getDefaultConfig();
@@ -334,6 +345,8 @@
                             }
                         }
 
+                        this._disabled = UtilsNew.isEmptyArray(files);
+
                         this._files = files;
 
                         if (this._autoRenderWhenFilesAreRetrieved) {
@@ -342,6 +355,8 @@
 
                             this._autoRenderWhenFilesAreRetrieved = false;
                         }
+                    } else {
+                        this._disabled = true;
                     }
                 }
             }
