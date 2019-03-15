@@ -232,7 +232,8 @@
                         },
                         responseHandler: function (resp) {
                             if (_numTotal === -1) {
-                                _numTotal = resp.response[0].numTotalResults;
+                                // _numTotal = resp.response[0].numTotalResults;
+                                _numTotal = resp.response[0].numTotalResults < 10 ? resp.response[0].numTotalResults : 1150;
                             }
                             // Format the number string with commas
                             _this.to = Math.min(resp.response[0].numResults, this.pageSize);
