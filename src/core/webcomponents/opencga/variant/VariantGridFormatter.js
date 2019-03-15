@@ -96,13 +96,25 @@ class VariantGridFormatter {
                                      </div>`;
         }
 
+        let ensemblLinkHtml = id.startsWith("rs")
+            ? "https://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + id
+            : "http://www.ensembl.org/Homo_sapiens/Location/View?r=" + row.chromosome + ":" + row.start + "-" + row.end;
+
+        let snpLinkHtml = "";
+        if (id.startsWith("rs")) {
+            snpLinkHtml = `<div style="padding: 5px"><a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs=${id}">dbSNP</a></div>
+                           <div style="padding: 5px"><a target="_blank" href="https://www.snpedia.com/index.php/${id}">SNPedia</a></div>
+                           <div style="padding: 5px"><a target="_blank" href="https://www.ncbi.nlm.nih.gov/clinvar/?term=${id}">ClinVar</a></div>
+                `;
+        }
+
         // <div style="padding: 5px 15px; color: darkgray; font-weight: bolder">External Links</div>
         let tooltipText = `${genomeBrowserMenuLink}
-                            <div style="padding: 5px"><a target="_blank" href="https://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${id}">Ensembl</a></div>
-                            <div style="padding: 5px"><a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs=${id}">dbSNP</a></div>
-                            <div style="padding: 5px"><a target="_blank" href="https://www.snpedia.com/index.php/${id}">SNPedia</a></div>
-                            <div style="padding: 5px"><a target="_blank" href="https://www.ncbi.nlm.nih.gov/clinvar/?term=${id}">ClinVar</a></div>
-                            `;
+                            <div style="padding: 5px">
+                                <a target="_blank" href="${ensemblLinkHtml}">Ensembl</a>
+                            </div>
+                            ${snpLinkHtml}
+                `;
 
         return `<div class="variant-tooltip" data-tooltip-text='${tooltipText}'>
                     <a style="cursor: pointer">

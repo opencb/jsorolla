@@ -142,6 +142,9 @@
                                         if (typeof statsObject[key].mafAllele !== "undefined" && statsObject[key].mafAllele !== -1) {
                                             statsObject[key].maf = _this._freqFormatter(statsObject[key].maf || 0);
                                             statsObject[key].mafAllele = statsObject[key].mafAllele || '-';
+                                            if (statsObject[key].alleleCount < 0) {
+                                                statsObject[key].alleleCount = statsObject[key].refAlleleCount + statsObject[key].altAlleleCount;
+                                            }
                                             statsObject[key].numSamples = statsObject[key].alleleCount / 2;
 
                                             statsObject[key].refAlleleFreq = _this._freqFormatter(statsObject[key].refAlleleFreq || 0);
