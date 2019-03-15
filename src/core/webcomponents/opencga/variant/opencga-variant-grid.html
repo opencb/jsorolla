@@ -215,6 +215,7 @@
                 this.approximateCountResult = false;
 
                 let _table = $('#' + this.prefix + 'VariantBrowserGrid');
+                this.query;
 
                 if (typeof this.opencgaSession !== "undefined" && typeof this.opencgaSession.project !== "undefined"
                     && typeof this.opencgaSession.study !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
@@ -476,7 +477,7 @@
                     let keys = Object.keys(queryParams);
                     for (let i = 0; i < keys.length; i++) {
                         let val = queryParams[keys[i]];
-                        if (typeof val === "string") {
+                        if (typeof val === "string" && keys[i] !== "populationFrequencyAlt") {
                             val = val.replace(/</g, "<<");
                             val = val.replace(/>/g, ">>");
                             queryParams[keys[i]] = val;

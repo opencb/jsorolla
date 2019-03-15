@@ -401,14 +401,14 @@
                                     for (let sample of response.response[0].result) {
                                         sampleIds.push(sample.id);
                                     }
-                                    debugger
+
                                     _this.opencgaSession.opencgaClient.samples().info(sampleIds.join(","),
                                         {
                                             study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
                                             includeIndividual: true
                                         })
                                         .then(function (response) {
-                                            debugger
+
                                             for (let i = 0; i < samplesHet.length; i++) {
                                                 let individual = response.response[i].result[0].attributes.individual;
                                                 if (UtilsNew.isNotEmpty(individual)) {

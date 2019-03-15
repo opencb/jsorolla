@@ -372,8 +372,12 @@
 
                     queryParams.summary = false;
                     queryParams.exclude = "annotation.geneExpression";
-                    queryParams.approximateCount = true;
-                    queryParams.useSearchIndex = "yes";
+
+                    // FIXME
+                    queryParams.approximateCount = false;
+                    queryParams.skipCount = true;
+
+                    queryParams.useSearchIndex = "auto";
                     queryParams.unknownGenotype = "0/0";
                 } else {
                     queryParams.summary = true;
@@ -561,25 +565,29 @@
                         let dp, ad, gq;
                         let mutationColor = "black";
                         let sampleFormat = row.studies[0].samplesData[this.field.memberIdx];
-                        // INFO fields
-                        for (let file of this.field.clinicalAnalysis.files[this.field.memberName]) {
-                            // Find the sample VCF file, if exists
-                            if (file.format === "VCF") {
-                                for (let studyFile of row.studies[0].files) {
-                                    if (studyFile.fileId === file.name) {
-                                        qual = Number(studyFile.attributes.QUAL).toFixed(2);
-                                        if (qual < this.field.quality.qual) {
-                                            mutationColor = "silver";
-                                        }
 
-                                        filter = studyFile.attributes.FILTER;
-                                        if (filter !== "PASS") {
-                                            mutationColor = "silver";
+                        // INFO fields
+                        if (UtilsNew.isNotEmptyArray(this.field.clinicalAnalysis.files[this.field.memberName])) {
+                            for (let file of this.field.clinicalAnalysis.files[this.field.memberName]) {
+                                // Find the sample VCF file, if exists
+                                if (file.format === "VCF") {
+                                    for (let studyFile of row.studies[0].files) {
+                                        if (studyFile.fileId === file.name) {
+                                            qual = Number(studyFile.attributes.QUAL).toFixed(2);
+                                            if (qual < this.field.quality.qual) {
+                                                mutationColor = "silver";
+                                            }
+
+                                            filter = studyFile.attributes.FILTER;
+                                            if (filter !== "PASS") {
+                                                mutationColor = "silver";
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
+
                         // FORMAT fields
                         for (let formatField in row.studies[0].format) {
                             switch (row.studies[0].format[formatField]) {

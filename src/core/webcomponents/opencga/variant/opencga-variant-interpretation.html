@@ -451,7 +451,8 @@
                         observer: 'clinicalAnalysisObserver',
                     },
                     query: {
-                        type: Object
+                        type: Object,
+                        observer: "queryObserver"
                     },
                     cellbaseClient: {
                         type: Object
@@ -485,7 +486,7 @@
                  * 'search; is observed to ensure 'query' is in sync.
                  */
                 return [
-                    "propertyObserver(opencgaSession, query, config)"
+                    "propertyObserver(opencgaSession, config)"
                 ];
             }
 
@@ -554,7 +555,7 @@
                 this._config = this.getDefaultConfig();
             }
 
-            propertyObserver(opencgaSession, query, config) {
+            propertyObserver(opencgaSession, config) {
                 // With each property change we must updated config and create the columns again. No extra checks are needed.
                 this._config = Object.assign(this.getDefaultConfig(), this.config);
 
@@ -568,15 +569,23 @@
                 }
 
                 // Query passed is executed and set to variant-filter, active-filters and variant-grid components
-                if (UtilsNew.isNotUndefinedOrNull(query)) {
-                    this.preparedQuery = query;
-                    this.executedQuery = query;
-                }
+                // if (UtilsNew.isNotUndefinedOrNull(query)) {
+                //     this.preparedQuery = query;
+                //     this.executedQuery = query;
+                // }
 
                 if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
                     this.checkProjects = true;
                 } else {
                     this.checkProjects = false;
+                }
+            }
+
+            queryObserver() {
+                // Query passed is executed and set to variant-filter, active-filters and variant-grid components
+                if (UtilsNew.isNotUndefinedOrNull(this.query)) {
+                    this.preparedQuery = this.query;
+                    this.executedQuery = this.query;
                 }
             }
 

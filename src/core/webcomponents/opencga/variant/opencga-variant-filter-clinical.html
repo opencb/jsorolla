@@ -436,9 +436,16 @@
                     completePenetrance: true
                 }).then(function(response) {
                     let genotypeResults = response.response[0].result[0];
+                    let individualToSampleMap = {};
+                    for (let member of _this.clinicalAnalysis.family.members) {
+                        if (UtilsNew.isNotEmptyArray(member.samples)) {
+                            individualToSampleMap[member.samples[0].id] = member.id;
+                        }
+                    }
                     if (UtilsNew.isNotUndefinedOrNull(genotypeResults)) {
                         for (let sampleFilter of _this.sampleFilters) {
-                            sampleFilter.genotypes = genotypeResults[sampleFilter.id];
+                            // sampleFilter.genotypes = genotypeResults[sampleFilter.id];
+                            sampleFilter.genotypes = genotypeResults[individualToSampleMap[sampleFilter.id]];
                         }
                         _this.renderSampleTable();
                         _this.notify();

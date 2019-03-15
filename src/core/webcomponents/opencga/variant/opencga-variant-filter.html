@@ -272,6 +272,11 @@
                         }
                     }
 
+                    this.query = {
+                        study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
+                    };
+                    this.notifySearch(this.query);
+
                     // Render filter menu and add event and tooltips
                     if (this._initialised) {
                         this._renderFilterMenu();
@@ -305,6 +310,7 @@
             }
 
             notifyQuery(query) {
+                debugger
                 this.dispatchEvent(new CustomEvent("querychange", {
                     detail: {
                         query: query,
@@ -315,6 +321,7 @@
             }
 
             notifySearch(query) {
+                debugger
                 this.dispatchEvent(new CustomEvent("querysearch", {
                     detail: {
                         query: query,
@@ -1006,7 +1013,7 @@
                     }
                 }
                 if (popFreq.length > 0) {
-                    _filters["alternate_frequency"] = popFreq.join(';');
+                    _filters["populationFrequencyAlt"] = popFreq.join(';');
                 }
 
                 // Protein Substitution Scores -  Sift and Polyphen
