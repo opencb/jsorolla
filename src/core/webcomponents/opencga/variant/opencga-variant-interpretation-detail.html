@@ -18,7 +18,7 @@
 <link rel="import" href="opencga-variant-file-metrics.html">
 <link rel="import" href="variant-beacon-network.html">
 
-<dom-module id="opencga-interpreted-variant-detail">
+<dom-module id="opencga-variant-interpretation-detail">
     <template>
         <style include="jso-styles"></style>
 
@@ -115,7 +115,7 @@
     </template>
 
     <script>
-        class OpencgaInterpretedVariantDetail extends Polymer.Element {
+        class OpencgaVariantInterpretationDetail extends Polymer.Element {
 
             constructor() {
                 super();
@@ -125,7 +125,7 @@
             }
 
             static get is() {
-                return 'opencga-interpreted-variant-detail'
+                return 'opencga-variant-interpretation-detail'
             };
 
             static get properties() {
@@ -204,6 +204,6 @@
             }
         }
 
-        customElements.define(OpencgaInterpretedVariantDetail.is, OpencgaInterpretedVariantDetail);
+        customElements.define(OpencgaVariantInterpretationDetail.is, OpencgaVariantInterpretationDetail);
     </script>
 </dom-module>

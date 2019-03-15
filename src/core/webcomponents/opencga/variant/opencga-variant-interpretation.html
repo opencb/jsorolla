@@ -17,8 +17,8 @@
 <link rel="import" href="opencga-variant-filter.html">
 <link rel="import" href="opencga-variant-interpretation-editor.html">
 <link rel="import" href="opencga-variant-grid.html">
-<link rel="import" href="opencga-interpreted-variant-grid.html">
-<link rel="import" href="opencga-interpreted-variant-detail.html">
+<link rel="import" href="opencga-variant-interpretation-grid.html">
+<link rel="import" href="opencga-variant-interpretation-detail.html">
 <link rel="import" href="../alignment/opencga-panel-transcript-view.html">
 <link rel="import" href="../catalog/clinical/opencga-clinical-analysis-view.html">
 <link rel="import" href="../clinical/clinical-interpretation-view.html">
@@ -110,10 +110,10 @@
                                     <i class="fa fa-filter icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView"></i>Search Result ({{counters.rv}})
                                 </button>
                                 <button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="CompoundHeterozygous" on-click="_changeView">
-                                    <i class="fas fa-divide icon-padding" aria-hidden="true" data-view="ClinicalAnalysis" on-click="_changeView"></i>Compound Heterozygous ({{counters.ch}})
+                                    <i class="fas fa-random icon-padding" aria-hidden="true" data-view="ClinicalAnalysis" on-click="_changeView"></i>Compound Heterozygous ({{counters.ch}})
                                 </button>
                                 <button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="DeNovo" on-click="_changeView">
-                                    <i class="fa fa-exclamation icon-padding" aria-hidden="true" data-view="LowCoverage" on-click="_changeView"></i>de Novo ({{counters.dn}})
+                                    <i class="fa fa-divide icon-padding" aria-hidden="true" data-view="LowCoverage" on-click="_changeView"></i>de Novo ({{counters.dn}})
                                 </button>
                             </div>
 
@@ -168,32 +168,32 @@
                     </div>
 
                     <div>
-                        <!-- TABLE RESULT -->
+                        <!-- SEARCH TABLE RESULT -->
                         <div id="{{prefix}}TableResult" class="variant-interpretation-content">
                             <!--<template is="dom-if" if="{{interactive}}">-->
                             <!-- Variant Browser Grid -->
-                            <opencga-interpreted-variant-grid opencga-session="{{opencgaSession}}" clinical-analysis="{{clinicalAnalysis}}"
-                                                              query="{{executedQuery}}"
-                                                              consequence-types="{{consequenceTypes}}"
-                                                              population-frequencies="{{populationFrequencies}}"
-                                                              protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                              on-selected="selectedGene"
-                                                              on-selectvariant="onSelectVariant"
-                                                              on-checkvariant="onCheckVariant"
-                                                              on-setgenomebrowserposition="onGenomeBrowserPositionChange"
-                                                              config="{{config.grid}}">
-                            </opencga-interpreted-variant-grid>
+                            <opencga-variant-interpretation-grid opencga-session="{{opencgaSession}}" clinical-analysis="{{clinicalAnalysis}}"
+                                                                 query="{{executedQuery}}"
+                                                                 consequence-types="{{consequenceTypes}}"
+                                                                 population-frequencies="{{populationFrequencies}}"
+                                                                 protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                 on-selected="selectedGene"
+                                                                 on-selectvariant="onSelectVariant"
+                                                                 on-checkvariant="onCheckVariant"
+                                                                 on-setgenomebrowserposition="onGenomeBrowserPositionChange"
+                                                                 config="{{config.grid}}">
+                            </opencga-variant-interpretation-grid>
                             <!--</template>-->
 
                             <!-- Bottom tabs with detailed variant information -->
-                            <opencga-interpreted-variant-detail opencga-session={{opencgaSession}}
-                                                                cellbase-client={{cellbaseClient}}
-                                                                variant={{variant}}
-                                                                clinical-analysis={{clinicalAnalysis}}
-                                                                consequence-types={{consequenceTypes}}
-                                                                protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                                config={{config.detail}}>
-                            </opencga-interpreted-variant-detail>
+                            <opencga-variant-interpretation-detail opencga-session={{opencgaSession}}
+                                                                   cellbase-client={{cellbaseClient}}
+                                                                   variant={{variant}}
+                                                                   clinical-analysis={{clinicalAnalysis}}
+                                                                   consequence-types={{consequenceTypes}}
+                                                                   protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                   config={{config.detail}}>
+                            </opencga-variant-interpretation-detail>
                         </div>
 
                         <!-- COMPOUND HETEROZYGOUS -->
@@ -249,27 +249,27 @@
                                 <div style="padding-top: 10px">
                                     <h4 class="form-section-title">Compound Heterozygous Results</h4>
                                     <!-- Variant Browser Grid -->
-                                    <opencga-interpreted-variant-grid opencga-session="{{opencgaSession}}" clinical-analysis="{{clinicalAnalysis}}"
-                                                                      query="{{compHetQuery}}"
-                                                                      consequence-types="{{consequenceTypes}}"
-                                                                      population-frequencies="{{populationFrequencies}}"
-                                                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                                      on-selected="selectedGene"
-                                                                      on-selectvariant="onSelectCompHetVariant"
-                                                                      on-checkvariant="onCheckCompHetVariant"
-                                                                      on-setgenomebrowserposition="onGenomeBrowserPositionChange"
-                                                                      config="{{config.grid}}">
-                                    </opencga-interpreted-variant-grid>
+                                    <opencga-variant-interpretation-grid opencga-session="{{opencgaSession}}" clinical-analysis="{{clinicalAnalysis}}"
+                                                                         query="{{compHetQuery}}"
+                                                                         consequence-types="{{consequenceTypes}}"
+                                                                         population-frequencies="{{populationFrequencies}}"
+                                                                         protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                         on-selected="selectedGene"
+                                                                         on-selectvariant="onSelectCompHetVariant"
+                                                                         on-checkvariant="onCheckCompHetVariant"
+                                                                         on-setgenomebrowserposition="onGenomeBrowserPositionChange"
+                                                                         config="{{config.grid}}">
+                                    </opencga-variant-interpretation-grid>
 
                                     <!-- Bottom tabs with detailed variant information -->
-                                    <opencga-interpreted-variant-detail opencga-session={{opencgaSession}}
-                                                                        cellbase-client={{cellbaseClient}}
-                                                                        variant={{compHetVariant}}
-                                                                        clinical-analysis={{clinicalAnalysis}}
-                                                                        consequence-types={{consequenceTypes}}
-                                                                        protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                                        config={{config.detail}}>
-                                    </opencga-interpreted-variant-detail>
+                                    <opencga-variant-interpretation-detail opencga-session={{opencgaSession}}
+                                                                           cellbase-client={{cellbaseClient}}
+                                                                           variant={{compHetVariant}}
+                                                                           clinical-analysis={{clinicalAnalysis}}
+                                                                           consequence-types={{consequenceTypes}}
+                                                                           protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                           config={{config.detail}}>
+                                    </opencga-variant-interpretation-detail>
                                 </div>
                             </div>
                         </div>
@@ -317,27 +317,27 @@
                                 <div style="padding-top: 10px">
                                     <h4 class="form-section-title">de Novo Results</h4>
                                     <!-- Variant Browser Grid -->
-                                    <opencga-interpreted-variant-grid opencga-session="{{opencgaSession}}" clinical-analysis="{{clinicalAnalysis}}"
-                                                                      query="{{deNovoQuery}}"
-                                                                      consequence-types="{{consequenceTypes}}"
-                                                                      population-frequencies="{{populationFrequencies}}"
-                                                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                                      on-selected="selectedGene"
-                                                                      on-selectvariant="onSelectDeNovoVariant"
-                                                                      on-checkvariant="onCheckDeNovoVariant"
-                                                                      on-setgenomebrowserposition="onGenomeBrowserPositionChange"
-                                                                      config="{{config.grid}}">
-                                    </opencga-interpreted-variant-grid>
+                                    <opencga-variant-interpretation-grid opencga-session="{{opencgaSession}}" clinical-analysis="{{clinicalAnalysis}}"
+                                                                         query="{{deNovoQuery}}"
+                                                                         consequence-types="{{consequenceTypes}}"
+                                                                         population-frequencies="{{populationFrequencies}}"
+                                                                         protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                         on-selected="selectedGene"
+                                                                         on-selectvariant="onSelectDeNovoVariant"
+                                                                         on-checkvariant="onCheckDeNovoVariant"
+                                                                         on-setgenomebrowserposition="onGenomeBrowserPositionChange"
+                                                                         config="{{config.grid}}">
+                                    </opencga-variant-interpretation-grid>
 
                                     <!-- Bottom tabs with detailed variant information -->
-                                    <opencga-interpreted-variant-detail opencga-session={{opencgaSession}}
-                                                                        cellbase-client={{cellbaseClient}}
-                                                                        variant={{deNovoVariant}}
-                                                                        clinical-analysis={{clinicalAnalysis}}
-                                                                        consequence-types={{consequenceTypes}}
-                                                                        protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                                        config={{config.detail}}>
-                                    </opencga-interpreted-variant-detail>
+                                    <opencga-variant-interpretation-detail opencga-session={{opencgaSession}}
+                                                                           cellbase-client={{cellbaseClient}}
+                                                                           variant={{deNovoVariant}}
+                                                                           clinical-analysis={{clinicalAnalysis}}
+                                                                           consequence-types={{consequenceTypes}}
+                                                                           protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                           config={{config.detail}}>
+                                    </opencga-variant-interpretation-detail>
                                 </div>
                             </div>
                         </div>

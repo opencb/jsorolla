@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<dom-module id="opencga-interpreted-variant-grid">
+<dom-module id="opencga-variant-interpretation-grid">
     <template>
         <style include="jso-styles">
             .variant-link-dropdown:hover .dropdown-menu {
@@ -48,7 +48,7 @@
     </template>
 
     <script>
-        class OpencgaInterpretedVariantGrid extends Polymer.Element {
+        class OpencgaVariantInterpretationGrid extends Polymer.Element {
 
             constructor() {
                 super();
@@ -58,7 +58,7 @@
             }
 
             static get is() {
-                return 'opencga-interpreted-variant-grid';
+                return 'opencga-variant-interpretation-grid';
             }
 
             static get properties() {
@@ -117,7 +117,7 @@
             }
 
             _init() {
-                this.prefix = "VarBrowserGrid-" + Utils.randomString(6);
+                this.prefix = "ovig-" + Utils.randomString(6);
 
                 this.query = {};
                 this._config = this.getDefaultConfig();
@@ -1132,6 +1132,6 @@
             }
         }
 
-        customElements.define(OpencgaInterpretedVariantGrid.is, OpencgaInterpretedVariantGrid);
+        customElements.define(OpencgaVariantInterpretationGrid.is, OpencgaVariantInterpretationGrid);
     </script>
 </dom-module>
