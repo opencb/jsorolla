@@ -404,7 +404,12 @@
             _onSelectVariant(row) {
                 if (typeof row !== "undefined") {
                     let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-                    this.dispatchEvent(new CustomEvent('selectvariant', {detail: {id: _variant, variant: row}}));
+                    this.dispatchEvent(new CustomEvent('selectvariant', {
+                        detail: {
+                            id: _variant,
+                            variant: row
+                        }
+                    }));
                 }
             }
 
@@ -563,7 +568,9 @@
                         // First, get and check info fields QUAL, FILTER; and format fields DP, AD and GQ
                         let qual = "-";
                         let filter = "-";
-                        let dp, ad, gq;
+                        let dp = "-";
+                        let ad = "-";
+                        let gq = "-";
                         let mutationColor = "black";
                         let sampleFormat = row.studies[0].samplesData[this.field.memberIdx];
 
@@ -593,16 +600,17 @@
                         for (let formatField in row.studies[0].format) {
                             switch (row.studies[0].format[formatField]) {
                                 case "DP":
-                                    dp = sampleFormat[formatField];
-                                    if (dp < this.field.quality.dp) {
+                                    // dp = sampleFormat[formatField];
+                                    dp = (UtilsNew.isNotUndefinedOrNull(sampleFormat[formatField])) ? sampleFormat[formatField] : "-";
+                                    if (dp !== "NA" && dp < this.field.quality.dp) {
                                         mutationColor = "silver";
                                     }
                                     break;
                                 case "AD":
-                                    ad = sampleFormat[formatField];
+                                    ad = (UtilsNew.isNotUndefinedOrNull(sampleFormat[formatField])) ? sampleFormat[formatField] : "-";
                                     break;
                                 case "GQ":
-                                    gq = sampleFormat[formatField];
+                                    gq = (UtilsNew.isNotUndefinedOrNull(sampleFormat[formatField])) ? sampleFormat[formatField] : "-";
                                     break;
                             }
                         }
@@ -648,6 +656,10 @@
                         // Third, prepare the tooltip information
                         let tooltipText = `<div class="col-md-12" style="padding: 0px">
                                             <form class="form-horizontal">
+                                                <div class="form-group" style="margin: 0px 2px">
+                                                    <label class="col-md-5">GT</label>
+                                                    <div class="col-md-7">${sampleGT}</div>
+                                                </div>
                                                 <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-5">QUAL</label>
                                                     <div class="col-md-7">${qual}</div>

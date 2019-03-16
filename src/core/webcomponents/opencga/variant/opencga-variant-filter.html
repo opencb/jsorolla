@@ -1283,7 +1283,7 @@
                         content = this._getVariantTypeHtml(subsection.types, this.prefix);
                         break;
                     case "populationFrequency":
-                        content = this._getPopulationFrequencyHtml(this.prefix);
+                        content = this._getPopulationFrequencyHtml(subsection.showSetAll, this.prefix);
                         break;
                     case "consequenceType":
                         content = this._getConsequenceTypeHtml(this.prefix);
@@ -1525,27 +1525,31 @@
                 return `<div id="${prefix}Type">${inputs}</div>`;
             }
 
-            _getPopulationFrequencyHtml(prefix) {
+            _getPopulationFrequencyHtml(showSetAll, prefix) {
                 let content = "";
                 for (let study of this.populationFrequencies.studies) {
+                    let setAllHtml = "";
+                    if (showSetAll) {
+                        setAllHtml = `<div class="form-group" style="margin: 5px 0px">
+                                        <span class="col-md-7 control-label" data-toggle="tooltip" data-placement="top" style="text-align: left;">Set all</span>
+                                        <div class="col-md-5" style="padding: 0px 10px">
+                                            <input id="${prefix}${study.id}Input" type="text" data-study="${study.id}" value="" class="form-control input-sm ${prefix}FilterTextInput"
+                                                name="${study.id}Input">
+                                        </div>
+                                      </div>`;
+                    }
                     content += `
                         <div style="padding-top: 10px">
                             <i id="${this.prefix}${study.id}Icon" data-id="${this.prefix}${study.id}"
                                     class="fa fa-plus" style="cursor: pointer;padding-right: 10px"></i>
                             <strong>${study.title}</strong>
                             <div id="${prefix}${study.id}" class="form-horizontal" hidden>
-                                <div class="row" style="margin: 5px 0px">
-                                     <span class="col-md-7 control-label" data-toggle="tooltip" data-placement="top" style="text-align: left;">Set all</span>
-                                         <div class="col-md-5" style="padding: 0px 10px">
-                                            <input id="${prefix}${study.id}Input" type="text" data-study="${study.id}" value="" class="form-control input-sm ${prefix}FilterTextInput"
-                                                            name="${study.id}Input">
-                                         </div>
-                                </div>
+                                ${setAllHtml}
                     `;
 
                     for (let popFreq of study.populations) {
                         content += `
-                                <div class="row" style="margin: 5px 0px">
+                                <div class="form-group" style="margin: 5px 0px">
                                     <span class="col-md-3 control-label" data-toggle="tooltip" data-placement="top" title="${popFreq.title}">${popFreq.id}</span>
                                     <div class="col-md-4" style="padding: 0px 10px">
                                         <select id="${prefix}${study.id}${popFreq.id}Operator" name="${popFreq.id}Operator"
