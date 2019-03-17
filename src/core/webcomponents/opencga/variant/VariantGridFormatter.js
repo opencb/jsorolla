@@ -67,19 +67,18 @@ class VariantGridFormatter {
             return;
         }
 
+        // If REF/ALT is greater than maxAlleleLength we display the first and last 5 bp
         let ref = (row.reference !== "") ? row.reference : "-";
         let alt = (row.alternate !== "") ? row.alternate : "-";
-
-        let maxAlleleLength = 10;
-        if (UtilsNew.isNotUndefinedOrNull(config)) {
+        let maxAlleleLength = 15;
+        if (UtilsNew.isNotUndefinedOrNull(config) && UtilsNew.isNotUndefinedOrNull(config.alleleStringLengthMax)) {
             maxAlleleLength = config.alleleStringLengthMax;
         }
-
-        ref = (ref.length > maxAlleleLength) ? ref.substring(0, maxAlleleLength - 3) + "..." : ref;
-        alt = (alt.length > maxAlleleLength) ? alt.substring(0, maxAlleleLength - 3) + "..." : alt;
+        ref = (ref.length > maxAlleleLength) ? ref.substring(0, 5) + "..." + ref.substring(ref.length - 5) : ref;
+        alt = (alt.length > maxAlleleLength) ? alt.substring(0, 5) + "..." + alt.substring(alt.length - 5) : alt;
 
         let id = row.id;
-        if (typeof row.annotation !== "undefined" && typeof row.annotation.xrefs !== "undefined" && row.annotation.xrefs.length > 0) {
+        if (typeof row.annotation !== "undefined" && UtilsNew.isNotEmptyArray(row.annotation.xrefs)) {
             row.annotation.xrefs.find(function (element) {
                 if (element.source === "dbSNP") {
                     id = element.id;
