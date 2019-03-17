@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<link rel="import" href="opencga-clinical-analysis-portal.html">
+<link rel="import" href="opencga-clinical-review-cases.html">
 <link rel="import" href="opencga-clinical-analysis-editor.html">
 
 <dom-module id="opencga-clinical-portal">
@@ -81,9 +81,9 @@
 
                     <div style="padding: 0px 10px">
                         <div id="{{prefix}}ReviewCases" class="clinical-portal-content">
-                            <opencga-clinical-analysis-portal opencga-session="{{opencgaSession}}"
-                                                              config="{{_config.clinicalAnalysisBrowser}}">
-                            </opencga-clinical-analysis-portal>
+                            <opencga-clinical-review-cases opencga-session="{{opencgaSession}}"
+                                                           config="{{_config.clinicalAnalysisBrowser}}">
+                            </opencga-clinical-review-cases>
                         </div>
 
                         <div id="{{prefix}}CreateCase" class="clinical-portal-content" style="display: none">

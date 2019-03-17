@@ -16,7 +16,7 @@
 
 <link rel="import" href="opencga-clinical-analysis-grid.html">
 
-<dom-module id="opencga-clinical-analysis-portal">
+<dom-module id="opencga-clinical-review-cases">
     <template>
         <style include="jso-styles">
             .ocap-text-button {
@@ -259,15 +259,15 @@
     </template>
 
     <script>
-        class OpencgaClinicalAnalysisPortal extends Polymer.Element {
+        class OpencgaClinicalReviewCases extends Polymer.Element {
 
             constructor() {
                 super();
-                this.prefix = "ocap-" + Utils.randomString(6);
+                this.prefix = "ocrc-" + Utils.randomString(6);
             }
 
             static get is() {
-                return 'opencga-clinical-analysis-portal';
+                return 'opencga-clinical-review-cases';
             }
 
             static get properties() {
@@ -490,6 +490,6 @@
             }
         }
 
-        customElements.define(OpencgaClinicalAnalysisPortal.is, OpencgaClinicalAnalysisPortal);
+        customElements.define(OpencgaClinicalReviewCases.is, OpencgaClinicalReviewCases);
     </script>
 </dom-module>
