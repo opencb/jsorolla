@@ -18,7 +18,7 @@ class VariantUtils {
         variantString.push("Genes");
         variantString.push("Type");
         samples.forEach((sample) => {
-            variantString.push(sample.name);
+            variantString.push(sample.id);
         });
         variantString.push("Consequence Type");
         variantString.push("SIFT");

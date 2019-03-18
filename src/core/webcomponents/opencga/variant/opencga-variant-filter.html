@@ -15,8 +15,9 @@
   -->
 
 <link rel="import" href="variant-sample-selector.html">
+<link rel="import" href="opencga-variant-filter-clinical.html">
 <link rel="import" href="../catalog/samples/opencga-sample-grid.html">
-<link rel="import" href="../catalog/clinical/opencga-clinical-analysis-browser.html">
+<link rel="import" href="../clinical/opencga-clinical-analysis-browser.html">
 <link rel="import" href="../../commons/variant-modal-ontology.html">
 
 
@@ -108,13 +109,13 @@
         </style>
 
         <div>
-            <div style="width: 60%;margin: 0 auto">
+            <div style="width: 60%;margin: 0 auto;padding-top: 5px">
                 <button type="button" class="btn btn-lg btn-primary" style="width: 100%" on-click="onSearch">
                     <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i> {{config.menu.searchButtonText}}
                 </button>
             </div>
 
-            <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true" style="padding-top: 20px">
+            <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true" style="padding-top: 25px">
                 <div id="FilterMenu"></div>
             </div>
         </div>
@@ -122,30 +123,28 @@
                                 selected-terms="{{selectedTermsOntology}}">
         </variant-modal-ontology>
 
-        <!-- Modal dialog for Sample Browser in prioritization-->
-        <!--<div class="modal fade" id="{{prefix}}SampleBrowser" tabindex="-1" role="dialog"-->
-        <!--aria-labelledby="sampleBrowserLabel">-->
-        <!--<div class="modal-dialog modal-lg" role="document" style="width: 1440px;">-->
-        <!--<div class="modal-content">-->
-        <!--<div class="modal-header">-->
-        <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span-->
-        <!--aria-hidden="true">&times;</span></button>-->
-        <!--<h4 class="modal-title" id="{{prefix}}SampleBrowserLabel">Family Selector</h4>-->
-        <!--</div>-->
-        <!--<div class="modal-body" style="height: 680px">-->
-        <!--&lt;!&ndash;<opencga-family-selector opencga-client="{{opencgaClient}}" study-id="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-family-selector>&ndash;&gt;-->
-        <!--<variant-sample-selector opencga-client="{{opencgaClient}}" project="{{project}}" study="{{study}}"-->
-        <!--mode="{{analysisType}}" samples="{{samples}}" on-familychange="onFamilyChange">-->
-        <!--</variant-sample-selector>-->
-        <!--</div>-->
-        <!--<div class="modal-footer">-->
-        <!--<button type="button" class="btn btn-primary" data-dismiss="modal" on-click="closeModalSample">-->
-        <!--OK-->
-        <!--</button>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--</div>-->
+
+        <div class="modal fade" id="{{prefix}}SampleFilterModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
+             role="dialog" aria-hidden="true" style="padding-top: 0%; overflow-y: visible">
+            <div class="modal-dialog" style="width: 1280px">
+                <div class="modal-content">
+                    <div class="modal-header" style="padding: 5px 15px">
+                        <h3>Sample and File Filters</h3>
+                    </div>
+                    <div class="modal-body">
+                        <opencga-variant-filter-clinical opencga-session={{opencgaSession}}
+                                                         clinical-analysis="{{clinicalAnalysis}}"
+                                                         query="{{clinicalFilterQuery}}"
+                                                         on-samplefilterschange="onClinicalFilterChange"
+                                                         style="font-size: 12px">
+                        </opencga-variant-filter-clinical>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </template>
 
     <script>
@@ -166,24 +165,16 @@
                 return {
                     opencgaSession: {
                         type: Object,
-                        observer: 'studyObserver'
+                        observer: 'opencgaSessionObserver'
                     },
                     query: {
                         type: Object,
-                        value: {},
-                        notify: true,
+                        // value: {},
                         observer: 'queryObserver'
                     },
-                    search: {
+                    clinicalAnalysis: {
                         type: Object,
-                        notify: true
-                    },
-                    family: {
-                        type: Object,
-                        observer: "familyObserver"
-                    },
-                    opencgaClient: {
-                        type: Object
+                        observer: "clinicalObserver"
                     },
                     cellbaseClient: {
                         type: Object
@@ -194,28 +185,14 @@
                     consequenceTypes: {
                         type: Object
                     },
-                    // segregation: {
-                    //     type: String,
-                    //     value: "Select ..."
-                    // },
-//                    analysisSelected: {
-//                        type: Object,
-//                        notify: true
-//                    },
                     config: {
                         type: Object
-                    },
-                    modeInheritance: {
-                        type: String,
-                        notify: true
                     }
                 }
             }
 
             static get observers() {
-                return [
-                    "samplesObserver(samples.*)"
-                ]
+                return ["samplesObserver(samples.*)"]
             }
 
             _attachDom(dom) {
@@ -227,17 +204,23 @@
 
                 // Render filter menu and add event and tooltips
                 this._renderFilterMenu();
+
+                // this.fetchDiseasePanels();
                 $('select.selectpicker').selectpicker('render');
+                $('select.selectpicker').selectpicker({
+                    iconBase: 'fa',
+                    tickIcon: 'fa-check'
+                });
 
                 this._initialised = true;
                 this.setQueryFilters();
             }
 
             _init() {
-                this.prefix = "var-browser-filter-" + Utils.randomString(6);
+                this.prefix = "ovf" + Utils.randomString(6);
 
                 this._initialised = false;
-                this._reset = true;
+                // this._reset = true;
                 if (typeof PANELS !== "undefined") {
                     this.set('panelList', PANELS);
                 }
@@ -245,10 +228,11 @@
                 this.modalHpoActive = false;
                 this.modalGoActive = false;
 
-                this._genotypes = ["0/0", "0/1", "1/1"];
+                this.samples = [];
+                this.updateClinicalFilterQuery = true;
             }
 
-            studyObserver() {
+            opencgaSessionObserver() {
                 if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study)) {
                     // Update the study list of studies and the selected one
                     if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project.studies)) {
@@ -288,13 +272,25 @@
                         }
                     }
 
-                    // Setting mandatory field for variant query
-//                    this.samples = [];
-                    // this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
+                    this.query = {
+                        study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
+                    };
+                    this.notifySearch(this.query);
+
+                    // Render filter menu and add event and tooltips
+                    if (this._initialised) {
+                        this._renderFilterMenu();
+                    }
                 }
             }
 
-            queryObserver() {
+            queryObserver(newValue, oldValue) {
+                if (this.updateClinicalFilterQuery) {
+                    this.clinicalFilterQuery = this.query;
+                } else {
+                    this.skipClinicalFilterQueryUpdate = true;
+                }
+
                 if (this._reset) {
                     this.setQueryFilters();
                 } else {
@@ -302,87 +298,111 @@
                 }
             }
 
-            samplesObserver(e) {
-                if (UtilsNew.isNotEmptyArray(this.samples)) {
-                    PolymerUtils.addStyle(this.prefix + "SampleGenotypeMessage", "display", "none");
+            clinicalObserver(clinicalAnalysis) {
+                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis)) {
+                    // this.clinicalAnalysis = Object.assign({}, clinicalAnalysis);
+                }
+            }
+
+            onSearch() {
+                this.notifySearch(this.query);
+            }
+
+            notifyQuery(query) {
+                
+                this.dispatchEvent(new CustomEvent("querychange", {
+                    detail: {
+                        query: query,
+                    },
+                    bubbles: true,
+                    composed: true
+                }));
+            }
+
+            notifySearch(query) {
+                
+                this.dispatchEvent(new CustomEvent("querysearch", {
+                    detail: {
+                        query: query,
+                    },
+                    bubbles: true,
+                    composed: true
+                }));
+            }
+
+            onSampleFilterClick() {
+                $("#" + this.prefix + "SampleFilterModal").modal("show");
+            }
+
+            onClinicalFilterChange(e) {
+                // Process Sample filters
+                let _genotypeFilter = [];
+                let _dpFormatFilter = [];
+                for (let sampleFilter of e.detail.sampleFilters) {
+                    // let color = (sampleFilter.affected) ? "red" : "black";
+                    let genotypes = (sampleFilter.genotypes.length > 0) ? sampleFilter.genotypes.join(",") : "none";
+                    let dp = (sampleFilter.dp > 0) ? sampleFilter.dp : -1;
+
+                    if (genotypes !== "none") {
+                        _genotypeFilter.push(sampleFilter.id + ":" + genotypes);
+                    }
+                    if (dp !== -1) {
+                        _dpFormatFilter.push(sampleFilter.id + ":DP>=" + dp);
+                    }
+                }
+
+                // Process File filters
+                let _files = [];
+                let _qual = e.detail.qual;
+                let _filter = e.detail.filter;
+                for (let fileFilter of e.detail.fileFilters) {
+                    if (fileFilter.selected) {
+                        _files.push(fileFilter.name);
+                    }
+                }
+
+                let needUpdateQuery = false;
+                // Add sample filters to query
+                let _query = Object.assign({}, this.query);
+                if (_genotypeFilter !== undefined && _genotypeFilter.length > 0) {
+                    _query.genotype = _genotypeFilter.join(";");
+                    needUpdateQuery = true;
+                }
+                if (_dpFormatFilter !== undefined && _dpFormatFilter.length > 0) {
+                    _query.format = _dpFormatFilter.join(";");
+                    needUpdateQuery = true;
                 } else {
-                    PolymerUtils.addStyle(this.prefix + "SampleGenotypeMessage", "display", "inline");
+                    if (UtilsNew.isNotUndefinedOrNull(_query.format)) {
+                        delete _query.format;
+                        needUpdateQuery = true;
+                    }
                 }
 
-                this._calculateFilesSamples();
-                this.updateQueryFilters();
-            }
-
-            _calculateFilesSamples() {
-                this.samplesFiles = [];
-                let _this = this;
-                let params = {
-                    study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
-                };
-                this.samples.forEach((sample) => {
-                    params.samples = [sample.source];
-                    if (!UtilsNew.containsArray(_this.samplesFiles, sample.source)) {
-                        _this.samplesFiles.push(sample.source);
+                // Add file filters to query
+                if (_files.length > 0) {
+                    _query.file = _files.join(";");
+                    if (UtilsNew.isNotEmpty(_qual)) {
+                        _query.qual = ">=" + _qual;
                     }
-                });
-            }
-
-            // familyObserver() {
-            //     if (UtilsNew.isNotUndefinedOrNull(this.family)) {
-                    // Display family segregation dropdown
-                    // PolymerUtils.show(this.prefix + "SampleSegregation");
-            //     }
-            // }
-
-
-            _autocompleteSampleSearch(e) {
-                // Only gene symbols are going to be searched and not Ensembl IDs
-                let sampleNamePrefix = PolymerUtils.getElementById(this.prefix  + "AutocompleteSampleSearchInput").value;
-                if (UtilsNew.isNotUndefinedOrNull(sampleNamePrefix) && sampleNamePrefix.length >= 4) {
-                    let _this = this;
-                    this.opencgaClient.samples()
-                        .search({
-                            study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
-                            name: "~^" + sampleNamePrefix,
-                            include: "id,name,source",
-                            includeIndividual: true,
-                            limit: 20}, {})
-                        .then(function (response) {
-//                            _this.autocompleteSampleData = response.response[0].result;
-                            let options = "";
-                            for (let sample of response.response[0].result) {
-                                let sampleStr = JSON.stringify(sample);
-                                options += `<option id="${_this.prefix}Sample${sample.name}" value="${sample.name}" data-sample='` + sampleStr + "'>";
-                            }
-                            PolymerUtils.innerHTML(_this.prefix + "AutocompleteSampleSearchDataList", options);
-                        });
+                    if (UtilsNew.isNotEmpty(_filter)) {
+                        _query.filter = _filter;
+                    }
+                    needUpdateQuery = true;
+                } else {
+                    // If no files are selected we remove all files-related filters
+                    delete _query.file;
+                    delete _query.qual;
+                    delete _query.filter;
                 }
-            }
 
-            onSampleChange(e) {
-                    let sampleSearchInput = PolymerUtils.getElementById(this.prefix + "AutocompleteSampleSearchInput");
-                    let sampleHtmlObj = PolymerUtils.getElementById(this.prefix + "Sample" + sampleSearchInput.value);
-                    let sample = JSON.parse(sampleHtmlObj.dataset.sample);
+                // Only update query if really needed, this avoids unneeded web refresh
+                if (needUpdateQuery) {
+                    this.updateClinicalFilterQuery = false;
+                    this.query = _query;
+                    this.updateClinicalFilterQuery = true;
+                }
 
-                    if (UtilsNew.isNotUndefinedOrNull(sample)) {
-                        // This triggers the call to samplesObserver()
-                        if (UtilsNew.isUndefinedOrNull(this.samples)) {
-                            this.samples = [];
-                        }
-                        this.push("samples", sample);
-
-                        // Empty previous Sample selection
-                        this.autocompleteSampleData = [];
-                        sampleSearchInput.value = "";
-
-                        // Notify the sample change
-                        this.dispatchEvent(new CustomEvent("samplechange", {
-                            detail: {samples: this.samples}, bubbles: true, composed: true
-                        }));
-                        this.dispatchEvent(new CustomEvent("inheritancemode", {
-                            detail: {decisionTreeInheritance: this.decisionTreeInheritance}, bubbles: true, composed: true
-                        }));
-                    }
+                this.notifyQuery(this.query);
             }
 
             propagateOkHPO(e) {
@@ -418,10 +438,6 @@
                 this.openModalOntology();
             }
 
-            onSearch() {
-                this.search = this.query;
-            }
-
             handleCollapseAction(e) {
                 let id = e.target.dataset.id;
                 let elem = $('#' + id)[0];
@@ -436,28 +452,26 @@
             keyUpAllPopFreq(e) {
                 let studyId = e.target.getAttribute("data-study");
                 let study = this.populationFrequencies.studies.find((study) => {
-                   return study.id === studyId;
+                    return study.id === studyId;
                 });
 
                 study.populations.forEach((popFreq) => {
                     PolymerUtils.setValue(this.prefix + studyId +  popFreq.id, e.target.value);
                 });
-            }
 
+                this.updateQueryFilters();
+            }
 
             updateConsequenceTypeFilter(e) {
                 // Select LoF term checkboxes
                 let lofCheckBox = PolymerUtils.getElementById(this.prefix + "LossOfFunctionCheckBox");
-                if (e.target.id === this.prefix + "LossOfFunctionCheckBox") {
-                    let checkBoxes = PolymerUtils.querySelectorAll("li input", this.prefix + "consequenceTypeFilter");
-                    this.consequenceTypes.lof.forEach((consType) => {
-                        checkBoxes.forEach((checkbox) => {
-                            if (checkbox.getAttribute("data-id") === consType) {
-                                checkbox.checked = lofCheckBox.checked;
-                                return;
-                            }
-                        });
-                    });
+                if (e.currentTarget.id === this.prefix + "LossOfFunctionCheckBox") {
+                    for (let ct of this.consequenceTypes.lof) {
+                        let checkbox = PolymerUtils.getElementById(this.prefix + ct + "Checkbox");
+                        if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
+                            checkbox.checked = e.currentTarget.checked;
+                        }
+                    }
                 }
 
                 // Select/Unselect the items from one category
@@ -474,7 +488,8 @@
                         soTerms.push(sel.dataset.id);
                     } else {
                         // If one term from LoF array is not selected we remove LoF check
-                        if (lofCheckBox.checked && this.consequenceTypes.lof.includes(sel.getAttribute("data-id"))) {
+                        let dataId = sel.getAttribute("data-id");
+                        if (lofCheckBox.checked && UtilsNew.isNotUndefinedOrNull(dataId) && this.consequenceTypes.lof.includes(dataId)) {
                             lofCheckBox.checked = false;
                         }
                     }
@@ -499,30 +514,115 @@
                 this.updateQueryFilters();
             }
 
-            clear() {
-                // This will trigger the event that call to setQueryFilters
-                this.query = {};
 
-                // This refresh the variant main grid
-                this.search = {};
+            renderClinicalQuerySummary() {
+                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
+                    // Get Individuals (and samples) from Clinical Analysis
+                    let individuals = [];
+                    if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.family.members)) {
+                        individuals = this.clinicalAnalysis.family.members;
+                    } else {
+                        if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.proband)) {
+                            individuals = this.clinicalAnalysis.proband;
+                        }
+                    }
+
+                    // First, render Genotype table
+                    let sampleGenotypeMap = {};
+                    if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
+                        for (let genotype of this.query.genotype.split(";")) {
+                            let sampleGt = genotype.split(":");
+                            sampleGenotypeMap[sampleGt[0]] = sampleGt[1].split(",");
+                        }
+                    } else {
+                        if (UtilsNew.isNotUndefinedOrNull(this.query.sample)) {
+                            for (let sample of this.query.sample.split(",")) {
+                                sampleGenotypeMap[sample] = ["0/1", "1/1"];
+                            }
+                        }
+                    }
+
+                    // Render Genotype table
+                    let sampleTableTr = "";
+                    for (let individual of individuals) {
+                        if (UtilsNew.isNotEmptyArray(individual.samples)) {
+                            let color = (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.proband)
+                                && individual.id === this.clinicalAnalysis.proband.id)
+                                ? "darkred"
+                                : "black";
+                            let genotype = (UtilsNew.isNotUndefinedOrNull(sampleGenotypeMap[individual.samples[0].id]))
+                                ? sampleGenotypeMap[individual.samples[0].id]
+                                : "any";
+
+                            sampleTableTr += `
+                            <tr data-sample="${individual.samples[0].id}">
+                                <td>
+                                    <span style="color: ${color}">${individual.samples[0].id}</span>
+                                </td>
+                                <td>
+                                    ${genotype}
+                                </td>
+                            </tr>
+                    `;
+                        }
+                    }
+
+                    // Set HTML into the table body
+                    let elementById = PolymerUtils.getElementById(this.prefix + "SampleFiltersSummaryTBody");
+                    if (UtilsNew.isNotUndefinedOrNull(elementById)) {
+                        elementById.innerHTML = sampleTableTr;
+                    }
+
+
+                    // Second, render File table
+                    let fileTableTr = "";
+                    if (UtilsNew.isNotEmptyArray(this.query.file)) {
+                        let qual = (UtilsNew.isNotEmpty(this.query.qual)) ? this.query.qual : "NA";
+                        let filter = (UtilsNew.isNotEmpty(this.query.filter)) ? this.query.filter : "NA";
+                        let _files = this.query.file.split(";");
+                        for (let fileName of _files) {
+                            fileTableTr += `<tr data-file="${fileName}">
+                                                <td>
+                                                    <span>${fileName}</span>
+                                                </td>
+                                                <td>
+                                                    ${qual}
+                                                </td>
+                                                <td>
+                                                    ${filter}
+                                                </td>
+                                           </tr>
+                                `;
+                        }
+                    } else {
+                        fileTableTr = `<tr>
+                                            <td>
+                                                No Files selected</span>
+                                            </td>
+                                            <td></td>
+                                            <td></td>
+                                       </tr>
+                                `;
+                    }
+
+                    elementById = PolymerUtils.getElementById(this.prefix + "FileFiltersSummaryTBody");
+                    if (UtilsNew.isNotUndefinedOrNull(elementById)) {
+                        elementById.innerHTML = fileTableTr;
+                    }
+                }
             }
 
             setQueryFilters() {
-                // Empty everything before rendering
+                // Clear filter menu before rendering
                 this._clearHtmlDom();
 
-                // If this,query is null or empty there is nothing else to do
+                // Check 'query' is not null or empty there is nothing else to do
                 if (UtilsNew.isUndefinedOrNull(this.query) || Object.keys(this.query).length === 0) {
                     return;
                 }
 
-                // Genotypes
-                this.renderGenotypes();
-
-                // inheritance Mode
-                if (UtilsNew.isNotUndefinedOrNull(this.modeInheritance)) {
-                    PolymerUtils.setValue(this.prefix + "SegregationOperator", this.modeInheritance)
-                }
+                // Render Clinical filters: sample and file
+                this.renderClinicalQuerySummary();
 
                 // Cohorts
                 let cohortArray = [];
@@ -555,27 +655,34 @@
                     }
                 }
 
-                // Position
+                // Region
                 if (typeof this.query.region !== "undefined") {
                     $("#" + this.prefix + "LocationTextarea").val(this.query.region);
                 }
 
                 // XRefs, Gene and Variant Ids
-                if (typeof this.query["annot-xref"] !== "undefined") {
-                    PolymerUtils.setValue(this.prefix + "FeatureTextarea", this.query["annot-xref"]);
+                if (typeof this.query["xref"] !== "undefined") {
+                    PolymerUtils.setValue(this.prefix + "FeatureTextarea", this.query["xref"]);
                 } else if (typeof this.query.ids !== "undefined") {
                     PolymerUtils.setValue(this.prefix + "FeatureTextarea", this.query.ids);
                 }
 
+                // Disease panels
+                if (UtilsNew.isNotUndefinedOrNull(this.query.panel)) {
+                    $("#" + this.prefix + "DiseasePanels").selectpicker('val', this.query.panel.split(","));
+                    this.showPanelGenes(this.query.panel.split(","));
+                }
+
                 // Biotype
-                if (typeof this.query["biotype"] !== "undefined") {
-                    $("#" + this.prefix + "GeneBiotypes").selectpicker('val', this.query["biotype"].split(","));
+                if (UtilsNew.isNotUndefinedOrNull(this.query.biotype)) {
+                    $("#" + this.prefix + "GeneBiotypes").selectpicker('val', this.query.biotype.split(","));
                 }
 
                 // Panel - annot-panel
+                // TODO Genes must be displayed in Xref textarea
                 if (typeof this.query["gene"] !== "undefined") {
-                    PolymerUtils.setValue(this.prefix + "PanelAppsTextarea", this.query.gene);
-                    let geneTextarea = PolymerUtils.getElementById(this.prefix + "PanelAppsTextarea");
+                    // PolymerUtils.setValue(this.prefix + "PanelAppsTextarea", this.query.gene);
+                    let geneTextarea = PolymerUtils.getElementById(this.prefix + "FeatureTextarea");
                     if (UtilsNew.isNotUndefinedOrNull(geneTextarea)) {
                         geneTextarea.value = this.query.gene;
                     }
@@ -594,7 +701,7 @@
                     }
                 }
 
-                // Population Freqs
+                // Population Frequencies
                 let pfArray = [];
                 if (typeof this.query["alternate_frequency"] !== "undefined") {
                     pfArray = this.query["alternate_frequency"].split(new RegExp("[,;]"));
@@ -619,7 +726,7 @@
                 }
 
                 // Protein Substitution scores
-                if (typeof this.query["protein_substitution"] !== "undefined") {
+                if (UtilsNew.isNotUndefinedOrNull(this.query["protein_substitution"])) {
                     let pss = this.query["protein_substitution"].split(new RegExp("[,;]"));
                     if (pss.length > 0) {
                         for (let i = 0; i < pss.length; i++) {
@@ -644,6 +751,12 @@
                                 PolymerUtils.getElementById(this.prefix + "PolyphenInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
                                 PolymerUtils.getElementById(this.prefix + "PolyphenOperator").disabled = !(value.startsWith("<") || value.startsWith(">"));
                             }
+                        }
+                    }
+                    if (pss.length === 2) {
+                        $("input:radio[name=pss]").attr('disabled', false);
+                        if (this.query["protein_substitution"].includes(";")) {
+                            $('input:radio[name=pss][value=and]').prop('checked', true);
                         }
                     }
                 }
@@ -690,8 +803,8 @@
 
                 // Consequence Type
                 let ct = [];
-                if (typeof this.query["annot-ct"] !== "undefined") {
-                    let types = this.query["annot-ct"].split(",");
+                if (typeof this.query["ct"] !== "undefined") {
+                    let types = this.query["ct"].split(",");
                     let checkBoxes = PolymerUtils.querySelectorAll("li input", this.prefix + "consequenceTypeFilter");
                     for (let i = 0; i < types.length; i++) {
                         for (let j = 0; j < checkBoxes.length; j++) {
@@ -705,8 +818,8 @@
                 this.set('ct', ct);
 
                 // Gene Ontology and Human Phenotype Ontology
-                if (typeof this.query["annot-go"] !== "undefined") {
-                    PolymerUtils.setValue(this.prefix + "GeneOntologyTextarea", this.query["annot-go"]);
+                if (typeof this.query["go"] !== "undefined") {
+                    PolymerUtils.setValue(this.prefix + "GeneOntologyTextarea", this.query["go"]);
                 }
                 if (typeof this.query["annot-hpo"] !== "undefined") {
                     PolymerUtils.setValue(this.prefix + "HumanPhenotypeOntologyTextarea", this.query["annot-hpo"]);
@@ -715,26 +828,35 @@
                     PolymerUtils.setValue(this.prefix + "ClinVarTextarea", this.query["clinvar"]);
                 }
 
-                // VCFFilter
-                if (typeof this.query["filter"] !== "undefined") {
-                    $("#" + this.prefix + "vcfFilterSelect").selectpicker('val', this.query["filter"].split(","));
-                }
-
                 if (typeof this.query["traits"] !== "undefined") {
                     PolymerUtils.setValue(this.prefix + "TraitsTextarea", this.query.traits);
                 }
             }
 
-            onGeneDiseasePanelChange() {
-                let panelName = PolymerUtils.getElementById(this.prefix + "PanelApps").value;
-                for (let i = 0; i < this.panelList.length; i++) {
-                    if (this.panelList[i].name === panelName) {
-                        let panel = this.panelList[i];
-                        PolymerUtils.getElementById(this.prefix + "PanelAppsTextarea").value = panel.genes;
-                        break;
-                    }
+            showPanelGenes(panels) {
+                PolymerUtils.getElementById(this.prefix + "DiseasePanelsTextarea").value = "";
+                if (UtilsNew.isNotEmptyArray(panels)) {
+                    let _this = this;
+                    this.opencgaSession.opencgaClient.panels()
+                        .info(panels.join(","), {
+                            study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
+                            include: "id,name,genes.name"}, {})
+                        .then(function (response) {
+                            let text = "";
+                            for (let panelResponse of response.response) {
+                                let panel = panelResponse.result[0];
+                                let geneNames = [];
+                                for (let gene of panel.genes) {
+                                    geneNames.push(gene.name);
+                                }
+                                text += `${panel.name} (${geneNames.length} genes): ${geneNames.join(",")} \n\n`;
+                            }
+                            PolymerUtils.getElementById(_this.prefix + "DiseasePanelsTextarea").value = text;
+                        })
+                        .catch(function (response) {
+                            console.error(response);
+                        });
                 }
-                this.updateQueryFilters();
             }
 
             updateQueryFilters() {
@@ -744,29 +866,20 @@
 
                 let _filters = {};
 
-                // Adding sample genotypes filter
-                let selectedGenotypes = $("." + this.prefix + "genotypes:checkbox:checked");
-                if (selectedGenotypes.length > 0) {
-                    let sampleGenotypesObj = {};
-                    for (let i = 0; i < selectedGenotypes.length; i++) {
-                        if (typeof sampleGenotypesObj[selectedGenotypes[i].getAttribute("data-id")] === "undefined") {
-                            sampleGenotypesObj[selectedGenotypes[i].getAttribute("data-id")] = {};
-                        }
-                        sampleGenotypesObj[selectedGenotypes[i].getAttribute("data-id")][selectedGenotypes[i].defaultValue] = selectedGenotypes[i].checked;
-                    }
-                    let _genotypes = [];
-                    for (let sampleName in sampleGenotypesObj) {
-                        let gts = [];
-                        for (let sampleGT in sampleGenotypesObj[sampleName]) {
-                            if (sampleGenotypesObj[sampleName][sampleGT] === true) {
-                                gts.push(sampleGT);
-                            }
-                        }
-                        if (gts.length > 0) {
-                            _genotypes.push(sampleName + ':' + gts.join(','));
-                        }
-                    }
-                    _filters.genotype = _genotypes.join(';');
+                if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
+                    _filters.genotype = this.query.genotype;
+                }
+                if (UtilsNew.isNotUndefinedOrNull(this.query.format)) {
+                    _filters.format = this.query.format;
+                }
+                if (UtilsNew.isNotUndefinedOrNull(this.query.file)) {
+                    _filters.file = this.query.file;
+                }
+                if (UtilsNew.isNotUndefinedOrNull(this.query.qual)) {
+                    _filters.qual = this.query.qual;
+                }
+                if (UtilsNew.isNotUndefinedOrNull(this.query.info)) {
+                    _filters.info = this.query.info;
                 }
 
                 // Add Cohort stats MAF filter: [{study.alias}]:{cohort}[<|>|<=|>=]{number}
@@ -833,18 +946,29 @@
                 // Features: Gene, SNP ID
                 let featureTextArea = PolymerUtils.getElementById(this.prefix + "FeatureTextarea");
                 if (UtilsNew.isNotUndefinedOrNull(featureTextArea) && UtilsNew.isNotEmpty(featureTextArea.value)) {
-                    if (featureTextArea.value.startsWith("rs") || featureTextArea.value.split(':').length > 2) {
-                        _filters["annot-xref"] = featureTextArea.value;
-                    } else {
-                        _filters["annot-xref"] = featureTextArea.value.toUpperCase();
+                    let features = featureTextArea.value.replace(/ /g, "");
+                    let featureArray = [];
+                    for (let feature of features.split(",")) {
+                        if (feature.startsWith("rs") || feature.split(':').length > 2) {
+                            featureArray.push(feature);
+                        } else {
+                            // Genes must be uppercase
+                            featureArray.push(feature.toUpperCase());
+                        }
                     }
+                    _filters.xref = featureArray.join(",");
                 }
 
-                // Panel - annot-panel
-                let panelsDropdown = PolymerUtils.getElementById(this.prefix + "PanelApps");
-                let panelsTextArea = PolymerUtils.getElementById(this.prefix + "PanelAppsTextarea");
-                if (UtilsNew.isNotUndefinedOrNull(panelsDropdown) && (panelsDropdown.value !== "none" && panelsTextArea.value !== "")) {
-                    _filters["gene"] = panelsTextArea.value;
+                // Disease Panel - panel
+                let panelsDropdown = PolymerUtils.getElementById(this.prefix + "DiseasePanels");
+                if (UtilsNew.isNotUndefinedOrNull(panelsDropdown)) {
+                    let selectedPanels = PolymerUtils.querySelectorAll("option:checked", panelsDropdown);
+                    let panels = [];
+                    selectedPanels.forEach(option => panels.push(option.value));
+                    if (panels.length > 0) {
+                        _filters.panel = panels.join(",");
+                        this.showPanelGenes(panels);
+                    }
                 }
 
                 // Biotype
@@ -853,7 +977,7 @@
                     let types = PolymerUtils.querySelectorAll("option:checked", biotypeDropdown);
                     let biotypes = [];
                     types.forEach(option => biotypes.push(option.value));
-                    _filters["biotype"] = biotypes.join(",");
+                    _filters.biotype = biotypes.join(",");
                 }
 
                 // Type
@@ -888,7 +1012,7 @@
                     }
                 }
                 if (popFreq.length > 0) {
-                    _filters["alternate_frequency"] = popFreq.join(';');
+                    _filters["populationFrequencyAlt"] = popFreq.join(';');
                 }
 
                 // Protein Substitution Scores -  Sift and Polyphen
@@ -899,19 +1023,15 @@
                     let dropdownValues = PolymerUtils.getElementById(this.prefix + subsScore + "Values");
                     let textboxInput = PolymerUtils.getElementById(this.prefix + subsScore + "Input");
                     let operator = PolymerUtils.getElementById(this.prefix + subsScore + "Operator");
-                    if (dropdownValues !== null && dropdownValues.value === "score" && textboxInput !== null && textboxInput.value !== "") {
+                    if (dropdownValues !== null && dropdownValues.value === "score" && UtilsNew.isNotEmpty(textboxInput)) {
                         pss.push(subsScore.toLowerCase() + operator.value + textboxInput.value);
                         numFilters++;
                     } else if (dropdownValues !== null && dropdownValues.value !== "score") {
-//                        let value = dropdownValues.value;
-//                        let splitValues = value.split(',');
-//                        for (let i = 0; i < splitValues.length; i++) {
-//                            pss.push(subsScore.toLowerCase() + "==" + splitValues[i]);
-//                        }
                         pss.push(subsScore.toLowerCase() + "==" + dropdownValues.value);
                         numFilters++;
                     }
                 });
+
                 // If both Sift and Polyphen are selected then we activate the AND/OR control
                 if (numFilters === 2) {
                     $("input:radio[name=pss]").attr('disabled', false);
@@ -968,13 +1088,13 @@
 
                 // Consequence Type
                 if (UtilsNew.isNotEmptyArray(this.ct)) {
-                    _filters["annot-ct"] = this.ct.join(',');
+                    _filters["ct"] = this.ct.join(',');
                 }
 
                 // Gene Ontology and Human Phenotype Ontology
                 let inputTextArea = PolymerUtils.getElementById(this.prefix + "GeneOntologyTextarea");
                 if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
-                    _filters["annot-go"] = inputTextArea.value;
+                    _filters["go"] = inputTextArea.value;
                 }
 
                 inputTextArea = PolymerUtils.getElementById(this.prefix + "HumanPhenotypeOntologyTextarea");
@@ -1003,20 +1123,12 @@
                     _filters["traits"] = inputTextArea.value;
                 }
 
-                // VCF Filter -> PASS, QualByDepth, FisherStrand, RMSMappingQuality,
-                let vcfFilterDropdown = PolymerUtils.getElementById(this.prefix + "vcfFilterSelect");
-                if (UtilsNew.isNotUndefinedOrNull(vcfFilterDropdown) && UtilsNew.isNotEmpty(vcfFilterDropdown.value)) {
-                    let types = PolymerUtils.querySelectorAll("option:checked", vcfFilterDropdown);
-                    let vcfFilters = [];
-                    types.forEach(option => vcfFilters.push(option.value));
-                    _filters["filter"] = vcfFilters.join(",");
-                    _filters["files"] = this.samplesFiles.join(",");
-                }
-
                 // To prevent to call setQueryFilters we set this to false
                 this._reset = false;
                 this.query = _filters;
                 this._reset = true;
+
+                this.notifyQuery(this.query)
             }
 
             callAutocomplete(e) {
@@ -1052,133 +1164,6 @@
                 this.updateQueryFilters();
             }
 
-            // @TODO We should remove this when exists in server an endpoint to get this values
-            selectInheritanceMode(e) {
-                e.preventDefault();
-                // if in a last state we had yLinked or xLinked mode and we do not now, we need to clear locationTextArea
-                if (UtilsNew.isNotUndefinedOrNull(e.target.value) && (e.target.value !== "xLinked" || e.target.value !== "yLinked")
-                    && (this.modeInheritance === "xLinked" || this.modeInheritance === "yLinked")) {
-                    delete this.query.region;
-                }
-
-                // Set current mode
-                this.modeInheritance = e.target.value;
-                if (this.modeInheritance == "xLinked") {
-                    this.query.region = "X";
-                } else if (this.modeInheritance == "yLinked") {
-                    this.query.region = "Y";
-                }
-                this.dispatchEvent(new CustomEvent("inheritancemode", { detail: {decisionTreeInheritance: this.decisionTreeInheritance }, bubbles: true, composed: true }));
-            }
-
-            renderGenotypes() {
-                let table = PolymerUtils.getElementById(this.prefix + "SampleGenotypeTable");
-                if (UtilsNew.isUndefinedOrNull(table)) {
-                    return;
-                }
-                let tableBody = table.getElementsByTagName('tbody')[0];
-                let _genotypes = [];
-                // Delete all existing rows
-                while(tableBody.rows.length) {
-                    tableBody.deleteRow(0);
-                }
-
-                let genotypeSamples = {};
-                let samples = [];
-                if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
-                    let sampleGenotypes = this.query.genotype.split(";")
-
-                    for (let sampleGenotype of sampleGenotypes) {
-                        if (UtilsNew.isNotEmpty(sampleGenotype)) {
-                            let sample = sampleGenotype.split(":")[0];
-                            genotypeSamples[sample] = {};
-                            samples.push(sample);
-                            let genotypes = sampleGenotype.split(":")[1].split(",");
-                            genotypes.forEach(genotype => {
-                                if (genotype !== "./.") {
-                                    genotypeSamples[sample][genotype] = true;
-                                }
-                            });
-                        }
-                    }
-                }
-
-                // Loading samples when we are passing just genotypes to filter.
-                if (samples.length && (UtilsNew.isUndefinedOrNull(this.samples) || (UtilsNew.isNotUndefinedOrNull(this.samples) && samples.length !== this.samples.length))) {
-                    let _this = this;
-                    let params = {
-                        study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
-                    };
-                    this.opencgaClient.samples().info(samples.join(','), params).then(function (response) {
-                        let _samples = [];
-                        for (let i in response.response) {
-                            _samples.push(response.response[i].result[0]);
-                        }
-                        _this.samples = _samples;
-                    });
-                }
-                for (let sample of samples) {
-
-                    let tr = tableBody.insertRow(-1);
-                    tr.setAttribute("id", sample);
-
-                    let td = tr.insertCell(0);
-                    let nameText = document.createTextNode(sample);
-                    td.appendChild(nameText);
-
-                    for (let genotype of this._genotypes) {
-                        let isCheckedGenotype = UtilsNew.isNotUndefinedOrNull(genotypeSamples)
-                            && UtilsNew.isNotUndefinedOrNull(genotypeSamples[sample])
-                            && UtilsNew.isNotUndefinedOrNull(genotypeSamples[sample][genotype]) ? genotypeSamples[sample][genotype] : false;
-
-
-                        let td = tr.insertCell(-1);
-                        let cell = document.createElement("INPUT");
-                        cell.setAttribute("id", this.prefix + "SampleGenotypeCheckbox" + genotype);
-                        cell.setAttribute("type", "checkbox");
-                        cell.setAttribute("class", this.prefix + "genotypes " + this.prefix + "FilterCheckBox");
-                        cell.setAttribute("value", genotype);
-                        cell.setAttribute("data-id", sample);
-                        cell.addEventListener("change", this.genotypeCheckboxClicked.bind(this));
-                        if (isCheckedGenotype) {
-                            cell.setAttribute("checked", true);
-                            _genotypes.push(genotype);
-                        }
-
-                        td.appendChild(cell);
-                    }
-                }
-
-                if (UtilsNew.isNotEmptyArray(samples)) {  // this.query.samples !== undefined && this.query.samples.length > 0
-                    // this.showSampleGenotypes = true;
-                    PolymerUtils.setAttribute(this.prefix + "SampleGenotypeDivTable", "style", "display: inline");
-                    PolymerUtils.setAttribute(this.prefix + "SampleGenotypeOptions", "style", "display: inline");
-                    // If there is more than one sample we make visible the Segregation dropdown
-                    if (samples.length > 0) {
-                        PolymerUtils.setAttribute(this.prefix + "SampleSegregation", "style", "display: inline");
-                        let allContainsIndividual = false;
-                        if (UtilsNew.isNotUndefinedOrNull(this.samples) && UtilsNew.isNotEmptyArray(this.samples)) {
-                            let allContainsIndividual = this.samples.every((sample) => {
-                                return UtilsNew.isNotUndefinedOrNull(sample.attributes) && UtilsNew.isNotUndefinedOrNull(sample.attributes.individual);
-                            });
-                            if (allContainsIndividual) {
-                                PolymerUtils.setPropertyById(this.prefix + "SegregationOperator", "disabled", true)
-                            } else {
-                                PolymerUtils.removeAttribute(this.prefix + "SegregationOperator", "disabled")
-                            }
-                        }
-                    }
-                } else {
-                    PolymerUtils.setAttribute(this.prefix + "SampleGenotypeDivTable", "style", "display: none");
-                }
-            }
-
-            genotypeCheckboxClicked(e) {
-                this.modeInheritance = "none";
-                PolymerUtils.setValue(this.prefix + "SegregationOperator", this.modeInheritance);
-                this.updateQueryFilters();
-            }
-
             _clearHtmlDom() {
                 // Empty everything before rendering
                 $("." + this.prefix + "FilterSelect").prop('selectedIndex', 0);
@@ -1190,8 +1175,10 @@
                 $("." + this.prefix + "FilterRadio").filter('[value="or"]').prop('checked', true);
                 $("." + this.prefix + "FilterRadio").prop("disabled", true);
 
+                $("#" + this.prefix + "DiseasePanelsTextarea").val("");
+
                 // Deselect bootstrap-select dropdowns
-                $("#" + this.prefix + "PanelApps").selectpicker('val', []);
+                $("#" + this.prefix + "DiseasePanels").selectpicker('val', []);
                 $("#" + this.prefix + "GeneBiotypes").selectpicker('val', []);
                 $("#" + this.prefix + "vcfFilterSelect").selectpicker('val', []);
             }
@@ -1210,12 +1197,6 @@
                 // Add events and tooltips to the filter menu
                 this._addEventListeners();
                 this._addAllTooltips();
-
-                // If Samples or Family properties have been passed then we hide the Sample selector
-                // if (UtilsNew.isNotEmptyArray(this.samples)) {
-                //     PolymerUtils.hide(this.prefix + "AutocompleteSampleSelect");
-                //     PolymerUtils.addStyle(this.prefix + "SampleGenotypeMessage", "display", "none");
-                // }
             }
 
             _createSection(section, prefix) {
@@ -1240,6 +1221,10 @@
                 // We get the HTML content for each subsection
                 let content = "";
                 for (let subsection of section.subsections) {
+                    // CADD values are only available for GRCh37
+                    if (subsection.id === "cadd" && this.opencgaSession.project.organism.assembly.toLowerCase() === "grch38") {
+                        continue;
+                    }
                     // We check if this subsection is not disabled in the configuration file
                     if (UtilsNew.isEmptyArray(this.config.menu.skipSubsections) || !this.config.menu.skipSubsections.includes(subsection.id)) {
                         content += this._createSubSection(subsection);
@@ -1264,7 +1249,7 @@
                     <div class="form-group">
                         <div class="browser-subsection" id="${subsection.id}" name="${subsection.title}">${subsection.title}
                             <div style="float: right" class="tooltip-div">
-                                <a><i class="fa fa-info-circle" aria-hidden="true" id="${subsection.id}Tooltip"></i></a>
+                                <a><i class="fa fa-info-circle" aria-hidden="true" id="${this.prefix}${subsection.id}Tooltip"></i></a>
                             </div>
                         </div>
                         <div id="${this.prefix}${subsection.id}" class="subsection-content ${ctScroll}">
@@ -1288,17 +1273,20 @@
                     case "feature":
                         content = this._getFeatureHtml(this.prefix);
                         break;
-                    case "geneDiseasePanels":
-                        content = this._getGeneDiseasePanelsHtml(this.prefix);
+                    case "diseasePanels":
+                        content = this._getDiseasePanelsHtml(this.prefix);
                         break;
                     case "biotype":
                         content = this._getBiotypeHtml(subsection.biotypes, this.prefix);
                         break;
                     case "type":
-                        content = this._getVariantTypeHtml(this.prefix);
+                        content = this._getVariantTypeHtml(subsection.types, this.prefix);
                         break;
                     case "populationFrequency":
-                        content = this._getPopulationFrequencyHtml(this.prefix);
+                        content = this._getPopulationFrequencyHtml(subsection.showSetAll, this.prefix);
+                        break;
+                    case "consequenceType":
+                        content = this._getConsequenceTypeHtml(this.prefix);
                         break;
                     case "proteinSubstitutionScore":
                         content = this._getProteinSubstitutionScoreHtml(this.prefix);
@@ -1308,9 +1296,6 @@
                         break;
                     case "conservation":
                         content = this._getConservationHtml(this.prefix);
-                        break;
-                    case "consequenceType":
-                        content = this._getConsequenceTypeHtml(this.prefix);
                         break;
                     case "go":
                         content = this._getGoAccessionsHtml(this.prefix);
@@ -1324,9 +1309,6 @@
                     case "fullTextSearch":
                         content = this._getFullTextSearchAccessionsHtml(this.prefix);
                         break;
-                    case "vcfFilterDropdown":
-                        content = this._getVCFFilterHTML(subsection.filterValues, this.prefix);
-                        break;
                 }
 
                 // Add subsection footer
@@ -1339,80 +1321,60 @@
             }
 
             _getSampleHtml(subsection, prefix) {
-                let options = "";
-                if (UtilsNew.isNotUndefinedOrNull(subsection) && UtilsNew.isNotEmptyArray(subsection.inheritanceModes)) {
-                    for (let inheritanceMode of subsection.inheritanceModes) {
-                        options += `<option value="${inheritanceMode.key}">${inheritanceMode.text}</option>`;
-                    }
-                }
-                let approxCountCheckbox = "";
-                if (subsection.showApproximateCount) {
-                    // approxCountCheckbox = `<input id="${prefix}ApproxCountCheckbox" type="checkbox" value="approximateCount" class="${prefix}FilterCheckBox" checked> Approximate Count<br>`;
-                    approxCountCheckbox = '<input id="${prefix}ApproxCountCheckbox" type="checkbox" value="approximateCount" class="${prefix}FilterCheckBox" style="display: none;" checked> Approximate Count<br>';
-                }
-                let res = ``;
-                console.log("Probing");
-                console.log(subsection.showSelectSamples);
-
-
+                let res = "";
                 if (subsection.showSelectSamples) {
-                    res = `<div id="${prefix}AutocompleteSampleSelect" style="margin: 15px 0px">
-                        <span>Select Sample:</span>
+                    res = `
+                        <div>
+                            <div style="padding: 10px 0px">Select Sample and File Filters:</div>
+                            <div style="padding-left: 20px">
+                                <button id="${prefix}SampleFilterModalButton" type="button" class="btn btn-default" style="width: 80%">Sample Filters ...</button>
+                            </div>
+                        </div>
+                        <div style="padding: 10px 0px 5px 0px">
+                            <div style="padding: 15px 0px;">
+                                <span style="font-weight: bold">Filters Summary</span>
+                            </div>
+                            <div>
+                                <span>Sample Filters:</span>
+                            </div>
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th scope="col">Sample ID</th>
+                                    <th scope="col">GT</th>
+                                </tr>
+                                </thead>
+                                <tbody id="${prefix}SampleFiltersSummaryTBody">
+                                    <tr>
+                                        <td>No samples selected</td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
 
-                        <div class="row">
-                            <div class="col-md-9">
-                                <input id="${prefix}AutocompleteSampleSearchInput" type="text" class="form-control" placeholder="Search name..."
-                                            list="${prefix}AutocompleteSampleSearchDataList"">
-                                <datalist id="${prefix}AutocompleteSampleSearchDataList"></datalist>
-                            </div>
-                            <div class="col-md-3">
-                                <button id="${prefix}SampleAddButton" type="button" class="btn btn-default btn-sm form-control">
-                                    <i class="fa fa-plus"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>`
-                }
-                return `
-                    ${res}
-                    <div style="margin: 15px 0px">
-                        <span>Select Sample Genotypes:</span>
-                        <div id="${prefix}SampleGenotypeMessage">
-                            <span style="color: darkred;padding: 5px 0px 0px 10px">No samples selected</span>
-                        </div>
-                        <div id="${prefix}SampleSegregation" style="display: none">
-                            <div style="padding-left: 10px;padding-top: 10px">
-                                <span class="control-label">Inheritance Mode:</span>
-                                <select id="${prefix}SegregationOperator" name="${prefix}Segregation"
-                                     class="form-control input-sm ${prefix}FilterSelect">
-                                 ${options}
-                                </select>
-                            </div>
-                        </div>
-
-                        <div id="${prefix}SampleGenotypeDivTable" style="display: none">
-                            <div style="padding-left: 10px;padding-top: 10px">
-                                <table id="${prefix}SampleGenotypeTable" class="table table-hover" style="margin-bottom: 10px">
-                                    <thead>
+                            <div id="${prefix}FileFilterSummary" style="display: inline">
+                                <div>File Filters:</div>
+                                    <table class="table" style="margin-bottom: 5px">
+                                        <thead>
                                         <tr>
-                                            <th>Sample</th><th>0/0</th><th>0/1</th><th>1/1</th>
-                                            <!--<th>Sample</th><th>HOM_REF</th><th>HET</th><th>HOM_ALT</th><th>MISS</th>-->
+                                            <th scope="col">File Name</th>
+                                            <th scope="col">QUAL</th>
+                                            <th scope="col">FILTER</th>
                                         </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
+                                        </thead>
+                                        <tbody id="${prefix}FileFiltersSummaryTBody">
+                                            <tr>
+                                                <td>No files selected</td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                        </div>
-
-                        <div id="${prefix}SampleGenotypeOptions" style="display: inline">
-                            <span>Sample Genotypes Query Options</span>
-                            <div id="${prefix}GenotypeQueryOptions" style="padding-left: 10px;padding-top: 5px">
-                                ${approxCountCheckbox}
-                                <input type="checkbox" value="multiAllelic" class="${prefix}FilterCheckBox"> Select all multi-allelic variants<br>
-                            </div>
-                        </div>
-                    </div>`
-                ;
+                    `;
+                }
+                return res;
             }
 
             _getCohortHtml(cohorts, prefix) {
@@ -1515,34 +1477,32 @@
                 `;
             }
 
-            _getGeneDiseasePanelsHtml(prefix) {
-                if (UtilsNew.isNotUndefinedOrNull(this.panelList)) {
-                    let options = "";
-                    this.panelList.sort((a, b) => {
-                        if (a.title === b.title) {
-                            return 0;
-                        }
-                        return a.title < b.title ? -1 : 1;
-                    }).forEach((item) => {
-                        options += `<option value="${item.name}">${item.title} (${item.genes.length})</option>`;
-                    });
+            _getDiseasePanelsHtml(prefix) {
+                let options = "";
+                for (let panel of this.opencgaSession.study.panels) {
+                    let version = "";
+                    let numberOfGenes = 0;
+                    let numberOfVariants = 0;
+                    if (UtilsNew.isNotUndefinedOrNull(panel.source)) {
+                        version = "v" + panel.source.version;
+                    }
+                    if (UtilsNew.isNotUndefinedOrNull(panel.stats)) {
+                        numberOfGenes = panel.stats.numberOfGenes;
+                        numberOfVariants = panel.stats.numberOfVariants;
+                    }
+                    options += `<option value="${panel.id}">${panel.name} ${version} (${numberOfGenes} genes, ${numberOfVariants} variants)</option>`;
+                }
 
-                    // <select class="form-control ${prefix}FilterSelect" id="${prefix}PanelApps">
-                    //     <option value="none">Select a panel...</option>
-                    //     ${options}
-                    // </select>
-                    return `
-                         <select id="${prefix}PanelApps" class="selectpicker show-tick ${prefix}FilterSelect" data-size="10" data-live-search="true"
-                                data-max-options="1" data-selected-text-format="count" multiple>
-                            ${options}
-                        </select>
-                        <div style="padding-top: 5px">
-                            <textarea id="${prefix}PanelAppsTextarea" name="panelAppsTextarea"
-                                      class="form-control clearable ${prefix}FilterTextInput"
-                                      rows="3" placeholder="No panel selected"></textarea>
+                return `<div>
+                            <select id="${prefix}DiseasePanels" class="selectpicker" data-size="10" data-live-search="true"
+                                data-selected-text-format="count" multiple>
+                                    ${options}
+                            </select>
+                            <textarea id="${prefix}DiseasePanelsTextarea" class="form-control" rows="4"
+                                style="margin-top: 5px;background: #f7f7f7" disabled>
+                            </textarea>
                         </div>
                     `;
-                }
             }
 
             _getBiotypeHtml(biotypes, prefix) {
@@ -1550,47 +1510,46 @@
                 for (let biotype of biotypes) {
                     options += `<option value="${biotype}">${biotype}</option>`;
                 }
-                return `
-                    <select class="selectpicker" id="${prefix}GeneBiotypes" data-size="10" data-live-search="true"
+                return `<select class="selectpicker" id="${prefix}GeneBiotypes" data-size="10" data-live-search="true"
                             data-selected-text-format="count" multiple>
-                        ${options}
-                    </select>
-                `;
+                                ${options}
+                        </select>
+                    `;
             }
 
-            _getVariantTypeHtml(prefix) {
-                return `
-                    <div id="${prefix}Type">
-                        <input type="checkbox" value="SNV,SNP" class="${prefix}FilterCheckBox"> SNV<br>
-                        <input type="checkbox" value="MNV" class="${prefix}FilterCheckBox"> MNV<br>
-                        <input type="checkbox" value="CNV" class="${prefix}FilterCheckBox"> CNV<br>
-                        <input type="checkbox" value="SV" class="${prefix}FilterCheckBox"> SV<br>
-                        <input type="checkbox" value="INDEL" class="${prefix}FilterCheckBox"> INDEL
-                    </div>
-                `;
+            _getVariantTypeHtml(types, prefix) {
+                let inputs = "";
+                for (let type of types) {
+                    inputs += `<input type="checkbox" value="${type}" class="${prefix}FilterCheckBox"> ${type}<br>`;
+                }
+                return `<div id="${prefix}Type">${inputs}</div>`;
             }
 
-            _getPopulationFrequencyHtml(prefix) {
+            _getPopulationFrequencyHtml(showSetAll, prefix) {
                 let content = "";
                 for (let study of this.populationFrequencies.studies) {
+                    let setAllHtml = "";
+                    if (showSetAll) {
+                        setAllHtml = `<div class="form-group" style="margin: 5px 0px">
+                                        <span class="col-md-7 control-label" data-toggle="tooltip" data-placement="top" style="text-align: left;">Set all</span>
+                                        <div class="col-md-5" style="padding: 0px 10px">
+                                            <input id="${prefix}${study.id}Input" type="text" data-study="${study.id}" value="" class="form-control input-sm ${prefix}FilterTextInput"
+                                                name="${study.id}Input">
+                                        </div>
+                                      </div>`;
+                    }
                     content += `
                         <div style="padding-top: 10px">
                             <i id="${this.prefix}${study.id}Icon" data-id="${this.prefix}${study.id}"
                                     class="fa fa-plus" style="cursor: pointer;padding-right: 10px"></i>
                             <strong>${study.title}</strong>
                             <div id="${prefix}${study.id}" class="form-horizontal" hidden>
-                                <div class="row" style="margin: 5px 0px">
-                                     <span class="col-md-7 control-label" data-toggle="tooltip" data-placement="top" style="text-align: left;">Set all</span>
-                                         <div class="col-md-5" style="padding: 0px 10px">
-                                            <input id="${prefix}${study.id}Input" type="text" data-study="${study.id}" value="" class="form-control input-sm ${prefix}FilterTextInput"
-                                                            name="${study.id}Input">
-                                         </div>
-                                </div>
+                                ${setAllHtml}
                     `;
 
                     for (let popFreq of study.populations) {
                         content += `
-                                <div class="row" style="margin: 5px 0px">
+                                <div class="form-group" style="margin: 5px 0px">
                                     <span class="col-md-3 control-label" data-toggle="tooltip" data-placement="top" title="${popFreq.title}">${popFreq.id}</span>
                                     <div class="col-md-4" style="padding: 0px 10px">
                                         <select id="${prefix}${study.id}${popFreq.id}Operator" name="${popFreq.id}Operator"
@@ -1616,6 +1575,75 @@
                 }
 
                 return content;
+            }
+
+            _getConsequenceTypeHtml(prefix) {
+                let categoriesStart = `
+                    <div style="padding-top: 15px">Loss-of-Function (LoF) terms:</div>
+                    <div class="form-check" style="margin-top: 5px;">
+                        <div class="form-check-label">
+                            <label id="${prefix}LossOfFunctionCheckBoxLabel" class="notbold">
+                                <input id="${prefix}LossOfFunctionCheckBox" type="checkbox" class="${prefix}FilterCheckBox" style="cursor: pointer">
+                                LoF terms
+                            </label>
+                        </div>
+                    </div>
+
+                    <div style="padding-top: 15px">Consequence Type terms:</div>
+                    <div class="browser-ct-tree-view browser-ct-item">
+                        <ul id="${prefix}consequenceTypeFilter">`;
+
+                let categoriesCheckbox = "";
+                if (UtilsNew.isNotEmptyArray(consequenceTypes.categories)) {
+
+                    consequenceTypes.categories.forEach((category) => {
+                        let id = (category.title !== undefined) ? category.title : category.name;
+                        categoriesCheckbox += `<li id="${id}" class="form-check" style="margin-top: 10px;">`;
+                        // Render Categories
+                        if (UtilsNew.isNotEmptyArray(category.terms)) {
+                            categoriesCheckbox += `<label class="form-check-label notbold">
+                                                       <input id="${prefix}${category.title}Input" type="checkbox" class="${prefix}FilterCheckBox"> ${category.title}
+                                                   </label>`;
+
+                            // Render second level checkboxes
+                            categoriesCheckbox += "<ul>";
+                            category.terms.forEach((item) => {
+                                categoriesCheckbox += `<li class="form-check">
+                                                            <label class="form-check-label notbold">
+                                                                <input id="${prefix}${item.name}Checkbox" type="checkbox" data-id="${item.name}"
+                                                                    class="soTermCheckBox ${prefix}FilterCheckBox">
+                                                                <span title="${item.description}">${item.name} (<a
+                                                                    href="http://www.sequenceontology.org/browser/current_svn/term/${item.id}"
+                                                                    target="_blank">${item.id}</a>)
+                                                                </span>
+                                                            </label>
+                                                        </li>
+                                                   `;
+                            });
+                            categoriesCheckbox += "</ul>";
+
+
+                        } else {
+                            // Render first level checkboxes without children
+                            categoriesCheckbox += `<input id="${prefix}${category.name}Checkbox" type="checkbox"
+                                                        data-id="${category.name}" class="soTermCheckBox ${prefix}FilterCheckBox">
+                                                    <span title="${category.description}">
+                                                        ${category.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${category.id}"
+                                                        target="_blank">${category.id}</a>)
+                                                    </span>`;
+                        }
+
+                        categoriesCheckbox += `</li>`;
+                    });
+                }
+
+                let categoriesEnd = `
+                                </ul>
+                            </div>
+                        </div>
+               `;
+
+                return categoriesStart + categoriesCheckbox + categoriesEnd;
             }
 
             _getProteinSubstitutionScoreHtml(prefix) {
@@ -1840,86 +1868,6 @@
                 `;
             }
 
-            _getConsequenceTypeHtml(prefix) {
-                let categoriesStart = `
-                    <div style="padding-top: 15px">Loss-of-Function (LoF) terms:</div>
-                    <div class="form-check" style="margin-top: 5px;">
-                        <div class="form-check-label">
-                            <label id="${prefix}LossOfFunctionCheckBoxLabel" class="notbold">
-                                <input id="${prefix}LossOfFunctionCheckBox" type="checkbox" class="${prefix}FilterCheckBox form-check-input">
-                                LoF terms
-                            </label>
-                        </div>
-                    </div>
-
-                    <div style="padding-top: 15px">Consequence Type terms:</div>
-                    <div class="browser-ct-tree-view browser-ct-item">
-                        <ul id="${prefix}consequenceTypeFilter">`;
-
-                let categoriesCheckbox = "";
-                if (UtilsNew.isNotEmptyArray(consequenceTypes.categories)) {
-
-                    consequenceTypes.categories.forEach((category) => {
-                        let id = (category.title !== undefined) ? category.title : category.name;
-                        categoriesCheckbox += `<li id="${id}" class="form-check" style="margin-top: 10px;">`;
-                        if (UtilsNew.isNotEmptyArray(category.terms)) {
-                            categoriesCheckbox += `<label class="form-check-label notbold">
-                                                       <input id="${prefix}${category.title}input" type="checkbox" class="${prefix}FilterCheckBox"> ${category.title}
-                                                   </label>`;
-                        } else {
-                            categoriesCheckbox += `<input id="${prefix}${category.name}input" type="checkbox"
-                                                        data-id="${category.name}" class="soTermCheckBox ${prefix}FilterCheckBox">
-                                                    <span title="${category.description}">
-                                                        ${category.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${category.id}"
-                                                        target="_blank">${category.id}</a>)
-                                                    </span>`;
-                        }
-
-                        if (UtilsNew.isNotEmptyArray(category.terms)) {
-                            categoriesCheckbox += "<ul>";
-                            category.terms.forEach((item) => {
-                                categoriesCheckbox += `<li class="form-check">
-                                                            <label class="form-check-label notbold">
-                                                                <input id="${prefix}${item.id}checkbox" type="checkbox" data-id="${item.name}"
-                                                                    class="soTermCheckBox ${prefix}FilterCheckBox">
-                                                                <span title="${item.description}">${item.name} (<a
-                                                                    href="http://www.sequenceontology.org/browser/current_svn/term/${item.id}"
-                                                                    target="_blank">${item.id}</a>)
-                                                                </span>
-                                                            </label>
-                                                        </li>
-                                                   `;
-                            });
-                            categoriesCheckbox += "</ul>";
-                        }
-
-                        categoriesCheckbox += `</li>`;
-                    });
-                }
-
-                let categoriesEnd = `
-                                </ul>
-                            </div>
-                        </div>
-               `;
-
-                return categoriesStart + categoriesCheckbox + categoriesEnd;
-            }
-
-            _getVCFFilterHTML(filterValues, prefix) {
-                let options = "";
-                for (let val of filterValues) {
-                    options += `<option value="${val}">${val}</option>`;
-                }
-                return `
-                    <select class="selectpicker" id="${prefix}vcfFilterSelect" data-size="10" data-live-search="true"
-                            data-selected-text-format="count" multiple>
-                        ${options}
-                    </select>
-                `;
-            }
-
-
             _addEventListeners() {
                 let keyupEvents = ["LocationTextarea", "FeatureTextarea", "PanelAppsTextarea", "FilterTextInput", "CaddRawInput", "CaddScaledInput", "SiftInput",
                     "PolyphenInput", "PhylopInput", "PhastconsInput", "GerpInput", "GeneOntologyTextarea", "HumanPhenotypeOntologyTextarea", "ClinVarTextarea", "TraitsTextarea"];
@@ -1930,7 +1878,7 @@
                     }
                 }
 
-                let changeEvents = ["includeOtherStudy", "GenotypeQueryOptions", "GeneBiotypes", "Type", "CaddRawOperator", "CaddScaledOperator", "SiftOperator", "PolyphenOperator",
+                let changeEvents = ["includeOtherStudy", "GenotypeQueryOptions", "DiseasePanels", "GeneBiotypes", "Type", "CaddRawOperator", "CaddScaledOperator", "SiftOperator", "PolyphenOperator",
                     "pssOrRadio", "pssAndRadio", "PhylopOperator", "PhastconsOperator", "GerpOperator", "conservationAndRadio", "conservationOrRadio", "vcfFilterSelect",
                     "hpoOrRadio", "hpoAndRadio"];
                 for (let id of changeEvents) {
@@ -1941,22 +1889,16 @@
                 }
 
                 // Add events for Sample IDs
-                let autoCompleteSampleElement = PolymerUtils.getElementById(this.prefix + "AutocompleteSampleSearchInput");
-                if (UtilsNew.isNotUndefinedOrNull(autoCompleteSampleElement)) {
-                    autoCompleteSampleElement.addEventListener('keyup', this._autocompleteSampleSearch.bind(this));
-                    PolymerUtils.getElementById(this.prefix + "SampleAddButton").addEventListener('click', this.onSampleChange.bind(this));
-                }
-                // Add event for inheritanceMode
-                let inheritanceModeElement = PolymerUtils.getElementById(this.prefix + "SegregationOperator");
-                if (UtilsNew.isNotUndefinedOrNull(inheritanceModeElement)) {
-                    inheritanceModeElement.addEventListener('change', this.selectInheritanceMode.bind(this));
+                let elementById = PolymerUtils.getElementById(this.prefix + "SampleFilterModalButton");
+                if (UtilsNew.isNotUndefinedOrNull(elementById)) {
+                    elementById.addEventListener('click', this.onSampleFilterClick.bind(this));
                 }
 
                 // ApproxCountCheckbox
-                let approxCountCheckbox = PolymerUtils.getElementById(this.prefix + "ApproxCountCheckbox");
-                if (UtilsNew.isNotUndefinedOrNull(approxCountCheckbox)) {
-                    approxCountCheckbox.addEventListener('change', this.onApproxCountChange.bind(this));
-                }
+                // let approxCountCheckbox = PolymerUtils.getElementById(this.prefix + "ApproxCountCheckbox");
+                // if (UtilsNew.isNotUndefinedOrNull(approxCountCheckbox)) {
+                //     approxCountCheckbox.addEventListener('change', this.onApproxCountChange.bind(this));
+                // }
 
                 // Add events for Cohort
 //                let cohorts = this.config.menu.sections.forEach(section => section.subsections.forEach(subsection => {if (subsection.id === "cohort") return subsection}));
@@ -1998,12 +1940,6 @@
                 PolymerUtils.getElementById(this.prefix + "FeatureIdText").addEventListener('keyup', this.callAutocomplete.bind(this));
                 PolymerUtils.getElementById(this.prefix + "FeatureAddButton").addEventListener('click', this.addFeatureId.bind(this));
 
-                // Add events for gene disease panels
-                let element = PolymerUtils.getElementById(this.prefix + "PanelApps");
-                if (UtilsNew.isNotUndefinedOrNull(element)) {
-                    element.addEventListener('change', this.onGeneDiseasePanelChange.bind(this));
-                }
-
                 // Add events for Population Frequency
                 for (let study of this.populationFrequencies.studies) {
                     let element = PolymerUtils.getElementById(this.prefix + study.id + "Icon");
@@ -2032,33 +1968,41 @@
                 if (UtilsNew.isNotEmptyArray(consequenceTypes.categories)) {
                     consequenceTypes.categories.forEach((category) => {
                         let title = (category.title !== undefined) ? category.title : category.name;
-                        PolymerUtils.getElementById(this.prefix + title + "input").addEventListener('change', this.updateConsequenceTypeFilter.bind(this));
                         if (UtilsNew.isNotEmptyArray(category.terms)) {
+                            PolymerUtils.getElementById(this.prefix + title + "Input").addEventListener('change', this.updateConsequenceTypeFilter.bind(this));
                             category.terms.forEach((item) => {
-                                PolymerUtils.getElementById(this.prefix + item.id + "checkbox").addEventListener('change', this.updateConsequenceTypeFilter.bind(this));
+                                PolymerUtils.getElementById(this.prefix + item.name + "Checkbox").addEventListener('change', this.updateConsequenceTypeFilter.bind(this));
                             });
+                        } else {
+                            PolymerUtils.getElementById(this.prefix + title + "Checkbox").addEventListener('change', this.updateConsequenceTypeFilter.bind(this));
                         }
                     });
                 }
 
                 // Add events GO accessions
-                PolymerUtils.getElementById(this.prefix + "buttonOpenGoAccesions").addEventListener('click', this.openModalGo.bind(this));
+                let goModalButton = PolymerUtils.getElementById(this.prefix + "buttonOpenGoAccesions");
+                if (UtilsNew.isNotUndefinedOrNull(goModalButton)) {
+                    goModalButton.addEventListener('click', this.openModalGo.bind(this));
+                }
 
                 // Add events hpo accessions
-                PolymerUtils.getElementById(this.prefix + "buttonOpenHpoAccesions").addEventListener('click', this.openModalHpo.bind(this));
+                let hpoModalButton = PolymerUtils.getElementById(this.prefix + "buttonOpenHpoAccesions");
+                if (UtilsNew.isNotUndefinedOrNull(hpoModalButton)) {
+                    hpoModalButton.addEventListener('click', this.openModalHpo.bind(this));
+                }
             }
 
-            onApproxCountChange(e) {
-                // this.query.approximateCount = e.target.checked;
-                this.set("query.approximateCount", e.target.checked);
 
-            }
+            // onApproxCountChange(e) {
+            //     // this.query.approximateCount = e.target.checked;
+            //     this.set("query.approximateCount", e.target.checked);
+            // }
 
             _addAllTooltips() {
                 for (let section of this.config.menu.sections) {
                     for (let subsection of section.subsections) {
                         if (UtilsNew.isNotEmpty(subsection.tooltip)) {
-                            let tooltipIcon = $("#" + subsection.id + "Tooltip");
+                            let tooltipIcon = $("#" + this.prefix + subsection.id + "Tooltip");
                             if (UtilsNew.isNotUndefinedOrNull(tooltipIcon)) {
                                 this._addTooltip(tooltipIcon, subsection.title, subsection.tooltip);
                             }
@@ -2082,7 +2026,6 @@
                     },
                     style: {
                         width: true,
-//                        classes:  "ocb-tooltip-font" + "  ui-tooltip ui-tooltip-shadow"},
                         classes: this.config.menu.tooltip.classes
                     },
                     show: {

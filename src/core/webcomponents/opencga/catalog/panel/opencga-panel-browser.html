@@ -1,0 +1,171 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<link rel="import" href="opencga-panel-editor.html">
+<link rel="import" href="opencga-panel-grid.html">
+<link rel="import" href="opencga-panel-summary.html">
+<link rel="import" href="opencga-panel-filter.html">
+
+<dom-module id="opencga-panel-browser">
+    <template>
+        <style include="jso-styles">
+
+        </style>
+        <div class="col-md-12" style="margin-top: 2%;">
+            <div>
+                <button id="{{prefix}}newPanelButton" type="button" class="btn btn-primary variant-prioritization-view-buttons"
+                        on-click="_changeView" style="float: right;">
+                    <template is="dom-if" if="{{!panelEditor}}">
+                        <i class="fa fa-plus icon-padding" aria-hidden="true" ></i> New...
+                    </template>
+                    <template is="dom-if" if="{{panelEditor}}">
+                        <i class="fa fa-undo icon-padding" aria-hidden="true"></i> Back to browser...
+                    </template>
+                </button>
+            </div>
+            <div>
+                <template is="dom-if" if="{{!panelEditor}}">
+                    <h3>Preview</h3>
+                    <div class="col-md-2 div-margin">
+                        <opencga-panel-filter opencga-client="{{opencgaClient}}" opencga-session="{{opencgaSession}}" query="{{query}}" on-search="onSearch"></opencga-panel-filter>
+                    </div>
+                    <div class="col-md-10">
+
+                        <br>
+                        <opencga-active-filters opencga-client="{{opencgaClient}}" query="[[query]]" filters="{{_config.filters}}" default-study="{{opencgaSession.study.fqn}}"
+                                                refresh="{{search}}" on-clear="onClear" on-filterchange="onActiveFilterChange">
+                        </opencga-active-filters>
+                        <opencga-panel-grid opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" opencga-client="{{opencgaClient}}"
+                                            on-panelselected="onPanelSelected" on-importpanel="onImportPanel" query="{{search}}" config="{{_config}}"></opencga-panel-grid>
+                    </div>
+                </template>
+                <template is="dom-if" if="{{panelEditor}}">
+                    <opencga-panel-editor opencga-session="{{opencgaSession}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" panel="{{installationPanel}}" event-notify-name="{{eventNotifyName}}">
+
+                    </opencga-panel-editor>
+                </template>
+            </div>
+        </div>
+
+    </template>
+
+    <script>
+        class OpencgaPanelBrowser extends Polymer.Element {
+
+            constructor() {
+                super();
+                this._init();
+
+            }
+
+            static get is() {
+                return 'opencga-panel-browser';
+            }
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    cellbaseClient: {
+                        type: Object
+                    },
+                    panelEditor: {
+                        type: Boolean,
+                        value: false,
+                    },
+                    panelExamples: {
+                        type: Array
+                    },
+                    eventNotifyName: {
+                        type: String,
+                        value: "messageevent"
+                    },
+                    config: {
+                        type: Object
+                    }
+
+                }
+            }
+
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+            }
+
+            _init() {
+                this.prefix = "OpencgaPanel" + Utils.randomString(6);
+                this.panelDefaultQuery = {sort: "id"};
+                this.search = Object.assign({}, this.panelDefaultQuery);
+                this._config = this.getDefaultConfig();
+            }
+
+            _changeView() {
+                this.panelEditor = !this.panelEditor;
+                this.installationPanel = {};
+            }
+
+            onPanelSelected(e) {
+                this.panelSelected = e.detail;
+            }
+
+            onImportPanel(e) {
+                this._changeView();
+                this.installationPanel = e.detail;
+            }
+
+            onClear() {
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
+                this.query = {};
+                this.search = {};
+            }
+
+            onSearch(e) {
+                this.search = Object.assign({}, this.panelDefaultQuery, e.detail.query);
+            }
+
+            onActiveFilterChange(e) {
+                this.query = e.detail;
+                this.search = e.detail;
+            }
+
+            getDefaultConfig() {
+                return {
+                    title: "Panel Browser",
+                    showTitle: true,
+                    filter: {
+
+                    },
+                    grid: {
+                        pagination: true,
+                        pageSize: 5,
+                        pageList: [5]
+                    }
+                };
+            }
+
+
+        }
+
+        customElements.define(OpencgaPanelBrowser.is, OpencgaPanelBrowser);
+    </script>
+</dom-module>

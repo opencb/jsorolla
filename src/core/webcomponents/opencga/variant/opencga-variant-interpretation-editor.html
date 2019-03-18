@@ -1,0 +1,869 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<link rel="import" href="opencga-variant-filter.html">
+<link rel="import" href="../opencga-active-filters.html">
+<link rel="import" href="opencga-variant-grid.html">
+<link rel="import" href="opencga-variant-interpretation-grid.html">
+<link rel="import" href="opencga-variant-interpretation-detail.html">
+<link rel="import" href="../opencga-genome-browser.html">
+<link rel="import" href="../clinical/opencga-clinical-analysis-view.html">
+<link rel="import" href="../clinical/clinical-interpretation-view.html">
+
+<dom-module id="opencga-variant-interpretation-editor">
+    <template>
+        <style include="jso-styles">
+            .prioritization-center {
+                margin: auto;
+                text-align: justify;
+                width: 95%;
+            }
+
+            .browser-variant-tab-title {
+                font-size: 115%;
+                font-weight: bold;
+            }
+
+            .prioritization-variant-tab-title {
+                font-size: 115%;
+                font-weight: bold;
+            }
+
+            .icon-padding {
+                padding-left: 4px;
+                padding-right: 8px;
+            }
+
+            .form-section-title {
+                padding: 5px 0px;
+                width: 90%;
+                border-bottom-width: 1px;
+                border-bottom-style: solid;
+                border-bottom-color: #ddd
+            }
+
+            .jso-label-title {
+                width: 15em !important;
+            }
+        </style>
+
+        <!--<template is="dom-if" if="{{checkProjects}}">-->
+            <!--<div class="panel" style="margin-bottom: 15px">-->
+                <!--<h3 style="margin: 10px 10px 10px 15px">-->
+                    <!--<template is="dom-if" if="{{interactive}}">-->
+                        <!--<span on-click="onCollapse" style="cursor: pointer;margin: 0px 30px 0px 0px">-->
+                            <!--<i class="fa fa-bars" aria-hidden="true"></i>-->
+                        <!--</span>-->
+                    <!--</template>-->
+                    <!--<i class="fa fa-filter" aria-hidden="true"></i>&nbsp;{{config.title}}-->
+                <!--</h3>-->
+            <!--</div>-->
+
+            <!--<div class="row">-->
+            <div class="row" style="padding: 0px 10px">
+                <!-- SAVE INTERPRETATION TAB -->
+                <div id="{{prefix}}SaveInterpretation">
+                    <div class="col-md-12">
+                        <h3 class="form-section-title">Save Interpretation</h3>
+                        <!--<hr style="margin-top: 5px">-->
+                        <template is="dom-if" if="{{messageError}}">
+                            <div class="alert alert-danger" role="alert" id="{{prefix}}messageError" style="margin:5px auto;">{{messageErrorText}}</div>
+                        </template>
+                        <template is="dom-if" if="{{messageSuccess}}">
+                            <div class="alert alert-success" role="alert" id="{{prefix}}messageSuccess" style="margin:5px auto;">{{messageSuccessText}}</div>
+                        </template>
+                    </div>
+
+                    <div class="col-md-12">
+                        <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
+                            <!-- GENERAL INFORMATION -->
+                            <!-- ID -->
+                            <!--<div class="form-group has-feedback">-->
+                            <!--<label for="{{prefix}}IDInterpretation" class="col-md-2 col-form-label">ID</label>-->
+                            <!--<div class="col-md-8">-->
+                            <!--<div class="input-group">-->
+                            <!--<input type="text" class$="form-control {{prefix}}TextInput codeDis"-->
+                            <!--id="{{prefix}}IDInterpretation" name="ID" placeholder="ID of this interpretation ..."-->
+                            <!--maxlength="50" required data-error="" pattern=".+" style="width: 240px">-->
+                            <!--&lt;!&ndash;<span class="input-group-addon btn btn-primary" on-click="searchIndividual">&ndash;&gt;-->
+                            <!--&lt;!&ndash;<i class="fa fa-search" aria-hidden="true"></i>&ndash;&gt;-->
+                            <!--&lt;!&ndash;</span>&ndash;&gt;-->
+                            <!--</div>-->
+                            <!--<span class="fa form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>-->
+                            <!--<div class="help-block with-errors"></div>-->
+                            <!--</div>-->
+                            <!--</div>-->
+
+                            <div class="form-group">
+                                <label class="control-label col-md-1 jso-label-title">Interpretation ID</label>
+                                <div class="col-md-3">
+                                    <input type="text" id="{{prefix}}IDInterpretation" class$="{{prefix}}TextInput form-control"
+                                           placeholder="ID of the case" data-field="id">
+                                </div>
+                            </div>
+
+
+                            <!-- NAME -->
+                            <!--<div class="form-group has-feedback">-->
+                            <!--<label for="{{prefix}}NameInterpretation" class="col-md-2 col-form-label">Name</label>-->
+                            <!--<div class="col-md-8">-->
+                            <!--<div class="input-group">-->
+                            <!--<input type="text" class$="form-control {{prefix}}TextInput codeDis"-->
+                            <!--id="{{prefix}}NameInterpretation" name="Name" placeholder="Name of this interpretation ..."-->
+                            <!--maxlength="50" required data-error="" pattern=".+" style="width: 240px">-->
+                            <!--&lt;!&ndash;<span class="input-group-addon btn btn-primary" on-click="searchIndividual">&ndash;&gt;-->
+                            <!--&lt;!&ndash;<i class="fa fa-search" aria-hidden="true"></i>&ndash;&gt;-->
+                            <!--&lt;!&ndash;</span>&ndash;&gt;-->
+                            <!--</div>-->
+                            <!--<span class="fa form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>-->
+                            <!--<div class="help-block with-errors"></div>-->
+                            <!--</div>-->
+                            <!--</div>-->
+
+                            <!-- DESCRIPTION -->
+                            <!--<div class="form-group has-feedback">-->
+                            <!--<label for="{{prefix}}DescriptionInterpretation" class="col-md-2 col-form-label">Description</label>-->
+                            <!--<div class="col-md-8">-->
+                            <!--<div class="input-group">-->
+                            <!--<input type="text" class$="form-control {{prefix}}TextInput codeDis"-->
+                            <!--id="{{prefix}}DescriptionInterpretation" name="Name" placeholder="Description of this interpretation ..."-->
+                            <!--maxlength="250" required data-error="" pattern=".+" style="width: 480px">-->
+                            <!--</div>-->
+                            <!--<span class="fa form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>-->
+                            <!--<div class="help-block with-errors"></div>-->
+                            <!--</div>-->
+                            <!--</div>-->
+
+                            <div class="form-group">
+                                <label class="control-label col-md-1 jso-label-title">Comment</label>
+                                <div class="col-md-3">
+                                    <input type="text" id="{{prefix}}CommentInterpretation" class$="{{prefix}}TextInput form-control"
+                                           placeholder="ID of the case" data-field="id">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label col-md-1 jso-label-title">Description</label>
+                                <div class="col-md-3">
+                                            <textarea id="{{prefix}}DescriptionInterpretation" class$="{{prefix}}TextInput form-control"
+                                                      placeholder="Description of the case" data-field="description" on-keyup="onInputChange"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- COMMENT -->
+                            <!--<div class="form-group has-feedback">-->
+                            <!--<label for="{{prefix}}CommentInterpretation" class="col-md-2 col-form-label">Comment</label>-->
+                            <!--<div class="col-md-8">-->
+                            <!--<div class="input-group">-->
+                            <!--<input type="text" class$="form-control {{prefix}}TextInput codeDis"-->
+                            <!--id="{{prefix}}CommentInterpretation" name="Name" placeholder="Add a comment ..."-->
+                            <!--maxlength="250" required data-error="" pattern=".+" style="width: 480px">-->
+                            <!--</div>-->
+                            <!--<span class="fa form-control-feedback" aria-hidden="true" style="padding-right:60px; z-index:5"></span>-->
+                            <!--<div class="help-block with-errors"></div>-->
+                            <!--</div>-->
+                            <!--</div>-->
+
+                            <div>
+                                <h3 class="form-section-title">Edit Reported Variants</h3>
+                            </div>
+                            <opencga-interpreted-variant-grid opencga-session="{{opencgaSession}}"
+                                                              reported-variants="{{reportedVariants}}"
+                                                              clinical-analysis="{{clinicalAnalysis}}"
+                                                              consequence-types="{{consequenceTypes}}"
+                                                              population-frequencies="{{populationFrequencies}}"
+                                                              protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                              on-selected="selectedGene"
+                                                              on-selectvariant2="onSelectVariant2"
+                                                              on-checkvariant="onCheckVariant"
+                                                              on-setgenomebrowserposition="onGenomeBrowserPositionChange"
+                                                              config="{{config.grid}}">
+                            </opencga-interpreted-variant-grid>
+
+                            <opencga-interpreted-variant-detail opencga-session={{opencgaSession}}
+                                                                cellbase-client={{cellbaseClient}}
+                                                                variant={{selectedVariant}}
+                                                                clinical-analysis={{clinicalAnalysis}}
+                                                                consequence-types={{consequenceTypes}}
+                                                                protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                config={{config.detail}}>
+                            </opencga-interpreted-variant-detail>
+
+                            <div class="form-group row" style="padding-left: 240px;">
+                                <button type="button" class="btn btn-primary" on-click="onViewInterpretation">View</button>
+                                <button type="button" class="btn btn-primary" on-click="onSaveInterpretation">Save</button>
+                            </div>
+
+                        </form>
+                    </div>
+
+                    <div class="col-md-12">
+                        <template is="dom-if" if="{{interpretationView}}">
+                            <clinical-interpretation-view id="id" interpretation="{{interpretationView}}" opencga-session="{{opencgaSession}}" opencga-client="{{opencgaSession.opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                                          consequence-types="{{consequenceTypes}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                          style="font-size: 12px">
+                            </clinical-interpretation-view>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+
+
+        <!--</template>-->
+
+        <!--<template is="dom-if" if="{{!checkProjects}}">-->
+            <!--<span style="text-align: center"><h3>No public projects available to browse. Please login to continue</h3></span>-->
+        <!--</template>-->
+
+    </template>
+
+    <script>
+        class OpencgaVariantInterpretationEditor extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                // Set status and init private properties
+                this._init();
+            }
+
+            static get is() {
+                return 'opencga-variant-interpretation-editor';
+            }
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object
+                    },
+                    // clinicalAnalysisId: {
+                    //     type: String,
+                    //     value: "CA6",
+                    //     observer: 'clinicalAnalysisIdObserver',
+                    // },
+                    clinicalAnalysis: {
+                        type: Object,
+                        observer: 'clinicalAnalysisObserver',
+                    },
+                    reportedVariants: {
+                        type: Array,
+                    },
+                    // query: {
+                    //     type: Object
+                    // },
+                    cellbaseClient: {
+                        type: Object
+                    },
+                    diseasePanelId: {
+                        type: String,
+                        observer: "diseasePanelIdObserver"
+                    },
+                    consequenceTypes: {
+                        type: Object
+                    },
+                    populationFrequencies: {
+                        type: Object
+                    },
+                    proteinSubstitutionScores: {
+                        type: Object
+                    },
+                    // interactive: {
+                    //     type: Boolean,
+                    //     observer: "interactiveObserver"
+                    // },
+                    config: {
+                        type: Object
+                    }
+                }
+            }
+
+            static get observers() {
+                /*
+                 * We do not need to Observer 'query' property, when passed it will be shared (bound) with the other components.
+                 * 'search; is observed to ensure 'query' is in sync.
+                 */
+                return [
+                    "propertyObserver(opencgaSession, query, config)"
+                ];
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+
+                // if (!this.interactive) {
+                //     this.collapseFilter();
+                // }
+
+                // CellBase version
+                this.cellbaseClient.getMeta("about").then(response => {
+                    if (UtilsNew.isNotUndefinedOrNull(response) && UtilsNew.isNotEmptyArray(response.response)) {
+                        if (UtilsNew.isNotUndefinedOrNull(response.response[0].result) && UtilsNew.isNotEmptyArray(response.response[0].result)) {
+                            this.cellbaseVersion = response.response[0].result[0]["Version: "];
+                        }
+                    }
+                });
+            }
+
+            _init() {
+                this.prefix = "ovi-" + Utils.randomString(6);
+
+                this.hasClinicalAnalysis = false;
+
+                this.checkProjects = false;
+                this.interactive = true;
+                this.filterClass = "col-md-2";
+                this.gridClass = "col-md-10";
+
+                this._collapsed = true;
+
+                this.messageError = false;
+                this.messageSuccess = false;
+
+                this.samples = [];
+
+                this.defaultAutomaticQuery = {
+                    biotype: "protein_coding"
+                };
+
+                this.variant = null;
+                this.reportedVariants = [];
+
+                this._config = this.getDefaultConfig();
+
+                // this.clinicalAnalysisTest = {
+                //     id: "bbb",
+                //     type: "trio",
+                //     priority: "HIGH",
+                //     flags: ["low_tumour_purity"],
+                //     description: "ABCD"
+                // };
+            }
+
+            propertyObserver(opencgaSession, query, config) {
+                // With each property change we must updated config and create the columns again. No extra checks are needed.
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
+
+                // Check if Beacon hosts are configured
+                for (let detail of this._config.detail) {
+                    if (detail.id === "beacon" && UtilsNew.isNotEmptyArray(detail.hosts)) {
+                        this.beaconConfig = {
+                            hosts: detail.hosts
+                        };
+                    }
+                }
+
+                // Query passed is executed and set to variant-filter, active-filters and variant-grid components
+                // if (UtilsNew.isNotUndefinedOrNull(query)) {
+                //     this.preparedQuery = query;
+                //     this.executedQuery = query;
+                // }
+
+                // if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
+                //     this.checkProjects = true;
+                // } else {
+                //     this.checkProjects = false;
+                // }
+            }
+
+
+            clinicalAnalysisIdObserver() {
+                let _this = this;
+                this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                    .then((response) => {
+                        // This triggers the call to clinicalAnalysisObserver function below
+                        _this.clinicalAnalysis = response.response[0].result[0];
+                    })
+                    .catch((response) => {
+                        console.error("An error occurred fetching clinicalAnalysis: ", response)
+                    });
+            }
+
+            clinicalAnalysisObserver() {
+                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
+                    let _samples = [];
+                    let _individuals = [];
+
+                    if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.family.members)) {
+                        // this.set("family", this.clinicalAnalysis.family);
+                        _individuals = this.clinicalAnalysis.family.members;
+                    } else {
+                        if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.proband)) {
+                            _individuals = [this.clinicalAnalysis.proband];
+                        }
+                    }
+
+                    if (UtilsNew.isNotEmptyArray(_individuals)) {
+                        _individuals.forEach(individual => {
+                            if (UtilsNew.isNotUndefinedOrNull(individual.samples)) {
+                                individual.samples.map(sample => {
+                                    _samples.push(sample)
+                                });
+                            }
+                        });
+                    } else {
+                        console.warn("A Clinical Analysis with no proband or family has been passed");
+                    }
+
+                    if (UtilsNew.isNotEmptyArray(_samples)) {
+                        // Set samples array and notify, this must be done using Polymer API
+                        // this.samples = Object.assign({}, _samples);
+
+                        // We need a different private property for variant-browser-filter to avoid circular calls
+                        // this._initGenotypeSamples(_samples);
+                        this.search = Object.assign({}, this.query);
+                        // debugger
+
+                        // this.set("samplesForMenuFilter", _samples);
+
+                        // Notify to all listeners of the new samples
+                        this.dispatchEvent(new CustomEvent('samplechange', {detail: {samples: this.samples}}));
+                    }
+
+                    this.hasClinicalAnalysis = true;
+                }
+            }
+
+            onClinicalAnalysisEditor(e) {
+                // debugger
+                this.clinicalAnalysis = Object.assign({}, e.detail.clinicalAnalysis);
+            }
+
+            diseasePanelIdObserver() {
+                if (this.diseasePanelId !== undefined && PANELS !== undefined) {
+                    for (let panel of PANELS) {
+                        if (panel.id === this.diseasePanelId) {
+                            this.diseasePanel = panel;
+                            // TODO in theory we should do:
+                            // this.defaultAutomaticQuery.panel = this.diseasePanelId;
+                            this.defaultAutomaticQuery.gene = this.diseasePanel.genes.join(",");
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // interactiveObserver() {
+            //     if (!this.interactive) {
+            //         this.collapseFilter();
+            //     } else {
+            //         this.unCollapseFilter();
+            //     }
+            // }
+
+            // onCollapse() {
+            //     if (this._collapsed) {
+            //         this.unCollapseFilter();
+            //     } else {
+            //         this.collapseFilter();
+            //     }
+            // }
+
+            // collapseFilter() {
+            //     this.filterClass = "hidden";
+            //     this.gridClass = "prioritization-center";
+            //     this._collapsed = true;
+            // }
+            //
+            // unCollapseFilter() {
+            //     if (this.interactive) {
+            //         this.filterClass = "col-md-2";
+            //         this.gridClass = "col-md-10";
+            //         this._collapsed = false;
+            //     }
+            // }
+
+
+            /*
+             * Variant Filter component listeners
+             */
+            // onQueryFilterChange(e) {
+            //     this.preparedQuery = e.detail.query;
+            // }
+            //
+            // onQueryFilterSearch(e) {
+            //     this.preparedQuery = e.detail.query;
+            //     this.executedQuery = e.detail.query;
+            // }
+
+            /*
+             * Active Filters component listeners
+             */
+            // onActiveFilterChange(e) {
+            //     this.query = e.detail;
+            // }
+
+            // onClear() {
+            //     let _search = {};
+            //     for (let hiddenField of this._config.activeFilters.hiddenFields) {
+            //         if (UtilsNew.isNotUndefinedOrNull(this.query[hiddenField])) {
+            //             _search[hiddenField] = this.query[hiddenField];
+            //         }
+            //     }
+            //
+            //     // this.search = _search;
+            //     this.query = {
+            //         study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
+            //     };
+            // }
+
+
+            // onActiveFilterChange(e) {
+            //     // this.query = e.detail;
+            //     // this.search = this.query;
+            //     this.query = e.detail;
+            //     // debugger
+            //     this.search = e.detail;
+            // }
+
+            _changeBottomTab(e) {
+                let _activeTabs = {}
+                for (let detail of this.config.detail) {
+                    _activeTabs[detail.id] = (detail.id === e.currentTarget.dataset.id);
+                }
+                this.set("detailActiveTabs", _activeTabs);
+            }
+
+            checkVariant(variant) {
+                return variant.split(':').length > 2;
+            }
+
+            onSelectVariant(e) {
+                this.variant = e.detail.variant;
+                // this.variant = e.detail.id;
+                // this.variantObj = e.detail.variant;
+            }
+
+            onSelectVariant2(e) {
+                debugger
+                this.selectedVariant = e.detail.variant;
+                // this.variant = e.detail.id;
+                // this.variantObj = e.detail.variant;
+            }
+
+            onCheckVariant(e) {
+                // Alexis: we need to do something like this:
+                this.checkedVariants = e.detail.variants;
+
+                // We set/remove disable status to Save button
+                // if (this.checkedVariants.length > 0 && UtilsNew.isNotEmptyArray(this.samples)) {
+                //     PolymerUtils.removeAttribute(this.prefix + 'SaveInterpretationButton', 'disabled');
+                // } else {
+                //     PolymerUtils.setAttribute(this.prefix + 'SaveInterpretationButton', 'disabled', true);
+                // }
+            }
+
+            onSampleChange(e) {
+                let _samples = e.detail.samples;
+                this.set('samples', _samples.slice());
+                this.dispatchEvent(new CustomEvent("samplechange", {detail: e.detail, bubbles: true, composed: true}));
+                // this._initGenotypeSamples(this.samples);
+            }
+
+            onGenomeBrowserPositionChange(e) {
+                $('.variant-interpretation-content').hide(); // hides all content divs
+                $("#" + this.prefix + "GenomeBrowser").show(); // get the href and use it find which div to show
+
+                // Show the active button
+                $('.variant-interpretation-view-buttons').removeClass("active");
+                // $(e.target).addClass("active");
+                PolymerUtils.addClass(this.prefix + "GenomeBrowserButton", "active");
+
+                this._genomeBrowserActive = true;
+
+                this.region = e.detail.genomeBrowserPosition;
+            }
+
+            _initGenotypeSamples(samples, force, value) {
+                if (UtilsNew.isUndefinedOrNull(this.genotypeSamples)) {
+                    this.genotypeSamples = {};
+                }
+                let genotypeSamples = {};
+                samples.forEach((sample) => {
+                    if (UtilsNew.isUndefinedOrNull(genotypeSamples[sample.id]) || force){
+                        genotypeSamples[sample.id] = {};
+                        // this.genotypeSamples[sample.name]["0/0"] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
+                        genotypeSamples[sample.id]["0/1"] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
+                        genotypeSamples[sample.id]["1/1"] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
+                        // this.genotypeSamples[sample.name]["./."] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
+                    }
+                });
+                debugger
+                this.query = Object.assign({}, this.query, {genotype: this.getGenotypeFilter(genotypeSamples)});
+                debugger
+            }
+
+            getGenotypeFilter(genotypeSamples) {
+                let genotype = [];
+                Object.keys(genotypeSamples).forEach(sampleId => {
+                    if (UtilsNew.isNotUndefinedOrNull(genotypeSamples[sampleId])) {
+                        // genotype += sampleId+ ":";
+                        let gt = [];
+                        if (genotypeSamples[sampleId]["0/0"]) {
+                            gt.push("0/0");
+                        }
+                        if (genotypeSamples[sampleId]["0/1"]) {
+                            gt.push("0/1");
+                        }
+                        if (genotypeSamples[sampleId]["1/1"]) {
+                            gt.push("1/1");
+                        }
+                        if (genotypeSamples[sampleId]["./."]) {
+                            gt.push("./.");
+                        }
+                        genotype.push(sampleId+ ":" + gt.join(","));
+                    }
+                });
+                return genotype.join(";");
+            }
+
+            // _changeView(e) {
+            //     e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+            //
+            //     PolymerUtils.hideByClass("variant-interpretation-content");
+            //
+            //     if (typeof e.target !== "undefined" && typeof e.target.dataset.view !== "undefined") {
+            //         PolymerUtils.show(this.prefix + e.target.dataset.view); // get the href and use it find which div to show
+            //     }
+            //
+            //     // Show the active button
+            //     PolymerUtils.removeClass(".variant-interpretation-view-buttons", "active");
+            //     // debugger
+            //     $(e.target).addClass("active");
+            //
+            //     // Make Genome Browser active
+            //     this._genomeBrowserActive = (e.target.dataset.view === "GenomeBrowser");
+            // }
+
+            _backToSelectAnalysis(e) {
+                this.dispatchEvent(new CustomEvent('backtoselectanalysis', {detail: {idTab: "PrioritizationButton"}}));
+            }
+
+            _goToReport(e) {
+                this.dispatchEvent(new CustomEvent('gotoreport', {detail: {interpretation: this.interpretation}}));
+            }
+
+            triggerBeacon(e) {
+                this.variantToBeacon = this.variant.id;
+            }
+
+            onViewInterpretation(e) {
+                this.interpretationView = this._createInterpretation();
+            }
+
+            onSaveInterpretation(e, obj) {
+                let id = PolymerUtils.getValue(this.prefix + "IDInterpretation");
+                let description = PolymerUtils.getValue(this.prefix + "DescriptionInterpretation");
+                let comment = PolymerUtils.getValue(this.prefix + "CommentInterpretation");
+
+                if (UtilsNew.isNotEmpty(id)) {
+                    if (/\s/.test(id)) {
+                        this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                            detail: {
+                                message: "ID must not contains blanks.",
+                                type: UtilsNew.MESSAGE_ERROR
+                            },
+                            bubbles: true,
+                            composed: true
+                        }));
+                    } else {
+                        this.interpretation = this._createInterpretation();
+                    }
+                } else {
+                    this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                        detail: {
+                            message: "ID must not be empty.",
+                            type: UtilsNew.MESSAGE_ERROR
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
+                }
+            }
+
+            _createInterpretation() {
+                try {
+                    let userID = this.opencgaSession.opencgaClient._config.userId;
+                    let interpretation = {};
+                    interpretation.id = this.clinicalAnalysis.id + "_" + PolymerUtils.getValue(this.prefix + "IDInterpretation");
+                    // interpretation.name = PolymerUtils.getValue(this.prefix + "NameInterpretation");
+                    interpretation.description = PolymerUtils.getValue(this.prefix + "DescriptionInterpretation");
+                    interpretation.clinicalAnalysisId = this.clinicalAnalysisId;
+                    interpretation.software = {
+                        name: "TEAM",
+                        version: "2.0",
+                        website: "https://www.ncbi.nlm.nih.gov/pubmed/24861626",
+                        repository: "https://github.com/opencb/opencga",
+                        commit: "f43372aa",
+                        params: {}
+                    };
+                    interpretation.analyst = {
+                        name: userID,
+                        email: "",
+                        company: ""
+                    };
+                    interpretation.dependencies = [
+                        {
+                            name: "CellBase", repository: "https://github.com/opencb/cellbase", version: this.cellbaseVersion
+                        }
+                    ];
+                    interpretation.filters = this.query;
+                    //                interpretation.creationDate = Date();
+                    interpretation.comments = [{
+                        author: userID,
+                        type: "comment",
+                        text: PolymerUtils.getValue(this.prefix + "CommentInterpretation"),
+                        date: moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY')
+                    }];
+
+                    // Remove 'stateCheckbox' from the variant list. When we receive the list from the grid, we are getting
+                    // an additional field that should not be present in a reported variant.
+                    let reportedVariants = [];
+                    for (let i in this.reportedVariants) {
+                        let variant = Object.assign({}, this.reportedVariants[i]);
+                        delete variant['stateCheckBox'];
+                        reportedVariants.push(variant);
+                    }
+                    interpretation.reportedVariants = reportedVariants;
+                    interpretation.attributes = {};
+                    // interpretation.creationDate = moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY');
+
+
+                    let params = {
+                        study: this.opencgaSession.study.fqn
+                    };
+
+                    let _this = this;
+                    this.opencgaSession.opencgaClient.interpretations().create(this.clinicalAnalysis.id, params, interpretation)
+                        .then((response) => {
+                            console.log(response);
+                            // TODO We should update here clinicalAnalysis and add to interpretation list this file with its name from save interpertation form.
+                            if (UtilsNew.isNotUndefinedOrNull(interpretation) && UtilsNew.isNotUndefinedOrNull(interpretation.clinicalAnalysis)) {
+                                if (UtilsNew.isEmptyArray(interpretation.clinicalAnalysis.interpretations)) {
+                                    interpretation.clinicalAnalysis.interpretations = [];
+                                } else {
+                                    interpretation.clinicalAnalysis.interpretations = interpretation.clinicalAnalysis.interpretations.map((interpretation) => {
+                                        return { id: interpretation.id, name: interpretation.name, file:  interpretation.file.id };
+                                    });
+                                }
+                                interpretation.clinicalAnalysis.interpretations.push({
+                                    id: interpretation.id,
+                                    name: interpretation.name,
+                                    file: response.response[0].result[0].id
+                                });
+                            }
+
+                            params = {
+                                study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias
+                            };
+                            let interpretations =  { interpretations: interpretation.clinicalAnalysis.interpretations };
+                            _this.opencgaSession.opencgaClient.clinical().update(interpretation.clinicalAnalysis.id, params, interpretations)
+                                .then((response) => {
+                                    this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                                        detail: {
+                                            message:  interpretation.id + " interpretation has been created correctly.",
+                                            type: UtilsNew.MESSAGE_SUCCESS
+                                        },
+                                        bubbles: true,
+                                        composed: true
+                                    }));
+
+                                    _this.cleanSaveInterpretation();
+                                    console.log(response);
+                                    // Update analysis with new interpretations
+                                    _this.getAnalysisInterpretations();
+                                })
+                                .catch((err) => {
+                                    this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                                        detail: {
+                                            message:  err.error,
+                                            type: UtilsNew.MESSAGE_ERROR
+                                        },
+                                        bubbles: true,
+                                        composed: true
+                                    }));
+                                });
+                        })
+                        .catch((err) => {
+                            this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                                detail: {
+                                    message:  err.error,
+                                    type: UtilsNew.MESSAGE_ERROR
+                                },
+                                bubbles: true,
+                                composed: true
+                            }));
+                        });
+
+                } catch (err) {
+                    this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                        detail: {
+                            message:  err,
+                            type: UtilsNew.MESSAGE_ERROR
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
+                }
+            }
+
+            cleanSaveInterpretation() {
+                PolymerUtils.setValue(this.prefix + "IDInterpretation", "");
+                PolymerUtils.setValue(this.prefix + "NameInterpretation", "");
+                PolymerUtils.setValue(this.prefix + "DescriptionInterpretation", "");
+                PolymerUtils.setValue(this.prefix + "CommentInterpretation", "");
+            }
+
+            getAnalysisInterpretations() {
+                let params = {
+                    study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
+                };
+                let _this = this;
+                this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, params, {})
+                    .then(function(response){
+                        _this.showSummary = false;
+                        if (response.response[0].numResults === 1) {
+                            _this.clinicalAnalysis = response.response[0].result[0];
+                        }
+                    });
+            }
+
+            getDefaultConfig() {
+                return {
+                    activeFilters: {
+                        alias: {
+                            // Example:
+                            // "region": "Region",
+                            // "gene": "Gene",
+                            // "genotype": "Sample Genotypes",
+                        },
+                        complexFields: ["genotype"],
+                        hiddenFields: ["study"]
+                    },
+                    genomeBrowser: {
+                        showTitle: false
+                    }
+                }
+            }
+        }
+
+        customElements.define(OpencgaVariantInterpretationEditor.is, OpencgaVariantInterpretationEditor);
+    </script>
+</dom-module>

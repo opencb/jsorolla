@@ -40,12 +40,28 @@ class UtilsNew {
         return typeof obj !== 'undefined' && obj !== null;
     }
 
-    static isEmpty(str) {
-        return typeof str === 'undefined' || str === null || str === '';
+    static isEmpty(obj) {
+        if (typeof obj === "undefined" || obj === null) {
+            return true;
+        }
+
+        // obj is an actual Object
+        if (typeof obj === "object") {
+            for(let key in obj) {
+                if(obj.hasOwnProperty(key))
+                    return false;
+            }
+            return true;
+        } else {
+            // obj is a String
+            if (typeof obj === "string") {
+                return obj === "";
+            }
+        }
     }
 
-    static isNotEmpty(str) {
-        return typeof str !== 'undefined' && str !== null && str !== '';
+    static isNotEmpty(obj) {
+        return !this.isEmpty(obj);
     }
 
     static isEmptyArray(arr) {
@@ -54,6 +70,10 @@ class UtilsNew {
 
     static isNotEmptyArray(arr) {
         return typeof arr !== 'undefined' && arr !== null && arr.length > 0;
+    }
+
+    static defaultString(str, str2) {
+        return this.isNotEmpty(str) ? str : str2;
     }
 
     static containsArray(arr, item) {

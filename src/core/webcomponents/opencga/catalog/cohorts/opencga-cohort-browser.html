@@ -1,0 +1,344 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<link rel="import" href="opencga-cohort-filter.html">
+<link rel="import" href="opencga-cohort-grid.html">
+<link rel="import" href="../../opencga-active-filters.html">
+<link rel="import" href="../variableSets/opencga-annotation-comparator.html">
+<link rel="import" href="../variableSets/opencga-annotation-viewer.html">
+<link rel="import" href="../../commons/opencga-facet-view.html">
+
+<dom-module id="opencga-cohort-browser">
+    <template>
+        <style include="jso-styles">
+            .icon-padding {
+                padding-left: 4px;
+                padding-right: 5px;
+            }
+
+            .detail-tab-title {
+                font-size: 115%;
+                font-weight: bold;
+            }
+        </style>
+
+        <template is="dom-if" if="{{_config.showTitle}}">
+            <div class="panel" style="margin-bottom: 15px">
+                <h3 style="margin: 10px 10px 10px 15px">
+                    <i class="fa fa-users" aria-hidden="true"></i> &nbsp;{{_config.title}}
+                </h3>
+            </div>
+        </template>
+
+        <div class="row" style="padding: 0px 10px">
+            <div class="col-md-2">
+                <opencga-cohort-filter opencga-session="{{opencgaSession}}" config="{{_config}}" cohorts="{{cohorts}}"
+                                       opencga-client="{{opencgaSession.opencgaClient}}" query="{{query}}" search="{{search}}">
+                </opencga-cohort-filter>
+            </div>
+
+            <div class="col-md-10">
+                <opencga-active-filters opencga-client="{{opencgaClient}}" query="{{query}}" filters="{{_config.filters}}" default-study="{{opencgaSession.study.alias}}"
+                                        config="{{filtersConfig}}" alias="{{activeFilterAlias}}" refresh="{{search}}" on-clear="onClear" on-filterchange="onActiveFilterChange">
+                </opencga-active-filters>
+
+                <!-- Cohort View Buttons -->
+                <div style="padding: 5px 0px 5px 0px">
+                    <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px;margin-left: 0px">
+                        <div class="btn-group" role="group" style="margin-left: 0px">
+                            <button type="button" class="btn btn-success cohort-browser-view-buttons active" data-view="TableResult" on-click="_changeView" data-id="table">
+                                <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView" data-id="table"></i> Table Result
+                            </button>
+                            <button type="button" class="btn btn-success cohort-browser-view-buttons" data-view="AggregationStats" on-click="_changeView">
+                                <i class="fa fa-line-chart icon-padding" aria-hidden="true" data-view="AggregationStats" on-click="_changeView"></i> Aggregation Stats
+                            </button>
+                            <button type="button" class="btn btn-success cohort-browser-view-buttons" data-view="CohortComparator" on-click="_changeView" data-id="comparator">
+                                <i class="fa fa-users icon-padding" aria-hidden="true" data-view="CohortComparator" on-click="_changeView" data-id="comparator"></i> Cohort Comparator
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cohort View Content -->
+                <div>
+                    <div id="{{prefix}}TableResult" class="cohort-browser-view-content">
+                        <opencga-cohort-grid opencga-client="{{opencgaSession.opencgaClient}}"
+                                             opencga-session="{{opencgaSession}}" config="[[_config.grid]]"
+                                             event-notify-name="[[eventNotifyName]]"
+                                             search="{{search}}" style="font-size: 12px" on-selectcohort="onSelectCohort"
+                                             active="{{activeMenu.table}}">
+                        </opencga-cohort-grid>
+
+                        <div style="padding-top: 5px">
+                            <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
+
+                                <li role="presentation" class="active">
+                                    <a href="#{{prefix}}CohortViewer" role="tab" data-toggle="tab" class="detail-tab-title"
+                                       data-id="info" on-click="_changeBottomTab">
+                                        Cohort info
+                                    </a>
+                                </li>
+
+                                <li role="presentation">
+                                    <a href="#{{prefix}}SampleViewer" role="tab" data-toggle="tab" class="detail-tab-title"
+                                       data-id="sampleGrid" on-click="_changeBottomTab">
+                                        Sample grid
+                                    </a>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content" style="height: 680px">
+                                <div role="tabpanel" class="tab-pane active" id="{{prefix}}CohortViewer">
+                                    Work in progress
+                                </div>
+                                <div role="tabpanel" class="tab-pane" id="{{prefix}}SampleViewer">
+                                    <opencga-sample-grid opencga-client="{{opencgaSession.opencgaClient}}"
+                                                         opencga-session="{{opencgaSession}}" search="{{sampleSearch}}"
+                                                         style="font-size: 12px"  active="{{detailActiveTabs.sampleGrid}}">
+                                    </opencga-sample-grid>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="{{prefix}}AggregationStats" class="cohort-browser-view-content" style="display: none;" >
+                        <opencga-facet-view opencga-session="{{opencgaSession}}" entity="COHORT"
+                            variable-sets="[[variableSets]]"></opencga-facet-view>
+                    </div>
+
+                    <div id="{{prefix}}CohortComparator" class="cohort-browser-view-content" style="display: none">
+
+                        <opencga-cohort-grid opencga-client="{{opencgaSession.opencgaClient}}"
+                                             opencga-session="{{opencgaSession}}" config="[[_config.gridComparator]]"
+                                             event-notify-name="[[eventNotifyName]]" on-selectcohort="onSelectCohortComparator"
+                                             search="{{search}}" style="font-size: 12px" active="{{activeMenu.comparator}}">
+                        </opencga-cohort-grid>
+
+                        <div style="padding-top: 5px">
+                            <h3> Annotation comparator</h3>
+                            <opencga-annotation-viewer opencga-client="{{opencgaSession.opencgaClient}}"
+                                                       opencga-session="{{opencgaSession}}" config="[[_config]]"
+                                                       entry-ids="[[_selectedCohortsComparator.array]]" entity="COHORT">
+                            </opencga-annotation-viewer>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </template>
+    <script>
+        class OpencgaCohortBrowser extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                // Set status and init private properties
+                this._init();
+            }
+
+            static get is() {
+                return 'opencga-cohort-browser';
+            }
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object
+                    },
+                    opencgaClient: {
+                        type: Object,
+                        observer: "renderAnalysisTable"
+                    },
+                    filters: {
+                        type: Object,
+                        notify: true,
+                        observer: "onFilterUpdate"
+                    },
+                    search: {
+                        type: Object,
+                        notify: true
+                    },
+                    config: {
+                        type: Object,
+                        observer: "configObserver"
+                    }
+                }
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            _init() {
+                this.prefix = "ocb-" + Utils.randomString(6);
+
+                this.cohorts = [];
+                this.sampleSearch = {id: "nonexisting"};
+
+                this._config = this.getDefaultConfig();
+
+                this.filtersConfig = {
+                    complexFields: ["annotation"]
+                };
+            }
+
+            static get observers() {
+                return ['filterAvailableVariableSets(opencgaSession, config)', 'cohortObserver(cohorts.*)'];
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+
+                this.activeMenu = {
+                    table: true,
+                    comparator: false
+                };
+
+                this.detailActiveTabs = {
+                    info: true,
+                    sampleGrid: false
+                };
+            }
+
+            configObserver() {
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
+            }
+
+            _changeView(e) {
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+
+                let activeMenu = {
+                    table: e.currentTarget.dataset.id === "table",
+                    comparator: e.currentTarget.dataset.id === "comparator"
+                };
+                this.set("activeMenu", activeMenu);
+
+                $('.cohort-browser-view-content').hide(); // hides all content divs
+                if (typeof e.target !== "undefined" && typeof e.target.dataset.view !== "undefined") {
+                    PolymerUtils.show(this.prefix + e.target.dataset.view);
+                }
+
+                // Show the active button
+                $('.cohort-browser-view-buttons').removeClass("active");
+                $(e.target).addClass("active");
+
+                if (e.target.dataset.view === "AggregationStats") {
+                    this.executeFacet();
+                }
+            }
+
+            onSelectCohort(e) {
+                let sampleList = [];
+                for (let i = 0; i < e.detail.cohort.samples.length; i++) {
+                    sampleList.push(e.detail.cohort.samples[i].id);
+                }
+
+                this.sampleSearch = {
+                    id: sampleList.join(",")
+                }
+            }
+
+            onSelectCohortComparator(e) {
+                if (UtilsNew.isUndefinedOrNull(this._selectedCohortsComparator)) {
+                    this._selectedCohortsComparator = {
+                        set: new Set(),
+                        array: []
+                    }
+                }
+                if (e.detail.checked) {
+                    this._selectedCohortsComparator.set.add(e.detail.cohort);
+                } else {
+                    this._selectedCohortsComparator.set.delete(e.detail.cohort);
+                }
+                this.set("_selectedCohortsComparator.array", Array.from(this._selectedCohortsComparator.set));
+            }
+
+            filterAvailableVariableSets(opencgaSession, config) {
+                if (this._config.variableSetIds.length === 0) {
+                    this.variableSets = opencgaSession.study.variableSets;
+                } else {
+                    let variableSets = [];
+                    for (let i = 0; i < opencgaSession.study.variableSets.length; i++) {
+                        if (this._config.variableSetIds.indexOf(opencgaSession.study.variableSets[i].id) !== -1) {
+                            variableSets.push(opencgaSession.study.variableSets[i]);
+                        }
+                    }
+                    this.variableSets = variableSets;
+                }
+            }
+
+            executeFacet() {
+
+            }
+
+            cohortObserver() {
+                this.dispatchEvent(new CustomEvent("cohortchange", {
+                    detail: {
+                        cohorts: this.cohorts
+                    },
+                    bubbles: true, composed: true
+                }));
+            }
+
+            onClear() {
+                this.config = Object.assign(this.getDefaultConfig(), this.config);
+                this.query = {};
+                // this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
+                this.search = {};
+            }
+
+            onActiveFilterChange(e) {
+                this.query = e.detail;
+                this.search = e.detail;
+            }
+
+            _changeBottomTab(e) {
+                let _activeTabs = {
+                    info: e.currentTarget.dataset.id === "info",
+                    sampleGrid: e.currentTarget.dataset.id === "sampleGrid"
+                };
+
+                this.set("detailActiveTabs", _activeTabs);
+            }
+
+            getDefaultConfig() {
+                return {
+                    title: "Cohort Browser",
+                    showTitle: true,
+                    showAggregationStats: true,
+                    showComparator: true,
+                    filter: {
+
+                    },
+                    grid: {
+
+                    },
+                    gridComparator: {
+                        multiSelection: true,
+                        pageSize: 5,
+                        pageList: [5, 10]
+                    },
+                    variableSetIds: []
+                };
+            }
+        }
+
+        customElements.define(OpencgaCohortBrowser.is, OpencgaCohortBrowser);
+    </script>
+</dom-module>

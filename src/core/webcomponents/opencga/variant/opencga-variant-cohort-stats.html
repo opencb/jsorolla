@@ -31,32 +31,34 @@
                             <thead style="background-color: #eee;">
                             <tr>
                                 <th scope="col" rowspan="2">Cohort</th>
-                                <th scope="col" rowspan="2">Reference</th>
-                                <th scope="col" rowspan="2">Alternate</th>
+                                <!--<th scope="col" rowspan="2">Reference</th>-->
+                                <!--<th scope="col" rowspan="2">Alternate</th>-->
                                 <th scope="col" rowspan="2">MAF (allele)</th>
-                                <th colspan="2" scope="colgroup">Allele Frequencies</th>
-                                <th colspan="3" scope="colgroup">Genotype Frequencies</th>
+                                <th scope="col" rowspan="2">Number of Samples</th>
+                                <th colspan="2" scope="colgroup" style="text-align: center">Allele Frequencies</th>
+                                <th colspan="3" scope="colgroup" style="text-align: center">Genotype Frequencies</th>
                             </tr>
                             <tr>
                                 <th scope="col">Reference</th>
                                 <th scope="col">Alternate</th>
-                                <th scope="col">0/0</th>
-                                <th scope="col">0/1</th>
-                                <th scope="col">1/1</th>
+                                <th scope="col">Ref/Ref</th>
+                                <th scope="col">Ref/Alt</th>
+                                <th scope="col">Alt/Alt</th>
                             </tr>
                             </thead>
                             <tbody>
                             <template is="dom-repeat" items="{{study.stats}}" as="cohort">
                                 <tr>
                                     <td>{{cohort.name}}</td>
-                                    <td>{{cohort.value.refAllele}}</td>
-                                    <td>{{cohort.value.altAllele}}</td>
+                                    <!--<td>{{cohort.value.refAllele}}</td>-->
+                                    <!--<td>{{cohort.value.altAllele}}</td>-->
                                     <td>{{cohort.value.maf}} ({{cohort.value.mafAllele}})</td>
-                                    <td>{{cohort.value.refAlleleFreq}}</td>
-                                    <td>{{cohort.value.altAlleleFreq}}</td>
-                                    <td>{{cohort.value.genotypesFreq.homref}}</td>
-                                    <td>{{cohort.value.genotypesFreq.het}}</td>
-                                    <td>{{cohort.value.genotypesFreq.homalt}}</td>
+                                    <td>{{cohort.value.numSamples}}</td>
+                                    <td>{{cohort.value.refAlleleFreq}} ({{cohort.value.refAlleleCount}})</td>
+                                    <td>{{cohort.value.altAlleleFreq}} ({{cohort.value.altAlleleCount}})</td>
+                                    <td>{{cohort.value.genotypeFreq.homref}} ({{cohort.value.genotypeCount.homref}})</td>
+                                    <td>{{cohort.value.genotypeFreq.het}} ({{cohort.value.genotypeCount.het}})</td>
+                                    <td>{{cohort.value.genotypeFreq.homalt}} ({{cohort.value.genotypeCount.homalt}})</td>
                                 </tr>
                             </template>
                             </tbody>
@@ -93,7 +95,12 @@
                     },
                     variant: {
                         type: String,
-                        observer: "variantObserved"
+                        observer: "variantObserver"
+                    },
+                    active: {
+                        type: Boolean,
+                        value: false,
+                        observer: "activeObserver"
                     }
                 }
             }
@@ -102,9 +109,16 @@
                 this.appendChild(dom);
             }
 
-            variantObserved(e) {
-                // debugger
-                if (this.variant.split(':').length > 2) {
+            activeObserver(e) {
+                this._fetchCohortStats(e);
+            }
+
+            variantObserver(e) {
+                this._fetchCohortStats(e);
+            }
+
+            _fetchCohortStats(e) {
+                if (UtilsNew.isNotUndefinedOrNull(this.variant) && this.variant.split(':').length > 2 && this.active) {
                     let [chromosome, start, ref, alt] = this.variant.split(":");
                     this.region = new Region(chromosome + ":" + start);
                     let params = {
@@ -128,17 +142,23 @@
                                         if (typeof statsObject[key].mafAllele !== "undefined" && statsObject[key].mafAllele !== -1) {
                                             statsObject[key].maf = _this._freqFormatter(statsObject[key].maf || 0);
                                             statsObject[key].mafAllele = statsObject[key].mafAllele || '-';
+                                            if (statsObject[key].alleleCount < 0) {
+                                                statsObject[key].alleleCount = statsObject[key].refAlleleCount + statsObject[key].altAlleleCount;
+                                            }
+                                            statsObject[key].numSamples = statsObject[key].alleleCount / 2;
 
                                             statsObject[key].refAlleleFreq = _this._freqFormatter(statsObject[key].refAlleleFreq || 0);
+                                            // statsObject[key].alleleCountRef = statsObject[key].refAlleleCount;
                                             statsObject[key].altAlleleFreq = _this._freqFormatter(statsObject[key].altAlleleFreq || 0);
+                                            // statsObject[key].alleleCountAlt = statsObject[key].altAlleleCount;
 
-                                            statsObject[key].genotypesFreq.homref = _this._freqFormatter(statsObject[key].genotypesFreq["0/0"] || statsObject[key].genotypesFreq["0|0"] || 0);
-                                            statsObject[key].genotypesFreq.het = _this._freqFormatter(statsObject[key].genotypesFreq["0/1"] || statsObject[key].genotypesFreq["0|1"] || 0);
-                                            statsObject[key].genotypesFreq.homalt = _this._freqFormatter(statsObject[key].genotypesFreq["1/1"] || statsObject[key].genotypesFreq["1|1"] || 0);
+                                            statsObject[key].genotypeFreq.homref = _this._freqFormatter(statsObject[key].genotypeFreq["0/0"] || statsObject[key].genotypeFreq["0|0"] || 0);
+                                            statsObject[key].genotypeFreq.het = _this._freqFormatter(statsObject[key].genotypeFreq["0/1"] || statsObject[key].genotypeFreq["0|1"] || 0);
+                                            statsObject[key].genotypeFreq.homalt = _this._freqFormatter(statsObject[key].genotypeFreq["1/1"] || statsObject[key].genotypeFreq["1|1"] || 0);
 
-                                            statsObject[key].genotypesCount.homref = statsObject[key].genotypesCount["0/0"] || statsObject[key].genotypesCount["0|0"] || 0;
-                                            statsObject[key].genotypesCount.het = statsObject[key].genotypesCount["0/1"] || statsObject[key].genotypesCount["0|1"] || 0;
-                                            statsObject[key].genotypesCount.homalt = statsObject[key].genotypesCount["1/1"] || statsObject[key].genotypesCount["1|1"] || 0;
+                                            statsObject[key].genotypeCount.homref = statsObject[key].genotypeCount["0/0"] || statsObject[key].genotypeCount["0|0"] || 0;
+                                            statsObject[key].genotypeCount.het = statsObject[key].genotypeCount["0/1"] || statsObject[key].genotypeCount["0|1"] || 0;
+                                            statsObject[key].genotypeCount.homalt = statsObject[key].genotypeCount["1/1"] || statsObject[key].genotypeCount["1|1"] || 0;
 
                                             if (key === "ALL") {
                                                 statsArray.unshift({

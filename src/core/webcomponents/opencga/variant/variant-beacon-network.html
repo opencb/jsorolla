@@ -2,17 +2,24 @@
     <template>
         <style include="jso-styles"></style>
 
-        <div>
+        <div style="padding: 15px 20px">
+            <div style="padding: 0px 0px 10px 0px">
+                <button class="btn btn-primary" type="button" on-click="searchBeaconNetwork">Search Beacon Network</button>
+                <a data-toggle="tooltip"
+                   title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/"><i
+                        class="fa fa-info-circle" aria-hidden="true"></i></a>
+            </div>
+
             <i class="fa fa-spinner fa-spin" aria-hidden="true" id="{{prefix}}spinGif" style="display:none"></i>
             <table class="table table-bordered" style="width: 50%">
                 <thead style="background-color: #eee">
                 <tr>
-                    <th style="width: 50%">Host</th>
+                    <th>Host</th>
                     <th>Response</th>
                 </tr>
                 </thead>
                 <tbody>
-                <template is="dom-repeat" items="{{hosts}}">
+                <template is="dom-repeat" items="{{_config.hosts}}">
                     <tr>
                         <td>{{item}}</td>
                         <td id="{{prefix}}{{item}}" class="beaconResponse"></td>
@@ -21,17 +28,16 @@
                 </tbody>
             </table>
         </div>
-
     </template>
 
     <script>
-
         class VariantBeaconNetwork extends Polymer.Element {
 
             constructor() {
                 super();
 
-                this.prefix = "BeaconNetwork" + Utils.randomString(6);
+                // Set status and init private properties
+                this._init();;
             }
 
             static get is() {
@@ -40,20 +46,16 @@
 
             static get properties() {
                 return {
-                    hosts: {
-                        type: Array,
-                        value: ["brca-exchange", "cell_lines", "cosmic", "wtsi", "wgs", "ncbi", "ebi", "ega", "broad", "gigascience", "ucsc", "lovd", "hgmd", "icgc", "sahgp"]
-                    },
                     variant: {
-                        type: String,
-                        observer: 'searchBeaconNetwork'
+                        type: String
                     },
                     clear: {
                         type: String,
                         observer: 'clearResponse'
                     },
-                    prefix: {
-                        type: String
+                    config: {
+                        type: Object,
+                        observer: "configObserver"
                     }
                 }
             }
@@ -62,12 +64,14 @@
                 this.appendChild(dom);
             }
 
-            ready() {
-                super.ready();
+            _init() {
+                this.prefix = "bn-" + Utils.randomString(6);
+
+                this._config = this.getDefaultConfig();
             }
 
-            connectedCallback() {
-                super.connectedCallback();
+            configObserver() {
+                this._config = Object.assign(this.getDefaultConfig(), this.config);
             }
 
             clearResponse() {
@@ -76,7 +80,7 @@
             }
 
             searchBeaconNetwork() {
-                if (this.hosts !== undefined && this.variant.split(':').length > 2) {
+                if (this._config.hosts !== undefined && this.variant !== undefined && this.variant.split(':').length > 2) {
                     let [chromosome, position, reference, alternate] = this.variant.split(':');
 
                     $('#' + this.prefix + 'spinGif').show();
@@ -84,10 +88,10 @@
                     // TODO: Assembly is hardcoded for now. It has to be taken care in the future
 
                     let _this = this;
-                    for (let i = 0; i < this.hosts.length; i++) {
+                    for (let i = 0; i < this._config.hosts.length; i++) {
                         let xhr = new XMLHttpRequest();
                         // Beacon network uses zero-based numbering hence (position-1) is used in the url.
-                        let url = "https://beacon-network.org/api/responses?allele=" + alternate + "&beacon=[" + _this.hosts[i] + "]&chrom=" + chromosome
+                        let url = "https://beacon-network.org/api/responses?allele=" + alternate + "&beacon=[" + _this._config.hosts[i] + "]&chrom=" + chromosome
                             + "&pos=" + (position - 1) + "&ref=GRCh37";
                         xhr.onload = function (event) {
                             if (xhr.readyState === xhr.DONE) {
@@ -98,29 +102,38 @@
                                         for (let j = 0; j < beaconResponse.length; j++) {
                                             if (beaconResponse[j].response != null) {
                                                 let response = beaconResponse[j].response.toString();
-                                                PolymerUtils.innerHTML(_this.prefix + _this.hosts[i], "" + response.charAt(0).toUpperCase() + response.slice(1));
-                                                if (response == "true") {
-                                                    PolymerUtils.addStyle(_this.prefix + _this.hosts[i], "color", "red"); // Highlighting the true response in the table
+                                                PolymerUtils.innerHTML(_this.prefix + _this._config.hosts[i], "" + response.charAt(0).toUpperCase() + response.slice(1));
+                                                if (response === "true") {
+                                                    PolymerUtils.addStyle(_this.prefix + _this._config.hosts[i], "color", "red"); // Highlighting the true response in the table
                                                 } else {
-                                                    PolymerUtils.addStyle(_this.prefix + _this.hosts[i], "color", "black");
+                                                    PolymerUtils.addStyle(_this.prefix + _this._config.hosts[i], "color", "black");
                                                 }
                                             } else {
-                                                PolymerUtils.innerHTML(_this.prefix + _this.hosts[i], "False");
-                                                PolymerUtils.addStyle(_this.prefix + _this.hosts[i], "color", "black");
+                                                PolymerUtils.innerHTML(_this.prefix + _this._config.hosts[i], "False");
+                                                PolymerUtils.addStyle(_this.prefix + _this._config.hosts[i], "color", "black");
                                             }
                                         }
                                         PolymerUtils.hide(_this.prefix + 'spinGif');
                                     }
                                 } else {
-                                    PolymerUtils.innerHTML(_this.prefix + _this.hosts[i], "False (not 200)");
+                                    PolymerUtils.innerHTML(_this.prefix + _this._config.hosts[i], "False (not 200)");
                                 }
                             } else {
-                                PolymerUtils.innerHTML(_this.prefix + _this.hosts[i], "False (No response from server)");
+                                PolymerUtils.innerHTML(_this.prefix + _this._config.hosts[i], "False (No response from server)");
                             }
                         };
                         xhr.open("GET", url, true);
                         xhr.send(null);
                     }
+                }
+            }
+
+            getDefaultConfig() {
+                return {
+                    hosts: [
+                        "brca-exchange", "cell_lines", "cosmic", "wtsi", "wgs", "ncbi", "ebi", "ega", "broad", "gigascience",
+                        "ucsc", "lovd", "hgmd", "icgc", "sahgp"
+                    ]
                 }
             }
         }

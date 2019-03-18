@@ -97,18 +97,32 @@ class PolymerUtils {
         PolymerUtils.addStyleByClass(className, 'display', 'none');
     }
 
+    static addClassById(id, className) {
+        if (UtilsNew.isNotUndefinedOrNull(id)) {
+            return this.addClass(PolymerUtils.getElementById(id), className);
+        }
+    }
+
+    static addClassByQuerySelector(id, className) {
+        if (UtilsNew.isNotUndefinedOrNull(id)) {
+            return this.addClass(PolymerUtils.querySelectorAll(id), className);
+        }
+    }
 
     static addClass(id, className) {
         if (UtilsNew.isNotUndefinedOrNull(id)) {
             let el;
-            if (id.startsWith('.')) {
-                // If starts with a dot then is a class, we use querySelector
-                el = PolymerUtils.querySelector(id);
+            if (typeof id === "object") {
+                el = id;
             } else {
-                // It is an ID
-                el = PolymerUtils.getElementById(id);
+                if (id.startsWith('.')) {
+                    // If starts with a dot then is a class, we use querySelector
+                    el = PolymerUtils.querySelector(id);
+                } else {
+                    // It is an ID
+                    el = PolymerUtils.getElementById(id);
+                }
             }
-
             if (Array.isArray(className)) {
                 if (!UtilsNew.isUndefinedOrNull(el)) {
                     className.forEach((item) => {
@@ -116,7 +130,13 @@ class PolymerUtils {
                     });
                 }
             } else {
-                el.classList.add(className);
+                if (el.length > 1) {
+                    el.forEach((item) => {
+                        item.classList.add(className);
+                    });
+                } else {
+                    el.classList.add(className);
+                }
             }
         }
     }
@@ -144,6 +164,33 @@ class PolymerUtils {
                 });
             } else {
                 el.classList.remove(className);
+            }
+        }
+    }
+
+    static toggleClass(id, className) {
+        if (UtilsNew.isNotUndefinedOrNull(id)) {
+            let el;
+            if (id.startsWith('.')) {
+                // If starts with a dot then is a class, we use querySelector
+                el = PolymerUtils.querySelectorAll(id);
+            } else {
+                // It is an ID
+                el = PolymerUtils.getElementById(id);
+            }
+
+            if (Array.isArray(className)) {
+                if (UtilsNew.isNotUndefinedOrNull(el)) {
+                    className.forEach((item) => {
+                        el.classList.toggle(item);
+                    });
+                }
+            } else if (UtilsNew.isNotUndefinedOrNull(el.length) && el.length > 1) {
+                el.forEach((element) => {
+                    element.classList.toggle(className);
+                });
+            } else {
+                el.classList.toggle(className);
             }
         }
     }

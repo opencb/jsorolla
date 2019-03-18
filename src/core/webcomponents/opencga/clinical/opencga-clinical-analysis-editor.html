@@ -1,0 +1,1080 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<link rel="import" href="../catalog/individual/opencga-individual-browser.html">
+<link rel="import" href="../catalog/family/opencga-family-browser.html">
+<link rel="import" href="../catalog/family/opencga-family-editor.html">
+
+<dom-module id="opencga-clinical-analysis-editor">
+    <template>
+        <style>
+            .form-section-title {
+                padding: 5px 0px;
+                width: 80%;
+                border-bottom-width: 1px;
+                border-bottom-style: solid;
+                border-bottom-color: #ddd
+            }
+
+            .jso-label-title {
+                width: 15em !important;
+            }
+        </style>
+
+        <div class="row">
+            <div class="col-md-12">
+
+                <!--<div>-->
+                    <!--<h2 style="margin-top: 10px"></i> {{_config.title}}</h2>-->
+                <!--</div>-->
+
+                <div style="padding: 10px 10px;">
+                    <div>
+                        <h4 class="form-section-title">Case Information</h4>
+                    </div>
+
+                    <div class="form-horizontal" style="padding: 5px 10px">
+
+                        <div class="form-group" style="padding-top: 10px">
+                            <label class="control-label col-md-1 jso-label-title">Analysis ID</label>
+                            <div class="col-md-3">
+                                <template is="dom-if" if="{{isCreate}}">
+                                    <input type="text" id="{{prefix}}Id" class$="{{prefix}}Input form-control"
+                                           placeholder="ID of the case" data-field="id" on-keyup="onInputChange" value="{{_clinicalAnalysis.id}}">
+                                </template>
+                                <template is="dom-if" if="{{!isCreate}}">
+                                    <div class="input-group">
+                                        <input type="text" id="{{prefix}}Id" class$="{{prefix}}Input form-control"
+                                               placeholder="ID of the case" data-field="id" on-keyup="onInputChange">
+                                        <span class="input-group-btn">
+                                        <button class="btn btn-default" type="button">
+                                            <i class="fa fa-search" aria-hidden="true"></i>
+                                        </button>
+                                    </span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Analysis Type</label>
+                            <div class="col-md-3">
+                                <select class="selectpicker" data-width="100%" id="{{prefix}}Type" data-field="type" data-field-type="string"
+                                        on-change="onSelectChange">
+                                    <option value="SINGLE">Single</option>
+                                    <option value="FAMILY">Family</option>
+                                    <option value="CANCER">Cancer</option>
+                                    <option value="COHORT">Cohort</option>
+                                    <option value="AUTOCOMPARATIVE">Autocomparative</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Interpretation Flags</label>
+                            <div class="col-md-3">
+                                <select class="selectpicker" data-width="100%" id="{{prefix}}Flags" data-field="flags" data-field-type="array"
+                                        on-change="onSelectChange" on-dom-change="renderDomRepeat" multiple data-selected-text-format="count > 2">
+                                    <template is="dom-repeat" items="{{_config.flags}}">
+                                        <option value="{{item}}">{{item}}</option>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Priority</label>
+                            <div class="col-md-3">
+                                <select class="selectpicker" data-width="100%" id="{{prefix}}Priority" data-field="priority" data-field-type="string"
+                                        on-change="onSelectChange">
+                                    <option style="color: red" value="URGENT">Urgent</option>
+                                    <option style="color: orange" value="HIGH">High</option>
+                                    <option style="color: blue" value="MEDIUM" selected>Medium</option>
+                                    <option style="color: green" value="LOW">Low</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Assigned To</label>
+                            <div class="col-md-3">
+                                <select class="selectpicker" data-width="100%" id="{{prefix}}Assigned" data-field="assigned" data-field-type="object"
+                                        on-change="onSelectChange" on-dom-change="renderDomRepeat">
+                                    <template is="dom-repeat" items="{{_studyUsers}}">
+                                        <option value="{{item}}" data-value$="{{item}}">{{item}}</option>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Due Date</label>
+                            <div class="date col-md-3">
+                                <div class='input-group date' id="{{prefix}}DuePickerDate">
+                                    <input type='text' id="{{prefix}}DueDate" class$="{{prefix}}Input form-control" data-field="dueDate" on-keyup="onInputChange" />
+                                    <span class="input-group-addon">
+                                    <span class="fa fa-calendar"></span>
+                                </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Description</label>
+                            <div class="col-md-3">
+                                <textarea id="{{prefix}}Description" class$="{{prefix}}Input form-control"
+                                          placeholder="Description of the case" data-field="description" on-keyup="onInputChange"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div>
+                        <h4 class="form-section-title">Proband and Disease</h4>
+                    </div>
+
+                    <div class="form-horizontal" style="padding: 10px 10px">
+                        <template is="dom-if" if="{{!isFamilyAnalysis(_clinicalAnalysis.type)}}">
+                            <div class="form-group" style="padding-top: 10px">
+                                <label class="control-label col-md-1 jso-label-title">Search Proband</label>
+                                <div class="col-md-1">
+                                    <button id="{{prefix}}-browseIndividual2" class="btn btn-sm btn-primary"
+                                            data-toggle="modal" data-placement="bottom" on-click="showIndividualSelector"
+                                            style="display: inline">Browse...</button>
+                                </div>
+                            </div>
+                        </template>
+
+                        <template is="dom-if" if="{{isFamilyAnalysis(_clinicalAnalysis.type)}}">
+                            <div class="form-group" style="padding-top: 10px">
+                                <label class="control-label col-md-1 jso-label-title">Search Family</label>
+                                <div class="col-md-1">
+                                    <!--Search family-->
+                                    <button id="{{prefix}}-browseFamily2" class="btn btn-sm btn-primary"
+                                            data-toggle="modal" data-placement="bottom" on-click="showFamilySelector"
+                                            style="display: inline">Browse...</button>
+                                </div>
+                                <div>
+                                    <a on-click="showFamilyCreator" class="col-md-2" style="cursor:pointer;">
+                                        Don't have a family?
+                                    </a>
+                                </div>
+                            </div>
+                        </template>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Disorder</label>
+                            <div class="col-md-3">
+                                <select class="selectpicker" data-width="100%" id="{{prefix}}Disorder" data-field="disorder" data-field-type="object"
+                                        on-change="onSelectChange" on-dom-change="renderDomRepeat">
+                                    <template is="dom-repeat" items="{{_disorders}}">
+                                        <option value="{{item.id}}" data-value$="{{item}}">{{item.id}}</option>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Sample Configuration:</label>
+                            <div id="{{prefix}}GridTableDiv" class="col-md-11 col-md-offset-1" style="padding: 10px 20px">
+                                <table id="{{prefix}}IndividualBrowserGrid">
+                                    <thead style="background-color: #eee"></thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+
+            <div class="col-md-2 col-md-offset-2">
+                <!--<div class="form-group">-->
+                <!--<div class="col-md-2" style="float: right">-->
+                <button id="{{prefix}}Clear" class="btn btn-primary" on-click="onClear">Clear</button>
+                <button id="{{prefix}}Ok" class="btn btn-primary" on-click="onCreate">Create</button>
+                <!--</div>-->
+                <!--</div>-->
+            </div>
+        </div>
+
+        <!-- Modal: Individual browser -->
+        <div class="modal fade" id="{{prefix}}IndividualBrowser" tabindex="-1" role="dialog" aria-labelledby="individualBrowserLabel">
+            <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="{{prefix}}IndividualBrowserLabel">Individual Selector</h4>
+                    </div>
+                    <div class="modal-body" style="height: 780px">
+                        <opencga-individual-browser opencga-session="{{opencgaSession}}" config="[[individualBrowserConfig]]"
+                                                    on-selectindividual="onIndividualSelect">
+                        </opencga-individual-browser>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">
+                            OK
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Family browser -->
+        <div class="modal fade" id="{{prefix}}FamilyBrowser" tabindex="-1" role="dialog" aria-labelledby="familyBrowserLabel">
+            <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="{{prefix}}FamilyBrowserLabel">Family Selector</h4>
+                    </div>
+                    <div class="modal-body" style="height: 780px">
+                        <opencga-family-browser opencga-session="{{opencgaSession}}" config="[[familyBrowserConfig]]"
+                                                on-selectfamily="onFamilySelect">
+                        </opencga-family-browser>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">
+                            OK
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!--<table id="{{prefix}}IndividualBrowserGrid">-->
+        <!--<thead style="background-color: #eee"></thead>-->
+        <!--</table>-->
+
+        <!-- Same window: Family editor -->
+        <!--<template is="dom-if" if="{{createFamily}}">-->
+        <!--<button type="button" style="float: right; margin: 30px 30px 0px 0px;" class="btn btn-success" on-click="backToClinicalView">BACK</button>-->
+        <!--<opencga-family-editor opencga-session="{{opencgaSession}}" config="[[familyBrowserConfig]]"></opencga-family-editor>-->
+        <!--</template>-->
+    </template>
+
+    <script>
+        class OpencgaClinicalAnalysisEditor extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                this._init();
+            }
+
+            static get is() {
+                return 'opencga-clinical-analysis-editor';
+            }
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object
+                    },
+                    clinicalAnalysis: {
+                        type: Object
+                    },
+                    mode: {
+                        type: String,
+                        value: "create"
+                    },
+                    config: {
+                        type: Object,
+                    }
+                }
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            _init() {
+                this.prefix = "ocab-" + Utils.randomString(6);
+
+                this._config = this.getDefaultConfig();
+                this._individuals = [];
+                this._disorders = [];
+                this.isCreate = false;
+                this.notifyEnabled = true;
+
+                this.catalogUiUtils = new CatalogUIUtils();
+
+                this.createButtonStatus = "disabled";
+
+                this.familyBrowserConfig = {
+                    title: "Family Browser",
+                    showTitle: true,
+                    showAggregationStats: false,
+                    showComparator: false,
+                    filter: {
+
+                    },
+                    grid: {
+                        pageSize: 5,
+                        pageList: [5, 10],
+                        detailView: false,
+                        multiSelection: false
+                    },
+                    variableSetIds: []
+                };
+
+                this.individualBrowserConfig = {
+                    title: "Individual Browser",
+                    showTitle: true,
+                    showAggregationStats: false,
+                    showComparator: false,
+                    filter: {
+
+                    },
+                    grid: {
+                        pageSize: 5,
+                        pageList: [5, 10],
+                        detailView: false,
+                        multiSelection: false
+                    },
+                    variableSetIds: []
+                };
+            }
+
+            static get observers() {
+                return ['propertyObserver(opencgaSession, clinicalAnalysis, mode, config)'];
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+
+                $("#" + this.prefix + "DuePickerDate").datetimepicker({
+                    format: 'DD/MM/YYYY',
+                    // minDate: moment().add(1, "days"),
+                    // date: moment().add(1, "months")
+                });
+
+                $('select.selectpicker').selectpicker('render');
+
+                // Render default values when clinicalAnalysis property is not set
+                if (UtilsNew.isUndefinedOrNull(this.clinicalAnalysis)) {
+                    this._clinicalAnalysis = this.getDefaultClinicalAnalysis();
+                } else {
+                    // Merge default and passed clinical analysis, then notify.
+                    // let defaultClinicalAnalysis = this.getDefaultClinicalAnalysis();
+                    // this._clinicalAnalysis = Object.assign(defaultClinicalAnalysis, this.clinicalAnalysis);
+                    this._clinicalAnalysis = this.clinicalAnalysis;
+                    // this.notifyClinicalAnalysis();
+                }
+                this.fillForm(this._clinicalAnalysis);
+
+                this._updateCreateButtonStatus();
+
+                // Render empty table
+                // this.renderTable();
+            }
+
+            getDefaultClinicalAnalysis() {
+                return {
+                    type: "FAMILY",
+                    priority: "MEDIUM",
+                    analyst: {
+                        assignee: this.opencgaSession.user.id,
+                    },
+                    dueDate: moment().add(7, 'days').format("DD/MM/YYYY")
+                };
+            }
+
+            propertyObserver(opencgaSession, clinicalAnalysis, mode, config) {
+                this._config = Object.assign(this.getDefaultConfig(), config);
+
+                // Set a private variable with all the users in this study: owner + @members group.
+                // By default, the user creating the Case is selected as default
+                if (UtilsNew.isNotUndefinedOrNull(opencgaSession) && UtilsNew.isNotUndefinedOrNull(opencgaSession.study)
+                    && UtilsNew.isNotEmptyArray(opencgaSession.study.groups)) {
+                    // let _studyUsers = [opencgaSession.user.id];
+                    for (let group of opencgaSession.study.groups) {
+                        if (group.id === "@members" || group.name === "@members") {
+                            this._studyUsers = group.userIds;
+                        }
+                    }
+                }
+
+                if (UtilsNew.isNotUndefinedOrNull(mode)) {
+                    this.isCreate = mode.toLowerCase() === "create";
+                }
+
+                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis)) {
+                    // Merge default and passed clinical analysis, then notify.
+                    // let defaultClinicalAnalysis = this.getDefaultClinicalAnalysis();
+                    // this._clinicalAnalysis = Object.assign(defaultClinicalAnalysis, clinicalAnalysis);
+                    this._clinicalAnalysis = clinicalAnalysis;
+                    this.fillForm(this._clinicalAnalysis);
+                    // this.notifyClinicalAnalysis();
+                }
+
+                this.renderTable();
+            }
+
+            onSelectChange(e) {
+                let field = e.currentTarget.dataset.field;
+                let fieldCapital = field.charAt(0).toUpperCase() + field.slice(1);
+
+                let select = PolymerUtils.getElementById(this.prefix + fieldCapital);
+                if (UtilsNew.isNotUndefinedOrNull(select) && UtilsNew.isNotEmpty(select.value)) {
+                    let selected = PolymerUtils.querySelectorAll("option:checked", select);
+                    let values = [];
+
+                    selected.forEach(option => values.push(option.value));
+                    if (e.currentTarget.dataset.fieldType === "string") {
+                        this._clinicalAnalysis[field] = values.join(",");
+                    } else if (e.currentTarget.dataset.fieldType === "array") {
+                        this._clinicalAnalysis[field] = values;
+                    } else {
+                        // Get the first element of values which contains the Disorder 'object' we want
+                        this._clinicalAnalysis[field] = JSON.parse(selected[0].dataset.value);
+                    }
+
+                    this._clinicalAnalysis = Object.assign({}, this._clinicalAnalysis);
+                    this.notifyClinicalAnalysis();
+                }
+            }
+
+            onInputChange(e) {
+                let field = e.currentTarget.dataset.field;
+                let fieldCapital = field.charAt(0).toUpperCase() + field.slice(1);
+
+                let text = PolymerUtils.getElementById(this.prefix + fieldCapital);
+                if (UtilsNew.isNotUndefinedOrNull(text)) {  // && UtilsNew.isNotEmpty(text.value)
+                    this._clinicalAnalysis[field] = text.value;
+
+                    this._clinicalAnalysis = Object.assign({}, this._clinicalAnalysis);
+                    this.notifyClinicalAnalysis();
+
+                    this._updateCreateButtonStatus();
+                }
+            }
+
+            _updateCreateButtonStatus() {
+                if (UtilsNew.isNotEmpty(this._clinicalAnalysis.id) && UtilsNew.isNotUndefinedOrNull(this._clinicalAnalysis.proband)) {
+                    PolymerUtils.getElementById(`${this.prefix}Ok`).disabled = false;
+                } else {
+                    PolymerUtils.getElementById(`${this.prefix}Ok`).disabled = true;
+                }
+            }
+
+            fillForm(clinicalAnalysis) {
+                if (UtilsNew.isUndefinedOrNull(clinicalAnalysis)) {
+                    console.log("'clinicalAnalysis' is undefined or null");
+                    return;
+                }
+
+                this.notifyEnabled = false;
+
+                // We must first clear the form
+                this.clear();
+
+                // Calculate some internal data and render the sample table
+                this._individuals = this.getIndividualsFromClinicalAnalysis(clinicalAnalysis);
+                this._disorders = this.getDisordersFromIndividuals(this._individuals);
+                this.renderTable();
+
+                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.id)) {
+                    PolymerUtils.setValue(this.prefix + "Id", clinicalAnalysis.id);
+                }
+
+                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.type)) {
+                    $("#" + this.prefix + "Type").selectpicker('val', clinicalAnalysis.type);
+                }
+
+                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.assigned)) {
+                    $("#" + this.prefix + "Assigned").selectpicker('val', clinicalAnalysis.analyst.assignee);
+                }
+
+                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.priority)) {
+                    $("#" + this.prefix + "Priority").selectpicker('val', clinicalAnalysis.priority);
+                }
+
+                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.dueDate)) {
+                    PolymerUtils.setValue(this.prefix + "DueDate", clinicalAnalysis.dueDate);
+                }
+
+                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.flags)) {
+                    $("#" + this.prefix + "Flags").selectpicker('val', clinicalAnalysis.flags);
+                }
+
+                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.description)) {
+                    PolymerUtils.setValue(this.prefix + "Description", clinicalAnalysis.description);
+                }
+
+                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.disorder)) {
+                    $("#" + this.prefix + "Disorder").selectpicker('val', clinicalAnalysis.disorder.id);
+                }
+
+                this.notifyEnabled = true;
+            }
+
+            clear() {
+                // Empty everything before rendering
+                $("." + this.prefix + "Input").val("");
+                $("." + this.prefix + "Input").prop("disabled", false);
+
+                // Deselect bootstrap-select dropdowns
+                $("#" + this.prefix + "Type").selectpicker('val', []);
+                $("#" + this.prefix + "Assigned").selectpicker('val', []);
+                $("#" + this.prefix + "Priority").selectpicker('val', []);
+                $("#" + this.prefix + "Flags").selectpicker('val', []);
+                $("#" + this.prefix + "Disorder").selectpicker('val', []);
+            }
+
+            notifyClinicalAnalysis() {
+                // debugger
+                if (this.notifyEnabled) {
+                    this.dispatchEvent(new CustomEvent("clinicalanalysischange", {
+                        detail: {
+                            clinicalAnalysis: this._clinicalAnalysis
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
+                }
+            }
+
+            onIndividualSelect(e) {
+                let individuals = [e.detail.individual];
+                this._clinicalAnalysis.family = undefined;
+                this.updateIndividual(individuals);
+            }
+
+            onFamilySelect(e) {
+                this._clinicalAnalysis.family = e.detail.family;
+
+                let individualIds = [];
+                for (let individual of e.detail.family.members) {
+                    individualIds.push(individual.id);
+                }
+
+                let _this = this;
+                this.opencgaSession.opencgaClient.individuals().search({
+                    id: individualIds.join(","),
+                    study: this.opencgaSession.study.fqn,
+                }).then(function(response) {
+                        _this._clinicalAnalysis.family.members = response.response[0].result;
+                        _this.updateIndividual(response.response[0].result);
+                    }
+                );
+            }
+
+            updateIndividual(individuals) {
+                this._clinicalAnalysis.files = {};
+                // this._individuals = individuals;
+
+                // Set the proband when there is just one individual
+                this._clinicalAnalysis.proband = undefined;
+                // FIXME add this comparison
+                // && individuals.length === 1
+                // if (UtilsNew.isNotEmptyArray(individuals) ) {
+                //     this._clinicalAnalysis.proband = individuals[0];
+                // }
+
+                let sampleIds = [];
+                for (let individual of individuals) {
+                    for (let sample of individual.samples) {
+                        sampleIds.push(sample.id);
+                    }
+                }
+
+                // This triggers the render of Disorder dropdown
+                let disorders = this.getDisordersFromIndividuals(individuals);
+                this._disorders = disorders;
+                if (UtilsNew.isNotEmptyArray(disorders) && disorders.length === 1) {
+                    this._clinicalAnalysis.disorder = disorders[0];
+                }
+
+                if (UtilsNew.isNotEmptyArray(sampleIds)) {
+                    let promises = [];
+                    for (let sampleId of sampleIds) {
+                        // We look for the files related to the samples
+                        promises.push(this.opencgaSession.opencgaClient.files().search({
+                            samples: sampleId,
+                            format: "BAM,VCF,BIGWIG",
+                            study: this.opencgaSession.study.fqn,
+                            exclude: "samples"
+                            // include: "id,name,format,bioformat,size"
+                        }).then(function(response) {
+                            return {
+                                sampleId: sampleId,
+                                files: response.response[0].result
+                            }
+                        }));
+                    }
+
+                    let files = {};
+                    Promise.all(promises).then(values => {
+                        for (let value of values) {
+                            files[value.sampleId] = value.files;
+                        }
+                        this._clinicalAnalysis.files = files;
+
+                        this.fillForm(this._clinicalAnalysis);
+                        this.notifyClinicalAnalysis();
+                    });
+                } else {
+                    this.fillForm(this._clinicalAnalysis);
+                    this.notifyClinicalAnalysis();
+                }
+            }
+
+            showIndividualSelector(e) {
+                e.preventDefault();
+                this.individualModal = UtilsNew.isUndefined(this.individualModal) ? true : !this.individualModal;
+                $("#" + this.prefix + "IndividualBrowser").modal('show');
+            }
+
+            showFamilySelector(e) {
+                e.preventDefault();
+                this.familyModal = UtilsNew.isUndefined(this.familyModal) ? true : !this.familyModal;
+                $("#" + this.prefix + "FamilyBrowser").modal('show');
+            }
+
+            showFamilyCreator(e) {
+                e.preventDefault();
+                this.createFamily = true;
+                // this.familyModal = UtilsNew.isUndefined(this.familyModal) ? true : !this.familyModal;
+                // $("#" + this.prefix + "FamilyBrowser").modal('show');
+            }
+
+            getIndividualsFromClinicalAnalysis(clinicalAnalysis) {
+                let individuals = [];
+                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis)) {
+                    if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.family)) {
+                        individuals = clinicalAnalysis.family.members;
+                    } else {
+                        if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.proband)) {
+                            individuals = [clinicalAnalysis.proband];
+                        }
+                    }
+                }
+                return individuals;
+            }
+
+            getDisordersFromIndividuals(individuals) {
+                let disorders = [];
+                if (UtilsNew.isNotEmptyArray(individuals)) {
+                    for (let individual of individuals) {
+                        if (UtilsNew.isNotEmptyArray(individual.disorders)) {
+                            for (let disorder of individual.disorders) {
+                                // disorders array does not contain the element we're looking for
+                                if (disorders.filter(e => e.id === disorder.id).length === 0) {
+                                    disorders.push(disorder);
+                                }
+                            }
+                        }
+                    }
+                }
+                return disorders;
+            }
+
+            isFamilyAnalysis(type) {
+                if (type === "single" || type === "multiple" || type === "somatic") {
+                    return false;
+                }
+                return true;
+            }
+
+            renderDomRepeat(e) {
+                $('select.selectpicker').selectpicker('refresh');
+            }
+
+            onClear() {
+                this.clear();
+
+                this._individuals = [];
+                this._disorders = [];
+
+                this._clinicalAnalysis = this.getDefaultClinicalAnalysis();
+                this.fillForm(this._clinicalAnalysis);
+                this.renderTable();
+                this.notifyClinicalAnalysis();
+            }
+
+            onCreate() {
+                let _clinicalAnalysis = Object.assign({}, this._clinicalAnalysis);
+                _clinicalAnalysis.proband = {
+                    id: _clinicalAnalysis.proband.id,
+                    samples: [
+                        {
+                            id: _clinicalAnalysis.proband.samples[0].id
+                        }
+                    ]
+                };
+
+                _clinicalAnalysis.analyst = {assignee: _clinicalAnalysis.analyst.assignee};
+                // delete _clinicalAnalysis.assigned;
+
+                if (UtilsNew.isNotUndefinedOrNull(_clinicalAnalysis.family)) {
+                    let _family = {
+                        id: _clinicalAnalysis.family.id,
+                        members: []
+                    };
+                    for (let member of _clinicalAnalysis.family.members) {
+                        _family.members.push({
+                            id: member.id,
+                            samples: [
+                                {
+                                    id: member.samples[0].id
+                                }
+                            ]
+                        });
+                    }
+                    _clinicalAnalysis.family = _family;
+                }
+
+                if (UtilsNew.isNotUndefinedOrNull(_clinicalAnalysis.files)) {
+                    let _files = {};
+                    for (let sampleId in _clinicalAnalysis.files) {
+                        let fileIds = [];
+                        for (let file of _clinicalAnalysis.files[sampleId]) {
+                            fileIds.push(file.id);
+                        }
+                        _files[sampleId] = fileIds;
+                    }
+                    _clinicalAnalysis.files = _files;
+                }
+
+                if (UtilsNew.isNotUndefinedOrNull(_clinicalAnalysis.dueDate)) {
+                    let dueDate = moment(_clinicalAnalysis.dueDate, "DD/MM/YYYY").format("YYYYMMDDHHMMSS");
+                    _clinicalAnalysis.dueDate = dueDate;
+                }
+
+                let _this = this;
+                this.opencgaSession.opencgaClient.clinical().create({study: this.opencgaSession.study.fqn}, _clinicalAnalysis)
+                    .then(function(response) {
+                        _this.onClear();
+                        NotificationUtils.showNotify(`Family ${response.response[0].result[0].id} created successfully`, "SUCCESS");
+                    })
+                    .catch(function (response) {
+                        console.error(response);
+                        NotificationUtils.showNotify(response.error, "ERROR");
+                    });
+            }
+
+            /*
+             * TABLE AND FORMATTERS
+             */
+
+            renderTable() {
+                let columns = this._initTableColumns();
+
+                let _this = this;
+                $("#" + this.prefix + 'IndividualBrowserGrid').bootstrapTable('destroy');
+                $("#" + this.prefix + 'IndividualBrowserGrid').bootstrapTable({
+                    columns: columns,
+                    data: _this._individuals,
+
+                    // Table properties
+                    pagination: _this._config.grid.pagination,
+                    // showExport: _this._config.grid.showExport,
+                    detailView: _this._config.grid.detailView,
+                    detailFormatter: _this._config.grid.detailFormatter,
+
+                    // Make Polymer components available to table formatters
+                    gridContext: _this,
+
+                    onPostBody: function (data) {
+                        $('.selectpicker').selectpicker('refresh');
+
+                        let removeIndividualButtons = PolymerUtils.querySelectorAll(".removeIndividualButton");
+                        for (let i = 0; i < removeIndividualButtons.length; i++) {
+                            removeIndividualButtons[i].addEventListener('click', _this.removeIndividualButtonClicked.bind(_this));
+                        }
+
+                        let probandRadio = PolymerUtils.querySelectorAll(".probandRadio");
+                        for (let i = 0; i < probandRadio.length; i++) {
+                            probandRadio[i].addEventListener('click', _this.aaa.bind(_this));
+                            // removeIndividualButtons[i].addEventListener('change', _this.aaa.bind(_this));
+                        }
+                        // Add tooltips
+                        _this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
+                    }
+                });
+            }
+
+            removeIndividualButtonClicked(e) {
+                let individuals = [];
+                for (let i = 0; i < this._individuals.length; i++) {
+                    if (this._individuals[i].id !== e.target.dataset.id) {
+                        individuals.push(this._individuals[i]);
+                    }
+                }
+
+                this._individuals = individuals;
+                // Reload data of the table
+                $("#" + this.prefix + 'IndividualBrowserGrid').bootstrapTable('load', this._individuals);
+
+                if (this._individuals.length === 0 && !this.isFamilyAnalysis(this._clinicalAnalysis.type)) {
+                    // Re-enable disabled buttons
+                    PolymerUtils.getElementById(`${this.prefix}-browseIndividual`).disabled = false;
+
+                    let buttons = PolymerUtils.getElementsByClassName(`${this.prefix}-type`);
+                    for (let i = 0; i < buttons.length; i++) {
+                        buttons[i].disabled = false;
+                    }
+                }
+
+                this._clinicalAnalysis.family.members = this._individuals;
+                delete this._clinicalAnalysis.files[e.target.dataset.id];
+
+                this.notifyClinicalAnalysis(this._clinicalAnalysis);
+            }
+
+            detailFormatter(index, row) {
+                // let result = `<div class='row' style="padding: 5px 10px 15px 10px">
+                //                 <div class='col-md-12'>
+                //                     <h5 style="font-weight: bold">Samples</h5>
+                // `;
+                //
+                // if (UtilsNew.isNotEmptyArray(row.samples)) {
+                //     if (row.samples.length === 1) {
+                //         result += ""
+                //     } else {
+                //
+                //     }
+                // }
+
+            }
+
+            individualFormatter(value, row) {
+                if (UtilsNew.isNotUndefinedOrNull(value) && UtilsNew.isNotUndefinedOrNull(row)) {
+                    let sampleIcon = this._config.sexIconMap[row.sex];
+                    let sampleIdStyle = "color: black";
+                    if (UtilsNew.isNotEmptyArray(row.disorders)) {
+                        for (let disorder of row.disorders) {
+                            if (disorder.id === this._clinicalAnalysis.disorder.id) {
+                                sampleIdStyle = "color: red";
+                                break;
+                            }
+                        }
+                    }
+
+                    let html = `<div>
+                                    <span data-toggle="tooltip" data-placement="bottom" style="${sampleIdStyle}" title="" >
+                                        ${value} <i class='fa ${sampleIcon} fa-lg' style='padding-left: 5px'></i>
+                                    </span>
+                               </div>
+                        `;
+                    return html;
+                } else {
+                    return "-";
+                }
+            }
+
+            samplesFormatter(value, row) {
+                if (UtilsNew.isNotEmptyArray(row.samples)) {
+                    let samples = "<span>";
+                    // for (let sample of row.samples) {
+                    //     samples += `<div>${sample.id}</div>`;
+                    // }
+                    samples += row.samples[0].id;
+                    samples += "</span>";
+                    return samples;
+                } else {
+                    return "-";
+                }
+            }
+
+            probandFormatter(value, row) {
+                return `<input type="radio" name="${this.prefix}-optradio" class="probandRadio" data-individual-id="${row.id}">`;
+            }
+
+            aaa(e) {
+                let individualId = e.currentTarget.dataset.individualId;
+                if (UtilsNew.isNotUndefinedOrNull(this._clinicalAnalysis.family)
+                    && UtilsNew.isNotEmptyArray(this._clinicalAnalysis.family.members)) {
+                    for (let member of this._clinicalAnalysis.family.members) {
+                        if (member.id === individualId) {
+                            this._clinicalAnalysis.proband = member;
+                        }
+                    }
+                    this.notifyClinicalAnalysis(this._clinicalAnalysis);
+                }
+                this._updateCreateButtonStatus();
+            }
+
+            disordersFormatter(value, row) {
+                if (UtilsNew.isNotEmpty(value)) {
+                    let disordersHtml = "<div>";
+                    for (let disorder of value) {
+                        disordersHtml += `<span>${disorder.id}</span>`;
+                    }
+                    disordersHtml += "</div>";
+                    return disordersHtml;
+                } else {
+                    return '-';
+                }
+            }
+
+            phenotypesFormatter(value, row) {
+                if (UtilsNew.isNotEmptyArray(value)) {
+                    let phenotypeTooltipText = "";
+                    for (let phenotype of value) {
+                        phenotypeTooltipText += `<div style="padding: 5px">`;
+                        if (UtilsNew.isNotUndefinedOrNull(phenotype.source) && phenotype.source.toUpperCase() === "HPO") {
+                            phenotypeTooltipText += `<span>
+                                                        <a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})
+                                                    </span>
+                                `;
+                        } else {
+                            phenotypeTooltipText += `<span>${phenotype.id} (${phenotype.status})</span>`;
+                        }
+                        phenotypeTooltipText += "</div>";
+                    }
+
+                    let html = `<div class="phenotypesTooltip" data-tooltip-text='${phenotypeTooltipText}'>
+                                    <a style="cursor: pointer">
+                                        ${value.length} terms found
+                                    </a>
+                                </div>
+                    `;
+                    return html;
+                } else {
+                    return '-';
+                }
+            }
+
+            filesFormatter(value, row) {
+                if (UtilsNew.isNotUndefinedOrNull(this._clinicalAnalysis.files)) {
+                    let html = '<div>';
+                    if (UtilsNew.isNotEmptyArray(row.samples)) {
+                        let files = this._clinicalAnalysis.files[row.samples[0].id];
+                        if (UtilsNew.isNotEmptyArray(files)) {
+                            for (let file of files) {
+                                html += `<div>${file.name}</div>`;
+                            }
+                        }
+                    }
+                    html += '</div>';
+                    return html;
+                }
+            }
+
+            flagsFormatter(value, row) {
+                let html = `<select class="selectpicker" data-id=${row.id}  data-width="100%" on-change="updateQuery"
+                                    on-dom-change="renderDomRepeat" multiple data-selected-text-format="count > 1">
+                                <template is="dom-repeat" items="${this._config.flags}">
+                                    <option value="{{item}}">{{item}}</option>
+                                </template>
+                            </select>`;
+                return html;
+            }
+
+            removeButtonFormatter(value, row) {
+                return `<button data-id=${row.id} class='btn btn-sm btn-danger removeIndividualButton'>
+                        <i class="fa fa-trash" aria-hidden="true"></i> Remove</button>`;
+            }
+
+            _initTableColumns() {
+                return [
+                    [
+                        {
+                            title: 'Individual',
+                            field: 'id',
+                            formatter: this.individualFormatter.bind(this),
+                            halign: this._config.grid.header.horizontalAlign
+                        },
+                        {
+                            title: 'Sample',
+                            field: 'samples',
+                            formatter: this.samplesFormatter,
+                            halign: this._config.grid.header.horizontalAlign
+                        },
+                        {
+                            title: 'Proband',
+                            formatter: this.probandFormatter.bind(this),
+                            align: this._config.grid.header.horizontalAlign,
+                            halign: this._config.grid.header.horizontalAlign
+                        },
+                        {
+                            title: 'Father',
+                            field: 'father.id',
+                            halign: this._config.grid.header.horizontalAlign
+                        },
+                        {
+                            title: 'Mother',
+                            field: 'mother.id',
+                            halign: this._config.grid.header.horizontalAlign
+                        },
+                        {
+                            title: 'Disorders',
+                            field: "disorders",
+                            formatter: this.disordersFormatter,
+                            halign: this._config.grid.header.horizontalAlign
+                        },
+                        {
+                            title: 'Phenotypes',
+                            field: "phenotypes",
+                            formatter: this.phenotypesFormatter,
+                            halign: this._config.grid.header.horizontalAlign
+                        },
+                        {
+                            title: 'Files',
+                            field: "files",
+                            formatter: this.filesFormatter.bind(this),
+                            halign: this._config.grid.header.horizontalAlign
+                        },
+                        // {
+                        //     title: 'Flags',
+                        //     field: 'flags',
+                        //     // rowspan: 2,
+                        //     formatter: this.flagsFormatter.bind(this),
+                        //     align: this._config.grid.header.horizontalAlign
+                        // },
+                        {
+                            title: 'Remove',
+                            field: 'id',
+                            formatter: this.removeButtonFormatter,
+                            align: this._config.grid.header.horizontalAlign,
+                            halign: this._config.grid.header.horizontalAlign
+                        }
+                    ], []
+                ];
+            }
+
+            getDefaultConfig() {
+                return {
+                    title: "Create Case",
+                    showTitle: true,
+                    grid: {
+                        pagination: false,
+                        // showExport: false,
+                        detailView: true,
+                        detailFormatter: this.detailFormatter,
+                        // multiSelection: false,
+                        header: {
+                            horizontalAlign: 'center',
+                            verticalAlign: 'bottom'
+                        }
+                    },
+                    flags: ["mixed_chemistries", "low_tumour_purity", "uniparental_isodisomy", "uniparental_heterodisomy",
+                        "unusual_karyotype", "suspected_mosaicism", "low_quality_sample"],
+                    sexIconMap: {
+                        MALE: "fa-mars",
+                        FEMALE: "fa-venus",
+                        UNKNOWN: "fa-genderless"
+                    }
+                };
+            }
+        }
+
+        customElements.define(OpencgaClinicalAnalysisEditor.is, OpencgaClinicalAnalysisEditor);
+    </script>
+</dom-module>

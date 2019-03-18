@@ -1,0 +1,732 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<dom-module id="opencga-variant-filter-sample">
+    <template>
+        <style include="jso-styles"></style>
+
+        <div class="row">
+            <div class="col-md-12" style="padding: 0px 20px 0px 20px">
+                <h3 style="padding-bottom: 10px">Select Sample and Genotypes</h3>
+
+                <div class="col-md-2" style="padding-top: 5px">
+                    <span style="font-size: 14px">Search Sample by </span>
+                </div>
+                <div class="col-md-2">
+                    <select class="selectpicker" id="{{prefix}}FilterType" data-size="8" style="display: inline-block">
+                        <option value="sample">Sample ID</option>
+                        <option value="family">Family ID</option>
+                        <option value="file">File Name</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <input id="{{prefix}}AutocompleteSearchInput" type="text" class="form-control" placeholder="Search ..."
+                           list$="{{prefix}}AutocompleteSampleSearchDataList" on-keyup="onAutocompleteSearch">
+                    <datalist id="{{prefix}}AutocompleteSampleSearchDataList"></datalist>
+                </div>
+                <div class="col-md-1">
+                    <button id="{{prefix}}SampleAddButton" type="button" class="btn btn-default btn-sm form-control" on-click="onAddNewSample">
+                        <i class="fa fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-12" style="padding: 10px 20px 0px 20px">
+                <div class="col-md-2" style="padding-top: 5px">
+                    <span style="font-size: 14px">Mode of Inheritance</span>
+                </div>
+                <div class="col-md-4">
+                    <select class="selectpicker" id="${prefix}ModeOfInheritance" data-size="8" style="display: inline-block" >
+                        <option value="none">None</option>
+                        <option value="dominant">Automosomal Dominant</option>
+                        <option value="recessive">Automosomal Recessive</option>
+                        <option value="compHet">Compound Heterozygous (AR) </option>
+                        <option value="xdominant">X-linked Dominant</option>
+                        <option value="xrecessive">X-linked Recessive</option>
+                        <option value="y">Y-linked</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-12" style="padding: 25px 40px 0px 40px">
+                <!--<button type="button" class="btn btn-warning btn-sm" style="float: right" on-click="advancedModeButtonClick">-->
+                <!--<span>{{advancedModeButtonText}}</span>-->
+                <!--</button>-->
+                <template is="dom-if" if="{{!advancedMode}}">
+                    <table id="{{prefix}}BasicTable" class="table" >
+                        <thead>
+                        <tr>
+                            <th rowspan="2">Affected</th>
+                            <th rowspan="2">Sample ID</th>
+                            <th rowspan="1" colspan="3" style="text-align: center">Genotypes</th>
+                            <th rowspan="2">Min. Depth</th>
+                            <th rowspan="2"></th>
+                        </tr>
+                        <tr>
+                            <th scope="col" rowspan="2">HOM_REF</th>
+                            <th scope="col" rowspan="2">HET</th>
+                            <th scope="col" rowspan="2">HOM_ALT</th>
+                        </tr>
+                        </thead>
+                        <tbody id="{{prefix}}BasicTBody"></tbody>
+                    </table>
+
+                    <div id="{{prefix}}BasicTableMessage" style="text-align: center"><span style="font-weight: bold">No Samples selected</span></div>
+                </template>
+
+                <template is="dom-if" if="{{advancedMode}}">
+                    <table id="{{prefix}}AdvancedTable" class="table">
+                        <thead>
+                        <tr>
+                            <th rowspan="2">Affected</th>
+                            <th rowspan="2">Sample ID</th>
+                            <th rowspan="1" colspan="4" style="text-align: center">Genotypes</span></th>
+                            <th rowspan="2">Min. Depth</th>
+                            <th rowspan="2"></th>
+                        </tr>
+                        <tr>
+                            <!--<th rowspan="1"></th>-->
+                            <!--<th rowspan="2">Sample ID</th>-->
+                            <th rowspan="1">HOM_REF</th>
+                            <th rowspan="1">HET_REF</th>
+                            <th rowspan="1">HET_ALT</th>
+                            <th rowspan="1">HOM_ALT</th>
+                            <!--<th rowspan="2">Min. Depth</th>-->
+                            <!--<th rowspan="2"></th>-->
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <template is="dom-repeat" items="{{samples}}" as="sample">
+                            <tr>
+                                <td style="padding-left: 20px"><input type="checkbox" aria-label="..."></td>
+                                <td style="vertical-align: middle"><span>{{sample.name}}</span></td>
+                                <td style="padding-left: 20px"><input type="checkbox" aria-label="..."></td>
+                                <td style="padding-left: 20px"><input type="checkbox" aria-label="..."></td>
+                                <td style="padding-left: 20px"><input type="checkbox" aria-label="..."></td>
+                                <td style="padding-left: 20px"><input type="checkbox" aria-label="..."></td>
+                                <td style="padding-left: 10px"><input type="text" class="form-control input-sm" aria-label="..." placeholder="15" style="width: 60px"></td>
+                                <td><button class="btn btn-danger btn-sm"><i class="fa fa-times"></i> Delete</button></td>
+                            </tr>
+                        </template>
+                        </tbody>
+                    </table>
+                </template>
+            </div>
+
+            <div class="col-md-12" style="padding: 0px 20px 0px 20px">
+                <div style="padding: 0px 15px">
+                    <span style="font-size: 14px">Other options</span>
+                </div>
+                <div style="padding: 5px 25px; font-size: 14px" >
+                    <input type="checkbox" on-click="advancedModeButtonClick"><span style="padding-left: 5px">Show advanced multi-allelic genotypes</span>
+                    <br>
+                    <input id="{{prefix}}CompHetCheckbox" type="checkbox" on-click="notify"><span style="padding-left: 5px">Compound Heterozygous</span>
+                    <br>
+                    <input id="{{prefix}}MissingCheckbox" type="checkbox" on-click="notify"><span style="padding-left: 5px">Missing</span>
+                </div>
+            </div>
+
+            <div class="col-md-12" style="padding: 25px 20px 0px 20px">
+                <h3>Select File filters</h3>
+                <div style="padding: 0px 20px 0px 20px">
+                    <table id="{{prefix}}FileTable" class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col" rowspan="2">Name</th>
+                            <th scope="col" rowspan="2">Path</th>
+                            <th scope="col" rowspan="2">Min. QUAL</th>
+                            <th scope="col" rowspan="2">FILTER</th>
+                        </tr>
+                        </thead>
+                        <tbody id="{{prefix}}FileTBody"></tbody>
+                    </table>
+
+                    <div id="{{prefix}}FileTableMessage" style="text-align: center"><span style="font-weight: bold">No Files selected</span></div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        class OpencgaVariantFilterSample extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                this._init();
+            }
+
+            static get is() {
+                return 'opencga-variant-filter-sample'
+            };
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object,
+                        observer: "opencgaSessionObserver"
+                    },
+                    samples: {
+                        type: Array,
+                        observer: "samplesObserver"
+                    },
+                    sampleFilters: {
+                        type: Array,
+                        // observer: "sampleFiltersObserver",
+                        default: []
+                    },
+                    // filters: {
+                    //     type: Object,
+                    //     observer: "filtersObserver",
+                    //     default: []
+                    // },
+                }
+            }
+
+            _init() {
+                this.prefix = "ovfs" + Utils.randomString(6);
+
+                // Example sampleFilters
+                // this.sampleFilter = [{
+                //     id: "sampleId",
+                //     genotypes: ["0/1", "1/1"],
+                //     dp: 15
+                // };
+                this.sampleFilters = [];
+                this.sampleFiltersMap = {};
+                this.fileFilters = [];
+                this._modeOfInheritance = "none";
+
+                this.skipRenderSampleTable = false;
+                this.skipRenderFileTable = false;
+
+                this.advancedMode = false;
+                this.advancedModeButtonText = "Switch to Advanced Mode";
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+            }
+
+            static get observers() {
+                return ['sampleFiltersObserver(sampleFilters.*)', 'fileFiltersObserver(fileFilters.*)']
+            }
+
+            advancedModeButtonClick(e) {
+                this.advancedMode = !this.advancedMode;
+                if (this.advancedMode) {
+                    this.advancedModeButtonText = "Switch to Basic Mode";
+                } else {
+                    this.advancedModeButtonText = "Switch to Advanced Mode";
+                }
+            }
+
+            opencgaSessionObserver() {
+                let _this = this;
+                this.opencgaSession.opencgaClient.variants()
+                    .metadata({
+                        study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias
+                    }, {})
+                    .then(function (response) {
+                        // debugger
+                    });
+            }
+
+            samplesObserver(samples) {
+                let _samples = [];
+                let _sampleGT = {};
+                let _sampleDP = {};
+                for (let sample of samples) {
+                    _samples.push(sample.id);
+                    _sampleGT[sample.id] = sample.genotypes;
+                    _sampleDP[sample.id] = sample.dp;
+                }
+
+                let _this = this;
+                this.opencgaSession.opencgaClient.samples()
+                    .search({
+                        study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
+                        name: _samples.join(","),
+                        // Fetch ID and source (file)
+                        include: "id,name,source",
+                        includeIndividual: false,
+                        limit: 20}, {})
+                    .then(function (response) {
+                        // let options = "";
+                        let _sampleFilters = [];
+                        for (let sample of response.response[0].result) {
+                            // TODO remove this in OpenCGA 1.4.0
+                            if (sample.id === undefined) {
+                                sample.id = sample.name;
+                            }
+                            let _sampleFilter = {
+                                id: sample.id,
+                                genotypes: _sampleGT[sample.id],
+                                dp: _sampleDP[sample.id],
+                                affected: false
+                            };
+                            _sampleFilters.push(_sampleFilter);
+                        }
+
+                        _this.sampleFilters = _sampleFilters;
+                    });
+            }
+
+            sampleFiltersObserver(e) {
+                this.sampleFiltersMap = {};
+                for (let sampleFilter of this.sampleFilters) {
+                    this.sampleFiltersMap[sampleFilter.id] = true;
+                }
+
+                // If sampleFilters is modified because interaction with the table we do not need to render the table again.
+                // This easily avoids an unnecessary table render.
+                if (!this.skipRenderSampleTable) {
+                    this.renderSampleTable();
+                }
+
+                // Fetch the files for the selected Samples and upgrade 'fileFilters'
+                // Get all sample IDs to query for files
+                let _sampleIds = [];
+                for (let sampleFilter of this.sampleFilters) {
+                    _sampleIds.push(sampleFilter.id);
+                }
+
+                if (_sampleIds.length > 0) {
+                    let _this = this;
+                    this.opencgaSession.opencgaClient.files()
+                        .search({
+                            study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
+                            samples: _sampleIds.join(","),
+                            format: "VCF",
+                            // Fetch ID and source (file)
+                            include: "id,name,path",
+                            limit: 20
+                        }, {})
+                        .then(function (response) {
+                            let _fileFilters = [];
+                            for (let file of response.response[0].result) {
+                                let _fileFilter = {
+                                    id: file.id,
+                                    name: file.name,
+                                    path: file.path
+                                };
+                                _fileFilters.push(_fileFilter);
+                            }
+
+                            // We compare the new files with the current displayed ones, if the number is different
+                            // means that the observer has been triggered because one sample has been removed or added,
+                            // then we must update the files but remembering the QUAL and FITLER VALUES
+                            if (_fileFilters.length !== _this.fileFilters.length) {
+                                for (let _fileFilter of _fileFilters) {
+                                    for (let fileFilter of _this.fileFilters) {
+                                        if (_fileFilter.name === fileFilter.name) {
+                                            _fileFilter.qual = fileFilter.qual;
+                                            _fileFilter.filter = fileFilter.filter;
+                                            break;
+                                        }
+                                    }
+                                }
+                                // this will trigger a notify event
+                                _this.fileFilters = _fileFilters;
+                            } else {
+                                // If the lengths are equal then only a sample attribute has changed and we just need to notify
+                                _this.notify();
+                            }
+                        });
+                } else {
+                    // We have removed last sample and therefore we need to last file
+                    if (_sampleIds.length === 0 && this.fileFilters.length > 0) {
+                        this.fileFilters = [];
+                    }
+                }
+            }
+
+            fileFiltersObserver(e) {
+                // If fileFilters is modified because interaction with the table we do not need to render the table again.
+                // This easily avoids an unnecessary table render.
+                if (!this.skipRenderFileTable) {
+                    this.renderFileTable();
+                }
+
+                // Notify the sample and file filters change
+                this.notify();
+            }
+
+            notify() {
+                // let modeOfInheritance = "none";
+                let compHet = false;
+                let missing = false;
+                if (PolymerUtils.getElementById(this.prefix + "CompHetCheckbox") !== null) {
+                    // modeOfInheritance = PolymerUtils.getElementById(this.prefix + "ModeOfInheritance").value;
+                    // modeOfInheritance = $("#" + this.prefix + "ModeOfInheritance").val();
+                    compHet = PolymerUtils.getElementById(this.prefix + "CompHetCheckbox").checked;
+                    missing = PolymerUtils.getElementById(this.prefix + "MissingCheckbox").checked;
+                }
+
+                // Notify the sample change
+                this.dispatchEvent(new CustomEvent("samplefilterschange", {
+                    detail: {
+                        sampleFilters: this.sampleFilters,
+                        fileFilters: this.fileFilters,
+                        modeOfInheritance: this._modeOfInheritance,
+                        compoundHeterozygous: compHet,
+                        missing: missing
+                    },
+                    bubbles: true,
+                    composed: true
+                }));
+            }
+
+            onModeOfInheritance(e) {
+                this._modeOfInheritance = e.target.value;
+                // debugger
+                this.notify();
+            }
+
+            renderSampleTable() {
+                let tr = "";
+                for (let sampleFilter of this.sampleFilters) {
+                    let defaultValues = {
+                        affected: (sampleFilter.affected) ? "checked" : "",
+                        gt00: (sampleFilter.genotypes.includes("0/0")) ? "checked" : "",
+                        gt01: (sampleFilter.genotypes.includes("0/1")) ? "checked" : "",
+                        gt11: (sampleFilter.genotypes.includes("1/1")) ? "checked" : "",
+                        dp: (sampleFilter.dp !== undefined && sampleFilter.dp > 0) ? sampleFilter.dp : "",
+                    };
+
+                    tr += `
+                            <tr data-sample="${sampleFilter.id}">
+                                <td style="padding-left: 20px">
+                                    <input id="${this.prefix}${sampleFilter.id}Affected" type="checkbox" class="sample-checkbox" aria-label="..." ${defaultValues.affected}>
+                                </td>
+                                <td style="vertical-align: middle"><span>${sampleFilter.id}</span></td>
+                                <td style="padding-left: 20px">
+                                    <input id="${this.prefix}${sampleFilter.id}00" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/0" ${defaultValues.gt00}>
+                                </td>
+                                <td style="padding-left: 20px">
+                                    <input id="${this.prefix}${sampleFilter.id}01" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/1" ${defaultValues.gt01}>
+                                </td>
+                                <td style="padding-left: 20px">
+                                    <input id="${this.prefix}${sampleFilter.id}11" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="1/1" ${defaultValues.gt11}>
+                                </td>
+                                <td style="padding-left: 10px">
+                                    <input id="${this.prefix}${sampleFilter.id}DP" type="text" value="${defaultValues.dp}" class="form-control input-sm sample-dp-textbox" aria-label="..." placeholder="15" style="width: 60px">
+                                </td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm sample-delete-button" data-sample="${sampleFilter.id}">
+                                        <i class="fa fa-times" data-sample="${sampleFilter.id}"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                    `;
+                }
+
+                let elementById = PolymerUtils.getElementById(this.prefix + "BasicTBody");
+                if (UtilsNew.isNotUndefinedOrNull(elementById)) {
+                    // Set HTML into the table body
+                    elementById.innerHTML = tr;
+                    // Add or remove the message
+                    if (tr === "") {
+                        PolymerUtils.getElementById(this.prefix + "BasicTableMessage").innerHTML = "<span style=\"font-weight: bold\">No Samples selected</span>";
+                    } else {
+                        PolymerUtils.getElementById(this.prefix + "BasicTableMessage").innerHTML = "";
+                    }
+
+                    // Add event listener to DP textbox
+                    let checkboxes = PolymerUtils.getElementsByClassName("sample-checkbox");
+                    for (let dpTextbox of checkboxes) {
+                        dpTextbox.addEventListener('click', this.onSampleTableChange.bind(this));
+                    }
+
+                    // Add event listener to DP textbox
+                    let dpTextboxes = PolymerUtils.getElementsByClassName("sample-dp-textbox");
+                    for (let dpTextbox of dpTextboxes) {
+                        dpTextbox.addEventListener('keyup', this.onSampleTableChange.bind(this));
+                    }
+
+                    // Add event listener to delete buttons
+                    let deleteButtons = PolymerUtils.getElementsByClassName("sample-delete-button");
+                    for (let deleteButtonsKey of deleteButtons) {
+                        deleteButtonsKey.addEventListener('click', this.onDeleteSample.bind(this));
+                    }
+                }
+            }
+
+            onSampleTableChange(e) {
+                let table = PolymerUtils.getElementById(this.prefix + "BasicTable");
+                let _sampleFilters = [];
+                for (let row of table.rows) {
+                    if (row.dataset.sample !== undefined) {
+                        let _sampleFilter = {
+                            id: row.dataset.sample,
+                            affected: row.children[0].children[0].checked,
+                            genotypes: [],
+                            dp: ""
+                        };
+                        // Set GT values
+                        for (let i = 2; i < 5; i++) {
+                            if (row.children[i].children[0].checked) {
+                                _sampleFilter.genotypes.push(row.children[i].children[0].dataset.gt)
+                            }
+                        }
+                        // Set DP value
+                        _sampleFilter.dp = row.children[5].children[0].value;
+
+                        _sampleFilters.push(_sampleFilter);
+                    }
+                }
+
+                // Skip table rendering since the table is already rendered
+                this.skipRenderSampleTable = true;
+                this.sampleFilters = _sampleFilters;
+                this.skipRenderSampleTable = false;
+            }
+
+
+            renderFileTable() {
+                let filterValues  =["PASS"];
+
+                let tr = "";
+                for (let fileFilter of this.fileFilters) {
+                    let defaultValues = {
+                        qual: (fileFilter.qual !== undefined && fileFilter.qual > 0) ? fileFilter.qual : "",
+                        filter: (fileFilter.filter !== undefined && fileFilter !== "") ? fileFilter.filter : "none",
+                    };
+
+                    // Prepare the options in the FILTER dropdown and set the selected option
+                    let options = "<option value='none'>None</option>";
+                    for (let filterOption of filterValues) {
+                        if (filterOption === defaultValues.filter) {
+                            options += `<option value='${filterOption}' selected>${filterOption}</option>`;
+                        } else {
+                            options += `<option value='${filterOption}'>${filterOption}</option>`;
+                        }
+                    }
+
+                    tr += `
+                            <tr data-file="${fileFilter.name}">
+                                <td style="vertical-align: middle"><span>${fileFilter.name}</span></td>
+                                <td style="vertical-align: middle"><span>${fileFilter.path}</span></td>
+                                <td>
+                                    <input id="${this.prefix}${fileFilter.name}Qual" type="text" value="${defaultValues.qual}" class="form-control input-sm file-qual-textbox" aria-label="..." placeholder="15" style="width: 60px">
+                                </td>
+                                <td>
+                                    <select id="${this.prefix}FileFilter" class="form-control input-sm file-filter-select" data-size="5" data-width="120px" style="display: inline-block">
+                                        ${options}
+                                    </select>
+                                </td>
+                            </tr>
+                    `;
+                }
+
+                let elementById = PolymerUtils.getElementById(this.prefix + "FileTBody");
+                if (UtilsNew.isNotUndefinedOrNull(elementById)) {
+                    // Set HTML into the table body
+                    elementById.innerHTML = tr;
+                    // Add or remove the message
+                    if (tr === "") {
+                        PolymerUtils.getElementById(this.prefix + "FileTableMessage").innerHTML = "<span style=\"font-weight: bold\">No Files selected</span>";
+                    } else {
+                        PolymerUtils.getElementById(this.prefix + "FileTableMessage").innerHTML = "";
+                    }
+
+                    // Add event listener to Qual textbox
+                    let dpTextboxes = PolymerUtils.getElementsByClassName("file-qual-textbox");
+                    for (let dpTextbox of dpTextboxes) {
+                        dpTextbox.addEventListener('keyup', this.onFileTableChange.bind(this));
+                    }
+
+                    // Add event listener to FILTER textbox
+                    let filterSelects = PolymerUtils.getElementsByClassName("file-filter-select");
+                    for (let filterSelect of filterSelects) {
+                        filterSelect.addEventListener('change', this.onFileTableChange.bind(this));
+                    }
+                }
+            }
+
+            onFileTableChange(e) {
+                let table = PolymerUtils.getElementById(this.prefix + "FileTable");
+                let _fileFilters = [];
+                for (let row of table.rows) {
+                    if (row.dataset.file !== undefined) {
+                        let _fileFilter = {
+                            name: row.dataset.file,
+                            qual: "",
+                            filter: "none"
+                        };
+
+                        // Set QUAL and FILTER value
+                        _fileFilter.qual = row.children[2].children[0].value;
+                        _fileFilter.filter = row.children[3].children[0].value;
+
+                        _fileFilters.push(_fileFilter);
+                    }
+                }
+
+                // Skip table rendering since the table is already rendered
+                this.skipRenderFileTable = true;
+                this.fileFilters = _fileFilters;
+                this.skipRenderFileTable = false;
+            }
+
+
+
+            onAutocompleteSearch(e) {
+                let filterType = PolymerUtils.getElementById(this.prefix + "FilterType");
+                if (filterType !== undefined && filterType.value !== undefined && filterType.value !== "") {
+                    switch (filterType.value) {
+                        case "sample":
+                            this._autocompleteSampleSearch(e);
+                            break;
+                        case "family":
+                            break;
+                        case "file":
+                            this._autocompleteFileSearch(e);
+                            break;
+                    }
+                }
+            }
+
+            /**
+             * Display a maximum of 20 samples IDs when a prefix of at least 4 characters is provided
+             * @param e Event sent by the control
+             * @private
+             */
+            _autocompleteSampleSearch(e) {
+                let sampleNamePrefix = PolymerUtils.getElementById(this.prefix + "AutocompleteSearchInput").value;
+                // A minimum of 4 characters are needed
+                if (UtilsNew.isNotUndefinedOrNull(sampleNamePrefix) && sampleNamePrefix.length >= 4) {
+                    let _this = this;
+                    this.opencgaSession.opencgaClient.samples()
+                        .search({
+                            study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
+                            id: "~^" + sampleNamePrefix,
+                            // Fetch ID and source (file)
+                            include: "id,name,source",
+                            includeIndividual: false,
+                            limit: 20,
+                            // FIXME sid must be inserted by opencgaClient library
+                            sid: _this.opencgaSession.opencgaClient._config.sessionId}, {})
+                        .then(function (response) {
+                            let options = "";
+                            for (let sample of response.response[0].result) {
+                                // TODO remove this in OpenCGA 1.4.0
+                                if (sample.id === undefined) {
+                                    sample.id = sample.name;
+                                }
+                                // Do not show samples already in the table
+                                if (!_this.sampleFiltersMap[sample.id]) {
+                                    let sampleStr = JSON.stringify(sample);
+                                    options += `<option id="${_this.prefix}Sample${sample.id}" value=${sample.id} data-sample=${sampleStr}>`;
+                                }
+                            }
+                            PolymerUtils.innerHTML(_this.prefix + "AutocompleteSampleSearchDataList", options);
+                        });
+                }
+            }
+
+            /**
+             * Display a maximum of 20 files when a prefix of at least 4 characters is provided
+             * @param e Event sent by the control
+             * @private
+             */
+            _autocompleteFileSearch(e) {
+                let sampleNamePrefix = PolymerUtils.getElementById(this.prefix + "AutocompleteSearchInput").value;
+                // A minimum of 4 characters are needed
+                if (UtilsNew.isNotUndefinedOrNull(sampleNamePrefix) && sampleNamePrefix.length >= 4) {
+                    let _this = this;
+                    this.opencgaSession.opencgaClient.files()
+                        .search({
+                            study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
+                            name: "~^" + sampleNamePrefix,
+                            format: "VCF",
+                            // Fetch ID and source (file)
+                            include: "id,name,path,samples.id,samples.name",
+                            limit: 20}, {})
+                        .then(function (response) {
+                            let options = "";
+                            for (let file of response.response[0].result) {
+                                // TODO remove this in OpenCGA 1.4.0
+                                if (file.id === undefined) {
+                                    file.id = file.path.replace("/", ":");
+                                }
+                                // Do not show files with only one sample that is already present
+                                if (file.samples.length === 1 && !_this.sampleFiltersMap[file.samples[0].id]) {
+                                    let sampleStr = JSON.stringify(file.samples);
+                                    options += `<option id="${_this.prefix}File${file.name}" value=${file.name} data-sample=${sampleStr}>`;
+                                }
+                            }
+                            PolymerUtils.innerHTML(_this.prefix + "AutocompleteSampleSearchDataList", options);
+                        });
+                }
+            }
+
+            onAddNewSample(e) {
+                // Accepted values are 'sample', 'family' and 'file'
+                let filterType = PolymerUtils.getElementById(this.prefix + "FilterType").value;
+                filterType = filterType.charAt(0).toUpperCase() + filterType.substr(1);
+
+                let sampleSearchInput = PolymerUtils.getElementById(this.prefix + "AutocompleteSearchInput");
+                let sampleOptionObj = PolymerUtils.getElementById(this.prefix + filterType + sampleSearchInput.value);
+                let sample = JSON.parse(sampleOptionObj.dataset.sample);
+
+                // 'sample' is a simple object when searching by sample but it is an array when searching by file.
+                let _samples = [];
+                if (Array.isArray(sample)) {
+                    _samples = sample;
+                } else {
+                    _samples.push(sample);
+                }
+
+                for (let sample of _samples) {
+                    // Check sample is defined and it is not already added in the table
+                    if (UtilsNew.isNotUndefinedOrNull(sample) && !this.sampleFiltersMap[sample.id]) {
+                        // Create the new sampleFilter, by default genotypes are empty
+                        let _sampleFilter = {
+                            id: sample.id,
+                            genotypes: [],
+                            affected: false
+                        };
+
+                        // This triggers the call to samplesObserver()
+                        this.push("sampleFilters", _sampleFilter);
+                    }
+                }
+
+                // Empty previous Sample selection
+                this.autocompleteSampleData = [];
+                sampleSearchInput.value = "";
+            }
+
+            onDeleteSample(e) {
+                let _sampleFilters = [];
+                for (let sampleFilter of this.sampleFilters) {
+                    // Exclude the deleted sample
+                    if (sampleFilter.id !== e.target.dataset.sample) {
+                        _sampleFilters.push(sampleFilter);
+                    }
+                }
+                this.sampleFilters = _sampleFilters;
+            }
+        }
+
+        customElements.define(OpencgaVariantFilterSample.is, OpencgaVariantFilterSample);
+    </script>
+</dom-module>

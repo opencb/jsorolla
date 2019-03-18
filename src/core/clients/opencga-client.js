@@ -127,6 +127,13 @@ class OpenCGAClient {
         return this._clinical;
     }
 
+    interpretations() {
+        if (typeof this._interpretations === "undefined") {
+            this._interpretations = new Interpretation(this._config);
+        }
+        return this._interpretations;
+    }
+
     variables() {
         if (typeof this._variables === "undefined") {
             this._variables = new Variables(this._config);
@@ -196,7 +203,8 @@ class OpenCGAClient {
                         session.date = new Date().toISOString();
                         session.server = {
                             host: _this._config.host,
-                            version: _this._config.version
+                            version: _this._config.version,
+                            serverVersion: _this._config.serverVersion
                         };
                         session.opencgaClient = _this;
 
@@ -205,9 +213,55 @@ class OpenCGAClient {
                             .then(function (response) {
                                 session.projects = response.response[0].result;
                                 if (UtilsNew.isNotEmptyArray(session.projects) && UtilsNew.isNotEmptyArray(session.projects[0].studies)) {
+                                    let studies = [];
+                                    // FIXME This is needed to keep backward compatibility with OpenCGA 1.3.x
+                                    for (let project of session.projects) {
+                                        project.alias = project.alias || project.fqn || null;
+                                        if (project.studies !== undefined) {
+                                            for (let study of project.studies) {
+                                                // If study.alias does not exist we are NOT in version 1.3, we set fqn from 1.4
+                                                if (study.alias === undefined || study.alias === "") {
+                                                    if (study.fqn.includes(":")) {
+                                                        study.alias = study.fqn.split(":")[1];
+                                                    } else {
+                                                        study.alias = study.fqn;
+                                                    }
+                                                }
+                                                // Keep track of the studies to fetch Disease Panels
+                                                studies.push(project.id + ":" + study.id);
+                                            }
+                                        }
+                                    }
+
                                     // this sets the current active project and study
                                     session.project = session.projects[0];
                                     session.study = session.projects[0].studies[0];
+
+                                    // Fetch the Disease Panels for each Study
+                                    let panelPromises = [];
+                                    for (let study of studies) {
+                                        let promise = _this.panels().search({
+                                            study: study,
+                                            include: "id,name,stats,source,genes.name"
+                                        }).then(function (response) {
+                                            return response.response[0].result;
+                                        });
+                                        panelPromises.push(promise);
+                                    }
+
+                                    Promise.all(panelPromises)
+                                        .then(function(values) {
+                                            let studiesMap = {};
+                                            for (let i = 0; i < studies.length; i++) {
+                                                studiesMap[studies[i]] = values[i];
+                                            }
+                                            // This set the panels in the object reference of the session object
+                                            for (let project of session.projects) {
+                                                for (let study of project.studies) {
+                                                    study.panels = studiesMap[project.id + ":" + study.id];
+                                                }
+                                            }
+                                        });
                                 }
 
                                 resolve(session);
@@ -358,7 +412,7 @@ class OpenCGAParentClass {
         }
 
         // Some web services do not need the second category of ids
-        if (typeof ids2 !== "undefined" && ids2 !== null) {
+        if (typeof ids2 !== "undefined" && ids2 !== null && ids2 !== "") {
             url += `${ids2}/`;
         }
 
@@ -543,7 +597,8 @@ class Users extends OpenCGAParentClass {
 
     // Filters
     getFilters(params, options) {
-        return this.extendedGet("users", this._getUserId(), "configs/filters", undefined, "list", params, options);
+        let subCat = (options.serverVersion !== undefined && options.serverVersion === "1.3") ? "list" : "";
+        return this.extendedGet("users", this._getUserId(), "configs/filters", undefined, subCat, params, options);
     }
 
     getFilter(filter, params, options) {
@@ -574,6 +629,25 @@ class Users extends OpenCGAParentClass {
         }
         _options["method"] = "POST";
         return this.extendedGet("users", this._getUserId(), "configs/filters", filter, "update", _params, _options);
+    }
+
+    updateFilters(action, params, options) {
+        let _action = action;
+        let _params = Object.assign({}, params);
+        let _options = Object.assign({}, options);
+
+        if (_action === undefined || _action === "") {
+            _action = "ADD";
+        }
+
+        if (!_params.hasOwnProperty("body")) {
+            _params = {
+                action: _action,
+                body: _params
+            };
+        }
+        _options["method"] = "POST";
+        return this.extendedGet("users", this._getUserId(), "configs/filters", undefined, "update", _params, _options);
     }
 
     deleteFilter(filter) {
@@ -619,6 +693,10 @@ class Projects extends OpenCGAParentClass {
         return this.get("projects", ids, "info", params, options);
     }
 
+    stats(ids, params, options) {
+        return this.get("projects", ids, "stats", params, options);
+    }
+
     search(params, options) {
         return this.get("projects", undefined, "search", params, options);
     }
@@ -655,6 +733,13 @@ class Studies extends Acls {
         return this.get("studies", id, "info", params, options);
     }
 
+    stats(ids, params, options) {
+        return this.get("studies", ids, "stats", params, options);
+    }
+
+    /*
+    * @deprecated since version 1.4.0. Use stats instead.
+    * */
     summary(id, params, options) {
         return this.get("studies", id, "summary", params, options);
     }
@@ -663,20 +748,33 @@ class Studies extends Acls {
         return this.get("studies", undefined, "search", params, options);
     }
 
+    /*
+    * @deprecated since version 1.4.0. Use files().search() instead.
+    * */
     getFiles(id, params, options) {
         return this.get("studies", id, "files", params, options);
     }
 
+    /*
+    * @deprecated since version 1.4.0. Use jobs().search() instead.
+    * */
     getJobs(id, params, options) {
         return this.get("studies", id, "jobs", params, options);
     }
 
+    /*
+    * @deprecated since version 1.4.0. Use samples().search() instead.
+    * */
     getSamples(id, params, options) {
         return this.get("studies", id, "samples", params, options);
     }
 
     getGroups(id, params) {
         return this.get("studies", id, "groups", params);
+    }
+
+    getVariableSets(id, params) {
+        return this.get("studies", id, "variableSets", params);
     }
 
     createGroup(id, params, body, options) {
@@ -691,14 +789,28 @@ class Studies extends Acls {
         return this.extendedPost("studies", id, "groups", groupId, "update", params, body, options);
     }
 
+    updateVariableSets(id, params, body) {
+        return this.extendedPost("studies", id, "variableSets", undefined, "update", params, body, {});
+    }
+
+    updateVariableSetVariables(id, variableSet, params, body) {
+        return this.extendedPost("studies", id, "variableSets", variableSet, "variables/update", params, body, {});
+    }
+
     update(id, params, body, options) {
         return this.post("studies", id, "update", params, body, options);
     }
 
+    /*
+    * @deprecated since version 1.4.0. Use variants().query() instead.
+    * */
     getVariants(id, params, options) {
         return this.get("studies", id, "variants", params, options);
     }
 
+    /*
+    * @deprecated since version 1.4.0. Use alignments().query() instead.
+    * */
     getAlignments(id, params, options) {
         return this.get("studies", id, "alignments", params, options);
     }
@@ -713,6 +825,10 @@ class Files extends Acls {
 
     search(params, options) {
         return this.get("files", undefined, "search", params, options);
+    }
+
+    stats(params, options) {
+        return this.get("files", undefined, "stats", params, options);
     }
 
     link(params, options) {
@@ -791,6 +907,10 @@ class Files extends Acls {
         return this.post("files", undefined, "upload", undefined, params, options);
     }
 
+    updateAnnotationSetAnnotations(id, annotationSet, params, body) {
+        return this.extendedPost("files", id, "annotationSets", annotationSet, "annotations/update", params, body, {});
+    }
+
 }
 
 class Jobs extends Acls {
@@ -839,6 +959,10 @@ class Individuals extends Acls {
         return this.get("individuals", undefined, "search", params, options);
     }
 
+    stats(params, options) {
+        return this.get("individuals", undefined, "stats", params, options);
+    }
+
     info(id, params, options) {
         return this.get("individuals", id, "info", params, options);
     }
@@ -851,12 +975,22 @@ class Individuals extends Acls {
         return this.get("individuals", id, "delete", params, options);
     }
 
+    /*
+    * @deprecated since version 1.4.0. Use update() instead.
+    * */
     annotationsetsCreate(id, params, body, options) {
-        return this.post("individuals", id, "annotationsets/create", params, body, options);
+        return this.post("individuals", id, "annotationSets/create", params, body, options);
     }
 
+    /*
+    * @deprecated since version 1.4.0. Use update() instead.
+    * */
     annotationsetsUpdate(id, name, params, body, options) {
-        return this.extendedPost("individuals", id, "annotationsets", name, "update", params, body, options);
+        return this.extendedPost("individuals", id, "annotationSets", name, "update", params, body, options);
+    }
+
+    updateAnnotationSetAnnotations(id, annotationSet, params, body) {
+        return this.extendedPost("individuals", id, "annotationSets", annotationSet, "annotations/update", params, body, {});
     }
 
 }
@@ -875,6 +1009,10 @@ class Families extends Acls {
         return this.get("families", undefined, "search", params, options);
     }
 
+    stats(params, options) {
+        return this.get("families", undefined, "stats", params, options);
+    }
+
     info(id, params, options) {
         return this.get("families", id, "info", params, options);
     }
@@ -883,12 +1021,22 @@ class Families extends Acls {
         return this.post("families", id, "update", params, body, options);
     }
 
+    /*
+    * @deprecated since version 1.4.0. Use update() instead.
+    * */
     annotationsetsCreate(id, params, body, options) {
         return this.post("families", id, "annotationsets/create", params, body, options);
     }
 
+    /*
+    * @deprecated since version 1.4.0. Use update() instead.
+    * */
     annotationsetsUpdate(id, name, params, body, options) {
         return this.extendedPost("families", id, "annotationsets", name, "update", params, body, options);
+    }
+
+    updateAnnotationSetAnnotations(id, annotationSet, params, body) {
+        return this.extendedPost("families", id, "annotationSets", annotationSet, "annotations/update", params, body, {});
     }
 
 }
@@ -905,6 +1053,10 @@ class Samples extends Acls {
 
     search(params, options) {
         return this.get("samples", undefined, "search", params, options);
+    }
+
+    stats(params, options) {
+        return this.get("samples", undefined, "stats", params, options);
     }
 
     groupBy(params, options) {
@@ -927,16 +1079,29 @@ class Samples extends Acls {
         return this.get("samples", id, "delete", params, options);
     }
 
+    /*
+    * @deprecated since version 1.4.0. Use update() instead.
+    * */
     annotationsetsCreate(id, params, body, options) {
         return this.post("samples", id, "annotationsets/create", params, body, options);
     }
 
+    /*
+    * @deprecated since version 1.4.0. Use update() instead.
+    * */
     annotationsetsUpdate(id, name, params, body, options) {
         return this.extendedPost("samples", id, "annotationsets", name, "update", params, body, options);
     }
 
+    updateAnnotationSetAnnotations(id, annotationSet, params, body) {
+        return this.extendedPost("samples", id, "annotationSets", annotationSet, "annotations/update", params, body, {});
+    }
+
 }
 
+/*
+* @deprecated since version 1.4.0. Use studies() instead.
+* */
 class Variables extends OpenCGAParentClass {
 
     constructor(config) {
@@ -979,8 +1144,8 @@ class Cohorts extends Acls {
         return this.post("cohorts", undefined, "create", params, body, options);
     }
 
-    stats(id, params, options) {
-        return this.get("cohorts", id, "stats", params, options);
+    stats(params, options) {
+        return this.get("cohorts", undefined, "stats", params, options);
     }
 
     search(params, options) {
@@ -1023,6 +1188,10 @@ class Panels extends Acls {
         return this.post("panels", undefined, "create", params, body, options);
     }
 
+    search(params, options) {
+        return this.get("panels", undefined, "search", params, options);
+    }
+
     info(id, params, options) {
         return this.get("panels", id, "info", params, options);
     }
@@ -1036,19 +1205,33 @@ class Clinical extends Acls {
     }
 
     create(params, body, options) {
-        return this.post("clinical", undefined, "create", params, body, options);
+        return this.post("analysis/clinical", undefined, "create", params, body, options);
     }
 
     update(id, params, body, options) {
-        return this.post("clinical", id, "update", params, body, options);
+        return this.post("analysis/clinical", id, "update", params, body, options);
     }
 
     info(id, params, options) {
-        return this.get("clinical", id, "info", params, options);
+        return this.get("analysis/clinical", id, "info", params, options);
     }
 
     search(params, options) {
-        return this.get("clinical", undefined, "search", params, options);
+        return this.get("analysis/clinical", undefined, "search", params, options);
+    }
+
+}
+
+class Interpretation extends OpenCGAParentClass {
+
+    constructor(config) {
+        super(config);
+    }
+
+    create(clinicalAnalysis, params, body, options) {
+        let _params = Object.assign({}, params);
+        _params["action"] = "ADD";
+        return this.extendedPost("analysis/clinical", clinicalAnalysis, "interpretations", undefined, "update", _params, body, options);
     }
 
 }
@@ -1084,12 +1267,25 @@ class Alignment extends OpenCGAParentClass {
         return this.get("analysis/alignment", undefined, "coverage", _params, options);
     }
 
+    lowCoverage(id, params, options) {
+        let _params = params;
+        if (_params === undefined) {
+            _params = {};
+        }
+        _params.file = id;
+        return this.get("analysis/alignment", undefined, "lowCoverage", _params, options);
+    }
+
 }
 
 class Variant extends OpenCGAParentClass {
 
     constructor(config) {
         super(config);
+    }
+
+    metadata(params, options) {
+        return this.get("analysis/variant", undefined, "metadata", params, options);
     }
 
     query(params, options) {
@@ -1100,8 +1296,20 @@ class Variant extends OpenCGAParentClass {
         return this.get("analysis/variant", undefined, "facet", params, options);
     }
 
+    stats(params, options) {
+        return this.get("analysis/variant", undefined, "stats", params, options);
+    }
+
+    samples(params, options) {
+        return this.get("analysis/variant", undefined, "samples", params, options);
+    }
+
     index(params, options) {
         return this.get("analysis/variant", undefined, "index", params, options);
+    }
+
+    familyGenotypes(params, options) {
+        return this.get("analysis/variant", undefined, "familyGenotypes", params, options);
     }
 
 }

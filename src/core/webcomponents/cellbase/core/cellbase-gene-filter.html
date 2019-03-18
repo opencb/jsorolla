@@ -1,0 +1,124 @@
+
+<dom-module id="cellbase-gene-filter">
+    <template>
+        <!--<input id="{{prefix}}FeatureIdText" type="text" class="form-control" list$="{{prefix}}FeatureDatalist"-->
+               <!--placeholder="Search for Gene Symbols" value="" on-change="onGeneChange">-->
+        <!--<datalist id="{{prefix}}FeatureDatalist"></datalist>-->
+
+        <div class="input-group">
+            <input id="{{prefix}}FeatureIdText" type="text" class="form-control" list$="{{prefix}}FeatureDatalist"
+                   placeholder="Search for Gene Symbols" value="" on-change="onGeneChange">
+            <datalist id="{{prefix}}FeatureDatalist"></datalist>
+
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="button" on-click="onEraserClicked">
+                    <i class="fa fa-eraser" aria-hidden="true"></i>
+                </button>
+            </span>
+        </div>
+    </template>
+
+    <script>
+        class CellbaseGeneFilter extends Polymer.Element {
+
+            static get is() {
+                return 'cellbase-gene-filter';
+            }
+
+            static get properties() {
+                return {
+                    cellbaseClient: {
+                        type: Object
+                    },
+                    erase: {
+                        type: Boolean,
+                        observer: "eraseObserver"
+                    },
+                    config: {
+                        type: Object
+                    }
+                }
+            }
+
+            // static get observers() {
+            //     return ['propertyObserver(cellbaseClient, config)'];
+            // }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            constructor() {
+                super();
+
+                this._init();
+            }
+
+            _init() {
+                this.prefix = "CellbaseGeneFilter" + Utils.randomString(6);
+
+                // Initially we set the default config, this will be overridden if 'config' is passed
+                this._config = this.getDefaultConfig();
+            }
+
+
+            connectedCallback() {
+                super.connectedCallback();
+
+                // Add events for Feature IDs
+                PolymerUtils.getElementById(this.prefix + "FeatureIdText")
+                    .addEventListener('keyup', this.callAutocomplete.bind(this));
+            }
+
+            // propertyObserver(cellbaseClient, config) {
+            //     if (UtilsNew.isNotUndefinedOrNull(config)) {
+            //         this._config = Object.assign(this.getDefaultConfig(), config);
+            //     }
+            // }
+
+            eraseObserver(newValue, oldValue) {
+                if (newValue !== oldValue) {
+                    PolymerUtils.setValue(this.prefix + "FeatureIdText", "");
+                }
+            }
+
+            callAutocomplete(e) {
+                // Only gene symbols are going to be searched and not Ensembl IDs
+                let featureId = PolymerUtils.getElementById(this.prefix  + "FeatureIdText").value;
+                if (UtilsNew.isNotUndefinedOrNull(featureId) && featureId.length >= 3 && !featureId.startsWith("ENS")) {
+                    let _this = this;
+                    _this.cellbaseClient.get('feature', 'id', featureId.toUpperCase(), 'starts_with', {limit: 15}, {})
+                        .then(function (response) {
+                            let options = "";
+                            for (let id of response.response[0].result) {
+                                options += `<option value="${id.name}">`;
+                            }
+                            PolymerUtils.innerHTML(_this.prefix + "FeatureDatalist", options);
+                        });
+                }
+            }
+
+            onGeneChange(e) {
+                this.dispatchEvent(new CustomEvent('genechange', {
+                    detail: {
+                        gene: e.target.value
+                    },
+                    bubbles: false,
+                    composed: true
+                }));
+            }
+
+            onEraserClicked() {
+                PolymerUtils.setValue(this.prefix + "FeatureIdText", "");
+            }
+
+            getDefaultConfig() {
+                return {
+
+                }
+            }
+        }
+
+        customElements.define(CellbaseGeneFilter.is, CellbaseGeneFilter);
+    </script>
+</dom-module>

@@ -1,0 +1,531 @@
+<!--
+  ~ Copyright 2015-2019 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<link rel="import" href="../../cellbase/core/cellbase-gene-filter.html">
+
+<dom-module id="opencga-panel-transcript-view">
+    <template>
+        <style include="jso-styles">
+            .form-section-title {
+                padding: 5px 0px;
+                width: 80%;
+                border-bottom-width: 1px;
+                border-bottom-style: solid;
+                border-bottom-color: #ddd
+            }
+
+            .jso-label-title {
+                width: 15em !important;
+            }
+        </style>
+
+        <div class="row" style="padding: 0px 10px; margin: 10px 0px;">
+
+            <template is="dom-if" if="{{_disabled}}">
+                <h4 style="color: #940303; margin: 20px 0px; text-align: center">
+                    No files available.
+                </h4>
+            </template>
+
+            <template is="dom-if" if="{{!_disabled}}">
+                <div class="col-md-12">
+                    <!--<h3 class="form-section-title">Low Coverage Filters</h3>-->
+
+                    <div style="display: block; cursor:pointer;" on-click="toggleCollapsedFilter"
+                         data-toggle="collapse" href$="#{{prefix}}collapsibleFilter">
+                        <h3 class="form-section-title">
+                            <template is="dom-if" if="{{_filtersCollapsed}}">
+                                <i class="fa fa-caret-right" aria-hidden="true" style="padding-right: 5px"></i>
+                            </template>
+                            <template is="dom-if" if="{{!_filtersCollapsed}}">
+                                <i class="fa fa-caret-down" aria-hidden="true" style="padding-right: 5px"></i>
+                            </template>
+                            Low Coverage Filters
+                        </h3>
+                    </div>
+
+
+                    <div id="{{prefix}}collapsibleFilter" class="form-horizontal collapse in" style="padding: 5px 10px">
+
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Search by Gene</label>
+                            <div class="col-md-3">
+                                <cellbase-gene-filter cellbase-client="{{cellbaseClient}}"
+                                                      erase="{{eraseSearchGene}}"
+                                                      on-genechange="onInputGeneChange">
+                                </cellbase-gene-filter>
+                                <!--<button type="button" class="btn btn-primary" on-click="onSearchGeneClicked">Search</button>-->
+                                <!--<span class="input-group-btn">-->
+                                <!--<button class="btn btn-default" type="button" on-click="onSearchGeneClicked">-->
+                                <!--<i class="fa fa-eraser" aria-hidden="true"></i>-->
+                                <!--</button>-->
+                                <!--</span>-->
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Select a Gene from Panel</label>
+                            <div class="col-md-3">
+                                <select class="selectpicker" id="{{prefix}}-geneSelect" data-live-search="true" data-max-options="1"
+                                        on-dom-change="renderDomRepeat" multiple>
+                                    <optgroup label="Selected Genes">
+                                        <template is="dom-repeat" items="{{geneIds}}" as="geneId">
+                                            <option>{{geneId}}</option>
+                                        </template>
+                                    </optgroup>
+
+                                    <template is="dom-repeat" items="{{_genePanels}}" as="panel">
+                                        <optgroup label="{{panel.name}}">
+                                            <template is="dom-repeat" items="{{panel.genes}}" as="gene">
+                                                <option>{{gene.name}}</option>
+                                            </template>
+                                        </optgroup>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!--on-change="onLowCoverageThresholdChange"-->
+                        <div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">Select Low Coverage</label>
+                            <div class="col-md-3">
+                                <select class="selectpicker" id="{{prefix}}-lowCoverageThreshold" data-width="fit">
+                                    <option>5</option>
+                                    <option>10</option>
+                                    <option>15</option>
+                                    <option selected>20</option>
+                                    <option>25</option>
+                                    <option>30</option>
+                                    <option>35</option>
+                                    <option>40</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-offset-3 col-md-9">
+                                <button type="submit" class="btn btn-primary" on-click="onClear">Clear</button>
+                                <button type="submit" class="btn btn-primary" on-click="onRender">Render</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-md-12">
+                    <h3 class="form-section-title">{{selectedGene}} Gene Low Coverage</h3>
+
+                    <div id="{{prefix}}-svg" style="padding: 20px"></div>
+                </div>
+            </template>
+        </div>
+    </template>
+
+    <script>
+        class OpencgaPanelTranscriptView extends Polymer.Element {
+
+            static get is() {
+                return 'opencga-panel-transcript-view';
+            }
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object
+                    },
+                    cellbaseClient: {
+                        type: Object
+                    },
+                    clinicalAnalysisId: {
+                        type: String,
+                        observer: "clinicalAnalysisIdObserver"
+                    },
+                    clinicalAnalysis: {
+                        type: Object
+                    },
+                    geneIds: {
+                        type: Array
+                    },
+                    panelIds: {
+                        type: Array
+                    },
+                    config: {
+                        type: Object
+                    }
+                }
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            static get observers() {
+                return ['propertyObserver(opencgaSession, clinicalAnalysis, panelIds, geneIds, config)'];
+            }
+
+            constructor() {
+                super();
+
+                this._init();
+            }
+
+            _init() {
+                this.prefix = "PanelTranscriptView" + Utils.randomString(6);
+
+                this.eraseSearchGene = false;
+                this._filtersCollapsed = false;
+
+                // The component will show an error message instead of the whole app if no alignment files are found
+                this._disabled = true;
+
+                // Initially we set the default config, this will be overridden if 'config' is passed
+                this._config = this.getDefaultConfig();
+            }
+
+
+            connectedCallback() {
+                super.connectedCallback();
+
+                // We add this listener to receive any future change over the selected genes
+                $(`#${this.prefix}-geneSelect`).on('changed.bs.select', this.onGeneChange.bind(this));
+
+                $('select.selectpicker').selectpicker('render');
+                $('select.selectpicker').selectpicker({
+                    iconBase: 'fa',
+                    tickIcon: 'fa-check'
+                });
+            }
+
+            propertyObserver(opencgaSession, clinicalAnalysis, panelIds, geneIds, config) {
+                this._config = Object.assign(this.getDefaultConfig(), config);
+                // if (UtilsNew.isNotUndefinedOrNull(config)) {
+                // }
+
+                this._files = [];
+
+                this._autoRenderWhenFilesAreRetrieved = false;
+                this._initialiseCoverageTracks = true;
+
+                if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession)) {
+
+                    let _this = this;
+                    if (UtilsNew.isNotEmptyArray(this.panelIds)) {
+                        this.opencgaSession.opencgaClient.panels().info(panelIds.join(","),
+                            {
+                                study: _this.opencgaSession.study.fqn,
+                                include: "id,name,genes"
+                            })
+                            .then(function(response) {
+                                // _this._panelGenesAvailable = true;
+                                let _panels = [];
+                                for (let panel of response.response) {
+                                    _panels.push(panel.result[0]);
+                                }
+                                _this._genePanels = _panels;
+                            })
+                            .catch((response) => {
+                                console.error("An error occurred fetching clinicalAnalysis: ", response)
+                            });
+                    } else {
+                        this._genePanels = [];
+                    }
+
+                    if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis)) {
+                        // let result = response.response[0].result[0];
+
+                        let disorder = clinicalAnalysis.disorder.id;
+
+                        let files = [];
+
+                        let members = {}; // member_id : member
+                        let samples = {}; // sample_id : member
+                        for (let i = 0; i < clinicalAnalysis.family.members.length; i++) {
+                            let member = clinicalAnalysis.family.members[i];
+                            members[member.id] = member;
+                            if (UtilsNew.isNotEmptyArray(member.samples)) {
+                                for (let j = 0; j < member.samples.length; j++) {
+                                    samples[member.samples[j].id] = member;
+                                }
+                            }
+                        }
+
+                        let availableBigWigs = {}; // sample id - file id
+                        for (let key in clinicalAnalysis.files) {
+                            for (let i = 0; i < clinicalAnalysis.files[key].length; i++) {
+                                if (clinicalAnalysis.files[key][i].format === "BIGWIG") {
+                                    availableBigWigs[key] = clinicalAnalysis.files[key][i].id;
+                                }
+                            }
+                        }
+
+                        // Get proband sample
+                        for (let i = 0; i < clinicalAnalysis.proband.samples.length; i++) {
+                            if (availableBigWigs.hasOwnProperty(clinicalAnalysis.proband.samples[i].id)) {
+                                // In theory, there should only be one BAM file available for each member
+                                files.push({
+                                    id: availableBigWigs[clinicalAnalysis.proband.samples[i].id],
+                                    name: "Proband '" + clinicalAnalysis.proband.id + "'",
+                                    sex: clinicalAnalysis.proband.sex,
+                                    isProband: true,
+                                    affectationStatus: this._getAffectationStatus(clinicalAnalysis.proband, disorder)
+                                });
+
+                                // Take the bam out of the map
+                                delete availableBigWigs[clinicalAnalysis.proband.samples[i].id];
+                            }
+                        }
+
+                        // Get mother
+                        if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.proband.mother)
+                            && UtilsNew.isNotEmpty(clinicalAnalysis.proband.mother.id)) {
+                            let motherId = clinicalAnalysis.proband.mother.id;
+                            if (members.hasOwnProperty(motherId) && UtilsNew.isNotEmptyArray(members[motherId].samples)
+                                && availableBigWigs.hasOwnProperty(members[motherId].samples[0].id)) {
+                                files.push({
+                                    id: availableBigWigs[members[motherId].samples[0].id],
+                                    name: "Mother '" + motherId + "'",
+                                    sex: members[motherId].sex,
+                                    isProband: false,
+                                    affectationStatus: this._getAffectationStatus(members[motherId], disorder)
+                                });
+
+                                // Take the bam out of the map
+                                delete availableBigWigs[members[motherId].samples[0].id];
+                            }
+                        }
+
+                        // Get father
+                        if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.proband.father)
+                            && UtilsNew.isNotEmpty(clinicalAnalysis.proband.father.id)) {
+                            let fatherId = clinicalAnalysis.proband.father.id;
+                            if (members.hasOwnProperty(fatherId) && UtilsNew.isNotEmptyArray(members[fatherId].samples)
+                                && availableBigWigs.hasOwnProperty(members[fatherId].samples[0].id)) {
+                                files.push({
+                                    id: availableBigWigs[members[fatherId].samples[0].id],
+                                    name: "Father '" + fatherId + "'",
+                                    sex: members[fatherId].sex,
+                                    isProband: false,
+                                    affectationStatus: this._getAffectationStatus(members[fatherId], disorder)
+                                });
+
+                                // Take the bam out of the map
+                                delete availableBigWigs[members[fatherId].samples[0].id];
+                            }
+                        }
+
+                        // If there are any remaining BAM files, we will add them in a random position
+                        for (let key in availableBigWigs) {
+                            if (samples.hasOwnProperty(key)) {
+                                files.push({
+                                    id: availableBigWigs[key],
+                                    name: "Member '" + samples[key].id + "'",
+                                    sex: samples[key].sex,
+                                    isProband: false,
+                                    affectationStatus: this._getAffectationStatus(samples[key], disorder)
+                                });
+                            } else {
+                                files.push({
+                                    id: availableBigWigs[key],
+                                    name: "Sample '" + key + "'",
+                                    isProband: false
+                                });
+                            }
+                        }
+
+                        this._disabled = UtilsNew.isEmptyArray(files);
+
+                        this._files = files;
+
+                        if (this._autoRenderWhenFilesAreRetrieved) {
+                            this._displaySVG($(`#${_this.prefix}-geneSelect`).selectpicker('val'),
+                                $(`#${this.prefix}-lowCoverageThreshold`).selectpicker('val'));
+
+                            this._autoRenderWhenFilesAreRetrieved = false;
+                        }
+                    } else {
+                        this._disabled = true;
+                    }
+                }
+            }
+
+            /**
+             * Fetch the CinicalAnalysis object from REST and trigger the observer call.
+             */
+            clinicalAnalysisIdObserver() {
+                if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotEmpty(this.clinicalAnalysisId)) {
+                    let _this = this;
+                    this.opencgaSession.opencgaClient.clinical().info(clinicalAnalysis, {study: this.opencgaSession.study.fqn})
+                        .then(function(response) {
+                            // This will trigger the call clinicalAnalysis observer
+                            _this.clinicalAnalysis = response.response[0].result[0];
+                        })
+                        .catch((response) => {
+                            console.error("An error occurred fetching clinicalAnalysis: ", response)
+                        });
+                }
+            }
+
+            _getAffectationStatus(member, disorderId) {
+                let status = "UNAFFECTED";
+                if (UtilsNew.isNotEmptyArray(member.disorders)) {
+                    for (let disorder of member.disorders) {
+                        if (UtilsNew.isNotUndefinedOrNull(disorder) && disorder.id === disorderId) {
+                            status = "AFFECTED";
+                            break;
+                        }
+                    }
+                }
+                return status;
+            }
+
+            renderDomRepeat(e) {
+                $(`#${this.prefix}-geneSelect`).selectpicker('refresh');
+                $(`#${this.prefix}-geneSelect`).selectpicker('deselectAll');
+            }
+
+            toggleCollapsedFilter() {
+                // this.set("_filtersCollapsed", !this._filtersCollapsed);
+
+                this._filtersCollapsed = !this._filtersCollapsed;
+            }
+
+            onInputGeneChange(e) {
+                this._inputGene = e.detail.gene;
+
+                $("#" + this.prefix + "-geneSelect").selectpicker('val', []);
+            }
+
+            onGeneChange(e) {
+                this.selectedGene = $(`#${this.prefix}-geneSelect`).selectpicker('val');
+
+                // This erase the text input of cellbase-gene web component
+                this.eraseSearchGene = !this.eraseSearchGene;
+                // this._displaySVG(e.currentTarget.value, $(`#${this.prefix}-lowCoverageThreshold`).selectpicker('val'));
+            }
+
+            onRender(e) {
+                if (UtilsNew.isNotEmpty(this._inputGene)) {
+                    this.selectedGene = this._inputGene;
+                    this._displaySVG(this.selectedGene, $(`#${this.prefix}-lowCoverageThreshold`).selectpicker('val'));
+                } else if (UtilsNew.isNotEmpty(this.selectedGene)) {
+                    this._displaySVG(this.selectedGene, $(`#${this.prefix}-lowCoverageThreshold`).selectpicker('val'));
+                }
+            }
+
+            _displaySVG(geneId, threshold) {
+                if (UtilsNew.isEmptyArray(this._files)) {
+                    // Probably the files are being fetched at this same moment. Force them to be rendered automatically after that
+                    this._autoRenderWhenFilesAreRetrieved = true;
+                    return;
+                }
+
+                if (UtilsNew.isEmpty(geneId)) {
+                    return;
+                }
+
+                this.lastGeneId = geneId;
+
+                if (this._initialiseCoverageTracks) {
+                    let tracks = [];
+
+                    for (let i = 0; i < this._files.length; i++) {
+
+                        let style = "";
+                        if (UtilsNew.isNotEmpty(this._files[i].affectationStatus)) {
+                            if (this._files[i].affectationStatus === "AFFECTED") {
+                                style = "color: darkred";
+                            } else if (this._files[i].affectationStatus === "UNKNOWN") {
+                                style = "color: gray";
+                            }
+                        }
+                        if (this._files[i].isProband) {
+                            style += ";font-weight: bold";
+                        }
+
+                        let sampleIcon = this._config.sexIConMap[this._files[i].sex];
+
+                        let htmlTitle = `<div>
+                                            <span style="${style}"> ${this._files[i].name} <i class='fa ${sampleIcon} fa-lg' style='padding-left: 5px'></i>
+                                            </span>
+                                        </div>`;
+
+                        tracks.push(new LinearCoverageTrack({
+                                htmlTitle: htmlTitle,
+                                opencga: {
+                                    client: this.opencgaSession.opencgaClient
+                                },
+                                targetId: `${this.prefix}-svg`
+                            }, {
+                                width: $(`#${this.prefix}-svg`).width()
+                            })
+                        );
+
+                        this.coverageTracks = tracks;
+                    }
+                    this._initialiseCoverageTracks = false;
+                }
+
+                if (UtilsNew.isUndefinedOrNull(this.geneTrack)) {
+                    this.geneTrack = new LinearGeneTrack({
+                        name: geneId,
+                        targetId: `${this.prefix}-svg`
+                    }, {
+                        width: $(`#${this.prefix}-svg`).width()
+                    })
+                }
+
+                let _this = this;
+                this.cellbaseClient.get('feature', 'gene', geneId, 'info',
+                    { assembly: this.opencgaSession.project.organism.assembly }, {})
+                    .then(function (response) {
+                        let gene = response.response[0].result[0];
+
+                        let region = new Region(`${gene.chromosome}:${gene.start}-${gene.end}`);
+
+                        for (let i = 0; i < _this.coverageTracks.length; i++) {
+                            _this.coverageTracks[i].draw({
+                                query: {
+                                    region: region,
+                                    study: _this.opencgaSession.study.fqn,
+                                    fileId: _this._files[i].id
+                                }, config: {
+                                    regionOffset: _this._config.offset,
+                                    lowCoverageThreshold: threshold
+                                }
+                            });
+                        }
+
+                        _this.geneTrack.draw({
+                            data: gene
+                        });
+                    });
+            }
+
+            getDefaultConfig() {
+                return {
+                    offset: 2500,
+                    sexIConMap: {
+                        MALE: "fa-mars",
+                        FEMALE: "fa-venus",
+                        UNKNOWN: "fa-genderless"
+                    }
+                }
+            }
+        }
+
+        customElements.define(OpencgaPanelTranscriptView.is, OpencgaPanelTranscriptView);
+    </script>
+</dom-module>

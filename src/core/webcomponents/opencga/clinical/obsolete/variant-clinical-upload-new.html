@@ -1,0 +1,1065 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<link rel="import" href="../../../commons/variant-modal-ontology.html">
+<link rel="import" href="../../../commons/variant-modal-icd10.html">
+
+<dom-module id="variant-clinical-upload-new">
+    <template>
+        <style include="jso-styles">
+            .clinical-title {
+                margin: 30px 5px 25px -40px;
+            }
+            .infoHpo {
+                margin-top: 15px;
+            }
+        </style>
+
+        <div class="row">
+            <!--<div style="width: 60%; margin: 0px 0px 0px 90px">-->
+            <div class="col-md-4 col-md-offset-4">
+                <h3 class="clinical-title">Patient Information</h3>
+
+                <form id="{{prefix}}uploadForm" class="form-horizontal" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
+
+                    <!-- Patient ID -->
+                    <div class="form-group has-feedback">
+                        <label for="{{prefix}}patientID" class="col-label">Patient ID</label>
+                        <input type="text" class="form-control"
+                               id="{{prefix}}patientID" name="patientID"
+                               placeholder="ID or clinical record number" maxlength="75" required
+                               data-required-error="This field is required" data-error="Only a-z, -, _ or ' characters are allowed."
+                               pattern="^[A-Za-z0-9]+((('|-|_)?[A-Za-z0-9])+)+$" value="{{patientIdValue::input}}">
+                        <span class="fa form-control-feedback" aria-hidden="true"></span>
+                        <div class="help-block with-errors"></div>
+                    </div>
+
+                    <!-- CHROMOSOMAL GENDER -->
+                    <div class="form-group has-feedback">
+                        <label for="{{prefix}}chromosomalGender" class="col-label">Chromosomal Gender</label>
+                        <select class="form-control" id="{{prefix}}chromosomalGender"
+                                name="chromosomalGender" required data-required-error="This field is required" value="{{chromosomalGenderValue::input}}">
+                            <option value="">Select...</option>
+                            <template is="dom-repeat" items="{{config.kariotypicSex}}">
+                                <option value="{{item}}">{{item}}</option>
+                            </template>
+                        </select>
+                        <span class="fa form-control-feedback" aria-hidden="true"></span>
+                        <div class="help-block with-errors" id="{{prefix}}_errorDiv_chromosomalGender"></div>
+                    </div>
+
+                    <!-- STATUS -->
+                    <div class="form-group has-feedback">
+                        <label for="{{prefix}}status" class="col-label">Affectation Status</label>
+                        <select class="form-control" id="{{prefix}}status"
+                                name="status" required data-required-error="This field is required" on-change="_updateStatus" value="{{statusValue::input}}">
+                            <option value="">Select...</option>
+                            <template is="dom-repeat" items="{{config.status}}">
+                                <option value="{{item.id}}">{{item.title}}</option>
+                            </template>
+                        </select>
+                        <span class="fa form-control-feedback" aria-hidden="true"></span>
+                        <div class="help-block with-errors" id="{{prefix}}_errorDiv_status"></div>
+                    </div>
+
+                    <!-- LIFE STATUS -->
+                    <div class="form-group has-feedback">
+                        <label for="{{prefix}}lifeStatus" class="col-label">Life Status</label>
+                        <select class="form-control" id="{{prefix}}lifeStatus"
+                                name="lifeStatus" required data-required-error="This field is required" value="{{lifeStatusValue::input}}">
+                            <option value="">Select...</option>
+                            <template is="dom-repeat" items="{{config.life_status}}">
+                                <option value="{{item.id}}">{{item.title}}</option>
+                            </template>
+                        </select>
+                        <span class="fa form-control-feedback" aria-hidden="true"></span>
+                        <div class="help-block with-errors" id="{{prefix}}_errorDiv_lifeStatus"></div>
+                    </div>
+
+                    <!-- YEAR OF BIRTH -->
+                    <div class="form-group has-feedback">
+                        <label for="{{prefix}}birthYear" class="col-label">Year of Birth</label>
+                        <select class="form-control" id="{{prefix}}birthYear"
+                                name="birthYear" required data-required-error="This field is required" on-change="calculateYearOfTest" value="{{yearOfBirthValue::input}}">
+                            <option value="">Select...</option>
+                            <template is="dom-repeat" items="{{yearsBirth}}">
+                                <option value="{{item}}">{{item}}</option>
+                            </template>
+                        </select>
+                        <span class="fa form-control-feedback" aria-hidden="true"></span>
+                        <div class="help-block with-errors" id="{{prefix}}_errorDiv_birthYear">Year of Birth must be prior to year of Test</div>
+                    </div>
+
+                    <!-- BIRTH PLACE -->
+                    <div class="form-group has-feedback">
+                        <label for="{{prefix}}birthPlace" class="col-label">Birth Place</label>
+                        <select class="form-control" id="{{prefix}}birthPlace"
+                                name="birthPlace" required data-required-error="This field is required" on-change="_updateSelectCity" value="{{birthPlaceValue::input}}">
+                            <option value="">Select...</option>
+                            <template is="dom-repeat" items="{{config.countries}}">
+                                <option value="{{item}}">{{item}}</option>
+                            </template>
+                        </select>
+                        <span class="fa form-control-feedback" aria-hidden="true"></span>
+                        <div class="help-block with-errors" id="{{prefix}}_errorDiv_birthPlace"></div>
+                    </div>
+
+                    <!-- OTHER COUNTRY (TEXT INPUT if country selected is not in the list -->
+                    <template is="dom-if" if="{{_isHiddenField(dataConditionalsForm.otherCountry)}}" on-dom-change="_updateValidateFormFields" restamp="true">
+                        <div class="form-group has-feedback" id="otherCountryDiv">
+                            <label for="{{prefix}}otherCountry" class="col-label"></label>
+                            <input type="text" class="form-control"
+                                   id="{{prefix}}otherCountry" name="otherCountry" placeholder="Introduce country"
+                                   maxlength="75" required
+                                   data-required-error="This field is required. Only a-z characteres and spaces are allowed"
+                                   pattern="^[A-Za-z]+((\\s)?([A-Za-z])+)+$" value="{{otherCountryValue::input}}">
+                            <span class="fa form-control-feedback" aria-hidden="true"></span>
+                            <div class="help-block with-errors"></div>
+                        </div>
+                    </template>
+                    <!-- BIRTH PLACE (PROVINCE) -->
+                    <template is="dom-if" if="{{_isHiddenField(dataConditionalsForm.birthPlaceProvince)}}" on-dom-change="_updateValidateFormFields" restamp="true">
+                        <div class="form-group has-feedback">
+                            <label for="{{prefix}}birthPlaceRegion" class="col-label">Birth Place
+                                (province)</label>
+                            <select class="form-control" id="{{prefix}}birthPlaceRegion"
+                                    name="birthPlaceRegion" required data-required-error="This field is required" value="{{birthPlaceProvinceValue::input}}">
+                                <option value="">Select...</option>
+                                <template is="dom-repeat" items="{{config.province}}">
+                                    <option value="{{item}}">{{item}}</option>
+                                </template>
+                            </select>
+                            <span class="fa form-control-feedback" aria-hidden="true"></span>
+                            <div class="help-block with-errors" id="{{prefix}}_errorDiv_birthPlaceRegion"></div>
+                        </div>
+                    </template>
+
+                    <!-- ETHNICITY -->
+                    <div class="form-group has-feedback">
+                        <label for="{{prefix}}ethnicity" class="col-label">Ethnicity</label>
+                        <select class="form-control" id="{{prefix}}ethnicity"
+                                name="ethnicity" required data-required-error="This field is required" value="{{ethnicityValue::input}}">
+                            <option value="">Select...</option>
+                            <template is="dom-repeat" items="{{config.ethnicity}}">
+                                <option value="{{item.id}}">{{item.title}}</option>
+                            </template>
+                        </select>
+                        <span class="fa form-control-feedback" aria-hidden="true"></span>
+                        <div class="help-block with-errors" id="{{prefix}}_errorDiv_ethnicity"></div>
+                    </div>
+
+                    <!-- HPO TERM (ONTOLOGY) -->
+                    <template is="dom-if" if="{{_isHiddenField(dataConditionalsForm.hpo)}}" on-dom-change="_updateValidateFormFields" restamp="true">
+                        <div class="form-group">
+                            <label for="{{prefix}}HPO" class="col-label">HPO</label>
+                            <div class="input-group">
+                                <textarea class="form-control" id="{{prefix}}HPO"
+                                          name="HPO"
+                                          placeholder="HP:0000947" data-required-error="At least one HPO term must be selected"
+                                          readonly rows="2"
+                                          style="resize:none">{{HPOValue}}</textarea>
+                                <span class="input-group-addon btn btn-primary" on-click="_openModalHpo">
+                                    <i class="fa fa-search" aria-hidden="true"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- DIAGNOSIS (ONTOLOGY) -->
+                    <template is="dom-if" if="{{_isHiddenField(dataConditionalsForm.diagnosis)}}" on-dom-change="_updateValidateFormFields" restamp="true">
+                        <div class="form-group">
+                            <label for="{{prefix}}diagnosis" class="col-label">Diagnosis</label>
+                            <div class="input-group">
+                                <textarea class="form-control" id="{{prefix}}diagnosis"
+                                          name="diagnosis" placeholder="ICD-10 term"
+                                          data-required-error="A diagnosis term must be selected" readonly rows="2"
+                                          style="resize:none">{{ICD10Value}}</textarea>
+                                <span class="input-group-addon btn btn-primary" id="{{prefix}}icdButton" on-click="_openModalICD10">
+                                        <i class="fa fa-search" aria-hidden="true"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- PARENTAL CONSANGUINITY -->
+                    <div class="form-group">
+                        <label class="col-label">Parental Consanguinity</label>
+                        <div class="radio">
+                            <label>
+                                <input type="radio"  name="parentalConsanguinity" id="{{prefix}}parentalConsanguinityno" value="false" checked required>
+                                no
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label >
+                                <input type="radio" name="parentalConsanguinity" id="{{prefix}}parentalConsanguinityyes" value="true" required>
+                                yes
+                            </label>
+                        </div>
+                        <span class="fa form-control-feedback" aria-hidden="true"></span>
+                        <div class="help-block with-errors"></div>
+                    </div>
+
+                    <h3 class="clinical-title">Upload and check file</h3>
+
+                    <!-- SAMPLE TYPE -->
+                    <div class="form-group has-feedback">
+                        <label for="{{prefix}}sampleType" class="col-label">Type of sample</label>
+                        <select class="form-control" id="{{prefix}}sampleType"
+                                name="sampleType" required data-required-error="This field is required" value="{{sampleTypeValue::input}}">
+                            <option value="">Select...</option>
+                            <template is="dom-repeat" items="{{config.sample_type}}">
+                                <option value="{{item.id}}">{{item.title}}</option>
+                            </template>
+                        </select>
+                        <span class="fa form-control-feedback" aria-hidden="true"></span>
+                        <div class="help-block with-errors" id="{{prefix}}_errorDiv_sampleType"></div>
+                    </div>
+
+
+                    <!-- CELL LINE -->
+                    <div class="form-group">
+                        <label class="col-label">Cell line</label>
+                        <template is="dom-repeat" items="{{config.cell_line}}">
+                            <div class="radio">
+                                <label>
+                                    <input id="{{prefix}}{{item.id}}" required
+                                           type="radio" name="cellLine" value="{{item.title}}"
+                                           checked="{{item.checked}}"> {{item.title}}
+                                </label>
+                            </div>
+                        </template>
+                        <span class="fa form-control-feedback" aria-hidden="true"></span>
+                        <div class="help-block with-errors"></div>
+                    </div>
+
+                    <!-- SPECIFIC FIELDS FROM VARIABLE SET -->
+                    <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables" on-dom-change="_updateValidateFormFields">
+
+                        <template is="dom-if" if="{{_isVisibleVariableinVS(variable,config)}}">
+                            <div class="form-group has-feedback">
+                                <!-- We first try to display 'title', if not present then we use 'name' -->
+                                <template is="dom-if" if="{{variable.title}}">
+                                    <label for="{{prefix}}{{variable.name}}" class="col-label">{{variable.title}}</label>
+                                </template>
+
+                                <template is="dom-if" if="{{!variable.title}}">
+                                    <label for="{{prefix}}{{variable.name}}" class="col-label">{{variable.name}}</label>
+                                </template>
+
+                                <!-- STRING FIELDS VS-->
+                                <template is="dom-if" if="{{checkVarType(variable, 'TEXT')}}" >
+                                    <!-- TEXT type: include an input text and add suitable regular expression for text-->
+                                    <template is="dom-if" if="{{checkSubType(variable, 'STRING')}}" on-dom-change="_updateValidateFormFields" restamp="true">
+                                        <!-- String subtype: include an input text and add suitable regular expression for text-->
+                                            <input type="text" class="form-control"
+                                                   id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                                   placeholder="{{variable.defaultValue}}"
+                                                   maxlength="{{variable.attributes.maxLength}}" required
+                                                   data-error$="{{variable.attributes.errorPattern}}"
+                                                   pattern="{{variable.attributes.pattern}}" value="{{variable.value::input}}">
+                                            <span class="fa form-control-feedback" aria-hidden="true"></span>
+                                            <div class="help-block with-errors">{{variable.attributes.helpBlock}}</div>
+                                    </template>
+
+                                    <template is="dom-if" if="{{checkSubType(variable, 'TEXT')}}" >
+                                        <!-- String subtype: include a text area and add suitable regular expression for text-->
+                                        <!-- We use restamp=true in dom-if to remove from validation of form when they are hide -->
+                                            <template is="dom-if" if="{{variable.required}}" on-dom-change="_updateValidateFormFields" restamp="true">
+                                                <textarea class="form-control"
+                                                          id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                                          placeholder="{{variable.defaultValue}}"
+                                                          maxlength="{{variable.attributes.maxLength}}" required rows="5"
+                                                          data-required-error$="{{variable.attributes.errorPattern}}"
+                                                          pattern="{{variable.attributes.pattern}}" value="{{variable.value::input}}">{{variable.value}}</textarea>
+                                            </template>
+                                            <template is="dom-if" if="{{!variable.required}}" on-dom-change="_updateValidateFormFields" restamp="true">
+                                                <textarea class="form-control"
+                                                          id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                                          placeholder="{{variable.defaultValue}}"
+                                                          maxlength="{{variable.attributes.maxLength}}" rows="5"
+                                                          data-error$="{{variable.attributes.errorPattern}}"
+                                                          pattern="{{variable.attributes.pattern}}" value="{{variable.value::input}}">{{variable.value}}</textarea>
+                                            </template>
+                                            <span class="fa form-control-feedback" aria-hidden="true"></span>
+                                            <div class="help-block with-errors">{{variable.attributes.helpBlock}}</div>
+                                    </template>
+
+                                    <template is="dom-if" if="{{!checkSubType(variable, 'STRING')}}">
+                                        <template is="dom-if" if="{{!checkSubType(variable, 'TEXT')}}" on-dom-change="_updateValidateFormFields" restamp="true">
+                                            <!-- String subtype: include an input text and add suitable regular expression for text-->
+                                                <input type="text" class="form-control"
+                                                       id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                                       placeholder="{{variable.defaultValue}}"
+                                                       maxlength="{{variable.attributes.maxLength}}" required
+                                                       data-error$="{{variable.attributes.errorPattern}}"
+                                                       pattern="{{variable.attributes.pattern}}" value="{{variable.value::input}}">
+                                                <span class="fa form-control-feedback" aria-hidden="true" ></span>
+                                                <div class="help-block with-errors">{{variable.attributes.helpBlock}}</div>
+                                        </template>
+                                    </template>
+                                </template>
+
+                                <!-- INTEGER FIELD VS -->
+                                <template is="dom-if" if="{{checkVarType(variable, 'INTEGER')}}">
+                                    <!-- INTEGER type: include an input text and add suitable regular expression for numbers -->
+                                        <template is="dom-if" if="{{variable.attributes.disabled}}" on-dom-change="_updateValidateFormFields" restamp="true">
+                                            <input type="text" class="form-control"
+                                                   id="{{prefix}}{{variable.name}}" readonly name="{{variable.name}}"
+                                                   placeholder="{{variable.title}} number" pattern="^[0-9]+$" maxlength="75"
+                                                   required data-error$="Mandatory field. Only numbers are allowed " value="{{variable.value::input}}">
+                                        </template>
+                                        <template is="dom-if" if="{{!variable.attributes.disabled}}" on-dom-change="_updateValidateFormFields" restamp="true">
+
+                                            <input type="text" class$="form-control {{prefix}}TextInput"
+                                                   id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                                   placeholder="{{variable.title}} number" pattern="^[0-9]+$" maxlength="75"
+                                                   required data-error$="Mandatory field. Only numbers are allowed " value="{{variable.value::input}}">
+                                        </template>
+                                        <span class="fa form-control-feedback" aria-hidden="true"></span>
+                                        <div class="help-block with-errors">{{variable.attributes.helpBlock}}</div>
+                                </template>
+
+                                <template is="dom-if" if="{{checkVarType(variable, 'DOUBLE')}}"  on-dom-change="_updateValidateFormFields" restamp="true">
+                                    <!-- DOUBLE type: include an input text and add suitable regular expression for numbers -->
+                                        <input type="text" class="form-control"
+                                               id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
+                                               placeholder="{{variable.name}} number" pattern="^[0-9]+$" maxlength="75"
+                                               required data-error$="Mandatory field. Only numbers are allowed " value="{{variable.value::input}}">
+                                        <span class="fa form-control-feedback" aria-hidden="true"></span>
+                                        <div class="help-block with-errors">{{variable.attributes.helpBlock}}</div>
+                                </template>
+
+                                <template is="dom-if" if="{{checkVarType(variable, 'BOOLEAN')}}" on-dom-change="_updateValidateFormFields" restamp="true">
+                                    <!-- BOOLEAN type, 2 values: radio buttons for selection: yes or no -->
+                                    <label class="col-sm-3 control-label">{{variable.name}}-{{variable.type}}</label>
+                                    <div class="form-group">
+                                        <div class="radio">
+                                            <label>
+                                                <input type="radio" name="{{variable.name}}" id="{{prefix}}{{variable.name}}no" value="false" checked required>
+                                                no
+                                            </label>
+                                        </div>
+                                        <div class="radio">
+                                            <label >
+                                                <input type="radio" name="{{variable.name}}" id="{{prefix}}{{variable.name}}yes" value="true" required>
+                                                yes
+                                            </label>
+                                        </div>
+                                        <span class="fa form-control-feedback" aria-hidden="true"></span>
+                                        <div class="help-block with-errors">{{variable.attributes.helpBlock}}</div>
+                                    </div>
+
+                                </template>
+
+                                <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 3, 500)}}" on-dom-change="_updateValidateFormFields" restamp="true">
+                                    <!-- CATEGORICAL type: dropdown: at least three elements in variable.allowedValues -->
+                                        <select class="form-control"
+                                                id="{{prefix}}{{variable.name}}" name="{{variable.name}}" required
+                                                on-change="eventVs" data-event$="{{variable.attributes.event}}" data-required-error="This field is required" value="{{variable.value::input}}">
+
+                                            <option value="" >Select...</option>
+                                            <template is="dom-repeat" items="{{variable.allowedValues}}">
+                                                <option value="{{item}}">{{item}}</option>
+                                            </template>
+                                        </select>
+                                    <span class="fa form-control-feedback" aria-hidden="true"></span>
+                                    <div class="help-block with-errors" id="{{prefix}}_errorDiv_{{variable.name}}">{{variable.attributes.helpBlock}}</div>
+                                </template>
+
+                            </div>
+                        </template>
+                    </template>
+
+                    <!-- UPLOAD INPUT -->
+                    <div class="form-group">
+                        <label for="uploadInputFileVCF" class="col-label">VCF or gVCF file</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="uploadInputFileVCF"
+                                   name="inputFile" disabled readonly required value="{{fileNameVCF}}">
+                            <span class="input-group-btn">
+                                <label class="btn btn-primary" for="{{prefix}}FileToUpload">
+                                     <input id="{{prefix}}FileToUpload" type="file" style="display:none;"
+                                            on-change="_updateFileName" accept=".vcf, .gvcf" value="{{fileUpload::input}}">
+                                    ...
+                                </label>
+                            </span>
+                        </div>
+                        <span class='label label-info' id="upload-file-info"></span>
+                    </div>
+
+                    <!-- BUTTON SUBMIT -->
+                    <div class="form-group">
+                        <button type="button" class="btn btn-primary" on-click="_clearHtmlDom">Clear form</button>
+                        <button type="submit" class="btn btn-primary">Upload and check sample
+                        </button>
+                    </div>
+                </form>
+                <!--</div>-->
+
+                <!-- MODAL HPO TERM (ONTOLOGY) -->
+                <variant-modal-ontology prefix="{{prefix}}" on-propagateok="_propagateOkHPO" ontology-filter="{{ontologyFilter}}" term="{{ontologyTerm}}"
+                                        selected-terms="{{selectedTermsOntology}}">
+                </variant-modal-ontology>
+
+                <!-- Modal dialog for ICD-10 diagnosis selector-->
+                <variant-modal-icd10 prefix="{{prefix}}" icd10="{{config.icd10}}" on-propagateokicd10="_propagateOkICD10"></variant-modal-icd10>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        class VariantClinicalUploadNew extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                this.prefix = "upload-new" + Utils.randomString(6);
+            }
+
+            static get is() {
+                return 'variant-clinical-upload-new';
+            }
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object,
+                        observer: "_updateVariableSets"
+                    },
+                    opencgaClient: {
+                        type: Object
+                    },
+                    config: {
+                        type: Object
+                    },
+                    minYearBirth: {
+                        type: Number,
+                        value: 1920
+                    },
+                    eventNotifyName: {
+                        type: String,
+                        value: "messageevent"
+                    }
+                }
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+
+                this._initForm();
+            }
+
+            _initForm() {
+                this._clearHtmlDom();
+                this._calculateYears();
+                this.matchingKaryotypicSex = new Map();
+                this.matchingKaryotypicSex.set("XX", "FEMALE");
+                this.matchingKaryotypicSex.set("XY", "MALE");
+                this.matchingKaryotypicSex.set("XXX", "FEMALE");
+                this.matchingKaryotypicSex.set("XXY", "MALE");
+                this.matchingKaryotypicSex.set("XXYY", "MALE");
+                this.matchingKaryotypicSex.set("XXXY", "MALE");
+                this.matchingKaryotypicSex.set("XXXX", "FEMALE");
+                this.matchingKaryotypicSex.set("XYY", "MALE");
+                this.matchingKaryotypicSex.set("XO", "FEMALE");
+                this.matchingKaryotypicSex.set("UNKNOWN", "UNKNOWN");
+                this.matchingKaryotypicSex.set("UNDETERMINED", "UNDETERMINED");
+                $("#" + this.prefix + "uploadForm").validator().on('submit',(e) => { this.submitForm(e) });
+            }
+
+            _updateValidateFormFields(){
+                $(PolymerUtils.getElementById(this.prefix + "uploadForm")).validator('update');
+            }
+
+            _clearHtmlDom(destroy) {
+                // Empty everything before rendering
+                this.dataConditionalsForm = {
+                    otherCountry: false,
+                    birthPlaceProvince: false,
+                    hpo: false,
+                    diagnosis: false
+                };
+                this.patientIdValue = "";
+                this.chromosomalGenderValue = "";
+                this.statusValue = "";
+                this.lifeStatusValue = "";
+                this.yearOfBirthValue = "";
+                this.birthPlaceValue = "";
+                this.otherCountryValue = "";
+                this.birthPlaceProvinceValue = "";
+                this.ethnicityValue = "";
+                this.HPOValue = "";
+                this.ICD10Value = "";
+                this.sampleTypeValue = "";
+                this.fileNameVCF = "";
+                this.fileUpload = null;
+                //reset VS
+                this.variables = this.variables.map((elem) => {
+                    elem.value = "";
+                    elem = Object.assign({}, elem);
+                    return elem;
+                });
+
+                // we force to reset validation of the form
+                if (destroy) {
+                    $(PolymerUtils.getElementById(this.prefix + "uploadForm"))[0].reset();
+                    $(PolymerUtils.getElementById(this.prefix + "uploadForm")).validator('destroy').validator();
+                }
+            }
+
+            _sortVariables(a, b) {
+                return a.rank < b.rank ? -1 : 1;
+            }
+
+            _isVisibleVariableinVS(myVar, conf) {
+                let excludeArray = conf.variableSet.exclude;
+                for (let index in excludeArray) {
+                    if (excludeArray[index].webComponent == this.localName) {
+                        return (!($.inArray(myVar.name, excludeArray[index].variables) != -1));
+                    } else {
+                        return true;
+                    }
+                }
+            }
+
+            _isHiddenField(show) {
+                return show ? true : false;
+            }
+
+            _openModalHpo() {
+                this.selectedTermsOntology = this.selectedTermsHPO;
+                this.ontologyFilter = "hp";
+                this.ontologyTerm = "HPO";
+                $("#" + this.prefix + "ontologyModal").modal('show');
+            }
+
+            _propagateOkHPO(e) {
+                this.HPOValue = e.detail.result.join(",");
+                this.selectedTermsHPO = e.detail.originalResult;
+                $("#" + this.prefix + "ontologyModal").modal('hide');
+            }
+
+            _openModalICD10() {
+                $("#" + this.prefix + "icd").modal('show');
+            }
+            _propagateOkICD10(e){
+                this.ICD10Value = e.detail.result.join(",");
+                this.selectedTermsICD = e.detail.result;
+                $("#" + this.prefix + "icd").modal('hide');
+            }
+
+            _calculateYears() {
+                let fullDate = new Date();
+                let limitYear = fullDate.getFullYear();
+                this.yearsBirth = Array.from(new Array(limitYear - this.minYearBirth + 1), (val, index) => this.minYearBirth + index);
+            }
+
+            calculateYearOfTest(e, testYear) {
+                let yearOfTest = 0;
+                let ageOfTestObject = this.variables.find((elem) => {
+                    return "testAge" === elem.name;
+                });
+
+                let yearOfTestObject = this.variables.find((elem) => {
+                    return "testYear" === elem.name;
+                });
+
+                if (UtilsNew.isUndefinedOrNull(testYear)) {
+                    if (UtilsNew.isNotUndefinedOrNull(yearOfTestObject) && UtilsNew.isNotEmpty(yearOfTestObject.value)) {
+                        testYear = yearOfTestObject.value;
+                    }
+                }
+                if (UtilsNew.isNotUndefinedOrNull(this.yearOfBirthValue) && UtilsNew.isNotUndefinedOrNull(testYear)) {
+                    let birthYearInt = parseInt(this.yearOfBirthValue);
+                    let testYearInt = parseInt(testYear);
+
+                    if (birthYearInt > 0 && testYear > 0 ) {
+                        if (this.yearOfBirthValue <= testYearInt) {
+
+                            let ageOfTest = testYearInt - birthYearInt;
+
+                            if (UtilsNew.isNotUndefinedOrNull(ageOfTestObject)) {
+                                ageOfTestObject.value = ageOfTest;
+                            }
+                        } else if (birthYearInt > testYear) { // Year of birth cannot be lower than Year of test
+
+                            if (UtilsNew.isNotUndefinedOrNull(yearOfTestObject)) {
+                                yearOfTestObject.value = "";
+                            }
+                        }
+
+                        this.variables = this.variables.map((elem) => {
+                            elem = Object.assign({}, elem);
+                            return elem;
+                        });
+                    }
+                }
+            }
+
+            _updateSelectCity(e) {
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                // Check if it is selected birthPlace
+                if (UtilsNew.isNotUndefinedOrNull(e) && UtilsNew.isNotUndefinedOrNull(e.target) && UtilsNew.isNotUndefinedOrNull(e.target.value)) {
+                    let valueSelected = e.target.value;
+
+                    this.dataConditionalsForm.otherCountry = false;
+                    this.dataConditionalsForm.birthPlaceProvince = false
+                    if (valueSelected === "Spain") {
+                        this.dataConditionalsForm.birthPlaceProvince = true
+                    } else if (valueSelected === "Other") { // If it is selected other country we enabled input to type other one.
+                        //show
+                        this.dataConditionalsForm.otherCountry = true;
+                    }
+
+//                    this is like do notifyPath to notify polymer subproperty change
+//                    this.notifyPath('dataConditionalsForm.birthPlaceProvince');
+//                    this.notifyPath('dataConditionalsForm.otherCountry');
+                    this.dataConditionalsForm = Object.assign({}, this.dataConditionalsForm);
+                }
+            }
+
+            _updateStatus (e){
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                // Check if it is selected birthPlace
+                if (UtilsNew.isNotUndefinedOrNull(e) && UtilsNew.isNotUndefinedOrNull(e.target) && UtilsNew.isNotUndefinedOrNull(e.target.value)) {
+                    let valueSelected = e.target.value;
+                    valueSelected = valueSelected.toUpperCase();
+
+                    this.dataConditionalsForm.hpo = false;
+                    this.dataConditionalsForm.diagnosis = false
+                    if (valueSelected === "AFFECTED" || valueSelected.toUpperCase() === "UNKNOWN") {
+                        this.dataConditionalsForm.hpo = true
+                        this.dataConditionalsForm.diagnosis = true
+                    }
+//                    this is like do notifyPath to notify polymer subproperty change
+//                    this.notifyPath('dataConditionalsForm.hpo');
+//                    this.notifyPath('dataConditionalsForm.diagnosis');
+                    this.dataConditionalsForm = Object.assign({}, this.dataConditionalsForm);
+                }
+            }
+
+            _updateFileName (e){
+                let valueName = e.target.value;
+
+                if (UtilsNew.isNotUndefinedOrNull(valueName)) {
+                    this.fileNameVCF= valueName.replace('C:\\fakepath\\','');
+                }
+            }
+
+            submitForm(e, _this) {
+                if (e.isDefaultPrevented()) {
+                    // handle the invalid form...
+                    return;
+                } else {
+                    // everything looks good!
+                    e.preventDefault();
+                    let fields =  $(e.target).serializeArray();
+                    let formFields = {};
+                    fields.forEach((elem) => {
+                        formFields[elem.name] = elem.value;
+                    });
+
+                    this.readFile(formFields);
+                }
+            }
+
+            readFile (formFields) {
+
+                // Some checks before submitting VCF to Catalog
+                if (window.File && window.FileReader && window.FileList && window.Blob) {
+                    let vcfFile = PolymerUtils.getPropertyById(this.prefix + 'FileToUpload', 'files')[0];
+
+                    // Linux text/vcard
+                    // Winwdows text/x-card text/x-vcard
+                    ///MAC text/directory
+                    if ((vcfFile.type === 'text/vcard' || vcfFile.type === "text/x-card" || vcfFile.type === "text/x-vcard" || vcfFile.type === "text/directory")
+                        && vcfFile.name.split('.').pop() === 'vcf') {
+
+                        let reader = new FileReader();
+                        let _this = this;
+
+                        reader.onload = (function () {
+                            // Get SampleID from VCF file
+                            let content = reader.result.split('\n');
+                            let i = 0;
+                            let sampleName = "";
+                            while (i < content.length) {
+                                if (content[i].startsWith('#CHROM')) {
+                                    let headerColumns = content[i].split('\t');
+                                    if (headerColumns.length != 10) {
+                                        let _message = "VCF file does not have proper number of data columns which are CHROM POS ID REF ALT QUAL FILTER INFO FORMAT <sample>. Besides, notice that for this version VCF multisample is not allowed";
+                                        this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                                            detail: {
+                                                message: _message,
+                                                type: UtilsNew.MESSAGE_ERROR
+                                            },
+                                            bubbles: true,
+                                            composed: true
+                                        }));
+                                    } else {
+                                        sampleName = headerColumns[headerColumns.length - 1];
+                                        sampleName = sampleName.replace(/[\r\n]/g, "");
+                                        break;
+                                    }
+                                }
+                                i++;
+                            }
+                            // Register the form in openCGA through different steps
+                            if (isNaN(sampleName)) {
+                                _this.openCGAsteps(formFields, sampleName, vcfFile);
+                            } else {
+                                let _message = "VCF name cannot be a number. Changed and upload it again please.";
+                                _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
+                                    detail: {
+                                        message: _message,
+                                        type: UtilsNew.MESSAGE_ERROR
+                                    },
+                                    bubbles: true,
+                                    composed: true
+                                }));
+                            }
+                        });
+                        reader.onerror = (function () {
+                            let _message = "The VCF file couldn't be read";
+                            this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                                detail: {
+                                    message: _message,
+                                    type: UtilsNew.MESSAGE_ERROR
+                                },
+                                bubbles: true,
+                                composed: true
+                            }));
+                        });
+
+                        reader.readAsText(vcfFile);
+                    } else {
+                        // Type of file: VCF or not
+                        let _message = "The file selected is not a VCF file";
+                        this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                            detail: {
+                                message: _message,
+                                type: UtilsNew.MESSAGE_ERROR
+                            },
+                            bubbles: true,
+                            composed: true
+                        }));
+                    }
+                } else {
+                    // Whether browser supports FILE API
+                    let _message = "Your browser is not supported. The latest version of Google Chrome is recommended (https://www.google.es/chrome/browser/desktop/index.html)";
+                    this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                        detail: {
+                            message: _message,
+                            type: UtilsNew.MESSAGE_ERROR
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
+                }
+            }
+
+            openCGAsteps(formFields, sampleName, vcfFile) {
+                // The following steps are run to register the form in openCGA:
+                if (this.opencgaClient instanceof OpenCGAClient) {
+                    let isSomatic = (formFields.cellLine === "somatic");
+                    let hasParentalConsanguinity = (formFields.parentalConsanguinity === "true");
+                    let icdTermField = formFields.diagnosis;
+                    let hpoNames = formFields.HPO;
+                    let listOntologyTerms = [];
+
+                    if (UtilsNew.isNotEmpty(icdTermField) && UtilsNew.isNotEmptyArray(this.selectedTermsICD)) {
+                        this.selectedTermsICD.forEach((icdTerm) => {
+                            let groupsIcd = icdTerm.split("(");
+                            if (UtilsNew.isNotUndefinedOrNull(groupsIcd) && groupsIcd.length > 0) {
+                                listOntologyTerms.push({id: groupsIcd[1].split(")")[0], name: groupsIcd[0], source: "ICD10"});
+                            }
+                        });
+                    }
+
+                    if (UtilsNew.isNotEmpty(hpoNames) && UtilsNew.isNotEmptyArray(this.selectedTermsHPO)) {
+                        this.selectedTermsHPO.forEach((hpoTerm) => {
+                            listOntologyTerms.push({id: hpoTerm.obo_id, name: hpoTerm.label, source:"HPO"});
+                        });
+                    }
+
+                    let jsonAnnotation = {};
+                    this.variables.forEach((elem) => {
+                        jsonAnnotation[elem.name] = formFields[elem.name];
+                    });
+
+                    let params = {
+                        study: this.opencgaSession.project.alias + ":" +  this.opencgaSession.study.alias
+                    };
+
+                    let sexIndividual = this.matchingKaryotypicSex.get(formFields.chromosomalGender);
+                    let body = {
+                        "name": formFields.patientID,
+                        "ethnicity": formFields.ethnicity,
+                        "dateOfBirth": formFields.birthYear,
+                        "population": {
+                            "name": formFields.birthPlace,
+                            "subpopulation": formFields.birthPlaceRegion,
+                            "description": ""
+                        },
+                        "karyotypicSex": formFields.chromosomalGender,
+                        "sex": UtilsNew.isNotUndefinedOrNull(sexIndividual) ? sexIndividual : "UNKNOWN",
+                        "lifeStatus": formFields.lifeStatus,
+                        "affectationStatus": formFields.status,
+                        "parentalConsanguinity": hasParentalConsanguinity,
+                        "phenotypes": listOntologyTerms,
+                        "samples":[{
+                            "name": sampleName,
+                            "type": formFields.sampleType,
+                            "somatic": isSomatic,
+                            "source": vcfFile.name,
+                            "annotationSets": [
+                                {
+                                    "name": "annotation_sample_" + sampleName,
+                                    "variableSet": this.variableSets[0].id,
+                                    "annotations": jsonAnnotation
+                                }
+                            ],
+                            "phenotypes": listOntologyTerms
+                        }]
+                    };
+
+                    let _this = this;
+
+                    // 1. Create individual and sample
+                    this.opencgaClient.individuals().create(params, body)
+                        .then(function (response) {
+                            // 2. Upload VCF
+                            _this.uploadVCF(formFields, vcfFile);
+                        })
+                        .catch(function (responseError) {
+                            let _message = responseError.error;
+                            _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
+                                detail: {
+                                    message: _message,
+                                    type: UtilsNew.MESSAGE_ERROR
+                                },
+                                bubbles: true,
+                                composed: true
+                            }));
+                        });
+                }
+            }
+
+            uploadVCF(formFields, vcfFile) {
+                // Upload VCF file to openCGA
+                if (this.opencgaClient instanceof OpenCGAClient) {
+                    let _this = this;
+                    let params = {
+                        study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
+                        type: "FILE",
+                        file: vcfFile,
+                        fileFormat: "VCF",
+                        bioformat: "VARIANT",
+                        relativeFilePath: "."
+                    };
+                    this.opencgaClient.files().upload(params)
+                        .then(function (response) {
+                            // 3. Index and annotate the VCF file (using fileId obtained in step 2)
+                            if (UtilsNew.isNotUndefinedOrNull(response.error) && UtilsNew.isNotEmpty(response.error)){
+                                _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
+                                    detail: {
+                                        message: response.error,
+                                        type: UtilsNew.MESSAGE_ERROR
+                                    },
+                                    bubbles: true,
+                                    composed: true
+                                }));
+                            } else {
+                                let _fileId = response.response[0].result[0].id;
+                                _this.indexVCF(_fileId);
+                            }
+                        })
+                        .catch(function (responseError) {
+                            let _message = responseError.error;
+                            _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
+                                detail: {
+                                    message: _message,
+                                    type: UtilsNew.MESSAGE_ERROR
+                                },
+                                bubbles: true,
+                                composed: true
+                            }));
+                        });
+                }
+            }
+
+            indexVCF(fileId) {
+                // Index and annotate a VCF file in openCGA
+                let params = {
+                    file: fileId,
+                    study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
+                    outDir: fileId + "_index_annot",
+                    calculateStats: true,
+                    annotate: true
+                };
+
+                let _this = this;
+                _this.fileId = fileId;
+
+                this.opencgaClient.variants().index(params)
+                    .then(function (response) {
+                        console.log(response);
+                    })
+                    .catch(function () {
+                        let _message = "Could not index file " + _this.fileId;
+                        this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                            detail: {
+                                message: _message,
+                                type: UtilsNew.MESSAGE_ERROR
+                            },
+                            bubbles: true,
+                            composed: true
+                        }));
+                    });
+
+                this._clearHtmlDom(true);
+                let _message = "The VCF file has successfully uploaded and is indexing now. You can now proceed to Analysis tab or upload another VCF file";
+                this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                    detail: {
+                        message: _message,
+                        type: UtilsNew.MESSAGE_SUCCESS
+                    },
+                    bubbles: true,
+                    composed: true
+                }));
+            }
+
+//            searchIndividual() {
+//                if (this.opencgaClient instanceof OpenCGAClient) {
+//                    // 1. Create individual
+//                    let params = {
+//                        study: this.study.alias
+//                    };
+//
+//                    let _this = this;
+//                    let _individualId = PolymerUtils.getElementById(this.prefix + "patientID").value;
+//                    this.opencgaClient.individuals().info(_individualId, params, {"method": "GET"})
+//                        .then(function (response) {
+//                            if (response.response[0].numResults >= 1) {
+//                                let formFields = response.response[0].result[0];
+//
+//                                PolymerUtils.setAttribute(_this.prefix + 'patientID', 'disabled', true);
+//                                PolymerUtils.setPropertyById(_this.prefix + 'chromosomalGender', 'value', formFields.karyotypicSex);
+//                                PolymerUtils.setAttribute(_this.prefix + 'chromosomalGender', 'disabled', true);
+//                                PolymerUtils.setPropertyById(_this.prefix + 'status', 'value', formFields.affectationStatus);
+//                                PolymerUtils.setAttribute(_this.prefix + 'status', 'disabled', true);
+//                                PolymerUtils.setPropertyById(_this.prefix + 'lifeStatus', 'value', formFields.lifeStatus);
+//                                PolymerUtils.setAttribute(_this.prefix + 'lifeStatus', 'disabled', true);
+//                                PolymerUtils.setPropertyById(_this.prefix + 'birthYear', 'value', formFields.dateOfBirth);
+//                                PolymerUtils.setAttribute(_this.prefix + 'birthYear', 'disabled', true);
+//                                PolymerUtils.setPropertyById(_this.prefix + 'birthPlace', 'value', formFields.population.name);
+//                                PolymerUtils.setAttribute(_this.prefix + 'birthPlace', 'disabled', true);
+//                                PolymerUtils.setPropertyById(_this.prefix + 'birthPlaceRegion', 'value', formFields.population.subpopulation);
+//                                PolymerUtils.setAttribute(_this.prefix + 'birthPlaceRegion', 'disabled', true);
+//                                PolymerUtils.setPropertyById(_this.prefix + 'ethnicity', 'value', formFields.ethnicity);
+//                                PolymerUtils.setAttribute(_this.prefix + 'ethnicity', 'disabled', true);
+//                                PolymerUtils.setPropertyById(_this.prefix + 'HPO', 'value', formFields.ontologyTerms[0].name);
+//                                PolymerUtils.setAttribute(_this.prefix + 'HPO', 'disabled', true);
+//                                PolymerUtils.setPropertyById(_this.prefix + 'diagnosis', 'value', formFields.ontologyTerms[1].name);
+//                                if (formFields.parentalConsanguinity === true) {
+//                                    PolymerUtils.setPropertyById(_this.prefix + 'parentalConsanguinityyes', 'checked', true);
+//                                }
+//                                else {
+//                                    PolymerUtils.setPropertyById(_this.prefix + 'parentalConsanguinityno', 'checked', true);
+//                                }
+//                                //TODO Refactor
+//                                $(PolymerUtils.getElementById(_this.prefix + "uploadForm")).validator('update');
+//                                $(PolymerUtils.getElementById(_this.prefix + "uploadForm")).validator('validate');
+//                            }
+//                        })
+//                        .catch(function (response) {
+//                            let _message = "The user " + _individualId + " does not exist";
+//            this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+//            detail: {
+//                message: _message,
+//                type: UtilsNew.MESSAGE_ERROR
+//            },
+//            bubbles: true,
+//            composed: true
+//        }));
+
+//                        });
+//                }
+//            }
+
+            // VARIABLE SETS
+            _updateVariableSets() {
+                this.variables = [];
+                let _this = this;
+                this.opencgaClient.studies().info(this.opencgaSession.study.id, {include: "variableSets"})
+                    .then(function (response) {
+                        _this.variableSets = response.response[0].result[0].variableSets;
+                        if (_this.variableSets.length > 0) {
+                            _this.variables = _this.variableSets[0].variables; // setting first one by default
+                            _this.filteredVariables = {
+                                variableSet: _this.variableSets[0].id,
+                                variables: []
+                            };
+                            _this.variables = _this.variables.map((elem) => {
+                                elem.value = "";
+                                return elem;
+                            })
+                        } else {
+                            _this.variableSets = [{name: "none"}];
+                        }
+                    })
+                    .catch(function (responseError) {
+                        console.log("Could not obtain the variable sets of the study " + _this.opencgaSession.study);
+                        this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                            detail: {
+                                message: responseError.error,
+                                type: UtilsNew.MESSAGE_ERROR
+                            },
+                            bubbles: true,
+                            composed: true
+                        }));
+
+                    });
+            }
+
+            checkVarType(myVar, type) {
+                return (myVar.type === type);
+            }
+
+            checkSubType(myVar, type) {
+                return (myVar.attributes.subtype === type);
+            }
+
+            checkCatType(myVar, type, lowerLimit, upperLimit) {
+                return (myVar.type === type && myVar.allowedValues.length >= lowerLimit && myVar.allowedValues.length < upperLimit);
+            }
+
+            eventVs(e) {
+                let eventToExec = e.target.getAttribute("data-event");
+                if (UtilsNew.isNotUndefinedOrNull(eventToExec)) {
+                    let value = e.target.value;
+                    this[eventToExec](e, value);
+                }
+            }
+        }
+        customElements.define(VariantClinicalUploadNew.is, VariantClinicalUploadNew);
+    </script>
+</dom-module>

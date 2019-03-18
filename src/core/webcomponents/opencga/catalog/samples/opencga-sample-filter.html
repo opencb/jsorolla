@@ -13,6 +13,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<link rel="import" href="../variableSets/opencga-annotation-filter.html">
+<link rel="import" href="../opencga-date-filter.html">
 
 <dom-module id="opencga-sample-filter">
     <template>
@@ -20,17 +22,98 @@
             .label-opencga-sample-filter {
                 padding-top: 10px;
             }
+            span + span {
+                margin-left: 10px;
+            }
+
+            .browser-ct-scroll {
+                /*max-height: 450px;*/
+                /*overflow-y: scroll;*/
+                overflow-x: scroll;
+            }
+
+            .browser-ct-tree-view,
+            .browser-ct-tree-view * {
+                padding: 0;
+                margin: 0;
+                list-style: none;
+            }
+
+            .browser-ct-tree-view li ul {
+                margin: 0 0 0 22px;
+            }
+
+            .browser-ct-tree-view * {
+                vertical-align: middle;
+            }
+
+            .browser-ct-tree-view {
+                /*font-size: 14px;*/
+            }
+
+            .browser-ct-tree-view input[type="checkbox"] {
+                cursor: pointer;
+            }
+
+            .browser-ct-item {
+                white-space: nowrap;
+                display: inline
+            }
+
+            div.block {
+                overflow: hidden;
+            }
+
+            div.block label {
+                width: 80px;
+                display: block;
+                float: left;
+                text-align: left;
+                font-weight: normal;
+            }
+
+            select + select {
+                margin-left: 10px;
+            }
+
+            select + input {
+                margin-left: 10px;
+            }
+
+            .browser-subsection {
+                font-size: 1.35rem;
+                font-weight: bold;
+                padding: 5px 0px;
+                color: #444444;
+                border-bottom: 1px solid rgba(221, 221, 221, 0.8);
+            }
+
+            .subsection-content {
+                margin: 5px 5px;
+            }
+
+            span.searchingSpan{
+                background-color: #286090;
+            }
+            .searchingButton{
+                color: #fff;
+            }
+            .notbold{
+                font-weight: normal;
+            }
+            .bootstrap-select {
+                width: 100%!important;
+            }
         </style>
 
         <div style="width: 60%;margin: 0 auto">
-            <button type="button" class="btn btn-primary" style="width: 100%" on-click="onSearch">
-                <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i>
-                Search
+            <button type="button" class="btn btn-lg btn-primary" style="width: 100%" on-click="onSearch">
+                <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i> Search
             </button>
         </div>
-        <br>
+        <!--<br>-->
 
-        <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
+        <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true" style="padding-top: 20px">
 
             <!-- Sample field attributes -->
             <div class="panel panel-default">
@@ -39,11 +122,11 @@
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
                            href="#{{prefix}}SampleSelection" aria-expanded="true" aria-controls="{{prefix}}SampleSelection">
                             Sample
-                            <div style="float: right" class="tooltip-div">
-                                <a data-toggle="tooltip" title="Sample selection">
-                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                </a>
-                            </div>
+                            <!--<div style="float: right" class="tooltip-div">-->
+                                <!--<a data-toggle="tooltip" title="Sample selection">-->
+                                    <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
+                                <!--</a>-->
+                            <!--</div>-->
                         </a>
                     </h4>
                 </div>
@@ -51,307 +134,91 @@
                 <div id="{{prefix}}SampleSelection" class="panel-collapse collapse in" role="tabpanel"
                      aria-labelledby="{{prefix}}SampleSelectionHeading">
                     <div class="panel-body">
-                        <div class="form-group">
-                            <label class="label-opencga-sample-filter">Sample name</label>
-                            <input type="text" id="{{prefix}}SampleName" class$="form-control {{prefix}}FilterTextInput"
-                                   placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">
-                        </div>
 
                         <div class="form-group">
-                            <form id="{{prefix}}DateRadioButton">
-                                <label class="label-opencga-sample-filter">By Date</label>
-                                <br>
-                                <input type="radio" name="selectionButtons" id="allRadio" value="all"
-                                       class$="{{prefix}}FilterRadio" checked on-change="calculateFilters"
-                                       style="padding-left: 20px"> All<br>
-                                <input type="radio" name="selectionButtons" id="recentlyRadio" value="recently"
-                                       class$="{{prefix}}FilterRadio" on-change="calculateFilters"
-                                       style="padding-left: 20px"> Recently Uploaded<br>
-                                <input type="radio" name="selectionButtons" id="dateRadio" value="date"
-                                       class$="{{prefix}}FilterRadio" on-change="calculateFilters"
-                                       style="padding-left: 20px"> Date (Year-Month-Day)
-                            </form>
-
-                            <div style="padding: 10px 0px 15px 25px">
-                                <form class="form-inline">
-                                    <div class="form-group row">
-                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
-                                                id="{{prefix}}YearSelect" name="birthYear" required on-change="calculateFilters" disabled>
-                                            <template is="dom-repeat" items="{{yearsToSearch}}">
-                                                <option value="{{item}}">{{item}}</option>
-                                            </template>
-                                        </select>
-
-                                        <label style="padding: 0px 2px">-</label>
-                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
-                                                id="{{prefix}}MonthSelect" name="birthYear" required on-change="calculateFilters" disabled>
-                                            <option value="any">Any</option>
-                                            <template is="dom-repeat" items="{{monthToSearch}}">
-                                                <option value="{{item}}">{{item}}</option>
-                                            </template>
-                                        </select>
-
-                                        <label style="padding: 0px 2px">-</label>
-                                        <select class$="form-control {{prefix}}SelectInput codeDis input-sm"
-                                                id="{{prefix}}DaySelect" name="birthYear" required on-change="calculateFilters" disabled>
-                                            <option value="any">Any</option>
-                                            <template is="dom-repeat" items="{{daysToSearch}}">
-                                                <option value="{{item}}">{{item}}</option>
-                                            </template>
-                                        </select>
-                                    </div>
-                                </form>
+                            <div class="browser-subsection">Id
                             </div>
-
-                            <label class="label-opencga-sample-filter">Patient Filters</label>
-                            <br>
-                            <!--<input type="checkbox" name="selectionButtons" id="controls" value="controls"-->
-                            <!--class$="{{prefix}}FilterRadio" on-change="calculateFilters"-->
-                            <!--style="padding-left: 20px"> Controls-->
-                            <span style="padding-top: 10px">Individual ID</span>
-                            <input type="text" id="{{prefix}}PatientName" class$="form-control {{prefix}}FilterTextInput"
-                                   placeholder="Smith, Grant ..." on-keyup="calculateFilters">
-
-                            <span style="padding-top: 10px">HPO</span>
-                            <input type="text" id="{{prefix}}PatientHpo" class$="form-control {{prefix}}FilterTextInput"
-                                   placeholder="HP:000145" on-keyup="calculateFilters">
-
-                            <span style="padding-top: 10px">Diagnosis</span>
-                            <input type="text" id="{{prefix}}PatientDiagnosis" class$="form-control {{prefix}}FilterTextInput"
-                                   placeholder="Smith, Grant ..." on-keyup="calculateFilters">
+                            <div id="{{prefix}}-name" class="subsection-content form-group">
+                                <input type="text" id="{{prefix}}-sample-input" class$="form-control input-sm {{prefix}}FilterTextInput"
+                                       placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Sample characteristics -->
-            <template is="dom-if" if="{{variableSets.length}}">
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}SampleGeneralFilterHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                               href="#{{prefix}}SampleGeneralFilter" aria-expanded="true"
-                               aria-controls="{{prefix}}SampleGeneralFilter">
-                                Sample Characteristics
+                        <div class="form-group">
+                            <div class="browser-subsection">Individual
+                            </div>
+                            <div id="{{prefix}}-individual" class="subsection-content form-group">
+                                <input type="text" id="{{prefix}}-individual-input" class$="form-control input-sm {{prefix}}FilterTextInput"
+                                       placeholder="LP-1234, LP-4567 ..." on-keyup="calculateFilters">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="browser-subsection">Source
+                            </div>
+                            <div id="{{prefix}}-source" class="subsection-content form-group">
+                                <input type="text" id="{{prefix}}-source-input" class$="form-control input-sm {{prefix}}FilterTextInput"
+                                       placeholder="Blood, Liver ..." on-keyup="calculateFilters">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="browser-subsection" id="{{prefix}}-annotationss">Sample annotations
                                 <div style="float: right" class="tooltip-div">
-                                    <a data-toggle="tooltip" title="Generic sample filters">
-                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                    </a>
+                                    <a><i class="fa fa-info-circle" aria-hidden="true" id="{{prefix}}-annotations-tooltip"></i></a>
                                 </div>
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}SampleGeneralFilter" class="panel-collapse collapse in" role="tabpanel"
-                         aria-labelledby="{{prefix}}SampleGeneralFilterHeading">
-
-                        <div class="panel-body">
-                            <template is="dom-if" if="{{_displayCompactCheckBox}}">
-                                <div>
-                                    <input type="checkbox" id="{{prefix}}CompactCheckbox" value="compact" checked
-                                           on-change="_changeMode">&nbsp;Compact<br>
-                                </div>
-                            </template>
-
-                            <template is="dom-if" if="{{compact}}">
-                                <div class="form-group">
-                                    <label for="variableSetSelect">Variable Set</label>
-                                    <select class="form-control" id="variableSetSelect" style="width: 100%"
-                                            on-change="selectedVariableSet">
-                                        <template is="dom-repeat" items="{{variableSets}}">
-                                            <option data-variable="{{item}}">{{item.name}}</option>
-                                        </template>
-                                    </select>
-                                </div>
-
-                                <label for="variableSetSelect">Select a Variable</label>
-                                <div class="form-group has-feedback">
-                                    <input type="text" id="{{prefix}}VariableNameText" class="form-control"
-                                           placeholder="Search variable"
-                                           on-keyup="renderVariableTemplate" value="{{searchVariable::input}}">
-                                    <i class="fa fa-search form-control-feedback" aria-hidden="true"></i>
-                                </div>
-                                <ul class="list-unstyled" style="max-height: 150px; overflow-y: auto; padding: 5px;">
-                                    <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}"
-                                              as="variable" filter="_filterVariable" sort="_sortVariables">
-                                        <template is="dom-if" if="{{isVisible(variable)}}">
-                                            <li style="cursor: pointer;" data-toggle="modal"
-                                                data-target="#{{prefix}}ModalFilters" on-click="variableSelected"
-                                                data-variable="{{variable}}">
-                                                {{variable.title}}
-                                            </li>
-                                        </template>
-                                    </template>
-                                </ul>
-                            </template>
-
-                            <template is="dom-if" if="{{!compact}}">
-                                <div class="form-group has-feedback">
-                                    <template id="{{prefix}}VariableTemplate" is="dom-repeat" items="{{variables}}" as="variable" sort="_sortVariables">
-                                        <template is="dom-if" if="{{isVisible(variable)}}">
-                                            <!--<label for="{{prefix}}{{variable.name}}">{{variable.title}}:</label>-->
-                                            <!-- We first try to display 'title', if not present then we use 'name' -->
-                                            <template is="dom-if" if="{{variable.title}}">
-                                                <label for="{{prefix}}{{variable.name}}">{{variable.title}}</label>
-                                            </template>
-
-                                            <template is="dom-if" if="{{!variable.title}}">
-                                                <label for="{{prefix}}{{variable.name}}">{{variable.name}}</label>
-                                            </template>
-
-                                            <template is="dom-if" if="{{checkVarType(variable, 'TEXT')}}">
-                                                <!-- TEXT type: include an input text and add suitable regular expression for text-->
-                                                <!-- http://stackoverflow.com/questions/14237686/disabling-controls-in-bootstrap-->
-                                                <input type="text" class$="form-control {{prefix}}AnnotationTextInput {{prefix}}FilterTextInput" id="{{prefix}}{{variable.name}}"
-                                                       placeholder="{{variable.name}} name" data-variable-name$="{{variable.name}}"
-                                                       pattern="{{variable.attributes.pattern}}"
-                                                       aria-describedby="basic-addon1" on-keyup="addAnnotationFilter">
-                                            </template>
-
-                                            <template is="dom-if" if="{{checkVarType(variable, 'NUMERIC')}}">
-                                                <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
-                                                <input type="text" class$="form-control {{prefix}}AnnotationTextInput {{prefix}}FilterTextInput" id="{{prefix}}{{variable.name}}"
-                                                       placeholder="{{variable.name}} number" data-variable-name$="{{variable.name}}"
-                                                       pattern="^[0-9]+$" on-keyup="addAnnotationFilter">
-                                            </template>
-
-                                            <template is="dom-if" if="{{checkVarType(variable, 'INTEGER')}}">
-                                                <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
-                                                <input type="text" class$="form-control {{prefix}}AnnotationTextInput {{prefix}}FilterTextInput" id="{{prefix}}{{variable.name}}"
-                                                       placeholder="{{variable.name}} number" data-variable-name$="{{variable.name}}"
-                                                       pattern="^[0-9]+$" on-keyup="addAnnotationFilter">
-                                            </template>
-
-                                            <template is="dom-if" if="{{checkVarType(variable, 'DOUBLE')}}">
-                                                <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
-                                                <input type="text" class$="form-control {{prefix}}AnnotationTextInput {{prefix}}FilterTextInput" id="{{prefix}}{{variable.name}}"
-                                                       placeholder="{{variable.name}} number" data-variable-name$="{{variable.name}}"
-                                                       pattern="^[0-9]+$" on-keyup="addAnnotationFilter">
-                                            </template>
-
-                                            <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 0, 1)}}">
-                                                <!-- CATEGORICAL type, no value: values to be filled in this code -->
-                                                <!-- Dropdown related to years : fill in with values contained in {{years}} -->
-                                                <template is="dom-if" if="{{checkType(variable.name,'Year')}}">
-                                                    <select class="form-control" id="{{prefix}}{{variable.name}}" on-change="checkYears">
-                                                        <template is="dom-repeat" items="{{years}}">
-                                                            <option value="{{item}}">{{item}}</option>
-                                                        </template>
-                                                    </select>
-                                                    <div class="help-block with-errors" id="{{prefix}}_errorDiv_{{variable.name}}"></div>
-                                                </template>
-                                            </template>
-
-                                            <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 1, 2)}}">
-                                                <!-- CATEGORICAL type, single value: check box -->
-                                                <br>
-                                                <div class="col-sm-9">
-                                                    <input type="checkbox" class$="{{prefix}}AnnotationCheckBox {{prefix}}FilterCheckBox" id="{{prefix}}{{variable.name}}" style="padding-left: 20px">
-                                                </div>
-                                            </template>
-
-                                            <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 2, 3)}}">
-                                                <!-- CATEGORICAL type, 2 values: radio buttons for selection -->
-                                                <template is="dom-repeat" items="{{variable.allowedValues}}" as="value">
-                                                    <div class="form-check form-check-inline">
-                                                        <input id="{{prefix}}{{variable.name}}{{value}}"
-                                                               class="form-check-input" type="radio"
-                                                               name="{{variable.name}}Options"> {{value}}
-                                                    </div>
-                                                </template>
-                                            </template>
-
-                                            <template is="dom-if" if="{{checkCatType(variable, 'CATEGORICAL', 3, 500)}}">
-                                                <!-- CATEGORICAL type: dropdown: at least three elements in variable.allowedValues -->
-                                                <select class$="form-control {{prefix}}AnnotationSelect {{prefix}}FilterSelect"
-                                                        data-variable-name$="{{variable.name}}" id="{{prefix}}{{variable.name}}" on-change="addAnnotationFilter">
-                                                    <template is="dom-repeat" items="{{variable.allowedValues}}">
-                                                        <option value="{{item}}">{{item}}</option>
-                                                    </template>
-                                                </select>
-                                            </template>
-
-                                            <template is="dom-if" if="{{checkVarType(variable, 'BOOLEAN')}}">
-                                                <!-- BOOLEAN type, 2 values: radio buttons for selection: yes or no -->
-                                                <div class="form-check form-check-inline">
-                                                    <input id="{{prefix}}{{variable.name}}yes" class="form-check-input"
-                                                           type="radio" name="{{variable.name}}Options"> yes
-                                                    <input id="{{prefix}}{{variable.name}}no" class="form-check-input"
-                                                           type="radio" name="{{variable.name}}Options"> no
-                                                </div>
-                                            </template>
-                                            <!-- Close dom-if for visibility -->
-                                        </template>
-                                        <!-- Close dom-repeat for variables -->
-                                    </template>
-                                </div>
-                                <!-- Close dom-if for extended -->
-                            </template>
+                            </div>
+                            <div id="{{prefix}}-annotations" class="subsection-content">
+                                <opencga-annotation-filter opencga-session="{{opencgaSession}}"
+                                                           opencga-client="{{opencgaClient}}"
+                                                           config="{{annotationFilterConfig}}"
+                                                           on-filterannotation="addAnnotation">
+                                </opencga-annotation-filter>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </template>
-        </div>
 
-        <div class="modal fade" tabindex="-1" role="dialog" id="{{prefix}}ModalFilters">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">Filter by {{ variable.name }}</h4>
-                    </div>
-
-                    <div class="modal-body">
-                        <!--CATEGORICAL-->
-                        <template is="dom-if" if="{{_isCategorical}}">
-                            <div class="row">
-                                <template is="dom-repeat" items="{{variable.allowedValues}}" as="allowedValue">
-                                    <div class="col-md-4">
-                                        <div class="checkbox" style="margin: 0">
-                                            <label class="category-filter-label js-label-toggle">
-                                                <input name="{{prefix}}Categorical" type="checkbox"
-                                                       value="{{allowedValue}}"> {{allowedValue}}
-                                            </label>
-                                        </div>
-                                    </div>
-                                </template>
+                        <div class="form-group">
+                            <div class="browser-subsection">Phenotypes
                             </div>
-                        </template>
-
-                        <!--TEXT-->
-                        <template is="dom-if" if="{{_isText}}">
-                            <div class="form-group">
-                                <input type="text" name="{{prefix}}Text" class="form-control"/>
+                            <div id="{{prefix}}-phenotypes" class="subsection-content form-group">
+                                <input type="text" id="{{prefix}}-phenotypes-input" class$="form-control input-sm {{prefix}}FilterTextInput"
+                                        placeholder="Full-text search, e.g. *melanoma*" on-keyup="calculateFilters">
                             </div>
-                        </template>
+                        </div>
 
-                        <!--NUMERIC-->
-                        <template is="dom-if" if="{{_isNumerical}}">
-                            <div class="form-group">
-                                <input type="text" name="{{prefix}}Numerical" class="form-control"/>
+                        <div class="form-group">
+                            <div class="browser-subsection">Somatic
                             </div>
-                        </template>
+                            <form id="{{prefix}}-somatic" class="subsection-content form-group">
+                                <input id="{{prefix}}-somatic-option-none" class$="form-group-sm {{prefix}}FilterRadio"
+                                       type="radio" name="{{prefix}}-somatic-options" value="None" on-click="calculateFilters" checked>
+                                    <span class="small">None</span>
+                                <br>
+                                <input id="{{prefix}}-somatic-option-true" class$="form-group-sm {{prefix}}FilterRadio"
+                                       type="radio" name="{{prefix}}-somatic-options" value="True" on-click="calculateFilters">
+                                    <span class="small">True</span>
+                                <br>
+                                <input id="{{prefix}}-somatic-option-false" class$="form-group-sm {{prefix}}FilterRadio"
+                                       type="radio" name="{{prefix}}-somatic-options" value="False" on-click="calculateFilters">
+                                    <span class="small">False</span>
+                            </form>
+                        </div>
 
-                        <!--BOOLEAN-->
-                        <template is="dom-if" if="{{_isBoolean}}">
-                            <input type="checkbox" checked>
-                        </template>
+                        <div class="form-group">
+                            <div class="browser-subsection" id="{{prefix}}-date">Date
+                                <div style="float: right" class="tooltip-div">
+                                    <a><i class="fa fa-info-circle" aria-hidden="true" id="{{prefix}}-date-tooltip"></i></a>
+                                </div>
+                            </div>
+                            <div id="{{prefix}}-date-content" class="subsection-content">
+                                <opencga-date-filter config="{{dateFilterConfig}}" on-datechanged="onDateChanged"></opencga-date-filter>
+                            </div>
+                        </div>
 
-                        <!--OBJECT-->
-                        <template is="dom-if" if="{{_isObject}}">
-                            Not implemented
-                        </template>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default add-right-margin" data-dismiss="modal">Cancel
-                        </button>
-                        <button type="button" class="btn btn-primary" on-click="updateCompactFilter"
-                                data-dismiss="modal">Update filter
-                        </button>
                     </div>
                 </div>
             </div>
+
         </div>
 
     </template>
@@ -374,8 +241,7 @@
             static get properties() {
                 return {
                     opencgaSession: {
-                        type: Object,
-                        observer: "updateVariableSets"
+                        type: Object
                     },
                     opencgaClient: {
                         type: Object
@@ -422,49 +288,58 @@
                 // super.ready();
                 this.prefix = "osf-" + Utils.randomString(6);
 
-                let _years = [];
-                let fullDate = new Date();
-                let limitYear = fullDate.getFullYear();
-                for (let year = this.minYear; year <= limitYear; year++) {
-                    _years.push(year);
-                }
-                // This change triggers the polymer dom-repeat
-                this.years = _years;
+                this.annotationFilterConfig = {
+                    class: "small",
+                    buttonClass: "btn-sm",
+                    inputClass: "input-sm"
+                };
 
-
-                // Init arrays for Date selector
-                let _yearsToSearch = [];
-                for (let year = limitYear, i = 0; i < 5; year--, i++) {
-                    _yearsToSearch.push(year);
-                }
-                this.yearsToSearch = _yearsToSearch;
-
-                this.monthToSearch = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-                let _days = [];
-                for (let i = 1; i <= 31; i++) {
-                    _days.push(i);
-                }
-                this.daysToSearch = _days;
-
-                // If compact is not set then we set false as default and we display the checkbox
-                if (UtilsNew.isUndefined(this.compact)) {
-                    this._displayCompactCheckBox = true;
-                    this.compact = false;
-                } else {
-                    this._displayCompactCheckBox = false;
-                }
-                // TODO: this must be removed
-                this._displayCompactCheckBox = false;
+                this.dateFilterConfig = {
+                    recentDays: 10
+                };
             }
 
             onSearch() {
                 this.search = Object.assign({}, this.query);
             }
 
+            addAnnotation(e) {
+                if (typeof this._annotationFilter === "undefined") {
+                    this._annotationFilter = {};
+                }
+                let split = e.detail.value.split("=");
+                this._annotationFilter[split[0]] = split[1];
+
+                let _query = {};
+                Object.assign(_query, this.query);
+                let annotations = [];
+                for (let key in this._annotationFilter) {
+                    annotations.push(`${key}=${this._annotationFilter[key]}`)
+                }
+                _query['annotation'] = annotations.join(";");
+
+                this._reset = false;
+                this.set("query", _query);
+                this._reset = true;
+            }
+
+            onDateChanged(e) {
+                let query = {};
+                Object.assign(query, this.query);
+                if (UtilsNew.isNotEmpty(e.detail.date)) {
+                    query["creationDate"] = e.detail.date;
+                } else {
+                    delete query["creationDate"];
+                }
+
+                this._reset = false;
+                this.set("query", query);
+                this._reset = true;
+            }
+
             onQueryUpdate() {
                 if (this._reset) {
-                    console.log("onQueryUpdate: calling to 'renderQueryFilters()'")
+                    console.log("onQueryUpdate: calling to 'renderQueryFilters()'");
                     this.renderQueryFilters();
                 } else {
                     this._reset = true;
@@ -477,83 +352,68 @@
 
                 // Sample
                 if (UtilsNew.isNotUndefined(this.query.name)) {
-                    PolymerUtils.setValue(this.prefix + "SampleName", this.query.name);
+                    PolymerUtils.setValue(`${this.prefix}-sample-input`, this.query.name);
+                }
+
+                // Individual
+                if (UtilsNew.isNotUndefined(this.query.individual)) {
+                    PolymerUtils.setValue(`${this.prefix}-individual-input`, this.query.individual);
+                }
+
+                // Source
+                if (UtilsNew.isNotUndefined(this.query.source)) {
+                    PolymerUtils.setValue(`${this.prefix}-source-input`, this.query.source);
+                }
+
+                // Phenotypes
+                if (UtilsNew.isNotUndefined(this.query.phenotypes)) {
+                    PolymerUtils.setValue(`${this.prefix}-phenotypes-input`, this.query.phenotypes);
+                }
+
+                // Somatic checkbox
+                if (UtilsNew.isNotUndefined(this.query.somatic)) {
+                    PolymerUtils.setPropertyById(`${this.prefix}-somatic-option-${this.query.somatic}`, 'checked', true);
+                } else {
+                    PolymerUtils.setPropertyById(`${this.prefix}-somatic-option-none`, 'checked', true);
                 }
             }
 
             calculateFilters(e) {
                 let _query = {};
 
-                let name = PolymerUtils.getValue(this.prefix + "SampleName");
+                let name = PolymerUtils.getValue(`${this.prefix}-sample-input`);
                 if (UtilsNew.isNotEmpty(name)) {
                     _query.name = name;
                 }
 
-                let individual = PolymerUtils.getValue(this.prefix + "PatientName");
+                let individual = PolymerUtils.getValue(`${this.prefix}-individual-input`);
                 if (UtilsNew.isNotEmpty(individual)) {
                     _query.individual = individual;
                 }
 
-                let hpo = PolymerUtils.getValue(this.prefix + "PatientHpo");
-                let diagnosis = PolymerUtils.getValue(this.prefix + "PatientDiagnosis");
-
-                if (UtilsNew.isNotUndefinedOrNull(hpo) || UtilsNew.isNotUndefinedOrNull(diagnosis)) {
-                    if (UtilsNew.isUndefinedOrNull(_query.ontologies)) {
-                        _query.ontologies = [];
-                    }
-                    if (UtilsNew.isNotEmpty(hpo)) {
-                        _query.ontologies.push(hpo);
-                    }
-                    if (UtilsNew.isNotEmpty(diagnosis)) {
-                        _query.ontologies.push(diagnosis);
-                    }
-
-                    if (UtilsNew.isNotEmptyArray(_query.ontologies)) {
-                        _query.ontologies = _query.ontologies.join(",");
-                    } else {
-                        _query.ontologies = undefined;
-                    }
+                let source = PolymerUtils.getValue(`${this.prefix}-source-input`);
+                if (UtilsNew.isNotEmpty(source)) {
+                    _query.source = source;
                 }
 
+                let phenotypes = PolymerUtils.getValue(`${this.prefix}-phenotypes-input`);
+                if (UtilsNew.isNotEmpty(phenotypes)) {
+                    _query.phenotypes = phenotypes;
+                }
 
+                // keep annotation filter
+                if (UtilsNew.isNotEmpty(this.query.annotation)) {
+                    _query.annotation = this.query.annotation;
+                }
 
+                // keep date filters
+                if (UtilsNew.isNotEmpty(this.query.creationDate)) {
+                    _query.creationDate = this.query.creationDate;
+                }
 
-                //TODO Refactor
-                let dateOption = $("#" + this.prefix + "DateRadioButton input[type='radio']:checked").val();
-                switch (dateOption) {
-                    case "recently":
-                        let dates = [];
-                        // Last 7 days
-                        for (let i = 0; i < 7; i++) {
-                            let da = new Date();
-                            da.setDate(da.getDate() - i);
-                            // If the month and day have one digit we add 0 before
-                            let m = da.getMonth() + 1;
-                            if (m < 10) {
-                                m = "0" + m;
-                            }
-                            let d = da.getDate();
-                            if (d < 10) {
-                                d = "0" + d;
-                            }
-                            dates.push("^" + da.getFullYear() + m + d + "*")
-                        }
-                        _query.creationDate = "~" + dates.join(",");
-                        PolymerUtils.setAttributeByClassName('codeDis','disabled', 'true');
-                        break;
-                    case "date":
-                        let date = this._getDateFilter(e);
-                        _query.creationDate = date;
-                        PolymerUtils.removeAttributebyclass('codeDis','disabled');
-                        break;
-                    case "all":
-//                        PolymerUtils.getElementById(this.prefix + "YearSelect").value = this.yearsToSearch[0];
-//                        PolymerUtils.getElementById(this.prefix + "MonthSelect").value = "any";
-//                        PolymerUtils.getElementById(this.prefix + "DaySelect").value = "any";
-                    default:
-                        delete _query.creationDate;
-                        PolymerUtils.setAttributeByClassName('codeDis','disabled', 'true');
-                        break;
+                let somatic = $(`input[name=${this.prefix}-somatic-options]:checked`, `#${this.prefix}-somatic`).val();
+                if (somatic !== "None") {
+                    _query.somatic = somatic === "True";
                 }
 
                 // To prevent to call renderQueryFilters we set this to false
@@ -561,215 +421,6 @@
                 this.set("query", _query);
                 this._reset = true;
             }
-
-            addAnnotationFilter(e) {
-                let _query = {};
-                let annotations = [];
-                let annotationTextInputElements = PolymerUtils.getElementsByClassName(this.prefix + "AnnotationTextInput");
-                for (let annot of annotationTextInputElements) {
-                    if (annot.value !== "") {
-                        annotations.push(annot.dataset.variableName + "=" + annot.value)
-                    }
-                }
-
-                annotationTextInputElements = PolymerUtils.getElementsByClassName(this.prefix + "AnnotationSelect");
-                for (let annot of annotationTextInputElements) {
-                    if (annot.value !== "") {
-                        annotations.push(annot.dataset.variableName + "=" + annot.value)
-                    }
-                }
-
-                _query.annotation = annotations.join(",");
-
-                this._reset = false;
-                this.set("query", _query);
-                this._reset = true;
-            }
-
-            _getDateFilter(e) {
-                let year = PolymerUtils.getElementById(this.prefix + "YearSelect").value;
-                let month =  PolymerUtils.getElementById(this.prefix + "MonthSelect").value;
-                let day =  PolymerUtils.getElementById(this.prefix + "DaySelect").value;
-                let date;
-                if (month === "any") {
-                    date = "~^" + year + "*";
-                } else {
-                    let monthIndex = this.monthToSearch.indexOf(month) + 1;
-                    if (monthIndex < 10) {
-                        monthIndex = "0" + monthIndex;
-                    }
-                    if (day === "any") {
-                        date = "~^" + year + monthIndex + "*";
-                    } else {
-                        if (day < 10) {
-                            day = "0" + day;
-                        }
-                        date = "~^" + year + monthIndex + day + "*";
-                    }
-                }
-                return date;
-            }
-
-            updateVariableSets() {
-                this.variables = [];
-                let _this = this;
-                this.opencgaClient.studies().info(this.opencgaSession.study.id, {include: "variableSets"})
-                    .then(function (response) {
-                        _this.variableSets = response.response[0].result[0].variableSets;
-                        // debugger
-                        if (_this.variableSets.length > 0) {
-                            _this.variables = _this.variableSets[0].variables; // setting first one by default
-                            _this.filteredVariables = {
-                                variableSet: _this.variableSets[0].id,
-                                variables: []
-                            };
-                        } else {
-                            // _this.variableSets = [{name: "none"}];
-                            _this.variableSets = [];
-                        }
-                    })
-                    .catch(function () {
-                        console.log("Could not obtain the variable sets of the study " + _this.opencgaSession.study);
-                    });
-            }
-
-            renderVariableTemplate() {
-                let myTemplate = PolymerUtils.getElementById(this.prefix + 'VariableTemplate');
-                if (UtilsNew.isNotNull(myTemplate)) {
-                    myTemplate.render();
-                }
-            }
-
-            variableSelected(e) {
-                this.variable = e.target.dataVariable;
-                if (UtilsNew.isUndefined(this.variable) || Object.getOwnPropertyNames(this.variable).length === 0) {
-                    return;
-                }
-                this._isCategorical = false;
-                this._isText = false;
-                this._isNumerical = false;
-                this._isBoolean = false;
-                this._isObject = false;
-                if (this.variable.type.toLowerCase() === "categorical") {
-                    this._isCategorical = true;
-                } else if (this.variable.type.toLowerCase() === "text") {
-                    this._isText = true;
-                } else if (this.variable.type.toLowerCase() === "numeric") {
-                    this._isNumerical = true;
-                } else if (this.variable.type.toLowerCase() === "boolean") {
-                    this._isBoolean = true;
-                } else if (this.variable.type.toLowerCase() === "object") {
-                    this._isObject = true;
-                }
-                //TODO Refactor
-                $(e.target.dataTarget).modal('show');
-            }
-
-            updateCompactFilter(e) {
-                let myFilter = {};
-                if (this.variable.type.toLowerCase() === "categorical") {
-                    let allValues = [];
-                    //TODO Refactor
-                    let selected = $("input[name='" + this.prefix + "Categorical']:checked");
-                    for (let i = 0; i < selected.length; i++) {
-                        allValues.push(selected[i].value);
-                    }
-                    myFilter = {
-                        name: this.variable.name,
-                        value: allValues.join()
-                    };
-                } else if (this.variable.type.toLowerCase() === "text") {
-                    //TODO Refactor
-                    let value = $("input[name='" + this.prefix + "Text']");
-                    myFilter = {
-                        name: this.variable.name,
-                        value: value.value
-                    };
-                    value.value = "";
-                } else if (this.variable.type.toLowerCase() === "numeric") {
-                    //TODO Refactor
-                    let value = $("input[name='" + this.prefix + "Numerical']");
-                    myFilter = {
-                        name: this.variable.name,
-                        value: value.value
-                    };
-                    value.value = "";
-                } else if (this.variable.type.toLowerCase() === "boolean") {
-                    this._isBoolean = true;
-                } else if (this.variable.type.toLowerCase() === "object") {
-                    this._isObject = true;
-                }
-                this.query[myFilter.name] = myFilter.value;
-                this.query = Object.assign({}, this.query);
-                this.fire('opencga-filter-added', myFilter);
-            }
-
-            variablesChanged() {
-                this._areVariablesEmpty = (this.variables.length === 0);
-            }
-
-            checkVarType(myVar, type) {
-                return (myVar.type === type);
-            }
-
-            checkCatType(myVar, type, lowerLimit, upperLimit) {
-                return (myVar.type === type && myVar.allowedValues.length >= lowerLimit && myVar.allowedValues.length < upperLimit);
-            }
-
-            checkYears(e) {
-                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                PolymerUtils.innerHTML(this.prefix + '_errorDiv_birthYear', '');
-                PolymerUtils.innerHTML(this.prefix + '_errorDiv_testYear', '');
-                let currentElement =  PolymerUtils.getElementById(e.target.id);
-                let identifier = e.target.id;
-                let pairElement = '';
-                let divSuffix = '';
-                let message = '';
-                if (identifier.search('birthYear') !== -1) { // Birth year element raises the event -> check Test year
-                    pairElement =  PolymerUtils.getElementById(this.prefix + "testYear");
-                    divSuffix = "birthYear";
-                    message = "Year of Birth must be prior to year of Test";
-                } else { // Year of test element raises the event -> swap elements and check the birth year
-                    currentElement =  PolymerUtils.getElementById(this.prefix + "birthYear");
-                    pairElement =  PolymerUtils.getElementById(e.target.id);
-                    divSuffix = "testYear";
-                    message = "Year of Test must be posterior to year of Birth";
-                }
-
-                if (PolymerUtils.querySelectorAll("option:selected",pairElement) !== ""
-                    && (parseInt(PolymerUtils.querySelectorAll("option:selected", currentElement).textContent) > parseInt(PolymerUtils.querySelectorAll("option:selected", pairElement).textContent))) { // Year of birth cannot be lower than Year of test
-                    PolymerUtils.innerHTML(this.prefix + "_errorDiv_" + divSuffix, message);
-                }
-            }
-
-            checkType(str1, str2) {
-                return str1.search(str2) !== -1;
-            }
-
-            _filterVariable(variable) {
-                for (let i = 0; i < this.filteredVariables.variables.length; i++) {
-                    if (variable.name === this.filteredVariables.variables[i].name) {
-                        return false;
-                    }
-                }
-                if (UtilsNew.isNotUndefined(this.searchVariable)
-                    && variable.name.toLowerCase().indexOf(this.searchVariable.toLowerCase()) === -1) {
-                    return false;
-                }
-                return true;
-            }
-
-            _sortVariables(a, b) {
-                if (a.rank < b.rank) {
-                    return -1;
-                }
-                return 1;
-            }
-
-            _changeMode(e) {
-                this.compact = !this.compact;
-            }
-
 
             /**
              * Use custom CSS class to easily reset all controls.
@@ -784,25 +435,11 @@
                 PolymerUtils.setAttributeByClassName(this.prefix + "FilterSelect", 'selectedIndex', 0);
                 PolymerUtils.removeAttributebyclass(this.prefix + "FilterSelect", 'disabled');
                 PolymerUtils.setPropertyByClassName(this.prefix + "FilterRadio", 'checked', false);
-                PolymerUtils.setAttributeByClassName(this.prefix + "FilterRadio", 'disabled', true);
 
-                //TODO Refactor
-                $("." + this.prefix + "FilterRadio").filter('[value="or"]').prop('checked', true);
+                // TODO Refactor
+                // $("." + this.prefix + "FilterRadio").filter('[value="or"]').prop('checked', true);
             }
 
-            isVisible(myVar) {
-                if (UtilsNew.isNotUndefinedOrNull(this.config) && UtilsNew.isNotUndefinedOrNull(this.config.variableSet)) {
-                    let excludeArray = this.config.variableSet.exclude;
-                    for (let index in excludeArray) {
-                        if (excludeArray[index].webComponent === this.localName) {
-                            return (!(excludeArray[index].variable.indexOf(myVar.name)!== -1));
-                        } else {
-                            return true;
-                        }
-                    }
-                }
-                return true;
-            }
         }
 
         customElements.define(OpencgaSampleFilter.is, OpencgaSampleFilter);

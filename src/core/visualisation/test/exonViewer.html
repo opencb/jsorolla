@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Exon viewer</title>
+
+    <link rel="stylesheet" href="../../../../node_modules/qtip2/dist/jquery.qtip.min.css">
+
+    <script type="text/javascript" src="../../../../node_modules/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>
+
+    <script type="text/javascript" src="../../svg.js"></script>
+    <script type="text/javascript" src="../../utilsNew.js"></script>
+    <script type="text/javascript" src="../../../genome-browser/feature-binary-search-tree.js"></script>
+    <script type="text/javascript" src="../exonViewer.js"></script>
+    <script type="text/javascript" src="resources/BRCA2.js"></script>
+
+</head>
+
+<body onload="render()">
+<script>
+
+    let exons = [
+        {
+            start: 1,
+            end: 100
+        }, {
+            start: 200,
+            end: 250
+        }, {
+            start: 500,
+            end: 800
+        }];
+
+    function render() {
+        let tracks = [];
+        tracks.push({
+            name: "TFBS",
+            type: "feature",
+            data: brca2.transcripts[0].tfbs
+        });
+        tracks.push({
+            name: "Coverage",
+            type: "coverage",
+            data: coverage
+        });
+        tracks.push({
+           name: "Low coverage",
+           type: "lowcoverage",
+           data: lowCoverage
+        });
+
+        let exonViewer = new ExonViewer("transcriptDiv", brca2.transcripts[0].exons, tracks);
+        // let exonViewer = new ExonViewer("transcriptDiv", exons);
+        let svg = exonViewer.render();
+        document.getElementById("transcriptDiv").appendChild(svg);
+    }
+</script>
+
+<h2>Simple transcript</h2>
+<div id="transcriptDiv" style=""></div>
+
+<!--<h2>Complex family</h2>-->
+<!--<div id="complexFamilyTestDiv"></div>-->
+
+</body>
+</html>
