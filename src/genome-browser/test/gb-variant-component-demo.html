@@ -1,0 +1,116 @@
+<link rel="import" href="../../../node_modules/@polymer/polymer/polymer-element.html">
+<link rel="import" href="../webcomponent/genome-browser.html">
+
+<dom-module id="gb-variant-component-demo">
+
+    <template>
+        <div id="gb-div" style="margin:15px 30px">
+            <genome-browser cellbase-client="{{cellbaseClient}}" opencga-session="{{opencgaSession}}"
+                            region="{{region}}" tracks="{{tracks}}" settings="{{settings}}" active="true">
+            </genome-browser>
+        </div>
+    </template>
+
+    <script>
+        class GbVariantComponentDemo extends Polymer.Element {
+            static get is() {
+                return 'gb-variant-component-demo';
+            }
+
+            static get properties() {
+                return {};
+            }
+
+            constructor() {
+                super();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            ready() {
+                super.ready();
+                // We first parse URL to check (and overwrite) if a CellBase Host and Version have been provided
+                let queryParams = URI.parseQuery(window.location.search);
+                if (typeof queryParams.CELLBASE_HOST !== "undefined") {
+                    CELLBASE_HOST = queryParams.CELLBASE_HOST;
+                }
+                if (typeof queryParams.CELLBASE_VERSION !== "undefined") {
+                    CELLBASE_VERSION = queryParams.CELLBASE_VERSION;
+                }
+                console.log("CellBase Host: " + CELLBASE_HOST, " - CellBase Version: " + CELLBASE_VERSION)
+
+                let cellBaseClientConfig = new CellBaseClientConfig(CELLBASE_HOST, CELLBASE_VERSION);
+                cellBaseClientConfig.cache.active = false;
+                this.cellbaseClient = new CellBaseClient(cellBaseClientConfig);
+
+                // We parse the URL to check (and overwrite) the OPENCGA parameters as well
+                if (typeof queryParams.OPENCGA_HOST !== "undefined") {
+                    OPENCGA_HOST = queryParams.OPENCGA_HOST;
+                }
+                if (typeof queryParams.OPENCGA_USER !== "undefined") {
+                    OPENCGA_USER = queryParams.OPENCGA_USER;
+                }
+                if (typeof queryParams.OPENCGA_PASSWORD !== "undefined") {
+                    OPENCGA_PASSWORD = queryParams.OPENCGA_PASSWORD;
+                }
+                console.log("Opencga host: " + OPENCGA_HOST, " - User: " + OPENCGA_USER, " - Password: " + OPENCGA_PASSWORD);
+
+                var opencgaClientConfig = new OpenCGAClientConfig(OPENCGA_HOST);
+                opencgaClientConfig.setPrefix("gm");
+                let opencgaClient = new OpenCGAClient(opencgaClientConfig);
+
+                let _this = this;
+                opencgaClient.users().login(OPENCGA_USER, OPENCGA_PASSWORD)
+                    .then(function(response) {
+                        console.log("User " + OPENCGA_USER + " successfully logged in in opencga.");
+                        opencgaClient._config.sessionId = response.response[0].result[0].token;
+
+                        opencgaClient.createSession().then(function (response) {
+                            _this.opencgaSession = response;
+                        });
+
+                    })
+                    .catch(function(e) {
+                        console.log("Error logging in " + OPENCGA_USER, e);
+                    });
+
+                // Take the sample ids to show the variant track
+                let sampleIds;
+                if (typeof queryParams.SAMPLES !== "undefined") {
+                    sampleIds = queryParams.SAMPLES;
+                }
+
+                let study;
+                if (typeof queryParams.STUDY !== "undefined") {
+                    study = queryParams.STUDY;
+                }
+
+                this.settings = {
+                    width: $("#gb-div").width() - 10
+                };
+
+                let tracks = [{
+                    type: "sequence"
+                }, {
+                    type: "gene"
+                }];
+
+                tracks.push({
+                    type: "variant",
+                    config: {
+                        source: 'opencga',
+                        data: {
+                            study: study,
+                            samples: sampleIds.split(",")
+                        }
+                    }
+                });
+                this.tracks = tracks;
+            }
+        }
+
+        customElements.define(GbVariantComponentDemo.is, GbVariantComponentDemo);
+    </script>
+</dom-module>

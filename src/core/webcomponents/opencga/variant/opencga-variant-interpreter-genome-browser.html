@@ -364,6 +364,7 @@
                         files[j].display = display;
                         if (files[j].bioformat === "VARIANT") {
                             variants[role] = files[j];
+                            variants[role]['sample'] = samples[i];  
                         } else if (files[j].bioformat === "ALIGNMENT") {
                             alignments[role] = files[j];
                         } else if (files[j].bioformat === "COVERAGE") {
@@ -392,22 +393,22 @@
 
                             tracks.push(this._generateAlignmentTrack(alignment));
                         }
-                        // let variant = variants[roles[i]];
-                        // if (UtilsNew.isNotUndefinedOrNull(variant)) {
-                        //     // Remove role from variants map
-                        //     delete variants[roles[i]];
-                        //
-                        //     tracks.push(this._generateVariantTrack(variant));
-                        // }
+                        let variant = variants[roles[i]];
+                        if (UtilsNew.isNotUndefinedOrNull(variant)) {
+                            // Remove role from variants map
+                            delete variants[roles[i]];
+
+                            tracks.push(this._generateVariantTrack(variant));
+                        }
                     } else {
                         // Add the rest of the tracks
                         let _this = this;
                         Object.entries(alignments).forEach(
                             ([key, value]) => tracks.push(_this._generateAlignmentTrack(value))
                         );
-                        // Object.entries(variants).forEach(
-                        //     ([key, value]) => tracks.push(_this._generateVariantTrack(value))
-                        // );
+                        Object.entries(variants).forEach(
+                            ([key, value]) => tracks.push(_this._generateVariantTrack(value))
+                        );
                     }
                 }
 
@@ -462,7 +463,8 @@
                         source: 'opencga',
                         data: {
                             study: this.opencgaSession.study.fqn,
-                            fileId: file.id,
+                            // files: [file.id],
+                            samples: [file.sample],
                             name: file.display
                         }
                     }
