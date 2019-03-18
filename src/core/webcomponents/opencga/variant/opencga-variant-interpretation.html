@@ -488,10 +488,6 @@
                     proteinSubstitutionScores: {
                         type: Object
                     },
-                    // interactive: {
-                    //     type: Boolean,
-                    //     observer: "interactiveObserver"
-                    // },
                     config: {
                         type: Object
                     }
@@ -1047,29 +1043,29 @@
             //     
             // }
 
-            getGenotypeFilter(genotypeSamples) {
-                let genotype = [];
-                Object.keys(genotypeSamples).forEach(sampleId => {
-                    if (UtilsNew.isNotUndefinedOrNull(genotypeSamples[sampleId])) {
-                        // genotype += sampleId+ ":";
-                        let gt = [];
-                        if (genotypeSamples[sampleId]["0/0"]) {
-                            gt.push("0/0");
-                        }
-                        if (genotypeSamples[sampleId]["0/1"]) {
-                            gt.push("0/1");
-                        }
-                        if (genotypeSamples[sampleId]["1/1"]) {
-                            gt.push("1/1");
-                        }
-                        if (genotypeSamples[sampleId]["./."]) {
-                            gt.push("./.");
-                        }
-                        genotype.push(sampleId+ ":" + gt.join(","));
-                    }
-                });
-                return genotype.join(";");
-            }
+            // getGenotypeFilter(genotypeSamples) {
+            //     let genotype = [];
+            //     Object.keys(genotypeSamples).forEach(sampleId => {
+            //         if (UtilsNew.isNotUndefinedOrNull(genotypeSamples[sampleId])) {
+            //             // genotype += sampleId+ ":";
+            //             let gt = [];
+            //             if (genotypeSamples[sampleId]["0/0"]) {
+            //                 gt.push("0/0");
+            //             }
+            //             if (genotypeSamples[sampleId]["0/1"]) {
+            //                 gt.push("0/1");
+            //             }
+            //             if (genotypeSamples[sampleId]["1/1"]) {
+            //                 gt.push("1/1");
+            //             }
+            //             if (genotypeSamples[sampleId]["./."]) {
+            //                 gt.push("./.");
+            //             }
+            //             genotype.push(sampleId+ ":" + gt.join(","));
+            //         }
+            //     });
+            //     return genotype.join(";");
+            // }
 
             _changeView(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed

@@ -22,16 +22,14 @@
             <!--<h3>{{facetResult.name}}</h3>-->
             <div class="btn-group" style="float: right">
                 <span id="{{prefix}}HistogramChartButton" class="btn btn-primary plots active" on-click="renderHistogramChart">
-                    <i class="fa fa-bar-chart" style="padding-right: 5px" title="Bar Chart" data-id="{{facetResult.name}}"></i>
+                    <i class="fas fa-chart-bar" style="padding-right: 5px" title="Bar Chart" data-id="{{facetResult.name}}"></i>
                 </span>
-                <!--<template is="dom-if" if="{{item.renderPieChart}}">-->
                 <span id="{{prefix}}PieChartButton" class="btn btn-primary plots" on-click="onPieChart">
-                    <i class="fa fa-pie-chart" style="padding-right: 5px" title="Pie Chart" data-id="{{facetResult.name}}"></i>
+                    <i class="fas fa-chart-pie" style="padding-right: 5px" title="Pie Chart" data-id="{{facetResult.name}}"></i>
                 </span>
-                <!--</template>-->
-                <span id="{{prefix}}TableButton" class="btn btn-primary plots" on-click="onTabularView">
-                    <i class="fa fa-table" style="padding-right: 5px" title="Tabular View" data-id="{{facetResult.name}}"></i>
-                </span>
+                <!--<span id="{{prefix}}TableButton" class="btn btn-primary plots" on-click="onTabularView">-->
+                    <!--<i class="fa fa-table" style="padding-right: 5px" title="Tabular View" data-id="{{facetResult.name}}"></i>-->
+                <!--</span>-->
             </div>
             <div id="{{prefix}}Plot"></div>
 
@@ -425,9 +423,11 @@
                     let subField = bucket.fields;
                     let subCategories = [];
                     let subData = [];
-                    for (let bucket of subField[0].buckets) {
-                        subCategories.push(bucket.value);
-                        subData.push(bucket.count);
+                    if (UtilsNew.isNotUndefinedOrNull(subField[0])) {
+                        for (let bucket of subField[0].buckets) {
+                            subCategories.push(bucket.value);
+                            subData.push(bucket.count);
+                        }
                     }
                     data.push({
                         y: bucket.count,
