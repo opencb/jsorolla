@@ -149,12 +149,17 @@ class OpencgaAdapter extends FeatureAdapter {
             params.exclude = "studies.files,studies.stats,annotation";// For sample-genotype mode less exclusive than browse mode
         }
         /** 6 check type data **/
-        if (UtilsNew.isNotUndefinedOrNull(params.returnedSamples)){   //When there are samples do not display histogram
-            dataType = "features";
-            params["histogram"]= "undefined";
-            params["histogramLogarithm"] = "undefined";
-            params["histogramMax"]= "undefined";
+        if (UtilsNew.isNotUndefinedOrNull(params.returnedSamples) && dataType === "features") {   //When there are samples do not display histogram
+            delete params["histogram"];
+            delete params["histogramLogarithm"];
+            delete params["histogramMax"];
+
+            if (region.length() > chunkSize) {
+                chunkSize = parseInt(`1${'0'.repeat(region.length().toString().length - 1)}0`);
+            }
         }
+
+
 
         let _this = this;
         return new Promise(function(resolve, reject) {
@@ -162,13 +167,13 @@ class OpencgaAdapter extends FeatureAdapter {
             let start = _this._getStartChunkPosition(region.start);
             let regions = [];
             do {
-                regions.push(`${region.chromosome}:${start}-${start + _this.options.chunkSize - 1}`);
-                start += _this.options.chunkSize;
+                regions.push(`${region.chromosome}:${start}-${start + chunkSize - 1}`);
+                start += chunkSize;
             } while (start <= region.end);
 
             let p = {};
             for (let param of Object.keys(params)) {
-                if (typeof params[param] !== "undefined") {
+                if (UtilsNew.isNotEmpty(params[param])) {
                     p[param] = params[param];
                 }
             }
