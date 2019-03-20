@@ -935,6 +935,9 @@
                             _filters.studies = notInStudies.join(";");
                             break;
                     }
+                } else {
+                    // Set study when no studies have been displayed, probably because there is only one study.
+                    _filters.study = this.opencgaSession.study.fqn;
                 }
 
                 // Regions
@@ -1221,10 +1224,21 @@
                 // We get the HTML content for each subsection
                 let content = "";
                 for (let subsection of section.subsections) {
+                    // Do not display Study subsection when only 1 study exists
+                    if (subsection.id === "study" && this.opencgaSession.project.studies.length <= 1) {
+                        // If Study subsection is the only one in the section then we do not display the whole section
+                        if (section.subsections.length === 1) {
+                            return "";
+                        } else {
+                            continue;
+                        }
+                    }
+
                     // CADD values are only available for GRCh37
                     if (subsection.id === "cadd" && this.opencgaSession.project.organism.assembly.toLowerCase() === "grch38") {
                         continue;
                     }
+                    
                     // We check if this subsection is not disabled in the configuration file
                     if (UtilsNew.isEmptyArray(this.config.menu.skipSubsections) || !this.config.menu.skipSubsections.includes(subsection.id)) {
                         content += this._createSubSection(subsection);
