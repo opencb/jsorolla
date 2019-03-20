@@ -90,12 +90,42 @@ class CoverageRenderer {
         // We will close the polyline
         polyline.push(`${config.width},100 0,100 0,${firstHeight}`);
 
-        SVG.addChild(config.target, "polyline", {
+        const coverage = SVG.addChild(config.target, "polyline", {
             points: polyline.join(" "),
             stroke: "blue",
             fill: "gainsboro",
             "stroke-width": 0.2
         });
+
+        $(coverage).qtip({
+            content: " ",
+            position: { target: "mouse", adjust: { x: 15, y: 0 }, viewport: $(window), effect: false },
+            style: { width: true, classes: 'qtip-bootstrap' },
+            show: { delay: 300 },
+            hide: { delay: 300 },
+        });
+
+        $(coverage).mousemove(function(event) {
+            let centerPosition = data.start + Math.floor((data.end - data.start + 1) / 2);
+            let mid = config.width / 2;
+            let mouseLineOffset = config.scaleFactor / 2;
+            let offsetX = event.clientX - coverage.getBoundingClientRect().left;
+
+            let cX = offsetX - mouseLineOffset;
+            let rcX = (cX / config.scaleFactor) | 0;
+            //
+            let posOffset = (mid / config.scaleFactor) | 0;
+            let mousePosition = centerPosition + rcX - posOffset;
+
+            const pos = Math.floor((mousePosition - parseInt(start)) / windowSize);
+            if (pos < 0 || pos >= data.values.length) {
+                return;
+            }
+
+            const str = `depth: <span class="ssel">${data.values[pos]}</span><br>`;
+            $(coverage).qtip("option", "content.text", str);
+        });
+
     }
 
     _renderLowCoverage(data, config) {

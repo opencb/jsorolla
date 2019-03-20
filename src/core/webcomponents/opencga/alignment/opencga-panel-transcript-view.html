@@ -367,7 +367,7 @@
             clinicalAnalysisIdObserver() {
                 if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotEmpty(this.clinicalAnalysisId)) {
                     let _this = this;
-                    this.opencgaSession.opencgaClient.clinical().info(clinicalAnalysis, {study: this.opencgaSession.study.fqn})
+                    this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                         .then(function(response) {
                             // This will trigger the call clinicalAnalysis observer
                             _this.clinicalAnalysis = response.response[0].result[0];
