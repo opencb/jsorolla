@@ -256,7 +256,7 @@
                     visibleRegionSize: 100000000,
                     height: 100,
                     opencga: {
-                        client: this.opencgaClient,
+                        client: this.opencgaSession.opencgaClient,
                         studies: `${this.opencgaSession.project.alias}:${this.opencgaSession.study.alias}`,
                         config: {}
 //                        studies: "reference_grch37:1kG_phase3"
@@ -265,24 +265,14 @@
 //                    renderer: new FeatureRenderer(FEATURE_TYPES.variant),
                 };
 
-                if (settings.samples !== undefined && settings.samples.length > 0) {
-                    let _samples = [];
-                    for (let s of settings.samples) {
-                        _samples.push(s.name);
-                    }
-
-                    mySettings.opencga.samples = _samples;
+                if (settings.data.samples !== undefined && settings.data.samples.length > 0) {
+                    mySettings.opencga.samples = settings.data.samples;
                 } else {
                     mySettings.opencga.samples = [];
                 }
 
-                if (settings.files !== undefined && settings.files.length > 0) {
-                    let _files = [];
-                    for (let s of settings.files) {
-                        _files.push(s.name);
-                    }
-
-                    mySettings.opencga.files = _files;
+                if (settings.data.files !== undefined && settings.data.files.length > 0) {
+                    mySettings.opencga.files = settings.data.files;
                 } else {
                     mySettings.opencga.files = [];
                 }

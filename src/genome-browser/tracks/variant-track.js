@@ -27,16 +27,16 @@ class VariantTrack extends FeatureTrack {
                     }, {
                         chunkSize: 10000
                     });
-                }
 
-                if (UtilsNew.isNotUndefinedOrNull(this.opencga.samples) && this.opencga.samples.length !== 0) {
-                    this.dataAdapter.params.exclude = "studies.files,studies.stats,annotation";
-                    this.dataAdapter.params.returnedSamples = this.opencga.samples;
-                }
+                    if (UtilsNew.isNotUndefinedOrNull(this.opencga.samples) && this.opencga.samples.length !== 0) {
+                        this.dataAdapter.params.exclude = "studies.files,studies.stats,annotation";
+                        this.dataAdapter.params.returnedSamples = this.opencga.samples;
+                    }
 
-                if (UtilsNew.isNotUndefinedOrNull(this.opencga.files) && this.opencga.files.length !== 0) {
-                    this.dataAdapter.params.exclude = "studies.files,studies.stats,annotation";
-                    this.dataAdapter.params.file = this.opencga.files;
+                    if (UtilsNew.isNotUndefinedOrNull(this.opencga.files) && this.opencga.files.length !== 0) {
+                        this.dataAdapter.params.exclude = "studies.files,studies.stats,annotation";
+                        this.dataAdapter.params.file = this.opencga.files;
+                    }
                 }
             } else {
                 console.error("No 'dataAdapter' or 'opencga' object provided");

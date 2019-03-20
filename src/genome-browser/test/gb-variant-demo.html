@@ -1,0 +1,186 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Genome Viewer Demo</title>
+
+    <script type="text/javascript" src="../../../node_modules/@webcomponents/webcomponentsjs/webcomponents-lite.js"></script>
+
+    <!-- build:[href] vendor/font-awesome/css/ -->
+    <link rel="stylesheet" href="../../../node_modules/font-awesome/css/font-awesome.min.css">
+    <!-- /build -->
+
+    <!-- build:[href] vendor/qtip2/ -->
+    <link rel="stylesheet" href="../../../node_modules/qtip2/dist/jquery.qtip.min.css">
+    <!-- /build -->
+
+    <!-- build:[href] styles/css/ -->
+    <link rel="stylesheet" href="../../../styles/css/style.css">
+    <!-- /build -->
+
+
+    <!-- build:[src] vendor/underscore/ -->
+    <script type="text/javascript" src="../../../node_modules/underscore/underscore-min.js"></script>
+    <!-- /build -->
+
+    <!-- build:[src] vendor/backbone/ -->
+    <script type="text/javascript" src="../../../node_modules/backbone/backbone.js"></script>
+    <!-- /build -->
+
+    <!-- build:[src] vendor/jquery/dist/ -->
+    <script type="text/javascript" src="../../../node_modules/jquery/dist/jquery.min.js"></script>
+    <!-- /build -->
+
+    <!-- build:[src] vendor/qtip2/ -->
+    <script type="text/javascript" src="../../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>
+    <!-- /build -->
+
+    <!-- build:[src] vendor/urijs/src/ -->
+    <script type="text/javascript" src="../../../node_modules/urijs/src/URI.min.js"></script>
+    <!-- /build -->
+
+    <!-- build:[src] vendor/cookies-js/src/ -->
+    <script type="text/javascript" src="../../../node_modules/cookies-js/dist/cookies.js"></script>
+    <!-- /build -->
+
+    <!-- build:[src] vendor/crypto-js/ -->
+    <script type="text/javascript" src="../../../node_modules/crypto-js/crypto-js.js"></script>
+    <!-- /build -->
+
+
+    <script type="text/javascript" src="../config.js"></script>
+
+    <!-- build:js genome-browser.js -->
+    <script type="text/javascript" src="../../core/svg.js"></script>
+    <script type="text/javascript" src="../../core/utils.js"></script>
+    <script type="text/javascript" src="../../core/utilsNew.js"></script>
+    <script type="text/javascript" src="../../core/region.js"></script>
+    <script type="text/javascript" src="../feature-binary-search-tree.js"></script>
+    <!--<script type="text/javascript" src="../lib/cellbase-manager.js"></script>-->
+    <!--<script type="text/javascript" src="../lib/obsolete/ensembl-manager.js"></script> obsolete-->
+    <!--<script type="text/javascript" src="../lib/opencga-manager.js"></script>-->
+
+    <script type="text/javascript" src="../../core/cache/file-feature-cache.js"></script>
+    <script type="text/javascript" src="../../core/cache/feature-chunk-cache.js"></script>
+    <script type="text/javascript" src="../../core/cache/memory-store.js"></script>
+    <script type="text/javascript" src="../../core/cache/indexedDB-store.js"></script>
+    <script type="text/javascript" src="../../core/cache/bam-cache.js"></script>
+
+
+    <!--<script type="text/javascript" src="../lib/data-adapter/feature/ensembl-adapter.js"></script> obsolete-->
+    <!--<script type="text/javascript" src="../lib/data-adapter/feature/opencga-adapter.js"></script>-->
+    <script type="text/javascript" src="../../core/data-adapter/feature-template-adapter.js"></script>
+
+    <!--**-->
+    <script type="text/javascript" src="../../core/data-adapter/feature/feature-data-adapter.js"></script>
+    <script type="text/javascript" src="../../core/data-adapter/feature/vcf-data-adapter.js"></script>
+    <script type="text/javascript" src="../../core/data-adapter/feature/gff2-data-adapter.js"></script>
+    <script type="text/javascript" src="../../core/data-adapter/feature/gff3-data-adapter.js"></script>
+    <script type="text/javascript" src="../../core/data-adapter/feature/bed-data-adapter.js"></script>
+
+    <script type="text/javascript" src="../../core/data-source/data-source.js"></script>
+    <script type="text/javascript" src="../../core/data-source/string-data-source.js"></script>
+    <script type="text/javascript" src="../../core/data-source/file-data-source.js"></script>
+    <!--**-->
+
+    <script type="text/javascript" src="../../core/widgets/feature/info/info-widget.js"></script>
+    <script type="text/javascript" src="../../core/widgets/feature/info/gene-info-widget.js"></script>
+    <script type="text/javascript" src="../../core/widgets/feature/info/protein-info-widget.js"></script>
+    <script type="text/javascript" src="../../core/widgets/feature/info/snp-info-widget.js"></script>
+    <script type="text/javascript" src="../../core/widgets/feature/info/transcript-info-widget.js"></script>
+    <script type="text/javascript" src="../../core/widgets/feature/info/vcf-variant-info-widget.js"></script>
+
+    <!-- <script type="text/javascript" src="../../check-deprecated/legend-panel.js"></script> -->
+    <!-- <script type="text/javascript" src="../../check-deprecated/legend-widget.js"></script> -->
+
+    <script type="text/javascript" src="../../core/widgets/ux-window.js"></script>
+
+    <!-- **** -->
+
+    <script type="text/javascript" src="../navigation-bar.js"></script>
+    <script type="text/javascript" src="../chromosome-panel.js"></script>
+    <script type="text/javascript" src="../karyotype-panel.js"></script>
+    <script type="text/javascript" src="../status-bar.js"></script>
+
+    <script type="text/javascript" src="../tracks/tracklist-panel.js"></script>
+    <script type="text/javascript" src="../tracks/feature-track.js"></script>
+    <script type="text/javascript" src="../tracks/gene-track.js"></script>
+    <script type="text/javascript" src="../tracks/variant-track.js"></script>
+    <script type="text/javascript" src="../tracks/alignment-track.js"></script>
+
+    <script type="text/javascript" src="../renderers/renderer.js"></script>
+    <script type="text/javascript" src="../renderers/feature-renderer.js"></script>
+    <script type="text/javascript" src="../renderers/obsolete/feature-cluster-renderer.js"></script>
+    <script type="text/javascript" src="../renderers/sequence-renderer.js"></script>
+    <script type="text/javascript" src="../renderers/histogram-renderer.js"></script>
+    <script type="text/javascript" src="../renderers/gene-renderer.js"></script>
+    <script type="text/javascript" src="../renderers/alignment-renderer.js"></script>
+    <script type="text/javascript" src="../renderers/variant-renderer.js"></script>
+
+    <script type="text/javascript" src="../genome-browser.js"></script>
+
+    <!-- ES6 -->
+    <script type="text/javascript" src="../../core/data-adapter/feature-adapter.js"></script>
+    <script type="text/javascript" src="../../core/data-adapter/cellbase-adapter.js"></script>
+    <script type="text/javascript" src="../../core/data-adapter/opencga-adapter.js"></script>
+    <script type="text/javascript" src="../../core/cache/indexeddb-cache.js"></script>
+    <script type="text/javascript" src="../../core/clients/cellbase-client.js"></script>
+    <!--<script type="text/javascript" src="../lib/clients/cellbase-client-config.js"></script> include in cellbase client-->
+    <script type="text/javascript" src="../../core/clients/rest-client.js"></script>
+    <script type="text/javascript" src="../../core/clients/opencga-client.js"></script>
+    <!--<script type="text/javascript" src="../lib/clients/opencga-client-config.js"></script> include in opencga client-->
+    <!-- /build -->
+
+    <!-- Loading genome browser component -->
+    <link rel="import" href="gb-variant-component-demo.html">
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-16414504-2']);
+        _gaq.push(['_trackPageview']);
+
+        (function() {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+
+
+    <style type="text/css">
+        html {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body {
+            margin: 0px;
+        }
+
+        #application {
+            box-sizing: border-box;
+            margin: 0 auto;
+            width: 1500px;
+            border: 1px solid lightgray;
+        }
+
+        #title {
+            margin: 20px auto;
+            width: 1500px;
+            font-size: 35px;
+            color: gray;
+        }
+    </style>
+
+</head>
+
+<body class="ocb">
+<gb-variant-component-demo></gb-variant-component-demo>
+</body>
+</html>
