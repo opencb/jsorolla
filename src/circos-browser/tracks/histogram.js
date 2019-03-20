@@ -14,17 +14,30 @@ class CircosHistogramTrack extends CircosTrack {
     draw(args) {
         let self = this;
         this.renderer.clean();
-        if (UtilsNew.isNotUndefinedOrNull(this.data)) {
-            //Render the histogram track with the provided data
-            return this.renderer.render({
-                "data": this.data,
+        //Function to render the track with the provided data
+        let renderData = function (data) {
+            return self.renderer.render({
+                "data": data,
                 "layout": args.layout,
                 "drawingZone": args.drawingZone,
                 "config": args.config
             });
+        };
+        if (UtilsNew.isNotUndefinedOrNull(this.data)) {
+            //Render the histogram track with the provided data
+            return renderData(this.data);
         }
-        else {
-            return null; //???????
+        //Check if a query has been provided
+        else if (UtilsNew.isNotUndefinedOrNull(args.query)) {
+            if (UtilsNew.isNotUndefinedOrNull(this.dataAdapter)) {
+                let request = this.dataAdapter.getData(args.query);
+                request.then(function (response) {
+                    return renderData(response);
+                });
+                request.catch(function (response) {
+                    console.error(response);
+                });
+            }
         }
     }
 }
