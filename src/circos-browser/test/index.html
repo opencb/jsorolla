@@ -2,12 +2,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Circos Browser</title>
+    <!-- Node modules -->
+    <script type="text/javascript" src="../../../node_modules/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/backbone/backbone-min.js"></script>
     <!-- Core libs -->
     <script type="text/javascript" src="../../core/utilsNew.js"></script>
     <script type="text/javascript" src="../../core/svg.js"></script>
     <script type="text/javascript" src="../../core/cellbase-manager.js"></script>
-    <!-- Test data -->
-    <script type="text/javascript" src="./hsapiens.js"></script>
+    <script type="text/javascript" src="../../core/clients/rest-client.js"></script>
+    <script type="text/javascript" src="../../core/clients/cellbase-client.js"></script>
+    <script type="text/javascript" src="../../core/data-adapter/feature-adapter.js"></script>
+    <script type="text/javascript" src="../../core/data-adapter/cellbase-adapter.js"></script>
     <!-- Circos module -->
     <script type="text/javascript" src="../circos-utils.js"></script>
     <script type="text/javascript" src="../circos-browser.js"></script>
@@ -29,49 +34,54 @@
     <h2>Circos Browser</h2>
     <div id="circos" align="center"></div>
     <script type="text/javascript">
-        let chromosomesData = hsapiens.response[0].result[0].chromosomes;
-        CircosUtils.sortChromosomes(chromosomesData);
-        //console.log(chromosomesData);
+        let circos = null;
+        //Function to get the raw chromosomes data
+        let getChromosomesData = function () {
+            return Object.values(circos.layout.blocks).map(function (block) {
+                return block.data;
+            });
+        };
         //Karyotype track configuration
-        let karyotypeTrack = {
-            "args": {
-                "data": chromosomesData
-            },
-            "config": {
-                "size": 15,
-                "rank": 1
-            }
-        };
+        let karyotypeTrack = new CircosKaryotypeTrack({}, {
+            "size": 15,
+            "rank": 1
+        });
         //Histogram track configuration
-        let histogramTrack = {
-            "args": {
-                "data": CircosTest.buildHistogramData(chromosomesData)
-            },
-            "config": {
-                "size": 30,
-                "rank": 2
+        let histogramTrack = new CircosHistogramTrack({
+            "dataAdapter": {
+                "getData": function () {
+                    return new Promise(function (resolve, reject) {
+                        return resolve(CircosTest.buildHistogramData(getChromosomesData()));
+                    });
+                }
             }
-        };
+        }, {
+            "size": 30,
+            "rank": 2
+        });
         //Chords track configuration
-        let chordsTrack = {
-            "args": {
-                "data": CircosTest.buildChordsData(chromosomesData)
-            },
-            "config": {
-                "size": 130,
-                "rank": 0
+        let chordsTrack = new CircosChordsTrack({
+            "dataAdapter": {
+                "getData": function () {
+                    return new Promise(function (resolve, reject) {
+                       return resolve(CircosTest.buildChordsData(getChromosomesData()));
+                    });
+                }
             }
-        };
-        //Build circos
-        let circos = new CircosBrowser(document.getElementById("circos"), {
-            "tracks": {
-                "karyotype": new CircosKaryotypeTrack(karyotypeTrack.args, karyotypeTrack.config),
-                "histogram": new CircosHistogramTrack(histogramTrack.args, histogramTrack.config),
-                "chords": new CircosChordsTrack(chordsTrack.args, chordsTrack.config)
-            },
-            "layout": {
-                "data": chromosomesData
-            },
+        }, {
+            "size": 130,
+            "rank": 0
+        });
+        //Build the circos
+        circos = new CircosBrowser(document.getElementById("circos"), {
+            "tracks": [karyotypeTrack, histogramTrack, chordsTrack],
+            "layout": new CircosLayout({
+                "dataParser": function (data) {
+                    CircosUtils.sortChromosomes(data);
+                    return data;
+                }
+            }, {})
+        }, {
             "trackOffset": 0
         });
         //Draw the circos
