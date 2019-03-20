@@ -935,6 +935,9 @@
                             _filters.studies = notInStudies.join(";");
                             break;
                     }
+                } else {
+                    // Set study when no studies have been displayed, probably because there is only one study.
+                    _filters.study = this.opencgaSession.study.fqn;
                 }
 
                 // Regions
