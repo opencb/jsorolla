@@ -17,6 +17,8 @@ class CircosKaryotypeTrack extends CircosTrack {
         this.renderer.clean();
         //Function to render the data provided as an argument
         let renderData = function (data) {
+            //console.log("Render karyotypes data");
+            //console.log(data);
             return self.renderer.render({
                 "data": data,
                 "layout": args.layout,
