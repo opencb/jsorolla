@@ -14,6 +14,7 @@ class CircosKaryotypeRenderer extends CircosRenderer {
         args.data.forEach(function (chr) {
             //Get the block for this item
             let block = args.layout.getBlock(chr.name);
+            //console.log(block);
             //Check for undefined block
             if (typeof block === "undefined") {
                 return;
