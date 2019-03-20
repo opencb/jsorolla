@@ -1,6 +1,8 @@
 class CoverageRenderer {
 
     constructor(target, config) {
+        Object.assign(this, Backbone.Events);
+
         this.target = target;
 
         this.config = Object.assign({}, this._getDefaultConfig(), config);
@@ -109,7 +111,7 @@ class CoverageRenderer {
             let centerPosition = data.start + Math.floor((data.end - data.start + 1) / 2);
             let mid = config.width / 2;
             let mouseLineOffset = config.scaleFactor / 2;
-            let offsetX = event.clientX - coverage.getBoundingClientRect().left;
+            let offsetX = event.clientX - config.target.getBoundingClientRect().left;
 
             let cX = offsetX - mouseLineOffset;
             let rcX = (cX / config.scaleFactor) | 0;
@@ -132,12 +134,17 @@ class CoverageRenderer {
         if (UtilsNew.isUndefinedOrNull(data)) {
             return;
         }
-        
+
         let path = [];
 
+        let values = {};
         for (let i = 0; i < data.length; i++) {
             let start = data[i].start;
             let end = data[i].end;
+
+            for (let j = 0; j < data[i].values.length; j++) {
+                values[data[i].start + j] = data[i].values[j];
+            }
 
             if (end < config.visibleStartPosition) {
                 // We skip regions of low coverage that fall before the starting region that will be actually represented
@@ -154,12 +161,37 @@ class CoverageRenderer {
             path.push(`M ${pixelStart} 0 H ${pixelEnd} V 100 H ${pixelStart}`);
         }
 
-        SVG.addChild(config.target, "path", {
+        const lowCoverage = SVG.addChild(config.target, "path", {
             d: path.join(" "),
+            style: "cursor: pointer",
             // stroke: "black",
             // "stroke-width": 0.5,
             fill: "red",
             "fill-opacity": 0.5,
+        });
+
+        $(lowCoverage).qtip({
+            content: " ",
+            position: { target: "mouse", adjust: { x: 15, y: 0 }, viewport: $(window), effect: false },
+            style: { width: true, classes: 'qtip-red' },
+            show: { delay: 300 },
+            hide: { delay: 300 },
+        });
+
+        let _this = this;
+        $(lowCoverage).mousemove(function(event) {
+            let position = Math.floor(_this._calculateChromosomicPosition(event.clientX - config.target.getBoundingClientRect().left, config));
+            const str = `depth: <span class="ssel">${values[position]}</span><br>`;
+            $(lowCoverage).qtip("option", "content.text", str);
+        });
+
+        $(lowCoverage).click(function(event) {
+            let position = Math.floor(_this._calculateChromosomicPosition(event.clientX - config.target.getBoundingClientRect().left, config));
+
+            _this.trigger("lowCoverage:click", {
+                position: position,
+                value: values[position]
+            });
         });
     }
 
@@ -173,6 +205,10 @@ class CoverageRenderer {
 
     _calculatePixelPosition(position, config) {
         return (position - config.visibleStartPosition) * config.scaleFactor;
+    }
+
+    _calculateChromosomicPosition(pixel, config) {
+        return (pixel + config.visibleStartPosition * config.scaleFactor) / config.scaleFactor;
     }
 
     _getDefaultConfig() {
