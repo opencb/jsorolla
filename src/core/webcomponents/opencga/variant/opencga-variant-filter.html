@@ -1275,11 +1275,11 @@
                         this.decisionTreeInheritance = subsection.decisionTreeInheritance;
                         content = this._getSampleHtml(subsection, this.prefix);
                         break;
-                    case "cohort":
-                        content = this._getCohortHtml(subsection.cohorts, this.prefix);
-                        break;
                     case "study":
                         content = this._getStudyHtml(this.prefix);
+                        break;
+                    case "cohort":
+                        content = this._getCohortHtml(subsection.cohorts, this.prefix);
                         break;
                     case "location":
                         content = this._getLocationHtml(this.prefix);
@@ -1391,50 +1391,6 @@
                 return res;
             }
 
-            _getCohortHtml(cohorts, prefix) {
-                let projectFields = this.opencgaSession.project.alias.split("@");
-                let projectId = (projectFields.length > 1) ? projectFields[1] : projectFields[0];
-                let cohortsPerStudy = cohorts[projectId];
-
-                if (UtilsNew.isNotUndefinedOrNull(cohortsPerStudy)) {
-                    let content = "";
-                    for (let study of Object.keys(cohortsPerStudy)) {
-                        content += `
-                        <div style="padding-left: 5px;padding-top: 10px">
-                            <span><em>${study}</em> study:</span>
-                    `;
-
-                        let cohorts = cohortsPerStudy[study];
-                        for (let cohort of cohorts) {
-                            content += `
-                            <div class="form-horizontal">
-                                <div class="form-group">
-                                    <span class="col-md-4 control-label">${cohort.name}</span>
-                                    <div class="col-md-4" style="padding: 0px 10px">
-                                        <select id="${prefix}${study}${cohort.id}CohortOperator" name="${cohort.id}Operator"
-                                                    class="form-control input-sm ${prefix}FilterSelect" style="padding: 0px 5px">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input type="text" value="" class="form-control input-sm col-md-4 ${prefix}FilterTextInput"
-                                                    name="${study}_${cohort.id}" id="${prefix}${study}${cohort.id}Cohort">
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                        }
-                        content += "</div>";
-                    }
-                    return content;
-                } else {
-                    return "<span>Project not found</span>"
-                }
-            }
-
             _getStudyHtml(prefix) {
                 let options = "";
                 if (UtilsNew.isNotUndefinedOrNull(this.differentStudies)) {
@@ -1461,6 +1417,48 @@
                         ${options}
                     </div>
                 `;
+            }
+
+            _getCohortHtml(cohorts, prefix) {
+                let projectId = this.opencgaSession.project.id;
+                let cohortsPerStudy = cohorts[projectId];
+
+                if (UtilsNew.isNotUndefinedOrNull(cohortsPerStudy)) {
+                    let content = "";
+                    for (let study of Object.keys(cohortsPerStudy)) {
+                        content += `
+                            <div style="padding: 5px 5px">
+                                <div style="padding-bottom: 5px"><span style="font-style: italic">${study}</span> study:</div>
+                                <div class="form-horizontal">
+                        `;
+
+                        let cohorts = cohortsPerStudy[study];
+                        for (let cohort of cohorts) {
+                            content += `
+                                        <div class="form-group" style="margin: 5px 0px">
+                                            <span class="col-md-3 control-label">${cohort.name}</span>
+                                            <div class="col-md-4" style="padding: 0px 10px">
+                                                <select id="${prefix}${study}${cohort.id}CohortOperator" name="${cohort.id}Operator"
+                                                            class="form-control input-sm ${prefix}FilterSelect" style="padding: 0px 5px">
+                                                    <option value="<" selected><</option>
+                                                    <option value="<="><=</option>
+                                                    <option value=">">></option>
+                                                    <option value=">=">>=</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-5" style="padding: 0px 10px">
+                                                <input type="text" value="" class="form-control input-sm ${prefix}FilterTextInput"
+                                                            name="${study}_${cohort.id}" id="${prefix}${study}${cohort.id}Cohort">
+                                            </div>
+                                        </div>
+                                `;
+                        }
+                        content += "</div></div>";
+                    }
+                    return content;
+                } else {
+                    return "<span>Project not found</span>"
+                }
             }
 
             _getLocationHtml(prefix) {

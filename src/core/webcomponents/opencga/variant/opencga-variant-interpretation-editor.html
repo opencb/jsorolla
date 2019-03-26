@@ -180,27 +180,27 @@
                             <div>
                                 <h3 class="form-section-title">Edit Reported Variants</h3>
                             </div>
-                            <opencga-interpreted-variant-grid opencga-session="{{opencgaSession}}"
-                                                              reported-variants="{{reportedVariants}}"
-                                                              clinical-analysis="{{clinicalAnalysis}}"
-                                                              consequence-types="{{consequenceTypes}}"
-                                                              population-frequencies="{{populationFrequencies}}"
-                                                              protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                              on-selected="selectedGene"
-                                                              on-selectvariant2="onSelectVariant2"
-                                                              on-checkvariant="onCheckVariant"
-                                                              on-setgenomebrowserposition="onGenomeBrowserPositionChange"
-                                                              config="{{config.grid}}">
-                            </opencga-interpreted-variant-grid>
+                            <opencga-variant-interpretation-grid opencga-session="{{opencgaSession}}"
+                                                                 reported-variants="{{reportedVariants}}"
+                                                                 clinical-analysis="{{clinicalAnalysis}}"
+                                                                 consequence-types="{{consequenceTypes}}"
+                                                                 population-frequencies="{{populationFrequencies}}"
+                                                                 protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                 on-selected="selectedGene"
+                                                                 on-selectvariant2="onSelectVariant2"
+                                                                 on-checkvariant="onCheckVariant"
+                                                                 on-setgenomebrowserposition="onGenomeBrowserPositionChange"
+                                                                 config="{{config.grid}}">
+                            </opencga-variant-interpretation-grid>
 
-                            <opencga-interpreted-variant-detail opencga-session={{opencgaSession}}
-                                                                cellbase-client={{cellbaseClient}}
-                                                                variant={{selectedVariant}}
-                                                                clinical-analysis={{clinicalAnalysis}}
-                                                                consequence-types={{consequenceTypes}}
-                                                                protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                                config={{config.detail}}>
-                            </opencga-interpreted-variant-detail>
+                            <opencga-variant-interpretation-detail opencga-session={{opencgaSession}}
+                                                                   cellbase-client={{cellbaseClient}}
+                                                                   variant={{selectedVariant}}
+                                                                   clinical-analysis={{clinicalAnalysis}}
+                                                                   consequence-types={{consequenceTypes}}
+                                                                   protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                                   config={{config.detail}}>
+                            </opencga-variant-interpretation-detail>
 
                             <div class="form-group row" style="padding-left: 240px;">
                                 <button type="button" class="btn btn-primary" on-click="onViewInterpretation">View</button>
