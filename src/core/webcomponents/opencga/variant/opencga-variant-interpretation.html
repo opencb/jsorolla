@@ -71,7 +71,12 @@
                             <i class="fa fa-bars" aria-hidden="true"></i>
                         </span>
                     </template>
-                    <i class="fa fa-filter" aria-hidden="true"></i>&nbsp;{{config.title}}
+                    <template is="dom-if" if="{{clinicalAnalysis}}">
+                        <i class="fa fa-filter" aria-hidden="true"></i>&nbsp;{{config.title}} - Case {{clinicalAnalysis.id}}
+                    </template>
+                    <template is="dom-if" if="{{!clinicalAnalysis}}">
+                        <i class="fa fa-filter" aria-hidden="true"></i>&nbsp;{{config.title}}
+                    </template>
                 </h3>
             </div>
 
