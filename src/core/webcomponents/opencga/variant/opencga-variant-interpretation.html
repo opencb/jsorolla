@@ -697,23 +697,14 @@
                     }
                 }
 
-                let missingMembers = [];
+                this.isFamilyComplete = false;
+                this.missingMembersMessage = "";
                 if (!probandHasSample) {
-                    missingMembers.push("proband");
-                }
-                if (!fatherHasSample) {
-                    missingMembers.push("father");
-                }
-                if (!motherHasSample) {
-                    missingMembers.push("mother");
-                }
-
-                if (UtilsNew.isEmptyArray(missingMembers)) {
-                    this.isFamilyComplete = true;
-                    this.missingMembers = "";
+                    this.missingMembersMessage = "Missing samples from proband";
+                } else if (!fatherHasSample && !motherHasSample) {
+                    this.missingMembersMessage = "Missing samples from both parents";
                 } else {
-                    this.isFamilyComplete = false;
-                    this.missingMembersMessage = `Missing samples from ${missingMembers.join(", ")} of the family`;
+                    this.isFamilyComplete = true;
                 }
             }
 
