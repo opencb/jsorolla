@@ -611,6 +611,17 @@
 
                             let coverageGroups = responses[probandIdx].response[0].result;
 
+                            // Format the main response
+                            for (let w = 0; w < coverageGroups.length; w++) {
+                                if (UtilsNew.isUndefinedOrNull(coverageGroups[w]['region'])) {
+                                    coverageGroups[w]['region'] = `${coverageGroups[w]['chromosome']}:${coverageGroups[w]['start']}-${coverageGroups[w]['end']}`;
+                                    coverageGroups[w]['length'] = coverageGroups[w]['end'] - coverageGroups[w]['start'] + 1;
+                                    coverageGroups[w]['stats']['average'] = coverageGroups[w]['stats']['average'].toFixed(2);
+                                    coverageGroups[w]['stats']['max'] = coverageGroups[w]['stats']['max'].toFixed(2);
+                                    coverageGroups[w]['stats']['min'] = coverageGroups[w]['stats']['min'].toFixed(2);
+                                }
+                            }
+
                             for (let i = 0; i < responses.length; i++) {
                                 if (probandIdx === i) {
                                     continue;
@@ -620,15 +631,6 @@
 
                                 let responseIdx = 0;
                                 for (let w = 0; w < coverageGroups.length; w++) {
-
-                                    if (UtilsNew.isUndefinedOrNull(coverageGroups[w]['region'])) {
-                                        // We only format the response once
-                                        coverageGroups[w]['region'] = `${coverageGroups[w]['chromosome']}:${coverageGroups[w]['start']}-${coverageGroups[w]['end']}`;
-                                        coverageGroups[w]['length'] = coverageGroups[w]['end'] - coverageGroups[w]['start'] + 1;
-                                        coverageGroups[w]['stats']['average'] = coverageGroups[w]['stats']['average'].toFixed(2);
-                                        coverageGroups[w]['stats']['max'] = coverageGroups[w]['stats']['max'].toFixed(2);
-                                        coverageGroups[w]['stats']['min'] = coverageGroups[w]['stats']['min'].toFixed(2);
-                                    }
 
                                     coverageGroups[w][fileId] = {
                                         average: -1,
