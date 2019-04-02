@@ -127,8 +127,66 @@
 
                 <div class="col-md-12">
                     <h3 class="form-section-title">{{selectedGene}} Gene Low Coverage</h3>
-
                     <div id="{{prefix}}-svg" style="padding: 20px"></div>
+                </div>
+
+                <!--Low covered regions table-->
+                <div class="col-md-12">
+                    <div style='padding: 10px 0px 10px 25px'>
+                        <h4>Low covered regions</h4>
+                    </div>
+
+                    <div style='padding: 5px 50px'>
+                        <table id="{{prefix}}LowCoveredRegions" class="table table-hover table-no-bordered">
+                            <thead>
+                            <tr>
+                                <th rowspan="2">Position</th>
+                                <th rowspan="2">Length</th>
+                                <th rowspan="1" colspan="3" style$="{{_probandFile.style}}">
+                                    {{_probandFile.name}}
+                                    <i class$="fa {{_probandFile.icon}} fa-lg" style='padding-left: 5px'></i>
+                                </th>
+                                <template is="dom-repeat" items="{{_otherFiles}}" as="file">
+                                    <th rowspan="1" colspan="4" style$="{{file.style}}">
+                                        {{file.name}}
+                                        <i class$="fa {{file.icon}} fa-lg" style='padding-left: 5px'></i>
+                                    </th>
+                                </template>
+                                <!--                                <th rowspan="1" colspan$="{{_numberOfFiles}}" style="text-align: center">Medium coverage</th>-->
+
+                            </tr>
+                            <tr>
+                                <th rowspan="1">Average</th>
+                                <th rowspan="1">Max</th>
+                                <th rowspan="1">Min</th>
+
+                                <template is="dom-repeat" items="{{_otherFiles}}" as="file">
+                                    <th rowspan="1">% covered</th>
+                                    <th rowspan="1">Average</th>
+                                    <th rowspan="1">Max</th>
+                                    <th rowspan="1">Min</th>
+                                </template>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <template is="dom-repeat" items="{{_lowCoverageValues}}" as="coverage">
+                                <tr class="detail-view-row">
+                                    <td>{{coverage.region}}</td>
+                                    <td>{{coverage.length}}</td>
+                                    <td>{{coverage.stats.average}}</td>
+                                    <td>{{coverage.stats.max}}</td>
+                                    <td>{{coverage.stats.min}}</td>
+                                    <template is="dom-repeat" items="{{_otherFiles}}" as="file">
+                                        <td>{{_getCoverage(coverage, file)}}</td>
+                                        <td>{{_getAverage(coverage, file)}}</td>
+                                        <td>{{_getMax(coverage, file)}}</td>
+                                        <td>{{_getMin(coverage, file)}}</td>
+                                    </template>
+                                </tr>
+                            </template>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </template>
         </div>
@@ -191,6 +249,8 @@
                 // The component will show an error message instead of the whole app if no alignment files are found
                 this._disabled = true;
 
+                this._lowCoverageValues = [];
+
                 // Initially we set the default config, this will be overridden if 'config' is passed
                 this._config = this.getDefaultConfig();
             }
@@ -215,6 +275,7 @@
                 // }
 
                 this._files = [];
+                this._numberOfFiles = 0;
 
                 this._autoRenderWhenFilesAreRetrieved = false;
                 this._initialiseCoverageTracks = true;
@@ -348,6 +409,7 @@
                         this._disabled = UtilsNew.isEmptyArray(files);
 
                         this._files = files;
+                        this._numberOfFiles = files.length;
 
                         if (this._autoRenderWhenFilesAreRetrieved) {
                             this._displaySVG($(`#${_this.prefix}-geneSelect`).selectpicker('val'),
@@ -441,6 +503,9 @@
                 if (this._initialiseCoverageTracks) {
                     let tracks = [];
 
+                    this._otherFiles = [];
+                    this._probandFile = {};
+
                     for (let i = 0; i < this._files.length; i++) {
 
                         let style = "";
@@ -457,10 +522,26 @@
 
                         let sampleIcon = this._config.sexIConMap[this._files[i].sex];
 
-                        let htmlTitle = `<div>
-                                            <span style="${style}"> ${this._files[i].name} <i class='fa ${sampleIcon} fa-lg' style='padding-left: 5px'></i>
-                                            </span>
-                                        </div>`;
+                        let htmlTitle = `<span style="${style}">
+                                ${this._files[i].name}
+                                <i class='fa ${sampleIcon} fa-lg' style='padding-left: 5px'></i>
+                            </span>`;
+
+                        if (this._files[i].isProband) {
+                            this._probandFile = {
+                                style: style,
+                                name: this._files[i].name,
+                                icon: sampleIcon,
+                                id: this._files[i].id
+                            }
+                        } else {
+                            this._otherFiles.push({
+                                style: style,
+                                name: this._files[i].name,
+                                icon: sampleIcon,
+                                id: this._files[i].id
+                            });
+                        }
 
                         tracks.push(new LinearCoverageTrack({
                                 htmlTitle: htmlTitle,
@@ -495,7 +576,18 @@
 
                         let region = new Region(`${gene.chromosome}:${gene.start}-${gene.end}`);
 
+                        let promises = [];
+
                         for (let i = 0; i < _this.coverageTracks.length; i++) {
+                            promises.push(_this.opencgaSession.opencgaClient.alignments().lowCoverage(
+                                _this._files[i].id, {
+                                    region: region,
+                                    study: _this.opencgaSession.study.fqn,
+                                    windowSize: 1,
+                                    minCoverage: threshold
+                                }
+                            ));
+
                             _this.coverageTracks[i].draw({
                                 query: {
                                     region: region,
@@ -508,10 +600,347 @@
                             });
                         }
 
+                        Promise.all(promises).then(function(responses) {
+                            let probandIdx = -1;
+                            for (let i = 0; i < _this._files.length; i++) {
+                                if (_this._files[i].isProband) {
+                                    probandIdx = i;
+                                    break;
+                                }
+                            }
+
+                            let coverageGroups = responses[probandIdx].response[0].result;
+
+                            // Format the main response
+                            for (let w = 0; w < coverageGroups.length; w++) {
+                                if (UtilsNew.isUndefinedOrNull(coverageGroups[w]['region'])) {
+                                    coverageGroups[w]['region'] = `${coverageGroups[w]['chromosome']}:${coverageGroups[w]['start']}-${coverageGroups[w]['end']}`;
+                                    coverageGroups[w]['length'] = coverageGroups[w]['end'] - coverageGroups[w]['start'] + 1;
+                                    coverageGroups[w]['stats']['average'] = coverageGroups[w]['stats']['average'].toFixed(2);
+                                    coverageGroups[w]['stats']['max'] = coverageGroups[w]['stats']['max'].toFixed(2);
+                                    coverageGroups[w]['stats']['min'] = coverageGroups[w]['stats']['min'].toFixed(2);
+                                }
+                            }
+
+                            for (let i = 0; i < responses.length; i++) {
+                                if (probandIdx === i) {
+                                    continue;
+                                }
+
+                                let fileId = _this._files[i].id;
+
+                                let responseIdx = 0;
+                                for (let w = 0; w < coverageGroups.length; w++) {
+
+                                    coverageGroups[w][fileId] = {
+                                        average: -1,
+                                        max: -1,
+                                        min: -1,
+                                        covered: 0,
+                                        regions: [],
+                                        values: []
+                                    };
+
+                                    for (let j = responseIdx; j < responses[i].response[0].result.length; j++) {
+                                        response = responses[i].response[0].result[j];
+
+                                        if (response.start > coverageGroups[w].end) {
+                                            break;
+                                        }
+
+                                        if (response.end < coverageGroups[w].start) {
+                                            responseIdx = j;
+                                            continue;
+                                        }
+
+                                        if (response.start >= coverageGroups[w].start && response.end <= coverageGroups[w].end) {
+                                            // Completely contained within the coverage group
+                                            let covered = (response.end - response.start + 1) / (coverageGroups[w].end - coverageGroups[w].start + 1);
+                                            coverageGroups[w][fileId]["covered"] += covered;
+                                            coverageGroups[w][fileId]["max"] = Math.max(coverageGroups[w][fileId]["max"], response.stats.max);
+                                            coverageGroups[w][fileId]["min"] = coverageGroups[w][fileId]["min"] === -1
+                                                ? response.stats.min : Math.min(coverageGroups[w][fileId]["min"], response.stats.min);
+                                            let region = `${response.chromosome}:${response.start}:${response.end}`;
+
+                                            coverageGroups[w][fileId]['regions'].push(region);
+                                            coverageGroups[w][fileId]['values'] = coverageGroups[w][fileId]['values'].concat(response.values);
+
+                                        } else if (response.start < coverageGroups[w].start && response.end > coverageGroups[w].end) {
+                                            // Response contains completely the coverage group
+                                            coverageGroups[w][fileId]["covered"] = 1;
+
+                                            let startIdx = coverageGroups[w].start - response.start - 1;
+                                            let endIdx = startIdx + coverageGroups[w].end - coverageGroups[w].start + 1;
+
+                                            let values = response.values.slice(startIdx, endIdx);
+
+                                            coverageGroups[w][fileId]["max"] = _this._getMaximumValue(0, values);
+                                            coverageGroups[w][fileId]["min"] = _this._getMinimumValue(-1, values);
+
+                                            let region = `${response.chromosome}:${coverageGroups[w].start}:${coverageGroups[w].end}`;
+
+                                            coverageGroups[w][fileId]['regions'].push(region);
+                                            coverageGroups[w][fileId]['values'] = coverageGroups[w][fileId]['values'].concat(values);
+
+                                        } else if (response.start < coverageGroups[w].start) {
+                                            // Response overlaps the start of the coverageGroup
+                                            let covered = (response.end - coverageGroups[w].start + 1) / (coverageGroups[w].end - coverageGroups[w].start + 1);
+                                            coverageGroups[w][fileId]["covered"] += covered;
+
+                                            let startIdx = coverageGroups[w].start - response.start - 1;
+                                            let endIdx = startIdx + response.end - coverageGroups[w].start;
+
+                                            let values = response.values.slice(startIdx, endIdx);
+
+                                            coverageGroups[w][fileId]["max"] = _this._getMaximumValue(coverageGroups[w][fileId]["max"], values);
+                                            coverageGroups[w][fileId]["min"] = _this._getMinimumValue(coverageGroups[w][fileId]["min"], values);
+                                            let region = `${response.chromosome}:${coverageGroups[w].start}:${response.end}`;
+
+                                            coverageGroups[w][fileId]['regions'].push(region);
+                                            coverageGroups[w][fileId]['values'] = coverageGroups[w][fileId]['values'].concat(values);
+
+                                        } else {
+                                            // Response overlaps the end of the coverageGroup
+                                            let covered = (coverageGroups[w].end - response.start + 1) / (coverageGroups[w].end - coverageGroups[w].start + 1);
+                                            coverageGroups[w][fileId]["covered"] += covered;
+
+                                            let startIdx = 0;
+                                            let endIdx = coverageGroups[w].end - response.start + 1;
+
+                                            let values = response.values.slice(startIdx, endIdx);
+
+                                            coverageGroups[w][fileId]["max"] = _this._getMaximumValue(coverageGroups[w][fileId]["max"], values);
+                                            coverageGroups[w][fileId]["min"] = _this._getMinimumValue(coverageGroups[w][fileId]["min"], values);
+                                            let region = `${response.chromosome}:${response.start}:${coverageGroups[w].end}`;
+
+                                            coverageGroups[w][fileId]['regions'].push(region);
+                                            coverageGroups[w][fileId]['values'] = coverageGroups[w][fileId]['values'].concat(values);
+                                        }
+                                    }
+
+                                    if (UtilsNew.isNotEmptyArray(coverageGroups[w][fileId]['values'])) {
+                                        let values = 0;
+                                        for (let i = 0; i < coverageGroups[w][fileId]['values'].length; i++) {
+                                            values += coverageGroups[w][fileId]['values'][i];
+                                        }
+                                        coverageGroups[w][fileId]['average'] = values / coverageGroups[w][fileId]['values'].length;
+
+                                        coverageGroups[w][fileId]['covered'] = coverageGroups[w][fileId]['covered'] * 100;
+                                    }
+                                }
+                            }
+
+                            _this._lowCoverageValues = coverageGroups;
+
+                            // // Sort the positions
+                            // positions = positions.sort();
+                            //
+                            // // Now we need to group all the low coverage values by files
+                            // let coverageGroups = [];
+                            //
+                            // let lastGroup = "";
+                            // let groupedResult = {
+                            // };
+                            // let lastPosition = positions[0] - 1;
+                            //
+                            // for (let i = 0; i < positions.length; i++) {
+                            //     let group = "";
+                            //     let numberOfFiles = 0;
+                            //     for (let j = 0; j < _this._files.length; j++) {
+                            //         if (UtilsNew.isNotUndefinedOrNull(result[positions[i]][_this._files[j].id])) {
+                            //             group += _this._files[j].id;
+                            //             numberOfFiles += 1;
+                            //         }
+                            //     }
+                            //
+                            //     // Filter out low coverages over only one of the samples if the array of files contains more than one sample
+                            //     if (_this._files.length > 1 && numberOfFiles === 1) {
+                            //         continue;
+                            //     }
+                            //
+                            //     if ((lastGroup !== group || lastPosition + 1 < positions[i])) {
+                            //         if (Object.entries(groupedResult).length > 0) {
+                            //             coverageGroups.push(Object.assign({}, groupedResult));
+                            //         }
+                            //
+                            //         groupedResult = {
+                            //             start: positions[i]
+                            //         };
+                            //
+                            //         lastGroup = group;
+                            //     }
+                            //
+                            //
+                            //     for (let j = 0; j < _this._files.length; j++) {
+                            //         if (UtilsNew.isNotUndefinedOrNull(result[positions[i]][_this._files[j].id])) {
+                            //             if (UtilsNew.isUndefinedOrNull(groupedResult[_this._files[j].id])) {
+                            //                 groupedResult[_this._files[j].id] = [];
+                            //             }
+                            //             groupedResult[_this._files[j].id].push(result[positions[i]][_this._files[j].id]);
+                            //         }
+                            //     }
+                            //
+                            //     lastPosition = positions[i];
+                            // }
+                            //
+                            // // Add the last group
+                            // coverageGroups.push(Object.assign({}, groupedResult));
+                            //
+                            // // Calculate mean coverage for the groups
+                            // for (let i = 0; i < coverageGroups.length; i++) {
+                            //     for (let j = 0; j < _this._files.length; j++) {
+                            //         if (UtilsNew.isNotUndefinedOrNull(coverageGroups[i][_this._files[j].id])) {
+                            //             let sum = 0;
+                            //             for (let w = 0; w < coverageGroups[i][_this._files[j].id].length; w++) {
+                            //                 sum += coverageGroups[i][_this._files[j].id][w];
+                            //             }
+                            //
+                            //             coverageGroups[i].length = coverageGroups[i][_this._files[j].id].length;
+                            //             coverageGroups[i].end = coverageGroups[i].start + coverageGroups[i].length -1;
+                            //             coverageGroups[i].region = `${gene.chromosome}:${coverageGroups[i].start}-${coverageGroups[i].end}`;
+                            //             coverageGroups[i][_this._files[j].id] = sum / coverageGroups[i].length ;
+                            //         }
+                            //     }
+                            // }
+                            //
+                            // _this._lowCoverageValues = coverageGroups;
+
+                            // let result = {};
+                            // let positions = [];
+                            //
+                            // for (let i = 0; i < responses.length; i++) {
+                            //     for (let j = 0; j < responses[i].response[0].result.length; j++) {
+                            //         response = responses[i].response[0].result[j];
+                            //
+                            //         for (let w = 0; w < response.values.length; w++) {
+                            //             let position = response.start + w;
+                            //             if (UtilsNew.isUndefinedOrNull(result[position])) {
+                            //                 positions.push(position);
+                            //                 result[position] = {};
+                            //             }
+                            //
+                            //             result[position][_this._files[i].id] = response.values[w];
+                            //         }
+                            //     }
+                            // }
+                            //
+                            // // Sort the positions
+                            // positions = positions.sort();
+                            //
+                            // // Now we need to group all the low coverage values by files
+                            // let coverageGroups = [];
+                            //
+                            // let lastGroup = "";
+                            // let groupedResult = {
+                            // };
+                            // let lastPosition = positions[0] - 1;
+                            //
+                            // for (let i = 0; i < positions.length; i++) {
+                            //     let group = "";
+                            //     let numberOfFiles = 0;
+                            //     for (let j = 0; j < _this._files.length; j++) {
+                            //         if (UtilsNew.isNotUndefinedOrNull(result[positions[i]][_this._files[j].id])) {
+                            //             group += _this._files[j].id;
+                            //             numberOfFiles += 1;
+                            //         }
+                            //     }
+                            //
+                            //     // Filter out low coverages over only one of the samples if the array of files contains more than one sample
+                            //     if (_this._files.length > 1 && numberOfFiles === 1) {
+                            //         continue;
+                            //     }
+                            //
+                            //     if ((lastGroup !== group || lastPosition + 1 < positions[i])) {
+                            //         if (Object.entries(groupedResult).length > 0) {
+                            //             coverageGroups.push(Object.assign({}, groupedResult));
+                            //         }
+                            //
+                            //         groupedResult = {
+                            //             start: positions[i]
+                            //         };
+                            //
+                            //         lastGroup = group;
+                            //     }
+                            //
+                            //
+                            //     for (let j = 0; j < _this._files.length; j++) {
+                            //         if (UtilsNew.isNotUndefinedOrNull(result[positions[i]][_this._files[j].id])) {
+                            //             if (UtilsNew.isUndefinedOrNull(groupedResult[_this._files[j].id])) {
+                            //                 groupedResult[_this._files[j].id] = [];
+                            //             }
+                            //             groupedResult[_this._files[j].id].push(result[positions[i]][_this._files[j].id]);
+                            //         }
+                            //     }
+                            //
+                            //     lastPosition = positions[i];
+                            // }
+                            //
+                            // // Add the last group
+                            // coverageGroups.push(Object.assign({}, groupedResult));
+                            //
+                            // // Calculate mean coverage for the groups
+                            // for (let i = 0; i < coverageGroups.length; i++) {
+                            //     for (let j = 0; j < _this._files.length; j++) {
+                            //         if (UtilsNew.isNotUndefinedOrNull(coverageGroups[i][_this._files[j].id])) {
+                            //             let sum = 0;
+                            //             for (let w = 0; w < coverageGroups[i][_this._files[j].id].length; w++) {
+                            //                 sum += coverageGroups[i][_this._files[j].id][w];
+                            //             }
+                            //
+                            //             coverageGroups[i].length = coverageGroups[i][_this._files[j].id].length;
+                            //             coverageGroups[i].end = coverageGroups[i].start + coverageGroups[i].length -1;
+                            //             coverageGroups[i].region = `${gene.chromosome}:${coverageGroups[i].start}-${coverageGroups[i].end}`;
+                            //             coverageGroups[i][_this._files[j].id] = sum / coverageGroups[i].length ;
+                            //         }
+                            //     }
+                            // }
+                            //
+                            // _this._lowCoverageValues = coverageGroups;
+                        });
+
                         _this.geneTrack.draw({
                             data: gene
                         });
                     });
+            }
+
+            _getMaximumValue(value, values) {
+                for (let i = 0; i < values.length; i++) {
+                    if (values[i] > value) {
+                        value = values[i];
+                    }
+                }
+                return value;
+            }
+
+            _getMinimumValue(value, values) {
+                let myValue = value;
+                if (myValue === -1) {
+                    myValue = values[0];
+                }
+                for (let i = 0; i < values.length; i++) {
+                    if (values[i] < myValue) {
+                        myValue = values[i];
+                    }
+                }
+                return myValue;
+            }
+
+
+            _getCoverage(coverage, file) {
+                return UtilsNew.isUndefinedOrNull(coverage[file.id]) ? "-" : coverage[file.id].covered.toFixed(2);
+            }
+
+            _getAverage(coverage, file) {
+                return UtilsNew.isUndefinedOrNull(coverage[file.id]) ? "-" : (coverage[file.id].average > -1 ? coverage[file.id].average.toFixed(2) : "-");
+            }
+
+            _getMax(coverage, file) {
+                return UtilsNew.isUndefinedOrNull(coverage[file.id]) ? "-" : (coverage[file.id].max > -1 ? coverage[file.id].max.toFixed(2) : "-");
+            }
+
+            _getMin(coverage, file) {
+                return UtilsNew.isUndefinedOrNull(coverage[file.id]) ? "-" : (coverage[file.id].min > -1 ? coverage[file.id].min.toFixed(2) : "-");
             }
 
             getDefaultConfig() {
