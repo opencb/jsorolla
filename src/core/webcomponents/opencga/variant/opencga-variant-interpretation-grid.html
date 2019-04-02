@@ -45,6 +45,27 @@
                 <thead style="background-color: #eee"></thead>
             </table>
         </div>
+
+        <div class="modal fade" id="{{prefix}}ReviewSampleModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
+             role="dialog" aria-hidden="true" style="padding-top: 0%; overflow-y: visible">
+            <div class="modal-dialog" style="width: 1280px">
+                <div class="modal-content">
+                    <div class="modal-header" style="padding: 5px 15px">
+                        <h3>Sample and File Filters</h3>
+                    </div>
+
+                    <opencga-interpretation-variant-review opencga-session="{{opencgaSession}}"
+                                                           variant="{{variantReview}}">
+                    </opencga-interpretation-variant-review>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </template>
 
     <script>
@@ -303,6 +324,11 @@
                             _this.to = page * size;
                         },
                         onPostBody: function (data) {
+                            let removeIndividualButtons = PolymerUtils.querySelectorAll(".removeIndividualButton");
+                            for (let i = 0; i < removeIndividualButtons.length; i++) {
+                                removeIndividualButtons[i].addEventListener('click', _this.onReviewClick.bind(_this));
+                            }
+
                             // Add tooltips
                             _this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "File metrics", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
                             _this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
@@ -362,7 +388,7 @@
 
                 if (UtilsNew.isNotEmptyArray(this.samples)) {
                     // Filters sample and genotype are exclusive
-                    if (UtilsNew.isUndefinedOrNull(queryParams.genotype)) {
+                    if (UtilsNew.isUndefinedOrNull(queryParams.genotype) && UtilsNew.isUndefinedOrNull(queryParams.family)) {
                         let sampleIds = [];
                         this.samples.forEach((sample) => {
                             sampleIds.push(sample.id);
@@ -449,6 +475,11 @@
                         _this.to = page * size;
                     },
                     onPostBody: function (data) {
+                        let removeIndividualButtons = PolymerUtils.querySelectorAll(".removeIndividualButton");
+                        for (let i = 0; i < removeIndividualButtons.length; i++) {
+                            removeIndividualButtons[i].addEventListener('click', _this.onReviewClick.bind(_this));
+                        }
+
                         // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
                         if (UtilsNew.isNotEmptyArray(data) && UtilsNew.isNotUndefinedOrNull(_table)) {
                             PolymerUtils.querySelector(_table.selector).rows[2].setAttribute('class', 'success');
@@ -470,6 +501,25 @@
                     let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
                     this.dispatchEvent(new CustomEvent('selectvariant2', {detail: {id: _variant, variant: row}}));
                 }
+            }
+
+            onReviewClick(e) {
+                // debugger
+                // this.dispatchEvent(new CustomEvent('reviewvariant', {
+                //     detail: {
+                //         variant: e.currentTarget.dataset.variant
+                //     }
+                // }));
+
+                for (let rv of this.reportedVariants) {
+                    if (rv.id === e.currentTarget.dataset.variantId) {
+                        this.variantReview = rv;
+                        break;
+                    }
+                }
+
+                $("#" + this.prefix + "ReviewSampleModal").modal("show");
+
             }
 
             showGene(geneName) {
@@ -793,7 +843,7 @@
                 };
                 let modeOfInheritances = [];
 
-                for (let re of row.reportedEvents) {
+                for (let re of row.evidences) {
                     if (UtilsNew.isNotUndefinedOrNull(re.modeOfInheritance) && !modeOfInheritances.includes(re.modeOfInheritance)) {
                         modeOfInheritances.push(re.modeOfInheritance);
                     }
@@ -830,6 +880,12 @@
                 let moiHtml = `<div style='padding-top: 10px'>${modeOfInheritances.join(", ")}</div>`;
 
                 return `${tierHtml}${moiHtml}`;
+            }
+
+            reviewFormatter(value, row, index) {
+                return `<button class="btn btn-link removeIndividualButton" data-variant-id="${row.id}">
+                            <i class="fa fa-edit icon-padding removeIndividualButton" aria-hidden="true"></i> Edit
+                        </button>`;
             }
 
             _createDefaultColumns() {
@@ -966,6 +1022,23 @@
                         checkbox: true,
                         rowspan: 1,
                         colspan: 1
+                    });
+                }
+
+                if (this._config.showStatus) {
+                    this._columns[1].push({
+                        title: "Status",
+                        field: "status",
+                        rowspan: 1,
+                        colspan: 1
+                    });
+                    this._columns[0].push({
+                        title: "Review",
+                        // field: "status",
+                        rowspan: 2,
+                        colspan: 1,
+                        formatter: this.reviewFormatter.bind(this),
+                        align: 'center'
                     });
                 }
 
@@ -1135,6 +1208,7 @@
                     detailFormatter: this.detailFormatter,
 
                     showSelectCheckbox: false,
+                    showStatus: false,
                     multiSelection: false,
                     nucleotideGenotype: true,
                     alleleStringLengthMax: 10,

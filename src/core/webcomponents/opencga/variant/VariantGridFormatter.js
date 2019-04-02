@@ -581,7 +581,7 @@ class VariantGridFormatter {
      * Reported Variant formatters
      */
     reportedEventDetailFormatter(value, row, variantGrid) {
-        if (typeof row !== "undefined" && UtilsNew.isNotEmptyArray(row.reportedEvents)) {
+        if (typeof row !== "undefined" && UtilsNew.isNotEmptyArray(row.evidences)) {
             let ctHtml = `<table id="{{prefix}}ConsqTypeTable" class="table table-hover table-no-bordered">
                                 <thead>
                                     <tr>
@@ -605,7 +605,7 @@ class VariantGridFormatter {
                                 <tbody>`;
 
             // Sort by Tier level
-            row.reportedEvents.sort(function(a, b) {
+            row.evidences.sort(function(a, b) {
                 if (a.tier === null || b.tier !== null) {
                     return 1;
                 }
@@ -627,7 +627,7 @@ class VariantGridFormatter {
                 consequenceTypeSet = new Set(variantGrid.query.ct.split(","));
             }
 
-            for (let re of row.reportedEvents) {
+            for (let re of row.evidences) {
                 // FIXME Maybe this should happen in the server?
                 // If ct exist and there are some consequenceTypeIds then we check that the report event matches the query
                 if (UtilsNew.isNotEmptyArray(re.consequenceTypeIds) && consequenceTypeSet.size > 0) {
