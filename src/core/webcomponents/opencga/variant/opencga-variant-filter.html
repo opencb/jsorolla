@@ -260,8 +260,7 @@
                         for (let section of this.config.menu.sections) {
                             for (let subsection of section.subsections) {
                                 if (subsection.id === "cohort") {
-                                    let projectFields = this.opencgaSession.project.alias.split("@");
-                                    let projectId = (projectFields.length > 0) ? projectFields[1] : projectFields[0];
+                                    let projectId = this.opencgaSession.project.id;
                                     if (UtilsNew.isNotUndefinedOrNull(subsection.cohorts[projectId])) {
                                         for (let study of Object.keys(subsection.cohorts[projectId])) {
                                             Array.prototype.push.apply(this._cohorts, subsection.cohorts[projectId][study]);
@@ -910,6 +909,7 @@
                 }
                 if (cohortFreq.length > 0) {
                     _filters["maf"] = cohortFreq.join(';');
+                    // _filters["cohortStatsMaf"] = cohortFreq.join(';');
                 }
 
                 // Studies - This section is not renderer when only study exists
@@ -1907,26 +1907,34 @@
                     }
                 }
 
+
+                // Add events for Feature IDs
+                PolymerUtils.getElementById(this.prefix + "FeatureIdText").addEventListener('keyup', this.callAutocomplete.bind(this));
+                PolymerUtils.getElementById(this.prefix + "FeatureAddButton").addEventListener('click', this.addFeatureId.bind(this));
+
+
                 // Add events for Sample IDs
                 let elementById = PolymerUtils.getElementById(this.prefix + "SampleFilterModalButton");
                 if (UtilsNew.isNotUndefinedOrNull(elementById)) {
                     elementById.addEventListener('click', this.onSampleFilterClick.bind(this));
                 }
 
-                // ApproxCountCheckbox
-                // let approxCountCheckbox = PolymerUtils.getElementById(this.prefix + "ApproxCountCheckbox");
-                // if (UtilsNew.isNotUndefinedOrNull(approxCountCheckbox)) {
-                //     approxCountCheckbox.addEventListener('change', this.onApproxCountChange.bind(this));
-                // }
+
+                // Add events for Studies checkboxes
+                if (UtilsNew.isNotUndefinedOrNull(this.differentStudies)) {
+                    for (let study of this.differentStudies) {
+                        let element = PolymerUtils.getElementById(this.prefix + study.alias + "Checkbox");
+                        if (UtilsNew.isNotUndefinedOrNull(element)) {
+                            element.addEventListener('change', this.updateQueryFilters.bind(this));
+                        }
+                    }
+                }
 
                 // Add events for Cohort
-//                let cohorts = this.config.menu.sections.forEach(section => section.subsections.forEach(subsection => {if (subsection.id === "cohort") return subsection}));
                 for (let section of this.config.menu.sections) {
                     for (let subsection of section.subsections) {
                         if (subsection.id === "cohort") {
-                            let projectFields = this.opencgaSession.project.alias.split("@");
-                            let projectId = (projectFields.length > 0) ? projectFields[1] : projectFields[0];
-
+                            let projectId = this.opencgaSession.project.id;
                             if (UtilsNew.isNotUndefinedOrNull(subsection.cohorts[projectId])) {
                                 for (let study of Object.keys(subsection.cohorts[projectId])) {
                                     for (let cohort of subsection.cohorts[projectId][study]) {
@@ -1944,20 +1952,6 @@
                         }
                     }
                 }
-
-                // Add events for Studies checkboxes
-                if (UtilsNew.isNotUndefinedOrNull(this.differentStudies)) {
-                    for (let study of this.differentStudies) {
-                        let element = PolymerUtils.getElementById(this.prefix + study.alias + "Checkbox");
-                        if (UtilsNew.isNotUndefinedOrNull(element)) {
-                            element.addEventListener('change', this.updateQueryFilters.bind(this));
-                        }
-                    }
-                }
-
-                // Add events for Feature IDs
-                PolymerUtils.getElementById(this.prefix + "FeatureIdText").addEventListener('keyup', this.callAutocomplete.bind(this));
-                PolymerUtils.getElementById(this.prefix + "FeatureAddButton").addEventListener('click', this.addFeatureId.bind(this));
 
                 // Add events for Population Frequency
                 for (let study of this.populationFrequencies.studies) {
@@ -2011,11 +2005,6 @@
                 }
             }
 
-
-            // onApproxCountChange(e) {
-            //     // this.query.approximateCount = e.target.checked;
-            //     this.set("query.approximateCount", e.target.checked);
-            // }
 
             _addAllTooltips() {
                 for (let section of this.config.menu.sections) {

@@ -406,6 +406,76 @@ class VariantGridFormatter {
     }
 
 
+
+    addCohortStatsInfoTooltip(div, populationFrequencies) {
+        $("#" + div).qtip({
+            content: {
+                title: "Population Frequencies",
+                text: function(event, api) {
+                    return `One coloured square is shown for each cohort. Frequencies are coded with colours which classify values 
+                            into 'very rare', 'rare', 'average', 'common' or 'missing', see 
+                            <a href="http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg" target="_blank">
+                                http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg
+                            </a>. Please, leave the cursor over each square to visualize the actual frequency values.
+                            <div style="padding: 10px 0px 0px 0px"><label>Legend: </label></div>
+                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.color.veryRare}" aria-hidden="true"></i> Very rare:  freq < 0.001</span></div>
+                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.color.rare}" aria-hidden="true"></i> Rare:  freq < 0.005</span></div>
+                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.color.average}" aria-hidden="true"></i> Average:  freq < 0.05</span></div>
+                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.color.common}" aria-hidden="true"></i> Common:  freq >= 0.05</span></div>
+                            <div><span><i class="fa fa-square" style="color: black" aria-hidden="true"></i> Not observed</span></div>`
+                },
+            },
+            position: {
+                target: "mouse",
+                adjust: {
+                    x: 2, y: 2,
+                    mouse: false
+                }
+            },
+            style: {
+                width: "240px",
+            },
+            show: {
+                delay: 200
+            },
+            hide: {
+                fixed: true,
+                // delay: 300
+            }
+        });
+    }
+
+    /**
+     * Creates the colored table with one row and as many columns as populations.
+     * @param cohorts
+     * @param populationFrequenciesColor
+     */
+    createCohortStatsTable(cohorts, cohortStats, populationFrequenciesColor) {
+        // This is used by the tooltip function below to display all population frequencies
+        let popFreqsTooltip;
+        let popFreqsArray = [];
+        for (let cohort of cohorts) {
+            let freq = (cohortStats.get(cohort.id) !== undefined) ? cohortStats.get(cohort.id) : 0;
+            popFreqsArray.push(cohort.name + "::" + freq);
+        }
+        popFreqsTooltip = popFreqsArray.join(",");
+
+        // Create the table (with the tooltip info)
+        let tableSize = cohorts.length * 15;
+        let htmlPopFreqTable = `<table style="width:${tableSize}px" class="cohortStatsTable" data-pop-freq="${popFreqsTooltip}"><tr>`;
+        for (let cohort of cohorts) {
+            let color = "black";
+            if (typeof cohortStats.get(cohort.id) !== "undefined") {
+                let freq = cohortStats.get(cohort.id);
+                color = this._getPopulationFrequencyColor(freq, populationFrequenciesColor);
+            }
+            htmlPopFreqTable += `<td style="width: 15px; background: ${color}">&nbsp;</td>`;
+        }
+        htmlPopFreqTable += "</tr></table>";
+        return htmlPopFreqTable;
+    }
+
+
     addPopulationFrequenciesInfoTooltip(div, populationFrequencies) {
         $("#" + div).qtip({
             content: {
@@ -452,27 +522,25 @@ class VariantGridFormatter {
      */
     createPopulationFrequenciesTable(populations, populationFrequenciesMap, populationFrequenciesColor) {
         // This is used by the tooltip function below to display all population frequencies
-        let popFreqs;
+        let popFreqsTooltip;
         let popFreqsArray = [];
         for (let population of populations) {
             let freq = (populationFrequenciesMap.get(population) !== undefined) ? populationFrequenciesMap.get(population) : 0;
             popFreqsArray.push(population + "::" + freq);
         }
-        popFreqs = popFreqsArray.join(",");
+        popFreqsTooltip = popFreqsArray.join(",");
 
         // Create the table (with the tooltip info)
         let tableSize = populations.length * 15;
-        let htmlPopFreqTable = `<table style="width:${tableSize}px" class="populationFrequenciesTable" data-pop-freq="${popFreqs}"><tr>`;
+        let htmlPopFreqTable = `<table style="width:${tableSize}px" class="populationFrequenciesTable" data-pop-freq="${popFreqsTooltip}"><tr>`;
         for (let population of populations) {
             // This array contains "study:population"
             let color = "black";
             if (typeof populationFrequenciesMap.get(population) !== "undefined") {
                 let freq = populationFrequenciesMap.get(population);
-                let color = this._getPopulationFrequencyColor(freq, populationFrequenciesColor);
-                htmlPopFreqTable += `<td style="width: 15px; background: ${color}">&nbsp;</td>`;
-            } else {
-                htmlPopFreqTable += `<td style="width: 15px; background: ${color}">&nbsp;</td>`;
+                color = this._getPopulationFrequencyColor(freq, populationFrequenciesColor);
             }
+            htmlPopFreqTable += `<td style="width: 15px; background: ${color}">&nbsp;</td>`;
         }
         htmlPopFreqTable += "</tr></table>";
         return htmlPopFreqTable;

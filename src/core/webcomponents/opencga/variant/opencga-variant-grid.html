@@ -366,7 +366,9 @@
                             // Add tooltips
                             _this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
                             _this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
+                            _this.variantGridFormatter.addCohortStatsInfoTooltip("cohortStatsInfoIcon", _this.populationFrequencies);
                             _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", _this.populationFrequencies);
+                            _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.cohortStatsTable", _this.populationFrequencies);
                             _this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("popFreqInfoIcon", _this.populationFrequencies);
                             _this.variantGridFormatter.addPhenotypesInfoTooltip("phenotypesInfoIcon");
                         }
@@ -477,7 +479,7 @@
                     let keys = Object.keys(queryParams);
                     for (let i = 0; i < keys.length; i++) {
                         let val = queryParams[keys[i]];
-                        if (typeof val === "string" && keys[i] !== "populationFrequencyAlt") {
+                        if (typeof val === "string" && keys[i] !== "populationFrequencyAlt" && keys[i] !== "maf") {
                             val = val.replace(/</g, "<<");
                             val = val.replace(/>/g, ">>");
                             queryParams[keys[i]] = val;
@@ -661,52 +663,26 @@
             }
 
             cohortFormatter(value, row, index) {
-                if (typeof this.field.cohorts !== "undefined" && this.field.cohorts.length > 0) {
-                    let data = new Map();
-                    for (let i in row.studies) {
-                        // to be removed!!
-                        if (this.field.study === "BRIDGE") {
-                            this.field.study = "bridge";
-                        }
-                        if (row.studies[i].studyId === this.field.study) {
-                            let cohortNames = Object.keys(row.studies[i].stats);
-                            for (let j in cohortNames) {
-                                data.set(cohortNames[j], Number(row.studies[i].stats[cohortNames[j]].maf).toFixed(4));
+                if (typeof row !== "undefined" && typeof row.studies !== "undefined" && typeof row.studies[0].stats !== "undefined") {
+                    let cohortStats = new Map();
+                    for (let study of row.studies) {
+                        if (study.studyId === this.field.study) {
+                            for (let cohortId in study.stats) {
+                                let cohortStat = study.stats[cohortId];
+                                cohortStats.set(cohortId, Number(cohortStat.maf).toFixed(4));
                             }
                             break;
                         }
                     }
-
-                    let tableSize = this.field.cohorts.length * 15;
-                    let htmlCohortsTable = "<table style='width: " + tableSize + "px'><tr>";
-                    for (let i = 0; i < this.field.cohorts.length; i++) {
-                        let popFreq = this.field.cohorts[i].id;
-                        if (typeof data.get(popFreq) !== "undefined") {
-                            let freq = data.get(this.field.cohorts[i].id);
-                            if (freq < 0.001) {
-                                htmlCohortsTable += "<td style='width: 15px; background: " + this.field.colors.veryRare + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
-                            } else if (freq < 0.005) {
-                                htmlCohortsTable += "<td style='width: 15px; background: " + this.field.colors.rare + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
-                            } else if (freq < 0.05) {
-                                htmlCohortsTable += "<td style='width: 15px; background: " + this.field.colors.average + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
-                            } else {
-                                htmlCohortsTable += "<td style='width: 15px; background: " + this.field.colors.common + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
-                            }
-                        } else  {
-                            htmlCohortsTable += "<td style='width: 15px; background: black;' title='" + popFreq + ": NA'>&nbsp;</td>";
-                        }
-                    }
-                    htmlCohortsTable += "</tr></table>";
-
-                    return htmlCohortsTable;
+                    return this.field.context.variantGridFormatter.createCohortStatsTable(this.field.cohorts, cohortStats,
+                        this.field.context.populationFrequencies.color);
+                } else {
+                    return '-';
                 }
-                return '-';
             }
 
             populationFrequenciesFormatter(value, row, index) {
-                if (typeof row !== "undefined" && typeof row.annotation !== "undefined"
-                    && typeof row.annotation.populationFrequencies !== "undefined") {
-
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.populationFrequencies !== "undefined") {
                     let popFreqMap = new Map();
                     for (let popFreqIdx in row.annotation.populationFrequencies) {
                         let popFreq = row.annotation.populationFrequencies[popFreqIdx];
@@ -1026,25 +1002,30 @@
                     });
                 }
 
+                let isCohortPresent = false;
                 if (typeof this._columns !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0
                     && this.config.filter.menu.skipSubsections !== undefined && !this.config.filter.menu.skipSubsections.includes("cohort")) {
+                    isCohortPresent = true;
+                    let cohortStudyIdx = 7;
                     let cohortIdx = 6;
                     let cohortStudies = Object.keys(this.cohorts);
-                    this._columns[0].splice(7, 0, {
-                        title: this.opencgaSession.project.name,
-                        field: 'cohorts',
+                    this._columns[0].splice(cohortStudyIdx, 0, {
+                        // title: this.opencgaSession.project.name,
+                        title: "Cohort Stats <span id=\"cohortStatsInfoIcon\"><i class=\"fa fa-info-circle\" style=\"color: #337ab7\" aria-hidden=\"true\"></i></span>",
+                        field: "cohorts",
                         rowspan: 1,
                         colspan: cohortStudies.length,
-                        align: 'center'
+                        align: "center"
                     });
 
-                    for(let i = 0; i < cohortStudies.length; i++) {
+                    for (let i = 0; i < cohortStudies.length; i++) {
                         this._columns[1].splice(i + cohortIdx, 0, {
                             title: cohortStudies[i],
                             field: {
                                 study: cohortStudies[i],
                                 cohorts: this.cohorts[cohortStudies[i]],
-                                colors: this.populationFrequencies.color
+                                colors: this.populationFrequencies.color,
+                                context: this
                             },
                             rowspan: 1,
                             colspan: 1,
@@ -1055,13 +1036,8 @@
                 }
 
                 if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
-                    let popIdx = 7;
-                    let subPopIdx = 6;
-                    if (typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0
-                        && this.config.filter.menu.skipSubsections !== undefined && !this.config.filter.menu.skipSubsections.includes("cohort")) {
-                        popIdx++;
-                        subPopIdx += Object.keys(this.cohorts).length;
-                    }
+                    let popIdx = isCohortPresent ? 8 : 7;
+                    let subPopIdx = isCohortPresent ? 6 + Object.keys(this.cohorts).length : 6;
 
                     // Just one column called 'Population Frequencies'
                     this._columns[0].splice(popIdx, 0, {
