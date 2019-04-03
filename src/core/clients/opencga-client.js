@@ -1304,6 +1304,10 @@ class Variant extends OpenCGAParentClass {
         return this.get("analysis/variant", undefined, "samples", params, options);
     }
 
+    sampleData(variantId, params, options) {
+        return this.get("analysis/variant", variantId, "sampleData", params, options);
+    }
+
     index(params, options) {
         return this.get("analysis/variant", undefined, "index", params, options);
     }
