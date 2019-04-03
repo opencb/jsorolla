@@ -337,6 +337,7 @@
             onClinicalFilterChange(e) {
                 // Process Sample filters
                 let _genotypeFilter = [];
+                let _sampleIds = [];
                 let _dpFormatFilter = [];
                 for (let sampleFilter of e.detail.sampleFilters) {
                     // let color = (sampleFilter.affected) ? "red" : "black";
@@ -349,6 +350,7 @@
                     if (dp !== -1) {
                         _dpFormatFilter.push(sampleFilter.id + ":DP>=" + dp);
                     }
+                    _sampleIds.push(sampleFilter.id)
                 }
 
                 // Process File filters
@@ -366,7 +368,12 @@
                 let _query = Object.assign({}, this.query);
                 if (_genotypeFilter !== undefined && _genotypeFilter.length > 0) {
                     _query.genotype = _genotypeFilter.join(";");
+                    delete _query.sample;
                     needUpdateQuery = true;
+                } else {
+                    // debugger
+                    _query.sample = _sampleIds.join(",");
+                    delete _query.genotype;
                 }
                 if (_dpFormatFilter !== undefined && _dpFormatFilter.length > 0) {
                     _query.format = _dpFormatFilter.join(";");
