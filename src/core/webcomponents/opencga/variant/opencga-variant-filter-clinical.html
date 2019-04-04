@@ -29,6 +29,12 @@
 
             <div class="col-md-12" style="padding: 0px 20px">
                 <h4>Select Sample Filters</h4>
+                <div style="padding: 5px 20px">
+                    You can select the sample genotypes manually or select a <span style="font-weight: bold;margin: 0px">Mode of Inheritance</span>
+                    in the dropdown below the table, this option is only available for Family analysis. Please, notice that if you want to execute a
+                    <span style="font-weight: bold;margin: 0px">Compound Heterozygous</span> or <span style="font-weight: bold;margin: 0px">de Novo</span> analysis
+                    you can go to the corresponding tools in the analysis toolbar (green buttons).
+                </div>
                 <div style="padding: 0px 20px">
                     <table id="{{prefix}}BasicTable" class="table table-hover table-no-bordered">
                         <thead>
@@ -78,8 +84,8 @@
                     <label>Other options</label>
                 </div>
                 <div style="padding: 5px 30px">
-                    <input type="checkbox" on-click="advancedModeButtonClick"><span style="padding-left: 5px">Include multi-allelic genotypes (e.g. 0/2, 1/2, ...)</span>
-                    <br>
+<!--                    <input type="checkbox" on-click="advancedModeButtonClick"><span style="padding-left: 5px">Include multi-allelic genotypes (e.g. 0/2, 1/2, ...)</span>-->
+<!--                    <br>-->
                     <!--<input id="{{prefix}}CompHetCheckbox" type="checkbox" on-click="notify"><span style="padding-left: 5px">Compound Heterozygous</span>-->
                     <!--<br>-->
                     <input id="{{prefix}}MissingCheckbox" type="checkbox" on-click="notify"><span style="padding-left: 5px">Include missing allele calls</span>
@@ -113,7 +119,7 @@
                     <form class="form-horizontal">
                         <div class="form-group col-md-12" style="margin-bottom: 5px">
                             <div class="col-md-2">
-                                <input id="{{prefix}}FileFilterQualCheckbox" type="checkbox" on-click="onFileQualClick"><span style="padding-left: 5px">Introduce min. QUAL</span>
+                                <input id="{{prefix}}FileFilterQualCheckbox" type="checkbox" on-click="onFileQualClick" disabled><span style="padding-left: 5px">Introduce min. QUAL</span>
                                 <!--<span style="padding-left: 5px"><i class="fa fa-circle fa-xs" aria-hidden="true"> Introduce min. QUAL</i></span>-->
                             </div>
                             <div class="col-md-10" style="width: 120px;padding-left: 5px">
@@ -122,7 +128,7 @@
                         </div>
                     </form>
                     <div class="col-md-12">
-                        <input id="{{prefix}}FileFilterPass" type="checkbox" on-click="notify"><span style="padding-left: 5px">Only include PASS variants</span>
+                        <input id="{{prefix}}FileFilterPass" type="checkbox" on-click="notify" disabled><span style="padding-left: 5px">Only include PASS variants</span>
                     </div>
                 </div>
             </div>
@@ -654,6 +660,13 @@
                         this.fileFilters[counter].selected = row.children[3].children[0].checked;
                         counter++;
                     }
+                }
+                if (counter === 0) {
+                    PolymerUtils.setAttribute(this.prefix + "FileFilterQualCheckbox", "disabled", true);
+                    PolymerUtils.setAttribute(this.prefix + "FileFilterPass", "disabled", true);
+                } else {
+                    PolymerUtils.removeAttribute(this.prefix + "FileFilterQualCheckbox", "disabled");
+                    PolymerUtils.removeAttribute(this.prefix + "FileFilterPass", "disabled");
                 }
 
                 this.notify();

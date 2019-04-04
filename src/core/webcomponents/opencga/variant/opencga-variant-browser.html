@@ -66,7 +66,7 @@
                 <div id="{{prefix}}FilterMenu" class="col-md-2">
                     <opencga-variant-filter opencga-session="{{opencgaSession}}"
                                             query="{{query}}"
-                                            cohorts="[[cohorts]]"
+                                            cohorts="{{cohorts}}"
                                             cellbase-client="{{cellbaseClient}}"
                                             population-frequencies="{{populationFrequencies}}"
                                             consequence-types="{{consequenceTypes}}"
@@ -109,7 +109,7 @@
                         <div id="{{prefix}}TableResult" class="variant-browser-content">
                             <!-- Variant Browser Grid -->
                             <opencga-variant-grid opencga-session="{{opencgaSession}}"
-                                                  query="{{executedQuery}}" cohorts="[[cohorts]]"
+                                                  query="{{executedQuery}}" cohorts="{{cohorts}}"
                                                   cellbase-client="{{cellbaseClient}}"
                                                   population-frequencies="{{populationFrequencies}}" active="{{active}}"
                                                   protein-substitution-scores="{{proteinSubstitutionScores}}"
@@ -338,15 +338,10 @@
 
                 // Update cohorts from config, this updates the Cohort filter MAF
                 if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
-                    // this.preparedQuery = {};
-                    // this.executedQuery = {};
-                    // this.query = {};
                     for (let section of this._config.filter.menu.sections) {
                         for (let subsection of section.subsections) {
                             if (subsection.id === "cohort") {
-                                let projectFields = this.opencgaSession.project.alias.split("@");
-                                let projectId = (projectFields.length > 1) ? projectFields[1] : projectFields[0];
-                                this.cohorts = subsection.cohorts[projectId];
+                                this.cohorts = subsection.cohorts;
                             }
                         }
                     }
@@ -354,13 +349,6 @@
                 } else {
                     this.checkProjects = false;
                 }
-
-                // Query passed is executed and set to variant-filter, active-filters and variant-grid components
-                // if (UtilsNew.isNotUndefinedOrNull(query)) {
-                //     debugger
-                //     this.preparedQuery = query;
-                //     this.executedQuery = query;
-                // }
             }
 
             queryObserver() {

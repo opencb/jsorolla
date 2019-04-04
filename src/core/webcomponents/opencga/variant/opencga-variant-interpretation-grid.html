@@ -253,8 +253,8 @@
                         },
                         responseHandler: function (resp) {
                             if (_numTotal === -1) {
-                                // _numTotal = resp.response[0].numTotalResults;
-                                _numTotal = resp.response[0].numTotalResults < 10 ? resp.response[0].numTotalResults : 1150;
+                                _numTotal = resp.response[0].numTotalResults;
+                                // _numTotal = resp.response[0].numTotalResults < 10 ? resp.response[0].numTotalResults : 1150;
                             }
                             // Format the number string with commas
                             _this.to = Math.min(resp.response[0].numResults, this.pageSize);
@@ -338,11 +338,6 @@
                         }
                     });
 
-                    // if (!this.showSelect) {
-                    //     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('hideColumn', "selectForInterpretation");
-                    //     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('hideColumn', "stateCheckBox");
-                    // }
-
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
                 }
             }
@@ -401,8 +396,8 @@
                     queryParams.exclude = "annotation.geneExpression";
 
                     // FIXME
-                    queryParams.approximateCount = false;
-                    queryParams.skipCount = true;
+                    queryParams.approximateCount = true;
+                    queryParams.skipCount = false;
 
                     queryParams.useSearchIndex = "auto";
                     queryParams.unknownGenotype = "0/0";

@@ -145,7 +145,7 @@
                                             if (statsObject[key].alleleCount < 0) {
                                                 statsObject[key].alleleCount = statsObject[key].refAlleleCount + statsObject[key].altAlleleCount;
                                             }
-                                            statsObject[key].numSamples = statsObject[key].alleleCount / 2;
+                                            statsObject[key].numSamples = Math.round(statsObject[key].alleleCount / 2);
 
                                             statsObject[key].refAlleleFreq = _this._freqFormatter(statsObject[key].refAlleleFreq || 0);
                                             // statsObject[key].alleleCountRef = statsObject[key].refAlleleCount;

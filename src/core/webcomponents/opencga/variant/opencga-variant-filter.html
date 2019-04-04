@@ -263,7 +263,8 @@
                                     let projectId = this.opencgaSession.project.id;
                                     if (UtilsNew.isNotUndefinedOrNull(subsection.cohorts[projectId])) {
                                         for (let study of Object.keys(subsection.cohorts[projectId])) {
-                                            Array.prototype.push.apply(this._cohorts, subsection.cohorts[projectId][study]);
+                                            // Array.prototype.push.apply(this._cohorts, subsection.cohorts[projectId][study]);
+                                            this._cohorts = subsection.cohorts[projectId];
                                         }
                                     }
                                 }
@@ -890,26 +891,26 @@
 
                 // Add Cohort stats MAF filter: [{study.alias}]:{cohort}[<|>|<=|>=]{number}
                 let cohortFreq = [];
-                if (typeof this._cohorts !== "undefined" && this._cohorts.length > 0) {
-                    for (let i = 0; i < this._cohorts.length; i++) {
-                        let cohort = this._cohorts[i].id;
-                        let cohortInput = PolymerUtils.getElementById(this.prefix + this.opencgaSession.study.alias + cohort + "Cohort");
-                        let operator = PolymerUtils.getElementById(this.prefix + this.opencgaSession.study.alias + cohort + "CohortOperator");
-                        if ((cohortInput !== null && cohortInput.value !== "") || (operator !== null && operator.value !== "<")) {
-                            operator = operator.value;
-                            let study = this.opencgaSession.study.alias;
-                            // to be removed!!
-                            if (study === "BRIDGE") {
-                                study = "bridge";
+                if (UtilsNew.isNotEmpty(this._cohorts)) {
+                    for (let studyId in this._cohorts) {
+                        for (let cohort of this._cohorts[studyId]) {
+                            let cohortInput = PolymerUtils.getElementById(this.prefix + studyId + cohort.id + "Cohort");
+                            let operator = PolymerUtils.getElementById(this.prefix + studyId + cohort.id + "CohortOperator");
+                            if (cohortInput !== null && UtilsNew.isNotEmpty(cohortInput.value) ) {
+                                operator = operator.value;
+                                // to be removed!!
+                                if (studyId === "BRIDGE") {
+                                    studyId = "bridge";
+                                }
+                                let pf = studyId + ":" + cohort.id + operator + cohortInput.value;
+                                cohortFreq.push(pf);
                             }
-                            let pf = study + ":" + cohort + operator + cohortInput.value;
-                            cohortFreq.push(pf);
                         }
                     }
                 }
                 if (cohortFreq.length > 0) {
-                    _filters["maf"] = cohortFreq.join(';');
                     // _filters["cohortStatsMaf"] = cohortFreq.join(';');
+                    _filters["maf"] = cohortFreq.join(';');
                 }
 
                 // Studies - This section is not renderer when only study exists
@@ -1033,7 +1034,7 @@
                     let dropdownValues = PolymerUtils.getElementById(this.prefix + subsScore + "Values");
                     let textboxInput = PolymerUtils.getElementById(this.prefix + subsScore + "Input");
                     let operator = PolymerUtils.getElementById(this.prefix + subsScore + "Operator");
-                    if (dropdownValues !== null && dropdownValues.value === "score" && UtilsNew.isNotEmpty(textboxInput)) {
+                    if (dropdownValues !== null && dropdownValues.value === "score" && UtilsNew.isNotEmpty(textboxInput.value)) {
                         pss.push(subsScore.toLowerCase() + operator.value + textboxInput.value);
                         numFilters++;
                     } else if (dropdownValues !== null && dropdownValues.value !== "score") {

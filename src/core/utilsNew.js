@@ -47,7 +47,7 @@ class UtilsNew {
 
         // obj is an actual Object
         if (typeof obj === "object") {
-            for(let key in obj) {
+            for (let key in obj) {
                 if(obj.hasOwnProperty(key))
                     return false;
             }

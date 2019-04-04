@@ -114,7 +114,7 @@
                                 <button type="button" class="btn btn-success variant-interpretation-view-buttons active" data-view="TableResult" on-click="_changeView">
                                     <i class="fa fa-filter icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView"></i>Search Result ({{counters.rv}})
                                 </button>
-                                <button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="CompoundHeterozygous" on-click="_changeView">
+                                <button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="CompoundHeterozygous" on-click="_changeView" disabled>
                                     <i class="fas fa-random icon-padding" aria-hidden="true" data-view="ClinicalAnalysis" on-click="_changeView"></i>Compound Heterozygous ({{counters.ch}})
                                 </button>
                                 <button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="DeNovo" on-click="_changeView">
@@ -676,7 +676,8 @@
                                     if (this.clinicalAnalysis.proband.id === individual.id) {
                                         _sampleIds.push(sample.id + ":0/1,1/1");
                                     } else {
-                                        _sampleIds.push(sample.id + ":0/0,0/1,1/1");
+                                        // _sampleIds.push(sample.id + ":0/0,0/1,1/1");
+                                        _sampleIds.push(sample.id + ":0/1,1/1");
                                     }
                                 });
                             }
