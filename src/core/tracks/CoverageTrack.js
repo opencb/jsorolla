@@ -38,12 +38,19 @@ class LinearCoverageTrack extends LinearFeatureTrack {
     init(targetId) {
         this._initDomContainer(targetId);
 
-        this.svgCanvasFeatures = SVG.addChild(this.contentDiv, "svg", {
-            "class": "features",
+        this.main = SVG.addChild(this.contentDiv, "svg", {
+            "class": "trackSvg",
+            "x": 0,
+            "y": 0,
             "width": this.config.width,
             "height": this.config.height,
-            "style": "fill: white",
-            "xmlns": "http://www.w3.org/2000/svg"
+        });
+
+        this.svgCanvasFeatures = SVG.addChild(this.main, "svg", {
+            "class": "features",
+            "x": -this.pixelPosition,
+            "height": this.config.height,
+            "width": this.config.svgCanvasWidth
         });
     }
 
@@ -74,6 +81,7 @@ class LinearCoverageTrack extends LinearFeatureTrack {
         let coverageConfiguration = {
             width: config.width,
             height: config.height,
+            pixelPosition: this.pixelPosition,
             target: this.svgCanvasFeatures
         };
 

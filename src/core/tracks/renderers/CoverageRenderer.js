@@ -55,42 +55,22 @@ class CoverageRenderer {
         let x = 0;
         let y = 0;
         let firstHeight = 0;
-        let negativeX = 0;
-        let yOfNegativeX = 0;
 
         for (let i = 0; i < data.values.length; i++) {
             let chromosomicPosition = start + (windowSize * i);
 
-            if (chromosomicPosition > config.visibleEndPosition) {
-                break;
-            }
-
             x = this._calculatePixelPosition(chromosomicPosition, config);
             y = maxHeight - ((Math.min(data.values[i] / config.maxCoverage, 1)) * maxHeight);
 
-            if (x < 0) {
-                negativeX = x;
-                yOfNegativeX = y;
-                continue;
-            }
-            if (typeof negativeX !== "undefined") {
-                // Calculate slope
-                let slope = (y - yOfNegativeX) / (x - negativeX);
-                // Now we can calculate which would be the Y at the first start point (x = 0)
-                // y = mx + b
-                firstHeight = y - (slope * x);
-
-                polyline.push(`0,${firstHeight}`);
-
-                // We don't want to do this calculation again, so we simply deactivate negativeX variable
-                negativeX = undefined;
+            if (i === 0) {
+                firstHeight = y;
             }
 
             polyline.push(`${x},${y}`);
         }
 
         // We will close the polyline
-        polyline.push(`${config.width},100 0,100 0,${firstHeight}`);
+        polyline.push(`${x},100 0,100 0,${firstHeight}`);
 
         const coverage = SVG.addChild(config.target, "polyline", {
             points: polyline.join(" "),
@@ -113,9 +93,9 @@ class CoverageRenderer {
             let mouseLineOffset = config.scaleFactor / 2;
             let offsetX = event.clientX - config.target.getBoundingClientRect().left;
 
-            let cX = offsetX - mouseLineOffset;
+            let cX = offsetX - mouseLineOffset - config.pixelPosition;
             let rcX = (cX / config.scaleFactor) | 0;
-            //
+
             let posOffset = (mid / config.scaleFactor) | 0;
             let mousePosition = centerPosition + rcX - posOffset;
 
@@ -144,15 +124,6 @@ class CoverageRenderer {
 
             for (let j = 0; j < data[i].values.length; j++) {
                 values[data[i].start + j] = data[i].values[j];
-            }
-
-            if (end < config.visibleStartPosition) {
-                // We skip regions of low coverage that fall before the starting region that will be actually represented
-                continue;
-            }
-            if (start > config.visibleEndPosition) {
-                // We stop if we find regions of low coverage that fall after the ending region that will be actually represented
-                break;
             }
 
             let pixelStart = this._calculatePixelPosition(start, config);
@@ -204,11 +175,11 @@ class CoverageRenderer {
     }
 
     _calculatePixelPosition(position, config) {
-        return (position - config.visibleStartPosition) * config.scaleFactor;
+        return ((position - config.visibleStartPosition) * config.scaleFactor) + config.pixelPosition;
     }
 
     _calculateChromosomicPosition(pixel, config) {
-        return (pixel + config.visibleStartPosition * config.scaleFactor) / config.scaleFactor;
+        return (pixel + config.visibleStartPosition * config.scaleFactor - config.pixelPosition) / config.scaleFactor;
     }
 
     _getDefaultConfig() {
