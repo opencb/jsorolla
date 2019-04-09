@@ -114,7 +114,7 @@
                                 <button type="button" class="btn btn-success variant-interpretation-view-buttons active" data-view="TableResult" on-click="_changeView">
                                     <i class="fa fa-filter icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView"></i>Search Result ({{counters.rv}})
                                 </button>
-                                <button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="CompoundHeterozygous" on-click="_changeView" disabled>
+                                <button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="CompoundHeterozygous" on-click="_changeView">
                                     <i class="fas fa-random icon-padding" aria-hidden="true" data-view="ClinicalAnalysis" on-click="_changeView"></i>Compound Heterozygous ({{counters.ch}})
                                 </button>
                                 <button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="DeNovo" on-click="_changeView">
@@ -241,18 +241,20 @@
                                                 <span style="font-weight: bold;margin-left: 0px">consequence type</span> (missense and loss-of-function variants)
                                                 and <span style="font-weight: bold;margin-left: 0px">genotype</span> of the samples.
                                                 However, you can use any other selected filter from the left menu, filters being applied are:
-                                            <div>
-                                                <input type="checkbox" checked disabled> <span style="font-weight: bold">biotype</span>: protein_coding
-                                            </div>
-                                            <div>
-                                                <input type="checkbox" checked disabled> <span style="font-weight: bold">consequenceType</span>: {{lofe}}
-                                            </div>
-                                            <template is="dom-repeat" items="{{compHetQueryArray}}">
-                                                <div style="padding: 10px">
-                                                    <input type="checkbox" value="{{item.key}}" on-click="onCompHetFilterClick" checked> <span style="font-weight: bold">{{item.key}}</span>: {{item.value}}
-                                                </div>
-                                            </template>
                                             </p>
+                                            <div style="padding: 5px">
+                                                <div>
+                                                    <input type="checkbox" checked disabled> <span style="font-weight: bold">biotype</span>: protein_coding
+                                                </div>
+                                                <div>
+                                                    <input type="checkbox" checked disabled> <span style="font-weight: bold">consequenceType</span>: {{lofe}}
+                                                </div>
+                                                <template is="dom-repeat" items="{{compHetQueryArray}}">
+                                                    <div>
+                                                        <input type="checkbox" value="{{item.key}}" on-click="onCompHetFilterClick" checked> <span style="font-weight: bold">{{item.key}}</span>: {{item.value}}
+                                                    </div>
+                                                </template>
+                                            </div>
                                             <p>Note that finding Compound Heterozygous can take few seconds depending on the OpenCGA server installation. </p>
                                         </div>
                                         <div class="form-group">
@@ -333,13 +335,16 @@
                                             <p>
                                                 de Novo variant analysis sets automatically the <span style="font-weight: bold">genotype</span> filter.
                                                 However, you can use any other selected filter from the left menu, filters being applied are:
+                                            </p>
+                                            <div style="padding: 5px">
                                                 <template is="dom-repeat" items="{{deNovoQueryArray}}">
-                                                    <div style="padding: 10px">
+                                                    <div>
                                                         <input type="checkbox" value="{{item.key}}" on-click="onDeNovoFilterClick"
                                                                class$="{{prefix}}DeNovoCheckBox" checked> <span style="font-weight: bold">{{item.key}}</span>: {{item.value}}
+
                                                     </div>
                                                 </template>
-                                            </p>
+                                            </div>
                                             <p>Note that finding de Novo variants can take few seconds depending on the OpenCGA server installation and the number of actionables variants. </p>
                                         </div>
                                         <div class="form-group">
@@ -359,7 +364,8 @@
                                         </template>
 
                                         <!-- Variant Browser Grid -->
-                                        <opencga-variant-interpretation-grid opencga-session="{{opencgaSession}}" clinical-analysis="{{clinicalAnalysis}}"
+                                        <opencga-variant-interpretation-grid opencga-session="{{opencgaSession}}"
+                                                                             clinical-analysis="{{clinicalAnalysis}}"
                                                                              query="{{deNovoQuery}}"
                                                                              consequence-types="{{consequenceTypes}}"
                                                                              population-frequencies="{{populationFrequencies}}"
@@ -500,10 +506,10 @@
                     cellbaseClient: {
                         type: Object
                     },
-                    diseasePanelId: {
-                        type: String,
-                        observer: "diseasePanelIdObserver"
-                    },
+                    // diseasePanelId: {
+                    //     type: String,
+                    //     observer: "diseasePanelIdObserver"
+                    // },
                     consequenceTypes: {
                         type: Object
                     },
@@ -568,9 +574,9 @@
 
                 this.samples = [];
 
-                this.defaultAutomaticQuery = {
-                    biotype: "protein_coding"
-                };
+                // this.defaultAutomaticQuery = {
+                //     biotype: "protein_coding"
+                // };
 
                 this.compHetInformationCollapsed = false;
                 this.deNovoInformationCollapsed = false;
@@ -653,12 +659,14 @@
 
             clinicalAnalysisObserver() {
                 if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
+                    let _individuals = [];
                     let _samples = [];
                     let _sampleIds = [];
-                    let _individuals = [];
+                    let _sampleDefaultGenotypes = [];
+
+                    this._checkFullFamily();
 
                     if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.family.members)) {
-                        // this.set("family", this.clinicalAnalysis.family);
                         _individuals = this.clinicalAnalysis.family.members;
                     } else {
                         if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.proband)) {
@@ -666,52 +674,45 @@
                         }
                     }
 
-                    this._checkFullFamily();
-
                     if (UtilsNew.isNotEmptyArray(_individuals)) {
                         _individuals.forEach(individual => {
-                            if (UtilsNew.isNotUndefinedOrNull(individual.samples)) {
+                            if (UtilsNew.isNotEmptyArray(individual.samples)) {
                                 individual.samples.map(sample => {
                                     _samples.push(sample);
+                                    _sampleIds.push(sample.id);
                                     if (this.clinicalAnalysis.proband.id === individual.id) {
-                                        _sampleIds.push(sample.id + ":0/1,1/1");
+                                        _sampleDefaultGenotypes.push(sample.id + ":0/1,1/1");
                                     } else {
-                                        // _sampleIds.push(sample.id + ":0/0,0/1,1/1");
-                                        _sampleIds.push(sample.id + ":0/1,1/1");
+                                        _sampleDefaultGenotypes.push(sample.id + ":0/0,0/1,1/1");
+                                        // _sampleIds.push(sample.id + ":0/1,1/1");
                                     }
                                 });
                             }
                         });
+
+                        if (UtilsNew.isNotEmptyArray(_sampleDefaultGenotypes)) {
+                            if (UtilsNew.isNotUndefinedOrNull(this.query)) {
+                                this.query = Object.assign({}, this.query, {
+                                    genotype: _sampleDefaultGenotypes.join(";"),
+                                    study: this.opencgaSession.study.fqn
+                                });
+                            } else {
+                                this.query = {
+                                    genotype: _sampleDefaultGenotypes.join(";"),
+                                    study: this.opencgaSession.study.fqn
+                                };
+                            }
+
+                            // Notify to all listeners of the new samples
+                            this.dispatchEvent(new CustomEvent('samplechange', {detail: {samples: this.samples}}));
+                        }
                     } else {
                         console.warn("A Clinical Analysis with no proband or family has been passed");
                     }
 
-                    if (UtilsNew.isNotEmptyArray(_samples)) {
-                        // Set samples array and notify, this must be done using Polymer API
-                        // this.samples = Object.assign({}, _samples);
-
-                        if (UtilsNew.isNotUndefinedOrNull(this.query)) {
-                            // this.preparedQuery = this.query;
-                            // this.executedQuery = this.query;
-                            this.query = Object.assign({}, this.query, {
-                                genotype: _sampleIds.join(";"),
-                                study: this.opencgaSession.study.fqn
-                            });
-                        } else {
-                            this.query = {
-                                genotype: _sampleIds.join(";"),
-                                study: this.opencgaSession.study.fqn
-                            };
-                        }
-
-                        // this.query = {
-                        //     genotype: _sampleIds.join(";"),
-                        //     study: this.opencgaSession.study.fqn
-                        // };
-
-                        // Notify to all listeners of the new samples
-                        this.dispatchEvent(new CustomEvent('samplechange', {detail: {samples: this.samples}}));
-                    }
+                    this._individuals = _individuals;
+                    this._samples = _samples;
+                    this._sampleIds = _sampleIds;
 
                     this.hasClinicalAnalysis = true;
                 } else {
@@ -756,23 +757,22 @@
             }
 
             onClinicalAnalysisEditor(e) {
-                // 
                 this.clinicalAnalysis = Object.assign({}, e.detail.clinicalAnalysis);
             }
 
-            diseasePanelIdObserver() {
-                if (this.diseasePanelId !== undefined && PANELS !== undefined) {
-                    for (let panel of PANELS) {
-                        if (panel.id === this.diseasePanelId) {
-                            this.diseasePanel = panel;
-                            // TODO in theory we should do:
-                            // this.defaultAutomaticQuery.panel = this.diseasePanelId;
-                            this.defaultAutomaticQuery.gene = this.diseasePanel.genes.join(",");
-                            break;
-                        }
-                    }
-                }
-            }
+            // diseasePanelIdObserver() {
+            //     if (this.diseasePanelId !== undefined && PANELS !== undefined) {
+            //         for (let panel of PANELS) {
+            //             if (panel.id === this.diseasePanelId) {
+            //                 this.diseasePanel = panel;
+            //                 // TODO in theory we should do:
+            //                 // this.defaultAutomaticQuery.panel = this.diseasePanelId;
+            //                 this.defaultAutomaticQuery.gene = this.diseasePanel.genes.join(",");
+            //                 break;
+            //             }
+            //         }
+            //     }
+            // }
 
             // interactiveObserver() {
             //     if (!this.interactive) {
@@ -878,13 +878,22 @@
             }
 
             onCompHetSearch(e) {
-                this.compHetQuery = this._compHetQuery;
+                this.showCompHetWarningMessage = false;
+                this.compHetQuery = Object.assign({}, this._compHetQuery, {
+                    biotype: "protein_coding",
+                    ct: this.lofe.replace(/ /g, ""),
+                    family: this.clinicalAnalysis.family.id,
+                    familyDisorder: this.clinicalAnalysis.disorder.id,
+                    familySegregation: "compoundHeterozygous",
+                    limit: 100
+                });
             }
 
             onCompHetFilterClick(e) {
                 let key = e.currentTarget.value;
                 let _compHetQuery = this._compHetQuery;
                 if (e.currentTarget.checked) {
+                    debugger
                     _compHetQuery[key] = this.executedQuery[key];
                 } else {
                     delete _compHetQuery[key];
@@ -902,21 +911,26 @@
                         // Replace family and familyDisorder with clinicalAnalysisId
                         family: this.clinicalAnalysis.family.id,
                         familyDisorder: this.clinicalAnalysis.disorder.id,
-                        familySegregation: "Compound_Heterozygous"
+                        familySegregation: "compoundHeterozygous",
+                        includeSample: this._sampleIds.join(","),
+                        limit: "100"
                     });
-                    if (UtilsNew.isNotEmpty(this.clinicalAnalysis)) {
-                        this._compHetQuery.clinicalAnalysisId = this.clinicalAnalysisId;
-                        delete this._compHetQuery.family;
-                        delete this._compHetQuery.familyDisorder;
-                    }
+                    // if (UtilsNew.isNotEmpty(this.clinicalAnalysis)) {
+                    //     this._compHetQuery.clinicalAnalysisId = this.clinicalAnalysisId;
+                    //     delete this._compHetQuery.family;
+                    //     delete this._compHetQuery.familyDisorder;
+                    // }
                     delete this._compHetQuery.genotype;
                     delete this._compHetQuery.sample;
-                    // this.compHetQuery = Object.assign({}, this._compHetQuery);
 
                     let _compHetQueryArray = [];
                     for (let key of Object.keys(this._compHetQuery)) {
-                        if (key !== "study" && key !== "biotype" && key !== "ct" && key !== "consequenceType" && !key.startsWith("family")) {
-                            _compHetQueryArray.push({key: key, value: this._compHetQuery[key].replace(",", ", ").replace(";", "; ")});
+                        if (key !== "study" && key !== "biotype" && key !== "ct" && key !== "consequenceType"
+                            && !key.startsWith("family") && !key.startsWith("includeSample")) {
+                            _compHetQueryArray.push({
+                                key: key,
+                                value: this._compHetQuery[key].replace(",", ", ").replace(";", "; ")
+                            });
                         }
                     }
                     this.compHetQueryArray = _compHetQueryArray;
@@ -941,6 +955,7 @@
                 this.counters = Object.assign({}, this.counters);
 
                 this.checkedCompHetVariants = e.detail.variants;
+                this._createInterpretation();
             }
 
 
@@ -953,7 +968,12 @@
 
             onDeNovoSearch(e) {
                 this.showDeNovoWarningMessage = false;
-                this.deNovoQuery = Object.assign({}, this._deNovoQuery);
+                this.deNovoQuery = Object.assign({}, this._deNovoQuery, {
+                    family: this.clinicalAnalysis.family.id,
+                    familyDisorder: this.clinicalAnalysis.disorder.id,
+                    familySegregation: "deNovo",
+                    includeSample: this._sampleIds.join(",")
+                });
             }
 
             onDeNovoFilterClick(e) {
@@ -971,18 +991,18 @@
             setDeNovoQuery(query) {
                 // Prepare object for Comp. Het. query
                 if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis) && UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family)) {
-                    let _sampleIds = [];
-                    for (let member of this.clinicalAnalysis.family.members) {
-                        if (UtilsNew.isNotEmptyArray(member.samples)) {
-                            _sampleIds.push(member.samples[0].id)
-                        }
-                    }
+                    // let _sampleIds = [];
+                    // for (let member of this.clinicalAnalysis.family.members) {
+                    //     if (UtilsNew.isNotEmptyArray(member.samples)) {
+                    //         _sampleIds.push(member.samples[0].id)
+                    //     }
+                    // }
                     this._deNovoQuery = Object.assign({}, query, {
                         // Replace family and familyDisorder with clinicalAnalysisId
                         family: this.clinicalAnalysis.family.id,
                         familyDisorder: this.clinicalAnalysis.disorder.id,
                         familySegregation: "deNovo",
-                        includeSample: _sampleIds.join(",")
+                        includeSample: this._sampleIds.join(",")
                     });
                     // if (UtilsNew.isNotEmpty(this.clinicalAnalysis)) {
                     //     this._deNovoQuery.clinicalAnalysisId = this.clinicalAnalysisId;
@@ -1030,16 +1050,13 @@
             }
 
             onCheckDeNovoVariant(e) {
-                this.counters.ch = e.detail.variants.length;
+                this.counters.dn = e.detail.variants.length;
                 this.counters.total = this.counters.rv + this.counters.ch + this.counters.dn;
                 this.counters = Object.assign({}, this.counters);
 
                 this.checkedDeNovoVariants = e.detail.variants;
+                this._createInterpretation();
             }
-            /*
-             **********************************************************************
-             */
-
 
 
             _changeBottomTab(e) {
@@ -1056,31 +1073,16 @@
 
             onSelectVariant(e) {
                 this.variant = e.detail.variant;
-                // this.variant = e.detail.id;
-                // this.variantObj = e.detail.variant;
             }
 
             onCheckVariant(e) {
-                // let _counters = {};
-                // _counters.rv = e.detail.variants.length;
-                // _counters.total = _counters.rv + this.counters.ch + this.counters.dn;
-                // this.counters = Object.assign({}, this.counters, _counters);
-
                 this.counters.rv = e.detail.variants.length;
                 this.counters.total = this.counters.rv + this.counters.ch + this.counters.dn;
                 this.counters = Object.assign({}, this.counters);
 
                 this.checkedVariants = e.detail.variants;
-
                 this._createInterpretation();
-                // We set/remove disable status to Save button
-                // if (this.checkedVariants.length > 0 && UtilsNew.isNotEmptyArray(this.samples)) {
-                //     PolymerUtils.removeAttribute(this.prefix + 'SaveInterpretationButton', 'disabled');
-                // } else {
-                //     PolymerUtils.setAttribute(this.prefix + 'SaveInterpretationButton', 'disabled', true);
-                // }
             }
-
 
 
             onSampleChange(e) {
@@ -1103,49 +1105,6 @@
 
                 this.region = e.detail.genomeBrowserPosition;
             }
-
-            // _initGenotypeSamples(samples, force, value) {
-            //     if (UtilsNew.isUndefinedOrNull(this.genotypeSamples)) {
-            //         this.genotypeSamples = {};
-            //     }
-            //     let genotypeSamples = {};
-            //     samples.forEach((sample) => {
-            //         if (UtilsNew.isUndefinedOrNull(genotypeSamples[sample.id]) || force){
-            //             genotypeSamples[sample.id] = {};
-            //             // this.genotypeSamples[sample.name]["0/0"] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
-            //             genotypeSamples[sample.id]["0/1"] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
-            //             genotypeSamples[sample.id]["1/1"] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
-            //             // this.genotypeSamples[sample.name]["./."] = UtilsNew.isNotUndefinedOrNull(value)? value : true;
-            //         }
-            //     });
-            //     
-            //     this.query = Object.assign({}, this.query, {genotype: this.getGenotypeFilter(genotypeSamples)});
-            //     
-            // }
-
-            // getGenotypeFilter(genotypeSamples) {
-            //     let genotype = [];
-            //     Object.keys(genotypeSamples).forEach(sampleId => {
-            //         if (UtilsNew.isNotUndefinedOrNull(genotypeSamples[sampleId])) {
-            //             // genotype += sampleId+ ":";
-            //             let gt = [];
-            //             if (genotypeSamples[sampleId]["0/0"]) {
-            //                 gt.push("0/0");
-            //             }
-            //             if (genotypeSamples[sampleId]["0/1"]) {
-            //                 gt.push("0/1");
-            //             }
-            //             if (genotypeSamples[sampleId]["1/1"]) {
-            //                 gt.push("1/1");
-            //             }
-            //             if (genotypeSamples[sampleId]["./."]) {
-            //                 gt.push("./.");
-            //             }
-            //             genotype.push(sampleId+ ":" + gt.join(","));
-            //         }
-            //     });
-            //     return genotype.join(";");
-            // }
 
             _changeView(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
@@ -1247,12 +1206,28 @@
 
                     // Remove 'stateCheckbox' from the variant list. When we receive the list from the grid, we are getting
                     // an additional field that should not be present in a reported variant.
+                    // let allCheckedVariants = [].concat(this.checkedVariants).concat(this.checkedCompHetVariants).concat(this.checkedDeNovoVariants);
                     let reportedVariants = [];
                     for (let i in this.checkedVariants) {
                         let variant = Object.assign({}, this.checkedVariants[i]);
                         delete variant['stateCheckBox'];
                         reportedVariants.push(variant);
                     }
+                    if (UtilsNew.isNotEmptyArray(this.checkedCompHetVariants)) {
+                        for (let i in this.checkedCompHetVariants) {
+                            let variant = Object.assign({}, this.checkedCompHetVariants[i]);
+                            delete variant['stateCheckBox'];
+                            reportedVariants.push(variant);
+                        }
+                    }
+                    if (UtilsNew.isNotEmptyArray(this.checkedDeNovoVariants)) {
+                        for (let i in this.checkedDeNovoVariants) {
+                            let variant = Object.assign({}, this.checkedDeNovoVariants[i]);
+                            delete variant['stateCheckBox'];
+                            reportedVariants.push(variant);
+                        }
+                    }
+
                     interpretation.primaryFindings = reportedVariants;
                     interpretation.attributes = {};
                     // interpretation.creationDate = moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY');
