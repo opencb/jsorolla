@@ -68,8 +68,8 @@ class VariantGridFormatter {
         }
 
         // If REF/ALT is greater than maxAlleleLength we display the first and last 5 bp
-        let ref = (row.reference !== "") ? row.reference : "-";
-        let alt = (row.alternate !== "") ? row.alternate : "-";
+        let ref = (UtilsNew.isNotEmpty(row.reference)) ? row.reference : "-";
+        let alt = (UtilsNew.isNotEmpty(row.alternate)) ? row.alternate : "-";
         let maxAlleleLength = 15;
         if (UtilsNew.isNotUndefinedOrNull(config) && UtilsNew.isNotUndefinedOrNull(config.alleleStringLengthMax)) {
             maxAlleleLength = config.alleleStringLengthMax;
