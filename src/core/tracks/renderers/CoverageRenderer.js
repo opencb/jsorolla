@@ -129,6 +129,17 @@ class CoverageRenderer {
             let pixelStart = this._calculatePixelPosition(start, config);
             let pixelEnd = this._calculatePixelPosition(end, config);
 
+            if (pixelEnd === pixelStart) {
+                // Increase 1 pixelEnd so the line is visible
+                pixelEnd += 1;
+                let position = this._calculateChromosomicPosition(pixelEnd, config);
+                // Now we need to store the final value across all the positions
+                let lastValue = data[i].values[data[i].values.length - 1];
+                for (let i = end; i <= position; i++) {
+                    values[i] = lastValue;
+                }
+            }
+
             path.push(`M ${pixelStart} 0 H ${pixelEnd} V 100 H ${pixelStart}`);
         }
 
@@ -158,7 +169,6 @@ class CoverageRenderer {
 
         $(lowCoverage).click(function(event) {
             let position = Math.floor(_this._calculateChromosomicPosition(event.clientX - config.target.getBoundingClientRect().left, config));
-
             _this.trigger("lowCoverage:click", {
                 position: position,
                 value: values[position]
