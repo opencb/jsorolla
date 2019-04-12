@@ -125,69 +125,74 @@
 
                 </div>
 
+
                 <div class="col-md-12">
-                    <h3 class="form-section-title">{{selectedGene}} Gene Low Coverage</h3>
+                    <template is="dom-if" if="{{showCoverageTable}}">
+                        <h3 class="form-section-title">{{selectedGene}} Gene Low Coverage</h3>
+                    </template>
                     <div id="{{prefix}}-svg" style="padding: 20px"></div>
                 </div>
 
-                <!--Low covered regions table-->
-                <div class="col-md-12">
-                    <div style='padding: 10px 0px 10px 25px'>
-                        <h4>Low covered regions</h4>
-                    </div>
+                <template is="dom-if" if="{{showCoverageTable}}">
+                    <!--Low covered regions table-->
+                    <div class="col-md-12">
+                        <div style='padding: 10px 0px 10px 25px'>
+                            <h4>Low covered regions</h4>
+                        </div>
 
-                    <div style='padding: 5px 50px'>
-                        <table id="{{prefix}}LowCoveredRegions" class="table table-hover table-no-bordered">
-                            <thead>
-                            <tr>
-                                <th rowspan="2">Position</th>
-                                <th rowspan="2">Length</th>
-                                <th rowspan="1" colspan="3" style$="{{_probandFile.style}}">
-                                    {{_probandFile.name}}
-                                    <i class$="fa {{_probandFile.icon}} fa-lg" style='padding-left: 5px'></i>
-                                </th>
-                                <template is="dom-repeat" items="{{_otherFiles}}" as="file">
-                                    <th rowspan="1" colspan="4" style$="{{file.style}}">
-                                        {{file.name}}
-                                        <i class$="fa {{file.icon}} fa-lg" style='padding-left: 5px'></i>
+                        <div style='padding: 5px 50px'>
+                            <table id="{{prefix}}LowCoveredRegions" class="table table-hover table-no-bordered">
+                                <thead>
+                                <tr>
+                                    <th rowspan="2">Position</th>
+                                    <th rowspan="2">Length</th>
+                                    <th rowspan="1" colspan="3" style$="{{_probandFile.style}}">
+                                        {{_probandFile.name}}
+                                        <i class$="fa {{_probandFile.icon}} fa-lg" style='padding-left: 5px'></i>
                                     </th>
-                                </template>
-                                <!--                                <th rowspan="1" colspan$="{{_numberOfFiles}}" style="text-align: center">Medium coverage</th>-->
+                                    <template is="dom-repeat" items="{{_otherFiles}}" as="file">
+                                        <th rowspan="1" colspan="4" style$="{{file.style}}">
+                                            {{file.name}}
+                                            <i class$="fa {{file.icon}} fa-lg" style='padding-left: 5px'></i>
+                                        </th>
+                                    </template>
+                                    <!--                                <th rowspan="1" colspan$="{{_numberOfFiles}}" style="text-align: center">Medium coverage</th>-->
 
-                            </tr>
-                            <tr>
-                                <th rowspan="1">Average</th>
-                                <th rowspan="1">Max</th>
-                                <th rowspan="1">Min</th>
-
-                                <template is="dom-repeat" items="{{_otherFiles}}" as="file">
-                                    <th rowspan="1">% covered</th>
+                                </tr>
+                                <tr>
                                     <th rowspan="1">Average</th>
                                     <th rowspan="1">Max</th>
                                     <th rowspan="1">Min</th>
-                                </template>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <template is="dom-repeat" items="{{_lowCoverageValues}}" as="coverage">
-                                <tr class="detail-view-row">
-                                    <td>{{coverage.region}}</td>
-                                    <td>{{coverage.length}}</td>
-                                    <td>{{coverage.stats.average}}</td>
-                                    <td>{{coverage.stats.max}}</td>
-                                    <td>{{coverage.stats.min}}</td>
+
                                     <template is="dom-repeat" items="{{_otherFiles}}" as="file">
-                                        <td>{{_getCoverage(coverage, file)}}</td>
-                                        <td>{{_getAverage(coverage, file)}}</td>
-                                        <td>{{_getMax(coverage, file)}}</td>
-                                        <td>{{_getMin(coverage, file)}}</td>
+                                        <th rowspan="1">% covered</th>
+                                        <th rowspan="1">Average</th>
+                                        <th rowspan="1">Max</th>
+                                        <th rowspan="1">Min</th>
                                     </template>
                                 </tr>
-                            </template>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                <template is="dom-repeat" items="{{_lowCoverageValues}}" as="coverage">
+                                    <tr class="detail-view-row">
+                                        <td>{{coverage.region}}</td>
+                                        <td>{{coverage.length}}</td>
+                                        <td>{{coverage.stats.average}}</td>
+                                        <td>{{coverage.stats.max}}</td>
+                                        <td>{{coverage.stats.min}}</td>
+                                        <template is="dom-repeat" items="{{_otherFiles}}" as="file">
+                                            <td>{{_getCoverage(coverage, file)}}</td>
+                                            <td>{{_getAverage(coverage, file)}}</td>
+                                            <td>{{_getMax(coverage, file)}}</td>
+                                            <td>{{_getMin(coverage, file)}}</td>
+                                        </template>
+                                    </tr>
+                                </template>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
+                </template>
             </template>
         </div>
     </template>
@@ -250,6 +255,7 @@
                 this._disabled = true;
 
                 this._lowCoverageValues = [];
+                this.showCoverageTable = false;
 
                 // Initially we set the default config, this will be overridden if 'config' is passed
                 this._config = this.getDefaultConfig();
@@ -271,6 +277,9 @@
 
             propertyObserver(opencgaSession, clinicalAnalysis, panelIds, geneIds, config) {
                 this._config = Object.assign(this.getDefaultConfig(), config);
+
+                this.clear();
+
                 // if (UtilsNew.isNotUndefinedOrNull(config)) {
                 // }
 
@@ -338,7 +347,8 @@
                                 // In theory, there should only be one BAM file available for each member
                                 files.push({
                                     id: availableBigWigs[clinicalAnalysis.proband.samples[i].id],
-                                    name: "Proband '" + clinicalAnalysis.proband.id + "'",
+                                    // name: "Proband '" + clinicalAnalysis.proband.id + "'",
+                                    name: "Proband '" + clinicalAnalysis.proband.samples[i].id + "'",
                                     sex: clinicalAnalysis.proband.sex,
                                     isProband: true,
                                     affectationStatus: this._getAffectationStatus(clinicalAnalysis.proband, disorder)
@@ -357,7 +367,8 @@
                                 && availableBigWigs.hasOwnProperty(members[motherId].samples[0].id)) {
                                 files.push({
                                     id: availableBigWigs[members[motherId].samples[0].id],
-                                    name: "Mother '" + motherId + "'",
+                                    name: "Mother '" + members[motherId].samples[0].id + "'",
+                                    // name: "Mother '" + motherId + "'",
                                     sex: members[motherId].sex,
                                     isProband: false,
                                     affectationStatus: this._getAffectationStatus(members[motherId], disorder)
@@ -376,7 +387,8 @@
                                 && availableBigWigs.hasOwnProperty(members[fatherId].samples[0].id)) {
                                 files.push({
                                     id: availableBigWigs[members[fatherId].samples[0].id],
-                                    name: "Father '" + fatherId + "'",
+                                    name: "Father '" + members[fatherId].samples[0].id + "'",
+                                    // name: "Father '" + fatherId + "'",
                                     sex: members[fatherId].sex,
                                     isProband: false,
                                     affectationStatus: this._getAffectationStatus(members[fatherId], disorder)
@@ -485,6 +497,22 @@
                 } else if (UtilsNew.isNotEmpty(this.selectedGene)) {
                     this._displaySVG(this.selectedGene, $(`#${this.prefix}-lowCoverageThreshold`).selectpicker('val'));
                 }
+            }
+
+            onClear(e) {
+                this.clear();
+            }
+
+            clear() {
+                // Clean the SVG in case there is anything drawn
+                let children = $(`#${this.prefix}-svg`).children();
+                for (let i = 0; i < children.length; i++) {
+                    children[i].remove();
+                }
+
+                this._lowCoverageValues = [];
+                this.showCoverageTable = false;
+                this._initialiseCoverageTracks = true;
             }
 
             _displaySVG(geneId, threshold) {
@@ -731,6 +759,9 @@
                             }
 
                             _this._lowCoverageValues = coverageGroups;
+                            if (_this._lowCoverageValues.length > 0) {
+                                _this.showCoverageTable = true;
+                            }
 
                             // // Sort the positions
                             // positions = positions.sort();
