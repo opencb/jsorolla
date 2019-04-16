@@ -116,6 +116,14 @@
                     return;
                 }
 
+                if (this._tracksCopy === tracks) {
+                    // We don't need to render anything again
+                    return;
+                }
+
+                this.clear();
+                this._tracksCopy = tracks;
+
                 let [myTracks, featureTracks] = this._getConfiguredTracks(tracks);
                 this._addFilters(filter, featureTracks);
                 this.featureTracks = featureTracks;
@@ -255,7 +263,7 @@
                 let clearButton = document.createElement("button");
                 clearButton.classList.add("btn", "btn-primary");
                 clearButton.type = "submit";
-                clearButton.addEventListener("click", this.clear.bind(this));
+                clearButton.addEventListener("click", this.clearFilters.bind(this));
                 clearButton.innerHTML = "Clear";
                 colButtonDiv.appendChild(clearButton);
 
@@ -526,6 +534,19 @@
             }
 
             clear() {
+                // Clean any old filter that might exist
+                let children = $(`#${this.prefix}FilterMenu`).children();
+                for (let i = 0; i < children.length; i++) {
+                    children[i].remove();
+                }
+
+                // Destroy genome browser if it existed
+                if (UtilsNew.isNotUndefinedOrNull(this.genomeBrowser)) {
+                    this.genomeBrowser.destroy();
+                }
+            }
+
+            clearFilters() {
                 let geneFilter = document.getElementById(`${this.prefix}-geneFilter`);
                 if (UtilsNew.isNotUndefinedOrNull(geneFilter)) {
                     geneFilter.clear();
