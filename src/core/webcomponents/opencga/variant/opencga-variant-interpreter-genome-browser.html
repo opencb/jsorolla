@@ -19,141 +19,142 @@
 <dom-module id="opencga-variant-interpreter-genome-browser">
     <template>
         <genome-browser id="{{prefix}}gb" opencga-session={{opencgaSession}} cellbase-client="{{cellbaseClient}}"
-                        region="{{genomeBrowserRegion}}" tracks="{{tracks}}" settings="{{settings}}" active="{{active}}">
+                        region="{{genomeBrowserRegion}}" tracks="{{tracks}}" settings="{{settings}}"
+                        filter="{{genomeBrowserFilters}}" active="{{active}}">
         </genome-browser>
-<!--        <style include="jso-styles">-->
-<!--            .form-section-title {-->
-<!--                padding: 5px 0px;-->
-<!--                width: 80%;-->
-<!--                border-bottom-width: 1px;-->
-<!--                border-bottom-style: solid;-->
-<!--                border-bottom-color: #ddd-->
-<!--            }-->
+        <!--        <style include="jso-styles">-->
+        <!--            .form-section-title {-->
+        <!--                padding: 5px 0px;-->
+        <!--                width: 80%;-->
+        <!--                border-bottom-width: 1px;-->
+        <!--                border-bottom-style: solid;-->
+        <!--                border-bottom-color: #ddd-->
+        <!--            }-->
 
-<!--            .jso-label-title {-->
-<!--                width: 15em !important;-->
-<!--            }-->
-<!--        </style>-->
+        <!--            .jso-label-title {-->
+        <!--                width: 15em !important;-->
+        <!--            }-->
+        <!--        </style>-->
 
-<!--        <template is="dom-if" if="{{_disabled}}">-->
-<!--            <h4 style="color: #940303; margin: 20px 0px; text-align: center">-->
-<!--                No files available.-->
-<!--            </h4>-->
-<!--        </template>-->
+        <!--        <template is="dom-if" if="{{_disabled}}">-->
+        <!--            <h4 style="color: #940303; margin: 20px 0px; text-align: center">-->
+        <!--                No files available.-->
+        <!--            </h4>-->
+        <!--        </template>-->
 
-<!--        <template is="dom-if" if="{{!_disabled}}">-->
+        <!--        <template is="dom-if" if="{{!_disabled}}">-->
 
-<!--            <template is="dom-if" if="{{_config.showTitle}}">-->
-<!--                <div class="panel" style="margin-bottom: 15px">-->
-<!--                    <h3 style="margin: 10px 10px 10px 15px">-->
-<!--                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;{{_config.title}}-->
-<!--                    </h3>-->
-<!--                </div>-->
-<!--            </template>-->
+        <!--            <template is="dom-if" if="{{_config.showTitle}}">-->
+        <!--                <div class="panel" style="margin-bottom: 15px">-->
+        <!--                    <h3 style="margin: 10px 10px 10px 15px">-->
+        <!--                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;{{_config.title}}-->
+        <!--                    </h3>-->
+        <!--                </div>-->
+        <!--            </template>-->
 
-<!--            <div class="row " style="padding: 0px 10px; margin: 10px 0px;">-->
-<!--                <div class="col-md-12">-->
+        <!--            <div class="row " style="padding: 0px 10px; margin: 10px 0px;">-->
+        <!--                <div class="col-md-12">-->
 
-<!--                    <div style="display: block; cursor:pointer;" on-click="toggleCollapsedFilter"-->
-<!--                         data-toggle="collapse" href$="#{{prefix}}collapsibleFilter">-->
-<!--                        <h3 class="form-section-title">-->
-<!--                            <template is="dom-if" if="{{_filtersCollapsed}}">-->
-<!--                                <i class="fa fa-caret-right" aria-hidden="true" style="padding-right: 5px"></i>-->
-<!--                            </template>-->
-<!--                            <template is="dom-if" if="{{!_filtersCollapsed}}">-->
-<!--                                <i class="fa fa-caret-down" aria-hidden="true" style="padding-right: 5px"></i>-->
-<!--                            </template>-->
-<!--                            Genome Browser Filters</h3>-->
-<!--                    </div>-->
+        <!--                    <div style="display: block; cursor:pointer;" on-click="toggleCollapsedFilter"-->
+        <!--                         data-toggle="collapse" href$="#{{prefix}}collapsibleFilter">-->
+        <!--                        <h3 class="form-section-title">-->
+        <!--                            <template is="dom-if" if="{{_filtersCollapsed}}">-->
+        <!--                                <i class="fa fa-caret-right" aria-hidden="true" style="padding-right: 5px"></i>-->
+        <!--                            </template>-->
+        <!--                            <template is="dom-if" if="{{!_filtersCollapsed}}">-->
+        <!--                                <i class="fa fa-caret-down" aria-hidden="true" style="padding-right: 5px"></i>-->
+        <!--                            </template>-->
+        <!--                            Genome Browser Filters</h3>-->
+        <!--                    </div>-->
 
-<!--                    <div id="{{prefix}}collapsibleFilter" class="form-horizontal collapse in">-->
+        <!--                    <div id="{{prefix}}collapsibleFilter" class="form-horizontal collapse in">-->
 
-<!--                        <div class="form-group">-->
-<!--                            <label class="control-label col-md-1 jso-label-title">Search by Region</label>-->
-<!--                            <div class="input-group col-md-3" style="padding-left: 15px;padding-right: 15px">-->
-<!--                                <input id="{{prefix}}RegionInputText" type="text" class="form-control" placeholder="e.g. 3:55555-666666">-->
-<!--                                <span class="input-group-btn">-->
-<!--                                <button class="btn btn-default" type="button" on-click="onEraserClicked">-->
-<!--                                    <i class="fa fa-eraser" aria-hidden="true"></i>-->
-<!--                                </button>-->
-<!--                            </span>-->
-<!--                            </div>-->
-<!--                        </div>-->
+        <!--                        <div class="form-group">-->
+        <!--                            <label class="control-label col-md-1 jso-label-title">Search by Region</label>-->
+        <!--                            <div class="input-group col-md-3" style="padding-left: 15px;padding-right: 15px">-->
+        <!--                                <input id="{{prefix}}RegionInputText" type="text" class="form-control" placeholder="e.g. 3:55555-666666">-->
+        <!--                                <span class="input-group-btn">-->
+        <!--                                <button class="btn btn-default" type="button" on-click="onEraserClicked">-->
+        <!--                                    <i class="fa fa-eraser" aria-hidden="true"></i>-->
+        <!--                                </button>-->
+        <!--                            </span>-->
+        <!--                            </div>-->
+        <!--                        </div>-->
 
-<!--                        <div class="form-group">-->
-<!--                            <label class="control-label col-md-1 jso-label-title">Search by Gene</label>-->
-<!--                            <div class="col-md-3">-->
-<!--                                <cellbase-gene-filter cellbase-client="{{cellbaseClient}}"-->
-<!--                                                      erase="{{eraseSearchGene}}"-->
-<!--                                                      on-genechange="onInputGeneChange">-->
-<!--                                </cellbase-gene-filter>-->
-<!--                            </div>-->
-<!--                        </div>-->
+        <!--                        <div class="form-group">-->
+        <!--                            <label class="control-label col-md-1 jso-label-title">Search by Gene</label>-->
+        <!--                            <div class="col-md-3">-->
+        <!--                                <cellbase-gene-filter cellbase-client="{{cellbaseClient}}"-->
+        <!--                                                      erase="{{eraseSearchGene}}"-->
+        <!--                                                      on-genechange="onInputGeneChange">-->
+        <!--                                </cellbase-gene-filter>-->
+        <!--                            </div>-->
+        <!--                        </div>-->
 
-<!--                        <div class="form-group">-->
-<!--                            <label class="control-label col-md-1 jso-label-title">Select a Gene from Panel</label>-->
-<!--                            <div class="col-md-3">-->
-<!--                                <select class="selectpicker" id="{{prefix}}-geneSelect" data-live-search="true" data-max-options="1"-->
-<!--                                        on-dom-change="renderDomRepeat" multiple>-->
-<!--                                    <optgroup label="Selected Genes">-->
-<!--                                        <template is="dom-repeat" items="{{geneIds}}" as="geneId">-->
-<!--                                            <option>{{geneId}}</option>-->
-<!--                                        </template>-->
-<!--                                    </optgroup>-->
+        <!--                        <div class="form-group">-->
+        <!--                            <label class="control-label col-md-1 jso-label-title">Select a Gene from Panel</label>-->
+        <!--                            <div class="col-md-3">-->
+        <!--                                <select class="selectpicker" id="{{prefix}}-geneSelect" data-live-search="true" data-max-options="1"-->
+        <!--                                        on-dom-change="renderDomRepeat" multiple>-->
+        <!--                                    <optgroup label="Selected Genes">-->
+        <!--                                        <template is="dom-repeat" items="{{geneIds}}" as="geneId">-->
+        <!--                                            <option>{{geneId}}</option>-->
+        <!--                                        </template>-->
+        <!--                                    </optgroup>-->
 
-<!--                                    <template is="dom-repeat" items="{{_genePanels}}" as="panel">-->
-<!--                                        <optgroup label="{{panel.name}}">-->
-<!--                                            <template is="dom-repeat" items="{{panel.genes}}" as="gene">-->
-<!--                                                <option>{{gene.name}}</option>-->
-<!--                                            </template>-->
-<!--                                        </optgroup>-->
-<!--                                    </template>-->
-<!--                                </select>-->
-<!--                            </div>-->
-<!--                        </div>-->
+        <!--                                    <template is="dom-repeat" items="{{_genePanels}}" as="panel">-->
+        <!--                                        <optgroup label="{{panel.name}}">-->
+        <!--                                            <template is="dom-repeat" items="{{panel.genes}}" as="gene">-->
+        <!--                                                <option>{{gene.name}}</option>-->
+        <!--                                            </template>-->
+        <!--                                        </optgroup>-->
+        <!--                                    </template>-->
+        <!--                                </select>-->
+        <!--                            </div>-->
+        <!--                        </div>-->
 
-<!--                        <div class="form-group">-->
-<!--                            <label class="control-label col-md-1 jso-label-title">Show Alignments (BAM)</label>-->
-<!--                            <div class="col-md-3">-->
-<!--                                <input type="checkbox">-->
-<!--                            </div>-->
-<!--                        </div>-->
+        <!--                        <div class="form-group">-->
+        <!--                            <label class="control-label col-md-1 jso-label-title">Show Alignments (BAM)</label>-->
+        <!--                            <div class="col-md-3">-->
+        <!--                                <input type="checkbox">-->
+        <!--                            </div>-->
+        <!--                        </div>-->
 
-<!--                        <div class="form-group">-->
-<!--                            <div class="col-md-offset-3 col-md-9">-->
-<!--                                <button type="submit" class="btn btn-primary" on-click="onClear">Clear</button>-->
-<!--                                <button type="submit" class="btn btn-primary" on-click="showSelectionInGenomeBrowser">Render</button>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
+        <!--                        <div class="form-group">-->
+        <!--                            <div class="col-md-offset-3 col-md-9">-->
+        <!--                                <button type="submit" class="btn btn-primary" on-click="onClear">Clear</button>-->
+        <!--                                <button type="submit" class="btn btn-primary" on-click="showSelectionInGenomeBrowser">Render</button>-->
+        <!--                            </div>-->
+        <!--                        </div>-->
+        <!--                    </div>-->
 
-<!--                    &lt;!&ndash;<div class="col-md-6" style="margin-top: 15px;">&ndash;&gt;-->
-<!--                    &lt;!&ndash;<button id="{{prefix}}RunGenomeBrowser" type="button" class="btn btn-primary"&ndash;&gt;-->
-<!--                    &lt;!&ndash;on-click="showSelectionInGenomeBrowser" style="float: right">&ndash;&gt;-->
-<!--                    &lt;!&ndash;Show Genome Browser&ndash;&gt;-->
-<!--                    &lt;!&ndash;</button>&ndash;&gt;-->
-<!--                    &lt;!&ndash;</div>&ndash;&gt;-->
-<!--                </div>-->
+        <!--                    &lt;!&ndash;<div class="col-md-6" style="margin-top: 15px;">&ndash;&gt;-->
+        <!--                    &lt;!&ndash;<button id="{{prefix}}RunGenomeBrowser" type="button" class="btn btn-primary"&ndash;&gt;-->
+        <!--                    &lt;!&ndash;on-click="showSelectionInGenomeBrowser" style="float: right">&ndash;&gt;-->
+        <!--                    &lt;!&ndash;Show Genome Browser&ndash;&gt;-->
+        <!--                    &lt;!&ndash;</button>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;</div>&ndash;&gt;-->
+        <!--                </div>-->
 
 
-<!--                &lt;!&ndash; Genome browser &ndash;&gt;-->
-<!--                <div class="col-md-12">-->
-<!--                    <h3 class="form-section-title">Genome Browser</h3>-->
+        <!--                &lt;!&ndash; Genome browser &ndash;&gt;-->
+        <!--                <div class="col-md-12">-->
+        <!--                    <h3 class="form-section-title">Genome Browser</h3>-->
 
-<!--                    &lt;!&ndash;<div style$="padding: 20px 0px;display: {{displayGenomeBrowserMessage}};">&ndash;&gt;-->
-<!--                    &lt;!&ndash;<div style="padding: 20px">&ndash;&gt;-->
-<!--                    &lt;!&ndash;<span style="font-weight: bolder">Please select some data above</span>&ndash;&gt;-->
-<!--                    &lt;!&ndash;</div>&ndash;&gt;-->
-<!--                    &lt;!&ndash;</div>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;<div style$="padding: 20px 0px;display: {{displayGenomeBrowserMessage}};">&ndash;&gt;-->
+        <!--                    &lt;!&ndash;<div style="padding: 20px">&ndash;&gt;-->
+        <!--                    &lt;!&ndash;<span style="font-weight: bolder">Please select some data above</span>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;</div>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;</div>&ndash;&gt;-->
 
-<!--                    <div style="padding: 20px">-->
-<!--                        <genome-browser id="{{prefix}}gb" opencga-session={{opencgaSession}} cellbase-client="{{cellbaseClient}}"-->
-<!--                                        region="{{genomeBrowserRegion}}" tracks="{{tracks}}" settings="{{settings}}" active="{{active}}">-->
-<!--                        </genome-browser>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </template>-->
+        <!--                    <div style="padding: 20px">-->
+        <!--                        <genome-browser id="{{prefix}}gb" opencga-session={{opencgaSession}} cellbase-client="{{cellbaseClient}}"-->
+        <!--                                        region="{{genomeBrowserRegion}}" tracks="{{tracks}}" settings="{{settings}}" active="{{active}}">-->
+        <!--                        </genome-browser>-->
+        <!--                    </div>-->
+        <!--                </div>-->
+        <!--            </div>-->
+        <!--        </template>-->
 
     </template>
 
@@ -243,6 +244,30 @@
 
             propertyObserver(opencgaSession, clinicalAnalysis, panelIds, geneIds, config) {
                 this._config = Object.assign(this.getDefaultConfig(), config);
+
+                this.genomeBrowserFilters = {
+                    title: "Genome Browser Filters",
+                    active: true,
+                    filters: [{
+                        title: "Search by Region",
+                        example: "e.g. 3:55555-666666",
+                        id: "region"
+                    }, {
+                        title: "Search by Gene",
+                        example: "Search for Gene Symbols",
+                        id: "gene"
+                    }, {
+                        title: "Panel",
+                        id: "panel",
+                        values: panelIds
+                    }, {
+                        title: "Show alignments (BAM)",
+                        id: "alignment"
+                    }, {
+                        title: "Show variants (VCF)",
+                        id: "variant"
+                    }]
+                };
 
                 if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession)) {
                     let _this = this;

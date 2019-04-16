@@ -561,7 +561,7 @@
                 }
 
                 let panelGene = $(`#${this.prefix}-geneSelect`).selectpicker('val');
-                if (UtilsNew.isNotEmpty(panelGene)) {
+                if (UtilsNew.isNotEmptyArray(panelGene)) {
                     if (UtilsNew.isNotEmpty(searchBy)) {
                         NotificationUtils.showNotify("Cannot apply '" + searchBy + "' and 'gene panel' filters. "
                             + "Please, choose one or the other.", "WARNING");
@@ -933,7 +933,7 @@
             getDefaultFilters() {
                 return {
                     title: "Genome Browser Filters",
-                    active: true,
+                    active: false,
                     filters: [{
                         title: "Search by Region",
                         example: "e.g. 3:55555-666666",
