@@ -834,6 +834,8 @@ class TrackListPanel { //parent is a DOM div element
         delete this.tracksIndex[track.id];
         this._updateTracksIndex();
 
+        track.rendered = false;
+
         // delete listeners
 
         track.off("track:close");

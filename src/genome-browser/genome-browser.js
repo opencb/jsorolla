@@ -938,7 +938,8 @@ class GenomeBrowser {
         return this.trackListPanel.containsTrack(track);
     }
     containsTrackById(trackId) {
-        return this.getTrackById(trackId) !== null;
+        var track = this.getTrackById(trackId);
+        return typeof track !== "undefined" && track != null;
     }
     deleteTracksCache(){
         this.overviewTrackListPanel.deleteTracksCache();

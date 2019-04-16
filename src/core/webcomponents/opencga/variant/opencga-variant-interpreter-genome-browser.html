@@ -18,139 +18,142 @@
 
 <dom-module id="opencga-variant-interpreter-genome-browser">
     <template>
-        <style include="jso-styles">
-            .form-section-title {
-                padding: 5px 0px;
-                width: 80%;
-                border-bottom-width: 1px;
-                border-bottom-style: solid;
-                border-bottom-color: #ddd
-            }
+        <genome-browser id="{{prefix}}gb" opencga-session={{opencgaSession}} cellbase-client="{{cellbaseClient}}"
+                        region="{{genomeBrowserRegion}}" tracks="{{tracks}}" settings="{{settings}}" active="{{active}}">
+        </genome-browser>
+<!--        <style include="jso-styles">-->
+<!--            .form-section-title {-->
+<!--                padding: 5px 0px;-->
+<!--                width: 80%;-->
+<!--                border-bottom-width: 1px;-->
+<!--                border-bottom-style: solid;-->
+<!--                border-bottom-color: #ddd-->
+<!--            }-->
 
-            .jso-label-title {
-                width: 15em !important;
-            }
-        </style>
+<!--            .jso-label-title {-->
+<!--                width: 15em !important;-->
+<!--            }-->
+<!--        </style>-->
 
-        <template is="dom-if" if="{{_disabled}}">
-            <h4 style="color: #940303; margin: 20px 0px; text-align: center">
-                No files available.
-            </h4>
-        </template>
+<!--        <template is="dom-if" if="{{_disabled}}">-->
+<!--            <h4 style="color: #940303; margin: 20px 0px; text-align: center">-->
+<!--                No files available.-->
+<!--            </h4>-->
+<!--        </template>-->
 
-        <template is="dom-if" if="{{!_disabled}}">
+<!--        <template is="dom-if" if="{{!_disabled}}">-->
 
-            <template is="dom-if" if="{{_config.showTitle}}">
-                <div class="panel" style="margin-bottom: 15px">
-                    <h3 style="margin: 10px 10px 10px 15px">
-                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;{{_config.title}}
-                    </h3>
-                </div>
-            </template>
+<!--            <template is="dom-if" if="{{_config.showTitle}}">-->
+<!--                <div class="panel" style="margin-bottom: 15px">-->
+<!--                    <h3 style="margin: 10px 10px 10px 15px">-->
+<!--                        <i class="fa fa-list" aria-hidden="true"></i> &nbsp;{{_config.title}}-->
+<!--                    </h3>-->
+<!--                </div>-->
+<!--            </template>-->
 
-            <div class="row " style="padding: 0px 10px; margin: 10px 0px;">
-                <div class="col-md-12">
+<!--            <div class="row " style="padding: 0px 10px; margin: 10px 0px;">-->
+<!--                <div class="col-md-12">-->
 
-                    <div style="display: block; cursor:pointer;" on-click="toggleCollapsedFilter"
-                         data-toggle="collapse" href$="#{{prefix}}collapsibleFilter">
-                        <h3 class="form-section-title">
-                            <template is="dom-if" if="{{_filtersCollapsed}}">
-                                <i class="fa fa-caret-right" aria-hidden="true" style="padding-right: 5px"></i>
-                            </template>
-                            <template is="dom-if" if="{{!_filtersCollapsed}}">
-                                <i class="fa fa-caret-down" aria-hidden="true" style="padding-right: 5px"></i>
-                            </template>
-                            Genome Browser Filters</h3>
-                    </div>
+<!--                    <div style="display: block; cursor:pointer;" on-click="toggleCollapsedFilter"-->
+<!--                         data-toggle="collapse" href$="#{{prefix}}collapsibleFilter">-->
+<!--                        <h3 class="form-section-title">-->
+<!--                            <template is="dom-if" if="{{_filtersCollapsed}}">-->
+<!--                                <i class="fa fa-caret-right" aria-hidden="true" style="padding-right: 5px"></i>-->
+<!--                            </template>-->
+<!--                            <template is="dom-if" if="{{!_filtersCollapsed}}">-->
+<!--                                <i class="fa fa-caret-down" aria-hidden="true" style="padding-right: 5px"></i>-->
+<!--                            </template>-->
+<!--                            Genome Browser Filters</h3>-->
+<!--                    </div>-->
 
-                    <div id="{{prefix}}collapsibleFilter" class="form-horizontal collapse in">
+<!--                    <div id="{{prefix}}collapsibleFilter" class="form-horizontal collapse in">-->
 
-                        <div class="form-group">
-                            <label class="control-label col-md-1 jso-label-title">Search by Region</label>
-                            <div class="input-group col-md-3" style="padding-left: 15px;padding-right: 15px">
-                                <input id="{{prefix}}RegionInputText" type="text" class="form-control" placeholder="e.g. 3:55555-666666">
-                                <span class="input-group-btn">
-                                <button class="btn btn-default" type="button" on-click="onEraserClicked">
-                                    <i class="fa fa-eraser" aria-hidden="true"></i>
-                                </button>
-                            </span>
-                            </div>
-                        </div>
+<!--                        <div class="form-group">-->
+<!--                            <label class="control-label col-md-1 jso-label-title">Search by Region</label>-->
+<!--                            <div class="input-group col-md-3" style="padding-left: 15px;padding-right: 15px">-->
+<!--                                <input id="{{prefix}}RegionInputText" type="text" class="form-control" placeholder="e.g. 3:55555-666666">-->
+<!--                                <span class="input-group-btn">-->
+<!--                                <button class="btn btn-default" type="button" on-click="onEraserClicked">-->
+<!--                                    <i class="fa fa-eraser" aria-hidden="true"></i>-->
+<!--                                </button>-->
+<!--                            </span>-->
+<!--                            </div>-->
+<!--                        </div>-->
 
-                        <div class="form-group">
-                            <label class="control-label col-md-1 jso-label-title">Search by Gene</label>
-                            <div class="col-md-3">
-                                <cellbase-gene-filter cellbase-client="{{cellbaseClient}}"
-                                                      erase="{{eraseSearchGene}}"
-                                                      on-genechange="onInputGeneChange">
-                                </cellbase-gene-filter>
-                            </div>
-                        </div>
+<!--                        <div class="form-group">-->
+<!--                            <label class="control-label col-md-1 jso-label-title">Search by Gene</label>-->
+<!--                            <div class="col-md-3">-->
+<!--                                <cellbase-gene-filter cellbase-client="{{cellbaseClient}}"-->
+<!--                                                      erase="{{eraseSearchGene}}"-->
+<!--                                                      on-genechange="onInputGeneChange">-->
+<!--                                </cellbase-gene-filter>-->
+<!--                            </div>-->
+<!--                        </div>-->
 
-                        <div class="form-group">
-                            <label class="control-label col-md-1 jso-label-title">Select a Gene from Panel</label>
-                            <div class="col-md-3">
-                                <select class="selectpicker" id="{{prefix}}-geneSelect" data-live-search="true" data-max-options="1"
-                                        on-dom-change="renderDomRepeat" multiple>
-                                    <optgroup label="Selected Genes">
-                                        <template is="dom-repeat" items="{{geneIds}}" as="geneId">
-                                            <option>{{geneId}}</option>
-                                        </template>
-                                    </optgroup>
+<!--                        <div class="form-group">-->
+<!--                            <label class="control-label col-md-1 jso-label-title">Select a Gene from Panel</label>-->
+<!--                            <div class="col-md-3">-->
+<!--                                <select class="selectpicker" id="{{prefix}}-geneSelect" data-live-search="true" data-max-options="1"-->
+<!--                                        on-dom-change="renderDomRepeat" multiple>-->
+<!--                                    <optgroup label="Selected Genes">-->
+<!--                                        <template is="dom-repeat" items="{{geneIds}}" as="geneId">-->
+<!--                                            <option>{{geneId}}</option>-->
+<!--                                        </template>-->
+<!--                                    </optgroup>-->
 
-                                    <template is="dom-repeat" items="{{_genePanels}}" as="panel">
-                                        <optgroup label="{{panel.name}}">
-                                            <template is="dom-repeat" items="{{panel.genes}}" as="gene">
-                                                <option>{{gene.name}}</option>
-                                            </template>
-                                        </optgroup>
-                                    </template>
-                                </select>
-                            </div>
-                        </div>
+<!--                                    <template is="dom-repeat" items="{{_genePanels}}" as="panel">-->
+<!--                                        <optgroup label="{{panel.name}}">-->
+<!--                                            <template is="dom-repeat" items="{{panel.genes}}" as="gene">-->
+<!--                                                <option>{{gene.name}}</option>-->
+<!--                                            </template>-->
+<!--                                        </optgroup>-->
+<!--                                    </template>-->
+<!--                                </select>-->
+<!--                            </div>-->
+<!--                        </div>-->
 
-                        <div class="form-group">
-                            <label class="control-label col-md-1 jso-label-title">Show Alignments (BAM)</label>
-                            <div class="col-md-3">
-                                <input type="checkbox">
-                            </div>
-                        </div>
+<!--                        <div class="form-group">-->
+<!--                            <label class="control-label col-md-1 jso-label-title">Show Alignments (BAM)</label>-->
+<!--                            <div class="col-md-3">-->
+<!--                                <input type="checkbox">-->
+<!--                            </div>-->
+<!--                        </div>-->
 
-                        <div class="form-group">
-                            <div class="col-md-offset-3 col-md-9">
-                                <button type="submit" class="btn btn-primary" on-click="onClear">Clear</button>
-                                <button type="submit" class="btn btn-primary" on-click="showSelectionInGenomeBrowser">Render</button>
-                            </div>
-                        </div>
-                    </div>
+<!--                        <div class="form-group">-->
+<!--                            <div class="col-md-offset-3 col-md-9">-->
+<!--                                <button type="submit" class="btn btn-primary" on-click="onClear">Clear</button>-->
+<!--                                <button type="submit" class="btn btn-primary" on-click="showSelectionInGenomeBrowser">Render</button>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
 
-                    <!--<div class="col-md-6" style="margin-top: 15px;">-->
-                    <!--<button id="{{prefix}}RunGenomeBrowser" type="button" class="btn btn-primary"-->
-                    <!--on-click="showSelectionInGenomeBrowser" style="float: right">-->
-                    <!--Show Genome Browser-->
-                    <!--</button>-->
-                    <!--</div>-->
-                </div>
+<!--                    &lt;!&ndash;<div class="col-md-6" style="margin-top: 15px;">&ndash;&gt;-->
+<!--                    &lt;!&ndash;<button id="{{prefix}}RunGenomeBrowser" type="button" class="btn btn-primary"&ndash;&gt;-->
+<!--                    &lt;!&ndash;on-click="showSelectionInGenomeBrowser" style="float: right">&ndash;&gt;-->
+<!--                    &lt;!&ndash;Show Genome Browser&ndash;&gt;-->
+<!--                    &lt;!&ndash;</button>&ndash;&gt;-->
+<!--                    &lt;!&ndash;</div>&ndash;&gt;-->
+<!--                </div>-->
 
 
-                <!-- Genome browser -->
-                <div class="col-md-12">
-                    <h3 class="form-section-title">Genome Browser</h3>
+<!--                &lt;!&ndash; Genome browser &ndash;&gt;-->
+<!--                <div class="col-md-12">-->
+<!--                    <h3 class="form-section-title">Genome Browser</h3>-->
 
-                    <!--<div style$="padding: 20px 0px;display: {{displayGenomeBrowserMessage}};">-->
-                    <!--<div style="padding: 20px">-->
-                    <!--<span style="font-weight: bolder">Please select some data above</span>-->
-                    <!--</div>-->
-                    <!--</div>-->
+<!--                    &lt;!&ndash;<div style$="padding: 20px 0px;display: {{displayGenomeBrowserMessage}};">&ndash;&gt;-->
+<!--                    &lt;!&ndash;<div style="padding: 20px">&ndash;&gt;-->
+<!--                    &lt;!&ndash;<span style="font-weight: bolder">Please select some data above</span>&ndash;&gt;-->
+<!--                    &lt;!&ndash;</div>&ndash;&gt;-->
+<!--                    &lt;!&ndash;</div>&ndash;&gt;-->
 
-                    <div style="padding: 20px">
-                        <genome-browser id="{{prefix}}gb" opencga-session={{opencgaSession}} cellbase-client="{{cellbaseClient}}"
-                                        region="{{genomeBrowserRegion}}" tracks="{{tracks}}" settings="{{settings}}">
-                        </genome-browser>
-                    </div>
-                </div>
-            </div>
-        </template>
+<!--                    <div style="padding: 20px">-->
+<!--                        <genome-browser id="{{prefix}}gb" opencga-session={{opencgaSession}} cellbase-client="{{cellbaseClient}}"-->
+<!--                                        region="{{genomeBrowserRegion}}" tracks="{{tracks}}" settings="{{settings}}" active="{{active}}">-->
+<!--                        </genome-browser>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </template>-->
 
     </template>
 
@@ -352,75 +355,61 @@
                     roleToProband = clinicalAnalysis.roleToProband;
                 }
 
+                let samplesToIndividual = {};
+                for (let i = 0; i < clinicalAnalysis.family.members.length; i++) {
+                    let member = clinicalAnalysis.family.members[i];
+                    if (UtilsNew.isNotEmptyArray(member.samples)) {
+                        for (let j = 0; j < member.samples.length; j++) {
+                            samplesToIndividual[member.samples[j].id] = member.id;
+                        }
+                    }
+                }
+
                 let samples = Object.keys(clinicalAnalysis.files);
                 let variants = {};
                 let alignments = {};
                 let coverage = {};
                 for (let i = 0; i < samples.length; i++) {
                     let files = clinicalAnalysis.files[samples[i]];
-                    let role = UtilsNew.isNotEmpty(roleToProband[samples[i]]) ? roleToProband[samples[i]] : samples[i];
+                    let role = roleToProband[samplesToIndividual[samples[i]]];
                     let display = role === samples[i] ? role : `${samples[i]} (${role})`;
                     for (let j = 0; j < files.length; j++) {
                         files[j].display = display;
                         if (files[j].bioformat === "VARIANT") {
-                            variants[role] = files[j];
-                            variants[role]['sample'] = samples[i];  
+                            variants[samples[i]] = files[j];
                         } else if (files[j].bioformat === "ALIGNMENT") {
-                            alignments[role] = files[j];
+                            alignments[samples[i]] = files[j];
                         } else if (files[j].bioformat === "COVERAGE") {
-                            coverage[role] = files[j];
+                            coverage[samples[i]] = files[j];
                         }
                     }
                 }
 
                 // Merge alignment and coverage files
-                for (let role in alignments) {
-                    if (UtilsNew.isNotUndefinedOrNull(coverage[role])) {
-                        alignments[role]['bigwig'] = coverage[role];
+                for (let sampleId in alignments) {
+                    if (UtilsNew.isNotUndefinedOrNull(coverage[sampleId])) {
+                        alignments[sampleId]['bigwig'] = coverage[sampleId];
                     }
                 }
 
                 let tracks = this._config.tracks.slice();
-                // let alignmentTracks = [];
-                // let variantTracks = [];
-                let roles = ["PROBAND", "FATHER", "MOTHER", "OTHER"];
-                for (let i = 0; i < roles.length; i++) {
-                    if (roles[i] !== "OTHER") {
-                        let alignment = alignments[roles[i]];
-                        if (UtilsNew.isNotUndefinedOrNull(alignment)) {
-                            // Remove role from alignments map
-                            delete alignments[roles[i]];
-
-                            tracks.push(this._generateAlignmentTrack(alignment));
-                        }
-                        let variant = variants[roles[i]];
-                        if (UtilsNew.isNotUndefinedOrNull(variant)) {
-                            // Remove role from variants map
-                            delete variants[roles[i]];
-
-                            tracks.push(this._generateVariantTrack(variant));
-                        }
-                    } else {
-                        // Add the rest of the tracks
-                        let _this = this;
-                        Object.entries(alignments).forEach(
-                            ([key, value]) => tracks.push(_this._generateAlignmentTrack(value))
-                        );
-                        Object.entries(variants).forEach(
-                            ([key, value]) => tracks.push(_this._generateVariantTrack(value))
-                        );
-                    }
+                // Add the rest of the tracks
+                let _this = this;
+                Object.entries(alignments).forEach(
+                    ([key, value]) => tracks.push(_this._generateAlignmentTrack(value))
+                );
+                if (clinicalAnalysis.type !== "FAMILY") {
+                    Object.entries(variants).forEach(
+                        ([key, value]) => tracks.push(_this._generateVariantTrack(value))
+                    );
+                } else {
+                    // We only generate one multi sample variant track
+                    tracks.push(this._generateMultiSampleVariantTrack(variants));
                 }
 
                 this.tracks = tracks;
 
                 this._disabled = tracks.length === this._config.tracks.length;
-                // tracks = tracks.concat(alignment)
-
-                // this.tracks = Object.assign(this.tracks, {
-                //     'alignment': alignmentTracks,
-                //     'variant': variantTracks
-                // });
             }
 
             _generateTrack(file) {
@@ -436,9 +425,10 @@
                 };
             }
 
-            _generateAlignmentTrack(file) {
+            _generateAlignmentTrack(file, role) {
                 let track = {
                     type: "alignment",
+                    // id: `alignment-${file.id}`,
                     config: {
                         source: 'opencga',
                         data: {
@@ -459,6 +449,7 @@
             _generateVariantTrack(file) {
                 return {
                     type: "variant",
+                    // id: `variant-${file.sample}`,
                     config: {
                         source: 'opencga',
                         data: {
@@ -471,95 +462,19 @@
                 };
             }
 
-            // showSampleBrowser(e) {
-            //     e.preventDefault();
-            //
-            //     this.sampleBrowserModal = UtilsNew.isUndefined(this.sampleBrowserModal) ? true : !this.sampleBrowserModal;
-            //     $("#" + this.prefix + "SampleBrowser").modal('show');
-            // }
-
-            // samplesObserver() {
-            //     for (let sample of this.samples) {
-            //         this._addSample(sample.name);
-            //     }
-            // }
-
-            // addSample(e) {
-            //     let sample = PolymerUtils.getElementById(this.prefix  + "AutocompleteSearchInput").value;
-            //     this._addSample(sample);
-            // }
-
-            // _addSample(sample) {
-            //     for (let i in this._availableFiles) {
-            //         let existingSample = this._availableFiles[i].name;
-            //         if (existingSample === sample) {
-            //             // The sample is already in the shown list
-            //             return;
-            //         }
-            //     }
-            //
-            //     let queryParams = {
-            //         study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
-            //         sample: sample,
-            //         format: "VCF,BAM",
-            //         include: "path,name,format,bioformat",
-            //     };
-            //
-            //     let _this = this;
-            //     this.opencgaSession.opencgaClient.files().search(queryParams)
-            //         .then(values => {
-            //             if (values.response[0].result !== undefined && values.response[0].result.length > 0) {
-            //                 _this.push("_availableFiles", {
-            //                     name: sample,
-            //                     files: values.response[0].result
-            //                 });
-            //             }
-            //         })
-            //         .catch(function (response) {
-            //             _this.showErrorAlert(response.error);
-            //         });
-            // }
-
-            // deleteSample(e) {
-            //     let sample = e.currentTarget.dataSample;
-            //
-            //     // We make a copy of the list of available files excluding the selected sample
-            //     let availableFiles = [];
-            //     for (let i in this._availableFiles) {
-            //         let item = this._availableFiles[i];
-            //         if (item.name !== sample) {
-            //             availableFiles.push(item);
-            //         }
-            //     }
-            //
-            //     this._availableFiles = availableFiles;
-            // }
-
-//             _autocompleteSampleSearch(e) {
-//                 // Only gene symbols are going to be searched and not Ensembl IDs
-//                 let sampleNamePrefix = PolymerUtils.getElementById(this.prefix  + "AutocompleteSearchInput").value;
-//                 if (UtilsNew.isNotUndefinedOrNull(sampleNamePrefix) && sampleNamePrefix.length >= 4) {
-//                     let _this = this;
-//                     this.opencgaSession.opencgaClient.samples()
-//                         .search({
-//                             study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
-//                             name: "~^" + sampleNamePrefix,
-//                             include: "id,name",
-//                             includeIndividual: false,
-//                             limit: 20}, {})
-//                         .then(function (response) {
-// //                            _this.autocompleteSampleData = response.response[0].result;
-//                             let options = "";
-//                             for (let sample of response.response[0].result) {
-//                                 let sampleStr = JSON.stringify(sample);
-//                                 options += `<option id="${_this.prefix}Sample${sample.name}" value="${sample.name}" data-sample='` + sampleStr + "'>";
-//                             }
-//                             PolymerUtils.innerHTML(_this.prefix + "AutocompleteSearchDataList", options);
-//                         });
-//                 }
-//             }
-
-
+            _generateMultiSampleVariantTrack(variantFiles) {
+                return {
+                    type: "variant",
+                    config: {
+                        source: 'opencga',
+                        data: {
+                            study: this.opencgaSession.study.fqn,
+                            samples: Object.keys(variantFiles),
+                            name: Object.keys(variantFiles).join(", ")
+                        }
+                    }
+                };
+            }
 
             getDefaultConfig() {
                 return {

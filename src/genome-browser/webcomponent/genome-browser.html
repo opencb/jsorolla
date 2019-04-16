@@ -1,6 +1,8 @@
 <dom-module id="genome-browser">
 
     <template>
+        <div id="{{prefix}}FilterMenu"></div>
+        <h3 class="form-section-title">Genome Browser</h3>
         <div id="{{prefix}}GenomeBrowser"></div>
     </template>
 
@@ -51,13 +53,6 @@
                             }, {
                                 type: "gene"
                             }
-                            // , {
-                            //     type: "variant",
-                            //     config: {}
-                            // }, {
-                            //     type: "alignment",
-                            //     config: {}
-                            // }
                         ],
                         observer: "init"
                     },
@@ -71,6 +66,9 @@
                         value: false,
                         observer: "_setActive"
                     },
+                    filter: {
+                        type: Object
+                    },
                     settings: {
                         type: Object
                     }
@@ -83,7 +81,7 @@
                  * 'search; is observed to ensure 'query' is in sync.
                  */
                 return [
-                    "propertyObserver(opencgaSession, cellbaseClient, tracks, active)"
+                    "propertyObserver(opencgaSession, cellbaseClient, tracks, filter, active)"
                 ];
             }
 
@@ -101,17 +99,26 @@
                 this.appendChild(dom);
             }
 
-            init() {
+            connectedCallback() {
+                super.connectedCallback();
             }
 
-            propertyObserver() {
+            init() {
+                this.lastFilter = undefined;
+            }
+
+            propertyObserver(opencgaSession, cellbaseClient, tracks, filter, active) {
                 if (typeof this.cellbaseClient === "undefined" || typeof this.opencgaSession === "undefined") {
                     return;
                 }
 
-                if (!this.active) {
+                if (!active) {
                     return;
                 }
+
+                let [myTracks, featureTracks] = this._getConfiguredTracks(tracks);
+                this._addFilters(filter, featureTracks);
+                this.featureTracks = featureTracks;
 
                 if (typeof this.region === "undefined") {
                     this.region = new Region("13:32889611-32973805"); // BRCA2
@@ -155,39 +162,6 @@
                 let settings = Object.assign(defaultSettings, this.settings);
                 this.genomeBrowser = new GenomeBrowser(settings);
 
-                let _tracks = [];
-                for (let i = 0; i < this.tracks.length; i++) {
-                    let track = this.tracks[i];
-                    switch (track.type) {
-                        case 'sequence':
-                            _tracks.push(this._addSequenceTrack(track.config));
-                            break;
-                        case 'gene':
-                            _tracks.push(this._addGeneTrack(track.config));
-                            break;
-//                            case 'snp':
-                        case 'variant':
-                            _tracks.push(this._addVariantTrack(track.config));
-                            break;
-                        case 'alignment':
-                            // One track per file
-                            _tracks.push(this.getAlignmentTrack(track.config));
-                            // let alignmentTracks = this.addAlignmentTrack(track.config);
-                            // if (UtilsNew.isNotEmptyArray(alignmentTracks)) {
-                            //     for (let alignmentTrack of alignmentTracks) {
-                            //         _tracks.push(alignmentTrack);
-                            //     }
-                            // }
-                            break;
-                        case 'template':
-                            _tracks.push(this._addTemplateTrack(track.config));
-                            break;
-//                            default:
-//                                tracks.push(this.addGenericTrack(this.trackConfigs[this.tracks[i]]));
-//                                break;
-                    }
-                }
-
                 // Region Overview
                 let gene = new FeatureTrack({
                     minHistogramRegionSize: 20000000,
@@ -195,15 +169,483 @@
                     height: 120,
                     renderer: new FeatureRenderer(FEATURE_TYPES.gene),
                     dataAdapter: new CellBaseAdapter(this.cellbaseClient, "genomic", "region", "gene",
-                            {
-                                exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
-                            }, {
-                                chunkSize: 100000
-                            })
+                        {
+                            exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
+                        }, {
+                            chunkSize: 100000
+                        })
                 });
                 this.genomeBrowser.addOverviewTrack(gene);
-                this.genomeBrowser.addTrack(_tracks);
+                this.genomeBrowser.addTrack(myTracks);
                 this.genomeBrowser.draw();
+            }
+
+            _addFilters(filter, featureTracks) {
+                let myFilter = Object.assign(this.getDefaultFilters(), filter);
+
+                if (myFilter.active === false) {
+                    return;
+                }
+
+                let filterDiv = PolymerUtils.getElementById(this.prefix + "FilterMenu");
+                if (UtilsNew.isUndefinedOrNull(filterDiv)) {
+                    return;
+                }
+
+                // Clean anything the div might have
+                for (let i = 0; i < filterDiv.length; i++) {
+                    filterDiv[i].remove();
+                }
+
+                // Build collapsable panel
+                let rowDiv = document.createElement("div");
+                rowDiv.classList.add("row");
+                rowDiv.style.padding = "0px 10px";
+                rowDiv.style.maring = "10px 0px";
+
+                let colDiv = document.createElement("div");
+                colDiv.classList.add("col-md-12");
+                rowDiv.appendChild(colDiv);
+
+                colDiv.appendChild($(`<div style="display: block; cursor:pointer;" on-click="toggleCollapsedFilter"
+                                         data-toggle="collapse" href$="#${this.prefix}collapsibleFilter">
+                                        <h3 class="form-section-title">${myFilter.title}</h3>
+                                    </div>`)[0]);
+
+                let elements = document.createElement("div");
+                elements.id = `${this.prefix}collapsibleFilter`;
+                elements.classList.add("form-horizontal", "collapse", "in");
+                colDiv.appendChild(elements);
+
+                for (let i = 0; i < myFilter.filters.length; i++) {
+                    switch (myFilter.filters[i].id) {
+                        case "gene":
+                            elements.appendChild(this._getGeneHtml(myFilter.filters[i]));
+                            // html += this._getGeneHtml(myFilter.filters[i]);
+                            break;
+                        case "region":
+                            elements.appendChild(this._getRegionHtml(myFilter.filters[i]));
+                            // html += this._getRegionHtml(myFilter.filters[i]);
+                            break;
+                        case "panel":
+                            let panelHtml = this._getPanelHtml(myFilter.filters[i], elements);
+                            if (UtilsNew.isNotUndefinedOrNull(panelHtml)) {
+                                elements.appendChild(this._getPanelHtml(myFilter.filters[i], elements));
+                            }
+                            break;
+                        case "alignment":
+                            elements.appendChild(this._getTrackHtml(myFilter.filters[i], featureTracks, AlignmentTrack));
+                            break;
+                        case "variant":
+                            elements.appendChild(this._getTrackHtml(myFilter.filters[i], featureTracks, VariantTrack));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                // Add buttons
+                let formGroupDiv = document.createElement("div");
+                formGroupDiv.classList.add("form-group");
+
+                let colButtonDiv = document.createElement("div");
+                colButtonDiv.classList.add("col-md-offset-3", "col-md-9");
+                formGroupDiv.appendChild(colButtonDiv);
+
+                let clearButton = document.createElement("button");
+                clearButton.classList.add("btn", "btn-primary");
+                clearButton.type = "submit";
+                clearButton.addEventListener("click", this.clear.bind(this));
+                clearButton.innerHTML = "Clear";
+                colButtonDiv.appendChild(clearButton);
+
+                let submitButton = document.createElement("button");
+                submitButton.classList.add("btn", "btn-primary");
+                submitButton.type = "submit";
+                submitButton.addEventListener("click", this.showSelectionInGenomeBrowser.bind(this));
+                submitButton.innerHTML = "Render";
+                colButtonDiv.appendChild(submitButton);
+
+                elements.appendChild(formGroupDiv);
+                // elements.appendChild($(`<div class="form-group">
+                //             <div class="col-md-offset-3 col-md-9">
+                //                 <button type="submit" class="btn btn-primary" on-click="onClear">Clear</button>
+                //                 <button type="submit" class="btn btn-primary" on-click="showSelectionInGenomeBrowser">Render</button>
+                //             </div>
+                //         </div>`)[0]);
+
+                filterDiv.appendChild(rowDiv);
+            }
+
+            // filterObserver(filter, tracks) {
+            //     let myFilter = Object.assign(this.getDefaultFilters(), filter);
+            //
+            //     if (myFilter.active === false) {
+            //         return;
+            //     }
+            //
+            //     let filterDiv = PolymerUtils.getElementById(this.prefix + "FilterMenu");
+            //     if (UtilsNew.isUndefinedOrNull(filterDiv)) {
+            //         return;
+            //     }
+            //
+            //     // Clean anything the div might have
+            //     for (let i = 0; i < filterDiv.length; i++) {
+            //         filterDiv[i].remove();
+            //     }
+            //
+            //     // return {
+            //     //     title: "Genome Browser Filters",
+            //     //     active: true,
+            //     //     filters: [{
+            //     //         title: "Search by Region",
+            //     //         example: "e.g. 3:55555-666666",
+            //     //         id: "region"
+            //     //     }, {
+            //     //         title: "Search by Gene",
+            //     //         example: "Search for Gene Symbols",
+            //     //         id: "gene"
+            //     //     }]
+            //     // }
+            //
+            //     // Build collapsable panel
+            //     let rowDiv = document.createElement("div");
+            //     rowDiv.classList.add("row");
+            //     rowDiv.style.padding = "0px 10px";
+            //     rowDiv.style.maring = "10px 0px";
+            //
+            //     let colDiv = document.createElement("div");
+            //     colDiv.classList.add("col-md-12");
+            //     rowDiv.appendChild(colDiv);
+            //
+            //     colDiv.appendChild($(`<div style="display: block; cursor:pointer;" on-click="toggleCollapsedFilter"
+            //                              data-toggle="collapse" href$="#${this.prefix}collapsibleFilter">
+            //                             <h3 class="form-section-title">${myFilter.title}</h3>
+            //                         </div>`)[0]);
+            //
+            //     let elements = document.createElement("div");
+            //     elements.id = `${this.prefix}collapsibleFilter`;
+            //     elements.classList.add("form-horizontal", "collapse", "in");
+            //     colDiv.appendChild(elements);
+            //
+            //     for (let i = 0; i < myFilter.filters.length; i++) {
+            //         switch (myFilter.filters[i].id) {
+            //             case "gene":
+            //                 elements.appendChild(this._getGeneHtml(myFilter.filters[i]));
+            //                 // html += this._getGeneHtml(myFilter.filters[i]);
+            //                 break;
+            //             case "region":
+            //                 elements.appendChild(this._getRegionHtml(myFilter.filters[i]));
+            //                 // html += this._getRegionHtml(myFilter.filters[i]);
+            //                 break;
+            //             case "panel":
+            //                 let panelHtml = this._getPanelHtml(myFilter.filters[i], elements);
+            //                 if (UtilsNew.isNotUndefinedOrNull(panelHtml)) {
+            //                     elements.appendChild(this._getPanelHtml(myFilter.filters[i], elements));
+            //                 }
+            //                 break;
+            //             case "alignment":
+            //                 elements.appendChild(this._getTrackHtml(myFilter.filters[i], "alignment"));
+            //                 break;
+            //             case "variant":
+            //                 elements.appendChild(this._getTrackHtml(myFilter.filters[i], "variant"));
+            //                 break;
+            //             default:
+            //                 break;
+            //         }
+            //     }
+            //
+            //     // Add buttons
+            //     let formGroupDiv = document.createElement("div");
+            //     formGroupDiv.classList.add("form-group");
+            //
+            //     let colButtonDiv = document.createElement("div");
+            //     colButtonDiv.classList.add("col-md-offset-3", "col-md-9");
+            //     formGroupDiv.appendChild(colButtonDiv);
+            //
+            //     let clearButton = document.createElement("button");
+            //     clearButton.classList.add("btn", "btn-primary");
+            //     clearButton.type = "submit";
+            //     clearButton.addEventListener("click", this.clear.bind(this));
+            //     clearButton.innerHTML = "Clear";
+            //     colButtonDiv.appendChild(clearButton);
+            //
+            //     let submitButton = document.createElement("button");
+            //     submitButton.classList.add("btn", "btn-primary");
+            //     submitButton.type = "submit";
+            //     submitButton.addEventListener("click", this.showSelectionInGenomeBrowser.bind(this));
+            //     submitButton.innerHTML = "Render";
+            //     colButtonDiv.appendChild(submitButton);
+            //
+            //     elements.appendChild(formGroupDiv);
+            //     // elements.appendChild($(`<div class="form-group">
+            //     //             <div class="col-md-offset-3 col-md-9">
+            //     //                 <button type="submit" class="btn btn-primary" on-click="onClear">Clear</button>
+            //     //                 <button type="submit" class="btn btn-primary" on-click="showSelectionInGenomeBrowser">Render</button>
+            //     //             </div>
+            //     //         </div>`)[0]);
+            //
+            //     filterDiv.appendChild(rowDiv);
+            // }
+
+            _getTrackHtml(filter, featureTracks, trackInstanceClass) {
+                if (UtilsNew.isEmptyArray(featureTracks)) {
+                    console.log("WARNING: List of tracks is empty. Cannot display track selector.");
+                    return;
+                }
+                let tracks = [];
+                for (let i = 0; i < featureTracks.length; i++) {
+                    if (featureTracks[i] instanceof trackInstanceClass) {
+                        tracks.push({
+                            id: featureTracks[i]['id'],
+                            title: featureTracks[i]['title']
+                        });
+                    }
+                }
+
+                let div = document.createElement("div");
+                div.classList.add("form-group");
+                div.appendChild($(`<label class="control-label col-md-1 jso-label-title">${filter.title}</label>`)[0]);
+
+                let innerDiv = document.createElement("div");
+                innerDiv.classList.add("col-md-3", "form-check");
+                div.appendChild(innerDiv);
+
+                for (let i = 0; i < tracks.length; i++) {
+                    if (innerDiv.childElementCount > 0) {
+                        innerDiv.appendChild(document.createElement("br"));
+                    }
+
+                    let checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.classList.add("form-check-input", `${this.prefix}-checkbox`);
+                    checkbox.id = `${tracks[i]['id']}`;
+                    checkbox.setAttribute("data-track", tracks[i]['id']);
+
+                    let label = document.createElement("label");
+                    label.classList.add("form-check-label");
+                    label.setAttribute("for", `${tracks[i]['id']}`);
+                    label.innerText = tracks[i]['title'];
+
+                    innerDiv.appendChild(checkbox);
+                    innerDiv.appendChild(label);
+                }
+
+                return div;
+            }
+
+            _getRegionHtml(filter) {
+                return $(`<div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">${filter.title}</label>
+                            <div class="input-group col-md-3" style="padding-left: 15px;padding-right: 15px">
+                                <input id="${this.prefix}RegionInputText" type="text" class="form-control" placeholder="${filter.example}">
+                                <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" on-click="onEraserClicked">
+                                    <i class="fa fa-eraser" aria-hidden="true"></i>
+                                </button>
+                            </span>
+                            </div>
+                        </div>`)[0];
+            }
+
+            _getGeneHtml(filter) {
+                let cellbase = document.createElement("cellbase-gene-filter");
+                cellbase.cellbaseClient = this.cellbaseClient;
+                cellbase.id = `${this.prefix}-geneFilter`;
+                cellbase.erase = this.eraseSearchGene;
+                // cellbase.addEventListener("genechange", this.onInputGeneChange.bind(this));
+
+                let div = document.createElement("div");
+                div.classList.add("form-group");
+                div.appendChild($(`<label class="control-label col-md-1 jso-label-title">${filter.title}</label>`)[0]);
+
+                let innerDiv = document.createElement("div");
+                innerDiv.classList.add("col-md-3");
+
+                innerDiv.appendChild(cellbase);
+                div.appendChild(innerDiv);
+
+                return div;
+            }
+
+            _getPanelHtml(filter, parentDiv) {
+                if (UtilsNew.isNotEmptyArray(this._genePanels)) {
+                    // Return html
+                    let html = `<div class="form-group">
+                            <label class="control-label col-md-1 jso-label-title">${filter.title}</label>
+                            <div class="col-md-3">
+                                <select class="selectpicker" id="${this.prefix}-geneSelect" data-live-search="true" data-max-options="1"
+                                        on-dom-change="renderDomRepeat" multiple>`;
+                    for (let i = 0; i < this._genePanels.length; i++) {
+                        html += `<optgroup label="${this._genePanels[i].name}">`;
+                        for (let j = 0; j < this._genePanels[i].genes.length; j++) {
+                            html += `<option>${this._genePanels[i].genes[j].name}</option>`;
+                        }
+                        html += `</optgroup>`;
+                    }
+                    html += `</select></div></div>`;
+                    return $(html)[0];
+                } else {
+                    let lastChild = parentDiv.lastChild;
+
+                    // We first need to fetch the panel information
+                    if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession)) {
+                        let _this = this;
+                        if (UtilsNew.isNotEmptyArray(filter.values)) {
+                            this.opencgaSession.opencgaClient.panels().info(filter.values.join(","),
+                                {
+                                    study: _this.opencgaSession.study.fqn,
+                                    include: "id,name,genes"
+                                })
+                                .then(function (response) {
+                                    let _panels = [];
+                                    for (let panel of response.response) {
+                                        _panels.push(panel.result[0]);
+                                    }
+                                    _this._genePanels = _panels;
+
+                                    if (UtilsNew.isUndefinedOrNull(lastChild.nextSibling)) {
+                                        parentDiv.appendChild(_this._getPanelHtml(filter));
+                                    } else {
+                                        parentDiv.insertBefore(_this._getPanelHtml(filter), lastChild.nextSibling);
+                                    }
+
+                                    // Force the selectpicker to be rendered
+                                    $(`#${_this.prefix}-geneSelect`, parentDiv).selectpicker("refresh");
+                                })
+                                .catch((response) => {
+                                    console.error("An error occurred fetching panels: ", response)
+                                });
+                        } else {
+                            this._genePanels = [];
+                        }
+                    }
+
+                    return undefined;
+                }
+            }
+
+            clear() {
+                let geneFilter = document.getElementById(`${this.prefix}-geneFilter`);
+                if (UtilsNew.isNotUndefinedOrNull(geneFilter)) {
+                    geneFilter.clear();
+                }
+                PolymerUtils.setValue(`${this.prefix}RegionInputText`, "");
+                $(`#${this.prefix}-geneSelect`).selectpicker('deselectAll');
+            }
+
+            showSelectionInGenomeBrowser() {
+                let searchBy = undefined;
+                let search = undefined;
+
+                let geneFilter = document.getElementById(`${this.prefix}-geneFilter`);
+                if (UtilsNew.isNotUndefinedOrNull(geneFilter)) {
+                    let gene = geneFilter.gene;
+                    if (UtilsNew.isNotEmpty(gene)) {
+                        searchBy = "gene";
+                        search = gene;
+                    }
+                }
+
+                let regionFilter = document.getElementById(`${this.prefix}RegionInputText`);
+                if (UtilsNew.isNotUndefinedOrNull(regionFilter)) {
+                    let region = regionFilter.value;
+                    if (UtilsNew.isNotEmpty(region)) {
+                        if (UtilsNew.isNotEmpty(searchBy)) {
+                            NotificationUtils.showNotify("Cannot apply 'region' and 'gene' filters. Please, choose one or the other.", "WARNING");
+                            return;
+                        }
+                        search = region;
+                        searchBy = "region";
+                    }
+                }
+
+                let panelGene = $(`#${this.prefix}-geneSelect`).selectpicker('val');
+                if (UtilsNew.isNotEmpty(panelGene)) {
+                    if (UtilsNew.isNotEmpty(searchBy)) {
+                        NotificationUtils.showNotify("Cannot apply '" + searchBy + "' and 'gene panel' filters. "
+                            + "Please, choose one or the other.", "WARNING");
+                        return;
+                    }
+                    searchBy = "gene";
+                    search = panelGene[0];
+                }
+
+                if (UtilsNew.isNotEmpty(searchBy)) {
+                    if (searchBy === "gene") {
+                        let _this = this;
+                        this.cellbaseClient.getGeneClient(search, 'info', {exclude: "annotation"}, {})
+                            .then(function (response) {
+                                let gene = response.response[0].result[0];
+                                _this.genomeBrowser.setRegion(`${gene.chromosome}:${gene.start}-${gene.end}`);
+                            });
+                    } else {
+                        this.genomeBrowser.setRegion(search);
+                    }
+                }
+
+                this._addSelectedTracks();
+            }
+
+            // _addSelectedTracks(trackType) {
+            //     let checkedTracks = $(`.${this.prefix}-${trackType}-checkbox:checked`);
+            //     let checkedTrackIds = [];
+            //     for (let i = 0; i < checkedTracks.length; i++) {
+            //         checkedTrackIds.push(checkedTracks[i].dataset.track);
+            //     }
+            //
+            //     for (let i = 0; i < this.tracks.length; i++) {
+            //         if (this.tracks[i]['type'] === trackType && checkedTrackIds.indexOf(this.tracks[i]['config']['data']['name']) > -1) {
+            //             if (!this.genomeBrowser.containsTrackById(this.tracks[i]['config']['data']['name'])) {
+            //                 let track = undefined;
+            //                 if (trackType === "variant") {
+            //                     track = this._addVariantTrack(this.tracks[i]);
+            //                 } else if (trackType === "alignment") {
+            //                     track = this._addAlignmentTrack(this.tracks[i]);
+            //                 } else {
+            //                     console.log("ERROR: Track must be of type 'alignment' or 'variant'");
+            //                 }
+            //
+            //                 this.genomeBrowser.addTrack(track);
+            //             }
+            //         }
+            //     }
+            //
+            //     // Remove unchecked tracks
+            //     let uncheckedTracks = $(`.${this.prefix}-${trackType}-checkbox:not(:checked)`);
+            //     for (let i = 0; i < uncheckedTracks.length; i++) {
+            //         let trackId = uncheckedTracks[i].dataset.track;
+            //         let track = this.genomeBrowser.getTrackById(trackId);
+            //         if (UtilsNew.isNotUndefinedOrNull(track)) {
+            //             this.genomeBrowser.removeTrack(track);
+            //         }
+            //     }
+            // }
+
+            _addSelectedTracks() {
+                let checkedTracks = $(`.${this.prefix}-checkbox:checked`);
+                let checkedTrackIds = [];
+                for (let i = 0; i < checkedTracks.length; i++) {
+                    checkedTrackIds.push(checkedTracks[i].dataset.track);
+                }
+
+                for (let i = 0; i < this.featureTracks.length; i++) {
+                    if (checkedTrackIds.indexOf(this.featureTracks[i]['id']) > -1) {
+                        if (!this.genomeBrowser.containsTrackById(this.featureTracks[i]['id'])) {
+                            this.genomeBrowser.addTrack(this.featureTracks[i]);
+                        }
+                    }
+                }
+
+                // Remove unchecked tracks
+                let uncheckedTracks = $(`.${this.prefix}-checkbox:not(:checked)`);
+                for (let i = 0; i < uncheckedTracks.length; i++) {
+                    let trackId = uncheckedTracks[i].dataset.track;
+                    if (this.genomeBrowser.containsTrackById(trackId)) {
+                        let track = this.genomeBrowser.getTrackById(trackId);
+                        this.genomeBrowser.removeTrack(track);
+                    }
+                }
             }
 
             _addSequenceTrack(settings) {
@@ -235,20 +677,24 @@
                         }
                     }),
                     dataAdapter: new CellBaseAdapter(this.cellbaseClient, "genomic", "region", "gene",
-                            {
-                                exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
-                            }, {
-                                chunkSize: 100000
-                            })
+                        {
+                            exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
+                        }, {
+                            chunkSize: 100000
+                        })
                 };
                 mySettings = Object.assign(mySettings, settings);
                 return new GeneTrack(mySettings);
             }
 
             _addVariantTrack(settings) {
+                let title = "Variant";
+                if (UtilsNew.isNotUndefinedOrNull(settings.data.name)) {
+                    title = settings.data.name;
+                }
 //                console.log("Study credentials: " + this.project.alias + ":" + this.study.alias);
                 let mySettings = {
-                    title: "Variant",
+                    title: title,
                     closable: true,
                     minHistogramRegionSize: 20000000,
                     maxLabelRegionSize: 10000000,
@@ -282,7 +728,7 @@
             }
 
 
-            getAlignmentTrack(settings) {
+            _addAlignmentTrack(settings) {
                 let title = "Aligment";
                 if (UtilsNew.isNotUndefinedOrNull(settings.data.name)) {
                     title = settings.data.name;
@@ -343,7 +789,7 @@
                         // }
 
                         Object.assign(settings, mySettings);
-                        let track = _this.getAlignmentTrack(settings);
+                        let track = _this._addAlignmentTrack(settings);
                         resTracks.push(track);
 
                     });
@@ -355,7 +801,7 @@
                 switch (settings.type) {
                     case 'alignment':
                     default:
-                        return this.getAlignmentTrack(settings);
+                        return this._addAlignmentTrack(settings);
                 }
             }
 
@@ -432,6 +878,94 @@
                 if (active && typeof this.genomeBrowser === "undefined") {
                     this.init();
                 }
+            }
+
+            _getConfiguredTracks(tracks) {
+                let _tracks = [];
+                let featureTracks = [];
+
+                for (let i = 0; i < tracks.length; i++) {
+                    let track = tracks[i];
+                    switch (track.type) {
+                        case 'sequence':
+                            _tracks.push(this._addSequenceTrack(track.config));
+                            break;
+                        case 'gene':
+                            _tracks.push(this._addGeneTrack(track.config));
+                            break;
+                        case 'variant':
+                            // featureTracks[track.id] = this._addVariantTrack(track.config);
+                            featureTracks.push(this._addVariantTrack(track.config));
+                            break;
+                        case 'alignment':
+                            // featureTracks[track.id] = this._addAlignmentTrack(track.config);
+                            featureTracks.push(this._addAlignmentTrack(track.config));
+                            break;
+                        case 'template':
+                            _tracks.push(this._addTemplateTrack(track.config));
+                            break;
+//                            default:
+//                                tracks.push(this.addGenericTrack(this.trackConfigs[this.tracks[i]]));
+//                                break;
+                    }
+                }
+
+                // if (UtilsNew.isNotUndefinedOrNull(files)) {
+                //     for (let sample in files) {
+                //         let featureFiles = files[sample];
+                //         for (let j = 0; j < featureFiles.length; j++) {
+                //             featureFiles[j].display = display;
+                //             if (featureFiles[j].bioformat === "VARIANT") {
+                //                 variants[role] = featureFiles[j];
+                //                 variants[role]['sample'] = samples[i];
+                //             } else if (featureFiles[j].bioformat === "ALIGNMENT") {
+                //                 alignments[role] = featureFiles[j];
+                //             } else if (featureFiles[j].bioformat === "COVERAGE") {
+                //                 coverage[role] = featureFiles[j];
+                //             }
+                //         }
+                //     }
+                // }
+
+                return [_tracks, featureTracks];
+            }
+
+            getDefaultFilters() {
+                return {
+                    title: "Genome Browser Filters",
+                    active: true,
+                    filters: [{
+                        title: "Search by Region",
+                        example: "e.g. 3:55555-666666",
+                        id: "region"
+                    }, {
+                        title: "Search by Gene",
+                        example: "Search for Gene Symbols",
+                        id: "gene"
+                    }, {
+                        title: "Panel",
+                        id: "panel",
+                        values: ["Xeroderma_pigmentosum-Trichothiodystrophy_or_Cockayne_syndrome-PanelAppId-77", "White_matter_disorders_and_cerebral_calcification-narrow_panel-PanelAppId-476"]
+                    }, {
+                        title: "Show alignments (BAM)",
+                        id: "alignment"
+                    }, {
+                        title: "Show variants (VCF)",
+                        id: "variant"
+                    }]
+                }
+                /* Other allowed filters */
+                // filters: [{
+                //     title: "Select a Gene from a Panel",
+                //     id: "panel",
+                //     values: ["A", "B", "C"]
+                // }, {
+                //     title: "Show alignments (BAM)",
+                //     id: "alignment"
+                // }, {
+                //     title: "Show variants (VCF)",
+                //     id: "variant"
+                // }]
             }
 
         }
