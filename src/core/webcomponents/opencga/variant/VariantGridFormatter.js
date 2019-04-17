@@ -654,19 +654,19 @@ class VariantGridFormatter {
                                 <thead>
                                     <tr>
                                         <th rowspan="2">Gene</th>
-                                        <th rowspan="2">Ensembl Transcript</th>
-                                        <th rowspan="2">Biotype</th>
-                                        <th rowspan="2">Consequence Types</th>
+                                        <th rowspan="2">Transcript</th>
+                                        <th rowspan="2">Gencode</th>
+                                        <th rowspan="2">Consequence Type (SO Term)</th>
                                         <th rowspan="2">Panel</th>
                                         <th rowspan="2">Mode of Inheritance</th>
                                         <th rowspan="2">Role in Cancer</th>
                                         <th rowspan="2">Actionable</th>
-                                        <th rowspan="1" colspan="2" style="text-align: center">Classification</th>
-                                        <th rowspan="2">Tier</th>
+                                        <th rowspan="1" colspan="3" style="text-align: center">Classification</th>
                                         <th rowspan="2">Select</th>
                                     </tr>
                                     <tr>
                                         <th rowspan="1">ACMG</th>
+                                        <th rowspan="2">Tier</th>
                                         <th rowspan="1">Clinical Significance</th>
                                     </tr>
                                 </thead>
@@ -690,9 +690,15 @@ class VariantGridFormatter {
             });
 
             // FIXME Maybe this should happen in the server?
+            // let biotypeSet = new Set();
             let consequenceTypeSet = new Set();
-            if (UtilsNew.isNotUndefinedOrNull(variantGrid.query) && UtilsNew.isNotUndefinedOrNull(variantGrid.query.ct)) {
-                consequenceTypeSet = new Set(variantGrid.query.ct.split(","));
+            if (UtilsNew.isNotUndefinedOrNull(variantGrid.query)) {
+                // if (UtilsNew.isNotUndefinedOrNull(variantGrid.query.biotype)) {
+                //     biotypeSet = new Set(variantGrid.query.biotype.split(","));
+                // }
+                if (UtilsNew.isNotUndefinedOrNull(variantGrid.query.ct)) {
+                    consequenceTypeSet = new Set(variantGrid.query.ct.split(","));
+                }
             }
 
             for (let re of row.evidences) {
@@ -713,29 +719,60 @@ class VariantGridFormatter {
                 // Prepare data info for columns
                 let gene = "NA";
                 if (UtilsNew.isNotEmpty(re.genomicFeature.geneName)) {
-                    gene = `<a href="https://www.genenames.org/tools/search/#!/all?query=${re.genomicFeature.geneName}" target="_blank">
-                                ${re.genomicFeature.geneName}
-                            </a> (<a href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${re.genomicFeature.ensemblGeneId}" target="_blank">
+                    gene = `<div>
+                                <a href="https://www.genenames.org/tools/search/#!/all?query=${re.genomicFeature.geneName}" target="_blank">
+                                    ${re.genomicFeature.geneName}
+                                </a>
+                            </div>
+                            <div style="padding-top: 5px">
+                                <a href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${re.genomicFeature.ensemblGeneId}" target="_blank">
                                     ${re.genomicFeature.ensemblGeneId}
-                                  </a>)`;
+                                </a>
+                            </div>`;
                 }
 
+
+                
                 let transcriptId = "NA";
                 if (UtilsNew.isNotEmpty(re.genomicFeature.ensemblTranscriptId)) {
-                    transcriptId = `<a href="http://www.ensembl.org/Homo_sapiens/Transcript/Idhistory?t=${re.genomicFeature.ensemblTranscriptId}" target="_blank">
-                                        ${re.genomicFeature.ensemblTranscriptId}
-                                    </a>`;
+                    let biotype = "NA";
+                    if (UtilsNew.isNotUndefinedOrNull(row.annotation) && UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
+                        for (let ct of row.annotation.consequenceTypes) {
+                            if (ct.ensemblTranscriptId === re.genomicFeature.ensemblTranscriptId) {
+                                biotype = ct.biotype;
+                                break;
+                            }
+                        }
+                    }
+
+                    transcriptId = `<div>
+                                        <a href="http://www.ensembl.org/Homo_sapiens/Transcript/Idhistory?t=${re.genomicFeature.ensemblTranscriptId}" target="_blank">
+                                            ${re.genomicFeature.ensemblTranscriptId}
+                                        </a>
+                                    </div>
+                                    <div style="padding-top: 5px">
+                                        ${biotype}
+                                    </div>`;
                 }
 
-                let biotype = "NA";
-                if (UtilsNew.isNotUndefinedOrNull(row.annotation) && UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
+                let transcriptFlag = "";
+                let transcriptFlagChecked = false;
+                if (UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
                     for (let ct of row.annotation.consequenceTypes) {
-                        if (ct.ensemblTranscriptId === re.genomicFeature.ensemblTranscriptId) {
-                            biotype = ct.biotype;
+                        if (re.genomicFeature.ensemblTranscriptId === ct.ensemblTranscriptId) {
+                            if (ct.transcriptAnnotationFlags !== undefined && ct.transcriptAnnotationFlags.includes("basic")) {
+                                transcriptFlag = `<span data-toggle="tooltip" data-placement="bottom" title="Proband">
+                                                    <i class='fa fa-check' style='color: green'></i>
+                                                  </span>`;
+                                transcriptFlagChecked = true;
+                            } else {
+                                transcriptFlag = `<span><i class='fa fa-times' style='color: red'></i></span>`;
+                            }
                             break;
                         }
                     }
                 }
+                
 
                 let soArray = [];
                 if (UtilsNew.isNotEmptyArray(re.consequenceTypes)) {
@@ -776,11 +813,6 @@ class VariantGridFormatter {
                     acmg = re.classification.acmg.join(", ");
                 }
 
-                let clinicalSignificance = "-";
-                if (UtilsNew.isNotEmptyArray(re.classification.clinicalSignificance)) {
-                    clinicalSignificance = re.classification.clinicalSignificance;
-                }
-
                 let tier = "none";
                 let color = "black";
                 if (UtilsNew.isNotUndefinedOrNull(re.tier)) {
@@ -790,8 +822,35 @@ class VariantGridFormatter {
                     tier = `<span style="color: ${color}">${re.tier}</span>`;
                 }
 
+                let clinicalSignificance = "-";
+                if (UtilsNew.isNotEmptyArray(re.classification.clinicalSignificance)) {
+                    clinicalSignificance = re.classification.clinicalSignificance;
+                    switch (re.classification.clinicalSignificance) {
+                        case "PATHOGENIC_VARIANT":
+                            clinicalSignificance = "<span style='color: red'>Pathogenic</span>";
+                            break;
+                        case "LIKELY_PATHOGENIC_VARIANT":
+                            clinicalSignificance = "<span style='color: red'>Likely Pathogenic</span>";
+                            break;
+                        case "VARIANT_OF_UNKNOWN_CLINICAL_SIGNIFICANCE":
+                            clinicalSignificance = "<span style='color: darkorange'>VUS</span>";
+                            break;
+                        case "LINKELY_BENIGN_VARIANT":
+                            clinicalSignificance = "<span style='color: blue'>Likely Benign</span>";
+                            break;
+                        case "BENIGN_VARIANT":
+                            clinicalSignificance = "<span style='color: blue'>Benign</span>";
+                            break;
+                        case "UNKNOWN":
+                        case "NOT_ASSESSED":
+                        default:
+                            clinicalSignificance = "NA";
+                            break;
+                    }
+                }
+
                 let checked = "";
-                if (tier !== "none") {
+                if (transcriptFlagChecked && tier !== "none") {
                     checked = "checked";
                 }
 
@@ -799,15 +858,15 @@ class VariantGridFormatter {
                 ctHtml += `<tr class="detail-view-row">
                             <td>${gene}</td>
                             <td>${transcriptId}</td>
-                            <td>${biotype}</td>
+                            <td>${transcriptFlag}</td>
                             <td>${soArray.join("")}</td>
                             <td>${panel}</td>
                             <td>${moi}</td>
                             <td>${roleInCancer}</td>
                             <td>${actionable}</td>
                             <td>${acmg}</td>
-                            <td>${clinicalSignificance}</td>
                             <td>${tier}</td>
+                            <td>${clinicalSignificance}</td>
                             <td><input type="checkbox" ${checked}></td>
                            </tr>`;
             }
@@ -828,6 +887,7 @@ class VariantGridFormatter {
             },
             position: {
                 target: "mouse",
+                my: (config !== undefined && config.position !== undefined && config.position.my !== undefined) ? config.position.my : "top left",
                 adjust: {
                     x: 2, y: 2,
                     mouse: false

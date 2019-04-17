@@ -98,9 +98,9 @@
                     <table id="{{prefix}}FileTable" class="table">
                         <thead>
                         <tr>
-                            <th scope="col" rowspan="1">File Name</th>
                             <th scope="col" rowspan="1">Sample ID</th>
-                            <th scope="col" rowspan="1">File Path</th>
+                            <th scope="col" rowspan="1">File Name</th>
+<!--                            <th scope="col" rowspan="1">File Path</th>-->
                             <th scope="col" rowspan="1">Select</th>
                         </tr>
                         </thead>
@@ -241,6 +241,30 @@
                     let _sampleFilters = [];
                     for (let individual of individuals) {
                         if (UtilsNew.isNotEmptyArray(individual.samples)) {
+                            let fatherId = "-";
+                            // If possible we use sample ID
+                            if (individual.father !== undefined && individual.father.id !== undefined) {
+                                fatherId = individual.father.id;
+                                for (let ind of individuals) {
+                                    if (individual.father.id === ind.id) {
+                                        fatherId = UtilsNew.isNotEmptyArray(ind.samples) ? ind.samples[0].id : ind.id;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            let motherId = "-";
+                            // If possible we use sample ID
+                            if (individual.mother !== undefined && individual.mother.id !== undefined) {
+                                motherId = individual.mother.id;
+                                for (let ind of individuals) {
+                                    if (individual.mother.id === ind.id) {
+                                        motherId = UtilsNew.isNotEmptyArray(ind.samples) ? ind.samples[0].id : ind.id;
+                                        break;
+                                    }
+                                }
+                            }
+
                             // There should be just one sample per individual in the Clinical Analysis
                             let sample = individual.samples[0];
                             let _sampleFilter = {
@@ -248,8 +272,10 @@
                                 proband: false,
                                 affected: false,
                                 sex: individual.sex,
-                                father: (individual.father !== undefined && individual.father.id !== undefined) ? individual.father.id : "-",
-                                mother: (individual.mother !== undefined && individual.mother.id !== undefined) ? individual.mother.id : "-",
+                                // father: (individual.father !== undefined && individual.father.id !== undefined) ? individual.father.id : "-",
+                                // mother: (individual.mother !== undefined && individual.mother.id !== undefined) ? individual.mother.id : "-",
+                                father: fatherId,
+                                mother: motherId,
                                 genotypes: (UtilsNew.isNotUndefinedOrNull(_sampleFiltersMap[sample.id])) ? _sampleFiltersMap[sample.id].genotypes : this._config.defaultGenotypes,
                                 dp: (UtilsNew.isNotUndefinedOrNull(_sampleFiltersMap[sample.id])) ? _sampleFiltersMap[sample.id].dp : "",
                             };
@@ -606,16 +632,24 @@
                     //     }
                     // }
 
-                    let lastSlashIdx = fileFilter.path.lastIndexOf("/");
-                    let path = fileFilter.path.substring(0, lastSlashIdx + 8) + "...";
-
+                    // let lastSlashIdx = fileFilter.path.lastIndexOf("/");
+                    // let path = fileFilter.path.substring(0, lastSlashIdx + 8) + "...";
+                    let sampleHtml = "<div>";
+                    for (let sample of fileFilter.samples) {
+                        if (sample === this.clinicalAnalysis.proband.samples[0].id) {
+                            sampleHtml += `<div><span style="color: darkred">${sample}</span></div>`;
+                        } else {
+                            sampleHtml += `<div>${sample}</div>`;
+                        }
+                    }
+                    sampleHtml += "</div>";
                     let selected = (fileFilter.selected) ? "checked" : "";
 
+                    // <td style="vertical-align: middle"><span>${path}</span></td>
                     tr += `
                             <tr data-file="${fileFilter.name}">
+                                <td style="vertical-align: middle"><span>${sampleHtml}</span></td>
                                 <td style="vertical-align: middle"><span>${fileFilter.name}</span></td>
-                                <td style="vertical-align: middle"><span>${fileFilter.samples}</span></td>
-                                <td style="vertical-align: middle"><span>${path}</span></td>
                                 <td style="vertical-align: middle; padding-left: 20px"><input type="checkbox" class="file-filter-checkbox" ${selected}></td>
                             </tr>
                     `;
@@ -657,7 +691,7 @@
                 let counter = 0;
                 for (let row of table.rows) {
                     if (row.dataset.file !== undefined) {
-                        this.fileFilters[counter].selected = row.children[3].children[0].checked;
+                        this.fileFilters[counter].selected = row.children[2].children[0].checked;
                         counter++;
                     }
                 }

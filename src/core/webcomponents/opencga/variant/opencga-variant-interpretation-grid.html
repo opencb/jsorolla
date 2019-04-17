@@ -89,13 +89,14 @@
                     },
                     clinicalAnalysis: {
                         type: Object,
+                        observer: "clinicalAnalysisObserver"
                     },
                     query: {
                         type: Object,
                     },
                     reportedVariants: {
                         type: Array,
-                        observer: 'renderFromLocal'
+                        observer: "renderFromLocal"
                     },
                     consequenceTypes: {
                         type: Object,
@@ -114,7 +115,7 @@
 
             static get observers() {
                 return [
-                    "propertyObserver(opencgaSession, clinicalAnalysis, query, consequenceTypes, populationFrequencies, proteinSubstitutionScores, config)"
+                    "propertyObserver(opencgaSession, query, config)"
                 ];
             }
 
@@ -124,7 +125,7 @@
 
             connectedCallback() {
                 super.connectedCallback();
-
+debugger
                 // TODO Refactor
                 this.downloadRefreshIcon = $("#" + this.prefix + "DownloadRefresh");
                 this.downloadIcon = $("#" + this.prefix + "DownloadIcon");
@@ -135,39 +136,47 @@
                 } else {
                     this.renderFromLocal();
                 }
+
+                this._initialised = true;
             }
 
             _init() {
                 this.prefix = "ovig-" + Utils.randomString(6);
 
-                this.query = {};
+                this._initialised = false;
+
+                // this.query = {};
                 this._config = this.getDefaultConfig();
             }
 
-            propertyObserver(opencgaSession, clinicalAnalysis, query, consequenceTypes, populationFrequencies, proteinSubstitutionScores, config) {
+            propertyObserver(opencgaSession, query, config) {
+                // if (this._initialised === false) {
+                //     return;
+                // }
                 // With each property change we must updated config and create the columns again. No extra checks are needed.
-                this._config = Object.assign(this.getDefaultConfig(), config);
+                debugger
+                this._config = Object.assign({}, this.getDefaultConfig(), this.config);
 
-                let _individuals = [];
-                let _samples = [];
-                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis)) {
-                    // let _individuals = [];
-                    if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.family) && UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.family.members)) {
-                        _individuals = clinicalAnalysis.family.members;
-                    } else {
-                        if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.proband)) {
-                            _individuals = [clinicalAnalysis.proband];
-                        }
-                    }
-
-                    for (let individual of _individuals) {
-                        if (UtilsNew.isNotEmptyArray(individual.samples)) {
-                            _samples.push(individual.samples[0]);
-                        }
-                    }
-                }
-                this.samples = _samples;
-                this.individuals = _individuals;
+                // let _individuals = [];
+                // let _samples = [];
+                // if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis)) {
+                //     // let _individuals = [];
+                //     if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.family) && UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.family.members)) {
+                //         _individuals = clinicalAnalysis.family.members;
+                //     } else {
+                //         if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.proband)) {
+                //             _individuals = [clinicalAnalysis.proband];
+                //         }
+                //     }
+                //
+                //     for (let individual of _individuals) {
+                //         if (UtilsNew.isNotEmptyArray(individual.samples)) {
+                //             _samples.push(individual.samples[0]);
+                //         }
+                //     }
+                // }
+                // this.samples = _samples;
+                // this.individuals = _individuals;
 
 
                 // Config for the grid toolbar
@@ -201,6 +210,29 @@
                 } else {
                     this.renderFromLocal();
                 }
+            }
+
+            clinicalAnalysisObserver(clinicalAnalysis) {
+                let _individuals = [];
+                let _samples = [];
+                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis)) {
+                    // let _individuals = [];
+                    if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.family) && UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.family.members)) {
+                        _individuals = clinicalAnalysis.family.members;
+                    } else {
+                        if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.proband)) {
+                            _individuals = [clinicalAnalysis.proband];
+                        }
+                    }
+
+                    for (let individual of _individuals) {
+                        if (UtilsNew.isNotEmptyArray(individual.samples)) {
+                            _samples.push(individual.samples[0]);
+                        }
+                    }
+                }
+                this.samples = _samples;
+                this.individuals = _individuals;
             }
 
             onColumnChange(e) {
@@ -329,11 +361,12 @@
                             }
 
                             // Add tooltips
-                            _this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "File metrics", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
                             _this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
                             _this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
+                            _this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "File metrics", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
                             _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", _this.populationFrequencies);
                             _this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("popFreqInfoIcon", _this.populationFrequencies);
+                            _this.variantGridFormatter.addTooltip("div.predictionTooltip", "Classification", {position:{my: "top right"}, style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
                         }
                     });
 
@@ -531,7 +564,7 @@
                 let result = "<div class='row' style='padding-bottom: 20px'>";
                 let detailHtml = "";
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-                    detailHtml = "<div style='padding: 10px 0px 5px 25px'><h4>Reported Events</h4></div>";
+                    detailHtml = "<div style='padding: 10px 0px 5px 25px'><h4>Relevant Mutation Events</h4></div>";
                     detailHtml += "<div style='padding: 5px 50px'>";
                     detailHtml += this.variantGrid.variantGridFormatter.reportedEventDetailFormatter(value, row, this.variantGrid);
                     detailHtml += "</div>";
@@ -586,20 +619,20 @@
                 return variantHtmlDiv + "<div style='padding-top: 10px'>" + snptHtmlAnchor + "</div>";
             }
 
-            predictionFormatter(value, row, index) {
-                let res = "";
-                if (UtilsNew.isNotUndefinedOrNull(row.reportEvents)){
-                    row.reportEvents.forEach((reportEvent) => {
-                        if (UtilsNew.isNotUndefinedOrNull(reportEvent.prediction)) {
-                            res += "<label>" + reportEvent.prediction + "</label>";
-                        }
-                        if (UtilsNew.isNotUndefinedOrNull(reportEvent.score)) {
-                            res += " (<label>" + reportEvent.score + "</label>)";
-                        }
-                    });
-                }
-                return res;
-            }
+            // predictionFormatter(value, row, index) {
+            //     let res = "";
+            //     if (UtilsNew.isNotUndefinedOrNull(row.reportEvents)){
+            //         row.reportEvents.forEach((reportEvent) => {
+            //             if (UtilsNew.isNotUndefinedOrNull(reportEvent.prediction)) {
+            //                 res += "<label>" + reportEvent.prediction + "</label>";
+            //             }
+            //             if (UtilsNew.isNotUndefinedOrNull(reportEvent.score)) {
+            //                 res += " (<label>" + reportEvent.score + "</label>)";
+            //             }
+            //         });
+            //     }
+            //     return res;
+            // }
 
             zygosityFormatter(value, row, index) {
                 let resultHtml = "";
@@ -787,14 +820,13 @@
             }
 
             clinicalPopulationFrequenciesFormatter(value, row) {
-                if (typeof row !== "undefined" && typeof row.annotation !== "undefined"
-                    && typeof row.annotation.populationFrequencies !== "undefined") {
-
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
                     let popFreqMap = new Map();
-                    for (let popFreq of row.annotation.populationFrequencies) {
-                        popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
+                    if (UtilsNew.isNotEmptyArray(row.annotation.populationFrequencies)) {
+                        for (let popFreq of row.annotation.populationFrequencies) {
+                            popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
+                        }
                     }
-
                     return this.variantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies,
                         popFreqMap, this.populationFrequencies.color);
                 } else {
@@ -831,10 +863,19 @@
                 return phenotypeHtml;
             }
 
-            interpretationFormatter(value, row, index) {
-                let tiers = {
-                    tier1: [], tier2: [], tier3: []
+            predictionFormatter(value, row, index) {
+                let clinicalSignificanceCodes = {
+                    PATHOGENIC_VARIANT: {code: 5, color: "red"},
+                    LIKELY_PATHOGENIC_VARIANT: {code: 5, color: "red"},
+                    VARIANT_OF_UNKNOWN_CLINICAL_SIGNIFICANCE: {code: 5, color: "darkorange"},
+                    LIKELY_BENIGN_VARIANT: {code: 5, color: "blue"},
+                    BENIGN_VARIANT: {code: 5, color: "blue"},
+                    NOT_ASSESSED: {code: 5, color: "black"}
                 };
+
+                let clinicalSignificanceCode = 0;
+                let clinicalSignificanceHtml = "NA";
+                let clinicalSignificanceTooltipText = "";
                 let modeOfInheritances = [];
 
                 for (let re of row.evidences) {
@@ -842,38 +883,33 @@
                         modeOfInheritances.push(re.modeOfInheritance);
                     }
 
-                    if (UtilsNew.isNotUndefinedOrNull(re.tier)) {
-                        let obj = {tier: re.tier, acmg: re.classification.acmg.join(", ")};
-                        switch (re.tier.toLowerCase()) {
-                            case "tier 1":
-                            case "tier1":
-                                tiers.tier1.push(obj);
-                                break;
-                            case "tier 2":
-                            case "tier2":
-                                tiers.tier2.push(obj);
-                                break;
-                            case "tier 3":
-                            case "tier3":
-                                tiers.tier3.push(obj);
-                                break;
+                    if (clinicalSignificanceCodes[re.classification.clinicalSignificance] !== undefined
+                            && clinicalSignificanceCodes[re.classification.clinicalSignificance].code > clinicalSignificanceCode) {
+                        clinicalSignificanceCode = clinicalSignificanceCodes[re.classification.clinicalSignificance].code;
+                        let clinicalSignificance;
+                        if (re.classification.clinicalSignificance === "VARIANT_OF_UNKNOWN_CLINICAL_SIGNIFICANCE") {
+                            clinicalSignificance = "VUS";
+                        } else {
+                            clinicalSignificance = re.classification.clinicalSignificance.replace("_VARIANT", "").replace("_", " ");
                         }
+                        clinicalSignificanceHtml = `<span style="color: ${clinicalSignificanceCodes[re.classification.clinicalSignificance].color}">${clinicalSignificance}</span>`;
+                        clinicalSignificanceTooltipText = `<div class="col-md-12" style="padding: 0px">
+                                                                <form class="form-horizontal">
+                                                                    <div class="form-group" style="margin: 0px 2px">
+                                                                        <label class="col-md-4">ACMG</label>
+                                                                        <div class="col-md-8">${re.classification.acmg.join(", ")}</div>
+                                                                    </div>
+                                                                    <div class="form-group" style="margin: 0px 2px">
+                                                                        <label class="col-md-4">Tier</label>
+                                                                        <div class="col-md-8">${re.tier}</div>
+                                                                    </div>
+                                                                </form>
+                                                            </div>`;
                     }
                 }
-
-                let tierHtml = "<div>" + "-";
-                if (tiers.tier1.length > 0) {
-                    tierHtml = `<span style="color: red">${tiers.tier1[0].tier}</span> (${tiers.tier1[0].acmg})`;
-                } else if (tiers.tier2.length > 0) {
-                    tierHtml = `<span style="color: darkorange">${tiers.tier2[0].tier}</span> (${tiers.tier2[0].acmg})`;
-                } else if (tiers.tier3.length > 0) {
-                    tierHtml = `<span style="color: blue">${tiers.tier3[0].tier}</span> (${tiers.tier3[0].acmg})`;
-                }
-                tierHtml += "</div>";
-
-                let moiHtml = `<div style='padding-top: 10px'>${modeOfInheritances.join(", ")}</div>`;
-
-                return `${tierHtml}${moiHtml}`;
+                return `<div class='predictionTooltip' data-tooltip-text='${clinicalSignificanceTooltipText}'>
+                            ${clinicalSignificanceHtml}
+                        </div>`;
             }
 
             reviewFormatter(value, row, index) {
@@ -988,7 +1024,7 @@
                             field: "prediction",
                             rowspan: 1,
                             colspan: 1,
-                            formatter: this.interpretationFormatter,
+                            formatter: this.predictionFormatter,
                             halign: 'center',
                             // formatter: this.predictionFormatter
                         },

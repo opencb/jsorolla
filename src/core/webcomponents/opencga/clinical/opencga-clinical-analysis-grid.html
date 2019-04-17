@@ -88,7 +88,7 @@
             }
 
             static get observers() {
-                return ['propertyObserver(opencgaSession, search, config, active)'];
+                return ['propertyObserver(opencgaSession, search, active)'];
             }
 
             _attachDom(dom) {
@@ -101,7 +101,7 @@
                 this.renderTable(this.active);
             }
 
-            propertyObserver(opencgaSession, search, config, active) {
+            propertyObserver(opencgaSession, search, active) {
                 // With each property change we must updated config and create the columns again. No extra checks are needed.
                 this._config = Object.assign(this.getDefaultConfig(), this.config);
                 this._columns = this._initTableColumns();
@@ -740,7 +740,7 @@
             getDefaultConfig() {
                 return {
                     pagination: true,
-                    pageSize: 10,
+                    pageSize: 5,
                     pageList: [10, 25, 50],
                     showExport: false,
                     showReviewCase: true,

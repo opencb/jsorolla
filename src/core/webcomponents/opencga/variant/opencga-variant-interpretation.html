@@ -112,13 +112,13 @@
                             <!-- Right green buttons -->
                             <div class="btn-group" role="group" aria-label="..." >
                                 <button type="button" class="btn btn-success variant-interpretation-view-buttons active" data-view="TableResult" on-click="_changeView">
-                                    <i class="fa fa-filter icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView"></i>Search Result ({{counters.rv}})
+                                    <i class="fa fa-filter icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView"></i>Search Result {{counterTitles.rv}}
                                 </button>
                                 <button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="CompoundHeterozygous" on-click="_changeView">
-                                    <i class="fas fa-random icon-padding" aria-hidden="true" data-view="ClinicalAnalysis" on-click="_changeView"></i>Compound Heterozygous ({{counters.ch}})
+                                    <i class="fas fa-random icon-padding" aria-hidden="true" data-view="ClinicalAnalysis" on-click="_changeView"></i>Compound Heterozygous {{counterTitles.ch}}
                                 </button>
                                 <button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="DeNovo" on-click="_changeView">
-                                    <i class="fa fa-divide icon-padding" aria-hidden="true" data-view="LowCoverage" on-click="_changeView"></i>de Novo ({{counters.dn}})
+                                    <i class="fa fa-divide icon-padding" aria-hidden="true" data-view="LowCoverage" on-click="_changeView"></i>de Novo {{counterTitles.dn}}
                                 </button>
                             </div>
 
@@ -154,7 +154,7 @@
                                     </button>
                                     <button id="{{prefix}}InterpretationEditorButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
                                             data-view="InterpretationEditor" on-click="_changeView">
-                                        <i class="fa fa-save icon-padding" aria-hidden="true" data-view="InterpretationEditor" on-click="_changeView"></i>Review and Save ({{counters.total}})
+                                        <i class="fa fa-save icon-padding" aria-hidden="true" data-view="InterpretationEditor" on-click="_changeView"></i>Review and Save {{counterTitles.total}}
                                     </button>
                                 </div>
                             </template>
@@ -165,7 +165,7 @@
                                     </button>
                                     <button id="{{prefix}}InterpretationEditorButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
                                             data-view="InterpretationEditor" on-click="_changeView">
-                                        <i class="fa fa-save icon-padding" aria-hidden="true" data-view="InterpretationEditor" on-click="_changeView"></i>Review and Save ({{checkedVariants.length}})
+                                        <i class="fa fa-save icon-padding" aria-hidden="true" data-view="InterpretationEditor" on-click="_changeView"></i>Review and Save {{counterTitles.total}}
                                     </button>
                                 </div>
                             </template>
@@ -247,7 +247,17 @@
                                                     <input type="checkbox" checked disabled> <span style="font-weight: bold">biotype</span>: protein_coding
                                                 </div>
                                                 <div>
-                                                    <input type="checkbox" checked disabled> <span style="font-weight: bold">consequenceType</span>: {{lofe}}
+                                                    <div>
+                                                        <input type="checkbox" checked disabled> <span style="font-weight: bold">consequenceType</span>
+                                                    </div>
+                                                    <div style="padding-left: 15px">
+                                                        <div>
+                                                            <input type="checkbox" checked disabled> <span style="font-weight: bold">Loss-of-Function</span>: transcript_ablation, splice_acceptor_variant, splice_donor_variant, stop_gained, frameshift_variant, stop_lost, start_lost, transcript_amplification, inframe_insertion, inframe_deletion
+                                                        </div>
+                                                        <div>
+                                                            <input type="checkbox" value="missense_variant" on-click="onCompHetFilterClick" checked> <span style="font-weight: bold">Missense</span>: missense_variant
+                                                        </div>
+                                                    </div>
                                                 </div>
                                                 <template is="dom-repeat" items="{{compHetQueryArray}}">
                                                     <div>
@@ -599,6 +609,12 @@
                     dn: 0,
                     total: 0
                 };
+                this.counterTitles = {
+                    rv: "",
+                    ch: "",
+                    dn: "",
+                    total: ""
+                };
 
                 this.lofe = ["missense_variant", "transcript_ablation", "splice_acceptor_variant", "splice_donor_variant", "stop_gained",
                     "frameshift_variant", "stop_lost", "start_lost", "transcript_amplification", "inframe_insertion", "inframe_deletion"].join(", ");
@@ -633,6 +649,7 @@
             }
 
             queryObserver() {
+                debugger
                 // Query passed is executed and set to variant-filter, active-filters and variant-grid components
                 if (UtilsNew.isNotUndefinedOrNull(this.query)) {
                     this.preparedQuery = this.query;
@@ -810,6 +827,7 @@
              * Variant Filter component listeners
              */
             onQueryFilterChange(e) {
+                debugger
                 this.preparedQuery = e.detail.query;
 
                 // Prepare object for Comp. Het. query
@@ -892,12 +910,23 @@
             onCompHetFilterClick(e) {
                 let key = e.currentTarget.value;
                 let _compHetQuery = this._compHetQuery;
-                if (e.currentTarget.checked) {
-                    debugger
-                    _compHetQuery[key] = this.executedQuery[key];
+
+                if (key === "missense_variant") {
+                    if (e.currentTarget.checked) {
+                        _compHetQuery["ct"] = this._config.filter.lof.concat("missense_variant").join(",");
+                        debugger
+                    } else {
+                        _compHetQuery["ct"] = this._config.filter.lof.join(",");
+                        debugger
+                    }
                 } else {
-                    delete _compHetQuery[key];
+                    if (e.currentTarget.checked) {
+                        _compHetQuery[key] = this.executedQuery[key];
+                    } else {
+                        delete _compHetQuery[key];
+                    }
                 }
+
                 this._compHetQuery = Object.assign({}, _compHetQuery);
                 this.showCompHetWarning();
             }
@@ -951,8 +980,11 @@
 
             onCheckCompHetVariant(e) {
                 this.counters.ch = e.detail.variants.length;
+                this.counterTitles.ch = (e.detail.variants.length > 0) ? "(" + e.detail.variants.length + ")" : "";
                 this.counters.total = this.counters.rv + this.counters.ch + this.counters.dn;
+                this.counterTitles.total = (this.counters.total > 0) ? "(" + this.counters.total + ")" : "";
                 this.counters = Object.assign({}, this.counters);
+                this.counterTitles = Object.assign({}, this.counterTitles);
 
                 this.checkedCompHetVariants = e.detail.variants;
                 this._createInterpretation();
@@ -1051,8 +1083,11 @@
 
             onCheckDeNovoVariant(e) {
                 this.counters.dn = e.detail.variants.length;
+                this.counterTitles.dn = (e.detail.variants.length > 0) ? "(" + e.detail.variants.length + ")" : "";
                 this.counters.total = this.counters.rv + this.counters.ch + this.counters.dn;
+                this.counterTitles.total = (this.counters.total > 0) ? "(" + this.counters.total + ")" : "";
                 this.counters = Object.assign({}, this.counters);
+                this.counterTitles = Object.assign({}, this.counterTitles);
 
                 this.checkedDeNovoVariants = e.detail.variants;
                 this._createInterpretation();
@@ -1077,8 +1112,11 @@
 
             onCheckVariant(e) {
                 this.counters.rv = e.detail.variants.length;
+                this.counterTitles.rv = (e.detail.variants.length > 0) ? "(" + e.detail.variants.length + ")" : "";
                 this.counters.total = this.counters.rv + this.counters.ch + this.counters.dn;
+                this.counterTitles.total = (this.counters.total > 0) ? "(" + this.counters.total + ")" : "";
                 this.counters = Object.assign({}, this.counters);
+                this.counterTitles = Object.assign({}, this.counterTitles);
 
                 this.checkedVariants = e.detail.variants;
                 this._createInterpretation();
@@ -1335,6 +1373,8 @@
 
             getDefaultConfig() {
                 return {
+                    title: "Variant INterpreter",
+                    showSaveInterpretation: true,
                     activeFilters: {
                         alias: {
                             // Example:
