@@ -58,18 +58,21 @@ class CellBaseAdapter extends FeatureAdapter {
         Object.assign(params, args.params);
 
         /** 1 region check **/
-        let region = args.region;
-        if (region.start > 300000000 || region.end < 1) {
-            return;
+        let region = null;
+        if (typeof args.region !== "undefined") {
+            region = args.region;
+            if (region.start > 300000000 || region.end < 1) {
+                return;
+            }
+            region.start = (region.start < 1) ? 1 : region.start;
+            region.end = (region.end > 300000000) ? 300000000 : region.end;
         }
-        region.start = (region.start < 1) ? 1 : region.start;
-        region.end = (region.end > 300000000) ? 300000000 : region.end;
 
         /** 2 category check **/
         // var categories = [this.category + this.subCategory + this.resource + Utils.queryString(params)];
 
         /** 3 dataType check **/
-        let dataType = args.dataType;
+        let dataType = (typeof args.dataType === "undefined") ? null : args.dataType;
         if (_.isUndefined(dataType)) {
             console.log("dataType must be provided!!!");
         }
@@ -84,16 +87,20 @@ class CellBaseAdapter extends FeatureAdapter {
 
         return new Promise(function(resolve, reject) {
             // Create the chunks to be retrieved
-            let start = _this._getStartChunkPosition(region.start);
-            let regions = [];
-            do {
-                regions.push(`${region.chromosome}:${start}-${start + _this.options.chunkSize - 1}`);
-                start += _this.options.chunkSize;
-            } while(start <= region.end);
+            let regions = null;
+            if (region !== null) {
+                let start = _this._getStartChunkPosition(region.start);
+                regions = [];
+                do {
+                    regions.push(`${region.chromosome}:${start}-${start + _this.options.chunkSize - 1}`);
+                    start += _this.options.chunkSize;
+                } while(start <= region.end);
+                regions.join(",");
+            }
 
-            _this.client.get(_this.category, _this.subCategory, regions.join(","), _this.resource, params)
+            _this.client.get(_this.category, _this.subCategory, regions, _this.resource, params)
                 .then(function (response) {
-                    let responseChunks = _this._cellbaseSuccess(response, dataType, chunkSize);
+                    let responseChunks = (dataType === null) ? response.response : _this._cellbaseSuccess(response, dataType, chunkSize);
                     resolve({items: responseChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
                 })
                 .catch(function () {
