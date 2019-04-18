@@ -117,6 +117,10 @@ class CircosBrowser {
             //Increment the current radius
             currentRadius = outerRadius + self.config.trackGap;
         });
+        //Resize the SVG
+        let scale = (this.config.width / 2) / currentRadius;
+        let translate = (this.config.width / 2) * (1 - scale);
+        this.mainGroup.setAttribute("transform", `translate(${translate},${translate}) scale(${scale})`);
     }
     //Get default configuration
     _getDefaultConfig() {
