@@ -11,7 +11,7 @@ class CircosLayout {
             this.dataAdapter = new CellBaseAdapter(new CellBaseClient(), "genomic", "chromosome", "search", {});
         }
         //Check for no data parser provided
-        if (UtilsNew.isUndefinedOrNull(this.dataParser)) {
+        if (typeof this.dataParser !== "function") {
             this.dataParser = function (data) {
                 return data;
             };
