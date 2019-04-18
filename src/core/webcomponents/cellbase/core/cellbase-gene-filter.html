@@ -1,8 +1,21 @@
+
 <dom-module id="cellbase-gene-filter">
     <template>
-        <input id="{{prefix}}FeatureIdText" type="text" class="form-control" list$="{{prefix}}FeatureDatalist"
-               placeholder="Search for Gene Symbols" value="" on-change="onGeneChange">
-        <datalist id="{{prefix}}FeatureDatalist"></datalist>
+        <!--<input id="{{prefix}}FeatureIdText" type="text" class="form-control" list$="{{prefix}}FeatureDatalist"-->
+               <!--placeholder="Search for Gene Symbols" value="" on-change="onGeneChange">-->
+        <!--<datalist id="{{prefix}}FeatureDatalist"></datalist>-->
+
+        <div class="input-group">
+            <input id="{{prefix}}FeatureIdText" type="text" class="form-control" list$="{{prefix}}FeatureDatalist"
+                   placeholder="Search for Gene Symbols" value="" on-change="onGeneChange">
+            <datalist id="{{prefix}}FeatureDatalist"></datalist>
+
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="button" on-click="onEraserClicked">
+                    <i class="fa fa-eraser" aria-hidden="true"></i>
+                </button>
+            </span>
+        </div>
     </template>
 
     <script>
@@ -16,6 +29,10 @@
                 return {
                     cellbaseClient: {
                         type: Object
+                    },
+                    erase: {
+                        type: Boolean,
+                        observer: "eraseObserver"
                     },
                     config: {
                         type: Object
@@ -59,12 +76,18 @@
             //     }
             // }
 
+            eraseObserver(newValue, oldValue) {
+                if (newValue !== oldValue) {
+                    this.clear();
+                }
+            }
+
             callAutocomplete(e) {
                 // Only gene symbols are going to be searched and not Ensembl IDs
                 let featureId = PolymerUtils.getElementById(this.prefix  + "FeatureIdText").value;
                 if (UtilsNew.isNotUndefinedOrNull(featureId) && featureId.length >= 3 && !featureId.startsWith("ENS")) {
                     let _this = this;
-                    _this.cellbaseClient.get('feature', 'id', featureId.toUpperCase(), 'starts_with', {}, {})
+                    _this.cellbaseClient.get('feature', 'id', featureId.toUpperCase(), 'starts_with', {limit: 15}, {})
                         .then(function (response) {
                             let options = "";
                             for (let id of response.response[0].result) {
@@ -75,7 +98,13 @@
                 }
             }
 
+            clear() {
+                PolymerUtils.setValue(this.prefix + "FeatureIdText", "");
+                this.gene = "";
+            }
+
             onGeneChange(e) {
+                this.gene = e.target.value;
                 this.dispatchEvent(new CustomEvent('genechange', {
                     detail: {
                         gene: e.target.value
@@ -83,6 +112,10 @@
                     bubbles: false,
                     composed: true
                 }));
+            }
+
+            onEraserClicked() {
+                this.clear();
             }
 
             getDefaultConfig() {

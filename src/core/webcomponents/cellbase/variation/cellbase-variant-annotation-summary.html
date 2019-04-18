@@ -229,6 +229,14 @@
                 let _this = this;
 
                 if (typeof _this.data !== "undefined") {
+                    if (UtilsNew.isEmpty(_this.data.reference)) {
+                        _this.data.reference = "-";
+                    }
+
+                    if (UtilsNew.isEmpty(_this.data.alternate)) {
+                        _this.data.alternate = "-";
+                    }
+
                     // Consequence type
                     // Color the consequence type
                     if (typeof _this.consequenceTypeToColor !== "undefined" && typeof _this.consequenceTypeToColor[_this.data.displayConsequenceType] !== "undefined") {

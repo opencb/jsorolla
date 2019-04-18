@@ -34,6 +34,7 @@
                                 <!--<th scope="col" rowspan="2">Reference</th>-->
                                 <!--<th scope="col" rowspan="2">Alternate</th>-->
                                 <th scope="col" rowspan="2">MAF (allele)</th>
+                                <th scope="col" rowspan="2">Number of Samples</th>
                                 <th colspan="2" scope="colgroup" style="text-align: center">Allele Frequencies</th>
                                 <th colspan="3" scope="colgroup" style="text-align: center">Genotype Frequencies</th>
                             </tr>
@@ -52,11 +53,12 @@
                                     <!--<td>{{cohort.value.refAllele}}</td>-->
                                     <!--<td>{{cohort.value.altAllele}}</td>-->
                                     <td>{{cohort.value.maf}} ({{cohort.value.mafAllele}})</td>
-                                    <td>{{cohort.value.refAlleleFreq}}</td>
-                                    <td>{{cohort.value.altAlleleFreq}}</td>
-                                    <td>{{cohort.value.genotypeFreq.homref}}</td>
-                                    <td>{{cohort.value.genotypeFreq.het}}</td>
-                                    <td>{{cohort.value.genotypeFreq.homalt}}</td>
+                                    <td>{{cohort.value.numSamples}}</td>
+                                    <td>{{cohort.value.refAlleleFreq}} ({{cohort.value.refAlleleCount}})</td>
+                                    <td>{{cohort.value.altAlleleFreq}} ({{cohort.value.altAlleleCount}})</td>
+                                    <td>{{cohort.value.genotypeFreq.homref}} ({{cohort.value.genotypeCount.homref}})</td>
+                                    <td>{{cohort.value.genotypeFreq.het}} ({{cohort.value.genotypeCount.het}})</td>
+                                    <td>{{cohort.value.genotypeFreq.homalt}} ({{cohort.value.genotypeCount.homalt}})</td>
                                 </tr>
                             </template>
                             </tbody>
@@ -140,9 +142,15 @@
                                         if (typeof statsObject[key].mafAllele !== "undefined" && statsObject[key].mafAllele !== -1) {
                                             statsObject[key].maf = _this._freqFormatter(statsObject[key].maf || 0);
                                             statsObject[key].mafAllele = statsObject[key].mafAllele || '-';
+                                            if (statsObject[key].alleleCount < 0) {
+                                                statsObject[key].alleleCount = statsObject[key].refAlleleCount + statsObject[key].altAlleleCount;
+                                            }
+                                            statsObject[key].numSamples = Math.round(statsObject[key].alleleCount / 2);
 
                                             statsObject[key].refAlleleFreq = _this._freqFormatter(statsObject[key].refAlleleFreq || 0);
+                                            // statsObject[key].alleleCountRef = statsObject[key].refAlleleCount;
                                             statsObject[key].altAlleleFreq = _this._freqFormatter(statsObject[key].altAlleleFreq || 0);
+                                            // statsObject[key].alleleCountAlt = statsObject[key].altAlleleCount;
 
                                             statsObject[key].genotypeFreq.homref = _this._freqFormatter(statsObject[key].genotypeFreq["0/0"] || statsObject[key].genotypeFreq["0|0"] || 0);
                                             statsObject[key].genotypeFreq.het = _this._freqFormatter(statsObject[key].genotypeFreq["0/1"] || statsObject[key].genotypeFreq["0|1"] || 0);

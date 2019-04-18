@@ -27,43 +27,32 @@
 
         <h4 style="font-weight: bold;padding: 20px 0px 0px 0px">
             <i class="fa fa-minus-circle" on-click="handleCollapseAction" data-id="Het" style="cursor: pointer"></i>
-            &nbsp;Heterozygous (0/1) <span class="badge">{{samplesHet.length}}</span>
+            &nbsp;Heterozygous (0/1) <span class="badge">{{samplesHetSize}}</span>
         </h4>
 
         <div id="{{prefix}}Het">
-
 
             <!--<table id="{{prefix}}VariantBrowserGrid">-->
             <!--<thead style="background-color: #eee"></thead>-->
             <!--</table>-->
 
+            <div style="padding: 5px 20px">
+                <table class="table table-bordered">
+                    <thead style="background-color: #eee;">
+                    <tr>
+                        <th scope="col" rowspan="2">Sample ID</th>
+                        <th scope="col" rowspan="2">Individual ID</th>
+                        <th scope="col" rowspan="2">Disorders</th>
+                        <th scope="col" rowspan="2">Phenotypes</th>
+                        <th scope="col" rowspan="2">File</th>
+                        <!--                            <th scope="col" rowspan="2">Description</th>-->
+                    </tr>
+                    </thead>
+                    <tbody id="{{prefix}}HetTBody"></tbody>
+                </table>
+            </div>
 
-            <template is="dom-if" if="{{samplesHet.length}}">
-                <div style="padding: 5px 20px">
-                    <table class="table table-bordered" >
-                        <thead style="background-color: #eee;">
-                        <tr>
-                            <th scope="col" rowspan="2">ID</th>
-                            <th scope="col" rowspan="2">Phenotypes</th>
-                            <th scope="col" rowspan="2">File</th>
-                            <th scope="col" rowspan="2">Description</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <template is="dom-repeat" items="{{samplesHet}}" as="sample">
-                            <tr>
-                                <td>{{sample.name}}</td>
-                                <td>{{sample.phenotypes}}</td>
-                                <td>{{sample.source}}</td>
-                                <td>{{sample.description}}</td>
-                            </tr>
-                        </template>
-                        </tbody>
-                    </table>
-                </div>
-            </template>
-
-            <template is="dom-if" if="{{!samplesHet.length}}">
+            <template is="dom-if" if="{{!showSamplesHetTable}}">
                 <div style="padding: 5px 20px">
                     No samples found
                 </div>
@@ -73,36 +62,27 @@
 
         <h4 style="font-weight: bold;padding: 20px 0px 0px 0px">
             <i class="fa fa-minus-circle" on-click="handleCollapseAction" data-id="HomAlt" style="cursor: pointer"></i>
-            &nbsp;Alternate Homozygous (1/1) <span class="badge">{{samplesHomAlt.length}}</span>
+            &nbsp;Alternate Homozygous (1/1) <span class="badge">{{samplesHomAltSize}}</span>
         </h4>
 
         <div id="{{prefix}}HomAlt">
-            <template is="dom-if" if="{{samplesHomAlt.length}}">
-                <div style="padding: 5px 20px">
-                    <table class="table table-bordered" >
-                        <thead style="background-color: #eee;">
-                        <tr>
-                            <th scope="col" rowspan="2">ID</th>
-                            <th scope="col" rowspan="2">Phenotypes</th>
-                            <th scope="col" rowspan="2">File</th>
-                            <th scope="col" rowspan="2">Description</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <template is="dom-repeat" items="{{samplesHomAlt}}" as="sample">
-                            <tr>
-                                <td>{{sample.name}}</td>
-                                <td>{{sample.phenotypes}}</td>
-                                <td>{{sample.source}}</td>
-                                <td>{{sample.description}}</td>
-                            </tr>
-                        </template>
-                        </tbody>
-                    </table>
-                </div>
-            </template>
+            <div style="padding: 5px 20px">
+                <table class="table table-bordered" >
+                    <thead style="background-color: #eee;">
+                    <tr>
+                        <th scope="col" rowspan="2">Sample ID</th>
+                        <th scope="col" rowspan="2">Individual ID</th>
+                        <th scope="col" rowspan="2">Disorders</th>
+                        <th scope="col" rowspan="2">Phenotypes</th>
+                        <th scope="col" rowspan="2">File</th>
+                        <!--                            <th scope="col" rowspan="2">Description</th>-->
+                    </tr>
+                    </thead>
+                    <tbody id="{{prefix}}HomAltTBody"></tbody>
+                </table>
+            </div>
 
-            <template is="dom-if" if="{{!samplesHomAlt.length}}">
+            <template is="dom-if" if="{{!showSamplesHomAltTable}}">
                 <div style="padding: 5px 20px">
                     No samples found
                 </div>
@@ -134,6 +114,7 @@
                 super();
 
                 this.prefix = "ovcs" + Utils.randomString(6);
+                this.catalogUiUtils = new CatalogUIUtils();
             }
 
             static get is() {
@@ -168,6 +149,139 @@
             variantObserver(e) {
                 this._querySamples(e);
             }
+
+            _querySamples(e) {
+                if (UtilsNew.isNotUndefinedOrNull(this.variant) && this.variant.split(':').length > 2 && this.active) {
+                    let params = {
+                        id: this.variant,
+                        study: this.opencgaSession.study.fqn,
+                        // genotype: "0/1,0|1",
+                        limit: 25
+                    };
+
+                    this.samplesHet = [];
+                    this.samplesHomAlt = [];
+
+                    // shows loading modal
+                    $(PolymerUtils.getElementById(this.prefix + "LoadingModal")).modal("show");
+
+                    let _this = this;
+                    setTimeout(() => {
+                        this.opencgaSession.opencgaClient.variants().sampleData(_this.variant, params)
+                            .then(function (response) {
+                                let result = response.response[0].result[0];
+
+                                // For each genotype in the response.samples
+                                for (let gt in result.samples) {
+                                    let sampleInfo = [];
+                                    let sampleIds = [];
+                                    for (let sample of result.samples[gt]) {
+                                        sampleInfo.push({
+                                            id: sample.id,
+                                            fileId: sample.fileId
+                                        });
+                                        sampleIds.push(sample.id);
+                                    }
+
+                                    // Fetch INDIVIDUAL information from samples
+                                    if (UtilsNew.isNotEmptyArray(sampleIds)) {
+                                        _this.opencgaSession.opencgaClient.samples().info(sampleIds.join(","),
+                                            {
+                                                study: _this.opencgaSession.study.fqn,
+                                                includeIndividual: true
+                                            })
+                                            .then(function (response) {
+                                                let tr = "";
+                                                for (let i = 0; i < response.response.length; i++) {
+                                                    let individual = response.response[i].result[0].attributes.individual;
+                                                    if (UtilsNew.isNotEmpty(individual)) {
+                                                        sampleInfo[i].individualId = individual.id;
+
+                                                        let disordersHtml = [];
+                                                        if (UtilsNew.isNotEmptyArray(individual.disorders)) {
+                                                            for (let disorder of individual.disorders) {
+                                                                let disorderHtmlContent = (UtilsNew.isNotUndefinedOrNull(disorder))
+                                                                    ? disorder.name + " (" + disorder.id + ")"
+                                                                    : "-";
+                                                                disordersHtml.push("<div>" + disorderHtmlContent + "</div>");
+                                                            }
+                                                        }
+                                                        sampleInfo[i].disorders = disordersHtml.length > 0 ? disordersHtml.join("") : "-";
+
+                                                        let phenotypeTooltipText = "";
+                                                        for (let phenotype of individual.phenotypes) {
+                                                            phenotypeTooltipText += `<div style="padding: 5px">`;
+                                                            if (UtilsNew.isNotUndefinedOrNull(phenotype.source) && phenotype.source.toUpperCase() === "HPO") {
+                                                                phenotypeTooltipText += `<span>
+                                                                                                <a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})
+                                                                                            </span>
+                                                                        `;
+                                                            } else {
+                                                                phenotypeTooltipText += `<span>${phenotype.id} (${phenotype.status})</span>`;
+                                                            }
+                                                            phenotypeTooltipText += "</div>";
+                                                        }
+
+                                                        let html = `<div class="phenotypesTooltip" data-tooltip-text='${phenotypeTooltipText}' align="center">
+                                                                            <a style="cursor: pointer">
+                                                                                ${individual.phenotypes.length} terms found
+                                                                            </a>
+                                                                        </div>
+                                                            `;
+
+                                                        tr += `<tr class="detail-view-row">
+                                                                            <td>${sampleInfo[i].id}</td>
+                                                                            <td>${sampleInfo[i].individualId}</td>
+                                                                            <td>${sampleInfo[i].disorders}</td>
+                                                                            <td>${html}</td>
+                                                                            <td>${sampleInfo[i].fileId}</td>
+                                                                       </tr>`;
+                                                    }
+                                                }
+
+                                                switch (gt) {
+                                                    case "0/1":
+                                                        _this.showSamplesHetTable = true;
+                                                        _this.samplesHetSize = sampleInfo.length;
+                                                        _this.samplesHet = sampleInfo;
+                                                        PolymerUtils.innerHTML(_this.prefix + "HetTBody", tr);
+                                                        break;
+                                                    case "1/1":
+                                                        _this.showSamplesHomAltTable = true;
+                                                        _this.samplesHomAltSize = sampleInfo.length;
+                                                        _this.samplesHomAlt = sampleInfo;
+                                                        PolymerUtils.innerHTML(_this.prefix + "HomAltTBody", tr);
+                                                        break;
+                                                }
+                                                _this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
+                                            });
+                                    } else {
+                                        switch (gt) {
+                                            case "0/1":
+                                                _this.showSamplesHetTable = false;
+                                                _this.samplesHetSize = sampleInfo.length;
+                                                _this.samplesHet = [];
+                                                PolymerUtils.innerHTML(_this.prefix + "HetTBody", "");
+                                                break;
+                                            case "1/1":
+                                                _this.showSamplesHomAltTable = false;
+                                                _this.samplesHomAltSize = sampleInfo.length;
+                                                _this.samplesHomAlt = [];
+                                                PolymerUtils.innerHTML(_this.prefix + "HomAltTBody", "");
+                                                break;
+                                        }
+                                    }
+                                }
+                                $(PolymerUtils.getElementById(_this.prefix + "LoadingModal")).modal("hide");
+                            })
+                            .catch(function (reason) {
+                                console.error(reason);
+                                $(PolymerUtils.getElementById(_this.prefix + "LoadingModal")).modal("hide");
+                            });
+                    }, 200);
+                }
+            }
+
 
 //             renderVariantTable() {
 //                 // let _config = Object.assign(this.getDefaultConfig(), this.config.grid);
@@ -366,55 +480,6 @@
             //     return {host: host, queryParams: queryParams};
             // }
 
-            _querySamples(e) {
-                if (UtilsNew.isNotUndefinedOrNull(this.variant) && this.variant.split(':').length > 2 && this.active) {
-                    let params = {
-                        id: this.variant,
-                        study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
-                        genotype: "0/1,0|1",
-                        exclude: "annotation",
-                    };
-
-                    // empty tables
-                    this.set("samplesHet", []);
-                    this.set("samplesHomAlt", []);
-
-                    // shows loading modal
-                    $(PolymerUtils.getElementById(this.prefix + "LoadingModal")).modal("show");
-
-                    let _this = this;
-                    setTimeout(() => {
-                        this.opencgaSession.opencgaClient.variants().samples(params)
-                            .then(function (response) {
-                                if (response.response[0].result.length > 0) {
-                                    _this.set("samplesHet", response.response[0].result);
-                                }
-                                // _this.set("showSamplesHet", response.response[0].result.length > 0);
-
-                                // Shows loading modal
-                                $(PolymerUtils.getElementById(_this.prefix + "LoadingModal")).modal("hide");
-                            })
-                            .catch(function (reason) {
-                                console.error(reason);
-                                $(PolymerUtils.getElementById(_this.prefix + "LoadingModal")).modal("hide");
-                            });
-
-                        params.genotype = "1/1,1|1";
-                        params.genotypes = "1/1,1|1";
-                        this.opencgaSession.opencgaClient.variants().samples(params)
-                            .then(function (response) {
-                                if (response.response[0].result.length > 0) {
-                                    _this.set("samplesHomAlt", response.response[0].result);
-                                }
-                                // _this.set("showSamplesHomAlt", response.response[0].result.length > 0);
-                            })
-                            .catch(function (reason) {
-                                console.error(reason);
-                            });
-                    }, 200);
-                }
-            }
-
             handleCollapseAction(e) {
                 let id = e.target.dataset.id;
                 let elem = $('#' + this.prefix + id)[0];
@@ -429,10 +494,10 @@
             _downloadSamples() {
                 let dataString = [];
                 for (let sample of this.samplesHet) {
-                    dataString.push(sample.name + "\t0/1");
+                    dataString.push(sample.id + "\t0/1");
                 }
                 for (let sample of this.samplesHomAlt) {
-                    dataString.push(sample.name + "\t1/1");
+                    dataString.push(sample.id + "\t1/1");
                 }
 
                 let data = new Blob([dataString.join('\n')], {type: 'text/plain'});

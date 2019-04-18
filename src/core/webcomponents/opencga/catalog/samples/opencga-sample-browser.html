@@ -80,28 +80,27 @@
                                              on-selectsample="onSelectSample" active="{{activeMenu.table}}">
                         </opencga-sample-grid>
 
-                        <div style="padding-top: 5px">
-                            <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
-                                <li role="presentation" class="active">
-                                    <a href="#{{prefix}}SampleViewer" role="tab" data-toggle="tab" class="detail-tab-title">
-                                        Sample Info
-                                    </a>
-                                </li>
-                            </ul>
+                        <!--<div style="padding-top: 5px">-->
+                            <!--<ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">-->
+                                <!--<li role="presentation" class="active">-->
+                                    <!--<a href="#{{prefix}}SampleViewer" role="tab" data-toggle="tab" class="detail-tab-title">-->
+                                        <!--Sample Info-->
+                                    <!--</a>-->
+                                <!--</li>-->
+                            <!--</ul>-->
 
-                            <div class="tab-content" style="height: 680px">
-                                <div role="tabpanel" class="tab-pane active" id="{{prefix}}SampleViewer">
-                                    <opencga-sample-view opencga-client="{{opencgaSession.opencgaClient}}"
-                                                         opencga-session="{{opencgaSession}}" sample-id="{{sample.id}}" config="{{_config.sampleDetail}}"
-                                                         style="font-size: 12px;">
-                                        <!--opencga-client="{{opencgaSession.opencgaClient}}" -->
-                                        <!--opencga-session="{{opencgaSession}}" config="[[_config]]"-->
-                                    </opencga-sample-view>
-                                </div>
+                            <!--<div class="tab-content" style="height: 680px">-->
+                                <!--<div role="tabpanel" class="tab-pane active" id="{{prefix}}SampleViewer">-->
+                                    <!--<opencga-sample-view opencga-client="{{opencgaSession.opencgaClient}}"-->
+                                                         <!--opencga-session="{{opencgaSession}}" sample-id="{{sample.id}}" config="{{_config.sampleDetail}}"-->
+                                                         <!--style="font-size: 12px;">-->
+                                        <!--&lt;!&ndash;opencga-client="{{opencgaSession.opencgaClient}}" &ndash;&gt;-->
+                                        <!--&lt;!&ndash;opencga-session="{{opencgaSession}}" config="[[_config]]"&ndash;&gt;-->
+                                    <!--</opencga-sample-view>-->
+                                <!--</div>-->
 
-                            </div>
-                        </div>
-
+                            <!--</div>-->
+                        <!--</div>-->
                     </div>
 
                     <div id="{{prefix}}AggregationStats" class="sample-browser-view-content" style="display: none">
@@ -250,13 +249,15 @@
             }
 
             filterAvailableVariableSets(opencgaSession, config) {
-                if (this._config.variableSetIds.length === 0) {
+                if (this._config.variableSetIds.length === 0 && UtilsNew.isNotUndefinedOrNull(opencgaSession.study)) {
                     this.variableSets = opencgaSession.study.variableSets;
                 } else {
                     let variableSets = [];
-                    for (let i = 0; i < opencgaSession.study.variableSets.length; i++) {
-                        if (this._config.variableSetIds.indexOf(opencgaSession.study.variableSets[i].id) !== -1) {
-                            variableSets.push(opencgaSession.study.variableSets[i]);
+                    if (UtilsNew.isNotUndefinedOrNull(opencgaSession.study) && UtilsNew.isNotEmptyArray(opencgaSession.study.variableSets)) {
+                        for (let i = 0; i < opencgaSession.study.variableSets.length; i++) {
+                            if (this._config.variableSetIds.indexOf(opencgaSession.study.variableSets[i].id) !== -1) {
+                                variableSets.push(opencgaSession.study.variableSets[i]);
+                            }
                         }
                     }
                     this.variableSets = variableSets;

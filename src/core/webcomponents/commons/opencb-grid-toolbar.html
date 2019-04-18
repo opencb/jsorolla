@@ -59,9 +59,11 @@
                     </div>
 
                     <!--Share URL-->
-                    <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" on-click="onShareLink">
-                        <i class="fa fa-share-alt" aria-hidden="true" style="padding-right: 5px"></i> Share
-                    </button>
+                    <template is="dom-if" if="{{showShareLink}}">
+                        <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" on-click="onShareLink">
+                            <i class="fa fa-share-alt" aria-hidden="true" style="padding-right: 5px"></i> Share
+                        </button>
+                    </template>
                 </div>
             </div>
         </div>
@@ -155,7 +157,8 @@
                 return {
                     label: "records",
                     columns: [], // [{field: "blabla", title: "Blabla", visible: true, eligible: true}]
-                    download: ["Tab", "JSON"]
+                    download: ["Tab", "JSON"],
+                    showShareLink: false
                 };
             }
 

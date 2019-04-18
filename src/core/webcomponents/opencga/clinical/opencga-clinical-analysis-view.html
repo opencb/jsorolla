@@ -88,7 +88,7 @@
                 <!--<hr class="hr-underline">-->
 
                 <div>
-                    <h3 class="form-section-title">General Information</h3>
+                    <h4 class="form-section-title">Case Summary</h4>
                 </div>
 
                 <form class="form-horizontal" style="padding: 5px 10px">
@@ -175,7 +175,7 @@
 
             <div id="{{prefix}}Proband" class="col-md-12 section-padding">
                 <div>
-                    <h3 class="form-section-title">Proband</h3>
+                    <h4 class="form-section-title">Proband</h4>
                 </div>
 
                 <form class="form-horizontal" style="padding: 10px 0px 0px 0px;">
@@ -224,7 +224,7 @@
                                     <thead>
                                     <tr class="table-header">
                                         <th>ID</th>
-                                        <th>Source</th>
+                                        <th>Files</th>
                                         <th>Collection Method</th>
                                         <th>Preparation Method</th>
                                         <th>Somatic</th>
@@ -235,7 +235,8 @@
                                     <tbody>
                                     <tr>
                                         <td>{{clinicalAnalysis.proband.samples.0.id}}</td>
-                                        <td>{{clinicalAnalysis.proband.samples.0.source}}</td>
+                                        <!--<td>{{clinicalAnalysis.proband.samples.0.source}}</td>-->
+                                        <td>{{_probandFiles}}</td>
                                         <td>{{clinicalAnalysis.proband.samples.0.collection.method}}</td>
                                         <td>{{clinicalAnalysis.proband.samples.0.processing.preparationMethod}}</td>
                                         <td>{{clinicalAnalysis.proband.samples.0.somatic}}</td>
@@ -252,7 +253,7 @@
 
             <div id="{{prefix}}Family" class="col-md-12 section-padding">
                 <div>
-                    <h3 class="form-section-title">Family</h3>
+                    <h4 class="form-section-title">Family</h4>
                 </div>
 
                 <template is="dom-if" if="{{clinicalAnalysis.family.members}}">
@@ -318,12 +319,12 @@
             </div>
         </div>
 
-        <div id="{{prefix}}Interperetations" class="col-md-12 section-padding">
-            <div>
-                <h3 class="form-section-title">Interpretation Summary</h3>
-            </div>
-            <div>No interpretations found.</div>
-        </div>
+        <!--<div id="{{prefix}}Interperetations" class="col-md-12 section-padding">-->
+            <!--<div>-->
+                <!--<h3 class="form-section-title">Interpretation Summary</h3>-->
+            <!--</div>-->
+            <!--<div>No interpretations found.</div>-->
+        <!--</div>-->
     </template>
 
 </dom-module>
@@ -418,6 +419,19 @@
                         phenotypes.push(phenotype.name + " (" + phenotype.id + ")");
                     }
                     this._probandPhenotypes = phenotypes.join(", ");
+                }
+
+                this._probandFiles= "-";
+                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.files) && UtilsNew.isNotEmptyArray(clinicalAnalysis.proband.samples)) {
+                    let files = [];
+
+                    let probandFiles = clinicalAnalysis.files[clinicalAnalysis.proband.samples[0].id];
+                    if (UtilsNew.isNotEmptyArray(probandFiles)) {
+                        for (let file of clinicalAnalysis.files[clinicalAnalysis.proband.samples[0].id]) {
+                            files.push(file.name);
+                        }
+                    }
+                    this._probandFiles = files.join(", ");
                 }
 
                 this._memberPhenotypes= [];

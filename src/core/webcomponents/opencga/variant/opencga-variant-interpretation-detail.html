@@ -16,9 +16,10 @@
 
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
 <link rel="import" href="opencga-variant-file-metrics.html">
+<link rel="import" href="opencga-interpretation-variant-review.html">
 <link rel="import" href="variant-beacon-network.html">
 
-<dom-module id="opencga-interpreted-variant-detail">
+<dom-module id="opencga-variant-interpretation-detail">
     <template>
         <style include="jso-styles"></style>
 
@@ -45,11 +46,21 @@
                     </template>
                 </ul>
 
-                <div class="tab-content" style="height: 680px">
+<!--                style="height: 680px"-->
+                <div class="tab-content">
+<!--                    &lt;!&ndash; Annotation Tab &ndash;&gt;-->
+<!--                    <div id="{{prefix}}variantReview" role="tabpanel" class="tab-pane">-->
+<!--                        <div style="width: 75%;padding-top: 8px">-->
+<!--                            <opencga-interpretation-variant-review opencga-session="{{opencgaSession}}"-->
+<!--                                                                   variant="{{variant}}">-->
+<!--                            </opencga-interpretation-variant-review>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
                     <!-- Annotation Tab -->
                     <div id="{{prefix}}annotation" role="tabpanel" class="tab-pane active">
                         <div style="width: 75%;padding-top: 8px">
-                            <cellbase-variantannotation-view data="{{variant.id}}" assembly={{opencgaSession.project.organism.assembly}} prefix="{{prefix}}"
+                            <cellbase-variantannotation-view data="{{_variantId}}" assembly={{opencgaSession.project.organism.assembly}} prefix="{{prefix}}"
                                                              cellbase-client="{{cellbaseClient}}" mode="vertical"
                                                              consequence-types="{{consequenceTypes}}"
                                                              protein-substitution-scores="{{proteinSubstitutionScores}}"
@@ -61,10 +72,9 @@
                     <!-- Cohort Stats Tab -->
                     <div id="{{prefix}}fileMetrics" role="tabpanel" class="tab-pane">
                         <div style="width: 75%;padding-top: 8px">
-                            <opencga-variant-file-metrics
-                                    opencga-session="{{opencgaSession}}"
-                                    variant="{{variant}}"
-                                    clinicalAnalysis={{clinicalAnalysis}}
+                            <opencga-variant-file-metrics opencga-session="{{opencgaSession}}"
+                                                          variant="{{variant}}"
+                                                          clinicalAnalysis={{clinicalAnalysis}}
                             </opencga-variant-file-metrics>
                         </div>
                     </div>
@@ -72,10 +82,9 @@
                     <!-- Cohort Stats Tab -->
                     <div id="{{prefix}}cohortStats" role="tabpanel" class="tab-pane">
                         <div style="width: 75%;padding-top: 8px">
-                            <opencga-variant-cohort-stats
-                                    opencga-session="{{opencgaSession}}"
-                                    variant="{{variant.id}}"
-                                    active="{{detailActiveTabs.cohortStats}}">
+                            <opencga-variant-cohort-stats opencga-session="{{opencgaSession}}"
+                                                          variant="{{variant.id}}"
+                                                          active="{{detailActiveTabs.cohortStats}}">
                             </opencga-variant-cohort-stats>
                         </div>
                     </div>
@@ -83,10 +92,9 @@
                     <!-- Samples Tab -->
                     <div id="{{prefix}}samples" role="tabpanel" class="tab-pane">
                         <div style="width: 75%;padding-top: 8px">
-                            <opencga-variant-samples
-                                    opencga-session="{{opencgaSession}}"
-                                    variant="{{variant.id}}"
-                                    active="{{detailActiveTabs.samples}}">
+                            <opencga-variant-samples opencga-session="{{opencgaSession}}"
+                                                     variant="{{variant.id}}"
+                                                     active="{{detailActiveTabs.samples}}">
                             </opencga-variant-samples>
                         </div>
                     </div>
@@ -101,10 +109,9 @@
                     <!-- Example Template Tab-->
                     <div id="{{prefix}}template" role="tabpanel" class="tab-pane">
                         <div style="width: 75%;padding-top: 8px">
-                            <opencga-variant-detail-template
-                                    opencga-session="{{opencgaSession}}"
-                                    variant="{{variant.id}}"
-                                    active="{{detailActiveTabs.template}}">
+                            <opencga-variant-detail-template opencga-session="{{opencgaSession}}"
+                                                             variant="{{variant.id}}"
+                                                             active="{{detailActiveTabs.template}}">
                             </opencga-variant-detail-template>
                         </div>
                     </div>
@@ -115,7 +122,7 @@
     </template>
 
     <script>
-        class OpencgaInterpretedVariantDetail extends Polymer.Element {
+        class OpencgaVariantInterpretationDetail extends Polymer.Element {
 
             constructor() {
                 super();
@@ -125,7 +132,7 @@
             }
 
             static get is() {
-                return 'opencga-interpreted-variant-detail'
+                return 'opencga-variant-interpretation-detail'
             };
 
             static get properties() {
@@ -160,7 +167,7 @@
 
             static get observers() {
                 return [
-                    "propertyObserver(opencgaSession, config)"
+                    "propertyObserver(opencgaSession, variant, config)"
                 ];
             }
 
@@ -175,15 +182,18 @@
                 this._config = this.getDefaultConfig();
             }
 
-            propertyObserver(opencgaSession, config) {
+            propertyObserver(opencgaSession, variant, config) {
                 // With each property change we must updated config and create the columns again. No extra checks are needed.
                 this._config = Object.assign(this.getDefaultConfig(), config);
 
+                if (UtilsNew.isNotEmpty(variant)) {
+                    this._variantId = `${variant.chromosome}:${variant.start}:${variant.reference}:${variant.alternate}`;
+                }
             }
 
             checkVariant(variant) {
                 if (UtilsNew.isNotUndefinedOrNull(variant)) {
-                    return variant.id.split(':').length > 2;
+                    return variant.id.startsWith("rs") || variant.id.split(':').length > 2;
                 } else {
                     return false;
                 }
@@ -204,6 +214,6 @@
             }
         }
 
-        customElements.define(OpencgaInterpretedVariantDetail.is, OpencgaInterpretedVariantDetail);
+        customElements.define(OpencgaVariantInterpretationDetail.is, OpencgaVariantInterpretationDetail);
     </script>
 </dom-module>

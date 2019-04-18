@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<dom-module id="opencga-interpreted-variant-grid">
+<dom-module id="opencga-variant-interpretation-grid">
     <template>
         <style include="jso-styles">
             .variant-link-dropdown:hover .dropdown-menu {
@@ -45,10 +45,31 @@
                 <thead style="background-color: #eee"></thead>
             </table>
         </div>
+
+        <div class="modal fade" id="{{prefix}}ReviewSampleModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
+             role="dialog" aria-hidden="true" style="padding-top: 0%; overflow-y: visible">
+            <div class="modal-dialog" style="width: 1280px">
+                <div class="modal-content">
+                    <div class="modal-header" style="padding: 5px 15px">
+                        <h3>Sample and File Filters</h3>
+                    </div>
+
+                    <opencga-interpretation-variant-review opencga-session="{{opencgaSession}}"
+                                                           variant="{{variantReview}}">
+                    </opencga-interpretation-variant-review>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </template>
 
     <script>
-        class OpencgaInterpretedVariantGrid extends Polymer.Element {
+        class OpencgaVariantInterpretationGrid extends Polymer.Element {
 
             constructor() {
                 super();
@@ -58,7 +79,7 @@
             }
 
             static get is() {
-                return 'opencga-interpreted-variant-grid';
+                return 'opencga-variant-interpretation-grid';
             }
 
             static get properties() {
@@ -117,7 +138,7 @@
             }
 
             _init() {
-                this.prefix = "VarBrowserGrid-" + Utils.randomString(6);
+                this.prefix = "ovig-" + Utils.randomString(6);
 
                 this.query = {};
                 this._config = this.getDefaultConfig();
@@ -140,7 +161,9 @@
                     }
 
                     for (let individual of _individuals) {
-                        _samples.push(individual.samples[0]);
+                        if (UtilsNew.isNotEmptyArray(individual.samples)) {
+                            _samples.push(individual.samples[0]);
+                        }
                     }
                 }
                 this.samples = _samples;
@@ -195,9 +218,9 @@
                 this.approximateCountResult = false;
 
                 let _table = $('#' + this.prefix + 'VariantBrowserGrid');
-
                 if (typeof this.opencgaSession !== "undefined" && typeof this.opencgaSession.project !== "undefined"
-                    && typeof this.opencgaSession.study !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
+                    && typeof this.opencgaSession.study !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined"
+                    && UtilsNew.isNotEmpty(this.query)) {
 
                     let urlQueryParams = this._getUrlQueryParams();
                     let queryParams = urlQueryParams.queryParams;
@@ -230,12 +253,13 @@
                         responseHandler: function (resp) {
                             if (_numTotal === -1) {
                                 _numTotal = resp.response[0].numTotalResults;
+                                // _numTotal = resp.response[0].numTotalResults < 10 ? resp.response[0].numTotalResults : 1150;
                             }
                             // Format the number string with commas
                             _this.to = Math.min(resp.response[0].numResults, this.pageSize);
                             _this.numTotalResultsText = _numTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                             _this.approximateCountResult = resp.response[0].approximateCount;
-                            return {total: _numTotal, rows: resp.response[0].result.reportedVariants}
+                            return {total: _numTotal, rows: resp.response[0].result.primaryFindings}
                         },
                         onClickRow: function (row, $element, field) {
                             $("#" + _this.prefix + "VariantBrowserGrid tr").removeClass('success');
@@ -299,6 +323,11 @@
                             _this.to = page * size;
                         },
                         onPostBody: function (data) {
+                            let removeIndividualButtons = PolymerUtils.querySelectorAll(".removeIndividualButton");
+                            for (let i = 0; i < removeIndividualButtons.length; i++) {
+                                removeIndividualButtons[i].addEventListener('click', _this.onReviewClick.bind(_this));
+                            }
+
                             // Add tooltips
                             _this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "File metrics", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
                             _this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
@@ -307,11 +336,6 @@
                             _this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("popFreqInfoIcon", _this.populationFrequencies);
                         }
                     });
-
-                    // if (!this.showSelect) {
-                    //     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('hideColumn', "selectForInterpretation");
-                    //     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('hideColumn', "stateCheckBox");
-                    // }
 
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
                 }
@@ -358,7 +382,7 @@
 
                 if (UtilsNew.isNotEmptyArray(this.samples)) {
                     // Filters sample and genotype are exclusive
-                    if (UtilsNew.isUndefinedOrNull(queryParams.genotype)) {
+                    if (UtilsNew.isUndefinedOrNull(queryParams.genotype) && UtilsNew.isUndefinedOrNull(queryParams.family)) {
                         let sampleIds = [];
                         this.samples.forEach((sample) => {
                             sampleIds.push(sample.id);
@@ -369,8 +393,12 @@
 
                     queryParams.summary = false;
                     queryParams.exclude = "annotation.geneExpression";
+
+                    // FIXME
                     queryParams.approximateCount = true;
-                    queryParams.useSearchIndex = "yes";
+                    queryParams.skipCount = false;
+
+                    queryParams.useSearchIndex = "auto";
                     queryParams.unknownGenotype = "0/0";
                 } else {
                     queryParams.summary = true;
@@ -396,7 +424,12 @@
             _onSelectVariant(row) {
                 if (typeof row !== "undefined") {
                     let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-                    this.dispatchEvent(new CustomEvent('selectvariant', {detail: {id: _variant, variant: row}}));
+                    this.dispatchEvent(new CustomEvent('selectvariant', {
+                        detail: {
+                            id: _variant,
+                            variant: row
+                        }
+                    }));
                 }
             }
 
@@ -436,6 +469,11 @@
                         _this.to = page * size;
                     },
                     onPostBody: function (data) {
+                        let removeIndividualButtons = PolymerUtils.querySelectorAll(".removeIndividualButton");
+                        for (let i = 0; i < removeIndividualButtons.length; i++) {
+                            removeIndividualButtons[i].addEventListener('click', _this.onReviewClick.bind(_this));
+                        }
+
                         // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
                         if (UtilsNew.isNotEmptyArray(data) && UtilsNew.isNotUndefinedOrNull(_table)) {
                             PolymerUtils.querySelector(_table.selector).rows[2].setAttribute('class', 'success');
@@ -457,6 +495,25 @@
                     let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
                     this.dispatchEvent(new CustomEvent('selectvariant2', {detail: {id: _variant, variant: row}}));
                 }
+            }
+
+            onReviewClick(e) {
+                // debugger
+                // this.dispatchEvent(new CustomEvent('reviewvariant', {
+                //     detail: {
+                //         variant: e.currentTarget.dataset.variant
+                //     }
+                // }));
+
+                for (let rv of this.reportedVariants) {
+                    if (rv.id === e.currentTarget.dataset.variantId) {
+                        this.variantReview = rv;
+                        break;
+                    }
+                }
+
+                $("#" + this.prefix + "ReviewSampleModal").modal("show");
+
             }
 
             showGene(geneName) {
@@ -524,9 +581,9 @@
             }
 
             variantFormatter(value, row, index) {
-                let variantHtmlDiv = this.variantGridFormatter.variantFormatter(value, row, index);
+                let variantHtmlDiv = this.variantGridFormatter.variantFormatter(value, row, this._config);
                 let snptHtmlAnchor = this.variantGridFormatter.snpFormatter(value, row, index);
-                return variantHtmlDiv + "<br>" + snptHtmlAnchor;
+                return variantHtmlDiv + "<div style='padding-top: 10px'>" + snptHtmlAnchor + "</div>";
             }
 
             predictionFormatter(value, row, index) {
@@ -555,42 +612,49 @@
                         // First, get and check info fields QUAL, FILTER; and format fields DP, AD and GQ
                         let qual = "-";
                         let filter = "-";
-                        let dp, ad, gq;
+                        let dp = "-";
+                        let ad = "-";
+                        let gq = "-";
                         let mutationColor = "black";
                         let sampleFormat = row.studies[0].samplesData[this.field.memberIdx];
-                        // INFO fields
-                        for (let file of this.field.clinicalAnalysis.files[this.field.memberName]) {
-                            // Find the sample VCF file, if exists
-                            if (file.format === "VCF") {
-                                for (let studyFile of row.studies[0].files) {
-                                    if (studyFile.fileId === file.name) {
-                                        qual = Number(studyFile.attributes.QUAL).toFixed(2);
-                                        if (qual < this.field.quality.qual) {
-                                            mutationColor = "silver";
-                                        }
 
-                                        filter = studyFile.attributes.FILTER;
-                                        if (filter !== "PASS") {
-                                            mutationColor = "silver";
+                        // INFO fields
+                        if (UtilsNew.isNotEmptyArray(this.field.clinicalAnalysis.files[this.field.memberName])) {
+                            for (let file of this.field.clinicalAnalysis.files[this.field.memberName]) {
+                                // Find the sample VCF file, if exists
+                                if (file.format === "VCF") {
+                                    for (let studyFile of row.studies[0].files) {
+                                        if (studyFile.fileId === file.name) {
+                                            qual = Number(studyFile.attributes.QUAL).toFixed(2);
+                                            if (qual < this.field.quality.qual) {
+                                                mutationColor = "silver";
+                                            }
+
+                                            filter = studyFile.attributes.FILTER;
+                                            if (filter !== "PASS") {
+                                                mutationColor = "silver";
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
+
                         // FORMAT fields
                         for (let formatField in row.studies[0].format) {
                             switch (row.studies[0].format[formatField]) {
                                 case "DP":
-                                    dp = sampleFormat[formatField];
-                                    if (dp < this.field.quality.dp) {
+                                    // dp = sampleFormat[formatField];
+                                    dp = (UtilsNew.isNotUndefinedOrNull(sampleFormat[formatField])) ? sampleFormat[formatField] : "-";
+                                    if (dp !== "NA" && dp < this.field.quality.dp) {
                                         mutationColor = "silver";
                                     }
                                     break;
                                 case "AD":
-                                    ad = sampleFormat[formatField];
+                                    ad = (UtilsNew.isNotUndefinedOrNull(sampleFormat[formatField])) ? sampleFormat[formatField] : "-";
                                     break;
                                 case "GQ":
-                                    gq = sampleFormat[formatField];
+                                    gq = (UtilsNew.isNotUndefinedOrNull(sampleFormat[formatField])) ? sampleFormat[formatField] : "-";
                                     break;
                             }
                         }
@@ -636,6 +700,10 @@
                         // Third, prepare the tooltip information
                         let tooltipText = `<div class="col-md-12" style="padding: 0px">
                                             <form class="form-horizontal">
+                                                <div class="form-group" style="margin: 0px 2px">
+                                                    <label class="col-md-5">GT</label>
+                                                    <div class="col-md-7">${sampleGT}</div>
+                                                </div>
                                                 <div class="form-group" style="margin: 0px 2px">
                                                     <label class="col-md-5">QUAL</label>
                                                     <div class="col-md-7">${qual}</div>
@@ -764,12 +832,16 @@
             }
 
             interpretationFormatter(value, row, index) {
-                let tier = "-";
                 let tiers = {
                     tier1: [], tier2: [], tier3: []
                 };
+                let modeOfInheritances = [];
 
-                for (let re of row.reportedEvents) {
+                for (let re of row.evidences) {
+                    if (UtilsNew.isNotUndefinedOrNull(re.modeOfInheritance) && !modeOfInheritances.includes(re.modeOfInheritance)) {
+                        modeOfInheritances.push(re.modeOfInheritance);
+                    }
+
                     if (UtilsNew.isNotUndefinedOrNull(re.tier)) {
                         let obj = {tier: re.tier, acmg: re.classification.acmg.join(", ")};
                         switch (re.tier.toLowerCase()) {
@@ -787,16 +859,27 @@
                                 break;
                         }
                     }
-
-                    if (tiers.tier1.length > 0) {
-                        tier = `<span style="color: red">${tiers.tier1[0].tier}</span> (${tiers.tier1[0].acmg})`;
-                    } else if (tiers.tier2.length > 0) {
-                        tier = `<span style="color: darkorange">${tiers.tier2[0].tier}</span> (${tiers.tier2[0].acmg})`;
-                    } else if (tiers.tier3.length > 0) {
-                        tier = `<span style="color: blue">${tiers.tier3[0].tier}</span> (${tiers.tier3[0].acmg})`;
-                    }
                 }
-                return `<div>${tier}</div><br>`;
+
+                let tierHtml = "<div>" + "-";
+                if (tiers.tier1.length > 0) {
+                    tierHtml = `<span style="color: red">${tiers.tier1[0].tier}</span> (${tiers.tier1[0].acmg})`;
+                } else if (tiers.tier2.length > 0) {
+                    tierHtml = `<span style="color: darkorange">${tiers.tier2[0].tier}</span> (${tiers.tier2[0].acmg})`;
+                } else if (tiers.tier3.length > 0) {
+                    tierHtml = `<span style="color: blue">${tiers.tier3[0].tier}</span> (${tiers.tier3[0].acmg})`;
+                }
+                tierHtml += "</div>";
+
+                let moiHtml = `<div style='padding-top: 10px'>${modeOfInheritances.join(", ")}</div>`;
+
+                return `${tierHtml}${moiHtml}`;
+            }
+
+            reviewFormatter(value, row, index) {
+                return `<button class="btn btn-link removeIndividualButton" data-variant-id="${row.id}">
+                            <i class="fa fa-edit icon-padding removeIndividualButton" aria-hidden="true"></i> Edit
+                        </button>`;
             }
 
             _createDefaultColumns() {
@@ -936,33 +1019,54 @@
                     });
                 }
 
+                if (this._config.showStatus) {
+                    this._columns[1].push({
+                        title: "Status",
+                        field: "status",
+                        rowspan: 1,
+                        colspan: 1
+                    });
+                    this._columns[0].push({
+                        title: "Review",
+                        // field: "status",
+                        rowspan: 2,
+                        colspan: 1,
+                        formatter: this.reviewFormatter.bind(this),
+                        align: 'center'
+                    });
+                }
+
                 let sampleInfo = {};
                 if (UtilsNew.isNotEmptyArray(this.individuals)) {
                     let probandId = (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.proband)) ? this.clinicalAnalysis.proband.id : "";
                     for (let individual of this.individuals) {
-                        let affected = false;
-                        for (let disorder of individual.disorders) {
-                            if (disorder.id === this.clinicalAnalysis.disorder.id) {
-                                affected = true;
-                                break;
+                        if (UtilsNew.isNotEmptyArray(individual.samples)) {
+                            let affected = false;
+                            if (UtilsNew.isNotEmptyArray(individual.disorders)) {
+                                for (let disorder of individual.disorders) {
+                                    if (disorder.id === this.clinicalAnalysis.disorder.id) {
+                                        affected = true;
+                                        break;
+                                    }
+                                }
                             }
-                        }
-                        let role = "";
-                        for (let ind of this.individuals) {
-                            if (UtilsNew.isNotUndefinedOrNull(ind.father) && ind.father.id === individual.id) {
-                                role = "father";
+                            let role = "";
+                            for (let ind of this.individuals) {
+                                if (UtilsNew.isNotUndefinedOrNull(ind.father) && ind.father.id === individual.id) {
+                                    role = "father";
+                                }
+                                if (UtilsNew.isNotUndefinedOrNull(ind.mother) && ind.mother.id === individual.id) {
+                                    role = "mother";
+                                }
                             }
-                            if (UtilsNew.isNotUndefinedOrNull(ind.mother) && ind.mother.id === individual.id) {
-                                role = "mother";
-                            }
-                        }
 
-                        sampleInfo[individual.samples[0].id] = {
-                            proband: individual.id === probandId,
-                            affected: affected,
-                            role: role,
-                            sex: individual.sex
-                        };
+                            sampleInfo[individual.samples[0].id] = {
+                                proband: individual.id === probandId,
+                                affected: affected,
+                                role: role,
+                                sex: individual.sex
+                            };
+                        }
                     }
                 }
 
@@ -1098,9 +1202,10 @@
                     detailFormatter: this.detailFormatter,
 
                     showSelectCheckbox: false,
+                    showStatus: false,
                     multiSelection: false,
                     nucleotideGenotype: true,
-                    alleleStringLengthMax: 15,
+                    alleleStringLengthMax: 10,
 
                     header: {
                         horizontalAlign: 'center',
@@ -1116,6 +1221,6 @@
             }
         }
 
-        customElements.define(OpencgaInterpretedVariantGrid.is, OpencgaInterpretedVariantGrid);
+        customElements.define(OpencgaVariantInterpretationGrid.is, OpencgaVariantInterpretationGrid);
     </script>
 </dom-module>

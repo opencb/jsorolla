@@ -35,6 +35,25 @@ class LinearCoverageTrack extends LinearFeatureTrack {
         this.init(this.targetId);
     }
 
+    init(targetId) {
+        this._initDomContainer(targetId);
+
+        this.main = SVG.addChild(this.contentDiv, "svg", {
+            "class": "trackSvg",
+            "x": 0,
+            "y": 0,
+            "width": this.config.width,
+            "height": this.config.height,
+        });
+
+        this.svgCanvasFeatures = SVG.addChild(this.main, "svg", {
+            "class": "features",
+            "x": -this.pixelPosition,
+            "height": this.config.height,
+            "width": this.config.svgCanvasWidth
+        });
+    }
+
     _checkAllParams(params) {
         if (UtilsNew.isEmpty(params.study)) {
             throw "Missing 'study' query parameter";
@@ -62,6 +81,7 @@ class LinearCoverageTrack extends LinearFeatureTrack {
         let coverageConfiguration = {
             width: config.width,
             height: config.height,
+            pixelPosition: this.pixelPosition,
             target: this.svgCanvasFeatures
         };
 
@@ -95,7 +115,8 @@ class LinearCoverageTrack extends LinearFeatureTrack {
                 params: {
                     study: args.query.study,
                     fileId: args.query.fileId,
-                    minCoverage: config.lowCoverageThreshold
+                    minCoverage: config.lowCoverageThreshold,
+                    // sid: this.opencga.client._config.sessionId,
                 },
                 dataType: this.dataType,
                 region: new Region(`${args.query.region.chromosome}:${start}-${end}`),
@@ -107,17 +128,6 @@ class LinearCoverageTrack extends LinearFeatureTrack {
         }
     }
 
-    init(targetId) {
-        this._initDomContainer(targetId);
-
-        this.svgCanvasFeatures = SVG.addChild(this.contentDiv, "svg", {
-            "class": "features",
-            "width": this.config.width,
-            "height": this.config.height,
-            "style": "fill: white",
-            "xmlns": "http://www.w3.org/2000/svg"
-        });
-    }
 
     setRegion(chromosome, start, end) {
         this.region = new Region(chromosome, start, end);

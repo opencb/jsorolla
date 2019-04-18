@@ -45,7 +45,7 @@
         <div class="row" style="padding: 0px 10px">
             <div class="col-md-2">
                 <opencga-family-filter opencga-session="{{opencgaSession}}" config="{{_config.filter}}" families="{{families}}"
-                                           opencga-client="{{opencgaSession.opencgaClient}}" query="{{query}}" search="{{search}}">
+                                       opencga-client="{{opencgaSession.opencgaClient}}" query="{{query}}" search="{{search}}">
                 </opencga-family-filter>
             </div>
 
@@ -76,45 +76,43 @@
                 <div>
                     <div id="{{prefix}}TableResult" class="family-browser-view-content">
                         <opencga-family-grid opencga-client="{{opencgaSession.opencgaClient}}"
-                                                 opencga-session="{{opencgaSession}}" config="[[_config.grid]]"
-                                                 event-notify-name="[[eventNotifyName]]" families="{{families}}"
-                                                 search="{{search}}" style="font-size: 12px" on-selectfamily="onSelectFamily"
-                                                 active="{{activeMenu.table}}">
+                                             opencga-session="{{opencgaSession}}" config="[[_config.grid]]"
+                                             event-notify-name="[[eventNotifyName]]" families="{{families}}"
+                                             search="{{search}}" style="font-size: 12px" on-selectfamily="onSelectFamily"
+                                             active="{{activeMenu.table}}">
                         </opencga-family-grid>
 
-                        <div style="padding-top: 5px">
-                            <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
-                                <li role="presentation" class="active">
-                                    <a href="#{{prefix}}FamilyViewer" role="tab" data-toggle="tab" class="detail-tab-title"
-                                       data-id="info" on-click="_changeBottomTab">
-                                        Family Info
-                                    </a>
-                                </li>
+                        <!--<div style="padding-top: 5px">-->
+                            <!--<ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">-->
+                                <!--<li role="presentation" class="active">-->
+                                    <!--<a href="#{{prefix}}FamilyViewer" role="tab" data-toggle="tab" class="detail-tab-title"-->
+                                       <!--data-id="info" on-click="_changeBottomTab">-->
+                                        <!--Family Info-->
+                                    <!--</a>-->
+                                <!--</li>-->
 
-                                <li role="presentation">
-                                    <a href="#{{prefix}}FamilyViewer" role="tab" data-toggle="tab" class="detail-tab-title"
-                                       data-id="familyGrid" on-click="_changeBottomTab">
-                                        Family
-                                    </a>
-                                </li>
-                            </ul>
+                                <!--<li role="presentation">-->
+                                    <!--<a href="#{{prefix}}FamilyViewer" role="tab" data-toggle="tab" class="detail-tab-title"-->
+                                       <!--data-id="familyGrid" on-click="_changeBottomTab">-->
+                                        <!--Family-->
+                                    <!--</a>-->
+                                <!--</li>-->
+                            <!--</ul>-->
 
-                            <div class="tab-content" style="height: 680px">
-                                <div role="tabpanel" class="tab-pane active" id="{{prefix}}CohortViewer">
-                                    Work in progress:  {{family.id}}
-                                </div>
-                                <div role="tabpanel" class="tab-pane" id="{{prefix}}FamilyViewer">
-                                    Work in progress:  {{family.id}}
-                                    <!--<opencga-sample-grid opencga-client="{{opencgaSession.opencgaClient}}"-->
-                                    <!--opencga-session="{{opencgaSession}}" search="{{sampleSearch}}"-->
-                                    <!--style="font-size: 12px" active="{{detailActiveTabs.sampleGrid}}">-->
-                                    <!--</opencga-sample-grid>-->
-                                </div>
+                            <!--<div class="tab-content" style="height: 680px">-->
+                                <!--<div role="tabpanel" class="tab-pane active" id="{{prefix}}CohortViewer">-->
+                                    <!--Work in progress:  {{family.id}}-->
+                                <!--</div>-->
+                                <!--<div role="tabpanel" class="tab-pane" id="{{prefix}}FamilyViewer">-->
+                                    <!--Work in progress:  {{family.id}}-->
+                                    <!--&lt;!&ndash;<opencga-sample-grid opencga-client="{{opencgaSession.opencgaClient}}"&ndash;&gt;-->
+                                    <!--&lt;!&ndash;opencga-session="{{opencgaSession}}" search="{{sampleSearch}}"&ndash;&gt;-->
+                                    <!--&lt;!&ndash;style="font-size: 12px" active="{{detailActiveTabs.sampleGrid}}">&ndash;&gt;-->
+                                    <!--&lt;!&ndash;</opencga-sample-grid>&ndash;&gt;-->
+                                <!--</div>-->
 
-                            </div>
-                        </div>
-
-
+                            <!--</div>-->
+                        <!--</div>-->
                     </div>
 
                     <div id="{{prefix}}AggregationStats" class="family-browser-view-content" style="display: none">
@@ -124,10 +122,10 @@
 
                     <div id="{{prefix}}FamilyComparator" class="family-browser-view-content" style="display: none">
                         <opencga-family-grid opencga-client="{{opencgaSession.opencgaClient}}"
-                                                 opencga-session="{{opencgaSession}}" config="[[_config.gridComparator]]"
-                                                 event-notify-name="[[eventNotifyName]]" families="{{families}}"
-                                                 search="{{search}}" style="font-size: 12px"
-                                                 active="{{activeMenu.comparator}}">
+                                             opencga-session="{{opencgaSession}}" config="[[_config.gridComparator]]"
+                                             event-notify-name="[[eventNotifyName]]" families="{{families}}"
+                                             search="{{search}}" style="font-size: 12px"
+                                             active="{{activeMenu.comparator}}">
                         </opencga-family-grid>
 
                         <div style="padding-top: 5px">
@@ -295,13 +293,15 @@
             }
 
             filterAvailableVariableSets(opencgaSession, config) {
-                if (this._config.variableSetIds.length === 0) {
+                if (this._config.variableSetIds.length === 0 && UtilsNew.isNotUndefinedOrNull(opencgaSession.study)) {
                     this.variableSets = opencgaSession.study.variableSets;
                 } else {
                     let variableSets = [];
-                    for (let i = 0; i < opencgaSession.study.variableSets.length; i++) {
-                        if (this._config.variableSetIds.indexOf(opencgaSession.study.variableSets[i].id) !== -1) {
-                            variableSets.push(opencgaSession.study.variableSets[i]);
+                    if (UtilsNew.isNotUndefinedOrNull(opencgaSession.study) && UtilsNew.isNotEmptyArray(opencgaSession.study.variableSets)) {
+                        for (let i = 0; i < opencgaSession.study.variableSets.length; i++) {
+                            if (this._config.variableSetIds.indexOf(opencgaSession.study.variableSets[i].id) !== -1) {
+                                variableSets.push(opencgaSession.study.variableSets[i]);
+                            }
                         }
                     }
                     this.variableSets = variableSets;

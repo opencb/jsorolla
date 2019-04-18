@@ -62,19 +62,23 @@ class VariantGridFormatter {
         return result;
     }
 
-    variantFormatter(value, row, index) {
+    variantFormatter(value, row, config) {
         if (row === undefined) {
             return;
         }
 
-        let ref = (row.reference !== "") ? row.reference : "-";
-        let alt = (row.alternate !== "") ? row.alternate : "-";
-
-        ref = (ref.length > this.config.alleleStringLengthMax) ? ref.substring(0, this.config.alleleStringLengthMax - 3) + "..." : ref;
-        alt = (alt.length > this.config.alleleStringLengthMax) ? alt.substring(0, this.config.alleleStringLengthMax - 3) + "..." : alt;
+        // If REF/ALT is greater than maxAlleleLength we display the first and last 5 bp
+        let ref = (UtilsNew.isNotEmpty(row.reference)) ? row.reference : "-";
+        let alt = (UtilsNew.isNotEmpty(row.alternate)) ? row.alternate : "-";
+        let maxAlleleLength = 15;
+        if (UtilsNew.isNotUndefinedOrNull(config) && UtilsNew.isNotUndefinedOrNull(config.alleleStringLengthMax)) {
+            maxAlleleLength = config.alleleStringLengthMax;
+        }
+        ref = (ref.length > maxAlleleLength) ? ref.substring(0, 5) + "..." + ref.substring(ref.length - 5) : ref;
+        alt = (alt.length > maxAlleleLength) ? alt.substring(0, 5) + "..." + alt.substring(alt.length - 5) : alt;
 
         let id = row.id;
-        if (typeof row.annotation !== "undefined" && typeof row.annotation.xrefs !== "undefined" && row.annotation.xrefs.length > 0) {
+        if (typeof row.annotation !== "undefined" && UtilsNew.isNotEmptyArray(row.annotation.xrefs)) {
             row.annotation.xrefs.find(function (element) {
                 if (element.source === "dbSNP") {
                     id = element.id;
@@ -83,7 +87,7 @@ class VariantGridFormatter {
         }
 
         let genomeBrowserMenuLink = "";
-        if (this.config.showGenomeBrowser) {
+        if (UtilsNew.isNotUndefinedOrNull(config) && config.showGenomeBrowser) {
             genomeBrowserMenuLink = `<div>
                                         <a class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
                                             <i class="fa fa-list" aria-hidden="true"></i> Genome Browser
@@ -91,13 +95,25 @@ class VariantGridFormatter {
                                      </div>`;
         }
 
+        let ensemblLinkHtml = id.startsWith("rs")
+            ? "https://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + id
+            : "http://www.ensembl.org/Homo_sapiens/Location/View?r=" + row.chromosome + ":" + row.start + "-" + row.end;
+
+        let snpLinkHtml = "";
+        if (id.startsWith("rs")) {
+            snpLinkHtml = `<div style="padding: 5px"><a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs=${id}">dbSNP</a></div>
+                           <div style="padding: 5px"><a target="_blank" href="https://www.snpedia.com/index.php/${id}">SNPedia</a></div>
+                           <div style="padding: 5px"><a target="_blank" href="https://www.ncbi.nlm.nih.gov/clinvar/?term=${id}">ClinVar</a></div>
+                `;
+        }
+
         // <div style="padding: 5px 15px; color: darkgray; font-weight: bolder">External Links</div>
         let tooltipText = `${genomeBrowserMenuLink}
-                            <div style="padding: 5px"><a target="_blank" href="https://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${id}">Ensembl</a></div>
-                            <div style="padding: 5px"><a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs=${id}">dbSNP</a></div>
-                            <div style="padding: 5px"><a target="_blank" href="https://www.snpedia.com/index.php/${id}">SNPedia</a></div>
-                            <div style="padding: 5px"><a target="_blank" href="https://www.ncbi.nlm.nih.gov/clinvar/?term=${id}">ClinVar</a></div>
-                            `;
+                            <div style="padding: 5px">
+                                <a target="_blank" href="${ensemblLinkHtml}">Ensembl</a>
+                            </div>
+                            ${snpLinkHtml}
+                `;
 
         return `<div class="variant-tooltip" data-tooltip-text='${tooltipText}'>
                     <a style="cursor: pointer">
@@ -390,6 +406,76 @@ class VariantGridFormatter {
     }
 
 
+
+    addCohortStatsInfoTooltip(div, populationFrequencies) {
+        $("#" + div).qtip({
+            content: {
+                title: "Population Frequencies",
+                text: function(event, api) {
+                    return `One coloured square is shown for each cohort. Frequencies are coded with colours which classify values 
+                            into 'very rare', 'rare', 'average', 'common' or 'missing', see 
+                            <a href="http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg" target="_blank">
+                                http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg
+                            </a>. Please, leave the cursor over each square to visualize the actual frequency values.
+                            <div style="padding: 10px 0px 0px 0px"><label>Legend: </label></div>
+                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.color.veryRare}" aria-hidden="true"></i> Very rare:  freq < 0.001</span></div>
+                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.color.rare}" aria-hidden="true"></i> Rare:  freq < 0.005</span></div>
+                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.color.average}" aria-hidden="true"></i> Average:  freq < 0.05</span></div>
+                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.color.common}" aria-hidden="true"></i> Common:  freq >= 0.05</span></div>
+                            <div><span><i class="fa fa-square" style="color: black" aria-hidden="true"></i> Not observed</span></div>`
+                },
+            },
+            position: {
+                target: "mouse",
+                adjust: {
+                    x: 2, y: 2,
+                    mouse: false
+                }
+            },
+            style: {
+                width: "240px",
+            },
+            show: {
+                delay: 200
+            },
+            hide: {
+                fixed: true,
+                // delay: 300
+            }
+        });
+    }
+
+    /**
+     * Creates the colored table with one row and as many columns as populations.
+     * @param cohorts
+     * @param populationFrequenciesColor
+     */
+    createCohortStatsTable(cohorts, cohortStats, populationFrequenciesColor) {
+        // This is used by the tooltip function below to display all population frequencies
+        let popFreqsTooltip;
+        let popFreqsArray = [];
+        for (let cohort of cohorts) {
+            let freq = (cohortStats.get(cohort.id) !== undefined) ? cohortStats.get(cohort.id) : 0;
+            popFreqsArray.push(cohort.name + "::" + freq);
+        }
+        popFreqsTooltip = popFreqsArray.join(",");
+
+        // Create the table (with the tooltip info)
+        let tableSize = cohorts.length * 15;
+        let htmlPopFreqTable = `<table style="width:${tableSize}px" class="cohortStatsTable" data-pop-freq="${popFreqsTooltip}"><tr>`;
+        for (let cohort of cohorts) {
+            let color = "black";
+            if (typeof cohortStats.get(cohort.id) !== "undefined") {
+                let freq = cohortStats.get(cohort.id);
+                color = this._getPopulationFrequencyColor(freq, populationFrequenciesColor);
+            }
+            htmlPopFreqTable += `<td style="width: 15px; background: ${color}">&nbsp;</td>`;
+        }
+        htmlPopFreqTable += "</tr></table>";
+        return htmlPopFreqTable;
+    }
+
+
     addPopulationFrequenciesInfoTooltip(div, populationFrequencies) {
         $("#" + div).qtip({
             content: {
@@ -436,27 +522,25 @@ class VariantGridFormatter {
      */
     createPopulationFrequenciesTable(populations, populationFrequenciesMap, populationFrequenciesColor) {
         // This is used by the tooltip function below to display all population frequencies
-        let popFreqs;
+        let popFreqsTooltip;
         let popFreqsArray = [];
         for (let population of populations) {
             let freq = (populationFrequenciesMap.get(population) !== undefined) ? populationFrequenciesMap.get(population) : 0;
             popFreqsArray.push(population + "::" + freq);
         }
-        popFreqs = popFreqsArray.join(",");
+        popFreqsTooltip = popFreqsArray.join(",");
 
         // Create the table (with the tooltip info)
         let tableSize = populations.length * 15;
-        let htmlPopFreqTable = `<table style="width:${tableSize}px" class="populationFrequenciesTable" data-pop-freq="${popFreqs}"><tr>`;
+        let htmlPopFreqTable = `<table style="width:${tableSize}px" class="populationFrequenciesTable" data-pop-freq="${popFreqsTooltip}"><tr>`;
         for (let population of populations) {
             // This array contains "study:population"
             let color = "black";
             if (typeof populationFrequenciesMap.get(population) !== "undefined") {
                 let freq = populationFrequenciesMap.get(population);
-                let color = this._getPopulationFrequencyColor(freq, populationFrequenciesColor);
-                htmlPopFreqTable += `<td style="width: 15px; background: ${color}">&nbsp;</td>`;
-            } else {
-                htmlPopFreqTable += `<td style="width: 15px; background: ${color}">&nbsp;</td>`;
+                color = this._getPopulationFrequencyColor(freq, populationFrequenciesColor);
             }
+            htmlPopFreqTable += `<td style="width: 15px; background: ${color}">&nbsp;</td>`;
         }
         htmlPopFreqTable += "</tr></table>";
         return htmlPopFreqTable;
@@ -524,12 +608,48 @@ class VariantGridFormatter {
         return color;
     }
 
+    addPhenotypesInfoTooltip(div) {
+        $("#" + div).qtip({
+            content: {
+                title: "Phenotypes",
+                text: function(event, api) {
+                    return `<div>
+                                <span style="font-weight: bold">ClinVar</span> is a freely accessible, public archive of reports of the relationships among human variations 
+                                and phenotypes, with supporting evidence.
+                            </div>
+                            <div style="padding-top: 10px">
+                                <span style="font-weight: bold">COSMIC</span> is the world's largest and most comprehensive resource for exploring the impact of somatic mutations in human cancer.
+                            </div>
+
+                           `
+                },
+            },
+            position: {
+                target: "mouse",
+                my: "top right",
+                adjust: {
+                    x: 2, y: 2,
+                    mouse: false
+                }
+            },
+            style: {
+                width: "240px",
+            },
+            show: {
+                delay: 200
+            },
+            hide: {
+                fixed: true,
+                delay: 300
+            }
+        });
+    }
 
     /*
      * Reported Variant formatters
      */
     reportedEventDetailFormatter(value, row, variantGrid) {
-        if (typeof row !== "undefined" && UtilsNew.isNotEmptyArray(row.reportedEvents)) {
+        if (typeof row !== "undefined" && UtilsNew.isNotEmptyArray(row.evidences)) {
             let ctHtml = `<table id="{{prefix}}ConsqTypeTable" class="table table-hover table-no-bordered">
                                 <thead>
                                     <tr>
@@ -553,7 +673,7 @@ class VariantGridFormatter {
                                 <tbody>`;
 
             // Sort by Tier level
-            row.reportedEvents.sort(function(a, b) {
+            row.evidences.sort(function(a, b) {
                 if (a.tier === null || b.tier !== null) {
                     return 1;
                 }
@@ -575,7 +695,7 @@ class VariantGridFormatter {
                 consequenceTypeSet = new Set(variantGrid.query.ct.split(","));
             }
 
-            for (let re of row.reportedEvents) {
+            for (let re of row.evidences) {
                 // FIXME Maybe this should happen in the server?
                 // If ct exist and there are some consequenceTypeIds then we check that the report event matches the query
                 if (UtilsNew.isNotEmptyArray(re.consequenceTypeIds) && consequenceTypeSet.size > 0) {
@@ -618,15 +738,18 @@ class VariantGridFormatter {
                 }
 
                 let soArray = [];
-                for (let so of re.consequenceTypeIds) {
-                    let color = "black";
-                    if (typeof variantGrid.consequenceTypeToColor !== "undefined" && typeof variantGrid.consequenceTypeToColor[so] !== "undefined") {
-                        color = variantGrid.consequenceTypeToColor[so];
-                    }
-                    soArray.push(`<div style="color: ${color}">
-                                    ${so}
+                if (UtilsNew.isNotEmptyArray(re.consequenceTypes)) {
+                    for (let so of re.consequenceTypes) {
+                        let color = "black";
+                        if (typeof variantGrid.consequenceTypeToColor !== "undefined" && typeof variantGrid.consequenceTypeToColor[so.name] !== "undefined") {
+                            color = variantGrid.consequenceTypeToColor[so.name];
+                        }
+                        soArray.push(`<div style="color: ${color}">
+                                    ${so.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">${so.accession}</a>)
                                   </div>`);
+                    }
                 }
+
 
                 let panel = "-";
                 if (UtilsNew.isNotUndefinedOrNull(re.panelId)) {

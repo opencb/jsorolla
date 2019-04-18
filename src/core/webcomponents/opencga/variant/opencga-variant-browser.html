@@ -15,14 +15,15 @@
   -->
 
 <link rel="import" href="opencga-variant-filter.html">
-<link rel="import" href="../opencga-active-filters.html">
 <link rel="import" href="opencga-variant-grid.html">
 <link rel="import" href="opencga-variant-cohort-stats.html">
 <link rel="import" href="opencga-variant-samples.html">
+<link rel="import" href="opencga-variant-facet-query.html">
 <link rel="import" href="variant-beacon-network.html">
 <link rel="import" href="variant-genome-browser.html">
-<link rel="import" href="../../reactome/reactome-variant-network.html">
+<link rel="import" href="../opencga-active-filters.html">
 <link rel="import" href="../opencga-genome-browser.html">
+<link rel="import" href="../../reactome/reactome-variant-network.html">
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
 <link rel="import" href="opencga-variant-detail-template.html">
 
@@ -65,7 +66,7 @@
                 <div id="{{prefix}}FilterMenu" class="col-md-2">
                     <opencga-variant-filter opencga-session="{{opencgaSession}}"
                                             query="{{query}}"
-                                            cohorts="[[cohorts]]"
+                                            cohorts="{{cohorts}}"
                                             cellbase-client="{{cellbaseClient}}"
                                             population-frequencies="{{populationFrequencies}}"
                                             consequence-types="{{consequenceTypes}}"
@@ -90,16 +91,14 @@
                                     <button type="button" class="btn btn-success variant-browser-view-buttons active" data-view="TableResult" on-click="_changeView">
                                         <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" on-click="_changeView"></i> Table Result
                                     </button>
-                                    <template is="dom-if" if="{{config.showSummary}}">
-                                        <button type="button" class="btn btn-success variant-browser-view-buttons" data-view="Summary" on-click="_changeView">
-                                            <i class="fa fa-line-chart icon-padding" aria-hidden="true" data-view="Summary" on-click="_changeView"></i> Summary (Beta)
-                                        </button>
-                                    </template>
-                                    <template is="dom-if" if="{{config.showGenomeBrowser}}">
-                                        <button id="{{prefix}}GenomeBrowserButton" type="button" class="btn btn-success variant-browser-view-buttons" data-view="GenomeBrowser" on-click="_changeView">
-                                            <i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i> Genome Browser (Beta)
-                                        </button>
-                                    </template>
+                                    <button type="button" class="btn btn-success variant-browser-view-buttons" data-view="Summary" on-click="_changeView">
+                                        <i class="fas fa-chart-bar icon-padding" aria-hidden="true" data-view="Summary" on-click="_changeView"></i> Aggregation Stats
+                                    </button>
+                                    <!--<template is="dom-if" if="{{config.showGenomeBrowser}}">-->
+                                    <!--<button id="{{prefix}}GenomeBrowserButton" type="button" class="btn btn-success variant-browser-view-buttons" data-view="GenomeBrowser" on-click="_changeView">-->
+                                    <!--<i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i> Genome Browser (Beta)-->
+                                    <!--</button>-->
+                                    <!--</template>-->
                                 </div>
                             </div>
                         </div>
@@ -110,7 +109,7 @@
                         <div id="{{prefix}}TableResult" class="variant-browser-content">
                             <!-- Variant Browser Grid -->
                             <opencga-variant-grid opencga-session="{{opencgaSession}}"
-                                                  query="{{executedQuery}}" cohorts="[[cohorts]]"
+                                                  query="{{executedQuery}}" cohorts="{{cohorts}}"
                                                   cellbase-client="{{cellbaseClient}}"
                                                   population-frequencies="{{populationFrequencies}}" active="{{active}}"
                                                   protein-substitution-scores="{{proteinSubstitutionScores}}"
@@ -197,24 +196,12 @@
                         </div>
 
                         <!-- Second TAB -->
-                        <div id="{{prefix}}Summary" class="variant-browser-content" style="display: none">
-                            <br>
-                            <div class="col-md-6">
-                                <h4>Consequence Type</h4>
-                                <div id="{{prefix}}soAcc"></div>
-                            </div>
-                            <div class="col-md-6">
-                                <h4>Gene</h4>
-                                <div id="{{prefix}}genes"></div>
-                            </div>
-                            <div class="col-md-6">
-                                <h4>Variant Type</h4>
-                                <div id="{{prefix}}type"></div>
-                            </div>
-                            <div class="col-md-6">
-                                <h4>Studies</h4>
-                                <div id="{{prefix}}studies"></div>
-                            </div>
+                        <div id="{{prefix}}Summary" class="variant-browser-content" style="display: none; padding: 0px 15px">
+                            <opencga-variant-facet-query opencga-session="{{opencgaSession}}"
+                                                         cellbase-client="{{cellbaseClient}}"
+                                                         population-frequencies="{{populationFrequencies}}"
+                                                         query={{executedQuery}}>
+                            </opencga-variant-facet-query>
                         </div>
 
                         <!-- Third TAB -->
@@ -277,7 +264,8 @@
                         type: Object
                     },
                     query: {
-                        type: Object
+                        type: Object,
+                        observer: "queryObserver"
                     },
                     samples: {
                         type: Array
@@ -306,7 +294,7 @@
                  * 'search; is observed to ensure 'query' is in sync.
                  */
                 return [
-                    "propertyObserver(opencgaSession, query, config)"
+                    "propertyObserver(opencgaSession, config)"
                 ];
             }
 
@@ -335,7 +323,7 @@
                 this._config = this.getDefaultConfig();
             }
 
-            propertyObserver(opencgaSession, query, config) {
+            propertyObserver(opencgaSession, config) {
                 // With each property change we must updated config and create the columns again. No extra checks are needed.
                 this._config = Object.assign(this.getDefaultConfig(), config);
 
@@ -353,9 +341,7 @@
                     for (let section of this._config.filter.menu.sections) {
                         for (let subsection of section.subsections) {
                             if (subsection.id === "cohort") {
-                                let projectFields = this.opencgaSession.project.alias.split("@");
-                                let projectId = (projectFields.length > 1) ? projectFields[1] : projectFields[0];
-                                this.cohorts = subsection.cohorts[projectId];
+                                this.cohorts = subsection.cohorts;
                             }
                         }
                     }
@@ -363,11 +349,18 @@
                 } else {
                     this.checkProjects = false;
                 }
+            }
 
+            queryObserver() {
                 // Query passed is executed and set to variant-filter, active-filters and variant-grid components
-                if (UtilsNew.isNotUndefinedOrNull(query)) {
-                    this.preparedQuery = query;
-                    this.executedQuery = query;
+                let _query = {};
+                if (UtilsNew.isEmpty(this.query) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
+                    _query = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias}
+                }
+
+                if (UtilsNew.isNotUndefinedOrNull(this.query)) {
+                    this.preparedQuery = Object.assign(_query, this.query);
+                    this.executedQuery = Object.assign(_query, this.query);
                 }
             }
 
@@ -398,7 +391,7 @@
              * Active Filters component listeners
              */
             onActiveFilterChange(e) {
-                this.query = e.detail;
+                this.query = Object.assign({study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias}, e.detail);
             }
 
             onClear() {
@@ -590,9 +583,10 @@
                 $('.variant-browser-view-buttons').removeClass("active");
                 $(e.target).addClass("active");
 
-                if (e.target.dataset.view === "Summary") {
-                    this.fetchFacets();
-                }
+
+                // if (e.target.dataset.view === "Summary") {
+                //     this.fetchFacets();
+                // }
 
                 if (e.target.dataset.view === "GenomeBrowser") {
 //                    window.location.hash = "genomebrowser";
@@ -655,6 +649,7 @@
                         complexFields: ["genotype"],
                         hiddenFields: ["study"]
                     },
+                    showGenomeBrowser: false,
                     genomeBrowser: {
                         showTitle: false
                     }

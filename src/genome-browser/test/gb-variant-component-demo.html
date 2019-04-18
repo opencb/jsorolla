@@ -1,7 +1,7 @@
 <link rel="import" href="../../../node_modules/@polymer/polymer/polymer-element.html">
 <link rel="import" href="../webcomponent/genome-browser.html">
 
-<dom-module id="gb-alignment-component-demo">
+<dom-module id="gb-variant-component-demo">
 
     <template>
         <div id="gb-div" style="margin:15px 30px">
@@ -12,9 +12,9 @@
     </template>
 
     <script>
-        class GbAlignmentComponentDemo extends Polymer.Element {
+        class GbVariantComponentDemo extends Polymer.Element {
             static get is() {
-                return 'gb-alignment-component-demo';
+                return 'gb-variant-component-demo';
             }
 
             static get properties() {
@@ -76,10 +76,10 @@
                         console.log("Error logging in " + OPENCGA_USER, e);
                     });
 
-                // Take the file id to show the alignment track
-                let fileIds;
-                if (typeof queryParams.BAM_NAME !== "undefined") {
-                    fileIds = queryParams.BAM_NAME;
+                // Take the sample ids to show the variant track
+                let sampleIds;
+                if (typeof queryParams.SAMPLES !== "undefined") {
+                    sampleIds = queryParams.SAMPLES;
                 }
 
                 let study;
@@ -97,24 +97,20 @@
                     type: "gene"
                 }];
 
-                let fileIdsSplitted = fileIds.split(",");
-                for (let i in fileIdsSplitted) {
-                    let fileId = fileIdsSplitted[i];
-                    tracks.push({
-                        type: "alignment",
-                        config: {
-                            source: 'opencga',
-                            data: {
-                                study: study,
-                                fileId: fileId
-                            }
+                tracks.push({
+                    type: "variant",
+                    config: {
+                        source: 'opencga',
+                        data: {
+                            study: study,
+                            samples: sampleIds.split(",")
                         }
-                    });
-                }
+                    }
+                });
                 this.tracks = tracks;
             }
         }
 
-        customElements.define(GbAlignmentComponentDemo.is, GbAlignmentComponentDemo);
+        customElements.define(GbVariantComponentDemo.is, GbVariantComponentDemo);
     </script>
 </dom-module>

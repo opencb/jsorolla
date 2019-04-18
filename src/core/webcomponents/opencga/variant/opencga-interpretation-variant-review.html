@@ -1,0 +1,98 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<dom-module id="opencga-interpretation-variant-review">
+    <template>
+        <style include="jso-styles"></style>
+
+        <span>{{variant.id}}</span>
+        <div class="form-horizontal" data-toggle="validator" role="form">
+
+            <div class="form-group">
+                <label class="control-label col-md-1 jso-label-title">Interpretation ID</label>
+                <div class="col-md-3">
+                    <input type="text" id="{{prefix}}IDInterpretation" class$="{{prefix}}TextInput form-control"
+                           placeholder="ID of the interpretation" data-field="id" on-keyup="onInputChange"
+                           value="{{_interpretation.id}}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-md-1 jso-label-title">Comment</label>
+                <div class="col-md-3">
+                    <input type="text" id="{{prefix}}CommentInterpretation" class$="{{prefix}}TextInput form-control"
+                           placeholder="Add a comment" data-field="comment">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-md-1 jso-label-title">Description</label>
+                <div class="col-md-3">
+                    <textarea id="{{prefix}}DescriptionInterpretation" class$="{{prefix}}TextInput form-control"
+                              placeholder="Description of the interpretation" data-field="description"
+                              on-keyup="onInputChange"></textarea>
+                </div>
+            </div>
+
+        </div>
+    </template>
+
+    <script>
+        class OpencgaInterpretationVariantReview extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                this.prefix = "ovcs" + Utils.randomString(6);
+            }
+
+            static get is() {
+                return 'opencga-interpretation-variant-review'
+            };
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object
+                    },
+                    variant: {
+                        type: Object,
+                        observer: "variantObserver"
+                    },
+                    // active: {
+                    //     type: Boolean,
+                    //     value: false,
+                    //     observer: "activeObserver"
+                    // }
+                }
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+            //
+            // activeObserver(e) {
+            //     this._fetchCohortStats(e);
+            // }
+
+            variantObserver(e) {
+                // this._fetchCohortStats(e);
+            }
+        }
+
+        customElements.define(OpencgaInterpretationVariantReview.is, OpencgaInterpretationVariantReview);
+    </script>
+</dom-module>
