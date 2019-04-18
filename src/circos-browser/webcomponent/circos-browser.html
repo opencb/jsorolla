@@ -1,0 +1,158 @@
+<dom-module id="circos-browser">
+
+    <template>
+        <div id="{{prefix}}-circosBrowser"></div>
+    </template>
+
+    <script>
+        class CircosBrowserComponent extends Polymer.Element {
+
+            constructor() {
+                super();
+
+                if (UtilsNew.isEmpty(this.prefix)) {
+                    this.prefix = "cb_" + Utils.randomString(6);
+                }
+            }
+
+            static get is() {
+                return 'circos-browser';
+            }
+
+            static get properties() {
+                return {
+                    opencgaSession: {
+                        type: Object
+                    },
+                    cellbaseClient: {
+                        type: Object
+//                        observer: "init"
+                    },
+                    species: {
+                        type: Object,
+                        value: {
+                            id: "hsapiens",
+                            scientificName: "Homo sapiens",
+                            assembly: {name: "GRCh37"}
+                        }
+                    },
+                    tracks: {
+                        type: Array,
+                        value: [
+                            {
+                                type: "sequence"
+                            }, {
+                                type: "gene"
+                            }
+                        ],
+                        observer: "init"
+                    },
+                    config: {
+                        type: Object
+                    },
+                    active: {
+                        type: Boolean,
+                        value: false,
+                        observer: "_setActive"
+                    }
+                };
+            }
+
+            static get observers() {
+                /*
+                 * We do not need to Observer 'query' property, when passed it will be shared (bound) with the other components.
+                 * 'search; is observed to ensure 'query' is in sync.
+                 */
+                return [
+                    "propertyObserver(active)"
+                ];
+            }
+
+            ready() {
+                super.ready();
+
+                this.init();
+            }
+
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+            }
+
+            init() {
+            }
+
+            propertyObserver(active) {
+                if (!active) {
+                    return;
+                }
+
+                let circos = null;
+                //Function to get the raw chromosomes data
+                let getChromosomesData = function () {
+                    return Object.values(circos.layout.blocks).map(function (block) {
+                        return block.data;
+                    });
+                };
+                //Karyotype track configuration
+                let karyotypeTrack = new CircosKaryotypeTrack({}, {
+                    "size": 15,
+                    "rank": 1
+                });
+                //Histogram track configuration
+                let histogramTrack = new CircosHistogramTrack({
+                    "dataAdapter": {
+                        "getData": function () {
+                            return new Promise(function (resolve, reject) {
+                                return resolve(CircosTest.buildHistogramData(getChromosomesData()));
+                            });
+                        }
+                    }
+                }, {
+                    "size": 30,
+                    "rank": 2
+                });
+                //Chords track configuration
+                let chordsTrack = new CircosChordsTrack({
+                    "dataAdapter": {
+                        "getData": function () {
+                            return new Promise(function (resolve, reject) {
+                                return resolve(CircosTest.buildChordsData(getChromosomesData()));
+                            });
+                        }
+                    }
+                }, {
+                    "size": 130,
+                    "rank": 0
+                });
+                //Build the circos
+                circos = new CircosBrowser(document.getElementById(`${this.prefix}-circosBrowser`), {
+                    "tracks": [karyotypeTrack, histogramTrack, chordsTrack],
+                    "layout": new CircosLayout({
+                        "dataParser": function (data) {
+                            CircosUtils.sortChromosomes(data);
+                            return data;
+                        }
+                    }, {})
+                }, {
+                    "trackOffset": 0,
+                    "width": 600,
+                    "height": 600
+                });
+                //Draw the circos
+                circos.draw();
+            }
+
+            getDefaultConfig() {
+                return {
+                }
+            }
+
+        }
+
+        customElements.define(CircosBrowserComponent.is, CircosBrowserComponent);
+    </script>
+</dom-module>

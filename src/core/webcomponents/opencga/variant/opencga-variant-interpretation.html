@@ -25,6 +25,7 @@
 <link rel="import" href="../opencga-active-filters.html">
 <link rel="import" href="../opencga-genome-browser.html">
 <link rel="import" href="opencga-variant-interpreter-genome-browser.html">
+<link rel="import" href="../../../../circos-browser/webcomponent/circos-browser.html">
 
 <dom-module id="opencga-variant-interpretation">
     <template>
@@ -141,6 +142,11 @@
                                     <li>
                                         <a data-view="GenomeBrowser" on-click="_changeView" data-view="GenomeBrowser" style="cursor: pointer">
                                             <i class="fa fa-stream icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i>Genome Browser (Beta)
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a data-view="CircosBrowser" on-click="_changeView" data-view="CircosBrowser" style="cursor: pointer">
+                                            <i class="fa fa-stream icon-padding" aria-hidden="true" data-view="CircosBrowser" on-click="_changeView"></i>Circos Browser (Alpha)
                                         </a>
                                     </li>
                                 </ul>
@@ -416,6 +422,11 @@
                                                                         full-screen="{{fullScreen}}"
                                                                         config="{{_config.genomeBrowser}}">
                             </opencga-variant-interpreter-genome-browser>
+                        </div>
+
+                        <!-- CIRCOS BROWSER VIEW -->
+                        <div id="{{prefix}}CircosBrowser" class="variant-interpretation-content" style="display: none">
+                            <circos-browser active="{{_circosBrowserActive}}"></circos-browser>
                         </div>
 
 
@@ -1122,6 +1133,7 @@
 
                 // Make Genome Browser active
                 this._genomeBrowserActive = (e.target.dataset.view === "GenomeBrowser");
+                this._circosBrowserActive = (e.target.dataset.view === "CircosBrowser");
             }
 
             _backToSelectAnalysis(e) {
