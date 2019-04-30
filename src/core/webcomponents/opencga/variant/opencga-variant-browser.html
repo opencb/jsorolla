@@ -364,8 +364,8 @@
                 }
 
                 if (UtilsNew.isNotUndefinedOrNull(this.query)) {
-                    this.preparedQuery = Object.assign(_query, this.query);
-                    this.executedQuery = Object.assign(_query, this.query);
+                    this.preparedQuery = Object.assign({}, _query, this.query);
+                    this.executedQuery = Object.assign({}, _query, this.query);
                 }
             }
 

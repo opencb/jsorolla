@@ -160,7 +160,7 @@
             connectedCallback() {
                 super.connectedCallback();
 
-                this._addTooltip();
+                // this._addTooltip();
             }
 
             constructor() {
@@ -183,7 +183,8 @@
                 this._individualToSampleIds = {};
 
                 // Initially we set the default config, this will be overridden if 'config' is passed
-                this._config = this.getDefaultConfig();
+                // this._config = this.getDefaultConfig();
+                // debugger
             }
 
             static get observers() {
@@ -193,21 +194,14 @@
             }
 
             propertyObserver(opencgaSession, clinicalAnalysis) {
-                // if (this.mode === "interactive") {
-                //     this._config = Object.assign({}, this.getDefaultConfig(), this.config, {
-                //         title: this.getDefaultConfig().title
-                //     });
-                // } else {
-                //     let skipSubsections = {a.b: ["sample"]};
-                //     this._config = Object.assign({}, this.getDefaultConfig(), this.config, {
-                //         title: this.getDefaultConfig().title,
-                //         filter["menu"]["skipSubsections"]: [],
-                //     });
-                // }
-                this._config = Object.assign({}, this.getDefaultConfig(), this.config, {
-                    title: this.getDefaultConfig().title,
-                    tooltip: this.getDefaultConfig().tooltip
-                });
+                let defaultConfig = this.getDefaultConfig();
+                let _config = Object.assign({}, defaultConfig, JSON.parse(JSON.stringify(this.config)));
+                _config.title = defaultConfig.title;
+                _config.tooltip = defaultConfig.tooltip;
+                if (this.mode !== "interactive") {
+                    _config.filter.menu.skipSubsections.push("sample");
+                }
+                this._config = _config;
                 this._addTooltip();
 
                 if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
@@ -325,10 +319,10 @@
                         delete _query.genotype;
                         delete _query.sample;
 
-                        if (this.mode === "compoundHeterozygous") {
-                            _query.biotype = "protein_coding";
-                            _query.ct = "missense_variant," + this._config.filter.lof.join(",");
-                        }
+                        // if (this.mode === "compoundHeterozygous") {
+                        //     _query.biotype = "protein_coding";
+                        //     _query.ct = "missense_variant," + this._config.filter.lof.join(",");
+                        // }
 
                         return _query;
                     }

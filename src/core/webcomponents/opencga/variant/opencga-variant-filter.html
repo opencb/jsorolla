@@ -213,9 +213,6 @@
                 });
 
                 this._initialised = true;
-                console.log(">>>>");
-                console.log(this.query);
-                debugger
                 this.setQueryFilters();
             }
 
@@ -286,10 +283,10 @@
                         }
                     }
 
-                    // this.query = {
-                    //     study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
-                    // };
-                    // this.notifySearch(this.query);
+                    this.query = {
+                        study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
+                    };
+                    this.notifySearch(this.query);
 
                     // Render filter menu and add event and tooltips
                     if (this._initialised) {
