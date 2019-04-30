@@ -128,13 +128,15 @@
 
                 <!--<br>-->
                 <br>
-                <opencga-variant-grid opencga-session="{{opencgaSession}}" config="{{config}}"
-                                      opencga-client="{{opencgaClient}}"
+                <opencga-variant-grid opencga-session="{{opencgaSession}}"
+                                      query="{{query}}"
                                       population-frequencies="{{populationFrequencies}}"
                                       protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                      consequence-types="{{consequenceTypes}}" search="{{query}}" query="{{query}}"
-                                      variant="{{variant}}"
-                                      on-selectvariant="onSelectVariant" style="font-size: 12px" summary="{{summary}}">
+                                      consequence-types="{{consequenceTypes}}"
+                                      on-selectvariant="onSelectVariant"
+                                      style="font-size: 12px"
+                                      summary="{{summary}}"
+                                      config="{{config}}">
                 </opencga-variant-grid>
 
                 <div hidden$="{{checkVariant(variant)}}">
@@ -234,15 +236,16 @@
             }
 
             geneChanged(neo, old) {
-                let query = {};
-                let _this = this;
                 if (UtilsNew.isNotEmpty(this.gene)) {
-                    query.gene = this.gene;
+                    this.query = {
+                        gene: this.gene,
+                        study: this.opencgaSession.study.fqn
+                    };
+                    let _this = this;
                     this.cellbaseClient.getGeneClient(this.gene, 'info', {exclude: "annotation"}, {})
                         .then(function (response) {
                             _this.geneObj = response.response[0].result[0];
                         });
-                    this.query = query;
                 }
             }
 

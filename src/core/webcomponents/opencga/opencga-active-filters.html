@@ -38,19 +38,27 @@
                     </template>
 
                     <template is="dom-repeat" items="{{queryList}}">
-                        <!-- No multi=valued fitlers -->
+                        <!-- No multi-valued filters -->
                         <template is="dom-if" if="{{!_isMultiValued(item)}}">
-                            <button type="button" class$="btn btn-warning btn-sm {{item.name}}ActiveFilter" data-filter-name$="{{item.name}}" data-filter-value=""
-                                    on-click="onQueryFilterDelete" on-mouseover="_onMouseOver" on-mouseout="_onMouseOut">
-                                {{item.text}}
-                            </button>
+                            <template is="dom-if" if="{{!item.locked}}">
+                                <button type="button" class$="btn btn-warning btn-sm {{item.name}}ActiveFilter" data-filter-name$="{{item.name}}" data-filter-value=""
+                                        on-click="onQueryFilterDelete" on-mouseover="_onMouseOver" on-mouseout="_onMouseOut">
+                                    {{item.text}}
+                                </button>
+                            </template>
+                            <template is="dom-if" if="{{item.locked}}">
+                                <button type="button" class$="btn btn-warning btn-sm {{item.name}}ActiveFilter" data-filter-name$="{{item.name}}" data-filter-value=""
+                                        on-click="onQueryFilterDelete" on-mouseover="_onMouseOver" on-mouseout="_onMouseOut" title="{{item.message}}" disabled>
+                                    {{item.text}}
+                                </button>
+                            </template>
                         </template>
 
                         <!-- Multi-valued filters -->
                         <template is="dom-if" if="{{_isMultiValued(item)}}">
                             <div class="btn-group">
                                 <button type="button" class$="btn btn-warning btn-sm {{item.name}}ActiveFilter" data-filter-name$="{{item.name}}" data-filter-value=""
-                                        on-click="onQueryFilterDelete" on-mouseover="_onMouseOver" on-mouseout="_onMouseOut">
+                                        on-click="onQueryFilterDelete" on-mouseover="_onMouseOver" on-mouseout="_onMouseOut" {{item.status}}>
                                     {{item.text}}
                                 </button>
                                 <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -137,12 +145,7 @@
     <script>
         class OpencgaActiveFilters extends Polymer.Element {
 
-            constructor() {
-                super();
 
-                this.prefix = "oaf" + Utils.randomString(6);
-                this._config = this.getDefaultConfig();
-            }
 
             static get is() {
                 return 'opencga-active-filters';
@@ -191,6 +194,18 @@
                 this.appendChild(dom);
             }
 
+            constructor() {
+                super();
+
+                this.init();
+            }
+
+            init() {
+                this.prefix = "oaf" + Utils.randomString(6);
+
+                this._config = this.getDefaultConfig();
+            }
+
             connectedCallback() {
                 super.connectedCallback();
 
@@ -216,9 +231,15 @@
             }
 
             configObserver(config) {
-                this._config = Object.assign(this.getDefaultConfig(), config);
+                this._config = Object.assign({}, this.getDefaultConfig(), config);
+
                 // Overwrite default alias with the one passed
                 this._config.alias = Object.assign({}, this.getDefaultConfig().alias, config.alias);
+
+                this.lockedFieldsMap = {};
+                for (let lockedField of this._config.lockedFields) {
+                    this.lockedFieldsMap[lockedField.id] = lockedField;
+                }
             }
 
             clear() {
@@ -390,7 +411,13 @@
                 for (let keyIdx in keys) {
                     let key = keys[keyIdx];
                     if (UtilsNew.isNotEmpty(this.query[key]) && !this._config.hiddenFields.includes(key)) {
-                        if (JSON.stringify(this.query) !== JSON.stringify(this._previousQuery)) {
+                        let queryString = Object.entries(this.query).sort().toString();
+                        let prevQueryString = Object.entries(this._previousQuery).sort().toString();
+                        if (queryString !== prevQueryString) {
+                            // console.log(this.query);
+                            // console.log(this._previousQuery);
+                            // console.log(queryString);
+                            // console.log(prevQueryString);
                             PolymerUtils.show(this.prefix + 'Warning');
                         } else {
                             PolymerUtils.hide(this.prefix + 'Warning');
@@ -407,7 +434,7 @@
                         if (typeof value === "boolean") {
                             value = value.toString();
                         }
-// debugger
+
                         // If we find a field with both ; and , or the field has been defined as complex, we will only
                         // separate by ;
                         let filterFields = [];
@@ -441,19 +468,22 @@
                             }
                         }
 
+                        let locked = UtilsNew.isNotUndefinedOrNull(this.lockedFieldsMap[key]);
+                        let lockedTooltip = UtilsNew.isNotUndefinedOrNull(this.lockedFieldsMap[key]) ? this.lockedFieldsMap[key].message : "";
+
                         // Just in case one is a flag
                         if (filterFields.length === 0) {
-                            _queryList.push({name: key, text: title});
+                            _queryList.push({name: key, text: title, locked: locked, message: lockedTooltip});
                         } else {
                             if (filterFields.length === 1) {
                                 if (value.indexOf(">") !== -1 || value.indexOf("<") !== -1 || value.indexOf("=") !== -1) {
-                                    _queryList.push({name: key, text: title + ": " + value});
+                                    _queryList.push({name: key, text: title + ": " + value, locked: locked, message: lockedTooltip});
                                 } else {
-                                    _queryList.push({name: key, text: title + " = " + value});
+                                    _queryList.push({name: key, text: title + " = " + value, locked: locked, message: lockedTooltip});
                                 }
 //                                }
                             } else {
-                                _queryList.push({name: key, text: title, items: filterFields});
+                                _queryList.push({name: key, text: title, items: filterFields, locked: locked, message: lockedTooltip});
                             }
                         }
                     }
@@ -500,7 +530,8 @@
                         "annot-hpo": "HPO"
                     },
                     complexFields: [],
-                    hiddenFields: ["study"]
+                    hiddenFields: ["study"],
+                    lockedFields: []
                 }
             }
         }

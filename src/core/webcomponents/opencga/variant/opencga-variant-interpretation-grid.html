@@ -1,18 +1,18 @@
-  <!--
-  ~ Copyright 2015-2016 OpenCB
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~     http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
+<!--
+~ Copyright 2015-2016 OpenCB
+~
+~ Licensed under the Apache License, Version 2.0 (the "License");
+~ you may not use this file except in compliance with the License.
+~ You may obtain a copy of the License at
+~
+~     http://www.apache.org/licenses/LICENSE-2.0
+~
+~ Unless required by applicable law or agreed to in writing, software
+~ distributed under the License is distributed on an "AS IS" BASIS,
+~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~ See the License for the specific language governing permissions and
+~ limitations under the License.
+-->
 
 <dom-module id="opencga-variant-interpretation-grid">
     <template>
@@ -29,7 +29,7 @@
                 background-color: #f5f5f5;
             }
 
-            .qtip-custom-class .qtip-content{
+            .qtip-custom-class .qtip-content {
                 font-size: 12px;
             }
         </style>
@@ -115,7 +115,7 @@
 
             static get observers() {
                 return [
-                    "propertyObserver(opencgaSession, query, config)"
+                    "propertyObserver(opencgaSession, query)"
                 ];
             }
 
@@ -125,7 +125,7 @@
 
             connectedCallback() {
                 super.connectedCallback();
-debugger
+                // debugger
                 // TODO Refactor
                 this.downloadRefreshIcon = $("#" + this.prefix + "DownloadRefresh");
                 this.downloadIcon = $("#" + this.prefix + "DownloadIcon");
@@ -149,7 +149,7 @@ debugger
                 this._config = this.getDefaultConfig();
             }
 
-            propertyObserver(opencgaSession, query, config) {
+            propertyObserver(opencgaSession, query) {
                 // if (this._initialised === false) {
                 //     return;
                 // }
@@ -331,8 +331,8 @@ debugger
                         onLoadSuccess: function (data) {
                             // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
                             if (UtilsNew.isNotEmptyArray(data.rows) && UtilsNew.isNotUndefinedOrNull(_table)) {
-                                PolymerUtils.querySelector(_table.selector).rows[2].setAttribute('class', 'success');
-                                _this._onSelectVariant(data.rows[0]);
+                                // PolymerUtils.querySelector(_table.selector).rows[2].setAttribute('class', 'success');
+                                // _this._onSelectVariant(data.rows[0]);
 
                                 let elementsByClassName = PolymerUtils.getElementsByClassName("genome-browser-option");
                                 for (let elem of elementsByClassName) {
@@ -355,18 +355,28 @@ debugger
                             _this.to = page * size;
                         },
                         onPostBody: function (data) {
-                            let removeIndividualButtons = PolymerUtils.querySelectorAll(".removeIndividualButton");
-                            for (let i = 0; i < removeIndividualButtons.length; i++) {
-                                removeIndividualButtons[i].addEventListener('click', _this.onReviewClick.bind(_this));
-                            }
+                            let _onPostBody = _this._onPostBody.bind(_this, data, "remote");
+                            _this._onPostBody();
 
-                            // Add tooltips
-                            _this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
-                            _this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
-                            _this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "File metrics", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
-                            _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", _this.populationFrequencies);
-                            _this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("popFreqInfoIcon", _this.populationFrequencies);
-                            _this.variantGridFormatter.addTooltip("div.predictionTooltip", "Classification", {position:{my: "top right"}, style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
+                            // let removeIndividualButtons = PolymerUtils.querySelectorAll(".removeIndividualButton");
+                            // for (let i = 0; i < removeIndividualButtons.length; i++) {
+                            //     removeIndividualButtons[i].addEventListener('click', _this.onReviewClick.bind(_this));
+                            // }
+                            //
+                            // // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
+                            // if (UtilsNew.isNotEmptyArray(data) && UtilsNew.isNotUndefinedOrNull(_table)) {
+                            //     PolymerUtils.querySelector(_table.selector).rows[2].setAttribute('class', 'success');
+                            //     _this._onSelectVariant(data[0]);
+                            // }
+                            //
+                            // // Add tooltips
+                            // _this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
+                            // _this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
+                            // _this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "File metrics", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
+                            // _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", _this.populationFrequencies);
+                            // _this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("pop-preq-info-icon", _this.populationFrequencies);
+                            // _this.variantGridFormatter.addTooltip("predictionInfoIcon");
+                            // _this.variantGridFormatter.addTooltip("div.predictionTooltip", "Classification", {position:{my: "top right"}, style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
                         }
                     });
 
@@ -454,18 +464,6 @@ debugger
                 return {host: host, queryParams: queryParams};
             }
 
-            _onSelectVariant(row) {
-                if (typeof row !== "undefined") {
-                    let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-                    this.dispatchEvent(new CustomEvent('selectvariant', {
-                        detail: {
-                            id: _variant,
-                            variant: row
-                        }
-                    }));
-                }
-            }
-
             renderFromLocal() {
                 this.from = 1;
                 this.to = Math.min(this.reportedVariants.length, this._config.pageSize);
@@ -502,25 +500,67 @@ debugger
                         _this.to = page * size;
                     },
                     onPostBody: function (data) {
-                        let removeIndividualButtons = PolymerUtils.querySelectorAll(".removeIndividualButton");
-                        for (let i = 0; i < removeIndividualButtons.length; i++) {
-                            removeIndividualButtons[i].addEventListener('click', _this.onReviewClick.bind(_this));
-                        }
-
-                        // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
-                        if (UtilsNew.isNotEmptyArray(data) && UtilsNew.isNotUndefinedOrNull(_table)) {
-                            PolymerUtils.querySelector(_table.selector).rows[2].setAttribute('class', 'success');
-                            _this._onClickSelectedVariant(data[0]);
-                        }
-
-                        // Add tooltips
-                        _this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "File metrics", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
-                        _this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
-                        _this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
-                        _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", _this.populationFrequencies);
-                        _this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("popFreqInfoIcon", _this.populationFrequencies);
+                        let _onPostBody = _this._onPostBody.bind(_this, data, "local");
+                        _this._onPostBody();
+                        // let removeIndividualButtons = PolymerUtils.querySelectorAll(".removeIndividualButton");
+                        // for (let i = 0; i < removeIndividualButtons.length; i++) {
+                        //     removeIndividualButtons[i].addEventListener('click', _this.onReviewClick.bind(_this));
+                        // }
+                        //
+                        // // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
+                        // if (UtilsNew.isNotEmptyArray(data) && UtilsNew.isNotUndefinedOrNull(_table)) {
+                        //     PolymerUtils.querySelector(_table.selector).rows[2].setAttribute('class', 'success');
+                        //     _this._onClickSelectedVariant(data[0]);
+                        // }
+                        //
+                        // // Add tooltips
+                        // _this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "File metrics", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
+                        // _this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
+                        // _this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
+                        // _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", _this.populationFrequencies);
+                        // _this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("pop-preq-info-icon", _this.populationFrequencies);
                     }
                 });
+            }
+
+            _onPostBody(data, mode) {
+                let removeIndividualButtons = PolymerUtils.querySelectorAll(".removeIndividualButton");
+                for (let i = 0; i < removeIndividualButtons.length; i++) {
+                    removeIndividualButtons[i].addEventListener('click', this.onReviewClick.bind(this));
+                }
+
+                // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
+                let _table = $('#' + this.prefix + 'VariantBrowserGrid');
+                if (UtilsNew.isNotEmptyArray(data) && UtilsNew.isNotUndefinedOrNull(_table)) {
+                    PolymerUtils.querySelector(_table.selector).rows[2].setAttribute('class', 'success');
+                    if (mode === "remote") {
+                        this._onSelectVariant(data[0]);
+                    } else {
+                        this._onClickSelectedVariant(data[0]);
+                    }
+                }
+
+                // Add tooltips
+                this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
+                this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
+                this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "File metrics", "", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
+                this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", this.populationFrequencies);
+                this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("span.pop-preq-info-icon", this.populationFrequencies);
+                let predictionTooltipContent = "<span style='font-weight: bold'>Prediction</span> column shows the clinical Significance prediction following the ACMG recommendations";
+                this.variantGridFormatter.addTooltip("span.interpretation-info-icon", "Interpretation", predictionTooltipContent, {position:{my: "top right"}, style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
+                this.variantGridFormatter.addTooltip("div.predictionTooltip", "Classification", "", {position:{my: "top right"}, style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
+            }
+
+            _onSelectVariant(row) {
+                if (typeof row !== "undefined") {
+                    let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+                    this.dispatchEvent(new CustomEvent('selectvariant', {
+                        detail: {
+                            id: _variant,
+                            variant: row
+                        }
+                    }));
+                }
             }
 
             _onClickSelectedVariant(row) {
@@ -884,7 +924,7 @@ debugger
                     }
 
                     if (clinicalSignificanceCodes[re.classification.clinicalSignificance] !== undefined
-                            && clinicalSignificanceCodes[re.classification.clinicalSignificance].code > clinicalSignificanceCode) {
+                        && clinicalSignificanceCodes[re.classification.clinicalSignificance].code > clinicalSignificanceCode) {
                         clinicalSignificanceCode = clinicalSignificanceCodes[re.classification.clinicalSignificance].code;
                         let clinicalSignificance;
                         if (re.classification.clinicalSignificance === "VARIANT_OF_UNKNOWN_CLINICAL_SIGNIFICANCE") {
@@ -960,7 +1000,7 @@ debugger
                             halign: 'center'
                         },
                         {
-                            title: "Variant Stats <span id='popFreqInfoIcon'><i class='fa fa-info-circle' style='color: #337ab7' aria-hidden='true'></i></span>",
+                            title: "Variant Stats <span class='pop-preq-info-icon'><i class='fa fa-info-circle' style='color: #337ab7' aria-hidden='true'></i></span>",
                             field: "frequencies",
                             rowspan: 1,
                             colspan: 2,
@@ -974,7 +1014,7 @@ debugger
                             align: 'center'
                         },
                         {
-                            title: "Interpretation",
+                            title: "Interpretation <span class='interpretation-info-icon'><i class='fa fa-info-circle' style='color: #337ab7' aria-hidden='true'></i></span>",
                             field: "interpretation",
                             rowspan: 1,
                             colspan: 2,

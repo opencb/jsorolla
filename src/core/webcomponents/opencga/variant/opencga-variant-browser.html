@@ -345,6 +345,11 @@
                             }
                         }
                     }
+
+                    this.query = {
+                        study: this.opencgaSession.study.fqn
+                    };
+
                     this.checkProjects = true;
                 } else {
                     this.checkProjects = false;

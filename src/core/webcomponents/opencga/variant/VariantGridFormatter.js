@@ -476,8 +476,8 @@ class VariantGridFormatter {
     }
 
 
-    addPopulationFrequenciesInfoTooltip(div, populationFrequencies) {
-        $("#" + div).qtip({
+    addPopulationFrequenciesInfoTooltip(selector, populationFrequencies) {
+        $(selector).qtip({
             content: {
                 title: "Population Frequencies",
                 text: function(event, api) {
@@ -877,12 +877,16 @@ class VariantGridFormatter {
     }
 
 
-    addTooltip(selector, title, config) {
+    addTooltip(selector, title, content, config) {
         $(selector).qtip({
             content: {
                 title: title,
                 text: function (event, api) {
-                    return $(this).attr('data-tooltip-text');
+                    if (UtilsNew.isNotEmpty(content)) {
+                        return content;
+                    } else {
+                        return $(this).attr('data-tooltip-text');
+                    }
                 }
             },
             position: {

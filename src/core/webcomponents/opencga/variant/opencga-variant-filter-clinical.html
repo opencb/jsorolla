@@ -189,6 +189,9 @@
             connectedCallback() {
                 super.connectedCallback();
 
+                // Render the first time after preparing the DOM
+                this.clinicalAnalysisObserver(this.clinicalAnalysis);
+
                 $('select.selectpicker').selectpicker('render');
             }
 
@@ -203,7 +206,6 @@
             }
 
             clinicalAnalysisObserver(clinicalAnalysis) {
-                // debugger
                 if (UtilsNew.isUndefinedOrNull(clinicalAnalysis)) {
                     console.log("clinicalAnalysis is undefined or null: ", clinicalAnalysis);
                     return;
@@ -406,15 +408,19 @@
                         PolymerUtils.getElementById(this.prefix + "FileFilterQualInput").value = query.qual;
                         PolymerUtils.removeAttribute(this.prefix + "FileFilterQualInput", "disabled");
                     } else {
-                        PolymerUtils.getElementById(this.prefix + "FileFilterQualCheckbox").checked = false;
-                        PolymerUtils.getElementById(this.prefix + "FileFilterQualInput").value = "";
-                        PolymerUtils.setAttribute(this.prefix + "FileFilterQualInput", "disabled", true);
+                        if (UtilsNew.isNotUndefinedOrNull(PolymerUtils.getElementById(this.prefix + "FileFilterQualCheckbox"))) {
+                            PolymerUtils.getElementById(this.prefix + "FileFilterQualCheckbox").checked = false;
+                            PolymerUtils.getElementById(this.prefix + "FileFilterQualInput").value = "";
+                            PolymerUtils.setAttribute(this.prefix + "FileFilterQualInput", "disabled", true);
+                        }
                     }
 
                     if (UtilsNew.isNotEmpty(query.filter) && query.filter === "PASS") {
                         PolymerUtils.getElementById(this.prefix + "FileFilterPass").checked = true;
                     } else {
-                        PolymerUtils.getElementById(this.prefix + "FileFilterPass").checked = false;
+                        if (UtilsNew.isNotUndefinedOrNull(PolymerUtils.getElementById(this.prefix + "FileFilterPass"))) {
+                            PolymerUtils.getElementById(this.prefix + "FileFilterPass").checked = false;
+                        }
                     }
                     this.renderFileTable();
                 }
@@ -432,12 +438,14 @@
 
                 // File Filters
                 let _qual = undefined;
-                if (PolymerUtils.getElementById(this.prefix + "FileFilterQualCheckbox").checked) {
+                if (UtilsNew.isNotUndefinedOrNull(PolymerUtils.getElementById(this.prefix + "FileFilterQualCheckbox"))
+                    && PolymerUtils.getElementById(this.prefix + "FileFilterQualCheckbox").checked) {
                     _qual = PolymerUtils.getElementById(this.prefix + "FileFilterQualInput").value;
                 }
 
                 let _filter = undefined;
-                if (PolymerUtils.getElementById(this.prefix + "FileFilterPass").checked) {
+                if (UtilsNew.isNotUndefinedOrNull(PolymerUtils.getElementById(this.prefix + "FileFilterPass"))
+                    && PolymerUtils.getElementById(this.prefix + "FileFilterPass").checked) {
                     _filter = "PASS";
                 }
 
@@ -558,6 +566,7 @@
                     `;
                 }
 
+// debugger
                 let elementById = PolymerUtils.getElementById(this.prefix + "BasicTBody");
                 if (UtilsNew.isNotUndefinedOrNull(elementById)) {
                     // Set HTML into the table body
@@ -724,7 +733,8 @@
 
             getDefaultConfig() {
                 return {
-                    defaultGenotypes: ["0/1", "1/1"],
+                    // defaultGenotypes: ["0/1", "1/1"],
+                    defaultGenotypes: [],
                     sexIConMap: {
                         MALE: "fa-mars",
                         FEMALE: "fa-venus",
