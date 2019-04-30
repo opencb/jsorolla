@@ -78,7 +78,7 @@
 
             eraseObserver(newValue, oldValue) {
                 if (newValue !== oldValue) {
-                    PolymerUtils.setValue(this.prefix + "FeatureIdText", "");
+                    this.clear();
                 }
             }
 
@@ -98,7 +98,13 @@
                 }
             }
 
+            clear() {
+                PolymerUtils.setValue(this.prefix + "FeatureIdText", "");
+                this.gene = "";
+            }
+
             onGeneChange(e) {
+                this.gene = e.target.value;
                 this.dispatchEvent(new CustomEvent('genechange', {
                     detail: {
                         gene: e.target.value
@@ -109,7 +115,7 @@
             }
 
             onEraserClicked() {
-                PolymerUtils.setValue(this.prefix + "FeatureIdText", "");
+                this.clear();
             }
 
             getDefaultConfig() {
