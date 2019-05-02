@@ -156,6 +156,7 @@
                         id: this.variant,
                         study: this.opencgaSession.study.fqn,
                         // genotype: "0/1,0|1",
+                        sid: this.opencgaSession.opencgaClient._config.sessionId,
                         limit: 25
                     };
 
@@ -193,7 +194,7 @@
                                             .then(function (response) {
                                                 let tr = "";
                                                 for (let i = 0; i < response.response.length; i++) {
-                                                    let individual = response.response[i].result[0].attributes.individual;
+                                                    let individual = response.response[i].result[0].attributes.OPENCGA_INDIVIDUAL;
                                                     if (UtilsNew.isNotEmpty(individual)) {
                                                         sampleInfo[i].individualId = individual.id;
 
@@ -236,6 +237,7 @@
                                                                             <td>${html}</td>
                                                                             <td>${sampleInfo[i].fileId}</td>
                                                                        </tr>`;
+                                                        debugger
                                                     }
                                                 }
 

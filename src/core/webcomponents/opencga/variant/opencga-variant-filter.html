@@ -283,10 +283,10 @@
                         }
                     }
 
-                    this.query = {
-                        study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
-                    };
-                    this.notifySearch(this.query);
+                    // this.query = {
+                    //     study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
+                    // };
+                    // this.notifySearch(this.query);
 
                     // Render filter menu and add event and tooltips
                     if (this._initialised) {
@@ -320,7 +320,6 @@
             }
 
             notifyQuery(query) {
-
                 this.dispatchEvent(new CustomEvent("querychange", {
                     detail: {
                         query: query,
@@ -331,7 +330,6 @@
             }
 
             notifySearch(query) {
-
                 this.dispatchEvent(new CustomEvent("querysearch", {
                     detail: {
                         query: query,
@@ -347,7 +345,7 @@
 
             onClinicalFilterChange(e) {
                 // Process Sample filters
-                let _genotypeFilter = [];
+                let _genotypeFilters = [];
                 let _sampleIds = [];
                 let _dpFormatFilter = [];
                 for (let sampleFilter of e.detail.sampleFilters) {
@@ -356,7 +354,10 @@
                     let dp = (sampleFilter.dp > 0) ? sampleFilter.dp : -1;
 
                     if (genotypes !== "none") {
-                        _genotypeFilter.push(sampleFilter.id + ":" + genotypes);
+                        if (e.detail.missing) {
+                            genotypes += ",./0,./1,./.";
+                        }
+                        _genotypeFilters.push(sampleFilter.id + ":" + genotypes);
                     }
                     if (dp !== -1) {
                         _dpFormatFilter.push(sampleFilter.id + ":DP>=" + dp);
@@ -378,8 +379,8 @@
                 let needUpdateQuery = false;
                 // Add sample filters to query
                 let _query = Object.assign({}, this.query);
-                if (_genotypeFilter !== undefined && _genotypeFilter.length > 0) {
-                    _query.genotype = _genotypeFilter.join(";");
+                if (_genotypeFilters !== undefined && _genotypeFilters.length > 0) {
+                    _query.genotype = _genotypeFilters.join(";");
                     delete _query.sample;
                     needUpdateQuery = true;
                 } else {
@@ -639,7 +640,7 @@
 
                 // Clear filter menu before rendering
                 this._clearHtmlDom();
-debugger
+
                 // Check 'query' is not null or empty there is nothing else to do
                 if (UtilsNew.isUndefinedOrNull(this.query) || Object.keys(this.query).length === 0) {
                     return;

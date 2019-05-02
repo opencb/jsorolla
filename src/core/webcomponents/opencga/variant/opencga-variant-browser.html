@@ -76,10 +76,13 @@
                 </div>
 
                 <div id="{{prefix}}MainWindow" class="col-md-10">
-                    <opencga-active-filters opencga-client="{{opencgaSession.opencgaClient}}" default-study="{{opencgaSession.study.alias}}"
-                                            query="{{preparedQuery}}" refresh="{{executedQuery}}"
+                    <opencga-active-filters opencga-client="{{opencgaSession.opencgaClient}}"
+                                            default-study="{{opencgaSession.study.alias}}"
+                                            query="{{preparedQuery}}"
+                                            refresh="{{executedQuery}}"
                                             filters="{{_config.filter.examples}}"
-                                            on-filterchange="onActiveFilterChange" on-clear="onClear"
+                                            on-filterchange="onActiveFilterChange"
+                                            on-clear="onClear"
                                             filter-bioformat="VARIANT" alias="{{_config.activeFilterAlias}}"
                                             config="{{_config.activeFilters}}">
                     </opencga-active-filters>
@@ -109,7 +112,8 @@
                         <div id="{{prefix}}TableResult" class="variant-browser-content">
                             <!-- Variant Browser Grid -->
                             <opencga-variant-grid opencga-session="{{opencgaSession}}"
-                                                  query="{{executedQuery}}" cohorts="{{cohorts}}"
+                                                  query="{{executedQuery}}"
+                                                  cohorts="{{cohorts}}"
                                                   cellbase-client="{{cellbaseClient}}"
                                                   population-frequencies="{{populationFrequencies}}" active="{{active}}"
                                                   protein-substitution-scores="{{proteinSubstitutionScores}}"
@@ -259,6 +263,7 @@
                 return {
                     opencgaSession: {
                         type: Object,
+                        observer: "opencgaSessionObserver"
                     },
                     reactomeClient: {
                         type: Object
@@ -288,15 +293,15 @@
                 }
             }
 
-            static get observers() {
-                /*
-                 * We do not need to Observer 'query' property, when passed it will be shared (bound) with the other components.
-                 * 'search; is observed to ensure 'query' is in sync.
-                 */
-                return [
-                    "propertyObserver(opencgaSession, config)"
-                ];
-            }
+            // static get observers() {
+            //     /*
+            //      * We do not need to Observer 'query' property, when passed it will be shared (bound) with the other components.
+            //      * 'search; is observed to ensure 'query' is in sync.
+            //      */
+            //     return [
+            //         "propertyObserver(opencgaSession)"
+            //     ];
+            // }
 
             _attachDom(dom) {
                 this.appendChild(dom);
@@ -323,9 +328,9 @@
                 this._config = this.getDefaultConfig();
             }
 
-            propertyObserver(opencgaSession, config) {
+            opencgaSessionObserver() {
                 // With each property change we must updated config and create the columns again. No extra checks are needed.
-                this._config = Object.assign(this.getDefaultConfig(), config);
+                this._config = Object.assign({}, this.getDefaultConfig(), this.config);
 
                 // Check if Beacon hosts are configured
                 for (let detail of this._config.detail) {
@@ -346,6 +351,7 @@
                         }
                     }
 
+                    // We reset the query object when the session is changed
                     this.query = {
                         study: this.opencgaSession.study.fqn
                     };
@@ -359,8 +365,10 @@
             queryObserver() {
                 // Query passed is executed and set to variant-filter, active-filters and variant-grid components
                 let _query = {};
-                if (UtilsNew.isEmpty(this.query) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
-                    _query = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias}
+                if (UtilsNew.isEmpty(this.query) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study)) {
+                    _query = {
+                        study: this.opencgaSession.study.fqn
+                    };
                 }
 
                 if (UtilsNew.isNotUndefinedOrNull(this.query)) {

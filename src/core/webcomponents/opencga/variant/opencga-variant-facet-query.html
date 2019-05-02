@@ -407,7 +407,7 @@
 
                 let _this = this;
                 setTimeout(() => {
-                        this.opencgaSession.opencgaClient.variants().stats(queryParams, {})
+                        this.opencgaSession.opencgaClient.variants().aggregationStats(queryParams, {})
                             .then(function (queryResponse) {
                                 // let response = queryResponse.response[0].result[0].result;
                                 _this.facetResults = queryResponse.response[0].result[0].results;

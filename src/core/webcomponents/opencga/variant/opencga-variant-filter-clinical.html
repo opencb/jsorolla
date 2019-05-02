@@ -429,10 +429,7 @@
             notify() {
                 let compHet = false;
                 let missing = false;
-                if (PolymerUtils.getElementById(this.prefix + "CompHetCheckbox") !== null) {
-                    // modeOfInheritance = PolymerUtils.getElementById(this.prefix + "ModeOfInheritance").value;
-                    // modeOfInheritance = $("#" + this.prefix + "ModeOfInheritance").val();
-                    compHet = PolymerUtils.getElementById(this.prefix + "CompHetCheckbox").checked;
+                if (PolymerUtils.getElementById(this.prefix + "MissingCheckbox") !== null) {
                     missing = PolymerUtils.getElementById(this.prefix + "MissingCheckbox").checked;
                 }
 

@@ -32,7 +32,7 @@
             <div class="col-md-12">
                 <h4 id="{{prefix}}Title" class="form-section-title" style="margin: 5px 0px;padding: 0px 10px">
                     {{_config.title}}
-                    <span class='family-info-icon' style="color: #337ab7; padding-left: 20px">
+                    <span id="{{prefix}}family-info-icon" style="color: #337ab7; padding-left: 20px">
                         <i class='fa fa-info-circle' aria-hidden='true'></i>
                     </span>
                 </h4>
@@ -120,7 +120,7 @@
                     },
                     clinicalAnalysis: {
                         type: Object,
-                        // observer: "clinicalAnalysisObserver"
+                        observer: "clinicalAnalysisObserver"
                     },
                     query: {
                         type: Object,
@@ -160,7 +160,15 @@
             connectedCallback() {
                 super.connectedCallback();
 
-                // this._addTooltip();
+                let _config = Object.assign({}, this.getDefaultConfig(), JSON.parse(JSON.stringify(this.config)), {
+                    title: this.getDefaultConfig().title,
+                    tooltip: this.getDefaultConfig().tooltip
+                });
+                if (this.mode !== "interactive") {
+                    _config.filter.menu.skipSubsections.push("sample");
+                }
+                this._config = _config;
+                this._addTooltip();
             }
 
             constructor() {
@@ -184,26 +192,9 @@
 
                 // Initially we set the default config, this will be overridden if 'config' is passed
                 // this._config = this.getDefaultConfig();
-                // debugger
             }
 
-            static get observers() {
-                return [
-                    "propertyObserver(opencgaSession, clinicalAnalysis)"
-                ];
-            }
-
-            propertyObserver(opencgaSession, clinicalAnalysis) {
-                let defaultConfig = this.getDefaultConfig();
-                let _config = Object.assign({}, defaultConfig, JSON.parse(JSON.stringify(this.config)));
-                _config.title = defaultConfig.title;
-                _config.tooltip = defaultConfig.tooltip;
-                if (this.mode !== "interactive") {
-                    _config.filter.menu.skipSubsections.push("sample");
-                }
-                this._config = _config;
-                this._addTooltip();
-
+            clinicalAnalysisObserver() {
                 if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
                     this._calculateSamples();
 
@@ -319,10 +310,10 @@
                         delete _query.genotype;
                         delete _query.sample;
 
-                        // if (this.mode === "compoundHeterozygous") {
-                        //     _query.biotype = "protein_coding";
-                        //     _query.ct = "missense_variant," + this._config.filter.lof.join(",");
-                        // }
+                        if (this.mode === "compoundHeterozygous") {
+                            _query.biotype = "protein_coding";
+                            // _query.ct = "missense_variant," + this._config.filter.lof.join(",");
+                        }
 
                         return _query;
                     }
@@ -349,7 +340,7 @@
             }
 
             _addTooltip() {
-                $(".family-info-icon").qtip({
+                $("#" + this.prefix + "family-info-icon").qtip({
                     content: {
                         title: "information",
                         text: this._config.tooltip,

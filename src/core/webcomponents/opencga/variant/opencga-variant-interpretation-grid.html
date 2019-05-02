@@ -86,6 +86,7 @@
                 return {
                     opencgaSession: {
                         type: Object,
+                        observer: "opencgaSessionObserver"
                     },
                     clinicalAnalysis: {
                         type: Object,
@@ -93,6 +94,7 @@
                     },
                     query: {
                         type: Object,
+                        observer: "queryObserver"
                     },
                     reportedVariants: {
                         type: Array,
@@ -113,11 +115,11 @@
                 }
             }
 
-            static get observers() {
-                return [
-                    "propertyObserver(opencgaSession, query)"
-                ];
-            }
+            // static get observers() {
+            //     return [
+            //         "propertyObserver(opencgaSession, query)"
+            //     ];
+            // }
 
             _attachDom(dom) {
                 this.appendChild(dom);
@@ -130,7 +132,6 @@
                 this.downloadRefreshIcon = $("#" + this.prefix + "DownloadRefresh");
                 this.downloadIcon = $("#" + this.prefix + "DownloadIcon");
 
-                this._columns = this._createDefaultColumns();
                 if (UtilsNew.isUndefinedOrNull(this.reportedVariants)) {
                     this.renderVariantTable();
                 } else {
@@ -144,40 +145,6 @@
                 this.prefix = "ovig-" + Utils.randomString(6);
 
                 this._initialised = false;
-
-                // this.query = {};
-                this._config = this.getDefaultConfig();
-            }
-
-            propertyObserver(opencgaSession, query) {
-                // if (this._initialised === false) {
-                //     return;
-                // }
-                // With each property change we must updated config and create the columns again. No extra checks are needed.
-                debugger
-                this._config = Object.assign({}, this.getDefaultConfig(), this.config);
-
-                // let _individuals = [];
-                // let _samples = [];
-                // if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis)) {
-                //     // let _individuals = [];
-                //     if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.family) && UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.family.members)) {
-                //         _individuals = clinicalAnalysis.family.members;
-                //     } else {
-                //         if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.proband)) {
-                //             _individuals = [clinicalAnalysis.proband];
-                //         }
-                //     }
-                //
-                //     for (let individual of _individuals) {
-                //         if (UtilsNew.isNotEmptyArray(individual.samples)) {
-                //             _samples.push(individual.samples[0]);
-                //         }
-                //     }
-                // }
-                // this.samples = _samples;
-                // this.individuals = _individuals;
-
 
                 // Config for the grid toolbar
                 this.toolbarConfig = {
@@ -197,14 +164,17 @@
                     ]
                 };
 
+                this._config = this.getDefaultConfig();
+            }
 
-                this._columns = this._createDefaultColumns();
+            opencgaSessionObserver() {
+                this._config = Object.assign({}, this.getDefaultConfig(), this.config);
                 this.variantGridFormatter = new VariantGridFormatter(this.opencgaSession, this._config);
-
-                // Set colors
                 let colors = this.variantGridFormatter.assignColors(this.consequenceTypes, this.proteinSubstitutionScores);
                 Object.assign(this, colors);
+            }
 
+            queryObserver() {
                 if (UtilsNew.isUndefinedOrNull(this.reportedVariants)) {
                     this.renderVariantTable();
                 } else {
@@ -233,6 +203,13 @@
                 }
                 this.samples = _samples;
                 this.individuals = _individuals;
+
+                // We reset the query object when the session is changed
+                if (UtilsNew.isUndefinedOrNull(this.reportedVariants)) {
+                    this.renderVariantTable();
+                } else {
+                    this.renderFromLocal();
+                }
             }
 
             onColumnChange(e) {
@@ -251,8 +228,8 @@
 
                 let _table = $('#' + this.prefix + 'VariantBrowserGrid');
                 if (typeof this.opencgaSession !== "undefined" && typeof this.opencgaSession.project !== "undefined"
-                    && typeof this.opencgaSession.study !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined"
-                    && UtilsNew.isNotEmpty(this.query)) {
+                    && typeof this.opencgaSession.study !== "undefined" && UtilsNew.isNotEmpty(this.query)) {
+                    this._columns = this._createDefaultColumns();
 
                     let urlQueryParams = this._getUrlQueryParams();
                     let queryParams = urlQueryParams.queryParams;
@@ -331,8 +308,8 @@
                         onLoadSuccess: function (data) {
                             // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
                             if (UtilsNew.isNotEmptyArray(data.rows) && UtilsNew.isNotUndefinedOrNull(_table)) {
-                                // PolymerUtils.querySelector(_table.selector).rows[2].setAttribute('class', 'success');
-                                // _this._onSelectVariant(data.rows[0]);
+                                PolymerUtils.querySelector(_table.selector).rows[2].setAttribute('class', 'success');
+                                _this._onSelectVariant(data.rows[0]);
 
                                 let elementsByClassName = PolymerUtils.getElementsByClassName("genome-browser-option");
                                 for (let elem of elementsByClassName) {
@@ -357,26 +334,6 @@
                         onPostBody: function (data) {
                             let _onPostBody = _this._onPostBody.bind(_this, data, "remote");
                             _this._onPostBody();
-
-                            // let removeIndividualButtons = PolymerUtils.querySelectorAll(".removeIndividualButton");
-                            // for (let i = 0; i < removeIndividualButtons.length; i++) {
-                            //     removeIndividualButtons[i].addEventListener('click', _this.onReviewClick.bind(_this));
-                            // }
-                            //
-                            // // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
-                            // if (UtilsNew.isNotEmptyArray(data) && UtilsNew.isNotUndefinedOrNull(_table)) {
-                            //     PolymerUtils.querySelector(_table.selector).rows[2].setAttribute('class', 'success');
-                            //     _this._onSelectVariant(data[0]);
-                            // }
-                            //
-                            // // Add tooltips
-                            // _this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
-                            // _this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
-                            // _this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "File metrics", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
-                            // _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", _this.populationFrequencies);
-                            // _this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("pop-preq-info-icon", _this.populationFrequencies);
-                            // _this.variantGridFormatter.addTooltip("predictionInfoIcon");
-                            // _this.variantGridFormatter.addTooltip("div.predictionTooltip", "Classification", {position:{my: "top right"}, style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
                         }
                     });
 
@@ -469,7 +426,7 @@
                 this.to = Math.min(this.reportedVariants.length, this._config.pageSize);
                 this.numTotalResultsText = this.reportedVariants.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-                let _table = $('#' + this.prefix + 'VariantBrowserGrid');
+                this._columns = this._createDefaultColumns();
                 let _this = this;
                 $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
                 $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable({
@@ -502,23 +459,6 @@
                     onPostBody: function (data) {
                         let _onPostBody = _this._onPostBody.bind(_this, data, "local");
                         _this._onPostBody();
-                        // let removeIndividualButtons = PolymerUtils.querySelectorAll(".removeIndividualButton");
-                        // for (let i = 0; i < removeIndividualButtons.length; i++) {
-                        //     removeIndividualButtons[i].addEventListener('click', _this.onReviewClick.bind(_this));
-                        // }
-                        //
-                        // // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
-                        // if (UtilsNew.isNotEmptyArray(data) && UtilsNew.isNotUndefinedOrNull(_table)) {
-                        //     PolymerUtils.querySelector(_table.selector).rows[2].setAttribute('class', 'success');
-                        //     _this._onClickSelectedVariant(data[0]);
-                        // }
-                        //
-                        // // Add tooltips
-                        // _this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "File metrics", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
-                        // _this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
-                        // _this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
-                        // _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", _this.populationFrequencies);
-                        // _this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("pop-preq-info-icon", _this.populationFrequencies);
                     }
                 });
             }
@@ -546,14 +486,16 @@
                 this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "File metrics", "", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
                 this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", this.populationFrequencies);
                 this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("span.pop-preq-info-icon", this.populationFrequencies);
-                let predictionTooltipContent = "<span style='font-weight: bold'>Prediction</span> column shows the clinical Significance prediction following the ACMG recommendations";
+                let predictionTooltipContent = "<span style='font-weight: bold'>Prediction</span> column shows the clinical Significance prediction following the ACMG guide recommendations";
                 this.variantGridFormatter.addTooltip("span.interpretation-info-icon", "Interpretation", predictionTooltipContent, {position:{my: "top right"}, style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
                 this.variantGridFormatter.addTooltip("div.predictionTooltip", "Classification", "", {position:{my: "top right"}, style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
             }
 
             _onSelectVariant(row) {
                 if (typeof row !== "undefined") {
-                    let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+                    let reference = row.reference !== "" ? row.reference : "-";
+                    let alternate = row.alternate !== "" ? row.alternate : "-";
+                    let _variant = row.chromosome + ":" + row.start + ":" + reference + ":" + alternate;
                     this.dispatchEvent(new CustomEvent('selectvariant', {
                         detail: {
                             id: _variant,
@@ -1013,13 +955,13 @@
                             colspan: 2,
                             align: 'center'
                         },
-                        {
-                            title: "Interpretation <span class='interpretation-info-icon'><i class='fa fa-info-circle' style='color: #337ab7' aria-hidden='true'></i></span>",
-                            field: "interpretation",
-                            rowspan: 1,
-                            colspan: 2,
-                            halign: 'center'
-                        },
+                        // {
+                        //     title: "Interpretation <span class='interpretation-info-icon'><i class='fa fa-info-circle' style='color: #337ab7' aria-hidden='true'></i></span>",
+                        //     field: "interpretation",
+                        //     rowspan: 1,
+                        //     colspan: 2,
+                        //     halign: 'center'
+                        // },
                     ],
                     [
                         {
@@ -1086,6 +1028,13 @@
 
             _updateTableColumns() {
                 // Add a checkbox column
+                this._columns[0].push({
+                    title: "Interpretation <span class='interpretation-info-icon'><i class='fa fa-info-circle' style='color: #337ab7' aria-hidden='true'></i></span>",
+                    field: "interpretation",
+                    rowspan: 1,
+                    colspan: this._config.showSelectCheckbox ? 2 : 1,
+                    halign: 'center'
+                });
                 if (this._config.showSelectCheckbox) {
                     this._columns[1].push({
                         // field: "stateCheckBox",

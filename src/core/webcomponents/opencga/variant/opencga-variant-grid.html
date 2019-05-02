@@ -113,7 +113,7 @@
 
             static get observers() {
                 return [
-                    "propertyObserver(opencgaSession, query, consequenceTypes, populationFrequencies, proteinSubstitutionScores, config)"
+                    "propertyObserver(query, consequenceTypes, populationFrequencies, proteinSubstitutionScores)"
                 ];
             }
 
@@ -137,10 +137,31 @@
             _init() {
                 this.prefix = "VarBrowserGrid-" + Utils.randomString(6);
 
+                // Config for the grid toolbar
+                this.toolbarConfig = {
+                    columns: [
+                        {
+                            title: 'Variant', field: "id",
+                        },
+                        {
+                            title: 'dbSNP Id', field: "dbSNP",
+                        },
+                        {
+                            title: 'Gene', field: "gene",
+                        },
+                        {
+                            title: 'Type', field: "type",
+                        },
+                        {
+                            title: 'Consequence Type', field: "consequenceType",
+                        }
+                    ]
+                };
+
                 this._config = this.getDefaultConfig();
             }
 
-            propertyObserver(opencgaSession, query, consequenceTypes, populationFrequencies, proteinSubstitutionScores, config) {
+            propertyObserver(query, consequenceTypes, populationFrequencies, proteinSubstitutionScores) {
                 // With each property change we must updated config and create the columns again. No extra checks are needed.
                 this._config = Object.assign(this.getDefaultConfig(), this.config);
                 // this._columns = this._createDefaultColumns();
@@ -165,27 +186,6 @@
                     }
                 }
                 this.samples = _samples;
-
-                // Config for the grid toolbar
-                this.toolbarConfig = {
-                    columns: [
-                        {
-                            title: 'Variant', field: "id",
-                        },
-                        {
-                            title: 'dbSNP Id', field: "dbSNP",
-                        },
-                        {
-                            title: 'Gene', field: "gene",
-                        },
-                        {
-                            title: 'Type', field: "type",
-                        },
-                        {
-                            title: 'Consequence Type', field: "consequenceType",
-                        }
-                    ]
-                };
 
                 this.variantGridFormatter = new VariantGridFormatter(this.opencgaSession, this._config);
 
@@ -492,8 +492,13 @@
                 if (typeof row !== "undefined") {
                     let reference = row.reference !== "" ? row.reference : "-";
                     let alternate = row.alternate !== "" ? row.alternate : "-";
-                    let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + alternate;
-                    this.dispatchEvent(new CustomEvent('selectvariant', {detail: {id: _variant, variant: row}}));
+                    let _variant = row.chromosome + ":" + row.start + ":" + reference + ":" + alternate;
+                    this.dispatchEvent(new CustomEvent('selectvariant', {
+                        detail: {
+                            id: _variant,
+                            variant: row
+                        }
+                    }));
                 }
             }
 

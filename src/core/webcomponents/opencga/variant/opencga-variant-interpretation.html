@@ -67,11 +67,11 @@
         <template is="dom-if" if="{{checkProjects}}">
             <div class="panel" style="margin-bottom: 15px">
                 <h3 style="margin: 10px 10px 10px 15px">
-<!--                    <template is="dom-if" if="{{interactive}}">-->
-<!--                        <span on-click="onCollapse" style="cursor: pointer;margin: 0px 30px 0px 0px">-->
-<!--                            <i class="fa fa-bars" aria-hidden="true"></i>-->
-<!--                        </span>-->
-<!--                    </template>-->
+                    <!--                    <template is="dom-if" if="{{interactive}}">-->
+                    <!--                        <span on-click="onCollapse" style="cursor: pointer;margin: 0px 30px 0px 0px">-->
+                    <!--                            <i class="fa fa-bars" aria-hidden="true"></i>-->
+                    <!--                        </span>-->
+                    <!--                    </template>-->
                     <template is="dom-if" if="{{clinicalAnalysis}}">
                         <i class="fa fa-filter" aria-hidden="true" style="padding-lefts: 10px;padding-right: 10px"></i>&nbsp;{{config.title}} - Case {{clinicalAnalysis.id}}
                     </template>
@@ -129,7 +129,7 @@
                                 <i class="fa fa-user-md icon-padding" aria-hidden="true" data-view="ClinicalAnalysis" on-click="onChangeView"></i>Case Summary
                             </button>
                             <button id="{{prefix}}InterpretationEditorButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
-                                    data-view="InterpretationEditor" on-click="onChangeView">
+                                    data-view="InterpretationEditor" on-click="onChangeView" disabled="{{_config.disableSaveInterpretation}}">
                                 <i class="fa fa-save icon-padding" aria-hidden="true" data-view="InterpretationEditor" on-click="onChangeView"></i>Review and Save {{counterTitles.total}}
                             </button>
                         </div>
@@ -140,7 +140,7 @@
                                 <i class="fa fa-edit icon-padding" aria-hidden="true" data-view="ClinicalAnalysisEditor" on-click="onChangeView"></i>Clinical Analysis Definition
                             </button>
                             <button id="{{prefix}}InterpretationEditorButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
-                                    data-view="InterpretationEditor" on-click="onChangeView">
+                                    data-view="InterpretationEditor" on-click="onChangeView" disabled="{{_config.disableSaveInterpretation}}">
                                 <i class="fa fa-save icon-padding" aria-hidden="true" data-view="InterpretationEditor" on-click="onChangeView"></i>Review and Save {{counterTitles.total}}
                             </button>
                         </div>
@@ -272,15 +272,15 @@
                         <div style="padding: 10px 20px">
                             <!--                                clinical-analysis="{{clinicalAnalysis}}"-->
                             <!--                                reported-variants="{{checkedVariants}}"-->
-<!--                            <opencga-variant-interpretation-editor opencga-session="{{opencgaSession}}"-->
-<!--                                                                   cellbase-client="{{cellbaseClient}}"-->
-<!--                                                                   interpretation="{{interpretation}}"-->
-<!--                                                                   population-frequencies="{{populationFrequencies}}"-->
-<!--                                                                   protein-substitution-scores="{{proteinSubstitutionScores}}"-->
-<!--                                                                   consequence-types="{{consequenceTypes}}"-->
-<!--                                                                   on-gene="geneSelected" on-samplechange="onSampleChange"-->
-<!--                                                                   style="font-size: 12px" config="{{config}}">-->
-<!--                            </opencga-variant-interpretation-editor>-->
+                            <!--                            <opencga-variant-interpretation-editor opencga-session="{{opencgaSession}}"-->
+                            <!--                                                                   cellbase-client="{{cellbaseClient}}"-->
+                            <!--                                                                   interpretation="{{interpretation}}"-->
+                            <!--                                                                   population-frequencies="{{populationFrequencies}}"-->
+                            <!--                                                                   protein-substitution-scores="{{proteinSubstitutionScores}}"-->
+                            <!--                                                                   consequence-types="{{consequenceTypes}}"-->
+                            <!--                                                                   on-gene="geneSelected" on-samplechange="onSampleChange"-->
+                            <!--                                                                   style="font-size: 12px" config="{{config}}">-->
+                            <!--                            </opencga-variant-interpretation-editor>-->
                         </div>
                     </div>
 
@@ -312,7 +312,8 @@
             static get properties() {
                 return {
                     opencgaSession: {
-                        type: Object
+                        type: Object,
+                        observer: 'opencgaSessionObserver',
                     },
                     clinicalAnalysisId: {
                         type: String,
@@ -346,16 +347,6 @@
                         type: Object
                     }
                 }
-            }
-
-            static get observers() {
-                /*
-                 * We do not need to Observer 'query' property, when passed it will be shared (bound) with the other components.
-                 * 'search; is observed to ensure 'query' is in sync.
-                 */
-                return [
-                    "propertyObserver(opencgaSession, config)"
-                ];
             }
 
             _attachDom(dom) {
@@ -397,20 +388,6 @@
 
                 this.samples = [];
 
-                // this.defaultAutomaticQuery = {
-                //     biotype: "protein_coding"
-                // };
-
-                this.compHetInformationCollapsed = false;
-                this.deNovoInformationCollapsed = false;
-
-                // this.compHetQuery = undefined;
-                // this.showCompHetWarningMessage = false;
-                //
-                // this.deNovoQuery = undefined;
-                // this.showDeNovoWarningMessage = false;
-
-                this.isFamilyComplete = false;
                 this.missingMembersMessage = "Missing clinical analysis";
 
                 this.variant = null;
@@ -435,9 +412,9 @@
                 this._config = this.getDefaultConfig();
             }
 
-            propertyObserver(opencgaSession, config) {
+            opencgaSessionObserver() {
                 // With each property change we must updated config and create the columns again. No extra checks are needed.
-                this._config = Object.assign(this.getDefaultConfig(), this.config);
+                this._config = Object.assign({}, this.getDefaultConfig(), this.config);
 
                 // Check if Beacon hosts are configured
                 for (let detail of this._config.detail) {
@@ -447,12 +424,6 @@
                         };
                     }
                 }
-
-                // Query passed is executed and set to variant-filter, active-filters and variant-grid components
-                // if (UtilsNew.isNotUndefinedOrNull(query)) {
-                //     this.preparedQuery = query;
-                //     this.executedQuery = query;
-                // }
 
                 if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
                     this.checkProjects = true;
@@ -586,42 +557,6 @@
                 }
             }
 
-
-
-            /*
-             * Variant Filter component listeners
-             */
-            onQueryFilterChange(e) {
-                debugger
-                this.preparedQuery = e.detail.query;
-
-                // Prepare object for Comp. Het. query
-                // this.setCompHetQuery(this.preparedQuery);
-                // this.setDeNovoQuery(this.preparedQuery);
-
-                this._setPropertiesForTools();
-            }
-
-            onQueryFilterSearch(e) {
-                this.preparedQuery = e.detail.query;
-                this.executedQuery = e.detail.query;
-
-                // Prepare object for Comp. Het. query
-                // this.setCompHetQuery(this.executedQuery);
-                // this.setDeNovoQuery(this.executedQuery);
-            }
-
-            onActiveFilterChange(e) {
-                this.query = e.detail;
-                this.search = e.detail;
-
-                // Prepare object for Comp. Het. query
-                // this.setCompHetQuery(this.preparedQuery);
-                // this.setDeNovoQuery(this.preparedQuery);
-
-                this._setPropertiesForTools();
-            }
-
             /**
              * Set properties for LowCoverage tools and others
              */
@@ -738,21 +673,7 @@
 
             onChangeView(e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-
                 this._changeView(e.target.dataset.view);
-                // PolymerUtils.hideByClass("variant-interpretation-content");
-                //
-                // if (typeof e.target !== "undefined" && typeof e.target.dataset.view !== "undefined") {
-                //     PolymerUtils.show(this.prefix + e.target.dataset.view);
-                // }
-                //
-                // // Show the active button
-                // PolymerUtils.removeClass(".variant-interpretation-view-buttons", "active");
-                // //
-                // $(e.target).addClass("active");
-                //
-                // // Make Genome Browser active
-                // this._genomeBrowserActive = (e.target.dataset.view === "GenomeBrowser");
             }
 
             _changeView(view) {
@@ -958,13 +879,6 @@
                     }));
                 }
             }
-
-            // cleanSaveInterpretation() {
-            //     PolymerUtils.setValue(this.prefix + "IDInterpretation", "");
-            //     PolymerUtils.setValue(this.prefix + "NameInterpretation", "");
-            //     PolymerUtils.setValue(this.prefix + "DescriptionInterpretation", "");
-            //     PolymerUtils.setValue(this.prefix + "CommentInterpretation", "");
-            // }
 
             getDefaultConfig() {
                 return {
