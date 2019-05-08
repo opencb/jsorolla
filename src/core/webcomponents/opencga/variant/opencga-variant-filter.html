@@ -354,7 +354,7 @@
                     let dp = (sampleFilter.dp > 0) ? sampleFilter.dp : -1;
 
                     if (genotypes !== "none") {
-                        if (e.detail.missing) {
+                        if (e.detail.missing && !sampleFilter.proband) {
                             genotypes += ",./0,./1,./.";
                         }
                         _genotypeFilters.push(sampleFilter.id + ":" + genotypes);
@@ -366,15 +366,15 @@
                 }
 
                 // Process File filters
-                let _files = [];
-                let _qual = e.detail.qual;
-                let _filter = e.detail.filter;
-                for (let fileFilter of e.detail.fileFilters) {
-                    if (fileFilter.selected) {
-                        // _files.push(fileFilter.name);
-                        _files.push(fileFilter.id);
-                    }
-                }
+                // let _files = [];
+                // let _qual = e.detail.qual;
+                // let _filter = e.detail.filter;
+                // for (let fileFilter of e.detail.fileFilters) {
+                //     if (fileFilter.selected) {
+                //         // _files.push(fileFilter.name);
+                //         _files.push(fileFilter.id);
+                //     }
+                // }
 
                 let needUpdateQuery = false;
                 // Add sample filters to query
@@ -388,32 +388,32 @@
                     _query.sample = _sampleIds.join(",");
                     delete _query.genotype;
                 }
-                if (_dpFormatFilter !== undefined && _dpFormatFilter.length > 0) {
-                    _query.format = _dpFormatFilter.join(";");
-                    needUpdateQuery = true;
-                } else {
-                    if (UtilsNew.isNotUndefinedOrNull(_query.format)) {
-                        delete _query.format;
-                        needUpdateQuery = true;
-                    }
-                }
+                // if (_dpFormatFilter !== undefined && _dpFormatFilter.length > 0) {
+                //     _query.format = _dpFormatFilter.join(";");
+                //     needUpdateQuery = true;
+                // } else {
+                //     if (UtilsNew.isNotUndefinedOrNull(_query.format)) {
+                //         delete _query.format;
+                //         needUpdateQuery = true;
+                //     }
+                // }
 
                 // Add file filters to query
-                if (_files.length > 0) {
-                    _query.file = _files.join(";");
-                    if (UtilsNew.isNotEmpty(_qual)) {
-                        _query.qual = ">=" + _qual;
-                    }
-                    if (UtilsNew.isNotEmpty(_filter)) {
-                        _query.filter = _filter;
-                    }
-                    needUpdateQuery = true;
-                } else {
-                    // If no files are selected we remove all files-related filters
-                    delete _query.file;
-                    delete _query.qual;
-                    delete _query.filter;
-                }
+                // if (_files.length > 0) {
+                //     _query.file = _files.join(";");
+                //     if (UtilsNew.isNotEmpty(_qual)) {
+                //         _query.qual = ">=" + _qual;
+                //     }
+                //     if (UtilsNew.isNotEmpty(_filter)) {
+                //         _query.filter = _filter;
+                //     }
+                //     needUpdateQuery = true;
+                // } else {
+                //     // If no files are selected we remove all files-related filters
+                //     delete _query.file;
+                //     delete _query.qual;
+                //     delete _query.filter;
+                // }
 
                 // Only update query if really needed, this avoids unneeded web refresh
                 if (needUpdateQuery) {
@@ -595,41 +595,41 @@
 
 
                     // Second, render File table
-                    let fileTableTr = "";
-                    if (UtilsNew.isNotEmptyArray(this.query.file)) {
-                        let qual = (UtilsNew.isNotEmpty(this.query.qual)) ? this.query.qual : "NA";
-                        let filter = (UtilsNew.isNotEmpty(this.query.filter)) ? this.query.filter : "NA";
-                        let _files = this.query.file.split(";");
-                        for (let fileName of _files) {
-                            let shortFileName = (fileName.length > 15) ? fileName.substring(0, 16) + "..." : fileName;
-                            fileTableTr += `<tr data-file="${fileName}">
-                                                <td>
-                                                    <span title="${fileName}">${shortFileName}</span>
-                                                </td>
-                                                <td>
-                                                    ${qual}
-                                                </td>
-                                                <td>
-                                                    ${filter}
-                                                </td>
-                                           </tr>
-                                `;
-                        }
-                    } else {
-                        fileTableTr = `<tr>
-                                            <td>
-                                                No Files selected</span>
-                                            </td>
-                                            <td></td>
-                                            <td></td>
-                                       </tr>
-                                `;
-                    }
-
-                    elementById = PolymerUtils.getElementById(this.prefix + "FileFiltersSummaryTBody");
-                    if (UtilsNew.isNotUndefinedOrNull(elementById)) {
-                        elementById.innerHTML = fileTableTr;
-                    }
+                    // let fileTableTr = "";
+                    // if (UtilsNew.isNotEmptyArray(this.query.file)) {
+                    //     let qual = (UtilsNew.isNotEmpty(this.query.qual)) ? this.query.qual : "NA";
+                    //     let filter = (UtilsNew.isNotEmpty(this.query.filter)) ? this.query.filter : "NA";
+                    //     let _files = this.query.file.split(";");
+                    //     for (let fileName of _files) {
+                    //         let shortFileName = (fileName.length > 15) ? fileName.substring(0, 16) + "..." : fileName;
+                    //         fileTableTr += `<tr data-file="${fileName}">
+                    //                             <td>
+                    //                                 <span title="${fileName}">${shortFileName}</span>
+                    //                             </td>
+                    //                             <td>
+                    //                                 ${qual}
+                    //                             </td>
+                    //                             <td>
+                    //                                 ${filter}
+                    //                             </td>
+                    //                        </tr>
+                    //             `;
+                    //     }
+                    // } else {
+                    //     fileTableTr = `<tr>
+                    //                         <td>
+                    //                             No Files selected</span>
+                    //                         </td>
+                    //                         <td></td>
+                    //                         <td></td>
+                    //                    </tr>
+                    //             `;
+                    // }
+                    //
+                    // elementById = PolymerUtils.getElementById(this.prefix + "FileFiltersSummaryTBody");
+                    // if (UtilsNew.isNotUndefinedOrNull(elementById)) {
+                    //     elementById.innerHTML = fileTableTr;
+                    // }
                 }
             }
 
@@ -649,19 +649,6 @@
                 // Render Clinical filters: sample and file
                 this.renderClinicalQuerySummary();
 
-                // Cohorts
-                let cohortArray = [];
-                if (typeof this.query.maf !== "undefined") {
-                    cohortArray = this.query.maf.split(new RegExp("[,;]"));
-                    for (let i = 0; i < cohortArray.length; i++) {
-                        let [study, cohortFreq] = cohortArray[i].split(':');
-                        let [cohort, freq] = cohortFreq.split(/[<=>]+/);
-                        let operator = cohortFreq.split(/[-A-Za-z0-9._:]+/)[1];
-                        PolymerUtils.setValue(this.prefix + study + cohort + "Cohort", freq);
-                        PolymerUtils.setValue(this.prefix + study + cohort + "CohortOperator", operator);
-                    }
-                }
-
                 // Studies
                 if (typeof this.query.studies !== "undefined") {
                     if (this.$.includeOtherStudy !== null && this.$.differentStudies !== null) {
@@ -680,13 +667,27 @@
                     }
                 }
 
+                // Cohorts
+                let cohortArray = [];
+                if (typeof this.query.maf !== "undefined") {
+                    cohortArray = this.query.maf.split(new RegExp("[,;]"));
+                    for (let i = 0; i < cohortArray.length; i++) {
+                        let [study, cohortFreq] = cohortArray[i].split(':');
+                        let [cohort, freq] = cohortFreq.split(/[<=>]+/);
+                        let operator = cohortFreq.split(/[-A-Za-z0-9._:]+/)[1];
+                        PolymerUtils.setValue(this.prefix + study + cohort + "Cohort", freq);
+                        PolymerUtils.setValue(this.prefix + study + cohort + "CohortOperator", operator);
+                    }
+                }
+
+
                 // Region
                 if (typeof this.query.region !== "undefined") {
                     $("#" + this.prefix + "LocationTextarea").val(this.query.region);
                 }
 
                 // XRefs, Gene and Variant Ids
-                if (typeof this.query["xref"] !== "undefined") {
+                if (typeof this.query.xref !== "undefined") {
                     PolymerUtils.setValue(this.prefix + "FeatureTextarea", this.query["xref"]);
                 } else if (typeof this.query.ids !== "undefined") {
                     PolymerUtils.setValue(this.prefix + "FeatureTextarea", this.query.ids);
@@ -907,12 +908,12 @@
                 if (UtilsNew.isNotUndefinedOrNull(this.query.format)) {
                     _filters.format = this.query.format;
                 }
-                if (UtilsNew.isNotUndefinedOrNull(this.query.file)) {
-                    _filters.file = this.query.file;
-                }
-                if (UtilsNew.isNotUndefinedOrNull(this.query.qual)) {
-                    _filters.qual = this.query.qual;
-                }
+                // if (UtilsNew.isNotUndefinedOrNull(this.query.file)) {
+                //     _filters.file = this.query.file;
+                // }
+                // if (UtilsNew.isNotUndefinedOrNull(this.query.qual)) {
+                //     _filters.qual = this.query.qual;
+                // }
                 if (UtilsNew.isNotUndefinedOrNull(this.query.info)) {
                     _filters.info = this.query.info;
                 }
@@ -974,6 +975,24 @@
                 } else {
                     // Set study when no studies have been displayed, probably because there is only one study.
                     _filters.study = this.opencgaSession.study.fqn;
+                }
+
+                // Filter PASS
+                let filePassCheckbox = PolymerUtils.getElementById(this.prefix + "FilePassCheckbox");
+                if (UtilsNew.isNotUndefinedOrNull(filePassCheckbox) && filePassCheckbox.checked) {
+                    _filters.filter = "PASS";
+                }
+
+                // Filter QUAL
+                let fileQualCheckbox = PolymerUtils.getElementById(this.prefix + "FileQualCheckbox");
+                if (UtilsNew.isNotUndefinedOrNull(filePassCheckbox)) {
+                    if (fileQualCheckbox.checked) {
+                        let fileQualInput = PolymerUtils.getElementById(this.prefix + "FileQualInput");
+                        if (UtilsNew.isNotUndefinedOrNull(fileQualInput) && UtilsNew.isNotEmpty(fileQualInput.value)) {
+                            _filters.qual = ">=" + fileQualInput.value;
+                        }
+                    }
+                    PolymerUtils.getElementById(this.prefix + "FileQualInput").disabled = !fileQualCheckbox.checked;
                 }
 
                 // Regions
@@ -1215,6 +1234,7 @@
                 $("." + this.prefix + "FilterRadio").prop("disabled", true);
 
                 $("#" + this.prefix + "DiseasePanelsTextarea").val("");
+                PolymerUtils.getElementById(this.prefix + "FileQualInput").disabled = true;
 
                 // Deselect bootstrap-select dropdowns
                 $("#" + this.prefix + "DiseasePanels").selectpicker('val', []);
@@ -1307,15 +1327,19 @@
 
                 let content = "";
                 switch (subsection.id) {
-                    case "sample":
-                        this.decisionTreeInheritance = subsection.decisionTreeInheritance;
-                        content = this._getSampleHtml(subsection, this.prefix);
-                        break;
+
                     case "study":
                         content = this._getStudyHtml(this.prefix);
                         break;
                     case "cohort":
                         content = this._getCohortHtml(subsection.cohorts, this.prefix);
+                        break;
+                    case "sample":
+                        // this.decisionTreeInheritance = subsection.decisionTreeInheritance;
+                        content = this._getSampleHtml(subsection, this.prefix);
+                        break;
+                    case "file":
+                        content = this._getFileHtml(this.prefix);
                         break;
                     case "location":
                         content = this._getLocationHtml(this.prefix);
@@ -1368,59 +1392,6 @@
                 `;
 
                 return header + content + footer;
-            }
-
-            _getSampleHtml(subsection, prefix) {
-                let res = "";
-                if (subsection.showSelectSamples) {
-                    res = `
-                        <div>
-                            <div style="padding: 10px 0px">Select Sample and File Filters:</div>
-                            <div style="padding-left: 20px">
-                                <button id="${prefix}SampleFilterModalButton" type="button" class="btn btn-default" style="width: 80%">Sample Filters ...</button>
-                            </div>
-                        </div>
-                        <div style="padding: 10px 0px 5px 0px">
-                            <div style="padding: 15px 0px;">
-                                <span>Sample and File Filters Summary</span>
-                            </div>
-                            <table class="table">
-                                <thead>
-                                <tr>
-                                    <th scope="col">Sample ID</th>
-                                    <th scope="col">GT</th>
-                                </tr>
-                                </thead>
-                                <tbody id="${prefix}SampleFiltersSummaryTBody">
-                                    <tr>
-                                        <td>No samples selected</td>
-                                        <td></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                            <div id="${prefix}FileFilterSummary" style="display: inline">
-                                    <table class="table" style="margin-bottom: 5px">
-                                        <thead>
-                                        <tr>
-                                            <th scope="col">File Name</th>
-                                            <th scope="col">QUAL</th>
-                                            <th scope="col">FILTER</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody id="${prefix}FileFiltersSummaryTBody">
-                                            <tr>
-                                                <td>No files selected</td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                    `;
-                }
-                return res;
             }
 
             _getStudyHtml(prefix) {
@@ -1491,6 +1462,80 @@
                 } else {
                     return "<span>Project not found</span>"
                 }
+            }
+
+            _getSampleHtml(subsection, prefix) {
+                let res = "";
+                if (subsection.showSelectSamples) {
+                    res = `
+                        <div>
+                            <div style="padding: 10px 0px">Select Genotype Filter:</div>
+                            <div style="padding-left: 20px">
+                                <button id="${prefix}SampleFilterModalButton" type="button" class="btn btn-default" style="width: 80%">Sample Filters ...</button>
+                            </div>
+                        </div>
+                        <div style="padding: 10px 0px 5px 0px">
+                            <div style="padding: 15px 0px;">
+                                <span>Sample Genotype Summary</span>
+                            </div>
+                            <table class="table" style="margin-bottom: 10px">
+                                <thead>
+                                <tr>
+                                    <th scope="col">Sample ID</th>
+                                    <th scope="col">GT</th>
+                                </tr>
+                                </thead>
+                                <tbody id="${prefix}SampleFiltersSummaryTBody">
+                                    <tr>
+                                        <td>No samples selected</td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+
+                        </div>
+                    `;
+                // <div id="${prefix}FileFilterSummary" style="display: inline">
+                //         <table class="table" style="margin-bottom: 5px">
+                //         <thead>
+                //         <tr>
+                //         <th scope="col">File Name</th>
+                //     <th scope="col">QUAL</th>
+                //         <th scope="col">FILTER</th>
+                //         </tr>
+                //         </thead>
+                //         <tbody id="${prefix}FileFiltersSummaryTBody">
+                //         <tr>
+                //         <td>No files selected</td>
+                //     <td></td>
+                //     <td></td>
+                //     </tr>
+                //     </tbody>
+                //     </table>
+                //     </div>
+                }
+                return res;
+            }
+
+            _getFileHtml(prefix) {
+                return `
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input id="${prefix}FilePassCheckbox" type="checkbox" class="${prefix}FilterCheckBox"><span style="padding-left: 5px">Only include <span style="font-weight: bold;">PASS</span> variants</span>
+                        </div>
+                        <form class="form-horizontal">
+                            <div class="form-group col-md-12">
+                                <div class="col-md-8">
+                                    <input id="${prefix}FileQualCheckbox" type="checkbox" class="${prefix}FilterCheckBox"><span style="padding-left: 5px">Introduce min. <span style="font-weight: bold;">QUAL</span></span>
+                                </div>
+                                <div class="col-md-4">
+                                    <input id="${prefix}FileQualInput" type="text" class="form-control input-sm ${prefix}FilterTextInput" disabled>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                `;
             }
 
             _getLocationHtml(prefix) {
@@ -1913,7 +1958,7 @@
             }
 
             _addEventListeners() {
-                let keyupEvents = ["LocationTextarea", "FeatureTextarea", "PanelAppsTextarea", "FilterTextInput", "CaddRawInput", "CaddScaledInput", "SiftInput",
+                let keyupEvents = ["FileQualInput", "LocationTextarea", "FeatureTextarea", "PanelAppsTextarea", "FilterTextInput", "CaddRawInput", "CaddScaledInput", "SiftInput",
                     "PolyphenInput", "PhylopInput", "PhastconsInput", "GerpInput", "GeneOntologyTextarea", "HumanPhenotypeOntologyTextarea", "ClinVarTextarea", "TraitsTextarea"];
                 for (let id of keyupEvents) {
                     let element = PolymerUtils.getElementById(this.prefix + id);
@@ -1922,7 +1967,7 @@
                     }
                 }
 
-                let changeEvents = ["includeOtherStudy", "GenotypeQueryOptions", "DiseasePanels", "GeneBiotypes", "Type", "CaddRawOperator", "CaddScaledOperator", "SiftOperator", "PolyphenOperator",
+                let changeEvents = ["includeOtherStudy", "FilePassCheckbox", "FileQualCheckbox", "GenotypeQueryOptions", "DiseasePanels", "GeneBiotypes", "Type", "CaddRawOperator", "CaddScaledOperator", "SiftOperator", "PolyphenOperator",
                     "pssOrRadio", "pssAndRadio", "PhylopOperator", "PhastconsOperator", "GerpOperator", "conservationAndRadio", "conservationOrRadio", "vcfFilterSelect",
                     "hpoOrRadio", "hpoAndRadio"];
                 for (let id of changeEvents) {
