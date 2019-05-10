@@ -875,8 +875,8 @@
                     let _this = this;
                     this.opencgaSession.opencgaClient.panels()
                         .info(panels.join(","), {
-                            study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
-                            include: "id,name,genes.name"}, {})
+                            study: _this.opencgaSession.study.fqn,
+                            include: "id,name,genes.id,genes.name,regions.id"}, {})
                         .then(function (response) {
                             let text = "";
                             for (let panelResponse of response.response) {
@@ -885,7 +885,13 @@
                                 for (let gene of panel.genes) {
                                     geneNames.push(gene.name);
                                 }
-                                text += `${panel.name} (${geneNames.length} genes): ${geneNames.join(",")} \n\n`;
+                                let regions = [];
+                                for (let region of panel.regions) {
+                                    regions.push(region.id);
+                                }
+                                text += `${panel.name} (${geneNames.length} genes and ${regions.length} regions): ${geneNames.join(",")} \n`;
+                                text += `${geneNames.join(",")} \n`;
+                                text += `${regions.join(",")} \n\n`;
                             }
                             PolymerUtils.getElementById(_this.prefix + "DiseasePanelsTextarea").value = text;
                         })
@@ -1234,7 +1240,9 @@
                 $("." + this.prefix + "FilterRadio").prop("disabled", true);
 
                 $("#" + this.prefix + "DiseasePanelsTextarea").val("");
-                PolymerUtils.getElementById(this.prefix + "FileQualInput").disabled = true;
+                if (PolymerUtils.getElementById(this.prefix + "FileQualInput") !== null) {
+                    PolymerUtils.getElementById(this.prefix + "FileQualInput").disabled = true;
+                }
 
                 // Deselect bootstrap-select dropdowns
                 $("#" + this.prefix + "DiseasePanels").selectpicker('val', []);
@@ -1571,15 +1579,15 @@
                 for (let panel of this.opencgaSession.study.panels) {
                     let version = "";
                     let numberOfGenes = 0;
-                    let numberOfVariants = 0;
+                    let numberOfRegions = 0;
                     if (UtilsNew.isNotUndefinedOrNull(panel.source)) {
                         version = "v" + panel.source.version;
                     }
                     if (UtilsNew.isNotUndefinedOrNull(panel.stats)) {
                         numberOfGenes = panel.stats.numberOfGenes;
-                        numberOfVariants = panel.stats.numberOfVariants;
+                        numberOfRegions = panel.stats.numberOfRegions;
                     }
-                    options += `<option value="${panel.id}">${panel.name} ${version} (${numberOfGenes} genes, ${numberOfVariants} variants)</option>`;
+                    options += `<option value="${panel.id}">${panel.name} ${version} (${numberOfGenes} genes, ${numberOfRegions} regions)</option>`;
                 }
 
                 return `<div>

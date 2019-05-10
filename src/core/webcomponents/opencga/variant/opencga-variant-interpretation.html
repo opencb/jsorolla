@@ -85,7 +85,7 @@
 
             <div class="col-md-12" style="padding: 10px 25px 25px 25px">
                 <div class="btn-toolbar " role="toolbar" aria-label="..." >
-                    <!-- Right green buttons -->
+                    <!-- Left buttons -->
                     <div class="btn-group" role="group" aria-label="..." >
                         <button id="{{prefix}}InteractiveButton" type="button" class="btn btn-primary variant-interpretation-view-buttons active" data-view="Interactive" on-click="onChangeView">
                             <i class="fa fa-filter icon-padding" aria-hidden="true" data-view="Interactive" on-click="onChangeView"></i>Interactive Analysis {{counterTitles.rv}}
@@ -104,25 +104,27 @@
                     <!--</button>-->
                     <!--</div>-->
 
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fa fa-wrench" aria-hidden="true" style="padding-right: 5px"></i> Other Tools <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            <li>
-                                <a id="{{prefix}}LowCoverageButton" data-view="LowCoverage" on-click="onChangeView" style="cursor: pointer">
-                                    <i class="fa fa-water icon-padding" aria-hidden="true" data-view="LowCoverage" on-click="onChangeView"></i>Low Coverage Regions
-                                </a>
-                            </li>
-                            <li>
-                                <a id="{{prefix}}GenomeBrowserButton" data-view="GenomeBrowser" on-click="onChangeView" data-view="GenomeBrowser" style="cursor: pointer">
-                                    <i class="fa fa-stream icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="onChangeView"></i>Genome Browser (Beta)
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                    <template is="dom-if" if="{{_config.showOtherTools}}">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-wrench" aria-hidden="true" style="padding-right: 5px"></i> Other Tools <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li>
+                                    <a id="{{prefix}}LowCoverageButton" data-view="LowCoverage" on-click="onChangeView" style="cursor: pointer">
+                                        <i class="fa fa-water icon-padding" aria-hidden="true" data-view="LowCoverage" on-click="onChangeView"></i>Low Coverage Regions
+                                    </a>
+                                </li>
+                                <li>
+                                    <a id="{{prefix}}GenomeBrowserButton" data-view="GenomeBrowser" on-click="onChangeView" data-view="GenomeBrowser" style="cursor: pointer">
+                                        <i class="fa fa-stream icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="onChangeView"></i>Genome Browser (Beta)
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </template>
 
-                    <!-- Left blue buttons -->
+                    <!-- Right buttons -->
                     <template is="dom-if" if="{{hasClinicalAnalysis}}">
                         <div class="btn-group" role="group" aria-label="..." style="float: right">
                             <button id="{{prefix}}ClinicalAnalysisButton" type="button" class="btn btn-primary variant-interpretation-view-buttons" data-view="ClinicalAnalysis" on-click="onChangeView">
@@ -882,8 +884,9 @@
 
             getDefaultConfig() {
                 return {
-                    title: "Variant INterpreter",
+                    title: "Variant Interpreter",
                     showSaveInterpretation: true,
+                    showOtherTools: true,
                     activeFilters: {
                         alias: {
                             // Example:

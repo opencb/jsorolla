@@ -242,7 +242,7 @@ class OpenCGAClient {
                                     for (let study of studies) {
                                         let promise = _this.panels().search({
                                             study: study,
-                                            include: "id,name,stats,source,genes.name"
+                                            include: "id,name,stats,source,genes.id,genes.name,regions.id"
                                         }).then(function (response) {
                                             return response.response[0].result;
                                         });
@@ -263,7 +263,6 @@ class OpenCGAClient {
                                             }
                                         });
                                 }
-
                                 resolve(session);
                             })
                             .catch(function (response) {
