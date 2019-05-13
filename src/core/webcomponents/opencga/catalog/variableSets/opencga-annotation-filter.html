@@ -154,6 +154,9 @@
                     opencgaClient: {
                         type: Object
                     },
+                    entity: {
+                        type: String
+                    },
                     config: {
                         type: Object
                     }
@@ -315,11 +318,14 @@
                 if (typeof study.variableSets === "undefined") {
                     this.variableSets = [];
                 } else {
-                    for (let i in study.variableSets) {
-                        let variableSet = study.variableSets[i];
-                        variableSet["name"] = UtilsNew.defaultString(variableSet.name, variableSet.id)
+                    let _variableSets = [];
+                    for (let variableSet of study.variableSets) {
+                        if (UtilsNew.isEmpty(this.entity) || variableSet.entities.includes(this.entity)) {
+                            variableSet["name"] = UtilsNew.defaultString(variableSet.name, variableSet.id);
+                            _variableSets.push(variableSet);
+                        }
                     }
-                    this.variableSets = study.variableSets;
+                    this.variableSets = _variableSets;
                 }
 
                 if (this.variableSets.length > 0) {
