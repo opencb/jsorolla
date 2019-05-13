@@ -150,7 +150,7 @@
                 this.toolbarConfig = {
                     columns: [
                         {
-                            title: 'Variant', field: "id",
+                            title: 'Variant', field: "id"
                         },
                         {
                             title: 'Genes', field: "genes",
@@ -369,9 +369,8 @@
 
                 // Init queryParams with default and config values plus query object
                 let queryParams;
-                if (UtilsNew.isNotUndefinedOrNull(this.config) && UtilsNew.isNotUndefinedOrNull(this.config.grid)
-                    && UtilsNew.isNotUndefinedOrNull(this.config.grid.queryParams)) {
-                    queryParams = Object.assign({}, this.config.grid.queryParams, this.query);
+                if (UtilsNew.isNotUndefinedOrNull(this.config) && UtilsNew.isNotUndefinedOrNull(this.config.queryParams)) {
+                    queryParams = Object.assign({}, this.config.queryParams, this.query);
                 } else {
                     queryParams = Object.assign({}, this.query);
                 }
@@ -405,12 +404,22 @@
                     // queryParams.exclude = "annotation.geneExpression";
                 }
 
-                if (typeof this.config !== "undefined" && UtilsNew.isNotUndefinedOrNull(this.config.grid)
-                    && typeof this.config.grid.includeMissing !== "undefined" && this.config.grid.includeMissing) {
+                if (typeof this.config !== "undefined" && this.config.includeMissing) {
                     let keys = Object.keys(queryParams);
                     for (let i = 0; i < keys.length; i++) {
                         let val = queryParams[keys[i]];
-                        if (typeof val === "string") {
+
+                        // Replace standard fields with aliases
+                        if (UtilsNew.isNotUndefinedOrNull(this.config.alias) && (keys[i] === "filter" || keys[i] === "format")) {
+                            for (let aliasKey of Object.keys(this.config.alias)) {
+                                if (val.includes(aliasKey)) {
+                                    val = val.replace(aliasKey + ">", this.config.alias[aliasKey] + ">");
+                                    queryParams[keys[i]] = val;
+                                    break;
+                                }
+                            }
+                        }
+                        if (typeof val === "string" && keys[i] !== "cohortStatsMaf" && keys[i] !== "cohortStatsAlt") {
                             val = val.replace(/</g, "<<");
                             val = val.replace(/>/g, ">>");
                             queryParams[keys[i]] = val;
@@ -627,9 +636,6 @@
                         // First, get and check info fields QUAL, FILTER; and format fields DP, AD and GQ
                         let qual = "-";
                         let filter = "-";
-                        let dp = "-";
-                        let ad = "-";
-                        let gq = "-";
                         let mutationColor = "black";
                         let sampleFormat = row.studies[0].samplesData[this.field.memberIdx];
 
@@ -656,21 +662,15 @@
                         }
 
                         // FORMAT fields
+                        let formatFields = [];
                         for (let formatField in row.studies[0].format) {
-                            switch (row.studies[0].format[formatField]) {
-                                case "DP":
-                                    // dp = sampleFormat[formatField];
-                                    dp = (UtilsNew.isNotUndefinedOrNull(sampleFormat[formatField])) ? sampleFormat[formatField] : "-";
-                                    if (dp !== "NA" && dp < this.field.quality.dp) {
-                                        mutationColor = "silver";
-                                    }
-                                    break;
-                                case "AD":
-                                    ad = (UtilsNew.isNotUndefinedOrNull(sampleFormat[formatField])) ? sampleFormat[formatField] : "-";
-                                    break;
-                                case "GQ":
-                                    gq = (UtilsNew.isNotUndefinedOrNull(sampleFormat[formatField])) ? sampleFormat[formatField] : "-";
-                                    break;
+                            // GT fields is treated separately
+                            if (row.studies[0].format[formatField] !== "GT") {
+                                let html = `<div class="form-group" style="margin: 0px 2px">
+                                            <label class="col-md-5">${row.studies[0].format[formatField]}</label>
+                                            <div class="col-md-7">${sampleFormat[formatField]}</div>
+                                        </div>`;
+                                formatFields.push(html);
                             }
                         }
 
@@ -714,32 +714,21 @@
 
                         // Third, prepare the tooltip information
                         let tooltipText = `<div class="col-md-12" style="padding: 0px">
-                                            <form class="form-horizontal">
-                                                <div class="form-group" style="margin: 0px 2px">
-                                                    <label class="col-md-5">GT</label>
-                                                    <div class="col-md-7">${sampleGT}</div>
-                                                </div>
-                                                <div class="form-group" style="margin: 0px 2px">
-                                                    <label class="col-md-5">QUAL</label>
-                                                    <div class="col-md-7">${qual}</div>
-                                                </div>
-                                                <div class="form-group" style="margin: 0px 2px">
-                                                    <label class="col-md-5">FILTER</label>
-                                                    <div class="col-md-7">${filter}</div>
-                                                </div>
-                                                <div class="form-group" style="margin: 0px 2px">
-                                                    <label class="col-md-5">DP</label>
-                                                    <div class="col-md-7">${dp}</div>
-                                                </div>
-                                                <div class="form-group" style="margin: 0px 2px">
-                                                    <label class="col-md-5">AD</label>
-                                                    <div class="col-md-7">${ad}</div>
-                                                </div>
-                                                <div class="form-group" style="margin: 0px 2px">
-                                                    <label class="col-md-5">GQ</label>
-                                                    <div class="col-md-7">${gq}</div>
-                                                </div>
-                                            </form>
+                                                <form class="form-horizontal">
+                                                    <div class="form-group" style="margin: 0px 2px">
+                                                        <label class="col-md-5">GT</label>
+                                                        <div class="col-md-7">${sampleGT}</div>
+                                                    </div>
+                                                    <div class="form-group" style="margin: 0px 2px">
+                                                        <label class="col-md-5">QUAL</label>
+                                                        <div class="col-md-7">${qual}</div>
+                                                    </div>
+                                                    <div class="form-group" style="margin: 0px 2px">
+                                                        <label class="col-md-5">FILTER</label>
+                                                        <div class="col-md-7">${filter}</div>
+                                                    </div>
+                                                    ${formatFields.join("")}
+                                                </form>
                                            </div>`;
 
                         // Last, put everything together and display

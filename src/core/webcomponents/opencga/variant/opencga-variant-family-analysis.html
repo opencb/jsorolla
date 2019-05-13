@@ -41,7 +41,7 @@
             <template is="dom-if" if="{{!existParent}}">
                 <div class="col-md-8 col-md-offset-2" style="padding: 20px">
                     <div class="alert alert-warning" role="alert" id="{{prefix}}Warning" style="font-size: 14px;margin-bottom: 10px">
-                        <span style="font-style: italic; font-weight: bold">Compound Heterozygous Analysis </span> require at least one parent,
+                        <span style="font-style: italic; font-weight: bold">{{_config.title}} </span> require at least one parent,
                         no parents found for proband <span style="font-weight: bold; margin-left: 5px">{{clinicalAnalysis.proband.id}}</span>.
                     </div>
                 </div>

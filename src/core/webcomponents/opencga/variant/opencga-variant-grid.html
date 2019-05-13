@@ -367,7 +367,7 @@
                             _this.variantGridFormatter.addCohortStatsInfoTooltip("cohortStatsInfoIcon", _this.populationFrequencies);
                             _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", _this.populationFrequencies);
                             _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.cohortStatsTable", _this.populationFrequencies);
-                            _this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("popFreqInfoIcon", _this.populationFrequencies);
+                            _this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("span.popFreqInfoIcon", _this.populationFrequencies);
                             _this.variantGridFormatter.addPhenotypesInfoTooltip("phenotypesInfoIcon");
                         }
                     });
@@ -477,7 +477,7 @@
                     let keys = Object.keys(queryParams);
                     for (let i = 0; i < keys.length; i++) {
                         let val = queryParams[keys[i]];
-                        if (typeof val === "string" && keys[i] !== "populationFrequencyAlt" && keys[i] !== "maf") {
+                        if (typeof val === "string" && keys[i] !== "cohortStatsMaf" && keys[i] !== "cohortStatsAlt") {
                             val = val.replace(/</g, "<<");
                             val = val.replace(/>/g, ">>");
                             queryParams[keys[i]] = val;
@@ -1047,7 +1047,7 @@
 
                     // Just one column called 'Population Frequencies'
                     this._columns[0].splice(popIdx, 0, {
-                        title: 'Population Frequencies <span id="popFreqInfoIcon"><i class="fa fa-info-circle" style="color: #337ab7" aria-hidden="true"></i></span>',
+                        title: 'Population Frequencies <span class="popFreqInfoIcon"><i class="fa fa-info-circle" style="color: #337ab7" aria-hidden="true"></i></span>',
                         field: '',
                         rowspan: 1,
                         colspan: this.populationFrequencies.studies.length,

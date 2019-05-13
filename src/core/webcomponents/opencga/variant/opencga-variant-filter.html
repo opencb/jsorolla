@@ -265,7 +265,7 @@
                         }
                     }
 
-                    // Update cohorts from config, this updates the Cohort filter MAF
+                    // Update cohorts from config, this updates the Cohort filter ALT
                     if (typeof this.config !== "undefined" && typeof this.config.menu.sections !== "undefined") {
                         this._cohorts = [];
                         for (let section of this.config.menu.sections) {
@@ -351,7 +351,7 @@
                 for (let sampleFilter of e.detail.sampleFilters) {
                     // let color = (sampleFilter.affected) ? "red" : "black";
                     let genotypes = (sampleFilter.genotypes.length > 0) ? sampleFilter.genotypes.join(",") : "none";
-                    let dp = (sampleFilter.dp > 0) ? sampleFilter.dp : -1;
+                    let dp = (UtilsNew.isNotEmpty(sampleFilter.dp)) ? Number(sampleFilter.dp) : -1;
 
                     if (genotypes !== "none") {
                         if (e.detail.missing && !sampleFilter.proband) {
@@ -388,15 +388,15 @@
                     _query.sample = _sampleIds.join(",");
                     delete _query.genotype;
                 }
-                // if (_dpFormatFilter !== undefined && _dpFormatFilter.length > 0) {
-                //     _query.format = _dpFormatFilter.join(";");
-                //     needUpdateQuery = true;
-                // } else {
-                //     if (UtilsNew.isNotUndefinedOrNull(_query.format)) {
-                //         delete _query.format;
-                //         needUpdateQuery = true;
-                //     }
-                // }
+                if (_dpFormatFilter !== undefined && _dpFormatFilter.length > 0) {
+                    _query.format = _dpFormatFilter.join(";");
+                    needUpdateQuery = true;
+                } else {
+                    if (UtilsNew.isNotUndefinedOrNull(_query.format)) {
+                        delete _query.format;
+                        needUpdateQuery = true;
+                    }
+                }
 
                 // Add file filters to query
                 // if (_files.length > 0) {
@@ -669,8 +669,8 @@
 
                 // Cohorts
                 let cohortArray = [];
-                if (typeof this.query.maf !== "undefined") {
-                    cohortArray = this.query.maf.split(new RegExp("[,;]"));
+                if (typeof this.query.cohortStatsAlt !== "undefined") {
+                    cohortArray = this.query.cohortStatsAlt.split(new RegExp("[,;]"));
                     for (let i = 0; i < cohortArray.length; i++) {
                         let [study, cohortFreq] = cohortArray[i].split(':');
                         let [cohort, freq] = cohortFreq.split(/[<=>]+/);
@@ -680,9 +680,20 @@
                     }
                 }
 
+                // Filter PASS
+                if (UtilsNew.isNotEmpty(this.query.filter) && this.query.filter === "PASS") {
+                    PolymerUtils.getElementById(this.prefix + "FilePassCheckbox").checked = true;
+                }
+
+                // // Filter QUAL
+                if (UtilsNew.isNotEmpty(this.query.qual) && this.query.qual > 0) {
+                    PolymerUtils.getElementById(this.prefix + "FileQualCheckbox").checked = true;
+                    PolymerUtils.getElementById(this.prefix + "FileQualInput").disabled = false;
+                    PolymerUtils.getElementById(this.prefix + "FileQualInput").value = this.query.qual;
+                }
 
                 // Region
-                if (typeof this.query.region !== "undefined") {
+                if (UtilsNew.isNotEmpty(this.query.region)) {
                     $("#" + this.prefix + "LocationTextarea").val(this.query.region);
                 }
 
@@ -924,7 +935,7 @@
                     _filters.info = this.query.info;
                 }
 
-                // Add Cohort stats MAF filter: [{study.alias}]:{cohort}[<|>|<=|>=]{number}
+                // Add Cohort stats ALT filter: [{study.alias}]:{cohort}[<|>|<=|>=]{number}
                 let cohortFreq = [];
                 if (UtilsNew.isNotEmpty(this._cohorts)) {
                     for (let studyId in this._cohorts) {
@@ -933,7 +944,7 @@
                             let operator = PolymerUtils.getElementById(this.prefix + studyId + cohort.id + "CohortOperator");
                             if (cohortInput !== null && UtilsNew.isNotEmpty(cohortInput.value) ) {
                                 operator = operator.value;
-                                // to be removed!!
+                                // FIXME to be removed!!
                                 if (studyId === "BRIDGE") {
                                     studyId = "bridge";
                                 }
@@ -945,7 +956,7 @@
                 }
                 if (cohortFreq.length > 0) {
                     // _filters["cohortStatsMaf"] = cohortFreq.join(';');
-                    _filters["maf"] = cohortFreq.join(';');
+                    _filters.cohortStatsAlt = cohortFreq.join(';');
                 }
 
                 // Studies - This section is not renderer when only study exists
