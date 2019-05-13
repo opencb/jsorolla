@@ -143,6 +143,15 @@
                         </div>
 
                         <div class="form-group">
+                            <div class="browser-subsection">Disorder
+                            </div>
+                            <div id="{{prefix}}-disorder" class="subsection-content form-group">
+                                <input type="text" id="{{prefix}}-disorder-input" class$="form-control input-sm {{prefix}}FilterTextInput"
+                                       placeholder="Intellectual disability,Arthrogryposis..." on-keyup="calculateFilters">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <div class="browser-subsection">Affectation Status
                             </div>
                             <div id="{{prefix}}-affectation-status" class="subsection-content form-group">
@@ -365,6 +374,11 @@
                     PolymerUtils.setValue(`${this.prefix}-ethnicity-input`, this.query.ethnicity);
                 }
 
+                // Disorder
+                if (UtilsNew.isNotUndefined(this.query.disorders)) {
+                    PolymerUtils.setValue(`${this.prefix}-disorder-input`, this.query.disorders);
+                }
+
                 // Sex
                 if (UtilsNew.isNotUndefined(this.query.sex)) {
                     $(`#${this.prefix}-individual-sex-select`).selectpicker('val', this.query.sex.split(","));
@@ -407,6 +421,11 @@
                 let ethnicity = PolymerUtils.getValue(`${this.prefix}-ethnicity-input`);
                 if (UtilsNew.isNotEmpty(ethnicity)) {
                     _query.ethnicity = ethnicity;
+                }
+
+                let disorder = PolymerUtils.getValue(`${this.prefix}-disorder-input`);
+                if (UtilsNew.isNotEmpty(disorder)) {
+                    _query.disorders = disorder;
                 }
 
                 let sex = $(`#${this.prefix}-individual-sex-select`).selectpicker('val');
