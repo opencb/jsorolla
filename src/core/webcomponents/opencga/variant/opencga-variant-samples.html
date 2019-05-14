@@ -18,75 +18,84 @@
     <template>
         <style include="jso-styles"></style>
 
+        <div class="col-md-10 col-md-offset-1" style="margin-bottom: 10px">
+            <div class="alert alert-warning" role="alert" id="{{prefix}}Warning" style="display: none;padding: 10px">
+                <span style="font-weight: bold;font-size: 1.20em">Warning:</span>&nbsp;&nbsp;At this moment the number of samples returned is limited to 100 for each 0/1 and 1/1.
+                This limit will be removed shortly.
+            </div>
+        </div>
+
         <div class="col-md-12 col-md-offset-10" style="padding: 20px 0px 10px 0px">
             <button type="button" class="btn btn-primary btn-sm" data-toggle="popover" data-placement="bottom" on-click="_downloadSamples">
                 <i class="fa fa-download" aria-hidden="true"></i> Download
             </button>
         </div>
 
+        <div class="col-md-12">
+            <h4 style="font-weight: bold;padding: 20px 0px 0px 0px">
+                <i class="fa fa-minus-circle" on-click="handleCollapseAction" data-id="Het" style="cursor: pointer"></i>
+                &nbsp;Heterozygous (0/1) <span class="badge">{{samplesHetSize}}</span>
+            </h4>
 
-        <h4 style="font-weight: bold;padding: 20px 0px 0px 0px">
-            <i class="fa fa-minus-circle" on-click="handleCollapseAction" data-id="Het" style="cursor: pointer"></i>
-            &nbsp;Heterozygous (0/1) <span class="badge">{{samplesHetSize}}</span>
-        </h4>
+            <div id="{{prefix}}Het">
 
-        <div id="{{prefix}}Het">
+                <!--<table id="{{prefix}}VariantBrowserGrid">-->
+                <!--<thead style="background-color: #eee"></thead>-->
+                <!--</table>-->
 
-            <!--<table id="{{prefix}}VariantBrowserGrid">-->
-            <!--<thead style="background-color: #eee"></thead>-->
-            <!--</table>-->
-
-            <div style="padding: 5px 20px">
-                <table class="table table-bordered">
-                    <thead style="background-color: #eee;">
-                    <tr>
-                        <th scope="col" rowspan="2">Sample ID</th>
-                        <th scope="col" rowspan="2">Individual ID</th>
-                        <th scope="col" rowspan="2">Disorders</th>
-                        <th scope="col" rowspan="2">Phenotypes</th>
-                        <th scope="col" rowspan="2">File</th>
-                        <!--                            <th scope="col" rowspan="2">Description</th>-->
-                    </tr>
-                    </thead>
-                    <tbody id="{{prefix}}HetTBody"></tbody>
-                </table>
-            </div>
-
-            <template is="dom-if" if="{{!showSamplesHetTable}}">
                 <div style="padding: 5px 20px">
-                    No samples found
+                    <table class="table table-bordered">
+                        <thead style="background-color: #eee;">
+                        <tr>
+                            <th scope="col" rowspan="2">Sample ID</th>
+                            <th scope="col" rowspan="2">Individual ID</th>
+                            <th scope="col" rowspan="2">Disorders</th>
+                            <th scope="col" rowspan="2">Phenotypes</th>
+                            <th scope="col" rowspan="2">File</th>
+                            <!--                            <th scope="col" rowspan="2">Description</th>-->
+                        </tr>
+                        </thead>
+                        <tbody id="{{prefix}}HetTBody"></tbody>
+                    </table>
                 </div>
-            </template>
+
+                <template is="dom-if" if="{{!showSamplesHetTable}}">
+                    <div style="padding: 5px 20px">
+                        No samples found
+                    </div>
+                </template>
+            </div>
         </div>
 
+        <div class="col-md-12">
+            <h4 style="font-weight: bold;padding: 20px 0px 0px 0px">
+                <i class="fa fa-minus-circle" on-click="handleCollapseAction" data-id="HomAlt" style="cursor: pointer"></i>
+                &nbsp;Alternate Homozygous (1/1) <span class="badge">{{samplesHomAltSize}}</span>
+            </h4>
 
-        <h4 style="font-weight: bold;padding: 20px 0px 0px 0px">
-            <i class="fa fa-minus-circle" on-click="handleCollapseAction" data-id="HomAlt" style="cursor: pointer"></i>
-            &nbsp;Alternate Homozygous (1/1) <span class="badge">{{samplesHomAltSize}}</span>
-        </h4>
-
-        <div id="{{prefix}}HomAlt">
-            <div style="padding: 5px 20px">
-                <table class="table table-bordered" >
-                    <thead style="background-color: #eee;">
-                    <tr>
-                        <th scope="col" rowspan="2">Sample ID</th>
-                        <th scope="col" rowspan="2">Individual ID</th>
-                        <th scope="col" rowspan="2">Disorders</th>
-                        <th scope="col" rowspan="2">Phenotypes</th>
-                        <th scope="col" rowspan="2">File</th>
-                        <!--                            <th scope="col" rowspan="2">Description</th>-->
-                    </tr>
-                    </thead>
-                    <tbody id="{{prefix}}HomAltTBody"></tbody>
-                </table>
-            </div>
-
-            <template is="dom-if" if="{{!showSamplesHomAltTable}}">
+            <div id="{{prefix}}HomAlt">
                 <div style="padding: 5px 20px">
-                    No samples found
+                    <table class="table table-bordered" >
+                        <thead style="background-color: #eee;">
+                        <tr>
+                            <th scope="col" rowspan="2">Sample ID</th>
+                            <th scope="col" rowspan="2">Individual ID</th>
+                            <th scope="col" rowspan="2">Disorders</th>
+                            <th scope="col" rowspan="2">Phenotypes</th>
+                            <th scope="col" rowspan="2">File</th>
+                            <!--                            <th scope="col" rowspan="2">Description</th>-->
+                        </tr>
+                        </thead>
+                        <tbody id="{{prefix}}HomAltTBody"></tbody>
+                    </table>
                 </div>
-            </template>
+
+                <template is="dom-if" if="{{!showSamplesHomAltTable}}">
+                    <div style="padding: 5px 20px">
+                        No samples found
+                    </div>
+                </template>
+            </div>
         </div>
 
         <div class="modal fade" id="{{prefix}}LoadingModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
@@ -157,7 +166,7 @@
                         study: this.opencgaSession.study.fqn,
                         // genotype: "0/1,0|1",
                         sid: this.opencgaSession.opencgaClient._config.sessionId,
-                        limit: 25
+                        limit: 100
                     };
 
                     this.samplesHet = [];
@@ -168,6 +177,7 @@
 
                     let _this = this;
                     setTimeout(() => {
+                        PolymerUtils.hide(_this.prefix + "Warning");
                         this.opencgaSession.opencgaClient.variants().sampleData(_this.variant, params)
                             .then(function (response) {
                                 let result = response.response[0].result[0];
@@ -237,7 +247,6 @@
                                                                             <td>${html}</td>
                                                                             <td>${sampleInfo[i].fileId}</td>
                                                                        </tr>`;
-                                                        debugger
                                                     }
                                                 }
 
@@ -254,6 +263,9 @@
                                                         _this.samplesHomAlt = sampleInfo;
                                                         PolymerUtils.innerHTML(_this.prefix + "HomAltTBody", tr);
                                                         break;
+                                                }
+                                                if (response.response.length === 100) {
+                                                    PolymerUtils.show(_this.prefix + "Warning");
                                                 }
                                                 _this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
                                             });
