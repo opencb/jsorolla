@@ -479,7 +479,7 @@
                         let val = queryParams[keys[i]];
                         if (typeof val === "string" && keys[i] !== "cohortStatsMaf" && keys[i] !== "cohortStatsAlt") {
                             val = val.replace(/</g, "<<");
-                            val = val.replace(/>/g, ">>");
+                            // val = val.replace(/>/g, ">>");
                             queryParams[keys[i]] = val;
                         }
                     }

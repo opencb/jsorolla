@@ -1015,13 +1015,16 @@
                 // Regions
                 let locationTextArea = PolymerUtils.getElementById(this.prefix + "LocationTextarea");
                 if (UtilsNew.isNotUndefinedOrNull(locationTextArea) && UtilsNew.isNotEmpty(locationTextArea.value)) {
-                    _filters.region = locationTextArea.value;
+                    let _region = locationTextArea.value.trim();
+                    _region = _region.replace(/\r?\n/g, ",").replace(/\s/g, "");
+                    _filters.region = _region;
                 }
 
                 // Features: Gene, SNP ID
                 let featureTextArea = PolymerUtils.getElementById(this.prefix + "FeatureTextarea");
                 if (UtilsNew.isNotUndefinedOrNull(featureTextArea) && UtilsNew.isNotEmpty(featureTextArea.value)) {
-                    let features = featureTextArea.value.replace(/ /g, "");
+                    let features = featureTextArea.value.trim();
+                    features = features.replace(/\r?\n/g, ",").replace(/\s/g, "");
                     let featureArray = [];
                     for (let feature of features.split(",")) {
                         if (feature.startsWith("rs") || feature.split(':').length > 2) {
