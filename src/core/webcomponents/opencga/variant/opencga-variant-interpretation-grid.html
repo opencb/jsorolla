@@ -495,9 +495,9 @@
                 this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "File metrics", "", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
                 this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", this.populationFrequencies);
                 this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("span.pop-preq-info-icon", this.populationFrequencies);
-                let predictionTooltipContent = "<span style='font-weight: bold'>Prediction</span> column shows the clinical Significance prediction following the ACMG guide recommendations";
+                let predictionTooltipContent = "<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations";
                 this.variantGridFormatter.addTooltip("span.interpretation-info-icon", "Interpretation", predictionTooltipContent, {position:{my: "top right"}, style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
-                this.variantGridFormatter.addTooltip("div.predictionTooltip", "Classification", "", {position:{my: "top right"}, style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
+                this.variantGridFormatter.addTooltip("div.predictionTooltip", "Classification", "", {position:{my: "top right"}, style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}, width: "360px"});
             }
 
             _onSelectVariant(row) {
@@ -867,12 +867,12 @@
                         clinicalSignificanceTooltipText = `<div class="col-md-12" style="padding: 0px">
                                                                 <form class="form-horizontal">
                                                                     <div class="form-group" style="margin: 0px 2px">
-                                                                        <label class="col-md-4">ACMG</label>
-                                                                        <div class="col-md-8">${re.classification.acmg.join(", ")}</div>
+                                                                        <label class="col-md-5">ACMG</label>
+                                                                        <div class="col-md-7">${re.classification.acmg.join(", ")}</div>
                                                                     </div>
                                                                     <div class="form-group" style="margin: 0px 2px">
-                                                                        <label class="col-md-4">Tier</label>
-                                                                        <div class="col-md-8">${re.tier}</div>
+                                                                        <label class="col-md-5">ACMG Tier</label>
+                                                                        <div class="col-md-7">${re.classification.tier}</div>
                                                                     </div>
                                                                 </form>
                                                             </div>`;

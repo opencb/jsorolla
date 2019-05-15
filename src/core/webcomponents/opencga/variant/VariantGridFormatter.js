@@ -899,7 +899,7 @@ class VariantGridFormatter {
             },
             style: {
                 classes: (config !== undefined && config.style !== undefined && config.style.classes !== undefined) ? config.style.classes : "qtip-light qtip-rounded qtip-shadow qtip-custom-class",
-                width: "240px",
+                width: "260px",
             },
             show: {
                 delay: 250

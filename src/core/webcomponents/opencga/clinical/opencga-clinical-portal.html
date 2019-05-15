@@ -82,7 +82,7 @@
                     <div style="padding: 0px 10px">
                         <div id="{{prefix}}ReviewCases" class="clinical-portal-content">
                             <opencga-clinical-review-cases opencga-session="{{opencgaSession}}"
-                                                           config="{{_config.clinicalAnalysisBrowser}}">
+                                                           config="{{_config.reviewCases}}">
                             </opencga-clinical-review-cases>
                         </div>
 
@@ -132,7 +132,7 @@
             }
 
             static get observers() {
-                return ['propertyObserver(opencgaSession, config)'];
+                return ['propertyObserver(opencgaSession)'];
             }
 
             _attachDom(dom) {
@@ -151,8 +151,9 @@
                 this.active = true;
             }
 
-            propertyObserver(opencgaSession, config) {
-                this._config = Object.assign(this.getDefaultConfig(), this.config);
+            propertyObserver(opencgaSession) {
+                this._config = Object.assign({}, this.getDefaultConfig(), this.config);
+
                 if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
                     this.checkProjects = true;
                 } else {
@@ -192,12 +193,12 @@
                 return {
                     title: "Clinical Interpretation Portal",
                     showTitle: true,
-                    grid: {
-                        pageSize: 10,
-                        pageList: [10, 25, 50],
-                        detailView: false,
-                        multiSelection: false
-                    }
+                    // grid: {
+                    //     pageSize: 10,
+                    //     pageList: [10, 25, 50],
+                    //     detailView: false,
+                    //     multiSelection: false
+                    // }
                 }
             }
         }

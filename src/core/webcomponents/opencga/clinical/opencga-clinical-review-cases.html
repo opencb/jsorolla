@@ -276,7 +276,7 @@
                         type: Object
                     },
                     query: {
-                        type: Object,
+                        type: Object
                     },
                     config: {
                         type: Object
@@ -285,7 +285,7 @@
             }
 
             static get observers() {
-                return ['propertyObserver(opencgaSession, query, config)'];
+                return ['propertyObserver(opencgaSession, query)'];
             }
 
             _attachDom(dom) {
@@ -305,8 +305,8 @@
                 $('select.selectpicker').selectpicker('render');
             }
 
-            propertyObserver(opencgaSession, query, config) {
-                this._config = Object.assign(this.getDefaultConfig(), config);
+            propertyObserver(opencgaSession, query) {
+                this._config = Object.assign({}, this.getDefaultConfig(), this.config);
 
                 if (UtilsNew.isNotUndefinedOrNull(opencgaSession) && UtilsNew.isNotUndefinedOrNull(opencgaSession.study)
                     && UtilsNew.isNotEmptyArray(opencgaSession.study.groups)) {
@@ -318,9 +318,9 @@
                     }
                 }
 
-                if (UtilsNew.isNotUndefinedOrNull(query)) {
-                    this.setQueryFilters(query);
-                    this._query = Object.assign({}, query);
+                if (UtilsNew.isNotUndefinedOrNull(this.query)) {
+                    this.setQueryFilters(this.query);
+                    this._query = Object.assign({}, this.query);
                 }
             }
 

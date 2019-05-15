@@ -76,6 +76,11 @@
                             <option value="YLINKED">Y-linked</option>
                         </select>
                     </div>
+                    <div class="col-md-7">
+                        <div class="alert alert-warning" role="alert" id="{{prefix}}Warning" style="display: none;padding: 10px">
+                            <span style="font-weight: bold;font-size: 1.20em">Warning:</span>&nbsp;The selected Mode of Inheritance is not compatible with the family pedigree .
+                        </div>
+                    </div>
                 </div>
             </template>
 
@@ -471,18 +476,28 @@
                     completePenetrance: true
                 }).then(function(response) {
                     let genotypeResults = response.response[0].result[0];
-                    let individualToSampleMap = {};
-                    for (let member of _this.clinicalAnalysis.family.members) {
-                        if (UtilsNew.isNotEmptyArray(member.samples)) {
-                            individualToSampleMap[member.samples[0].id] = member.id;
-                        }
-                    }
                     if (UtilsNew.isNotUndefinedOrNull(genotypeResults)) {
+                        let individualToSampleMap = {};
+                        for (let member of _this.clinicalAnalysis.family.members) {
+                            if (UtilsNew.isNotEmptyArray(member.samples)) {
+                                individualToSampleMap[member.samples[0].id] = member.id;
+                            }
+                        }
+
+                        let countGenoypes = 0;
                         for (let sampleFilter of _this.sampleFilters) {
                             // sampleFilter.genotypes = genotypeResults[sampleFilter.id];
                             sampleFilter.genotypes = genotypeResults[individualToSampleMap[sampleFilter.id]];
+                            countGenoypes += sampleFilter.genotypes.length;
                         }
-                        _this.renderSampleTable();
+                        _this.renderSampleTable()
+
+                        if (countGenoypes > 0) {
+                            PolymerUtils.hide(_this.prefix + "Warning")
+                        } else {
+                            PolymerUtils.show(_this.prefix + "Warning")
+                        }
+
                         _this.notify();
                     }
                 }).catch(function(response) {
@@ -612,6 +627,7 @@
                 if (UtilsNew.isNotUndefinedOrNull(e.currentTarget.dataset.gt)) {
                     this.modeOfInheritance = "none";
                     $("#" + this.prefix + "ModeOfInheritance").selectpicker('val', "none");
+                    PolymerUtils.hide(this.prefix + "Warning")
                 }
 
                 this.notify();

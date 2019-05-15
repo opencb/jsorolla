@@ -103,12 +103,17 @@
 
             propertyObserver(opencgaSession, search, active) {
                 // With each property change we must updated config and create the columns again. No extra checks are needed.
-                this._config = Object.assign(this.getDefaultConfig(), this.config);
+                this._config = Object.assign({}, this.getDefaultConfig(), this.config);
                 this._columns = this._initTableColumns();
 
                 // Config for the grid toolbar
                 this.toolbarConfig = {
                     columns: this._columns[0]
+                    // columns: [
+                    //     {
+                    //         field: "id", title: "Blabla", visible: true, eligible: true
+                    //     }
+                    // ]
                 };
 
                 this.renderTable(active);
@@ -648,65 +653,76 @@
                                 field: 'id',
                                 formatter: this.analysisIdFormatter,
                                 valign: 'middle',
+                                visible: !this._config.columns.hidden.includes("id")
                             },
                             {
-                                title: 'Proband',
+                                title: "Proband ID",
                                 field: 'proband.id',
                                 valign: 'middle',
+                                visible: !this._config.columns.hidden.includes("probandId")
                             },
                             {
                                 title: 'Family (#members)',
                                 field: 'family.id',
                                 valign: 'middle',
-                                formatter: this.familyFormatter
+                                formatter: this.familyFormatter,
+                                visible: !this._config.columns.hidden.includes("familyId")
                             },
                             {
                                 title: 'Disorder',
                                 field: 'disorder.id',
                                 valign: 'middle',
                                 // formatter: this.diseaseFormatter
+                                visible: !this._config.columns.hidden.includes("disorderId")
                             },
                             {
                                 title: 'Type',
                                 field: 'type',
                                 valign: 'middle',
+                                visible: !this._config.columns.hidden.includes("type")
                             },
                             {
                                 title: 'Interpretations',
                                 field: 'interpretations',
                                 valign: 'middle',
-                                formatter: this.interpretationsFormatter
+                                formatter: this.interpretationsFormatter,
+                                visible: !this._config.columns.hidden.includes("interpretation")
                             },
                             {
                                 title: 'Status',
                                 field: 'status.name',
                                 valign: 'middle',
-                                halign: this._config.header.horizontalAlign
+                                halign: this._config.header.horizontalAlign,
+                                visible: !this._config.columns.hidden.includes("status")
                             },
                             {
                                 title: 'Priority',
                                 field: 'priority',
                                 align: 'center',
                                 valign: 'middle',
-                                formatter: this.priorityFormatter
+                                formatter: this.priorityFormatter,
+                                visible: !this._config.columns.hidden.includes("priority")
                             },
                             {
                                 title: 'Assigned To',
                                 field: 'analyst.assignee',
                                 align: 'center',
                                 valign: 'middle',
+                                visible: !this._config.columns.hidden.includes("assignedTo")
                             },
                             {
                                 title: 'Creation Date',
                                 field: 'creationDate',
                                 valign: 'middle',
-                                formatter: this.dateFormatter
+                                formatter: this.dateFormatter,
+                                visible: !this._config.columns.hidden.includes("creationDate")
                             },
                             {
                                 title: 'Due Date',
                                 field: 'dueDate',
                                 valign: 'middle',
-                                formatter: this.dateFormatter
+                                formatter: this.dateFormatter,
+                                visible: !this._config.columns.hidden.includes("dueDate")
                             },
                             // {
                             //     title: 'Review',
@@ -720,16 +736,16 @@
                                 eligible: false,
                                 align: 'center',
                                 valign: 'middle',
-                                visible: this._config.showInterpretation,
-                                formatter: this.interpretationFormatter.bind(this)
+                                formatter: this.interpretationFormatter.bind(this),
+                                visible: this._config.showInterpretation
                             },
                             {
                                 title: 'Report',
                                 eligible: false,
                                 align: 'center',
                                 valign: 'middle',
-                                visible: this._config.showReport,
-                                formatter: this.reportFormatter.bind(this)
+                                formatter: this.reportFormatter.bind(this),
+                                visible: this._config.showReport
                             }
                         ])
                 ];
@@ -752,6 +768,9 @@
                     header: {
                         horizontalAlign: 'center',
                         verticalAlign: 'bottom'
+                    },
+                    columns: {
+                        hidden: []
                     }
                 }
             }
