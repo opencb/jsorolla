@@ -1172,7 +1172,9 @@
                 // Gene Ontology and Human Phenotype Ontology
                 let inputTextArea = PolymerUtils.getElementById(this.prefix + "GeneOntologyTextarea");
                 if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
-                    _filters["go"] = inputTextArea.value;
+                    let _go = inputTextArea.value.trim();
+                    _go = _go.replace(/\r?\n/g, ",").replace(/\s/g, "");
+                    _filters.go = _go;
                 }
 
                 inputTextArea = PolymerUtils.getElementById(this.prefix + "HumanPhenotypeOntologyTextarea");
@@ -1193,7 +1195,9 @@
 
                 inputTextArea = PolymerUtils.getElementById(this.prefix + "ClinVarTextarea");
                 if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
-                    _filters["clinvar"] = inputTextArea.value;
+                    let _clinvar = inputTextArea.value.trim();
+                    _clinvar = _clinvar.replace(/\r?\n/g, ",").replace(/\s/g, "");
+                    _filters.clinvar = _clinvar;
                 }
 
                 inputTextArea = PolymerUtils.getElementById(this.prefix + "TraitsTextarea");

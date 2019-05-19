@@ -291,10 +291,10 @@
                     } else {
                         this._genePanels = [];
                     }
-                }
 
-                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
-                    this.addTracks(this.clinicalAnalysis);
+                    if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
+                        this.addTracks(this.clinicalAnalysis);
+                    }
                 }
             }
 
@@ -371,7 +371,7 @@
             }
 
             addTracks(clinicalAnalysis) {
-                if (UtilsNew.isUndefinedOrNull(clinicalAnalysis.files)) {
+                if (UtilsNew.isUndefinedOrNull(clinicalAnalysis.files) || UtilsNew.isUndefinedOrNull(this.opencgaSession.study)) {
                     this._disabled = true;
                     return;
                 }
