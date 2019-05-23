@@ -607,12 +607,13 @@
                         let promises = [];
 
                         for (let i = 0; i < _this.coverageTracks.length; i++) {
-                            promises.push(_this.opencgaSession.opencgaClient.alignments().lowCoverage(
+                            promises.push(_this.opencgaSession.opencgaClient.alignments().coverage(
                                 _this._files[i].id, {
                                     region: region,
                                     study: _this.opencgaSession.study.fqn,
                                     windowSize: 1,
-                                    minCoverage: threshold
+                                    threshold: threshold,
+                                    sid: _this.opencgaSession.opencgaClient._config.sessionId
                                 }
                             ));
 
