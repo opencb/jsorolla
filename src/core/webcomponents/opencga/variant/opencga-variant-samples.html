@@ -169,8 +169,8 @@
                         limit: 100
                     };
 
-                    this.samplesHet = [];
-                    this.samplesHomAlt = [];
+                    // this.samplesHet = [];
+                    // this.samplesHomAlt = [];
 
                     // shows loading modal
                     $(PolymerUtils.getElementById(this.prefix + "LoadingModal")).modal("show");
@@ -181,6 +181,14 @@
                         this.opencgaSession.opencgaClient.variants().sampleData(_this.variant, params)
                             .then(function (response) {
                                 let result = response.response[0].result[0];
+
+                                // Clear everything
+                                _this.samplesHet = [];
+                                _this.samplesHetSize = 0;
+                                PolymerUtils.innerHTML(_this.prefix + "HetTBody", "");
+                                _this.samplesHomAlt = [];
+                                _this.samplesHomAltSize = 0;
+                                PolymerUtils.innerHTML(_this.prefix + "HomAltTBody", "");
 
                                 // For each genotype in the response.samples
                                 for (let gt in result.samples) {

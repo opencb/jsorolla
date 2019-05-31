@@ -718,15 +718,15 @@ class VariantGridFormatter {
 
                 // Prepare data info for columns
                 let gene = "NA";
-                if (UtilsNew.isNotEmpty(re.genomicFeature.geneName)) {
+                if (UtilsNew.isNotEmpty(re.genomicFeature.transcriptId)) {
                     gene = `<div>
-                                <a href="https://www.genenames.org/tools/search/#!/all?query=${re.genomicFeature.geneName}" target="_blank">
-                                    ${re.genomicFeature.geneName}
+                                <a href="https://www.genenames.org/tools/search/#!/all?query=${re.genomicFeature.transcriptId}" target="_blank">
+                                    ${re.genomicFeature.transcriptId}
                                 </a>
                             </div>
                             <div style="padding-top: 5px">
-                                <a href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${re.genomicFeature.ensemblGeneId}" target="_blank">
-                                    ${re.genomicFeature.ensemblGeneId}
+                                <a href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${re.genomicFeature.id}" target="_blank">
+                                    ${re.genomicFeature.id}
                                 </a>
                             </div>`;
                 }
@@ -734,11 +734,11 @@ class VariantGridFormatter {
 
                 
                 let transcriptId = "NA";
-                if (UtilsNew.isNotEmpty(re.genomicFeature.ensemblTranscriptId)) {
+                if (UtilsNew.isNotEmpty(re.genomicFeature.type)) {
                     let biotype = "NA";
                     if (UtilsNew.isNotUndefinedOrNull(row.annotation) && UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
                         for (let ct of row.annotation.consequenceTypes) {
-                            if (ct.ensemblTranscriptId === re.genomicFeature.ensemblTranscriptId) {
+                            if (ct.ensemblTranscriptId === re.genomicFeature.type) {
                                 biotype = ct.biotype;
                                 break;
                             }
@@ -746,8 +746,8 @@ class VariantGridFormatter {
                     }
 
                     transcriptId = `<div>
-                                        <a href="http://www.ensembl.org/Homo_sapiens/Transcript/Idhistory?t=${re.genomicFeature.ensemblTranscriptId}" target="_blank">
-                                            ${re.genomicFeature.ensemblTranscriptId}
+                                        <a href="http://www.ensembl.org/Homo_sapiens/Transcript/Idhistory?t=${re.genomicFeature.type}" target="_blank">
+                                            ${re.genomicFeature.type}
                                         </a>
                                     </div>
                                     <div style="padding-top: 5px">
@@ -759,7 +759,7 @@ class VariantGridFormatter {
                 let transcriptFlagChecked = false;
                 if (UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
                     for (let ct of row.annotation.consequenceTypes) {
-                        if (re.genomicFeature.ensemblTranscriptId === ct.ensemblTranscriptId) {
+                        if (re.genomicFeature.type === ct.ensemblTranscriptId) {
                             if (ct.transcriptAnnotationFlags !== undefined && ct.transcriptAnnotationFlags.includes("basic")) {
                                 transcriptFlag = `<span data-toggle="tooltip" data-placement="bottom" title="Proband">
                                                     <i class='fa fa-check' style='color: green'></i>

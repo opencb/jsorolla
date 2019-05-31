@@ -261,10 +261,10 @@
                         },
                         responseHandler: function (resp) {
                             if (_numTotal === -1) {
-                                // _numTotal = resp.response[0].numTotalResults;
-                                _numTotal = resp.response[0].numTotalResults >= 0 && resp.response[0].numTotalResults < this.pageSize
-                                    ? resp.response[0].numTotalResults
-                                    : 1150;
+                                _numTotal = resp.response[0].numTotalResults;
+                                // _numTotal = resp.response[0].numTotalResults >= 0 && resp.response[0].numTotalResults < this.pageSize
+                                //     ? resp.response[0].numTotalResults
+                                //     : 1150;
                             }
                             // Format the number string with commas
                             _this.to = Math.min(resp.response[0].numResults, this.pageSize);
@@ -396,8 +396,8 @@
                     queryParams.exclude = "annotation.geneExpression";
 
                     // FIXME
-                    // queryParams.approximateCount = true;
-                    // queryParams.skipCount = false;
+                    queryParams.approximateCount = true;
+                    queryParams.skipCount = false;
 
                     queryParams.useSearchIndex = "auto";
                     queryParams.unknownGenotype = "0/0";
