@@ -650,6 +650,12 @@ class VariantGridFormatter {
      */
     reportedEventDetailFormatter(value, row, variantGrid) {
         if (typeof row !== "undefined" && UtilsNew.isNotEmptyArray(row.evidences)) {
+
+            let selectColumnHtml = "";
+            if (variantGrid._config.showSelectCheckbox) {
+                selectColumnHtml = "<th rowspan=\"2\">Select</th>";
+            }
+
             let ctHtml = `<table id="{{prefix}}ConsqTypeTable" class="table table-hover table-no-bordered">
                                 <thead>
                                     <tr>
@@ -662,7 +668,7 @@ class VariantGridFormatter {
                                         <th rowspan="2">Role in Cancer</th>
                                         <th rowspan="2">Actionable</th>
                                         <th rowspan="1" colspan="3" style="text-align: center">Classification</th>
-                                        <th rowspan="2">Select</th>
+                                        ${selectColumnHtml}
                                     </tr>
                                     <tr>
                                         <th rowspan="1">ACMG</th>
@@ -718,10 +724,10 @@ class VariantGridFormatter {
 
                 // Prepare data info for columns
                 let gene = "NA";
-                if (UtilsNew.isNotEmpty(re.genomicFeature.transcriptId)) {
+                if (UtilsNew.isNotEmpty(re.genomicFeature.id)) {
                     gene = `<div>
-                                <a href="https://www.genenames.org/tools/search/#!/all?query=${re.genomicFeature.transcriptId}" target="_blank">
-                                    ${re.genomicFeature.transcriptId}
+                                <a href="https://www.genenames.org/tools/search/#!/all?query=${re.genomicFeature.geneName}" target="_blank">
+                                    ${re.genomicFeature.geneName}
                                 </a>
                             </div>
                             <div style="padding-top: 5px">
@@ -734,11 +740,11 @@ class VariantGridFormatter {
 
                 
                 let transcriptId = "NA";
-                if (UtilsNew.isNotEmpty(re.genomicFeature.type)) {
+                if (UtilsNew.isNotEmpty(re.genomicFeature.transcriptId)) {
                     let biotype = "NA";
                     if (UtilsNew.isNotUndefinedOrNull(row.annotation) && UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
                         for (let ct of row.annotation.consequenceTypes) {
-                            if (ct.ensemblTranscriptId === re.genomicFeature.type) {
+                            if (ct.ensemblTranscriptId === re.genomicFeature.transcriptId) {
                                 biotype = ct.biotype;
                                 break;
                             }
@@ -746,8 +752,8 @@ class VariantGridFormatter {
                     }
 
                     transcriptId = `<div>
-                                        <a href="http://www.ensembl.org/Homo_sapiens/Transcript/Idhistory?t=${re.genomicFeature.type}" target="_blank">
-                                            ${re.genomicFeature.type}
+                                        <a href="http://www.ensembl.org/Homo_sapiens/Transcript/Idhistory?t=${re.genomicFeature.transcriptId}" target="_blank">
+                                            ${re.genomicFeature.transcriptId}
                                         </a>
                                     </div>
                                     <div style="padding-top: 5px">
@@ -759,7 +765,7 @@ class VariantGridFormatter {
                 let transcriptFlagChecked = false;
                 if (UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
                     for (let ct of row.annotation.consequenceTypes) {
-                        if (re.genomicFeature.type === ct.ensemblTranscriptId) {
+                        if (re.genomicFeature.transcriptId === ct.ensemblTranscriptId) {
                             if (ct.transcriptAnnotationFlags !== undefined && ct.transcriptAnnotationFlags.includes("basic")) {
                                 transcriptFlag = `<span data-toggle="tooltip" data-placement="bottom" title="Proband">
                                                     <i class='fa fa-check' style='color: green'></i>
@@ -849,10 +855,15 @@ class VariantGridFormatter {
                     }
                 }
 
-                let checked = "";
-                if (transcriptFlagChecked && tier !== "none") {
-                    checked = "checked";
+                let checboxHtml = "";
+                if (variantGrid._config.showSelectCheckbox) {
+                    let checked = "";
+                    if (transcriptFlagChecked && tier !== "none") {
+                        checked = "checked";
+                    }
+                    checboxHtml = `<td><input type="checkbox" ${checked}></td>`;
                 }
+
 
                 // Create the table row
                 ctHtml += `<tr class="detail-view-row">
@@ -867,7 +878,7 @@ class VariantGridFormatter {
                             <td>${acmg}</td>
                             <td>${tier}</td>
                             <td>${clinicalSignificance}</td>
-                            <td><input type="checkbox" ${checked}></td>
+                            ${checboxHtml}
                            </tr>`;
             }
             ctHtml += "</tbody></table>";
