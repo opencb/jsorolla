@@ -1456,7 +1456,7 @@
                     let content = "";
                     for (let study of Object.keys(cohortsPerStudy)) {
                         content += `
-                            <div style="padding: 5px 5px">
+                            <div style="padding: 5px 0px">
                                 <div style="padding-bottom: 5px"><span style="font-style: italic">${study}</span> study:</div>
                                 <div class="form-horizontal">
                         `;
@@ -1465,7 +1465,7 @@
                         for (let cohort of cohorts) {
                             content += `
                                         <div class="form-group" style="margin: 5px 0px">
-                                            <span class="col-md-3 control-label">${cohort.name}</span>
+                                            <span class="col-md-4 control-label">${cohort.name}</span>
                                             <div class="col-md-4" style="padding: 0px 10px">
                                                 <select id="${prefix}${study}${cohort.id}CohortOperator" name="${cohort.id}Operator"
                                                             class="form-control input-sm ${prefix}FilterSelect" style="padding: 0px 5px">
@@ -1475,7 +1475,7 @@
                                                     <option value=">=">>=</option>
                                                 </select>
                                             </div>
-                                            <div class="col-md-5" style="padding: 0px 10px">
+                                            <div class="col-md-4" style="padding: 0px 10px">
                                                 <input type="text" value="" class="form-control input-sm ${prefix}FilterTextInput"
                                                             name="${study}_${cohort.id}" id="${prefix}${study}${cohort.id}Cohort">
                                             </div>

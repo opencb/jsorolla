@@ -78,6 +78,11 @@ class VariantGridFormatter {
         alt = (alt.length > maxAlleleLength) ? alt.substring(0, 5) + "..." + alt.substring(alt.length - 5) : alt;
 
         let id = row.id;
+        if (UtilsNew.isEmpty(id)) {
+            console.warn("row.id is empty: " + row);
+            id = `${row.chromosome}:${row.start}:${ref}:${alt}`;
+        }
+
         if (typeof row.annotation !== "undefined" && UtilsNew.isNotEmptyArray(row.annotation.xrefs)) {
             row.annotation.xrefs.find(function (element) {
                 if (element.source === "dbSNP") {

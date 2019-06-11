@@ -163,7 +163,11 @@
                                         <!-- Cohort Stats Tab -->
                                         <div id="{{prefix}}cohortStats" role="tabpanel" class="tab-pane">
                                             <div style="width: 75%;padding-top: 8px">
-                                                <opencga-variant-cohort-stats opencga-session="{{opencgaSession}}" variant="{{variant}}" active="{{detailActiveTabs.cohortStats}}"></opencga-variant-cohort-stats>
+                                                <opencga-variant-cohort-stats opencga-session="{{opencgaSession}}"
+                                                                              variant="{{variant}}"
+                                                                              active="{{detailActiveTabs.cohortStats}}"
+                                                                              config="{{config.filter.menu}}">
+                                                </opencga-variant-cohort-stats>
                                             </div>
                                         </div>
 

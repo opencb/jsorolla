@@ -101,6 +101,9 @@
                         type: Boolean,
                         value: false,
                         observer: "activeObserver"
+                    },
+                    config: {
+                        type: Object
                     }
                 }
             }
@@ -129,6 +132,24 @@
                         useSearchIndex: "no"
                     };
 
+                    let cohorts = {};
+                    for (let section of this.config.sections) {
+                        for (let subsection of section.subsections) {
+                            if (subsection.id === "cohort") {
+                                // let _cohorts = subsection.cohorts[this.opencgaSession.project.id];
+                                if (UtilsNew.isNotUndefinedOrNull(subsection.cohorts[this.opencgaSession.project.id])) {
+                                    for (let _study of Object.keys(subsection.cohorts[this.opencgaSession.project.id])) {
+                                        cohorts[_study] = new Set();
+                                        for (let cohort of subsection.cohorts[this.opencgaSession.project.id][_study]) {
+                                            cohorts[_study].add(cohort.id);
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    }
+
                     let _this = this;
                     this.opencgaSession.opencgaClient.variants().query(params)
                         .then(function (response) {
@@ -139,7 +160,8 @@
                                     let statsObject = _variantStudies[i].stats;
                                     let statsArray = [];
                                     Object.keys(statsObject).map(key => {
-                                        if (typeof statsObject[key].mafAllele !== "undefined" && statsObject[key].mafAllele !== -1) {
+                                        if (typeof statsObject[key].mafAllele !== "undefined" && statsObject[key].mafAllele !== -1
+                                            && (cohorts[study] === undefined || cohorts[study].has(key))) {
                                             statsObject[key].maf = _this._freqFormatter(statsObject[key].maf || 0);
                                             statsObject[key].mafAllele = statsObject[key].mafAllele || '-';
                                             if (statsObject[key].alleleCount < 0) {
