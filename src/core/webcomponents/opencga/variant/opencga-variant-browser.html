@@ -329,6 +329,8 @@
                 };
                 this.variant = "No variant selected";
 
+                this._sessionInitialised = false;
+
                 this._config = this.getDefaultConfig();
             }
 
@@ -355,15 +357,22 @@
                         }
                     }
 
-                    // We reset the query object when the session is changed
-                    this.query = {
-                        study: this.opencgaSession.study.fqn
-                    };
+                    if (this._sessionInitialised) {
+                        // We reset the query object when the session is changed
+                        this.query = {
+                            study: this.opencgaSession.study.fqn
+                        };
+                    } else {
+                        this.query = Object.assign({}, this.query);
+                    }
+
 
                     this.checkProjects = true;
                 } else {
                     this.checkProjects = false;
                 }
+
+                this._sessionInitialised = true;
             }
 
             queryObserver() {
