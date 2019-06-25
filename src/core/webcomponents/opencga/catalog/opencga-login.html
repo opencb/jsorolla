@@ -23,13 +23,13 @@
                 <div class="col-md-12">
                     <form id="formLogin" data-toggle="validator" class="form-horizontal" role="form">
                         <div class="form-group has-feedback">
-                            <label for="opencgaUser" class="control-label label-login">Name</label>
+                            <label for="opencgaUser" class="control-label label-login">User ID</label>
                             <div class="input-group">
                                 <span class="input-group-addon" id="username">
                                     <i class="fa fa-user fa-lg"></i>
                                 </span>
                                 <input id="opencgaUser" value="{{userName}}" type="text" pattern="^[_\-A-z0-9]{1,}$" maxlength="20" class="form-control input-login"
-                                       placeholder="Username" aria-label="Recipient's username" aria-describedby="username" on-keyup="checkEnterKey" required data-required-error="This field is required">
+                                       placeholder="User ID (case sensitive)" aria-label="Recipient's username" aria-describedby="username" on-keyup="checkEnterKey" required data-required-error="This field is required">
                             </div>
                             <div class="help-block with-errors"></div>
                         </div>
