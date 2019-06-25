@@ -283,6 +283,12 @@
                 this.variant = e.detail.variant;
             }
 
+            onCheckVariant(e) {
+                this.dispatchEvent(new CustomEvent('checkvariant', {
+                    detail: e.detail
+                }));
+            }
+
             _prepareQuery(query) {
                 let _query = Object.assign({}, query, {
                     study: this.opencgaSession.study.fqn,
