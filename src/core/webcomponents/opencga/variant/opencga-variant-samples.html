@@ -20,7 +20,7 @@
 
         <div class="col-md-10 col-md-offset-1" style="margin-bottom: 10px">
             <div class="alert alert-warning" role="alert" id="{{prefix}}Warning" style="display: none;padding: 10px">
-                <span style="font-weight: bold;font-size: 1.20em">Warning:</span>&nbsp;&nbsp;At this moment the number of samples returned is limited to 100 for each 0/1 and 1/1.
+                <span style="font-weight: bold;font-size: 1.20em">Warning:</span>&nbsp;&nbsp;At this moment the number of samples returned is limited to 100 for each genotype (0/1, 1/1 or no-call).
                 This limit will be removed shortly.
             </div>
         </div>
@@ -38,11 +38,6 @@
             </h4>
 
             <div id="{{prefix}}Het">
-
-                <!--<table id="{{prefix}}VariantBrowserGrid">-->
-                <!--<thead style="background-color: #eee"></thead>-->
-                <!--</table>-->
-
                 <div style="padding: 5px 20px">
                     <table class="table table-bordered">
                         <thead style="background-color: #eee;">
@@ -51,8 +46,8 @@
                             <th scope="col" rowspan="2">Individual ID</th>
                             <th scope="col" rowspan="2">Disorders</th>
                             <th scope="col" rowspan="2">Phenotypes</th>
-                            <th scope="col" rowspan="2">File</th>
-                            <!--                            <th scope="col" rowspan="2">Description</th>-->
+                            <th scope="col" rowspan="2">Variant Data</th>
+                            <th scope="col" rowspan="2">File Info</th>
                         </tr>
                         </thead>
                         <tbody id="{{prefix}}HetTBody"></tbody>
@@ -60,7 +55,7 @@
                 </div>
 
                 <template is="dom-if" if="{{!showSamplesHetTable}}">
-                    <div style="padding: 5px 20px">
+                    <div style="padding: 0px 20px 5px 25px">
                         No samples found
                     </div>
                 </template>
@@ -82,8 +77,8 @@
                             <th scope="col" rowspan="2">Individual ID</th>
                             <th scope="col" rowspan="2">Disorders</th>
                             <th scope="col" rowspan="2">Phenotypes</th>
-                            <th scope="col" rowspan="2">File</th>
-                            <!--                            <th scope="col" rowspan="2">Description</th>-->
+                            <th scope="col" rowspan="2">Variant Data</th>
+                            <th scope="col" rowspan="2">File Info</th>
                         </tr>
                         </thead>
                         <tbody id="{{prefix}}HomAltTBody"></tbody>
@@ -91,7 +86,38 @@
                 </div>
 
                 <template is="dom-if" if="{{!showSamplesHomAltTable}}">
-                    <div style="padding: 5px 20px">
+                    <div style="padding: 0px 20px 5px 25px">
+                        No samples found
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <h4 style="font-weight: bold;padding: 20px 0px 0px 0px">
+                <i class="fa fa-minus-circle" on-click="handleCollapseAction" data-id="NA" style="cursor: pointer"></i>
+                &nbsp;No Variant Call (NA) <span class="badge">{{samplesNASize}}</span>
+            </h4>
+
+            <div id="{{prefix}}NA">
+                <div style="padding: 5px 20px">
+                    <table class="table table-bordered" >
+                        <thead style="background-color: #eee;">
+                        <tr>
+                            <th scope="col" rowspan="2">Sample ID</th>
+                            <th scope="col" rowspan="2">Individual ID</th>
+                            <th scope="col" rowspan="2">Disorders</th>
+                            <th scope="col" rowspan="2">Phenotypes</th>
+                            <th scope="col" rowspan="2">Variant Data</th>
+                            <th scope="col" rowspan="2">File Info</th>
+                        </tr>
+                        </thead>
+                        <tbody id="{{prefix}}NATBody"></tbody>
+                    </table>
+                </div>
+
+                <template is="dom-if" if="{{!showSamplesNATable}}">
+                    <div style="padding: 0px 20px 5px 25px">
                         No samples found
                     </div>
                 </template>
@@ -185,20 +211,23 @@
                                 // Clear everything
                                 _this.samplesHet = [];
                                 _this.samplesHetSize = 0;
+                                _this.showSamplesHetTable = false;
                                 PolymerUtils.innerHTML(_this.prefix + "HetTBody", "");
                                 _this.samplesHomAlt = [];
                                 _this.samplesHomAltSize = 0;
+                                _this.showSamplesHomAltTable = false;
                                 PolymerUtils.innerHTML(_this.prefix + "HomAltTBody", "");
+                                _this.samplesNA = [];
+                                _this.samplesNASize = 0;
+                                _this.showSamplesNATable = false;
+                                PolymerUtils.innerHTML(_this.prefix + "NATBody", "");
 
                                 // For each genotype in the response.samples
                                 for (let gt in result.samples) {
                                     let sampleInfo = [];
                                     let sampleIds = [];
                                     for (let sample of result.samples[gt]) {
-                                        sampleInfo.push({
-                                            id: sample.id,
-                                            fileId: sample.fileId
-                                        });
+                                        sampleInfo.push(sample);
                                         sampleIds.push(sample.id);
                                     }
 
@@ -213,46 +242,94 @@
                                                 let tr = "";
                                                 for (let i = 0; i < response.response.length; i++) {
                                                     let individual = response.response[i].result[0].attributes.OPENCGA_INDIVIDUAL;
+
+                                                    if (UtilsNew.isEmpty(individual)) {
+                                                        individual = {
+                                                            id: "Not found",
+                                                            disorders: undefined,
+                                                            phenotypes: undefined
+                                                        };
+                                                    }
+
                                                     if (UtilsNew.isNotEmpty(individual)) {
                                                         sampleInfo[i].individualId = individual.id;
 
-                                                        let disordersHtml = [];
+                                                        let disordersHtml = "";
+                                                        sampleInfo[i].disorders = [];
                                                         if (UtilsNew.isNotEmptyArray(individual.disorders)) {
                                                             for (let disorder of individual.disorders) {
-                                                                let disorderHtmlContent = (UtilsNew.isNotUndefinedOrNull(disorder))
-                                                                    ? disorder.name + " (" + disorder.id + ")"
-                                                                    : "-";
-                                                                disordersHtml.push("<div>" + disorderHtmlContent + "</div>");
+                                                                let disorderHtmlContent = "-";
+                                                                if (UtilsNew.isNotUndefinedOrNull(disorder)) {
+                                                                    sampleInfo[i].disorders.push(disorder.id);
+                                                                    disorderHtmlContent = disorder.name + " (" + disorder.id + ")";
+                                                                }
+                                                                disordersHtml += "<div>" + disorderHtmlContent + "</div>";
                                                             }
                                                         }
-                                                        sampleInfo[i].disorders = disordersHtml.length > 0 ? disordersHtml.join("") : "-";
 
                                                         let phenotypeTooltipText = "";
-                                                        for (let phenotype of individual.phenotypes) {
-                                                            phenotypeTooltipText += `<div style="padding: 5px">`;
-                                                            if (UtilsNew.isNotUndefinedOrNull(phenotype.source) && phenotype.source.toUpperCase() === "HPO") {
-                                                                phenotypeTooltipText += `<span>
+                                                        sampleInfo[i].phenotypes = [];
+                                                        if (UtilsNew.isNotEmptyArray(individual.phenotypes)) {
+                                                            for (let phenotype of individual.phenotypes) {
+                                                                sampleInfo[i].phenotypes.push(phenotype.id);
+                                                                phenotypeTooltipText += `<div style="padding: 5px">`;
+                                                                if (UtilsNew.isNotUndefinedOrNull(phenotype.source) && phenotype.source.toUpperCase() === "HPO") {
+                                                                    phenotypeTooltipText += `<span>
                                                                                                 <a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})
                                                                                             </span>
                                                                         `;
-                                                            } else {
-                                                                phenotypeTooltipText += `<span>${phenotype.id} (${phenotype.status})</span>`;
+                                                                } else {
+                                                                    phenotypeTooltipText += `<span>${phenotype.id} (${phenotype.status})</span>`;
+                                                                }
+                                                                phenotypeTooltipText += "</div>";
                                                             }
-                                                            phenotypeTooltipText += "</div>";
                                                         }
 
-                                                        let html = `<div class="phenotypesTooltip" data-tooltip-text='${phenotypeTooltipText}' align="center">
+                                                        let phenotypes = `<div class="phenotypesTooltip" data-tooltip-text='${phenotypeTooltipText}' align="center">
                                                                             <a style="cursor: pointer">
-                                                                                ${individual.phenotypes.length} terms found
+                                                                                ${individual.phenotypes !== undefined ? individual.phenotypes.length : 0} terms found
                                                                             </a>
                                                                         </div>
                                                             `;
 
+                                                        let variantDataFields = [];
+                                                        let attributes = result.files[sampleInfo[i].fileId].attributes;
+                                                        variantDataFields.push(`<div class="col-md-12" style="padding: 5px 5px">
+                                                                            <form class="form-horizontal">
+                                                                                <label>File Info Data</label>`);
+                                                        for (let formatField in attributes) {
+                                                            let html = `<div class="form-group" style="margin: 0px 2px">
+                                                                            <label class="col-md-5">${formatField}</label>
+                                                                            <div class="col-md-7">${attributes[formatField]}</div>
+                                                                        </div>`;
+                                                            variantDataFields.push(html);
+                                                        }
+                                                        variantDataFields.push("</form></div>");
+
+                                                        variantDataFields.push(`<div class="col-md-12" style="padding: 5px 5px">
+                                                                            <form class="form-horizontal">
+                                                                                <label>Sample Format Data</label>`);
+                                                        for (let formatField in sampleInfo[i].sampleData) {
+                                                            let html = `<div class="form-group" style="margin: 0px 2px">
+                                                                        <label class="col-md-5">${formatField}</label>
+                                                                        <div class="col-md-7">${sampleInfo[i].sampleData[formatField]}</div>
+                                                                    </div>`;
+                                                            variantDataFields.push(html);
+                                                        }
+                                                        variantDataFields.push("</form></div>");
+
+                                                        let variantDataHtml = `<div class="formatTooltip" data-tooltip-text='${variantDataFields.join("")}' align="center">
+                                                                            <a style="cursor: pointer">
+                                                                                View fields
+                                                                            </a>
+                                                                        </div>
+                                                            `;
                                                         tr += `<tr class="detail-view-row">
                                                                             <td>${sampleInfo[i].id}</td>
                                                                             <td>${sampleInfo[i].individualId}</td>
-                                                                            <td>${sampleInfo[i].disorders}</td>
-                                                                            <td>${html}</td>
+                                                                            <td>${disordersHtml !== "" ? disordersHtml : "-"}</td>
+                                                                            <td>${phenotypes}</td>
+                                                                            <td>${variantDataHtml}</td>
                                                                             <td>${sampleInfo[i].fileId}</td>
                                                                        </tr>`;
                                                     }
@@ -271,11 +348,19 @@
                                                         _this.samplesHomAlt = sampleInfo;
                                                         PolymerUtils.innerHTML(_this.prefix + "HomAltTBody", tr);
                                                         break;
+                                                    case "NA":
+                                                        _this.showSamplesNATable = true;
+                                                        _this.samplesNASize = sampleInfo.length;
+                                                        _this.samplesNA = sampleInfo;
+                                                        PolymerUtils.innerHTML(_this.prefix + "NATBody", tr);
+                                                        break;
                                                 }
                                                 if (response.response.length === 100) {
                                                     PolymerUtils.show(_this.prefix + "Warning");
                                                 }
                                                 _this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
+                                                _this.catalogUiUtils.addTooltip("div.formatTooltip", "Variant Data");
+                                                _this.catalogUiUtils.addTooltip("div.infoTooltip", "File Info Fields");
                                             });
                                     } else {
                                         switch (gt) {
@@ -290,6 +375,12 @@
                                                 _this.samplesHomAltSize = sampleInfo.length;
                                                 _this.samplesHomAlt = [];
                                                 PolymerUtils.innerHTML(_this.prefix + "HomAltTBody", "");
+                                                break;
+                                            case "NA":
+                                                _this.showSamplesNATable = false;
+                                                _this.samplesNASize = sampleInfo.length;
+                                                _this.samplesNA = [];
+                                                PolymerUtils.innerHTML(_this.prefix + "NATBody", "");
                                                 break;
                                         }
                                     }
@@ -515,11 +606,15 @@
 
             _downloadSamples() {
                 let dataString = [];
+                dataString.push("#Sample ID\tIndividual ID\tGenotype\tDisorders\tPhenotypes")
                 for (let sample of this.samplesHet) {
-                    dataString.push(sample.id + "\t0/1");
+                    dataString.push(`${sample.id}\t${sample.individualId}\t0/1\t${sample.disorders !== undefined ? sample.disorders.join(",") : ""}\t${sample.phenotypes !== undefined ? sample.phenotypes.join(",") : ""}`);
                 }
                 for (let sample of this.samplesHomAlt) {
-                    dataString.push(sample.id + "\t1/1");
+                    dataString.push(`${sample.id}\t${sample.individualId}\t1/1\t${sample.disorders !== undefined ? sample.disorders.join(",") : ""}\t${sample.phenotypes !== undefined ? sample.phenotypes.join(",") : ""}`);
+                }
+                for (let sample of this.samplesNA) {
+                    dataString.push(`${sample.id}\t${sample.individualId}\tNA\t${sample.disorders !== undefined ? sample.disorders.join(",") : ""}\t${sample.phenotypes !== undefined ? sample.phenotypes.join(",") : ""}`);
                 }
 
                 let data = new Blob([dataString.join('\n')], {type: 'text/plain'});
