@@ -17,10 +17,12 @@
     "webcomponents": "mkdir -p dist/js/core && cp -r src/core/webcomponents dist/js/core/",
     "core": "mkdir -p dist/js/core && cd src/core && cat *.js cache/*.js webcomponents/*.js webcomponents/opencga/*.js webcomponents/opencga/commons/*.js webcomponents/opencga/variant/*.js clients/*.js data-source/*.js visualisation/*.js data-adapter/feature-adapter.js data-adapter/cellbase-adapter.js data-adapter/opencga-adapter.js data-adapter/feature-template-adapter.js widgets/*.js > ../../dist/js/core/core.js && cd ../.. && node_modules/uglify-es/bin/uglifyjs dist/js/core/core.js -o dist/js/core/core.min.js && npm run webcomponents",
     "genome-browser": "mkdir -p dist/js/genome-browser && cd src/genome-browser && cp -r webcomponent ../../dist/js/genome-browser && cat *.js renderers/renderer.js renderers/*-renderer.js tracks/feature-track.js tracks/gene-track.js tracks/alignment-track.js tracks/variant-track.js tracks/tracklist-panel.js > ../../dist/js/genome-browser/genome-browser.js && cd ../.. && node_modules/uglify-es/bin/uglifyjs dist/js/genome-browser/genome-browser.js -o dist/js/genome-browser/genome-browser.min.js",
-    "dist": "npm run clean && mkdir -p dist/js && npm install && npm run core && npm run genome-browser && npm run styles"
+    "dist": "npm run clean && mkdir -p dist/js && npm install && npm run core && npm run genome-browser && npm run styles",
+    "prepare": "pika-web"
   },
   "license": "Apache-2.0",
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.6.0",
     "@polymer/polymer": "2.6.1",
     "@webcomponents/shadycss": "^1.1.0",
     "@webcomponents/webcomponentsjs": "^1.1.0",
@@ -39,10 +41,10 @@
     "cytoscape": "~2.5.4",
     "eonasdan-bootstrap-datetimepicker": "~4.17.43",
     "file-saver": "~1.3.2",
-    "@fortawesome/fontawesome-free": "^5.6.0",
     "highcharts": "~4.2.7",
     "jquery": "~2.2.4",
     "jwt-decode": "^2.2.0",
+    "lit-element": "^2.2.1",
     "pako": "~0.2.8",
     "pdfmake": "~0.1.20",
     "qtip2": "~3.0.3",
@@ -50,14 +52,20 @@
     "urijs": "~1.18.10"
   },
   "devDependencies": {
+    "@pika/web": "^0.6.1",
+    "bower": "*",
+    "crisper": "~2.1.1",
     "eslint": "~4.11.0",
-    "eslint-plugin-jsx-a11y": "^5.1.1",
     "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-jsx-a11y": "^5.1.1",
     "eslint-plugin-react": "^7.1.0",
     "js-beautify": "~1.6.2",
-    "vulcanize": "~1.16.0",
-    "crisper": "~2.1.1",
     "uglify-es": "~3.1.9",
-    "bower": "*"
+    "vulcanize": "~1.16.0"
+  },
+  "@pika/web": {
+    "webDependencies": [
+      "lit-element"
+    ]
   }
 }

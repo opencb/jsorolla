@@ -123,12 +123,12 @@
                                 </div>
                             </div>
                             <div id="{{prefix}}-annotations" class="subsection-content">
-                                <opencga-annotation-filter opencga-session="{{opencgaSession}}"
+                                <@click="${this. opencga-session="{{opencgaSession}}"
                                                            opencga-client="{{opencgaClient}}"
                                                            config="{{annotationFilterConfig}}"
                                                            entity="FAMILY"
                                                            on-filterannotation="addAnnotation">
-                                </opencga-annotation-filter>
+                                </@click="${this.>
                             </div>
                         </div>
 

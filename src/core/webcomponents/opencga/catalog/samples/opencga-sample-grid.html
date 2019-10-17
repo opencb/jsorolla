@@ -14,12 +14,15 @@
   ~ limitations under the License.
   -->
 
-<link rel="import" href="../../../commons/opencb-grid-toolbar.html">
+<!--
+    @deprecated migrated to LitElemenent
+    <link rel="import" href="../../../commons/opencb-grid-toolbar.html">
+-->
 
+<script type="module" src="../../../commons/opencb-grid-toolbar.js"></script>
 <dom-module id="opencga-sample-grid">
     <template>
         <style include="jso-styles"></style>
-
         <opencb-grid-toolbar from="{{from}}" to="{{to}}" num-total-results-text="{{numTotalResultsText}}"
                              config="[[toolbarConfig]]" on-columnchange="onColumnChange"></opencb-grid-toolbar>
 
