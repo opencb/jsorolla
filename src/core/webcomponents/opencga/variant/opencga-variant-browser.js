@@ -14,8 +14,6 @@ export default class OpencgaVariantBrowser extends LitElement {
 
         // Set status and init private properties
         this._init();
-
-        console.log("cellbaseClient variant-browser", this.cellbaseClient) //it is undefined on polymer 2 version too
     }
 
     createRenderRoot() {
@@ -51,12 +49,14 @@ export default class OpencgaVariantBrowser extends LitElement {
             config: {
                 type: Object
             },
+            /* TODO recheck if can be removed
             detailActiveTabs: {
                 type: Array
             },
             checkProjects: {
                 type: Boolean
             }
+             */
         }
     }
 
@@ -78,8 +78,6 @@ export default class OpencgaVariantBrowser extends LitElement {
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
-
-
     }
 
     _init() {
@@ -108,6 +106,8 @@ export default class OpencgaVariantBrowser extends LitElement {
         //run the observer the first time
         //this.opencgaSessionObserver();
         //this.queryObserver();
+
+        this.requestUpdate();
     }
 
     opencgaSessionObserver() {
@@ -152,7 +152,7 @@ export default class OpencgaVariantBrowser extends LitElement {
     }
 
     queryObserver() {
-        // Query passed is executed and set to variant-filter, active-filters and variant-grid components
+        // Query passed is executed and set to this._prefix, active-filters and variant-grid components
         let _query = {};
         if (UtilsNew.isEmpty(this.query) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study)) {
             _query = {
@@ -164,6 +164,8 @@ export default class OpencgaVariantBrowser extends LitElement {
             this.preparedQuery = Object.assign({}, _query, this.query);
             this.executedQuery = Object.assign({}, _query, this.query);
         }
+        // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
+        this.requestUpdate();
     }
 
     onCollapse() {
@@ -182,11 +184,13 @@ export default class OpencgaVariantBrowser extends LitElement {
      */
     onQueryFilterChange(e) {
         this.preparedQuery = e.detail.query;
+        this.requestUpdate()
     }
 
     onQueryFilterSearch(e) {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
+        this.requestUpdate();
     }
 
     /*
@@ -196,7 +200,8 @@ export default class OpencgaVariantBrowser extends LitElement {
         this.query = Object.assign({study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias}, e.detail);
     }
 
-    onClear() {
+    //it was called onClear
+    onActiveFilterClear() {
         this.query = {
             study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
         };
@@ -214,6 +219,7 @@ export default class OpencgaVariantBrowser extends LitElement {
             _activeTabs[detail.id] = (detail.id === e.currentTarget.dataset.id);
         }
         this.detailActiveTabs = _activeTabs;
+        this.requestUpdate();
     }
 
     onGenomeBrowserPositionChange(e) {
@@ -339,7 +345,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                 for (let j = 0; j < statsArray.length; j++) {
                     let genotypeCount = statsArray[j].value.genotypesCount;
                     let data = [];
-                    //TODO functional refactor map
+                    //TODO functional refactor in map
                     if (Object.keys(genotypeCount).length > 0) {
                         for (let k in genotypeCount) {
                             data.push({
@@ -513,8 +519,8 @@ export default class OpencgaVariantBrowser extends LitElement {
                                 .cellbaseClient="${this.cellbaseClient}"
                                 .populationFrequencies="${this.populationFrequencies}"
                                 .consequenceTypes="${this.consequenceTypes}"
-                                @querychange="${this.onQueryFilterChange}"
-                                @querysearch="${this.onQueryFilterSearch}"
+                                @queryChange="${this.onQueryFilterChange}"
+                                @querySearch="${this.onQueryFilterSearch}"
                                 @samplechange="${this.onSampleChange}"
                                 .config="${this._config.filter}">
         </opencga-variant-filter>
@@ -527,8 +533,8 @@ export default class OpencgaVariantBrowser extends LitElement {
                                 .query="${this.preparedQuery}"
                                 .refresh="${this.executedQuery}"
                                 .filters="${this._config.filter.examples}"
-                                @filterchange="${this.onActiveFilterChange}"
-                                @clear="${this.onClear}"
+                                @activeFilterChange="${this.onActiveFilterChange}"
+                                @activeFilterClear="${this.onActiveFilterClear}"
                                 filterBioformat="VARIANT"
                                 .alias="${this._config.activeFilterAlias}"
                                 .config="${this._config.activeFilters}">

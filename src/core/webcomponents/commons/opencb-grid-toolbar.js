@@ -1,8 +1,21 @@
 /**
- * Created by Antonio Altamura on 07/10/2019.
+ * Copyright 2015-2019 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import {LitElement, html} from '/web_modules/lit-element.js';
+import {checkBoxContainer} from "/src/styles/styles.js"
 
 export default class OpencbGridToolbar extends LitElement {
 
@@ -28,6 +41,9 @@ export default class OpencbGridToolbar extends LitElement {
             _prefix: {
                 type:String
             }
+            /*_config: {
+                type: Object
+            },*/
         }
     }
 
@@ -40,12 +56,14 @@ export default class OpencbGridToolbar extends LitElement {
         this._config = this.getDefaultConfig();
         this.numTotalResultsText = "0"
     }
-    
+
     updated(changedProperties) {
         console.log("changedProperties");
         console.log(changedProperties); // logs previous values
-        if(changedProperties.has("config"))
+        if(changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate(); //NOTE to avoid _config as prop!
+        }
     }
 
     onDownloadFile(e) {
@@ -97,7 +115,11 @@ export default class OpencbGridToolbar extends LitElement {
     }
 
     render(){
-        return html` <div class="col-md-12" style="padding: 5px 0px 0px 0px">
+        return html`
+        <style>
+            ${checkBoxContainer}
+        </style>
+        <div class="col-md-12" style="padding: 5px 0px 0px 0px">
             <div id="${this._prefix}ToolbarLeft" class="col-md-6" style="padding: 15px 0px 0px 0px">
                 <span style="padding: 0px">
                     new toolbar - Showing <label>${this.from}-${this.to}</label> of <label>${this.numTotalResultsText}</label> ${this._config.label}
@@ -113,13 +135,25 @@ export default class OpencbGridToolbar extends LitElement {
                             <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i id="${this._prefix}ColumnIcon" class="fa fa-columns" aria-hidden="true" style="padding-right: 5px"></i> Columns <span class="caret"></span>
                             </button>
-                            <ul class="dropdown-menu btn-sm">
+                            <div class="dropdown-menu btn-sm checkbox-container">
+                                
+                                            <a>
+                                                <input type="checkbox" />
+                                                <span class="checkmark-label">aaa</span>
+                                                <span class="checkmark"></span>
+                                            </a>
+                            </div>
+                            
+                            <ul class="dropdown-menu btn-sm checkbox-container">
                                 ${this._config.columns.length ?
-                                        this._config.columns.map(item => this.isTrue(item.eligible) ?
-                                            html`<li><a data-column-id="${item.field}" @click="${this.onColumnClick}" style="cursor: pointer;">
-                                                    <input type="checkbox" @click="${this.checkboxToggle}" ?checked="${this.isTrue(item.visible)}"/>
-                                                    <span style="vertical-align: text-bottom;">${item.title}</span></a>
-                                                </li>` : null)
+                                    this._config.columns.map(item => this.isTrue(item.eligible) ? html`
+                                        <li>
+                                            <a data-column-id="${item.field}" @click="${this.onColumnClick}" style="cursor: pointer;">
+                                                <input type="checkbox" @click="${this.checkboxToggle}" ?checked="${this.isTrue(item.visible)}"/>
+                                                <span class="checkmark-label">${item.title}</span>
+                                                <span class="checkmark"></span>
+                                            </a>
+                                        </li>` : null)
                                 : null}
                             </ul>
                         </div>`

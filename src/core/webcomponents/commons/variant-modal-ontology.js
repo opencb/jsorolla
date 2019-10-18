@@ -37,10 +37,9 @@ export default class VariantModalOntology extends LitElement {
         if(changedProperties.has("ontologyFilter"))
             this.ontologyFilterObserver();
     }
-    connectedCallback() {
-        super.connectedCallback();
+    firstUpdated() {
         let _this = this;
-        let typeahead_field = $("#" + this.prefix + "typeahead");
+        let typeahead_field = $("#" + this._prefix + "typeahead");
         typeahead_field.typeahead("destroy");
         typeahead_field.typeahead({
             source: function (query, process) {
@@ -77,10 +76,11 @@ export default class VariantModalOntology extends LitElement {
         this.loadTermsTree();
         this.selectedTerm = {};
         this.listCurrentSelected = [];
-        PolymerUtils.setValue(this.prefix + "typeahead", "");
+        PolymerUtils.setValue(this._prefix + "typeahead", "");
         if (UtilsNew.isNotEmptyArray(this.selectedTerms)) {
             this.listCurrentSelected = this.selectedTerms.slice();
         }
+        this.requestUpdate();
     }
 
     selectTerm(selected) {
@@ -102,8 +102,10 @@ export default class VariantModalOntology extends LitElement {
         });
 
         if (UtilsNew.isUndefinedOrNull(containsSelectedElement)) {
-            this.push("listCurrentSelected", selectedTerm);
+            this.listCurrentSelected.push(selectedTerm);
         }
+        this.requestUpdate();
+
     }
 
     deletedTermFromList(e) {
@@ -153,14 +155,14 @@ export default class VariantModalOntology extends LitElement {
 
     drawTree(data) {
         let _this = this;
-        $(PolymerUtils.getElementById(this.prefix + "TermsTree")).treeview({
+        $(PolymerUtils.getElementById(this._prefix + "TermsTree")).treeview({
             data: data,
             onNodeSelected: function (event, node) {
                 _this.selectedTerm = _this.fullTree.find((elem) => {
                     return elem.label == node.text
                 });
                 if (UtilsNew.isNotUndefinedOrNull(_this.selectedTerm)) {
-                    PolymerUtils.setValue(_this.prefix + "typeahead", node.text);
+                    PolymerUtils.setValue(_this._prefix + "typeahead", node.text);
                 }
             },
             onNodeUnselected: function (event, node) {
@@ -244,7 +246,7 @@ export default class VariantModalOntology extends LitElement {
         return html`
         <style include="jso-styles"></style>
 
-        <div class="modal fade" id="${this.prefix}ontologyModal" tabindex="-1" role="dialog"
+        <div class="modal fade" id="${this._prefix}ontologyModal" tabindex="-1" role="dialog"
              aria-labelledby="ontologyLabel" data-backdrop="static" data-keyboard="false">
             <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
                 <div class="modal-content">
@@ -252,17 +254,17 @@ export default class VariantModalOntology extends LitElement {
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <h4 class="modal-title" id="${this.prefix}EditorLabel">${this.term} terms selector</h4>
+                        <h4 class="modal-title" id="${this._prefix}EditorLabel">${this.term} terms selector</h4>
                     </div>
                     <div class="modal-body" style="height: 500px">
                         <div class="col-sm-12">
                             <label>Introduce an ${this.term} term</label>
                         </div>
-                        <div class="col-sm-6" style="overflow-y: auto; height:400px;" id="${this.prefix}divDatalist">
+                        <div class="col-sm-6" style="overflow-y: auto; height:400px;" id="${this._prefix}divDatalist">
                             <form>
                                 <fieldset>
                                     <div class="form-group">
-                                        <input matcher="${this.searchTerm}" class="form-control typeahead" name="query"  id="${this.prefix}typeahead" data-provide="typeahead" placeholder="Start typing something to search..." type="text">
+                                        <input matcher="${this.searchTerm}" class="form-control typeahead" name="query"  id="${this._prefix}typeahead" data-provide="typeahead" placeholder="Start typing something to search..." type="text">
                                     </div>
                                 </fieldset>
                             </form>
@@ -273,19 +275,19 @@ export default class VariantModalOntology extends LitElement {
                                     <li class="list-group-item"><strong>Obo Id: </strong>${this.selectedTerm.obo_id}</li>
                                     <li class="list-group-item"><strong>IRI: </strong>${this.selectedTerm.iri}</li>
                                     <li class="list-group-item"><strong>Description: </strong>${this.selectedTerm.description}</li>
-                                    <li class="list-group-item"><button type="button" class="btn btn-info" @click="${this.addSelectedTermToList}" data-selected-term$="${this.selectedTerm}">Add Term</button></li>
+                                    <li class="list-group-item"><button type="button" class="btn btn-info" @click="${this.addSelectedTermToList}" data-selected-term="${this.selectedTerm}">Add Term</button></li>
                                 </ul>
                             ` : null }
 
                             <ul class="list-group">
-                                ${this.listCurrentSelected.length && this.listCurrentSelected.map( item => html`
+                                ${this.listCurrentSelected && this.listCurrentSelected.length && this.listCurrentSelected.map( item => html`
                                     <li class="list-group-item">${item.label}(${item.obo_id}) <button type="button" class="btn danger" @click="${this.deletedTermFromList}" data-selected-term="${item}">X</button></li>
                                 `)}
                             </ul>
                         </div>
 
                         <div class="col-sm-6" style="overflow-y: auto; height:400px;">
-                            <div id="${this.prefix}TermsTree"></div>
+                            <div id="${this._prefix}TermsTree"></div>
                         </div>
                     </div>
 

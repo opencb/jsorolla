@@ -32,8 +32,7 @@ export default class OpencgaVariantGrid extends LitElement {
                 type: Object,
             },
             data: {
-                type: Array,
-                observer: 'renderFromLocal'
+                type: Array
             },
             cohorts: {
                 type: Object
@@ -68,6 +67,7 @@ export default class OpencgaVariantGrid extends LitElement {
         }
     }
 
+    //TODO check why can't be converted in firstUpdated
     connectedCallback() {
         super.connectedCallback();
 
@@ -206,6 +206,10 @@ export default class OpencgaVariantGrid extends LitElement {
                     _this.to = Math.min(resp.response[0].numResults, this.pageSize);
                     _this.numTotalResultsText = _numTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                     _this.approximateCountResult = resp.response[0].approximateCount;
+
+                    //updates numTotalResultsText
+                    _this.requestUpdate();
+
                     return {total: _numTotal, rows: resp.response[0].result}
                 },
                 onClickRow: function (row, $element, field) {
@@ -363,6 +367,9 @@ export default class OpencgaVariantGrid extends LitElement {
                     if (_numTotal === -1) {
                         _numTotal = res.response[0].numTotalResults;
                         _this.count = _numTotal;
+
+                        //updates numTotalResultsText
+                        _this.requestUpdate();
                     }
                     return {total: _numTotal, rows: res.response[0].result}
                 },

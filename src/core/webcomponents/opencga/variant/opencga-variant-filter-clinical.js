@@ -51,8 +51,8 @@ export default class OpencgaVariantFilterClinical extends LitElement {
         if (changedProperties.has("query")) {
             this.queryObserver()
         }
-        if (changedProperties.has("configObserver")) {
-            this.queryObserver()
+        if (changedProperties.has("config")) {
+            this.configObserver()
         }
     }
     connectedCallback() {
@@ -63,12 +63,6 @@ export default class OpencgaVariantFilterClinical extends LitElement {
 
         $('select.selectpicker').selectpicker('render');
     }
-
-    // opencgaSessionObserver() {
-    //     if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
-    //         this.clinicalAnalysis = {};
-    //     }
-    // }
 
     configObserver(config) {
         this._config = {...this.getDefaultConfig(), ...config};
@@ -172,53 +166,6 @@ export default class OpencgaVariantFilterClinical extends LitElement {
             this.sampleFilters = [];
         }
 
-
-        // if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.files)) {
-        //     // Prepare data to be easier to query
-        //     let _fileFiltersMap = {};
-        //     if (UtilsNew.isNotUndefinedOrNull(this.fileFilters)) {
-        //         for (let fileFilter of this.fileFilters) {
-        //             _fileFiltersMap[fileFilter.id] = fileFilter;
-        //         }
-        //     }
-        //
-        //     // We iterate the files copying the previous values
-        //     // let _fileFilters = [];
-        //     let _fileFiltersMap2 = {};
-        //     for (let sampleId in clinicalAnalysis.files) {
-        //         let sampleFiles = clinicalAnalysis.files[sampleId];
-        //         for (let file of sampleFiles) {
-        //             if (UtilsNew.isNotUndefinedOrNull(file.format) && file.format.toUpperCase() === "VCF") {
-        //
-        //                 if (_fileFiltersMap2[file.id] === undefined) {
-        //                     let _fileFilter = {
-        //                         id: file.id,
-        //                         samples: [sampleId],
-        //                         name: file.name,
-        //                         path: file.path,
-        //                         // qual: (UtilsNew.isNotUndefinedOrNull(_fileFiltersMap[file.id])) ? _fileFiltersMap[file.id].qual : "",
-        //                         // filter: (UtilsNew.isNotUndefinedOrNull(_fileFiltersMap[file.id])) ? _fileFiltersMap[file.id].filter : "",
-        //                         selected: (UtilsNew.isNotUndefinedOrNull(_fileFiltersMap[file.id])) ? _fileFiltersMap[file.id].selected : ""
-        //                     };
-        //                     _fileFiltersMap2[file.id] = _fileFilter;
-        //                 } else {
-        //                     _fileFiltersMap2[file.id].samples.push(sampleId);
-        //                 }
-        //
-        //                 // _fileFilters.push(_fileFilter);
-        //             }
-        //         }
-        //     }
-        //
-        //     this.fileFilters = [];
-        //     for (let fileId in _fileFiltersMap2) {
-        //         this.fileFilters.push(_fileFiltersMap2[fileId]);
-        //     }
-        //     // this.fileFilters = _fileFilters;
-        // } else {
-        //     this.fileFilters = [];
-        // }
-
         this.renderSampleTable();
         // this.renderFileTable();
 
@@ -263,34 +210,6 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                 // debugger
             }
             this.renderSampleTable();
-
-
-            // Set FILE filters
-            // let _files = UtilsNew.isNotEmpty(query.file) ? query.file.split(";") : [];
-            // for (let fileFilter of this.fileFilters) {
-            //     fileFilter.selected = _files.includes(fileFilter.name);
-            // }
-            //
-            // if (UtilsNew.isNotEmpty(query.qual)) {
-            //     PolymerUtils.getElementById(this._prefix + "FileFilterQualCheckbox").checked = true;
-            //     PolymerUtils.getElementById(this._prefix + "FileFilterQualInput").value = query.qual;
-            //     PolymerUtils.removeAttribute(this._prefix + "FileFilterQualInput", "disabled");
-            // } else {
-            //     if (UtilsNew.isNotUndefinedOrNull(PolymerUtils.getElementById(this._prefix + "FileFilterQualCheckbox"))) {
-            //         PolymerUtils.getElementById(this._prefix + "FileFilterQualCheckbox").checked = false;
-            //         PolymerUtils.getElementById(this._prefix + "FileFilterQualInput").value = "";
-            //         PolymerUtils.setAttribute(this._prefix + "FileFilterQualInput", "disabled", true);
-            //     }
-            // }
-            //
-            // if (UtilsNew.isNotEmpty(query.filter) && query.filter === "PASS") {
-            //     PolymerUtils.getElementById(this._prefix + "FileFilterPass").checked = true;
-            // } else {
-            //     if (UtilsNew.isNotUndefinedOrNull(PolymerUtils.getElementById(this._prefix + "FileFilterPass"))) {
-            //         PolymerUtils.getElementById(this._prefix + "FileFilterPass").checked = false;
-            //     }
-            // }
-            // this.renderFileTable();
         }
     }
 
@@ -314,7 +233,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
         // }
 
         // Notify the sample change
-        this.dispatchEvent(new CustomEvent("samplefilterschange", {
+        this.dispatchEvent(new CustomEvent("sampleFiltersChange", {
             detail: {
                 sampleFilters: this.sampleFilters,
                 modeOfInheritance: this.modeOfInheritance,
@@ -497,115 +416,6 @@ export default class OpencgaVariantFilterClinical extends LitElement {
         this.notify();
     }
 
-
-
-    // renderFileTable() {
-    //     if (UtilsNew.isUndefinedOrNull(this.clinicalAnalysis) || UtilsNew.isUndefinedOrNull(this.clinicalAnalysis.files)) {
-    //         return;
-    //     }
-    //
-    //     let tr = "";
-    //     for (let fileFilter of this.fileFilters) {
-    //         // Prepare the options in the FILTER dropdown and set the selected option
-    //         // let options = "<option value='none'>None</option>";
-    //         // for (let filterOption of filterValues) {
-    //         //     if (filterOption === defaultValues.filter) {
-    //         //         options += `<option value='${filterOption}' selected>${filterOption}</option>`;
-    //         //     } else {
-    //         //         options += `<option value='${filterOption}'>${filterOption}</option>`;
-    //         //     }
-    //         // }
-    //
-    //         // let lastSlashIdx = fileFilter.path.lastIndexOf("/");
-    //         // let path = fileFilter.path.substring(0, lastSlashIdx + 8) + "...";
-    //         let sampleHtml = "<div>";
-    //         for (let sample of fileFilter.samples) {
-    //             if (sample === this.clinicalAnalysis.proband.samples[0].id) {
-    //                 sampleHtml += `<div><span style="color: darkred">${sample}</span></div>`;
-    //             } else {
-    //                 sampleHtml += `<div>${sample}</div>`;
-    //             }
-    //         }
-    //         sampleHtml += "</div>";
-    //         let selected = (fileFilter.selected) ? "checked" : "";
-    //
-    //         // <td style="vertical-align: middle"><span>${path}</span></td>
-    //         tr += `
-    //                 <tr data-file="${fileFilter.name}">
-    //                     <td style="vertical-align: middle"><span>${sampleHtml}</span></td>
-    //                     <td style="vertical-align: middle"><span>${fileFilter.name}</span></td>
-    //                     <td style="vertical-align: middle; padding-left: 20px"><input type="checkbox" class="file-filter-checkbox" ${selected}></td>
-    //                 </tr>
-    //         `;
-    //     }
-    //
-    //     let elementById = PolymerUtils.getElementById(this._prefix + "FileTBody");
-    //     if (UtilsNew.isNotUndefinedOrNull(elementById)) {
-    //         // Set HTML into the table body
-    //         elementById.innerHTML = tr;
-    //         // Add or remove the message
-    //         if (tr === "") {
-    //             PolymerUtils.getElementById(this._prefix + "FileTableMessage").innerHTML = "<span style=\"font-weight: bold\">No Files selected</span>";
-    //         } else {
-    //             PolymerUtils.getElementById(this._prefix + "FileTableMessage").innerHTML = "";
-    //         }
-    //
-    //         // // Add event listener to Qual textbox
-    //         // let dpTextboxes = PolymerUtils.getElementsByClassName("file-qual-textbox");
-    //         // for (let dpTextbox of dpTextboxes) {
-    //         //     dpTextbox.addEventListener('keyup', this.onFileTableChange.bind(this));
-    //         // }
-    //         //
-    //         // Add event listener to FILTER textbox
-    //         // let filterSelects = PolymerUtils.getElementsByClassName("file-filter-select");
-    //         // for (let filterSelect of filterSelects) {
-    //         //     filterSelect.addEventListener('change', this.onFileTableChange.bind(this));
-    //         // }
-    //
-    //         // Add event listener to FILTER textbox
-    //         let filterSelects = PolymerUtils.getElementsByClassName("file-filter-checkbox");
-    //         for (let filterSelect of filterSelects) {
-    //             filterSelect.addEventListener('click', this.onFileTableChange.bind(this));
-    //         }
-    //     }
-    // }
-    //
-    // onFileTableChange(e) {
-    //     let table = PolymerUtils.getElementById(this._prefix + "FileTable");
-    //     let counter = 0;
-    //     for (let row of table.rows) {
-    //         if (row.dataset.file !== undefined) {
-    //             this.fileFilters[counter].selected = row.children[2].children[0].checked;
-    //             counter++;
-    //         }
-    //     }
-    //     if (counter === 0) {
-    //         PolymerUtils.setAttribute(this._prefix + "FileFilterQualCheckbox", "disabled", true);
-    //         PolymerUtils.setAttribute(this._prefix + "FileFilterPass", "disabled", true);
-    //     } else {
-    //         PolymerUtils.removeAttribute(this._prefix + "FileFilterQualCheckbox", "disabled");
-    //         PolymerUtils.removeAttribute(this._prefix + "FileFilterPass", "disabled");
-    //     }
-    //
-    //     this.notify();
-    // }
-    //
-    // onFileQualClick(e) {
-    //     if (e.currentTarget.checked) {
-    //         PolymerUtils.removeAttribute(this._prefix + "FileFilterQualInput", "disabled");
-    //     } else {
-    //         PolymerUtils.setAttribute(this._prefix + "FileFilterQualInput", "disabled", true);
-    //     }
-    //
-    //     this.notify();
-    // }
-    //
-    // onFileQualChange(e) {
-    //     this.fileQual = e.currentTarget.value;
-    //
-    //     this.notify();
-    // }
-
     getDefaultConfig() {
         return {
             // defaultGenotypes: ["0/1", "1/1"],
@@ -617,17 +427,10 @@ export default class OpencgaVariantFilterClinical extends LitElement {
             }
         }
     }
-
-
+    
     render() {
         return html`
        <style include="jso-styles">
-            /*.filter-option {*/
-            /*font-size: 12px !important;*/
-            /*}*/
-            /*.dropdown-menu {*/
-            /*font-size: 1em !important;*/
-            /*}*/
         </style>
 
         <div class="row">
@@ -641,7 +444,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                     analysis you can go to the corresponding tools in the analysis toolbar.
                 </div>
                 <div style="padding: 0px 20px">
-                    <table id="{{prefix}}BasicTable" class="table table-hover table-no-bordered">
+                    <table id="${this._prefix}BasicTable" class="table table-hover table-no-bordered">
                         <thead>
                         <tr>
                             <th rowspan="2">Sample</th>
@@ -658,20 +461,20 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                             <th scope="col" rowspan="2">HOM_ALT</th>
                         </tr>
                         </thead>
-                        <tbody id="{{prefix}}BasicTBody"></tbody>
+                        <tbody id="${this._prefix}BasicTBody"></tbody>
                     </table>
                 </div>
-                <div id="{{prefix}}BasicTableMessage" style="text-align: center"><span style="font-weight: bold">No Samples selected</span></div>
+                <div id="${this._prefix}BasicTableMessage" style="text-align: center"><span style="font-weight: bold">No Samples selected</span></div>
             </div>
 
-            <template is="dom-if" if="{{showModeOfInheritance}}">
+            ${this.showModeOfInheritance ? html`
                 <div class="col-md-12" style="padding: 10px 20px">
                     <div class="col-md-2" style="padding: 10px 25px 5px 25px">
                         <label>Mode of Inheritance</label>
                     </div>
                     <div class="col-md-3">
-                        <select class="selectpicker" id="{{prefix}}ModeOfInheritance" data-size="8" style="font-size: 12px"
-                                on-change="onModeOfInheritance">
+                        <select class="selectpicker" id="${this._prefix}ModeOfInheritance" data-size="8" style="font-size: 12px"
+                                @change="${this.onModeOfInheritance}">
                             <option value="none">None</option>
                             <option value="MONOALLELIC">Autosomal Dominant</option>
                             <option value="BIALLELIC">Autosomal Recessive</option>
@@ -682,66 +485,22 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                         </select>
                     </div>
                     <div class="col-md-7">
-                        <div class="alert alert-warning" role="alert" id="{{prefix}}Warning" style="display: none;padding: 10px">
+                        <div class="alert alert-warning" role="alert" id="${this._prefix}Warning" style="display: none;padding: 10px">
                             <span style="font-weight: bold;font-size: 1.20em">Warning:</span>&nbsp;The selected Mode of Inheritance is not compatible with the family pedigree .
                         </div>
                     </div>
-                </div>
-            </template>
-
+                </div>    
+            ` : null}
+            
+            
             <div class="col-md-12" style="padding: 10px 20px">
-                <div style="padding: 0px 25px">
+                <div style="padding: 0 25px">
                     <label>Other options</label>
                 </div>
                 <div style="padding: 5px 30px">
-<!--                    <input type="checkbox" on-click="advancedModeButtonClick"><span style="padding-left: 5px">Include multi-allelic genotypes (e.g. 0/2, 1/2, ...)</span>-->
-<!--                    <br>-->
-                    <!--<input id="{{prefix}}CompHetCheckbox" type="checkbox" on-click="notify"><span style="padding-left: 5px">Compound Heterozygous</span>-->
-                    <!--<br>-->
-                    <input id="{{prefix}}MissingCheckbox" type="checkbox" on-click="notify"><span style="padding-left: 5px">Include parent missing (non-ref) allele calls</span>
+                    <input id="${this._prefix}MissingCheckbox" type="checkbox" @click="${this.notify}"><span style="padding-left: 5px">Include parent missing (non-ref) allele calls</span>
                 </div>
             </div>
-
-<!--            <div class="col-md-12" style="padding: 10px 20px 5px 20px">-->
-<!--                <h4>Select File Filters</h4>-->
-<!--                <div style="padding: 5px 20px">-->
-<!--                    <table id="{{prefix}}FileTable" class="table">-->
-<!--                        <thead>-->
-<!--                        <tr>-->
-<!--                            <th scope="col" rowspan="1">Sample ID</th>-->
-<!--                            <th scope="col" rowspan="1">File Name</th>-->
-<!--&lt;!&ndash;                            <th scope="col" rowspan="1">File Path</th>&ndash;&gt;-->
-<!--                            <th scope="col" rowspan="1">Select</th>-->
-<!--                        </tr>-->
-<!--                        </thead>-->
-<!--                        <tbody id="{{prefix}}FileTBody"></tbody>-->
-<!--                    </table>-->
-
-<!--                    <div id="{{prefix}}FileTableMessage" style="text-align: center"><span style="font-weight: bold">No Files selected</span></div>-->
-<!--                </div>-->
-<!--            </div>-->
-
-<!--            <div class="col-md-12" style="padding: 0px 20px 5px 20px">-->
-<!--                <div style="padding: 0px 25px">-->
-<!--                    <label>Options</label>-->
-<!--                </div>-->
-<!--                <div style="padding: 5px 15px">-->
-<!--                    <form class="form-horizontal">-->
-<!--                        <div class="form-group col-md-12" style="margin-bottom: 5px">-->
-<!--                            <div class="col-md-2">-->
-<!--                                <input id="{{prefix}}FileFilterQualCheckbox" type="checkbox" on-click="onFileQualClick" disabled><span style="padding-left: 5px">Introduce min. QUAL</span>-->
-<!--                                &lt;!&ndash;<span style="padding-left: 5px"><i class="fa fa-circle fa-xs" aria-hidden="true"> Introduce min. QUAL</i></span>&ndash;&gt;-->
-<!--                            </div>-->
-<!--                            <div class="col-md-10" style="width: 120px;padding-left: 5px">-->
-<!--                                <input id="{{prefix}}FileFilterQualInput" type="text" class="form-control input-sm" style="padding: 5px 2px" on-keyup="onFileQualChange" disabled>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </form>-->
-<!--                    <div class="col-md-12">-->
-<!--                        <input id="{{prefix}}FileFilterPass" type="checkbox" on-click="notify" disabled><span style="padding-left: 5px">Only include PASS variants</span>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
         </div>
         `;
     }

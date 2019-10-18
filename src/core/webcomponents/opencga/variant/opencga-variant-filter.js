@@ -58,13 +58,13 @@ export default class OpencgaVariantFilter extends LitElement {
             this.clinicalObserver();
         }
         if(changedProperties.has("samples")) {
-            this.samplesObserver();
+            console.warn("samplesObserver() doesn't actually exists")
+            //this.samplesObserver();
         }
     }
-    
-    connectedCallback() {
-        super.connectedCallback();
 
+    //it was connectedCallback() in polymer 2
+    firstUpdated() {
         // Render filter menu and add event and tooltips
         this._renderFilterMenu();
 
@@ -80,7 +80,7 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "ovf" + Utils.randomString(6);
+        this._prefix = `ovf${Utils.randomString(6)}_`;
 
         this._initialised = false;
         // this._reset = true;
@@ -170,6 +170,8 @@ export default class OpencgaVariantFilter extends LitElement {
         } else {
             this._reset = true;
         }
+        this.requestUpdate();
+        
     }
 
     clinicalObserver(clinicalAnalysis) {
@@ -183,7 +185,7 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     notifyQuery(query) {
-        this.dispatchEvent(new CustomEvent("querychange", {
+        this.dispatchEvent(new CustomEvent("queryChange", {
             detail: {
                 query: query,
             },
@@ -193,7 +195,7 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     notifySearch(query) {
-        this.dispatchEvent(new CustomEvent("querysearch", {
+        this.dispatchEvent(new CustomEvent("querySearch", {
             detail: {
                 query: query,
             },
@@ -512,9 +514,11 @@ export default class OpencgaVariantFilter extends LitElement {
         // Render Clinical filters: sample and file
         this.renderClinicalQuerySummary();
 
+        console.log("includeOtherStudy", this.querySelector(this._prefix + "includeOtherStudy"))
         // Studies
         if (typeof this.query.studies !== "undefined") {
-            if (this.$.includeOtherStudy !== null && this.$.differentStudies !== null) {
+            if (this.querySelector(this._prefix + "includeOtherStudy") !== null &&
+                this.querySelector(this._prefix + "DifferentStudies") !== null) {
                 let studies = this.query.studies.split(new RegExp("[,;]"));
                 if (studies.length > 1) {
                     let checkBoxes = PolymerUtils.querySelectorAll("input", this._prefix + "DifferentStudies");
@@ -1074,6 +1078,8 @@ export default class OpencgaVariantFilter extends LitElement {
         this._reset = true;
 
         this.notifyQuery(this.query)
+
+        this.requestUpdate()
     }
 
     callAutocomplete(e) {
@@ -1139,9 +1145,9 @@ export default class OpencgaVariantFilter extends LitElement {
             html += this._createSection(section, this._prefix);
         }
 
-        console.log("this.$", this.$)
         // This set the generated HTML in the DIV element
-        this.$.FilterMenu.innerHTML = html;
+        //todo Refactor the selection and innerHTML should be avoided..
+        this.querySelector("#FilterMenu").innerHTML = html;
 
         // Add events and tooltips to the filter menu
         this._addEventListeners();
@@ -1284,32 +1290,33 @@ export default class OpencgaVariantFilter extends LitElement {
         return header + content + footer;
     }
 
-    _getStudyHtml(prefix) {
+    _getStudyHtml() {
+
+        console.log("differentStudies",this.differentStudies)
+
+        //TODO recheck why in this nested template map() doesn't works
         let options = "";
         if (UtilsNew.isNotUndefinedOrNull(this.differentStudies)) {
             for (let study of this.differentStudies) {
                 options += `<br>
-                                    <input id="${this._prefix}${study.alias}Checkbox" type="checkbox" value="${study.alias}" data-id="${study.id}" class="${this._prefix}FilterCheckBox">
-                                    ${study.alias}
-                               `;
+                            <input id="${this._prefix}${study.alias}Checkbox" type="checkbox" value="${study.alias}" data-id="${study.id}" class="${this._prefix}FilterCheckBox">
+                            ${study.alias}
+                `;
             }
         }
 
         return `
-                    <select class="form-control input-sm ${this._prefix}FilterSelect" id="${this._prefix}includeOtherStudy">
-                        <option value="in" selected>In all (AND)</option>
-                        <option value="atleast">In any of (OR)</option>
-                    </select>
-
-                    <div id="${this._prefix}DifferentStudies" class="form-group">
-                        <br>
-                        <input type="checkbox" value="${this.opencgaSession.study.alias}" data-id="${this.opencgaSession.study.id}" checked disabled>
-                        <span style="font-weight: bold;font-style: italic;color: darkred">
-                            ${this.opencgaSession.study.alias}
-                        </span>
-                        ${options}
-                    </div>
-                `;
+            <select class="form-control input-sm ${this._prefix}FilterSelect" id="${this._prefix}includeOtherStudy">
+                <option value="in" selected>In all (AND)</option>
+                <option value="atleast">In any of (OR)</option>
+            </select>
+            <div id="${this._prefix}DifferentStudies" class="form-group">
+                <br>
+                <input type="checkbox" value="${this.opencgaSession.study.alias}" data-id="${this.opencgaSession.study.id}" checked disabled>
+                <span style="font-weight: bold;font-style: italic;color: darkred">${this.opencgaSession.study.alias}</span>
+                ${options}
+            </div>
+         `;
     }
 
     _getCohortHtml(cohorts, prefix) {
@@ -2120,7 +2127,7 @@ export default class OpencgaVariantFilter extends LitElement {
                         <opencga-variant-filter-clinical .opencgaSession=${this.opencgaSession}
                                                          .clinicalAnalysis="${this.clinicalAnalysis}"
                                                          .query="${this.clinicalFilterQuery}"
-                                                         @samplefilterschange="${this.onClinicalFilterChange}"
+                                                         @sampleFiltersChange="${this.onClinicalFilterChange}"
                                                          style="font-size: 12px">
                         </opencga-variant-filter-clinical>
                     </div>

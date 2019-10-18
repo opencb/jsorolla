@@ -29,16 +29,15 @@ class OpencgaVariableSelector extends LitElement {
     }
 
     _init() {
-        this.prefix = "ovs-" + Utils.randomString(6);
+        this._prefix = "ovs-" + Utils.randomString(6) + "_";
         this.variables = [];
         this._config = this.getDefaultConfig();
     }
 
-    //TODO adapt observer
-    static get observers() {
-        return [
-            'onVariableSetConfigChange(variableSet, config)'
-        ]
+    updated(changedProperties) {
+        if (changedProperties.has("variableSet" || changedProperties.has("config"))) {
+            this.onVariableSetConfigChange();
+        }
     }
 
     connectedCallback() {
@@ -48,7 +47,7 @@ class OpencgaVariableSelector extends LitElement {
             // Select first allowed variable by default
             for (let variable of this.variables) {
                 if (!variable.disabled) {
-                    $(`#${this.prefix}-annotation-picker`).find(".selectpicker").selectpicker('deselectAll');
+                    $(`#${this._prefix}-annotation-picker`).find(".selectpicker").selectpicker('deselectAll');
                     this.dispatchEvent(new CustomEvent('variablechange', {
                             detail: {
                                 value: [variable]
@@ -75,7 +74,7 @@ class OpencgaVariableSelector extends LitElement {
     }
 
     renderDomRepeat(e) {
-        let mainDiv = $(`#${this.prefix}-main-div`);
+        let mainDiv = $(`#${this._prefix}-main-div`);
 
         let selectpicker = mainDiv.find(".selectpicker");
         selectpicker.selectpicker('refresh');
@@ -97,7 +96,7 @@ class OpencgaVariableSelector extends LitElement {
     }
 
     resetSelection(e) {
-        let mainDiv = $(`#${this.prefix}-main-div`);
+        let mainDiv = $(`#${this._prefix}-main-div`);
         let selectpicker = mainDiv.find(".selectpicker");
 
         selectpicker.selectpicker('refresh');
@@ -124,14 +123,14 @@ class OpencgaVariableSelector extends LitElement {
         }
     </style>
 
-        <div id="${this.prefix}-main-div">
+        <div id="${this._prefix}-main-div">
             ${ variables.length ? html`
-                <label for="${this.prefix}-annotation-picker" style="margin-top: 15px;">${this._config.title}</label>
+                <label for="${this._prefix}-annotation-picker" style="margin-top: 15px;">${this._config.title}</label>
 
                 <form class="form-inline">
                     <div class="form-group" style="width: 80%">
-                        <select class="selectpicker ovs-list" id="${this.prefix}-annotation-picker" data-live-search="true" data-size="10"
-                                @change="${this.onChangeSelectedVariable}" data-width="100%" multiple$="${this._config.multiSelection}">
+                        <select class="selectpicker ovs-list" id="${this._prefix}-annotation-picker" data-live-search="true" data-size="10"
+                                @change="${this.onChangeSelectedVariable}" data-width="100%" multiple="${this._config.multiSelection}">
                                 <!-- FIXME on-dom-change-->
                             ${this.variables.map( variable => html`
                             <div items="${variables}" as="variable" on-dom-change="renderDomRepeat" restamp="true">

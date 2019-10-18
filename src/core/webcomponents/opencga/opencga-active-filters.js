@@ -47,10 +47,10 @@ export default class OpencgaActiveFilters extends LitElement {
             this.searchClicked();
         }
         if (changedProperties.has("config")) {
-            this.configObserver();
+            this.configObserver(this.config);
         }
         if (changedProperties.has("opencgaClient")) {
-            this.checkFilters();
+            this.checkFilters(this.config);
         }
     }
 
@@ -79,7 +79,7 @@ export default class OpencgaActiveFilters extends LitElement {
             for (let filter of this.filters) {
                 if (filter.active) {
                     let _queryList = Object.assign({}, filter.query);
-                    this.dispatchEvent(new CustomEvent("filterchange", {
+                    this.dispatchEvent(new CustomEvent("activeFilterChange", {
                         detail: _queryList,
                         bubbles: true,
                         composed: true
@@ -87,7 +87,9 @@ export default class OpencgaActiveFilters extends LitElement {
                     break;
                 }
             }
+
         }
+
     }
 
     configObserver(config) {
@@ -105,8 +107,9 @@ export default class OpencgaActiveFilters extends LitElement {
     clear() {
         PolymerUtils.addStyleByClass("filtersLink", "color", "black");
 
+        //TODO do not trigger event if there are no active filters
         // Trigger clear event
-        this.dispatchEvent(new CustomEvent("clear", {detail: {}, bubbles: true, composed: true}));
+        this.dispatchEvent(new CustomEvent("activeFilterClear", {detail: {}, bubbles: true, composed: true}));
     }
 
     //todo refactor in CSS!!!!
@@ -147,6 +150,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     }
                 });
         }
+
     }
 
     save() {
@@ -203,7 +207,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     e.target.style.color = "green";
 
                     let _queryList = Object.assign({}, filter.query);
-                    this.dispatchEvent(new CustomEvent("filterchange", {
+                    this.dispatchEvent(new CustomEvent("activeFilterChange", {
                         detail: _queryList,
                         bubbles: true,
                         composed: true
@@ -212,6 +216,7 @@ export default class OpencgaActiveFilters extends LitElement {
                 }
             }
         }
+        this.requestUpdate();
     }
 
     onQueryFilterDelete(e) {
@@ -261,11 +266,12 @@ export default class OpencgaActiveFilters extends LitElement {
             $("#filtersList option[value='none']").prop("selected", true);
         }
 
-        this.dispatchEvent(new CustomEvent("filterchange", {
+        this.dispatchEvent(new CustomEvent("activeFilterChange", {
             detail: _queryList,
             bubbles: true,
             composed: true
         }));
+
     }
 
     queryObserver() {
@@ -353,6 +359,7 @@ export default class OpencgaActiveFilters extends LitElement {
         }
 
         this.queryList = _queryList;
+        this.requestUpdate()
     }
 
     searchClicked() {
@@ -406,53 +413,53 @@ export default class OpencgaActiveFilters extends LitElement {
         </div>
 
         <div class="panel panel-default" style="margin-bottom: 5px">
-            <div class="panel-body" style="padding: 10px">
+            <div class="panel-body">
                 <button type="button" class="btn btn-primary" @click="${this.clear}">
                     <i class="fa fa-eraser" aria-hidden="true" style="padding-right: 5px"></i> Clear
                 </button>
 
                 <span style="padding: 0px 20px">
-                    ${this.queryList.length === 0 ? html`
+                    ${this.queryList ? html`
+                        ${this.queryList.length === 0 ? html`
                             <label>No filters selected</label>
-                    ` : html`
+                        ` : html`
                         ${this.queryList.map(item => !this._isMultiValued(item) ? html` 
-                                    ${!item.locked ? html`
-                                        <!-- No multi-valued filters -->
-                                        <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter" data-filter-name$="${item.name}" data-filter-value=""
-                                                @click="${this.onQueryFilterDelete}" @mouseover="${this._onMouseOver}" @mouseout="${this._onMouseOut}">
-                                            {{item.text}}
-                                        </button>
-                                    ` : html`
-                                        <button type="button" class="btn btn-warning btn-sm ${this.item.name}ActiveFilter" data-filter-name="${this.item.name}" data-filter-value=""
-                                                @click="${this.onQueryFilterDelete}" @mouseover="${this._onMouseOver}" @mouseout="${this._onMouseOut}" title="${item.message}" disabled>
-                                            {{item.text}}
-                                        </button>
-                                    `}` : html`
-                                        <!-- Multi-valued filters -->
-                                        <div class="btn-group">
-                                            <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter" data-filter-name="${item.name}" data-filter-value=""
-                                                    @click="${this.onQueryFilterDelete}" @mouseover="${this._onMouseOver}" @mouseout="${this._onMouseOut}" ${item.status}>
-                                                {{item.text}}
-                                            </button>
-                                            <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                <span class="caret"></span>
-                                                <span class="sr-only">Toggle Dropdown</span>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                ${item.items.length && item.items.map(filterItem => html`
-                                                    <li class="small active-filter-button" style="cursor: pointer">
-                                                        <a @click="${this.onQueryFilterDelete}" data-filter-name="${item.name}" data-filter-value="${filterItem}">
-                                                            ${filterItem}
-                                                        </a>
-                                                    </li>
-                                                `)}
-                                            </ul>
-                                        </div>
-                                    `)
-                        }
+                            ${!item.locked ? html`
+                                <!-- No multi-valued filters -->
+                                <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button" data-filter-name="${item.name}" data-filter-value=""
+                                        @click="${this.onQueryFilterDelete}">
+                                ${item.text}
+                                </button>
+                            ` : html`
+                                <button type="button" class="btn btn-warning btn-sm ${this.item.name}ActiveFilter active-filter-button" data-filter-name="${this.item.name}" data-filter-value=""
+                                         @click="${this.onQueryFilterDelete}" title="${item.message}" disabled>
+                                    ${item.text}
+                                </button>
+                            `}` : html`
+                                <!-- Multi-valued filters -->
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button" data-filter-name="${item.name}" data-filter-value=""
+                                            @click="${this.onQueryFilterDelete}" @mouseover="${this._onMouseOver}" @mouseout="${this._onMouseOut}" ${item.status}>
+                                        ${item.text}
+                                    </button>
+                                    <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span class="caret"></span>
+                                        <span class="sr-only">Toggle Dropdown</span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        ${item.items.length && item.items.map(filterItem => html`
+                                            <li class="small active-filter-button" style="cursor: pointer">
+                                                <a @click="${this.onQueryFilterDelete}" data-filter-name="${item.name}" data-filter-value="${filterItem}">
+                                                    ${filterItem}
+                                                </a>
+                                            </li>
+                                        `)}
+                                    </ul>
+                                </div>
+                            `
+                        )}
                     `}
-            
-                    
+                ` : null }
                 </span>
 
                 <!-- TODO we probably need a new property for this -->
@@ -469,7 +476,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                             <a data-filter-name="${item.name}" style="cursor: pointer;color: green" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.name}</a>`}
                                 </li>
                             `)}
-                            ${this.checkSid(opencgaClient._config) ? html`
+                            ${this.checkSid(this.opencgaClient._config) ? html`
                                 <li role="separator" class="divider"></li>
                                 <li>
                                     <a style="cursor: pointer" @click="${this.launchModal}"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save...</a>
