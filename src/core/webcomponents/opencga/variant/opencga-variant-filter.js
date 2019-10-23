@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "./opencga-variant-filter-clinical.js";
 import "./../../commons/variant-modal-ontology.js";
+import "./../../commons/filters/cellbase-region-filter.js";
 
 /*
 variant-sample-selector
@@ -197,16 +198,16 @@ export default class OpencgaVariantFilter extends LitElement {
         } else {
             this.skipClinicalFilterQueryUpdate = true;
         }
-
+        console.log(this.query)
         if (this._reset) {
+            console.trace(this.query)
             this.setQueryFilters();
         } else {
             this._reset = true;
         }
         console.log("queryObserver",this.query)
 
-        this.requestUpdate();
-
+        // this.requestUpdate();
     }
 
     clinicalObserver(clinicalAnalysis) {
@@ -216,6 +217,7 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     onSearch() {
+        debugger
         this.notifySearch(this.query);
     }
 
@@ -316,13 +318,13 @@ export default class OpencgaVariantFilter extends LitElement {
         // }
 
         // Only update query if really needed, this avoids unneeded web refresh
-        if (needUpdateQuery) {
-            this.updateClinicalFilterQuery = false;
-            this.query = _query;
-            this.updateClinicalFilterQuery = true;
-        }
-
-        this.notifyQuery(this.query);
+        // if (needUpdateQuery) {
+        //     this.updateClinicalFilterQuery = false;
+        //     this.query = _query;
+        //     this.updateClinicalFilterQuery = true;
+        // }
+        //
+        // this.notifyQuery(this.query);
     }
 
     propagateOkHPO(e) {
@@ -542,7 +544,7 @@ export default class OpencgaVariantFilter extends LitElement {
 
         // Clear filter menu before rendering
         this._clearHtmlDom();
-        console.error("this.query",this.query)
+        console.error("this.query", this.query)
         // Check 'query' is not null or empty there is nothing else to do
         if (UtilsNew.isUndefinedOrNull(this.query) || Object.keys(this.query).length === 0) {
             console.error("this.query is NULL")
@@ -550,7 +552,7 @@ export default class OpencgaVariantFilter extends LitElement {
         }
 
         // Render Clinical filters: sample and file
-        this.renderClinicalQuerySummary();
+        // this.renderClinicalQuerySummary();
 
         // Studies
         if (typeof this.query.studies !== "undefined") {
@@ -788,7 +790,7 @@ export default class OpencgaVariantFilter extends LitElement {
         }
 
         console.log(PolymerUtils.querySelectorAll("input", this._prefix + "DifferentStudies"))
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     showPanelGenes(panels) {
@@ -822,6 +824,17 @@ export default class OpencgaVariantFilter extends LitElement {
                     console.error(response);
                 });
         }
+    }
+
+    updateQuery(key, value) {
+        if (value && value !== "") {
+            let filter = {[key]: value};
+            this.query = {...this.query, ...filter};
+        } else {
+            delete this.query[key]
+        }
+
+        this.notifyQuery(this.query);
     }
 
     updateQueryFilters() {
@@ -1135,7 +1148,7 @@ export default class OpencgaVariantFilter extends LitElement {
 
         this.notifyQuery(this.query)
 
-        this.requestUpdate()
+        // this.requestUpdate()
     }
 
     //TODO move into template
@@ -1266,7 +1279,9 @@ export default class OpencgaVariantFilter extends LitElement {
             content = this._getFileHtml(this._prefix);
             break;
         case "location":
-            content = this._getLocationHtml(this._prefix);
+            // content = this._getLocationHtml(this._prefix);
+            content = html`<cellbase-region-filter .celbaseClient="${this.cellbaseClient}" .query="${this.query}" 
+                            @regionChange="${e => this.updateQuery("region", e.detail.region)}"></cellbase-region-filter>`;
             break;
         case "feature":
             content = this._getFeatureHtml(this._prefix);

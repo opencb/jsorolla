@@ -358,9 +358,8 @@ export default class OpencgaActiveFilters extends LitElement {
                 }
             }
         }
-
         this.queryList = _queryList;
-        this.requestUpdate()
+        this.requestUpdate();
     }
 
     searchClicked() {

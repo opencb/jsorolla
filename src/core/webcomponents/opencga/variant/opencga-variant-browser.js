@@ -60,6 +60,9 @@ export default class OpencgaVariantBrowser extends LitElement {
             config: {
                 type: Object
             },
+            // executedQuery: {
+            //     type: Object
+            // },
             /* TODO recheck if can be removed
             detailActiveTabs: {
                 type: Array
@@ -86,9 +89,9 @@ export default class OpencgaVariantBrowser extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-        if (changedProperties.has("query")) {
-            this.queryObserver();
-        }
+        // if (changedProperties.has("query")) {
+        //     this.queryObserver();
+        // }
     }
 
     _init() {
@@ -113,12 +116,12 @@ export default class OpencgaVariantBrowser extends LitElement {
         this._config = this.getDefaultConfig();
         this.detailActiveTabs = [];
 
-
+        // this.query = {};
         //run the observer the first time
         //this.opencgaSessionObserver();
         //this.queryObserver();
 
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     opencgaSessionObserver() {
@@ -195,12 +198,14 @@ export default class OpencgaVariantBrowser extends LitElement {
      */
     onQueryFilterChange(e) {
         this.preparedQuery = e.detail.query;
-        this.requestUpdate()
+        debugger
+        this.requestUpdate();
     }
 
     onQueryFilterSearch(e) {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
+        debugger
         this.requestUpdate();
     }
 
@@ -475,6 +480,18 @@ export default class OpencgaVariantBrowser extends LitElement {
         }
     }
 
+// <opencga-active-filters .opencgaClient="${this.opencgaSession.opencgaClient}"
+//     defaultStudy="${this.opencgaSession.study.alias}"
+//         .query="${this.preparedQuery}"
+//         .refresh="${this.executedQuery}"
+//         .filters="${this._config.filter.examples}"
+// @activeFilterChange="${this.onActiveFilterChange}"
+// @activeFilterClear="${this.onActiveFilterClear}"
+//     filterBioformat="VARIANT"
+//         .alias="${this._config.activeFilterAlias}"
+//         .config="${this._config.activeFilters}">
+//         </opencga-active-filters>
+
     render() {
         return html`
         <style include="jso-styles">
@@ -539,17 +556,7 @@ export default class OpencgaVariantBrowser extends LitElement {
 
     
     <div id="${this._prefix}MainWindow" class="col-md-10">
-        <opencga-active-filters .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                defaultStudy="${this.opencgaSession.study.alias}"
-                                .query="${this.preparedQuery}"
-                                .refresh="${this.executedQuery}"
-                                .filters="${this._config.filter.examples}"
-                                @activeFilterChange="${this.onActiveFilterChange}"
-                                @activeFilterClear="${this.onActiveFilterClear}"
-                                filterBioformat="VARIANT"
-                                .alias="${this._config.activeFilterAlias}"
-                                .config="${this._config.activeFilters}">
-        </opencga-active-filters>
+        
 
         <div class="col-md-12" style="padding: 5px 0px 5px 0px">
             <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px;margin-left: 0px">
