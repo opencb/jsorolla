@@ -55,10 +55,9 @@
     "@pika/web": "^0.6.1",
     "bower": "*",
     "crisper": "~2.1.1",
-    "eslint": "~4.11.0",
-    "eslint-plugin-import": "^2.7.0",
-    "eslint-plugin-jsx-a11y": "^5.1.1",
-    "eslint-plugin-react": "^7.1.0",
+    "eslint": "^6.5.1",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-config-google": "^0.14.0",
     "js-beautify": "~1.6.2",
     "uglify-es": "~3.1.9",
     "vulcanize": "~1.16.0"
