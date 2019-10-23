@@ -3,8 +3,9 @@ import {LitElement, html} from '/web_modules/lit-element.js';
 import OpencgaVariableSelector from './opencga-variable-selector';
 
 export default class OpencgaAnnotationFilter extends LitElement {
+    
     constructor() {
-        super()
+        super();
         this._init();
     }
 

@@ -5,6 +5,7 @@
 import {LitElement, html} from '/web_modules/lit-element.js';
 
 export default class OpencgaDateFilter extends LitElement {
+    
     constructor() {
         super();
         this._init();
