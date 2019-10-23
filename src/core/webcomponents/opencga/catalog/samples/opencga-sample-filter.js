@@ -5,6 +5,7 @@ import OpencgaDateFilter from './../opencga-date-filter.js'
 
 // TODO complete properties type checking
 export default class OpencgaSampleFilter extends LitElement {
+    
     constructor() {
         super()
         this._init();
@@ -13,7 +14,7 @@ export default class OpencgaSampleFilter extends LitElement {
     createRenderRoot() {
         return this;
     }
-
+    
     static get properties() {
         return {
             opencgaSession: {
@@ -56,6 +57,15 @@ export default class OpencgaSampleFilter extends LitElement {
         }
     }
 
+    updated(changedProperties) {
+        console.log("changing:: ",changedProperties);
+        if(changedProperties.has("query")) {
+            this.onQueryUpdate()
+        }
+        if(changedProperties.has("variables")) {
+            //this.variablesChanged()
+        }
+    }
     _init() {
         // super.ready();
         this.prefix = "osf-" + Utils.randomString(6);
@@ -69,17 +79,6 @@ export default class OpencgaSampleFilter extends LitElement {
         this.dateFilterConfig = {
             recentDays: 10
         };
-    }
-
-
-    updated(changedProperties) {
-        console.log("changing:: ",changedProperties)
-        if(changedProperties.has("query")) {
-            this.onQueryUpdate()
-        }
-        if(changedProperties.has("variables")) {
-            //this.variablesChanged()
-        }
     }
 
     onSearch() {

@@ -5,8 +5,9 @@
 import {LitElement, html} from '/web_modules/lit-element.js';
 
 export default class VariantModalOntology extends LitElement {
+    
     constructor() {
-        super()
+        super();
         // Set status and init private properties
         this._init();
 
@@ -31,12 +32,14 @@ export default class VariantModalOntology extends LitElement {
 
         };
     }
+    
     updated(changedProperties) {
         console.log("changedProperties");
         console.log(changedProperties); // logs previous values
         if(changedProperties.has("ontologyFilter"))
             this.ontologyFilterObserver();
     }
+    
     firstUpdated() {
         let _this = this;
         let typeahead_field = $("#" + this._prefix + "typeahead");

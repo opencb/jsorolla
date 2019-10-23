@@ -1,7 +1,18 @@
 /**
- * Created by Antonio Altamura on 07/10/2019.
+ * Copyright 2015-2019 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "./opencga-variant-filter.js";
 import "./../opencga-active-filters.js";
@@ -81,7 +92,7 @@ export default class OpencgaVariantBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = "ovb-" + Utils.randomString(6);
+        this._prefix = "ovb-" + Utils.randomString(6) + "_";
 
         this.checkProjects = false;
         this._collapsed = false;
@@ -152,7 +163,7 @@ export default class OpencgaVariantBrowser extends LitElement {
     }
 
     queryObserver() {
-        // Query passed is executed and set to this._prefix, active-filters and variant-grid components
+        // Query passed is executed and set to variant-filter, active-filters and variant-grid components
         let _query = {};
         if (UtilsNew.isEmpty(this.query) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study)) {
             _query = {
@@ -511,7 +522,7 @@ export default class OpencgaVariantBrowser extends LitElement {
     </h3>
 </div>
 
-<div class="row" style="padding: 0px 10px">
+<div class="row">
     <div id="${this._prefix}FilterMenu" class="col-md-2">
         <opencga-variant-filter .opencgaSession="${this.opencgaSession}"
                                 .query="${this.query}"
@@ -727,6 +738,8 @@ export default class OpencgaVariantBrowser extends LitElement {
         `}
 `;
     }
+
+
 }
 
 customElements.define("opencga-variant-browser", OpencgaVariantBrowser);

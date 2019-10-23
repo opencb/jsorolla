@@ -1,6 +1,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 
 export default class OpencgaActiveFilters extends LitElement {
+    
     constructor() {
         super();
         this.init();

@@ -1,4 +1,20 @@
-import {LitElement, html} from '/web_modules/lit-element.js';
+/**
+ * Copyright 2015-2019 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {LitElement, html} from "/web_modules/lit-element.js";
 import "./opencga-variant-filter-clinical.js";
 import "./../../commons/variant-modal-ontology.js";
 
@@ -8,8 +24,9 @@ opencga-variant-filter-clinical
 ../clinical/opencga-clinical-analysis-browser
 */
 
-
+//TODO complete lit-html refactor
 export default class OpencgaVariantFilter extends LitElement {
+
     constructor() {
         super();
         this._init();
@@ -47,17 +64,18 @@ export default class OpencgaVariantFilter extends LitElement {
             }
         }
     }
+
     updated(changedProperties) {
-        if(changedProperties.has("opencgaSession")) {
+        if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-        if(changedProperties.has("query")) {
+        if (changedProperties.has("query")) {
             this.queryObserver();
         }
-        if(changedProperties.has("clinicalAnalysis")) {
+        if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalObserver();
         }
-        if(changedProperties.has("samples")) {
+        if (changedProperties.has("samples")) {
             console.warn("samplesObserver() doesn't actually exists")
             //this.samplesObserver();
         }
@@ -65,18 +83,28 @@ export default class OpencgaVariantFilter extends LitElement {
 
     //it was connectedCallback() in polymer 2
     firstUpdated() {
+        console.log("firstUpdated", this.query)
         // Render filter menu and add event and tooltips
-        this._renderFilterMenu();
+
+        //this now returns html
+        //this._renderFilterMenu();
+
+        this._addAllTooltips();
+
 
         // this.fetchDiseasePanels();
-        $('select.selectpicker').selectpicker('render');
-        $('select.selectpicker').selectpicker({
-            iconBase: 'fa',
-            tickIcon: 'fa-check'
+        $("select.selectpicker").selectpicker("render");
+        $("select.selectpicker").selectpicker({
+            iconBase: "fa",
+            tickIcon: "fa-check"
         });
 
         this._initialised = true;
-        this.setQueryFilters();
+
+        this.opencgaSessionObserver();
+        this.queryObserver();
+        //this.setQueryFilters();
+        //this.clinicalObserver();
     }
 
     _init() {
@@ -84,7 +112,7 @@ export default class OpencgaVariantFilter extends LitElement {
 
         this._initialised = false;
         // this._reset = true;
-        if (typeof PANELS !== "undefined") {
+        if (PANELS) {
             this.panelList = PANELS; //todo check if have to be managed by litelement
         }
 
@@ -106,7 +134,9 @@ export default class OpencgaVariantFilter extends LitElement {
     //     this.queryObserver();
     // }
 
+    //TODO refactor in functional map and move handlers in template
     opencgaSessionObserver() {
+        console.log("opencgaSessionObserver this.opencgaSession.study",this.opencgaSession.study)
         if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study)) {
             // Update the study list of studies and the selected one
             if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project.studies)) {
@@ -117,15 +147,18 @@ export default class OpencgaVariantFilter extends LitElement {
                     }
                 }
                 this.differentStudies = _differentStudies;
-
+                console.log("this.differentStudies", this.differentStudies)
                 // Insert study checkboxes HTML, this only happens if the Study subsection has been added
+
+                /* NOTE listener moved in _getStudyHtml()
+
                 PolymerUtils.innerHTML(this._prefix + "study", this._getStudyHtml(this._prefix));
                 for (let study of this.differentStudies) {
                     let element = PolymerUtils.getElementById(this._prefix + study.alias + "Checkbox");
                     if (UtilsNew.isNotUndefinedOrNull(element)) {
                         element.addEventListener('change', this.updateQueryFilters.bind(this));
                     }
-                }
+                }*/
             }
 
             // Update cohorts from config, this updates the Cohort filter ALT
@@ -170,8 +203,10 @@ export default class OpencgaVariantFilter extends LitElement {
         } else {
             this._reset = true;
         }
+        console.log("queryObserver",this.query)
+
         this.requestUpdate();
-        
+
     }
 
     clinicalObserver(clinicalAnalysis) {
@@ -292,19 +327,20 @@ export default class OpencgaVariantFilter extends LitElement {
 
     propagateOkHPO(e) {
         if (this.openHPO) {
+            //TODO remove PolymerUtils.setValue() and clean up the whole PolymerUtils class..
             PolymerUtils.setValue(this._prefix + "HumanPhenotypeOntologyTextarea", e.detail.result.join(","));
             this.selectedTermsHPO = e.detail.originalResult;
         } else {
             PolymerUtils.setValue(this._prefix + "GeneOntologyTextarea", e.detail.result.join(","));
             this.selectedTermsGO = e.detail.originalResult;
         }
-        $("#" + this._prefix + "ontologyModal").modal('hide');
+        $("#" + this._prefix + "ontologyModal").modal("hide");
 
         this.updateQueryFilters();
     }
 
     openModalOntology() {
-        $("#" + this._prefix + "ontologyModal").modal('show');
+        $("#" + this._prefix + "ontologyModal").modal("show");
     }
 
     openModalHpo() {
@@ -325,7 +361,7 @@ export default class OpencgaVariantFilter extends LitElement {
 
     handleCollapseAction(e) {
         let id = e.target.dataset.id;
-        let elem = $('#' + id)[0];
+        let elem = $("#" + id)[0];
         elem.hidden = !elem.hidden;
         if (elem.hidden) {
             e.target.className = "fa fa-plus";
@@ -341,7 +377,7 @@ export default class OpencgaVariantFilter extends LitElement {
         });
 
         study.populations.forEach((popFreq) => {
-            PolymerUtils.setValue(this._prefix + studyId +  popFreq.id, e.target.value);
+            PolymerUtils.setValue(this._prefix + studyId + popFreq.id, e.target.value);
         });
 
         this.updateQueryFilters();
@@ -361,7 +397,7 @@ export default class OpencgaVariantFilter extends LitElement {
 
         // Select/Unselect the items from one category
         if (e.target.parentNode.parentNode.id !== "") {
-            $("#" + e.target.parentNode.parentNode.id).children('ul').children('li').children('label').children('input').each(function(){
+            $("#" + e.target.parentNode.parentNode.id).children("ul").children("li").children("label").children("input").each(function () {
                 $(this).prop("checked", e.target.checked);
             });
         }
@@ -380,7 +416,7 @@ export default class OpencgaVariantFilter extends LitElement {
             }
         });
 
-        this.ct = soTerms; //todo check if have to be managed by litelement
+        this.ct = soTerms; //todo check if it has to be managed by litelement
         this.updateQueryFilters();
     }
 
@@ -455,6 +491,7 @@ export default class OpencgaVariantFilter extends LitElement {
             // Set HTML into the table body
             let elementById = PolymerUtils.getElementById(this._prefix + "SampleFiltersSummaryTBody");
             if (UtilsNew.isNotUndefinedOrNull(elementById)) {
+                //TODO avoid innerHTML
                 elementById.innerHTML = sampleTableTr;
             }
 
@@ -505,28 +542,32 @@ export default class OpencgaVariantFilter extends LitElement {
 
         // Clear filter menu before rendering
         this._clearHtmlDom();
-
+        console.error("this.query",this.query)
         // Check 'query' is not null or empty there is nothing else to do
         if (UtilsNew.isUndefinedOrNull(this.query) || Object.keys(this.query).length === 0) {
+            console.error("this.query is NULL")
             return;
         }
 
         // Render Clinical filters: sample and file
         this.renderClinicalQuerySummary();
 
-        console.log("includeOtherStudy", this.querySelector(this._prefix + "includeOtherStudy"))
         // Studies
         if (typeof this.query.studies !== "undefined") {
-            if (this.querySelector(this._prefix + "includeOtherStudy") !== null &&
-                this.querySelector(this._prefix + "DifferentStudies") !== null) {
+            if (this.querySelector("#" + this._prefix + "includeOtherStudy") !== null &&
+                this.querySelector("#" + this._prefix + "DifferentStudies") !== null) {
                 let studies = this.query.studies.split(new RegExp("[,;]"));
+
+                console.log("studies",studies)
                 if (studies.length > 1) {
-                    let checkBoxes = PolymerUtils.querySelectorAll("input", this._prefix + "DifferentStudies");
+                    let checkBoxes = PolymerUtils.querySelectorAll("input", "#" + this._prefix + "DifferentStudies");
+                    console.log("checkBoxes",checkBoxes)
                     for (let i = 0; i < studies.length; i++) {
-                        let study = studies[i].split(':')[1];
+                        let study = studies[i].split(":")[1];
                         for (let j = 0; j < checkBoxes.length; j++) {
                             if (checkBoxes[j].value === study) {
                                 checkBoxes[j].checked = true;
+                                console.log(study, checkBoxes[j].checked)
                             }
                         }
                     }
@@ -539,7 +580,7 @@ export default class OpencgaVariantFilter extends LitElement {
         if (typeof this.query.cohortStatsAlt !== "undefined") {
             cohortArray = this.query.cohortStatsAlt.split(new RegExp("[,;]"));
             for (let i = 0; i < cohortArray.length; i++) {
-                let [study, cohortFreq] = cohortArray[i].split(':');
+                let [study, cohortFreq] = cohortArray[i].split(":");
                 let [cohort, freq] = cohortFreq.split(/[<=>]+/);
                 let operator = cohortFreq.split(/[-A-Za-z0-9._:]+/)[1];
                 PolymerUtils.setValue(this._prefix + study + cohort + "Cohort", freq);
@@ -573,13 +614,13 @@ export default class OpencgaVariantFilter extends LitElement {
 
         // Disease panels
         if (UtilsNew.isNotUndefinedOrNull(this.query.panel)) {
-            $("#" + this._prefix + "DiseasePanels").selectpicker('val', this.query.panel.split(","));
+            $("#" + this._prefix + "DiseasePanels").selectpicker("val", this.query.panel.split(","));
             this.showPanelGenes(this.query.panel.split(","));
         }
 
         // Biotype
         if (UtilsNew.isNotUndefinedOrNull(this.query.biotype)) {
-            $("#" + this._prefix + "GeneBiotypes").selectpicker('val', this.query.biotype.split(","));
+            $("#" + this._prefix + "GeneBiotypes").selectpicker("val", this.query.biotype.split(","));
         }
 
         // Panel - annot-panel
@@ -640,7 +681,7 @@ export default class OpencgaVariantFilter extends LitElement {
                             PolymerUtils.setValue(this._prefix + "SiftInput", value.split(/[<=>]+/)[1]);
                             PolymerUtils.setValue(this._prefix + "SiftOperator", value.split(/[-0-9.]+/)[0]);
                         } else {
-                            PolymerUtils.setValue(this._prefix + "SiftValues", value.split('==')[1]);
+                            PolymerUtils.setValue(this._prefix + "SiftValues", value.split("==")[1]);
                         }
                         PolymerUtils.getElementById(this._prefix + "SiftInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
                         PolymerUtils.getElementById(this._prefix + "SiftOperator").disabled = !(value.startsWith("<") || value.startsWith(">"));
@@ -650,7 +691,7 @@ export default class OpencgaVariantFilter extends LitElement {
                             PolymerUtils.setValue(this._prefix + "PolyphenInput", value.split(/[<=>]+/)[1]);
                             PolymerUtils.setValue(this._prefix + "PolyphenOperator", value.split(/[-0-9.]+/)[0]);
                         } else {
-                            PolymerUtils.setValue(this._prefix + "PolyphenValues", value.split('==')[1]);
+                            PolymerUtils.setValue(this._prefix + "PolyphenValues", value.split("==")[1]);
                         }
                         PolymerUtils.getElementById(this._prefix + "PolyphenInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
                         PolymerUtils.getElementById(this._prefix + "PolyphenOperator").disabled = !(value.startsWith("<") || value.startsWith(">"));
@@ -658,9 +699,9 @@ export default class OpencgaVariantFilter extends LitElement {
                 }
             }
             if (pss.length === 2) {
-                $("input:radio[name=pss]").attr('disabled', false);
+                $("input:radio[name=pss]").attr("disabled", false);
                 if (this.query["protein_substitution"].includes(";")) {
-                    $('input:radio[name=pss][value=and]').prop('checked', true);
+                    $("input:radio[name=pss][value=and]").prop("checked", true);
                 }
             }
         }
@@ -745,6 +786,9 @@ export default class OpencgaVariantFilter extends LitElement {
         if (typeof this.query["traits"] !== "undefined") {
             PolymerUtils.setValue(this._prefix + "TraitsTextarea", this.query.traits);
         }
+
+        console.log(PolymerUtils.querySelectorAll("input", this._prefix + "DifferentStudies"))
+        this.requestUpdate();
     }
 
     showPanelGenes(panels) {
@@ -754,7 +798,8 @@ export default class OpencgaVariantFilter extends LitElement {
             this.opencgaSession.opencgaClient.panels()
                 .info(panels.join(","), {
                     study: _this.opencgaSession.study.fqn,
-                    include: "id,name,genes.id,genes.name,regions.id"}, {})
+                    include: "id,name,genes.id,genes.name,regions.id"
+                }, {})
                 .then(function (response) {
                     let text = "";
                     for (let panelResponse of response.response) {
@@ -784,6 +829,8 @@ export default class OpencgaVariantFilter extends LitElement {
             return;
         }
 
+        console.log("this.query", this.query)
+
         let _filters = {};
 
         if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
@@ -809,7 +856,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 for (let cohort of this._cohorts[studyId]) {
                     let cohortInput = PolymerUtils.getElementById(this._prefix + studyId + cohort.id + "Cohort");
                     let operator = PolymerUtils.getElementById(this._prefix + studyId + cohort.id + "CohortOperator");
-                    if (cohortInput !== null && UtilsNew.isNotEmpty(cohortInput.value) ) {
+                    if (cohortInput !== null && UtilsNew.isNotEmpty(cohortInput.value)) {
                         operator = operator.value;
                         // FIXME to be removed!!
                         if (studyId === "BRIDGE") {
@@ -823,28 +870,35 @@ export default class OpencgaVariantFilter extends LitElement {
         }
         if (cohortFreq.length > 0) {
             // _filters["cohortStatsMaf"] = cohortFreq.join(';');
-            _filters.cohortStatsAlt = cohortFreq.join(';');
+            _filters.cohortStatsAlt = cohortFreq.join(";");
         }
 
         // Studies - This section is not renderer when only study exists
         let studies = [this.opencgaSession.study.fqn];
-        let selectedStudies = PolymerUtils.querySelectorAll("input:checked", this._prefix + "DifferentStudies");
+
+        // PolymerUtils.querySelectorAll doesn't work here...
+        //let selectedStudies = PolymerUtils.querySelectorAll("input:checked", "#" + this._prefix + "DifferentStudies");
+
+       let selectedStudies = this.querySelector("#"+this._prefix+"DifferentStudies").querySelector("input:checked");
+
+        //console.log("selectedStudies", selectedStudies)
+
         if (UtilsNew.isNotUndefinedOrNull(selectedStudies)) {
             for (let i = 0; i < selectedStudies.length; i++) {
-                if (studies.indexOf(this.opencgaSession.project.alias + ':' + selectedStudies[i].value) === -1) {
-                    studies.push(this.opencgaSession.project.alias + ':' + selectedStudies[i].value);
+                if (studies.indexOf(this.opencgaSession.project.alias + ":" + selectedStudies[i].value) === -1) {
+                    studies.push(this.opencgaSession.project.alias + ":" + selectedStudies[i].value);
                 }
             }
             switch (PolymerUtils.getElementById(this._prefix + "includeOtherStudy").value) {
             case "in":
-                _filters.studies = studies.join(';');
+                _filters.studies = studies.join(";");
                 break;
             case "atleast":
-                _filters.studies = studies.join(',');
+                _filters.studies = studies.join(",");
                 break;
             case "not in":
                 let notInStudies = [];
-                let currentStudy = this.opencgaSession.project.alias + ':' + this.opencgaSession.study.alias;
+                let currentStudy = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
                 for (let j = 0; j < studies.length; j++) {
                     if (currentStudy === studies[j]) {
                         // Always add the study that we are browsing currently
@@ -894,7 +948,7 @@ export default class OpencgaVariantFilter extends LitElement {
             features = features.replace(/\r?\n/g, ",").replace(/\s/g, "");
             let featureArray = [];
             for (let feature of features.split(",")) {
-                if (feature.startsWith("rs") || feature.split(':').length > 2) {
+                if (feature.startsWith("rs") || feature.split(":").length > 2) {
                     featureArray.push(feature);
                 } else {
                     // Genes must be uppercase
@@ -934,7 +988,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 for (let i = 0; i < types.length; i++) {
                     typesAux.push(types[i].value);
                 }
-                _filters.type = typesAux.join(',');
+                _filters.type = typesAux.join(",");
             }
         }
 
@@ -957,7 +1011,7 @@ export default class OpencgaVariantFilter extends LitElement {
             }
         }
         if (popFreq.length > 0) {
-            _filters["populationFrequencyAlt"] = popFreq.join(';');
+            _filters["populationFrequencyAlt"] = popFreq.join(";");
         }
 
         // Protein Substitution Scores -  Sift and Polyphen
@@ -979,14 +1033,14 @@ export default class OpencgaVariantFilter extends LitElement {
 
         // If both Sift and Polyphen are selected then we activate the AND/OR control
         if (numFilters === 2) {
-            $("input:radio[name=pss]").attr('disabled', false);
+            $("input:radio[name=pss]").attr("disabled", false);
         }
         if (pss.length > 0) {
-            let filter = $('input:radio[name=pss]:checked').val();
+            let filter = $("input:radio[name=pss]:checked").val();
             if (filter === "and") {
-                _filters.protein_substitution = pss.join(';');
+                _filters.protein_substitution = pss.join(";");
             } else {
-                _filters.protein_substitution = pss.join(',');
+                _filters.protein_substitution = pss.join(",");
             }
         }
 
@@ -1003,12 +1057,14 @@ export default class OpencgaVariantFilter extends LitElement {
             }
         }
         if (cadd.length > 0) {
-            _filters["annot-functional-score"] = cadd.join(',');
+            _filters["annot-functional-score"] = cadd.join(",");
         }
 
         // Conservation
         let arr = {"Phylop": "phylop", "Phastcons": "phastCons", "Gerp": "gerp"};
         let conserArr = [];
+
+        //TODO use map()
         for (let key of Object.keys(arr)) {
             let inputTextArea = PolymerUtils.getElementById(this._prefix + key + "Input");
             if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
@@ -1018,22 +1074,22 @@ export default class OpencgaVariantFilter extends LitElement {
         }
         // Disable OR/AND logical operator
         if (conserArr.length > 1) {
-            $("input:radio[name=conservation]").attr('disabled', false);
+            $("input:radio[name=conservation]").attr("disabled", false);
         } else {
-            $("input:radio[name=conservation]").attr('disabled', true);
+            $("input:radio[name=conservation]").attr("disabled", true);
         }
         if (conserArr.length > 0) {
-            let filter = $('input:radio[name=conservation]:checked').val();
+            let filter = $("input:radio[name=conservation]:checked").val();
             if (filter === "and") {
-                _filters.conservation = conserArr.join(';');
+                _filters.conservation = conserArr.join(";");
             } else {
-                _filters.conservation = conserArr.join(',');
+                _filters.conservation = conserArr.join(",");
             }
         }
 
         // Consequence Type
         if (UtilsNew.isNotEmptyArray(this.ct)) {
-            _filters["ct"] = this.ct.join(',');
+            _filters["ct"] = this.ct.join(",");
         }
 
         // Gene Ontology and Human Phenotype Ontology
@@ -1049,12 +1105,12 @@ export default class OpencgaVariantFilter extends LitElement {
             let hpoValues = inputTextArea.value.split(",");
 
             if (UtilsNew.isNotEmptyArray(hpoValues)) {
-                $("input:radio[name=hpoRadio]").attr('disabled', false);
-                let filter = $('input:radio[name=hpoRadio]:checked').val();
+                $("input:radio[name=hpoRadio]").attr("disabled", false);
+                let filter = $("input:radio[name=hpoRadio]:checked").val();
                 if (filter === "and") {
-                    _filters["annot-hpo"] = hpoValues.join(';');
+                    _filters["annot-hpo"] = hpoValues.join(";");
                 } else {
-                    _filters["annot-hpo"] = hpoValues.join(',');
+                    _filters["annot-hpo"] = hpoValues.join(",");
                 }
             }
             // _filters["annot-hpo"] = inputTextArea.value;
@@ -1082,12 +1138,13 @@ export default class OpencgaVariantFilter extends LitElement {
         this.requestUpdate()
     }
 
+    //TODO move into template
     callAutocomplete(e) {
         // Only gene symbols are going to be searched and not Ensembl IDs
-        let featureId = PolymerUtils.getElementById(this._prefix  + "FeatureIdText").value;
+        let featureId = PolymerUtils.getElementById(this._prefix + "FeatureIdText").value;
         if (UtilsNew.isNotUndefinedOrNull(featureId) && featureId.length >= 3 && !featureId.startsWith("ENS")) {
             let _this = this;
-            _this.cellbaseClient.get('feature', 'id', featureId.toUpperCase(), 'starts_with', {}, {})
+            _this.cellbaseClient.get("feature", "id", featureId.toUpperCase(), "starts_with", {}, {})
                 .then(function (response) {
                     let options = "";
                     for (let id of response.response[0].result) {
@@ -1102,7 +1159,7 @@ export default class OpencgaVariantFilter extends LitElement {
         let allIds = [];
         let featureTextArea = PolymerUtils.getElementById(this._prefix + "FeatureTextarea");
         if (UtilsNew.isNotUndefinedOrNull(featureTextArea) && UtilsNew.isNotEmpty(featureTextArea.value)) {
-            allIds = featureTextArea.value.split(',');
+            allIds = featureTextArea.value.split(",");
         }
 
         let featureIdText = PolymerUtils.getElementById(this._prefix + "FeatureIdText");
@@ -1117,13 +1174,13 @@ export default class OpencgaVariantFilter extends LitElement {
 
     _clearHtmlDom() {
         // Empty everything before rendering
-        $("." + this._prefix + "FilterSelect").prop('selectedIndex', 0);
+        $("." + this._prefix + "FilterSelect").prop("selectedIndex", 0);
         $("." + this._prefix + "FilterSelect").prop("disabled", false);
         $("." + this._prefix + "FilterTextInput").val("");
         $("." + this._prefix + "FilterTextInput").prop("disabled", false);
         $("." + this._prefix + "FilterCheckBox").prop("checked", false);
         $("." + this._prefix + "FilterRadio").prop("checked", false);
-        $("." + this._prefix + "FilterRadio").filter('[value="or"]').prop('checked', true);
+        $("." + this._prefix + "FilterRadio").filter("[value=\"or\"]").prop("checked", true);
         $("." + this._prefix + "FilterRadio").prop("disabled", true);
 
         $("#" + this._prefix + "DiseasePanelsTextarea").val("");
@@ -1132,34 +1189,32 @@ export default class OpencgaVariantFilter extends LitElement {
         }
 
         // Deselect bootstrap-select dropdowns
-        $("#" + this._prefix + "DiseasePanels").selectpicker('val', []);
-        $("#" + this._prefix + "GeneBiotypes").selectpicker('val', []);
-        $("#" + this._prefix + "vcfFilterSelect").selectpicker('val', []);
+        $("#" + this._prefix + "DiseasePanels").selectpicker("val", []);
+        $("#" + this._prefix + "GeneBiotypes").selectpicker("val", []);
+        $("#" + this._prefix + "vcfFilterSelect").selectpicker("val", []);
     }
 
 
     // This method is only executed one time from connectedCallback function
+    // TODO recheck if it really needs to be executed in opencgaSessionObserver()
     _renderFilterMenu() {
-        let html = "";
-        for (let section of this.config.menu.sections) {
-            html += this._createSection(section, this._prefix);
-        }
-
-        // This set the generated HTML in the DIV element
-        //todo Refactor the selection and innerHTML should be avoided..
-        this.querySelector("#FilterMenu").innerHTML = html;
 
         // Add events and tooltips to the filter menu
-        this._addEventListeners();
-        this._addAllTooltips();
+        // TODO move listeners in template
+        // TODO move tooltips init somewhere after template has been rendered
+        //this._addEventListeners();
+        //console.error("CONTINUE FROM _addEventListeners() / is not called")
+
+
+        return this.config.menu.sections && this.config.menu.sections.length && this.config.menu.sections.map(section => this._createSection(section));
     }
 
-    _createSection(section, prefix) {
+    _createSection(section) {
         let id = section.title.replace(/ /g, "");
         let collapsed = section.collapsed ? "" : "in";
 
-        let header= `
-                    <div class="panel panel-default" style="margin-bottom: 10px">
+        return html`
+                    <div class="panel panel-default filter-section">
                         <div class="panel-heading" role="tab" id="${this._prefix}${id}Heading">
                             <h4 class="panel-title">
                                 <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
@@ -1168,62 +1223,35 @@ export default class OpencgaVariantFilter extends LitElement {
                                 </a>
                             </h4>
                         </div>
-
                         <div id="${this._prefix}${id}" class="panel-collapse collapse ${collapsed}" role="tabpanel" aria-labelledby="${this._prefix}${id}Heading">
                             <div class="panel-body">
-                `;
-
-        // We get the HTML content for each subsection
-        let content = "";
-        for (let subsection of section.subsections) {
-            // Do not display Study subsection when only 1 study exists
-            if (subsection.id === "study" && this.opencgaSession.project.studies.length <= 1) {
-                // If Study subsection is the only one in the section then we do not display the whole section
-                if (section.subsections.length === 1) {
-                    return "";
-                } else {
-                    continue;
-                }
-            }
-
-            // CADD values are only available for GRCh37
-            if (subsection.id === "cadd" && this.opencgaSession.project.organism.assembly.toLowerCase() === "grch38") {
-                continue;
-            }
-
-            // We check if this subsection is not disabled in the configuration file
-            if (UtilsNew.isEmptyArray(this.config.menu.skipSubsections) || !this.config.menu.skipSubsections.includes(subsection.id)) {
-                content += this._createSubSection(subsection);
-            }
-        }
-
-        let footer = `
-                            </div>
+                                ${section.subsections && section.subsections.length && section.subsections.map(subsection => html`
+                                    ${subsection.id === "study" && this.opencgaSession.project.studies.length <= 1 ? html`
+                                        ${section.subsections.length === 1 ? html`` : html`/continue_statement_missing/`}
+                                    ` : null}
+                                    
+                                    ${subsection.id === "cadd" && this.opencgaSession.project.organism.assembly.toLowerCase() === "grch38" ? html`` : html``}
+                                    
+                                    ${!this.config.menu.skipSubsections || !this.config.menu.skipSubsections.length || ~this.config.menu.skipSubsections.indexOf(subsection.id) ? this._createSubSection(subsection) : null}
+                                    
+                                    
+                                `)}
+                            
+                             </div>
                         </div>
                     </div>
                 `;
 
-        return header + content + footer;
     }
 
     _createSubSection(subsection) {
         // ConsequenceType needs horizontal scroll
         let ctScroll = (subsection.id === "consequenceType") ? "browser-ct-scroll" : "";
 
-        // Add subsection header
-        let header = `
-                    <div class="form-group">
-                        <div class="browser-subsection" id="${subsection.id}" name="${subsection.title}">${subsection.title}
-                            <div style="float: right" class="tooltip-div">
-                                <a><i class="fa fa-info-circle" aria-hidden="true" id="${this._prefix}${subsection.id}Tooltip"></i></a>
-                            </div>
-                        </div>
-                        <div id="${this._prefix}${subsection.id}" class="subsection-content ${ctScroll}">
-                `;
 
         let content = "";
+        //TODO maybe replace switch with content = this["_get" + subsection](subsection)
         switch (subsection.id) {
-
         case "study":
             content = this._getStudyHtml(this._prefix);
             break;
@@ -1281,372 +1309,297 @@ export default class OpencgaVariantFilter extends LitElement {
             break;
         }
 
-        // Add subsection footer
-        let footer = `
+        return html`
+                    <div class="form-group">
+                        <div class="browser-subsection" id="${subsection.id}" name="${subsection.title}">${subsection.title}
+                            <div style="float: right" class="tooltip-div">
+                                <a><i class="fa fa-info-circle" aria-hidden="true" id="${this._prefix}${subsection.id}Tooltip"></i></a>
+                            </div>
                         </div>
+                        <div id="${this._prefix}${subsection.id}" class="subsection-content ${ctScroll}">
+                            ${content}
+                         </div>
                     </div>
                 `;
-
-        return header + content + footer;
     }
 
     _getStudyHtml() {
-
-        console.log("differentStudies",this.differentStudies)
-
-        //TODO recheck why in this nested template map() doesn't works
-        let options = "";
-        if (UtilsNew.isNotUndefinedOrNull(this.differentStudies)) {
-            for (let study of this.differentStudies) {
-                options += `<br>
-                            <input id="${this._prefix}${study.alias}Checkbox" type="checkbox" value="${study.alias}" data-id="${study.id}" class="${this._prefix}FilterCheckBox">
-                            ${study.alias}
-                `;
-            }
-        }
-
-        return `
-            <select class="form-control input-sm ${this._prefix}FilterSelect" id="${this._prefix}includeOtherStudy">
+        return html`
+            <select class="form-control input-sm ${this._prefix}FilterSelect" id="${this._prefix}includeOtherStudy" @change="${this.updateQueryFilters}">
                 <option value="in" selected>In all (AND)</option>
                 <option value="atleast">In any of (OR)</option>
             </select>
             <div id="${this._prefix}DifferentStudies" class="form-group">
                 <br>
-                <input type="checkbox" value="${this.opencgaSession.study.alias}" data-id="${this.opencgaSession.study.id}" checked disabled>
+                <input type="checkbox" value="${this.opencgaSession.study.alias}" data-id="${this.opencgaSession.study.id}" checked disabled >
                 <span style="font-weight: bold;font-style: italic;color: darkred">${this.opencgaSession.study.alias}</span>
-                ${options}
+                ${this.differentStudies && this.differentStudies.length && this.differentStudies.map(study => html`
+                            <br>
+                            <input id="${this._prefix}${study.alias}Checkbox" type="checkbox" @click="${this.updateQueryFilters}" value="${study.alias}" data-id="${study.id}" class="${this._prefix}FilterCheckBox">
+                            ${study.alias}
+                `)}
             </div>
-         `;
+        `;
     }
 
-    _getCohortHtml(cohorts, prefix) {
+    _getCohortHtml(cohorts) {
         let projectId = this.opencgaSession.project.id;
         let cohortsPerStudy = cohorts[projectId];
 
-        if (UtilsNew.isNotUndefinedOrNull(cohortsPerStudy)) {
-            let content = "";
-            for (let study of Object.keys(cohortsPerStudy)) {
-                content += `
-                            <div style="padding: 5px 0px">
-                                <div style="padding-bottom: 5px"><span style="font-style: italic">${study}</span> study:</div>
-                                <div class="form-horizontal">
-                        `;
+        return cohortsPerStudy ? html`
+            ${Object.keys(cohortsPerStudy).map(study => html`
+                <div style="padding: 5px 0px">
+                    <div style="padding-bottom: 5px">
+                        <span style="font-style: italic">${study}</span> study:
+                    </div>
+                    <div class="form-horizontal">
+                        ${cohortsPerStudy[study] && cohortsPerStudy[study].map(cohort => html`
+                            <div class="form-group" style="margin: 5px 0px">
+                                <span class="col-md-4 control-label">${cohort.name}</span>
+                                <div class="col-md-4" style="padding: 0px 10px">
+                                    <select id="${this._prefix}${study}${cohort.id}CohortOperator" name="${cohort.id}Operator"
+                                            class="form-control input-sm ${this._prefix}FilterSelect" style="padding: 0px 5px" @change="${this.updateQueryFilters}">
+                                        <option value="<" selected><</option>
+                                        <option value="<="><=</option>
+                                        <option value=">">></option>
+                                        <option value=">=">>=</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4" style="padding: 0px 10px">
+                                    <input type="text" value="" class="form-control input-sm ${this._prefix}FilterTextInput"
+                                           name="${study}_${cohort.id}" id="${this._prefix}${study}${cohort.id}Cohort" @change="${this.updateQueryFilters}">
+                                </div>
+                            </div>
+                        `)}
+                    </div>
+                </div>`)}
+        ` : html`
+            <span>Project not found</span>
+        `;
+    }
 
-                let cohorts = cohortsPerStudy[study];
-                for (let cohort of cohorts) {
-                    content += `
+    _getSampleHtml(subsection) {
+        return subsection.showSelectSamples ? html`
+            <div>
+                <div style="padding: 10px 0px">Select Genotype Filter:</div>
+                <div style="padding-left: 20px">
+                    <button id="${this._prefix}SampleFilterModalButton" type="button" class="btn btn-default" style="width: 80%" @click="${this.onSampleFilterClick}">
+                        Sample Filters ...
+                    </button>
+                </div>
+            </div>
+            <div style="padding: 10px 0px 5px 0px">
+                <div style="padding: 15px 0px;">
+                    <span>Sample Genotype Summary</span>
+                </div>
+                <table class="table" style="margin-bottom: 10px">
+                    <thead>
+                    <tr>
+                        <th scope="col">Sample ID</th>
+                        <th scope="col">GT</th>
+                    </tr>
+                    </thead>
+                    <tbody id="${this._prefix}SampleFiltersSummaryTBody">
+                    <tr>
+                        <td>No samples selected</td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        ` : ``;
+    }
+
+    _getFileHtml() {
+        return html`
+            <div class="row">
+                <div class="col-md-12">
+                    <input id="${this._prefix}FilePassCheckbox" type="checkbox" class="${this._prefix}FilterCheckBox" @change="${this.updateQueryFilters}"><span
+                        style="padding-left: 5px">Only include <span style="font-weight: bold;">PASS</span> variants</span>
+                </div>
+                <form class="form-horizontal">
+                    <div class="form-group col-md-12">
+                        <div class="col-md-8">
+                            <input id="${this._prefix}FileQualCheckbox" type="checkbox"
+                                   class="${this._prefix}FilterCheckBox" @change="${this.updateQueryFilters}"><span style="padding-left: 5px">Introduce min. <span
+                                style="font-weight: bold;">QUAL</span></span>
+                        </div>
+                        <div class="col-md-4">
+                            <input id="${this._prefix}FileQualInput" type="text" class="form-control input-sm ${this._prefix}FilterTextInput" disabled @keyup="${this.updateQueryFilters}">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        `;
+    }
+
+    _getLocationHtml() {
+        return html`<textarea id="${this._prefix}LocationTextarea" name="location" class="form-control clearable ${this._prefix}FilterTextInput" rows="3" placeholder="3:444-55555,1:1-100000" @keyup="${this.updateQueryFilters}"></textarea>`;
+    }
+
+    _getFeatureHtml() {
+        return html`
+            <div class="row">
+                <div class="col-md-9">
+                    <input id="${this._prefix}FeatureIdText" type="text" class="form-control"
+                           list="${this._prefix}FeatureDatalist"
+                           placeholder="Search for Gene Symbols" value="" @keyup="${this.callAutocomplete}">
+                    <datalist id="${this._prefix}FeatureDatalist"></datalist>
+                </div>
+                <div class="col-md-3">
+                    <button id="${this._prefix}FeatureAddButton" type="button" class="btn btn-default btn-sm form-control" @click="${this.addFeatureId}">
+                        <i class="fa fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <textarea id="${this._prefix}FeatureTextarea" name="geneSnp"
+                    class="form-control clearable ${this._prefix}FilterTextInput"
+                    rows="3" placeholder="BRCA2,ENSG00000139618,ENST00000544455,rs28897700"
+                    style="margin-top: 5px" @keyup="${this.updateQueryFilters}"></textarea>
+            </div>
+        `;
+    }
+
+    _getDiseasePanelsHtml() {
+        return html`
+            <div>
+                <select id="${this._prefix}DiseasePanels" class="selectpicker" data-size="10" data-live-search="true" data-selected-text-format="count" multiple @change="${this.updateQueryFilters}">
+                    ${this.opencgaSession.study.panels && this.opencgaSession.study.panels.length && this.opencgaSession.study.panels.map(panel => html`
+                        <option value="${panel.id}">
+                            ${panel.name} 
+                            ${panel.source ? "v" + panel.source.version : ""} 
+                            ( ${panel.stats ? panel.stats.numberOfGenes + "genes, " + panel.stats.numberOfRegions + "regions" : "0 genes, 0 regions"})
+                        </option>
+                    `)}
+                </select>
+            <textarea id="${this._prefix}DiseasePanelsTextarea" class="form-control" rows="4" style="margin-top: 5px;background: #f7f7f7" disabled> </textarea>
+            </div>
+        `;
+    }
+
+    _getBiotypeHtml(biotypes = []) {
+        return html`
+            <select class="selectpicker" id="${this._prefix}GeneBiotypes" data-size="10" data-live-search="true" data-selected-text-format="count" multiple @change="${this.updateQueryFilters}">
+                ${biotypes.map(biotype => html`
+                     <option value="${biotype}">${biotype}</option>                       
+                `)}
+            </select>
+        `;
+    }
+
+    _getVariantTypeHtml(types) {
+        return html`
+            <div id="${this._prefix}Type">
+                ${types && types.length && types.map(type => html`
+                    <input type="checkbox" value="${type}" class="${this._prefix}FilterCheckBox" @change="${this.updateQueryFilters}"> ${type}<br>
+                `)}
+            </div>
+        `;
+    }
+
+    _getPopulationFrequencyHtml(showSetAll) {
+        return html`
+                        ${this.populationFrequencies.studies && this.populationFrequencies.studies.length && this.populationFrequencies.studies.map(study => html`
+                            <div style="padding-top: 10px">
+                                <i id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}" class="fa fa-plus" style="cursor: pointer;padding-right: 10px" @click="${this.handleCollapseAction}"></i>
+                                <strong>${study.title}</strong>
+                                <div id="${this._prefix}${study.id}" class="form-horizontal" hidden>
+                                    ${showSetAll ? html`
                                         <div class="form-group" style="margin: 5px 0px">
-                                            <span class="col-md-4 control-label">${cohort.name}</span>
+                                            <span class="col-md-7 control-label" data-toggle="tooltip" data-placement="top" style="text-align: left;">Set all</span>
+                                            <div class="col-md-5" style="padding: 0px 10px">
+                                                <input id="${this._prefix}${study.id}Input" type="text" data-study="${study.id}" value="" class="form-control input-sm ${this._prefix}FilterTextInput"
+                                                name="${study.id}Input" @keyup="${this.keyUpAllPopFreq}" @change="${this.updateQueryFilters}" >
+                                            </div>
+                                        </div>
+                                    ` : ""}
+                                    ${study.populations && study.populations.length && study.populations.map(popFreq => html`
+                                        <div class="form-group" style="margin: 5px 0px">
+                                            <span class="col-md-3 control-label" data-toggle="tooltip" data-placement="top" title="${popFreq.title}">${popFreq.id}</span>
                                             <div class="col-md-4" style="padding: 0px 10px">
-                                                <select id="${this._prefix}${study}${cohort.id}CohortOperator" name="${cohort.id}Operator"
-                                                            class="form-control input-sm ${this._prefix}FilterSelect" style="padding: 0px 5px">
+                                                <select id="${this._prefix}${study.id}${popFreq.id}Operator" name="${popFreq.id}Operator"
+                                                        class="form-control input-sm ${this._prefix}FilterSelect" style="padding: 0px 5px" @change="${this.updateQueryFilters}">
                                                     <option value="<" selected><</option>
                                                     <option value="<="><=</option>
                                                     <option value=">">></option>
                                                     <option value=">=">>=</option>
                                                 </select>
                                             </div>
-                                            <div class="col-md-4" style="padding: 0px 10px">
-                                                <input type="text" value="" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                                            name="${study}_${cohort.id}" id="${this._prefix}${study}${cohort.id}Cohort">
+                                            <div class="col-md-5" style="padding: 0px 10px">
+                                                <input id="${this._prefix}${study.id}${popFreq.id}" type="text" value="" class="form-control input-sm ${this._prefix}FilterTextInput"
+                                                        name="${study.id}_${popFreq.id}" @keyup="${this.updateQueryFilters}">
                                             </div>
                                         </div>
-                                `;
-                }
-                content += "</div></div>";
-            }
-            return content;
-        } else {
-            return "<span>Project not found</span>"
-        }
-    }
-
-    _getSampleHtml(subsection, prefix) {
-        let res = "";
-        if (subsection.showSelectSamples) {
-            res = `
-                        <div>
-                            <div style="padding: 10px 0px">Select Genotype Filter:</div>
-                            <div style="padding-left: 20px">
-                                <button id="${this._prefix}SampleFilterModalButton" type="button" class="btn btn-default" style="width: 80%">Sample Filters ...</button>
-                            </div>
-                        </div>
-                        <div style="padding: 10px 0px 5px 0px">
-                            <div style="padding: 15px 0px;">
-                                <span>Sample Genotype Summary</span>
-                            </div>
-                            <table class="table" style="margin-bottom: 10px">
-                                <thead>
-                                <tr>
-                                    <th scope="col">Sample ID</th>
-                                    <th scope="col">GT</th>
-                                </tr>
-                                </thead>
-                                <tbody id="${this._prefix}SampleFiltersSummaryTBody">
-                                    <tr>
-                                        <td>No samples selected</td>
-                                        <td></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-
-                        </div>
-                    `;
-            // <div id="${this._prefix}FileFilterSummary" style="display: inline">
-            //         <table class="table" style="margin-bottom: 5px">
-            //         <thead>
-            //         <tr>
-            //         <th scope="col">File Name</th>
-            //     <th scope="col">QUAL</th>
-            //         <th scope="col">FILTER</th>
-            //         </tr>
-            //         </thead>
-            //         <tbody id="${this._prefix}FileFiltersSummaryTBody">
-            //         <tr>
-            //         <td>No files selected</td>
-            //     <td></td>
-            //     <td></td>
-            //     </tr>
-            //     </tbody>
-            //     </table>
-            //     </div>
-        }
-        return res;
-    }
-
-    _getFileHtml(prefix) {
-        return `
-                    <div class="row">
-                        <div class="col-md-12">
-                            <input id="${this._prefix}FilePassCheckbox" type="checkbox" class="${this._prefix}FilterCheckBox"><span style="padding-left: 5px">Only include <span style="font-weight: bold;">PASS</span> variants</span>
-                        </div>
-                        <form class="form-horizontal">
-                            <div class="form-group col-md-12">
-                                <div class="col-md-8">
-                                    <input id="${this._prefix}FileQualCheckbox" type="checkbox" class="${this._prefix}FilterCheckBox"><span style="padding-left: 5px">Introduce min. <span style="font-weight: bold;">QUAL</span></span>
-                                </div>
-                                <div class="col-md-4">
-                                    <input id="${this._prefix}FileQualInput" type="text" class="form-control input-sm ${this._prefix}FilterTextInput" disabled>
+                                    `)}
                                 </div>
                             </div>
-                        </form>
-                    </div>
+                        `)}
                 `;
     }
 
-    _getLocationHtml(prefix) {
-        return `
-                    <textarea id="${this._prefix}LocationTextarea" name="location" class="form-control clearable ${this._prefix}FilterTextInput"
-                        rows="3" placeholder="3:444-55555,1:1-100000"></textarea>
-                `;
-    }
-
-    _getFeatureHtml(prefix) {
-        return `
-                    <div class="row">
-                        <div class="col-md-9">
-                            <input id="${this._prefix}FeatureIdText" type="text" class="form-control" list="${this._prefix}FeatureDatalist"
-                                    placeholder="Search for Gene Symbols" value="">
-                                <datalist id="${this._prefix}FeatureDatalist"></datalist>
-                        </div>
-                        <div class="col-md-3">
-                            <button id="${this._prefix}FeatureAddButton" type="button" class="btn btn-default btn-sm form-control">
-                                <i class="fa fa-plus"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                            <textarea id="${this._prefix}FeatureTextarea" name="geneSnp" class="form-control clearable ${this._prefix}FilterTextInput"
-                                rows="3" placeholder="BRCA2,ENSG00000139618,ENST00000544455,rs28897700" style="margin-top: 5px"></textarea>
-                    </div>
-                `;
-    }
-
-    _getDiseasePanelsHtml(prefix) {
-        let options = "";
-        for (let panel of this.opencgaSession.study.panels) {
-            let version = "";
-            let numberOfGenes = 0;
-            let numberOfRegions = 0;
-            if (UtilsNew.isNotUndefinedOrNull(panel.source)) {
-                version = "v" + panel.source.version;
-            }
-            if (UtilsNew.isNotUndefinedOrNull(panel.stats)) {
-                numberOfGenes = panel.stats.numberOfGenes;
-                numberOfRegions = panel.stats.numberOfRegions;
-            }
-            options += `<option value="${panel.id}">${panel.name} ${version} (${numberOfGenes} genes, ${numberOfRegions} regions)</option>`;
-        }
-
-        return `<div>
-                            <select id="${this._prefix}DiseasePanels" class="selectpicker" data-size="10" data-live-search="true"
-                                data-selected-text-format="count" multiple>
-                                    ${options}
-                            </select>
-                            <textarea id="${this._prefix}DiseasePanelsTextarea" class="form-control" rows="4"
-                                style="margin-top: 5px;background: #f7f7f7" disabled>
-                            </textarea>
-                        </div>
-                    `;
-    }
-
-    _getBiotypeHtml(biotypes, prefix) {
-        let options = "";
-        for (let biotype of biotypes) {
-            options += `<option value="${biotype}">${biotype}</option>`;
-        }
-        return `<select class="selectpicker" id="${this._prefix}GeneBiotypes" data-size="10" data-live-search="true"
-                            data-selected-text-format="count" multiple>
-                                ${options}
-                        </select>
-                    `;
-    }
-
-    _getVariantTypeHtml(types, prefix) {
-        let inputs = "";
-        for (let type of types) {
-            inputs += `<input type="checkbox" value="${type}" class="${this._prefix}FilterCheckBox"> ${type}<br>`;
-        }
-        return `<div id="${this._prefix}Type">${inputs}</div>`;
-    }
-
-    //TODO refactor!
-    _getPopulationFrequencyHtml(showSetAll, prefix) {
-        let content = "";
-        for (let study of this.populationFrequencies.studies) {
-            let setAllHtml = "";
-            if (showSetAll) {
-                setAllHtml = `<div class="form-group" style="margin: 5px 0px">
-                                        <span class="col-md-7 control-label" data-toggle="tooltip" data-placement="top" style="text-align: left;">Set all</span>
-                                        <div class="col-md-5" style="padding: 0px 10px">
-                                            <input id="${this._prefix}${study.id}Input" type="text" data-study="${study.id}" value="" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                                name="${study.id}Input">
-                                        </div>
-                                      </div>`;
-            }
-            content += `
-                        <div style="padding-top: 10px">
-                            <i id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}"
-                                    class="fa fa-plus" style="cursor: pointer;padding-right: 10px"></i>
-                            <strong>${study.title}</strong>
-                            <div id="${this._prefix}${study.id}" class="form-horizontal" hidden>
-                                ${setAllHtml}
-                    `;
-
-            for (let popFreq of study.populations) {
-                content += `
-                                <div class="form-group" style="margin: 5px 0px">
-                                    <span class="col-md-3 control-label" data-toggle="tooltip" data-placement="top" title="${popFreq.title}">${popFreq.id}</span>
-                                    <div class="col-md-4" style="padding: 0px 10px">
-                                        <select id="${this._prefix}${study.id}${popFreq.id}Operator" name="${popFreq.id}Operator"
-                                                class="form-control input-sm ${this._prefix}FilterSelect" style="padding: 0px 5px">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-5" style="padding: 0px 10px">
-                                        <input id="${this._prefix}${study.id}${popFreq.id}" type="text" value="" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                                name="${study.id}_${popFreq.id}">
-                                    </div>
-                                </div>
-                        `;
-            }
-
-            content += `
-                            </div>
-                        </div>
-                    `;
-        }
-
-        return content;
-    }
-
-    _getConsequenceTypeHtml(prefix) {
-        let categoriesStart = `
+    _getConsequenceTypeHtml() {
+        return html`
                     <div style="padding-top: 15px">Loss-of-Function (LoF) terms:</div>
-                    <div class="form-check" style="margin-top: 5px;">
-                        <div class="form-check-label">
-                            <label id="${this._prefix}LossOfFunctionCheckBoxLabel" class="notbold">
-                                <input id="${this._prefix}LossOfFunctionCheckBox" type="checkbox" class="${this._prefix}FilterCheckBox" style="cursor: pointer">
-                                LoF terms
-                            </label>
-                        </div>
-                    </div>
-
-                    <div style="padding-top: 15px">Consequence Type terms:</div>
-                    <div class="browser-ct-tree-view browser-ct-item">
-                        <ul id="${this._prefix}consequenceTypeFilter">`;
-
-        let categoriesCheckbox = "";
-        if (UtilsNew.isNotEmptyArray(consequenceTypes.categories)) {
-
-            consequenceTypes.categories.forEach((category) => {
-                let id = (category.title !== undefined) ? category.title : category.name;
-                categoriesCheckbox += `<li id="${id}" class="form-check" style="margin-top: 10px;">`;
-                // Render Categories
-                if (UtilsNew.isNotEmptyArray(category.terms)) {
-                    categoriesCheckbox += `<label class="form-check-label notbold">
-                                                       <input id="${this._prefix}${category.title}Input" type="checkbox" class="${this._prefix}FilterCheckBox"> ${category.title}
-                                                   </label>`;
-
-                    // Render second level checkboxes
-                    categoriesCheckbox += "<ul>";
-                    category.terms.forEach((item) => {
-                        categoriesCheckbox += `<li class="form-check">
-                                                            <label class="form-check-label notbold">
-                                                                <input id="${this._prefix}${item.name}Checkbox" type="checkbox" data-id="${item.name}"
-                                                                    class="soTermCheckBox ${this._prefix}FilterCheckBox">
-                                                                <span title="${item.description}">${item.name} (<a
-                                                                    href="http://www.sequenceontology.org/browser/current_svn/term/${item.id}"
-                                                                    target="_blank">${item.id}</a>)
-                                                                </span>
-                                                            </label>
-                                                        </li>
-                                                   `;
-                    });
-                    categoriesCheckbox += "</ul>";
-
-
-                } else {
-                    // Render first level checkboxes without children
-                    categoriesCheckbox += `<input id="${this._prefix}${category.name}Checkbox" type="checkbox"
-                                                        data-id="${category.name}" class="soTermCheckBox ${this._prefix}FilterCheckBox">
-                                                    <span title="${category.description}">
-                                                        ${category.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${category.id}"
-                                                        target="_blank">${category.id}</a>)
-                                                    </span>`;
-                }
-
-                categoriesCheckbox += `</li>`;
-            });
-        }
-
-        let categoriesEnd = `
-                                </ul>
+                        <div class="form-check" style="margin-top: 5px;">
+                            <div class="form-check-label">
+                                <label id="${this._prefix}LossOfFunctionCheckBoxLabel" class="notbold">
+                                    <input id="${this._prefix}LossOfFunctionCheckBox" type="checkbox" class="${this._prefix}FilterCheckBox"
+                                           style="cursor: pointer" @change="${this.updateConsequenceTypeFilter}" />
+                                    LoF terms
+                                </label>
                             </div>
                         </div>
-               `;
-
-        return categoriesStart + categoriesCheckbox + categoriesEnd;
+                        <div style="padding-top: 15px">Consequence Type terms:</div>
+                        <div class="browser-ct-tree-view browser-ct-item">
+                            <ul id="${this._prefix}consequenceTypeFilter">
+                                ${this.consequenceTypes.categories && this.consequenceTypes.categories.length && this.consequenceTypes.categories.map(category => html`
+                                    <li id="${category.title ? category.title : category.name}" class="form-check" style="margin-top: 10px;">
+                                        ${category.terms && category.terms.length ? html`
+                                            <label class="form-check-label notbold">
+                                                <input id="${this.prefix}${category.title}Input" type="checkbox" class="${this.prefix}FilterCheckBox" @change="${this.updateConsequenceTypeFilter}"> ${category.title}
+                                            </label>
+                                            <ul>
+                                                ${category.terms.map(item => html`
+                                                    <li class="form-check">
+                                                        <label class="form-check-label notbold">
+                                                            <input id="${this.prefix}${item.name}Checkbox" type="checkbox" data-id="${item.name}" class="soTermCheckBox ${this.prefix}FilterCheckBox" @change="${this.updateConsequenceTypeFilter}">
+                                                                <span title="${item.description}">
+                                                                    ${item.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${item.id}" target="_blank">${item.id}</a>)
+                                                                </span>
+                                                        </label>
+                                                    </li>
+                                                `)}
+                                            </ul>
+                                        ` : html`
+                                            <input id="${this.prefix}${category.name}Checkbox" type="checkbox"
+                                                       data-id="${category.name}" class="soTermCheckBox ${this.prefix}FilterCheckBox" @change="${this.updateConsequenceTypeFilter}">
+                                                <span title="${category.description}">
+                                                    ${category.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${category.id}" target="_blank">${category.id}</a>)
+                                                </span>
+                                        `}
+                                    </li>
+                                `)}
+                            </ul>
+                        </div>
+                    </div>
+                `;
     }
 
-    _getProteinSubstitutionScoreHtml(prefix) {
-        return `
+    _getProteinSubstitutionScoreHtml() {
+        return html`
                     <div style="padding-top: 10px">
                         <span style="padding-left: 0px;">SIFT</span>
                         <div class="row">
                             <div class="col-md-5" style="padding-right: 5px">
-                                <select  name="Sift" id="${this._prefix}SiftValues" class="${this._prefix}FilterSelect form-control input-sm options">
+                                <select  name="Sift" id="${this._prefix}SiftValues" class="${this._prefix}FilterSelect form-control input-sm options" @change="${this.checkScore}">
                                     <option value="score" selected>Score...</option>
                                     <option value="tolerated">Tolerated</option>
                                     <option value="deleterious">Deleterious</option>
                                 </select>
                             </div>
                             <div class="col-md-3" style="padding: 0px 5px">
-                                <select name="siftOperator" id="${this._prefix}SiftOperator" class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px">
+                                <select name="siftOperator" id="${this._prefix}SiftOperator" class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px" @change="${this.updateQueryFilters}">
                                     <option value="<"><</option>
                                     <option value="<="><=</option>
                                     <option value=">"selected>></option>
@@ -1655,7 +1608,7 @@ export default class OpencgaVariantFilter extends LitElement {
                             </div>
                             <div class="col-md-4" style="padding-left: 5px">
                                 <input id="${this._prefix}SiftInput" name="Sift" type="text" value=""
-                                            class="${this._prefix}FilterTextInput form-control input-sm">
+                                            class="${this._prefix}FilterTextInput form-control input-sm" @keyup="${this.updateQueryFilters}">
                             </div>
                         </div>
                     </div>
@@ -1664,7 +1617,7 @@ export default class OpencgaVariantFilter extends LitElement {
                         <span style="padding-top: 10px;padding-left: 0px;">Polyphen</span>
                         <div class="row">
                             <div class="col-sm-5" style="padding-right: 5px">
-                                <select name="Polyphen" id="${this._prefix}PolyphenValues" class="${this._prefix}FilterSelect form-control input-sm options">
+                                <select name="Polyphen" id="${this._prefix}PolyphenValues" class="${this._prefix}FilterSelect form-control input-sm options" @change="${this.checkScore}">
                                     <option value="score" selected>Score...</option>
                                     <option value="benign">Benign</option>
                                     <option value="unknown">Unknown</option>
@@ -1674,7 +1627,7 @@ export default class OpencgaVariantFilter extends LitElement {
                                 </select>
                             </div>
                             <div class="col-sm-3" style="padding: 0px 5px">
-                                <select name="polyphenOperator" id="${this._prefix}PolyphenOperator" class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px">
+                                <select name="polyphenOperator" id="${this._prefix}PolyphenOperator" class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px" @change="${this.updateQueryFilters}">
                                     <option value=">" selected>></option>
                                     <option value=">=">>=</option>
                                     <option value="<" ><</option>
@@ -1683,24 +1636,24 @@ export default class OpencgaVariantFilter extends LitElement {
                             </div>
                             <div class="col-sm-4" style="padding-left: 5px">
                                 <input type="text" value="" class="${this._prefix}FilterTextInput form-control input-sm"
-                                            id="${this._prefix}PolyphenInput" name="Polyphen" >
+                                            id="${this._prefix}PolyphenInput" name="Polyphen" @keyup="${this.updateQueryFilters}">
                             </div>
                         </div>
 
                         <form style="padding-top: 15px">
                             <label style="font-weight: normal;">Logical Operator</label>
                             <input type="radio" name="pss" id="${this._prefix}pssOrRadio" value="or" class="${this._prefix}FilterRadio"
-                                    checked disabled  style="margin-left: 10px"> OR<br>
+                                    checked disabled  style="margin-left: 10px" @change="${this.updateQueryFilters}"> OR<br>
                             <input type="radio" name="pss" id="${this._prefix}pssAndRadio" value="and"
-                                    class="${this._prefix}FilterRadio" disabled style="margin-left: 102px"> AND  <br>
+                                    class="${this._prefix}FilterRadio" disabled style="margin-left: 102px" @change="${this.updateQueryFilters}"> AND  <br>
                         </form>
                         <br>
                     </div>
                 `;
     }
 
-    _getCaddHtml(prefix) {
-        return `
+    _getCaddHtml() {
+        return html`
                     <div style="padding-top: 10px">
                         <div class="row">
                             <div class="col-md-5 form-group" style="padding-right: 5px">
@@ -1708,7 +1661,7 @@ export default class OpencgaVariantFilter extends LitElement {
                             </div>
                             <div class="col-md-3" style="padding: 0px 5px">
                                 <select name="caddRawOperator" id="${this._prefix}CaddRawOperator"
-                                 class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px">
+                                 class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px" @change="${this.updateQueryFilters}">
                                     <option value="<"><</option>
                                         <option value="<="><=</option>
                                         <option value=">" selected>></option>
@@ -1717,7 +1670,7 @@ export default class OpencgaVariantFilter extends LitElement {
                             </div>
                             <div class="col-md-4" style="padding-left: 5px">
                                 <input type="text" value="" class="${this._prefix}FilterTextInput form-control input-sm"
-                                   id="${this._prefix}CaddRawInput" name="caddRaw">
+                                   id="${this._prefix}CaddRawInput" name="caddRaw" @keyup="${this.updateQueryFilters}">
                             </div>
 
                         </div>
@@ -1728,7 +1681,7 @@ export default class OpencgaVariantFilter extends LitElement {
                             <span class="col-md-5 control-label" style="padding-right: 5px">Scaled</span>
                             <div class="col-md-3" style="padding: 0px 5px">
                                 <select name="caddRScaledOperator" id="${this._prefix}CaddScaledOperator"
-                                class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px">
+                                class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px" @change="${this.updateQueryFilters}">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
@@ -1737,20 +1690,20 @@ export default class OpencgaVariantFilter extends LitElement {
                             </div>
                             <div class="col-md-4" style="padding-left: 5px">
                                 <input type="text" value="" class="${this._prefix}FilterTextInput form-control input-sm"
-                                       id="${this._prefix}CaddScaledInput" name="caddScaled">
+                                       id="${this._prefix}CaddScaledInput" name="caddScaled" @keyup="${this.updateQueryFilters}">
                             </div>
                         </div>
                     </div>
                 `;
     }
 
-    _getConservationHtml(prefix) {
-        return `
+    _getConservationHtml() {
+        return html`
                     <div style="padding-top: 10px">
                         <div class="row">
                             <span class="col-md-5 control-label" style="padding-right: 5px"> PhyloP</span>
                             <div class="col-md-3" style="padding: 0px 5px">
-                                <select name="phylopOperator" id="${this._prefix}PhylopOperator" class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px">
+                                <select name="phylopOperator" id="${this._prefix}PhylopOperator" class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px" @change="${this.updateQueryFilters}">
                                     <option value="<"><</option>
                                     <option value="<="><=</option>
                                     <option value=">" selected>></option>
@@ -1759,7 +1712,7 @@ export default class OpencgaVariantFilter extends LitElement {
                             </div>
                             <div class="col-md-4" style="padding-left: 5px">
                                 <input type="text" value="" class="${this._prefix}FilterTextInput form-control input-sm"
-                                   id="${this._prefix}PhylopInput" name="phylop">
+                                   id="${this._prefix}PhylopInput" name="phylop" @keyup="${this.updateQueryFilters}">
                             </div>
                         </div>
                     </div>
@@ -1769,7 +1722,7 @@ export default class OpencgaVariantFilter extends LitElement {
                             <span class="col-md-5 control-label" style="padding-right: 5px">PhastCons</span>
                             <div class="col-md-3" style="padding: 0px 5px">
                                 <select name="phastconsOperator" id="${this._prefix}PhastconsOperator"
-                                       class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px">
+                                       class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px" @change="${this.updateQueryFilters}">
                                     <option value="<" ><</option>
                                     <option value="<="><=</option>
                                     <option value=">" selected>></option>
@@ -1778,7 +1731,7 @@ export default class OpencgaVariantFilter extends LitElement {
                             </div>
                             <div class="col-md-4" style="padding-left: 5px">
                                 <input type="text" value="" class="${this._prefix}FilterTextInput form-control input-sm"
-                                   id="${this._prefix}PhastconsInput" name="phastCons">
+                                   id="${this._prefix}PhastconsInput" name="phastCons" @keyup="${this.updateQueryFilters}">
                             </div>
                         </div>
                     </div>
@@ -1788,7 +1741,7 @@ export default class OpencgaVariantFilter extends LitElement {
                             <span class="col-md-5 control-label" style="padding-right: 5px">Gerp</span>
                             <div class="col-md-3" style="padding: 0px 5px">
                                 <select name="gerpOperator" id="${this._prefix}GerpOperator"
-                                        class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px">
+                                        class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px" @change="${this.updateQueryFilters}">
                                     <option value="<"><</option>
                                     <option value="<="><=</option>
                                     <option value=">" selected>></option>
@@ -1797,103 +1750,119 @@ export default class OpencgaVariantFilter extends LitElement {
                              </div>
                             <div class="col-md-4" style="padding-left: 5px">
                                 <input type="text" value="" class="${this._prefix}FilterTextInput form-control input-sm"
-                                        id="${this._prefix}GerpInput" name="gerp">
+                                        id="${this._prefix}GerpInput" name="gerp" @keyup="${this.updateQueryFilters}">
                             </div>
                         </div>
 
                         <form style="padding-top: 15px">
                             <label style="font-weight: normal;">Logical Operator</label>
                             <input type="radio" name="conservation" id="${this._prefix}conservationOrRadio" value="or"
-                                    class="${this._prefix}FilterRadio" checked disabled style="margin-left: 10px"> OR<br>
+                                    class="${this._prefix}FilterRadio" checked disabled style="margin-left: 10px" @change="${this.updateQueryFilters}"> OR<br>
                             <input type="radio" name="conservation" id="${this._prefix}conservationAndRadio" value="and"
-                                    class="${this._prefix}FilterRadio" disabled style="margin-left: 102px"> AND<br>
+                                    class="${this._prefix}FilterRadio" disabled style="margin-left: 102px" @change="${this.updateQueryFilters}"> AND<br>
                         </form>
                     </div>
                 `;
     }
 
-    _getGoAccessionsHtml(prefix) {
-        return `
+    _getGoAccessionsHtml() {
+        return html`
                     <textarea id="${this._prefix}GeneOntologyTextarea" class="form-control clearable ${this._prefix}FilterTextInput"
-                                rows="3" name="geneOntology" placeholder="GO:0000145"></textarea>
-                    <span class="input-group-addon btn btn-primary searchingSpan" id="${this._prefix}buttonOpenGoAccesions">
+                                rows="3" name="geneOntology" placeholder="GO:0000145" @keyup="${this.updateQueryFilters}"></textarea>
+                    <span class="input-group-addon btn btn-primary searchingSpan" id="${this._prefix}buttonOpenGoAccesions" @click="${this.openModalGo}">
                         <strong style="color: white">Add GO Term</strong>
                         <i class="fa fa-search searchingButton" aria-hidden="true"></i>
                     </span>
                 `;
     }
 
-    _getHpoAccessionsHtml(prefix) {
-        return `
+    _getHpoAccessionsHtml() {
+        return html`
                     <textarea id="${this._prefix}HumanPhenotypeOntologyTextarea" class="form-control clearable ${this._prefix}FilterTextInput"
-                                rows="3" name="hpo" placeholder="HP:0000001, HP:3000079"></textarea>
-                    <span class="input-group-addon btn btn-primary searchingSpan" id="${this._prefix}buttonOpenHpoAccesions">
+                                rows="3" name="hpo" placeholder="HP:0000001, HP:3000079" @keyup="${this.updateQueryFilters}"></textarea>
+                    <span class="input-group-addon btn btn-primary searchingSpan" id="${this._prefix}buttonOpenHpoAccesions" @click="${this.openModalHpo}">
                         <strong style="color: white">Add HPO Term</strong>
                         <i class="fa fa-search searchingButton" aria-hidden="true"></i>
                     </span>
                      <form style="padding-top: 15px">
                         <label style="font-weight: normal;">Logical Operator</label>
                         <input type="radio" name="hpoRadio" id="${this._prefix}hpoOrRadio" value="or" class="${this._prefix}FilterRadio"
-                                checked style="margin-left: 10px"> OR<br>
+                                checked style="margin-left: 10px" @change="${this.updateQueryFilters}"> OR<br>
                         <input type="radio" name="hpoRadio" id="${this._prefix}hpoAndRadio" value="and"
-                                class="${this._prefix}FilterRadio" style="margin-left: 102px"> AND  <br>
+                                class="${this._prefix}FilterRadio" style="margin-left: 102px" @change="${this.updateQueryFilters}"> AND  <br>
                     </form>
                 `;
     }
 
-    _getClinvarAccessionsHtml(prefix) {
-        return `
-                    <textarea id="${this._prefix}ClinVarTextarea" class="form-control clearable ${this._prefix}FilterTextInput" rows="3"
-                                name="clinvar" placeholder="RCV000058226"></textarea>
+    _getClinvarAccessionsHtml() {
+        return html`
+                    <textarea id="${this._prefix}ClinVarTextarea" class="form-control clearable ${this._prefix}FilterTextInput" rows="3" name="clinvar" placeholder="RCV000058226" @keyup="${this.updateQueryFilters}"></textarea>
                 `;
     }
 
-    _getFullTextSearchAccessionsHtml(prefix) {
-        return `
-                    <textarea id="${this._prefix}TraitsTextarea" class="form-control clearable ${this._prefix}FilterTextInput" rows="5"
-                                name="traits" placeholder="Full-text search, e.g. *melanoma*"></textarea>
+    _getFullTextSearchAccessionsHtml() {
+        return html`
+                    <textarea id="${this._prefix}TraitsTextarea" class="form-control clearable ${this._prefix}FilterTextInput" rows="5" name="traits" placeholder="Full-text search, e.g. *melanoma*" @keyup="${this.updateQueryFilters}"></textarea>
                 `;
     }
 
+
+    /**
+     * @deprecated
+     * */
     _addEventListeners() {
+
+        /*FIXME ::  NOT present in DOM:
+             PanelAppsTextarea
+             FilterTextInput
+
+        */
         let keyupEvents = ["FileQualInput", "LocationTextarea", "FeatureTextarea", "PanelAppsTextarea", "FilterTextInput", "CaddRawInput", "CaddScaledInput", "SiftInput",
             "PolyphenInput", "PhylopInput", "PhastconsInput", "GerpInput", "GeneOntologyTextarea", "HumanPhenotypeOntologyTextarea", "ClinVarTextarea", "TraitsTextarea"];
         for (let id of keyupEvents) {
             let element = PolymerUtils.getElementById(this._prefix + id);
             if (UtilsNew.isNotUndefinedOrNull(element)) {
-                element.addEventListener('keyup', this.updateQueryFilters.bind(this));
+                element.addEventListener("keyup", this.updateQueryFilters.bind(this));
             }
         }
 
+
+        /* TODO change Type field to VariantType
+        * NOT present in DOM:
+        * GenotypeQueryOptions
+        * vcfFilterSelect
+        *
+        * */
         let changeEvents = ["includeOtherStudy", "FilePassCheckbox", "FileQualCheckbox", "GenotypeQueryOptions", "DiseasePanels", "GeneBiotypes", "Type", "CaddRawOperator", "CaddScaledOperator", "SiftOperator", "PolyphenOperator",
             "pssOrRadio", "pssAndRadio", "PhylopOperator", "PhastconsOperator", "GerpOperator", "conservationAndRadio", "conservationOrRadio", "vcfFilterSelect",
             "hpoOrRadio", "hpoAndRadio"];
         for (let id of changeEvents) {
             let element = PolymerUtils.getElementById(this._prefix + id);
             if (UtilsNew.isNotUndefinedOrNull(element)) {
-                element.addEventListener('change', this.updateQueryFilters.bind(this));
+                element.addEventListener("change", this.updateQueryFilters.bind(this));
             }
         }
 
 
         // Add events for Feature IDs
-        PolymerUtils.getElementById(this._prefix + "FeatureIdText").addEventListener('keyup', this.callAutocomplete.bind(this));
-        PolymerUtils.getElementById(this._prefix + "FeatureAddButton").addEventListener('click', this.addFeatureId.bind(this));
+        PolymerUtils.getElementById(this._prefix + "FeatureIdText").addEventListener("keyup", this.callAutocomplete.bind(this));
+        PolymerUtils.getElementById(this._prefix + "FeatureAddButton").addEventListener("click", this.addFeatureId.bind(this));
 
 
         // Add events for Sample IDs
         let elementById = PolymerUtils.getElementById(this._prefix + "SampleFilterModalButton");
         if (UtilsNew.isNotUndefinedOrNull(elementById)) {
-            elementById.addEventListener('click', this.onSampleFilterClick.bind(this));
+            elementById.addEventListener("click", this.onSampleFilterClick.bind(this));
         }
 
 
         // Add events for Studies checkboxes
+
         if (UtilsNew.isNotUndefinedOrNull(this.differentStudies)) {
             for (let study of this.differentStudies) {
                 let element = PolymerUtils.getElementById(this._prefix + study.alias + "Checkbox");
                 if (UtilsNew.isNotUndefinedOrNull(element)) {
-                    element.addEventListener('change', this.updateQueryFilters.bind(this));
+                    element.addEventListener("change", this.updateQueryFilters.bind(this));
                 }
             }
         }
@@ -1908,11 +1877,11 @@ export default class OpencgaVariantFilter extends LitElement {
                             for (let cohort of subsection.cohorts[projectId][study]) {
                                 let element = PolymerUtils.getElementById(this._prefix + study + cohort.id + "CohortOperator");
                                 if (UtilsNew.isNotUndefinedOrNull(element)) {
-                                    element.addEventListener('change', this.updateQueryFilters.bind(this));
+                                    element.addEventListener("change", this.updateQueryFilters.bind(this));
                                 }
                                 element = PolymerUtils.getElementById(this._prefix + study + cohort.id + "Cohort");
                                 if (UtilsNew.isNotUndefinedOrNull(element)) {
-                                    element.addEventListener('keyup', this.updateQueryFilters.bind(this));
+                                    element.addEventListener("keyup", this.updateQueryFilters.bind(this));
                                 }
                             }
                         }
@@ -1926,36 +1895,36 @@ export default class OpencgaVariantFilter extends LitElement {
             let element = PolymerUtils.getElementById(this._prefix + study.id + "Icon");
             let inputAll = PolymerUtils.getElementById(this._prefix + study.id + "Input");
             if (UtilsNew.isNotUndefinedOrNull(element)) {
-                element.addEventListener('click', this.handleCollapseAction.bind(this));
+                element.addEventListener("click", this.handleCollapseAction.bind(this));
             }
 
             if (UtilsNew.isNotUndefinedOrNull(inputAll)) {
-                inputAll.addEventListener('keyup', this.keyUpAllPopFreq.bind(this));
-                inputAll.addEventListener('change', this.updateQueryFilters.bind(this));
+                inputAll.addEventListener("keyup", this.keyUpAllPopFreq.bind(this));
+                inputAll.addEventListener("change", this.updateQueryFilters.bind(this));
             }
 
             for (let pop of study.populations) {
-                PolymerUtils.getElementById(this._prefix + study.id + pop.id).addEventListener('keyup', this.updateQueryFilters.bind(this));
-                PolymerUtils.getElementById(this._prefix + study.id + pop.id + "Operator").addEventListener('change', this.updateQueryFilters.bind(this));
+                PolymerUtils.getElementById(this._prefix + study.id + pop.id).addEventListener("keyup", this.updateQueryFilters.bind(this));
+                PolymerUtils.getElementById(this._prefix + study.id + pop.id + "Operator").addEventListener("change", this.updateQueryFilters.bind(this));
             }
         }
 
         // Add events Protein substitution score
-        PolymerUtils.getElementById(this._prefix + "SiftValues").addEventListener('change', this.checkScore.bind(this));
-        PolymerUtils.getElementById(this._prefix + "PolyphenValues").addEventListener('change', this.checkScore.bind(this));
+        PolymerUtils.getElementById(this._prefix + "SiftValues").addEventListener("change", this.checkScore.bind(this));
+        PolymerUtils.getElementById(this._prefix + "PolyphenValues").addEventListener("change", this.checkScore.bind(this));
 
         // Add events consequence type
-        PolymerUtils.getElementById(this._prefix + "LossOfFunctionCheckBox").addEventListener('change', this.updateConsequenceTypeFilter.bind(this));
+        PolymerUtils.getElementById(this._prefix + "LossOfFunctionCheckBox").addEventListener("change", this.updateConsequenceTypeFilter.bind(this));
         if (UtilsNew.isNotEmptyArray(consequenceTypes.categories)) {
             consequenceTypes.categories.forEach((category) => {
                 let title = (category.title !== undefined) ? category.title : category.name;
                 if (UtilsNew.isNotEmptyArray(category.terms)) {
-                    PolymerUtils.getElementById(this._prefix + title + "Input").addEventListener('change', this.updateConsequenceTypeFilter.bind(this));
+                    PolymerUtils.getElementById(this._prefix + title + "Input").addEventListener("change", this.updateConsequenceTypeFilter.bind(this));
                     category.terms.forEach((item) => {
-                        PolymerUtils.getElementById(this._prefix + item.name + "Checkbox").addEventListener('change', this.updateConsequenceTypeFilter.bind(this));
+                        PolymerUtils.getElementById(this._prefix + item.name + "Checkbox").addEventListener("change", this.updateConsequenceTypeFilter.bind(this));
                     });
                 } else {
-                    PolymerUtils.getElementById(this._prefix + title + "Checkbox").addEventListener('change', this.updateConsequenceTypeFilter.bind(this));
+                    PolymerUtils.getElementById(this._prefix + title + "Checkbox").addEventListener("change", this.updateConsequenceTypeFilter.bind(this));
                 }
             });
         }
@@ -1963,16 +1932,15 @@ export default class OpencgaVariantFilter extends LitElement {
         // Add events GO accessions
         let goModalButton = PolymerUtils.getElementById(this._prefix + "buttonOpenGoAccesions");
         if (UtilsNew.isNotUndefinedOrNull(goModalButton)) {
-            goModalButton.addEventListener('click', this.openModalGo.bind(this));
+            goModalButton.addEventListener("click", this.openModalGo.bind(this));
         }
 
         // Add events hpo accessions
         let hpoModalButton = PolymerUtils.getElementById(this._prefix + "buttonOpenHpoAccesions");
         if (UtilsNew.isNotUndefinedOrNull(hpoModalButton)) {
-            hpoModalButton.addEventListener('click', this.openModalHpo.bind(this));
+            hpoModalButton.addEventListener("click", this.openModalHpo.bind(this));
         }
     }
-
 
     _addAllTooltips() {
         for (let section of this.config.menu.sections) {
@@ -2016,7 +1984,11 @@ export default class OpencgaVariantFilter extends LitElement {
 
     render() {
         return html`
-<style include="jso-styles">
+            <style include="jso-styles">
+            .panel.filter-section {
+                margin-bottom: 10px
+            }
+            
             span + span {
                 margin-left: 10px;
             }
@@ -2108,7 +2080,9 @@ export default class OpencgaVariantFilter extends LitElement {
             </div>
 
             <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true" style="padding-top: 20px">
-                <div id="FilterMenu"></div>
+                <div id="FilterMenu">
+                ${this._renderFilterMenu()}
+                </div>
             </div>
         </div>
         <variant-modal-ontology prefix=${this._prefix} @propagateok="${this.propagateOkHPO}" ontologyFilter="${this.ontologyFilter}" term="${this.ontologyTerm}"
@@ -2141,5 +2115,4 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 }
 
-customElements.define('opencga-variant-filter', OpencgaVariantFilter);
-
+customElements.define("opencga-variant-filter", OpencgaVariantFilter);

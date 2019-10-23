@@ -122,7 +122,7 @@ export default class OpencbGridToolbar extends LitElement {
         <div class="col-md-12" style="padding: 5px 0px 0px 0px">
             <div id="${this._prefix}ToolbarLeft" class="col-md-6" style="padding: 15px 0px 0px 0px">
                 <span style="padding: 0px">
-                    new toolbar - Showing <label>${this.from}-${this.to}</label> of <label>${this.numTotalResultsText}</label> ${this._config.label}
+                    Showing <label>${this.from}-${this.to}</label> of <label>${this.numTotalResultsText}</label> ${this._config.label}
                 </span>
             </div>
 

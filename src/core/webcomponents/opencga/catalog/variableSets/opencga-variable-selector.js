@@ -5,8 +5,9 @@
 import {LitElement, html} from '/web_modules/lit-element.js';
 
 class OpencgaVariableSelector extends LitElement {
+    
     constructor() {
-        super()
+        super();
         this._init();
     }
 

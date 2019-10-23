@@ -5,6 +5,7 @@
 import {LitElement, html} from '/web_modules/lit-element.js';
 
 export default class OpencgaLogin extends LitElement {
+    
     constructor() {
         super();
         this.userName = "";

@@ -3,6 +3,7 @@ import OpencbGridToolbar from "../../../commons/opencb-grid-toolbar";
 
 
 export default class OpencgaSampleGrid extends LitElement {
+    
     constructor() {
         super();
         this.prefix = "VarSampleGrid" + Utils.randomString(6);

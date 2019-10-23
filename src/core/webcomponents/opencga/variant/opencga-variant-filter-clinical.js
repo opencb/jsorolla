@@ -1,14 +1,28 @@
 /**
- * Created by Antonio Altamura on 08/10/2019.
+ * Copyright 2015-2019 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
 
 export default class OpencgaVariantFilterClinical extends LitElement {
+
     constructor() {
         super();
         this._init();
     }
+
     createRenderRoot() {
         return this;
     }
@@ -44,24 +58,26 @@ export default class OpencgaVariantFilterClinical extends LitElement {
     }
 
     updated(changedProperties) {
-        console.log("changing:: ",changedProperties)
+        //console.log("changing:: ", changedProperties)
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver()
         }
         if (changedProperties.has("query")) {
+            console.log("query variant-filter-clinical")
             this.queryObserver()
         }
         if (changedProperties.has("config")) {
             this.configObserver()
         }
     }
+
     connectedCallback() {
         super.connectedCallback();
 
         // Render the first time after preparing the DOM
         this.clinicalAnalysisObserver(this.clinicalAnalysis);
 
-        $('select.selectpicker').selectpicker('render');
+        $("select.selectpicker").selectpicker("render");
     }
 
     configObserver(config) {
@@ -257,7 +273,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
             disorder: this.clinicalAnalysis.disorder.id,
             modeOfInheritance: this.modeOfInheritance,
             completePenetrance: true
-        }).then(function(response) {
+        }).then(function (response) {
             let genotypeResults = response.response[0].result[0];
             if (UtilsNew.isNotUndefinedOrNull(genotypeResults)) {
                 let individualToSampleMap = {};
@@ -283,58 +299,35 @@ export default class OpencgaVariantFilterClinical extends LitElement {
 
                 _this.notify();
             }
-        }).catch(function(response) {
+        }).catch(function (response) {
             console.error(response);
         });
     }
 
     renderSampleTable() {
-        let tr = "";
-        for (let sampleFilter of this.sampleFilters) {
-            let defaultValues = {
-                gt00: (sampleFilter.genotypes.includes("0/0")) ? "checked" : "",
-                gt01: (sampleFilter.genotypes.includes("0/1")) ? "checked" : "",
-                gt11: (sampleFilter.genotypes.includes("1/1")) ? "checked" : "",
-                dp: (sampleFilter.dp !== undefined && sampleFilter.dp > 0) ? sampleFilter.dp : "",
-            };
-
-            let sampleIcon = this._config.sexIConMap[sampleFilter.sex];
-            let sampleIdStyle = (sampleFilter.affected) ? "color: darkred" : "font-weight: normal";
-            sampleIdStyle += (sampleFilter.proband) ? ";font-weight: bold" : "";
-            let sampleIdHtml = `<div>
-                                            <span data-toggle="tooltip" data-placement="bottom" title="" style="${sampleIdStyle}">
-                                                ${sampleFilter.id} <i class='fa ${sampleIcon} fa-lg' style='padding-left: 5px'></i>
-                                            </span>
-                                        </div>`;
-
-            let probandHtml = "";
-            if (sampleFilter.proband) {
-                probandHtml = `<span data-toggle="tooltip" data-placement="bottom" title="Proband">
-                                        <i class='fa fa-check' style='color: green'></i>
-                                       </span>`;
-            } else {
-                probandHtml = `<span><i class='fa fa-times' style='color: red'></i></span>`;
-            }
-
-            let affectedHtml = "";
-            if (sampleFilter.affected) {
-                affectedHtml = `<span data-toggle="tooltip" data-placement="bottom" title="Affected">
-                                        <i class='fa fa-check' style='color: green'></i>
-                                       </span>`;
-            } else {
-                affectedHtml = `<span><i class='fa fa-times' style='color: red'></i></span>`;
-            }
-
-            tr += `
-                            <tr data-sample="${sampleFilter.id}">
+        return html`
+            ${this.sampleFilters && this.sampleFilters.length && this.sampleFilters.map(sampleFilter => html`
+                    <tr data-sample="${sampleFilter.id}">
                                 <td style="vertical-align: middle">
-                                    ${sampleIdHtml}
+                                    <div>
+                                            <span data-toggle="tooltip" data-placement="bottom" title="" style="${(sampleFilter.affected ? "color: darkred;" : "font-weight: normal;")}${sampleFilter.proband ? "font-weight: bold" : ""}">
+                                                ${sampleFilter.id} <i class='fa ${this._config.sexIConMap[sampleFilter.sex]} fa-lg' style='padding-left: 5px'></i>
+                                            </span>
+                                    </div>
                                 </td>
                                 <td style="padding-left: 20px">
-                                    ${probandHtml}
+                                    ${sampleFilter.proband ? html`
+                                        <span data-toggle="tooltip" data-placement="bottom" title="Proband">
+                                            <i class='fa fa-check' style='color: green'></i>
+                                        </span>` : html`
+                                            <span><i class='fa fa-times' style='color: red'></i></span>
+                                    `}
                                 </td>
                                 <td style="padding-left: 20px">
-                                    ${affectedHtml}
+                                    ${sampleFilter.affected ? html`
+                                        <span data-toggle="tooltip" data-placement="bottom" title="Affected"><i class='fa fa-check' style='color: green'></i></span>` : html`
+                                        <span><i class='fa fa-times' style='color: red'></i></span>`
+        }
                                 </td>
                                 <td style="padding-left: 20px">
                                     <span>${sampleFilter.father}</span>
@@ -343,51 +336,26 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                                     <span>${sampleFilter.mother}</span>
                                 </td>
                                 <td style="padding-left: 20px">
-                                    <input id="${this._prefix}${sampleFilter.id}00" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/0" ${defaultValues.gt00}>
+                                    <input id="${this._prefix}${sampleFilter.id}00" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/0" ${sampleFilter.genotypes.includes("0/0") ? "checked" : ""} @click="${this.onSampleTableChange}">
                                 </td>
                                 <td style="padding-left: 20px">
-                                    <input id="${this._prefix}${sampleFilter.id}01" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/1" ${defaultValues.gt01}>
+                                    <input id="${this._prefix}${sampleFilter.id}01" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/1" ${sampleFilter.genotypes.includes("0/1") ? "checked" : ""} @click="${this.onSampleTableChange}">
                                 </td>
                                 <td style="padding-left: 20px">
-                                    <input id="${this._prefix}${sampleFilter.id}11" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="1/1" ${defaultValues.gt11}>
+                                    <input id="${this._prefix}${sampleFilter.id}11" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="1/1" ${sampleFilter.genotypes.includes("1/1") ? "checked" : ""} @click="${this.onSampleTableChange}">
                                 </td>
                                 <td style="padding-left: 10px">
-                                    <input id="${this._prefix}${sampleFilter.id}DP" type="text" value="${defaultValues.dp}" class="form-control input-sm sample-dp-textbox" aria-label="..." placeholder="e.g. 15" style="width: 60px">
+                                    <input id="${this._prefix}${sampleFilter.id}DP" type="text" value="${sampleFilter.dp !== undefined && sampleFilter.dp > 0 ? sampleFilter.dp : ""}" class="form-control input-sm sample-dp-textbox" aria-label="..." placeholder="e.g. 15" style="width: 60px" @keyup="${this.onSampleTableChange}">
                                 </td>
-
-                            </tr>
-                    `;
-        }
-
-// debugger
-        let elementById = PolymerUtils.getElementById(this._prefix + "BasicTBody");
-        if (UtilsNew.isNotUndefinedOrNull(elementById)) {
-            // Set HTML into the table body
-            elementById.innerHTML = tr;
-            // Add or remove the message
-            if (tr === "") {
-                PolymerUtils.getElementById(this._prefix + "BasicTableMessage").innerHTML = "<span style=\"font-weight: bold\">No Samples selected</span>";
-            } else {
-                PolymerUtils.getElementById(this._prefix + "BasicTableMessage").innerHTML = "";
-            }
-
-            // Add event listener to DP textbox
-            let checkboxes = PolymerUtils.getElementsByClassName("sample-checkbox");
-            for (let dpTextbox of checkboxes) {
-                dpTextbox.addEventListener('click', this.onSampleTableChange.bind(this));
-            }
-
-            // Add event listener to DP textbox
-            let dpTextboxes = PolymerUtils.getElementsByClassName("sample-dp-textbox");
-            for (let dpTextbox of dpTextboxes) {
-                dpTextbox.addEventListener('keyup', this.onSampleTableChange.bind(this));
-            }
-        }
+                    </tr>
+            `)}
+        `;
     }
 
     onSampleTableChange(e) {
         let table = PolymerUtils.getElementById(this._prefix + "BasicTable");
         let counter = 0;
+
         for (let row of table.rows) {
             if (row.dataset.sample !== undefined) {
                 // Set GT values reading columns 5, 6 and 7
@@ -409,7 +377,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
         // Set MoI select to 'none' when clicked in GT
         if (UtilsNew.isNotUndefinedOrNull(e.currentTarget.dataset.gt)) {
             this.modeOfInheritance = "none";
-            $("#" + this._prefix + "ModeOfInheritance").selectpicker('val', "none");
+            $("#" + this._prefix + "ModeOfInheritance").selectpicker("val", "none");
             PolymerUtils.hide(this._prefix + "Warning")
         }
 
@@ -427,7 +395,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
             }
         }
     }
-    
+
     render() {
         return html`
        <style include="jso-styles">
@@ -506,4 +474,4 @@ export default class OpencgaVariantFilterClinical extends LitElement {
     }
 }
 
-customElements.define('opencga-variant-filter-clinical',OpencgaVariantFilterClinical);
+customElements.define("opencga-variant-filter-clinical", OpencgaVariantFilterClinical);
