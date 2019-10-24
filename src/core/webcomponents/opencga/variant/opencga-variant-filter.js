@@ -15,9 +15,26 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "./opencga-variant-filter-clinical.js";
 import "./../../commons/variant-modal-ontology.js";
+
+import "./../../commons/filters/cadd-filter.js";
+import "./../../commons/filters/cellbase-biotype-filter.js";
 import "./../../commons/filters/cellbase-region-filter.js";
+import "./../../commons/filters/clinvar-accessions-filter.js";
+import "./../../commons/filters/cohort-filter.js";
+import "./../../commons/filters/consequence-type-filter.js";
+import "./../../commons/filters/conservation-filter.js";
+import "./../../commons/filters/disease-filter.js";
+import "./../../commons/filters/feature-filter.js";
+import "./../../commons/filters/file-filter.js";
+import "./../../commons/filters/fulltext-search-accessions-filter.js";
+import "./../../commons/filters/go-accessions-filter.js";
+import "./../../commons/filters/hpo-accessions-filter.js";
+import "./../../commons/filters/population-frequency-filter.js";
+import "./../../commons/filters/proteine-substitution-score-filter.js";
+import "./../../commons/filters/sample-filter.js";
+import "./../../commons/filters/study-filter.js";
+import "./../../commons/filters/variant-type-filter.js";
 
 /*
 variant-sample-selector
@@ -135,12 +152,11 @@ export default class OpencgaVariantFilter extends LitElement {
     //     this.queryObserver();
     // }
 
-    //TODO refactor in functional map and move handlers in template
+    //TODO refactor in map() and move handlers in template
     opencgaSessionObserver() {
-        console.log("opencgaSessionObserver this.opencgaSession.study",this.opencgaSession.study)
-        if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study)) {
+        if (this.opencgaSession.study) {
             // Update the study list of studies and the selected one
-            if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project.studies)) {
+            if (this.opencgaSession.project.studies) {
                 let _differentStudies = [];
                 for (let i = 0; i < this.opencgaSession.project.studies.length; i++) {
                     if (this.opencgaSession.study.alias !== this.opencgaSession.project.studies[i].alias) {
@@ -148,7 +164,6 @@ export default class OpencgaVariantFilter extends LitElement {
                     }
                 }
                 this.differentStudies = _differentStudies;
-                console.log("this.differentStudies", this.differentStudies)
                 // Insert study checkboxes HTML, this only happens if the Study subsection has been added
 
                 /* NOTE listener moved in _getStudyHtml()
@@ -198,16 +213,13 @@ export default class OpencgaVariantFilter extends LitElement {
         } else {
             this.skipClinicalFilterQueryUpdate = true;
         }
-        console.log(this.query)
         if (this._reset) {
-            console.trace(this.query)
+            //console.trace(this.query)
             this.setQueryFilters();
         } else {
             this._reset = true;
         }
-        console.log("queryObserver",this.query)
-
-        // this.requestUpdate();
+        this.requestUpdate();
     }
 
     clinicalObserver(clinicalAnalysis) {
@@ -241,10 +253,12 @@ export default class OpencgaVariantFilter extends LitElement {
         }));
     }
 
-    onSampleFilterClick() {
+    //moved on sample-filter
+    /*onSampleFilterClick() {
         $("#" + this._prefix + "SampleFilterModal").modal("show");
-    }
+    }*/
 
+    //TODO reimplement in sample-filter
     onClinicalFilterChange(e) {
         // Process Sample filters
         let _genotypeFilters = [];
@@ -317,14 +331,14 @@ export default class OpencgaVariantFilter extends LitElement {
         //     delete _query.filter;
         // }
 
-        // Only update query if really needed, this avoids unneeded web refresh
-        // if (needUpdateQuery) {
-        //     this.updateClinicalFilterQuery = false;
-        //     this.query = _query;
-        //     this.updateClinicalFilterQuery = true;
-        // }
-        //
-        // this.notifyQuery(this.query);
+        //Only update query if really needed, this avoids unneeded web refresh
+        if (needUpdateQuery) {
+            this.updateClinicalFilterQuery = false;
+            this.query = _query;
+            this.updateClinicalFilterQuery = true;
+        }
+
+        this.notifyQuery(this.query);
     }
 
     propagateOkHPO(e) {
@@ -496,47 +510,10 @@ export default class OpencgaVariantFilter extends LitElement {
                 //TODO avoid innerHTML
                 elementById.innerHTML = sampleTableTr;
             }
-
-
-            // Second, render File table
-            // let fileTableTr = "";
-            // if (UtilsNew.isNotEmptyArray(this.query.file)) {
-            //     let qual = (UtilsNew.isNotEmpty(this.query.qual)) ? this.query.qual : "NA";
-            //     let filter = (UtilsNew.isNotEmpty(this.query.filter)) ? this.query.filter : "NA";
-            //     let _files = this.query.file.split(";");
-            //     for (let fileName of _files) {
-            //         let shortFileName = (fileName.length > 15) ? fileName.substring(0, 16) + "..." : fileName;
-            //         fileTableTr += `<tr data-file="${fileName}">
-            //                             <td>
-            //                                 <span title="${fileName}">${shortFileName}</span>
-            //                             </td>
-            //                             <td>
-            //                                 ${qual}
-            //                             </td>
-            //                             <td>
-            //                                 ${filter}
-            //                             </td>
-            //                        </tr>
-            //             `;
-            //     }
-            // } else {
-            //     fileTableTr = `<tr>
-            //                         <td>
-            //                             No Files selected</span>
-            //                         </td>
-            //                         <td></td>
-            //                         <td></td>
-            //                    </tr>
-            //             `;
-            // }
-            //
-            // elementById = PolymerUtils.getElementById(this._prefix + "FileFiltersSummaryTBody");
-            // if (UtilsNew.isNotUndefinedOrNull(elementById)) {
-            //     elementById.innerHTML = fileTableTr;
-            // }
         }
     }
 
+    //binding::from this.query to the view
     setQueryFilters() {
         if (!this._initialised) {
             return;
@@ -544,23 +521,23 @@ export default class OpencgaVariantFilter extends LitElement {
 
         // Clear filter menu before rendering
         this._clearHtmlDom();
-        console.error("this.query", this.query)
         // Check 'query' is not null or empty there is nothing else to do
         if (UtilsNew.isUndefinedOrNull(this.query) || Object.keys(this.query).length === 0) {
-            console.error("this.query is NULL")
+            console.warn("this.query is NULL:", this.query)
             return;
         }
 
         // Render Clinical filters: sample and file
-        // this.renderClinicalQuerySummary();
+        this.renderClinicalQuerySummary();
 
-        // Studies
+
+        // implemented in study-filter
+        /*
         if (typeof this.query.studies !== "undefined") {
             if (this.querySelector("#" + this._prefix + "includeOtherStudy") !== null &&
                 this.querySelector("#" + this._prefix + "DifferentStudies") !== null) {
                 let studies = this.query.studies.split(new RegExp("[,;]"));
 
-                console.log("studies",studies)
                 if (studies.length > 1) {
                     let checkBoxes = PolymerUtils.querySelectorAll("input", "#" + this._prefix + "DifferentStudies");
                     console.log("checkBoxes",checkBoxes)
@@ -568,15 +545,18 @@ export default class OpencgaVariantFilter extends LitElement {
                         let study = studies[i].split(":")[1];
                         for (let j = 0; j < checkBoxes.length; j++) {
                             if (checkBoxes[j].value === study) {
+                                debugger
                                 checkBoxes[j].checked = true;
-                                console.log(study, checkBoxes[j].checked)
                             }
                         }
                     }
                 }
             }
         }
+         */
 
+
+        // TODO implement in filter
         // Cohorts
         let cohortArray = [];
         if (typeof this.query.cohortStatsAlt !== "undefined") {
@@ -590,29 +570,35 @@ export default class OpencgaVariantFilter extends LitElement {
             }
         }
 
-        // Filter PASS
+        // implemented in file-filter
+        /*// Filter PASS
         if (UtilsNew.isNotEmpty(this.query.filter) && this.query.filter === "PASS") {
             PolymerUtils.getElementById(this._prefix + "FilePassCheckbox").checked = true;
         }
-
-        // // Filter QUAL
+        // Filter QUAL
         if (UtilsNew.isNotEmpty(this.query.qual) && this.query.qual > 0) {
             PolymerUtils.getElementById(this._prefix + "FileQualCheckbox").checked = true;
             PolymerUtils.getElementById(this._prefix + "FileQualInput").disabled = false;
             PolymerUtils.getElementById(this._prefix + "FileQualInput").value = this.query.qual;
         }
+         */
 
+        /* implemented in cellbase-region-filter
         // Region
         if (UtilsNew.isNotEmpty(this.query.region)) {
             $("#" + this._prefix + "LocationTextarea").val(this.query.region);
         }
+        */
 
+
+        /* implemented in feature-filter
         // XRefs, Gene and Variant Ids
         if (typeof this.query.xref !== "undefined") {
             PolymerUtils.setValue(this._prefix + "FeatureTextarea", this.query["xref"]);
         } else if (typeof this.query.ids !== "undefined") {
             PolymerUtils.setValue(this._prefix + "FeatureTextarea", this.query.ids);
         }
+        */
 
         // Disease panels
         if (UtilsNew.isNotUndefinedOrNull(this.query.panel)) {
@@ -837,12 +823,28 @@ export default class OpencgaVariantFilter extends LitElement {
         this.notifyQuery(this.query);
     }
 
+
+    /***
+     * Handles filterChange events from all the filter components (this is the new updateQueryFilters)
+     * @param key {string} the name of the property in this.query
+     * @param value {string} the new value of the property 
+     */
+    onFilterChange(key,value) {
+        console.log("filterChange", {[key]:value});
+        
+        //TODO decomment this at the end of the refactor
+        //this.query = {...this.query, {[key]:value}};
+        
+    }
+
+    //binding::from the view to this.query
     updateQueryFilters() {
+
         if (!this._initialised) {
             return;
         }
 
-        console.log("this.query", this.query)
+        console.log("this.query", this.query);
 
         let _filters = {};
 
@@ -886,8 +888,11 @@ export default class OpencgaVariantFilter extends LitElement {
             _filters.cohortStatsAlt = cohortFreq.join(";");
         }
 
-        // Studies - This section is not renderer when only study exists
-        let studies = [this.opencgaSession.study.fqn];
+
+       /*
+       //DONE Move DOM elements checking in study-filter
+       // Studies - This section is not renderer when only study exists
+       let studies = [this.opencgaSession.study.fqn];
 
         // PolymerUtils.querySelectorAll doesn't work here...
         //let selectedStudies = PolymerUtils.querySelectorAll("input:checked", "#" + this._prefix + "DifferentStudies");
@@ -925,15 +930,20 @@ export default class OpencgaVariantFilter extends LitElement {
             }
         } else {
             // Set study when no studies have been displayed, probably because there is only one study.
+            //TODO add this case this.opencgaSession.study.fqn
             _filters.study = this.opencgaSession.study.fqn;
         }
 
-        // Filter PASS
+        */
+
+
+       //DONE Move DOM elements checking in file-filter
+        /*
+        Filter PASS
         let filePassCheckbox = PolymerUtils.getElementById(this._prefix + "FilePassCheckbox");
         if (UtilsNew.isNotUndefinedOrNull(filePassCheckbox) && filePassCheckbox.checked) {
             _filters.filter = "PASS";
         }
-
         // Filter QUAL
         let fileQualCheckbox = PolymerUtils.getElementById(this._prefix + "FileQualCheckbox");
         if (UtilsNew.isNotUndefinedOrNull(filePassCheckbox)) {
@@ -945,8 +955,10 @@ export default class OpencgaVariantFilter extends LitElement {
             }
             PolymerUtils.getElementById(this._prefix + "FileQualInput").disabled = !fileQualCheckbox.checked;
         }
+        */
 
-        // Regions
+
+        //DONE Move DOM elements checking in file-filter
         let locationTextArea = PolymerUtils.getElementById(this._prefix + "LocationTextarea");
         if (UtilsNew.isNotUndefinedOrNull(locationTextArea) && UtilsNew.isNotEmpty(locationTextArea.value)) {
             let _region = locationTextArea.value.trim();
@@ -954,7 +966,9 @@ export default class OpencgaVariantFilter extends LitElement {
             _filters.region = _region;
         }
 
+        //TODO move in feature-filter
         // Features: Gene, SNP ID
+        //--------------------------------------------continue from here/////////////
         let featureTextArea = PolymerUtils.getElementById(this._prefix + "FeatureTextarea");
         if (UtilsNew.isNotUndefinedOrNull(featureTextArea) && UtilsNew.isNotEmpty(featureTextArea.value)) {
             let features = featureTextArea.value.trim();
@@ -1151,7 +1165,8 @@ export default class OpencgaVariantFilter extends LitElement {
         // this.requestUpdate()
     }
 
-    //TODO move into template
+    //DONE implemented in feature-filter
+    /*
     callAutocomplete(e) {
         // Only gene symbols are going to be searched and not Ensembl IDs
         let featureId = PolymerUtils.getElementById(this._prefix + "FeatureIdText").value;
@@ -1168,6 +1183,7 @@ export default class OpencgaVariantFilter extends LitElement {
         }
     }
 
+    //DONE implemented in feature-filter
     addFeatureId(e) {
         let allIds = [];
         let featureTextArea = PolymerUtils.getElementById(this._prefix + "FeatureTextarea");
@@ -1184,6 +1200,7 @@ export default class OpencgaVariantFilter extends LitElement {
 
         this.updateQueryFilters();
     }
+     */
 
     _clearHtmlDom() {
         // Empty everything before rendering
@@ -1216,9 +1233,6 @@ export default class OpencgaVariantFilter extends LitElement {
         // TODO move listeners in template
         // TODO move tooltips init somewhere after template has been rendered
         //this._addEventListeners();
-        //console.error("CONTINUE FROM _addEventListeners() / is not called")
-
-
         return this.config.menu.sections && this.config.menu.sections.length && this.config.menu.sections.map(section => this._createSection(section));
     }
 
@@ -1243,10 +1257,9 @@ export default class OpencgaVariantFilter extends LitElement {
                                         ${section.subsections.length === 1 ? html`` : html`/continue_statement_missing/`}
                                     ` : null}
                                     
-                                    ${subsection.id === "cadd" && this.opencgaSession.project.organism.assembly.toLowerCase() === "grch38" ? html`` : html``}
+                                    ${subsection.id === "cadd" && this.opencgaSession.project.organism.assembly.toLowerCase() === "grch38" ? html`/continue_statement_missing/` : html``}
                                     
                                     ${!this.config.menu.skipSubsections || !this.config.menu.skipSubsections.length || ~this.config.menu.skipSubsections.indexOf(subsection.id) ? this._createSubSection(subsection) : null}
-                                    
                                     
                                 `)}
                             
@@ -1263,64 +1276,62 @@ export default class OpencgaVariantFilter extends LitElement {
 
 
         let content = "";
-        //TODO maybe replace switch with content = this["_get" + subsection](subsection)
         switch (subsection.id) {
         case "study":
-            content = this._getStudyHtml(this._prefix);
+            content = html`<study-filter .opencgaSession="${this.opencgaSession}" .differentStudies="${this.differentStudies}" .query="${this.query}" @filterChange="${e => this.onFilterChange("studies", e.detail.value)}"></study-filter>`;
             break;
         case "cohort":
-            content = this._getCohortHtml(subsection.cohorts, this._prefix);
+            content = html`<cohort-filter .cohorts="${subsection.cohorts}"> </cohort-filter>`;
             break;
         case "sample":
-            // this.decisionTreeInheritance = subsection.decisionTreeInheritance;
-            content = this._getSampleHtml(subsection, this._prefix);
+            content = html`<sample-filter ?enabled="${subsection.showSelectSamples}"> </sample-filter>`;
             break;
         case "file":
-            content = this._getFileHtml(this._prefix);
+            //TODO it needs this.query.filter and this.query.qual (maybe change name..)
+            content = html`<file-filter .query="${this.query}" @filterChange="${e => this.onFilterChange("filter", e.detail.value)}"></file-filter>`;
             break;
         case "location":
-            // content = this._getLocationHtml(this._prefix);
-            content = html`<cellbase-region-filter .celbaseClient="${this.cellbaseClient}" .query="${this.query}" 
-                            @regionChange="${e => this.updateQuery("region", e.detail.region)}"></cellbase-region-filter>`;
+            content = html`<cellbase-region-filter .celbaseClient="${this.cellbaseClient}" region="${this.query.region}" 
+                            @filterChange="${e => this.onFilterChange("region", e.detail.value)}"></cellbase-region-filter>`;
             break;
         case "feature":
-            content = this._getFeatureHtml(this._prefix);
+            content = html`<feature-filter .cellbaseClient="${this.cellbaseClient}" .query=${this.query} @filterChange="${e => this.onFilterChange("feature", e.detail.value)}"></feature-filter>`;
             break;
         case "diseasePanels":
-            content = this._getDiseasePanelsHtml(this._prefix);
+            content = html`<disease-filter .opencgaSession="${this.opencgaSession}"></disease-filter>`;
             break;
         case "biotype":
-            content = this._getBiotypeHtml(subsection.biotypes, this._prefix);
+            content = html`<cellbare-biotype-filter .config="${this.config}"></cellbare-biotype-filter>`;
             break;
         case "type":
-            content = this._getVariantTypeHtml(subsection.types, this._prefix);
+            content = html`<variant-type-filter .config="${this.config}"></variant-type-filter>`;
             break;
         case "populationFrequency":
-            content = this._getPopulationFrequencyHtml(subsection.showSetAll, this._prefix);
+            content = html`<population-frequency-filter .populationFrequencies="${this.populationFrequencies}" ?showSetAll="${subsection.showSetAll}"></population-frequency-filter>`;
             break;
         case "consequenceType":
-            content = this._getConsequenceTypeHtml(this._prefix);
+            content = html`<consequence-type-filter .consequenceTypes="${this.consequenceTypes}"></consequence-type-filter>`;
             break;
         case "proteinSubstitutionScore":
-            content = this._getProteinSubstitutionScoreHtml(this._prefix);
+            content = html`<proteine-substitution-score-filter></proteine-substitution-score-filter>`;
             break;
         case "cadd":
-            content = this._getCaddHtml(this._prefix);
+            content = html`<cadd-filter></cadd-filter>`;
             break;
         case "conservation":
-            content = this._getConservationHtml(this._prefix);
+            content = html`<conservation-filter></conservation-filter>`;
             break;
         case "go":
-            content = this._getGoAccessionsHtml(this._prefix);
+            content = html`<go-accessions-filter></go-accessions-filter>`;
             break;
         case "hpo":
-            content = this._getHpoAccessionsHtml(this._prefix);
+            content = html`<hpo-accessions-filter></hpo-accessions-filter>`;
             break;
         case "clinvar":
-            content = this._getClinvarAccessionsHtml(this._prefix);
+            content = html`<clinvar-accessions-filter></clinvar-accessions-filter>`;
             break;
         case "fullTextSearch":
-            content = this._getFullTextSearchAccessionsHtml(this._prefix);
+            content = html`<fulltext-search-accessions-filter></fulltext-search-accessions-filter>`;
             break;
         }
 
@@ -1337,7 +1348,9 @@ export default class OpencgaVariantFilter extends LitElement {
                     </div>
                 `;
     }
+/*
 
+    //study-filter
     _getStudyHtml() {
         return html`
             <select class="form-control input-sm ${this._prefix}FilterSelect" id="${this._prefix}includeOtherStudy" @change="${this.updateQueryFilters}">
@@ -1357,6 +1370,7 @@ export default class OpencgaVariantFilter extends LitElement {
         `;
     }
 
+    //cohort-filter
     _getCohortHtml(cohorts) {
         let projectId = this.opencgaSession.project.id;
         let cohortsPerStudy = cohorts[projectId];
@@ -1365,7 +1379,7 @@ export default class OpencgaVariantFilter extends LitElement {
             ${Object.keys(cohortsPerStudy).map(study => html`
                 <div style="padding: 5px 0px">
                     <div style="padding-bottom: 5px">
-                        <span style="font-style: italic">${study}</span> study:
+                        <span style="font-style: italic">COHORT HTML${study}</span> study:
                     </div>
                     <div class="form-horizontal">
                         ${cohortsPerStudy[study] && cohortsPerStudy[study].map(cohort => html`
@@ -1393,6 +1407,7 @@ export default class OpencgaVariantFilter extends LitElement {
         `;
     }
 
+    //sample-filter
     _getSampleHtml(subsection) {
         return subsection.showSelectSamples ? html`
             <div>
@@ -1425,6 +1440,7 @@ export default class OpencgaVariantFilter extends LitElement {
         ` : ``;
     }
 
+    //file-filter
     _getFileHtml() {
         return html`
             <div class="row">
@@ -1448,10 +1464,12 @@ export default class OpencgaVariantFilter extends LitElement {
         `;
     }
 
+    //cellbase-region-filter
     _getLocationHtml() {
         return html`<textarea id="${this._prefix}LocationTextarea" name="location" class="form-control clearable ${this._prefix}FilterTextInput" rows="3" placeholder="3:444-55555,1:1-100000" @keyup="${this.updateQueryFilters}"></textarea>`;
     }
 
+    //feature-filter
     _getFeatureHtml() {
         return html`
             <div class="row">
@@ -1476,6 +1494,7 @@ export default class OpencgaVariantFilter extends LitElement {
         `;
     }
 
+    //disease-filter
     _getDiseasePanelsHtml() {
         return html`
             <div>
@@ -1493,6 +1512,7 @@ export default class OpencgaVariantFilter extends LitElement {
         `;
     }
 
+    //cellbase-biotype-filter
     _getBiotypeHtml(biotypes = []) {
         return html`
             <select class="selectpicker" id="${this._prefix}GeneBiotypes" data-size="10" data-live-search="true" data-selected-text-format="count" multiple @change="${this.updateQueryFilters}">
@@ -1503,6 +1523,7 @@ export default class OpencgaVariantFilter extends LitElement {
         `;
     }
 
+    //varianty-type=filter
     _getVariantTypeHtml(types) {
         return html`
             <div id="${this._prefix}Type">
@@ -1513,6 +1534,7 @@ export default class OpencgaVariantFilter extends LitElement {
         `;
     }
 
+    //population-frequency-filter
     _getPopulationFrequencyHtml(showSetAll) {
         return html`
                         ${this.populationFrequencies.studies && this.populationFrequencies.studies.length && this.populationFrequencies.studies.map(study => html`
@@ -1553,6 +1575,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 `;
     }
 
+    //consequence-type-filter
     _getConsequenceTypeHtml() {
         return html`
                     <div style="padding-top: 15px">Loss-of-Function (LoF) terms:</div>
@@ -1572,13 +1595,13 @@ export default class OpencgaVariantFilter extends LitElement {
                                     <li id="${category.title ? category.title : category.name}" class="form-check" style="margin-top: 10px;">
                                         ${category.terms && category.terms.length ? html`
                                             <label class="form-check-label notbold">
-                                                <input id="${this.prefix}${category.title}Input" type="checkbox" class="${this.prefix}FilterCheckBox" @change="${this.updateConsequenceTypeFilter}"> ${category.title}
+                                                <input id="${this._prefix}${category.title}Input" type="checkbox" class="${this._prefix}FilterCheckBox" @change="${this.updateConsequenceTypeFilter}"> ${category.title}
                                             </label>
                                             <ul>
                                                 ${category.terms.map(item => html`
                                                     <li class="form-check">
                                                         <label class="form-check-label notbold">
-                                                            <input id="${this.prefix}${item.name}Checkbox" type="checkbox" data-id="${item.name}" class="soTermCheckBox ${this.prefix}FilterCheckBox" @change="${this.updateConsequenceTypeFilter}">
+                                                            <input id="${this._prefix}${item.name}Checkbox" type="checkbox" data-id="${item.name}" class="soTermCheckBox ${this._prefix}FilterCheckBox" @change="${this.updateConsequenceTypeFilter}">
                                                                 <span title="${item.description}">
                                                                     ${item.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${item.id}" target="_blank">${item.id}</a>)
                                                                 </span>
@@ -1587,8 +1610,8 @@ export default class OpencgaVariantFilter extends LitElement {
                                                 `)}
                                             </ul>
                                         ` : html`
-                                            <input id="${this.prefix}${category.name}Checkbox" type="checkbox"
-                                                       data-id="${category.name}" class="soTermCheckBox ${this.prefix}FilterCheckBox" @change="${this.updateConsequenceTypeFilter}">
+                                            <input id="${this._prefix}${category.name}Checkbox" type="checkbox"
+                                                       data-id="${category.name}" class="soTermCheckBox ${this._prefix}FilterCheckBox" @change="${this.updateConsequenceTypeFilter}">
                                                 <span title="${category.description}">
                                                     ${category.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${category.id}" target="_blank">${category.id}</a>)
                                                 </span>
@@ -1600,7 +1623,7 @@ export default class OpencgaVariantFilter extends LitElement {
                     </div>
                 `;
     }
-
+    //proteine-substitution-score-filter
     _getProteinSubstitutionScoreHtml() {
         return html`
                     <div style="padding-top: 10px">
@@ -1667,6 +1690,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 `;
     }
 
+    //cadd-filter
     _getCaddHtml() {
         return html`
                     <div style="padding-top: 10px">
@@ -1712,6 +1736,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 `;
     }
 
+    //conservation-filter
     _getConservationHtml() {
         return html`
                     <div style="padding-top: 10px">
@@ -1780,6 +1805,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 `;
     }
 
+    //go-accessions-filter
     _getGoAccessionsHtml() {
         return html`
                     <textarea id="${this._prefix}GeneOntologyTextarea" class="form-control clearable ${this._prefix}FilterTextInput"
@@ -1791,6 +1817,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 `;
     }
 
+    //hop-accessions-filter
     _getHpoAccessionsHtml() {
         return html`
                     <textarea id="${this._prefix}HumanPhenotypeOntologyTextarea" class="form-control clearable ${this._prefix}FilterTextInput"
@@ -1809,29 +1836,33 @@ export default class OpencgaVariantFilter extends LitElement {
                 `;
     }
 
+    //clinvar-accessions-filter
     _getClinvarAccessionsHtml() {
         return html`
                     <textarea id="${this._prefix}ClinVarTextarea" class="form-control clearable ${this._prefix}FilterTextInput" rows="3" name="clinvar" placeholder="RCV000058226" @keyup="${this.updateQueryFilters}"></textarea>
                 `;
     }
 
+    //fulltext-search-accessions-filter
     _getFullTextSearchAccessionsHtml() {
         return html`
                     <textarea id="${this._prefix}TraitsTextarea" class="form-control clearable ${this._prefix}FilterTextInput" rows="5" name="traits" placeholder="Full-text search, e.g. *melanoma*" @keyup="${this.updateQueryFilters}"></textarea>
                 `;
     }
+*/
 
 
     /**
      * @deprecated
      * */
+    /*
     _addEventListeners() {
 
-        /*FIXME ::  NOT present in DOM:
-             PanelAppsTextarea
-             FilterTextInput
+        //FIXME ::  NOT present in DOM:
+        //     PanelAppsTextarea
+        //     FilterTextInput
 
-        */
+
         let keyupEvents = ["FileQualInput", "LocationTextarea", "FeatureTextarea", "PanelAppsTextarea", "FilterTextInput", "CaddRawInput", "CaddScaledInput", "SiftInput",
             "PolyphenInput", "PhylopInput", "PhastconsInput", "GerpInput", "GeneOntologyTextarea", "HumanPhenotypeOntologyTextarea", "ClinVarTextarea", "TraitsTextarea"];
         for (let id of keyupEvents) {
@@ -1842,12 +1873,11 @@ export default class OpencgaVariantFilter extends LitElement {
         }
 
 
-        /* TODO change Type field to VariantType
-        * NOT present in DOM:
-        * GenotypeQueryOptions
-        * vcfFilterSelect
-        *
-        * */
+        // TODO change Type field to VariantType
+        // NOT present in DOM:
+        // GenotypeQueryOptions
+        // vcfFilterSelect
+
         let changeEvents = ["includeOtherStudy", "FilePassCheckbox", "FileQualCheckbox", "GenotypeQueryOptions", "DiseasePanels", "GeneBiotypes", "Type", "CaddRawOperator", "CaddScaledOperator", "SiftOperator", "PolyphenOperator",
             "pssOrRadio", "pssAndRadio", "PhylopOperator", "PhastconsOperator", "GerpOperator", "conservationAndRadio", "conservationOrRadio", "vcfFilterSelect",
             "hpoOrRadio", "hpoAndRadio"];
@@ -1956,6 +1986,7 @@ export default class OpencgaVariantFilter extends LitElement {
             hpoModalButton.addEventListener("click", this.openModalHpo.bind(this));
         }
     }
+    */
 
     _addAllTooltips() {
         for (let section of this.config.menu.sections) {
@@ -2105,27 +2136,7 @@ export default class OpencgaVariantFilter extends LitElement {
         </variant-modal-ontology>
 
 
-        <div class="modal fade" id="${this._prefix}SampleFilterModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
-             role="dialog" aria-hidden="true" style="padding-top: 0%; overflow-y: visible">
-            <div class="modal-dialog" style="width: 1280px">
-                <div class="modal-content">
-                    <div class="modal-header" style="padding: 5px 15px">
-                        <h3>Sample and File Filters</h3>
-                    </div>
-                    <div class="modal-body">
-                        <opencga-variant-filter-clinical .opencgaSession=${this.opencgaSession}
-                                                         .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                         .query="${this.clinicalFilterQuery}"
-                                                         @sampleFiltersChange="${this.onClinicalFilterChange}"
-                                                         style="font-size: 12px">
-                        </opencga-variant-filter-clinical>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        
         `;
     }
 }

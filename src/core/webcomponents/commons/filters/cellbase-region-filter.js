@@ -35,8 +35,8 @@ export default class CellbaseRegionFilter extends LitElement {
             cellbaseClient: {
                 type: Object
             },
-            query: {
-                type: Object
+            region: {
+                type: String
             },
             config: {
                 type: Object
@@ -47,21 +47,9 @@ export default class CellbaseRegionFilter extends LitElement {
     _init() {
         this._prefix = "crf-" + Utils.randomString(6);
         this._config = this.getDefaultConfig();
+        console.log("this.region",this.region);
 
         this.requestUpdate();
-    }
-
-    updated(changedProperties) {
-        console.log("changedProperties", changedProperties); // logs previous values
-        if (changedProperties.has("cellbaseClient")) {
-            // this.opencgaSessionObserver();
-        }
-        if (changedProperties.has("query")) {
-            // this.queryObserver();
-        }
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-        }
     }
 
     getDefaultConfig() {
@@ -71,9 +59,10 @@ export default class CellbaseRegionFilter extends LitElement {
     }
 
     onChange(e) {
-        let event = new CustomEvent('regionChange', {
+        let _region = e.target.value.trim().replace(/\r?\n/g, ",").replace(/\s/g, "");
+        let event = new CustomEvent('filterChange', {
             detail: {
-                region: e.target.value
+                value: _region
             }
         });
         this.dispatchEvent(event);
@@ -84,7 +73,7 @@ export default class CellbaseRegionFilter extends LitElement {
                     <textarea id="${this._prefix}LocationTextarea" name="location" 
                         class="form-control clearable ${this._prefix}FilterTextInput"
                         rows="3" placeholder="${this._config.placeholder}"
-                        @change="${e => this.onChange(e)}"></textarea>
+                        @change="${e => this.onChange(e)}">${this.region}</textarea>
                 `;
     }
 }

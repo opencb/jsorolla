@@ -82,11 +82,7 @@ export default class OpencgaVariantGrid extends LitElement {
     }
 
     _init() {
-        this._prefix = "VarBrowserGrid-" + Utils.randomString(6);
-        console.log("_prefix", Object.getOwnPropertyDescriptor(Element.prototype, '_prefix'))
-        console.log("this.config", this.config)
-        console.log("this.query", this.query)
-        
+        this._prefix = "VarBrowserGrid-" + Utils.randomString(6) + "_";
         this.data = [];
         this.queryCellbase = false;
         // Config for the grid toolbar

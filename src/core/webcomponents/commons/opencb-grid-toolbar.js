@@ -58,8 +58,6 @@ export default class OpencbGridToolbar extends LitElement {
     }
 
     updated(changedProperties) {
-        console.log("changedProperties");
-        console.log(changedProperties); // logs previous values
         if(changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
             this.requestUpdate(); //NOTE to avoid _config as prop!

@@ -34,8 +34,6 @@ export default class VariantModalOntology extends LitElement {
     }
     
     updated(changedProperties) {
-        console.log("changedProperties");
-        console.log(changedProperties); // logs previous values
         if(changedProperties.has("ontologyFilter"))
             this.ontologyFilterObserver();
     }

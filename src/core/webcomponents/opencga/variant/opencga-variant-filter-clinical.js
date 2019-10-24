@@ -63,7 +63,6 @@ export default class OpencgaVariantFilterClinical extends LitElement {
             this.clinicalAnalysisObserver()
         }
         if (changedProperties.has("query")) {
-            console.log("query variant-filter-clinical")
             this.queryObserver()
         }
         if (changedProperties.has("config")) {

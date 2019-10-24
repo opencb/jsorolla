@@ -69,15 +69,21 @@ export default class VariantTypeFilter extends LitElement {
             types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION", "MNV"],
         }
     }
+    onChange(e) {
+        let event = new CustomEvent('variantTypeChange', {
+            detail: {
+                region: e.target.value
+            }
+        });
+        this.dispatchEvent(event);
+    }
 
     render() {
-        let inputs = "";
-        for (let type of this._config.types) {
-            inputs += `<input type="checkbox" value="${type}" class="${this._prefix}FilterCheckBox"> ${type}<br>`;
-        }
         return html`
-                    <div id="${this._prefix}Type">${inputs}</div>
-                `;
+            <div id="${this._prefix}Type">
+                ${this._config.types && this._config.types.length && this._config.types.map( type => html`<input type="checkbox" value="${type}" class="${this._prefix}FilterCheckBox" @change="${this.onChange}"> ${type}<br>`)}
+            </div>
+        `;
     }
 }
 

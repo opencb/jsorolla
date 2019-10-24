@@ -17,7 +17,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 
-export default class CellbaseRegionFilter extends LitElement {
+export default class CellbaseBiotypeFilter extends LitElement {
 
     constructor() {
         super();
@@ -79,17 +79,15 @@ export default class CellbaseRegionFilter extends LitElement {
     }
 
     render() {
-        let options = "";
-        for (let biotype of this._config.biotypes) {
-            options += `<option value="${biotype}">${biotype}</option>`;
-        }
         return html`
                     <select class="selectpicker" id="${this._prefix}GeneBiotypes" data-size="10" data-live-search="true"
                             data-selected-text-format="count" multiple>
-                                ${options}
+                            ${this._config.biotypes.length && this._config.biotypes.map( biotype => html`
+                                <option value="${biotype}">${biotype}</option>
+                            `)}
                     </select>
                 `;
     }
 }
 
-customElements.define("cellbase-biotype-filter", CellbaseRegionFilter);
+customElements.define("cellbase-biotype-filter", CellbaseBiotypeFilter);
