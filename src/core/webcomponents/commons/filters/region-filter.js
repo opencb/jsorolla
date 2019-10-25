@@ -17,7 +17,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 
-export default class CellbaseRegionFilter extends LitElement {
+export default class RegionFilter extends LitElement {
 
     constructor() {
         super();
@@ -46,6 +46,8 @@ export default class CellbaseRegionFilter extends LitElement {
 
     _init() {
         this._prefix = "crf-" + Utils.randomString(6);
+
+        this.region = "";
         this._config = this.getDefaultConfig();
         //explicit check for undefined is required since this.region is a string Prop and lit-element cast an undefined value as the string "undefined"
 
@@ -61,6 +63,7 @@ export default class CellbaseRegionFilter extends LitElement {
     }
 
     onChange(e) {
+        // Remove new line and empty characters
         let _region = e.target.value.trim().replace(/\r?\n/g, ",").replace(/\s/g, "");
         let event = new CustomEvent('filterChange', {
             detail: {
@@ -80,4 +83,4 @@ export default class CellbaseRegionFilter extends LitElement {
     }
 }
 
-customElements.define("cellbase-region-filter", CellbaseRegionFilter);
+customElements.define("region-filter", RegionFilter);

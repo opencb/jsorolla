@@ -18,8 +18,8 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import "./../../commons/variant-modal-ontology.js";
 
 import "./../../commons/filters/cadd-filter.js";
-import "./../../commons/filters/cellbase-biotype-filter.js";
-import "./../../commons/filters/cellbase-region-filter.js";
+import "../../commons/filters/biotype-filter.js";
+import "../../commons/filters/region-filter.js";
 import "./../../commons/filters/clinvar-accessions-filter.js";
 import "./../../commons/filters/cohort-filter.js";
 import "./../../commons/filters/consequence-type-filter.js";
@@ -229,7 +229,6 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     onSearch() {
-        debugger
         this.notifySearch(this.query);
     }
 
@@ -607,7 +606,7 @@ export default class OpencgaVariantFilter extends LitElement {
             this.showPanelGenes(this.query.panel.split(","));
         }
 
-        /* implemented in cellbase-biotype-filter
+        /* implemented in biotype-filter
         // Biotype
         if (UtilsNew.isNotUndefinedOrNull(this.query.biotype)) {
             $("#" + this._prefix + "GeneBiotypes").selectpicker("val", this.query.biotype.split(","));
@@ -822,14 +821,17 @@ export default class OpencgaVariantFilter extends LitElement {
      */
     onFilterChange(key, value) {
         console.log("filterChange", {[key]:value});
-
-        //if(!value || value === "") delete this.query[key]
-
+        
         //TODO decomment this at the end of the refactor
         //this.query = {...this.query, {[key]:value}};
+        if (value && value !== "") {
+            let filter = {[key]: value};
+            this.query = {...this.query, ...filter};
+        } else {
+            delete this.query[key]
+        }
 
-        //this.notifyQuery(this.query);
-        
+        this.notifyQuery(this.query);
     }
 
     //binding::from the view to this.query
@@ -1290,17 +1292,18 @@ export default class OpencgaVariantFilter extends LitElement {
             content = html`<file-filter .query="${this.query}" @filterChange="${e => this.onFilterChange("filter", e.detail.value)}"></file-filter>`;
             break;
         case "location":
-            content = html`<cellbase-region-filter .celbaseClient="${this.cellbaseClient}" region="${this.query.region || ""}" 
-                            @filterChange="${e => this.onFilterChange("region", e.detail.value)}"></cellbase-region-filter>`;
+            content = html`<region-filter .cellbaseClient="${this.cellbaseClient}" region="${this.query.region}" 
+                                           @filterChange="${e => this.onFilterChange("region", e.detail.value)}"></region-filter>`;
             break;
         case "feature":
-            content = html`<feature-filter .cellbaseClient="${this.cellbaseClient}" .query=${this.query} @filterChange="${e => this.onFilterChange("feature", e.detail.value)}"></feature-filter>`;
+            content = html`<feature-filter .cellbaseClient="${this.cellbaseClient}" .query=${this.query} 
+                                            @filterChange="${e => this.onFilterChange("xref", e.detail.value)}"></feature-filter>`;
             break;
         case "diseasePanels":
             content = html`<disease-filter .opencgaSession="${this.opencgaSession}"></disease-filter>`;
             break;
         case "biotype":
-            content = html`<cellbase-biotype-filter .config="${this.config}" .query="${this.query}" @filterChange="${e => this.onFilterChange("biotype", e.detail.value)}"></cellbase-biotype-filter>`;
+            content = html`<biotype-filter biotypes="" .config="${this.config}"></biotype-filter>`;
             break;
         case "type":
             content = html`<variant-type-filter .config="${this.config}" .query="${this.query}" .cellbaseClient="${this.cellbaseClient}" ></variant-type-filter>`;

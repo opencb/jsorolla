@@ -1,7 +1,7 @@
 /*
  * Copyright 2015-2016 OpenCB
  *
- * Licensed under the Apache License, Version 2.0 (the "Licen=se");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,7 +17,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 
-export default class CellbaseBiotypeFilter extends LitElement {
+export default class BiotypeFilter extends LitElement {
 
     constructor() {
         super();
@@ -37,6 +37,9 @@ export default class CellbaseBiotypeFilter extends LitElement {
             },
             query: {
                 type: Object
+            },
+            biotypes: {
+                type: Array
             },
             config: {
                 type: Object
@@ -84,9 +87,9 @@ export default class CellbaseBiotypeFilter extends LitElement {
                             ${this._config.biotypes.length && this._config.biotypes.map( biotype => html`
                                 <option value="${biotype}">${biotype}</option>
                             `)}
-            </select>
-                `;
+                    </select>
+               `;
     }
 }
 
-customElements.define("cellbase-biotype-filter", CellbaseBiotypeFilter);
+customElements.define("biotype-filter", BiotypeFilter);
