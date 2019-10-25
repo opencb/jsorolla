@@ -18,8 +18,8 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import "./../../commons/variant-modal-ontology.js";
 
 import "./../../commons/filters/cadd-filter.js";
-import "./../../commons/filters/cellbase-biotype-filter.js";
-import "./../../commons/filters/cellbase-region-filter.js";
+import "../../commons/filters/biotype-filter.js";
+import "../../commons/filters/region-filter.js";
 import "./../../commons/filters/clinvar-accessions-filter.js";
 import "./../../commons/filters/cohort-filter.js";
 import "./../../commons/filters/consequence-type-filter.js";
@@ -229,11 +229,11 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     onSearch() {
-        debugger
         this.notifySearch(this.query);
     }
 
     notifyQuery(query) {
+        debugger
         this.dispatchEvent(new CustomEvent("queryChange", {
             detail: {
                 query: query,
@@ -332,6 +332,7 @@ export default class OpencgaVariantFilter extends LitElement {
         // }
 
         //Only update query if really needed, this avoids unneeded web refresh
+        debugger
         if (needUpdateQuery) {
             this.updateClinicalFilterQuery = false;
             this.query = _query;
@@ -812,7 +813,28 @@ export default class OpencgaVariantFilter extends LitElement {
         }
     }
 
-    updateQuery(key, value) {
+    // updateQuery(key, value) {
+    //     if (value && value !== "") {
+    //         let filter = {[key]: value};
+    //         this.query = {...this.query, ...filter};
+    //     } else {
+    //         delete this.query[key]
+    //     }
+    //
+    //     this.notifyQuery(this.query);
+    // }
+
+
+    /***
+     * Handles filterChange events from all the filter components (this is the new updateQueryFilters)
+     * @param key {string} the name of the property in this.query
+     * @param value {string} the new value of the property 
+     */
+    onFilterChange(key, value) {
+        console.log("filterChange", {[key]:value});
+        debugger
+        //TODO decomment this at the end of the refactor
+        //this.query = {...this.query, {[key]:value}};
         if (value && value !== "") {
             let filter = {[key]: value};
             this.query = {...this.query, ...filter};
@@ -821,20 +843,6 @@ export default class OpencgaVariantFilter extends LitElement {
         }
 
         this.notifyQuery(this.query);
-    }
-
-
-    /***
-     * Handles filterChange events from all the filter components (this is the new updateQueryFilters)
-     * @param key {string} the name of the property in this.query
-     * @param value {string} the new value of the property 
-     */
-    onFilterChange(key,value) {
-        console.log("filterChange", {[key]:value});
-        
-        //TODO decomment this at the end of the refactor
-        //this.query = {...this.query, {[key]:value}};
-        
     }
 
     //binding::from the view to this.query
@@ -1291,17 +1299,18 @@ export default class OpencgaVariantFilter extends LitElement {
             content = html`<file-filter .query="${this.query}" @filterChange="${e => this.onFilterChange("filter", e.detail.value)}"></file-filter>`;
             break;
         case "location":
-            content = html`<cellbase-region-filter .celbaseClient="${this.cellbaseClient}" region="${this.query.region}" 
-                            @filterChange="${e => this.onFilterChange("region", e.detail.value)}"></cellbase-region-filter>`;
+            content = html`<region-filter .cellbaseClient="${this.cellbaseClient}" region="${this.query.region}" 
+                                           @filterChange="${e => this.onFilterChange("region", e.detail.value)}"></region-filter>`;
             break;
         case "feature":
-            content = html`<feature-filter .cellbaseClient="${this.cellbaseClient}" .query=${this.query} @filterChange="${e => this.onFilterChange("feature", e.detail.value)}"></feature-filter>`;
+            content = html`<feature-filter .cellbaseClient="${this.cellbaseClient}" .query=${this.query} 
+                                            @filterChange="${e => this.onFilterChange("xref", e.detail.value)}"></feature-filter>`;
             break;
         case "diseasePanels":
             content = html`<disease-filter .opencgaSession="${this.opencgaSession}"></disease-filter>`;
             break;
         case "biotype":
-            content = html`<cellbare-biotype-filter .config="${this.config}"></cellbare-biotype-filter>`;
+            content = html`<biotype-filter biotypes="" .config="${this.config}"></biotype-filter>`;
             break;
         case "type":
             content = html`<variant-type-filter .config="${this.config}"></variant-type-filter>`;

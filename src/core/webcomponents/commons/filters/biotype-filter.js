@@ -17,7 +17,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 
-export default class CellbaseBiotypeFilter extends LitElement {
+export default class BiotypeFilter extends LitElement {
 
     constructor() {
         super();
@@ -38,6 +38,9 @@ export default class CellbaseBiotypeFilter extends LitElement {
             query: {
                 type: Object
             },
+            biotypes: {
+                type: Array
+            },
             config: {
                 type: Object
             }
@@ -54,10 +57,10 @@ export default class CellbaseBiotypeFilter extends LitElement {
     updated(changedProperties) {
         console.log("changedProperties", changedProperties); // logs previous values
         if (changedProperties.has("cellbaseClient")) {
-            this.opencgaSessionObserver();
+            // this.opencgaSessionObserver();
         }
         if (changedProperties.has("query")) {
-            this.queryObserver();
+            // this.queryObserver();
         }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
@@ -86,8 +89,8 @@ export default class CellbaseBiotypeFilter extends LitElement {
                                 <option value="${biotype}">${biotype}</option>
                             `)}
                     </select>
-                `;
+               `;
     }
 }
 
-customElements.define("cellbase-biotype-filter", CellbaseBiotypeFilter);
+customElements.define("biotype-filter", BiotypeFilter);

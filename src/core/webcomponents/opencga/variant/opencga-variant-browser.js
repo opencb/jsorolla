@@ -205,7 +205,6 @@ export default class OpencgaVariantBrowser extends LitElement {
     onQueryFilterSearch(e) {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
-        debugger
         this.requestUpdate();
     }
 
@@ -480,17 +479,7 @@ export default class OpencgaVariantBrowser extends LitElement {
         }
     }
 
-// <opencga-active-filters .opencgaClient="${this.opencgaSession.opencgaClient}"
-//     defaultStudy="${this.opencgaSession.study.alias}"
-//         .query="${this.preparedQuery}"
-//         .refresh="${this.executedQuery}"
-//         .filters="${this._config.filter.examples}"
-// @activeFilterChange="${this.onActiveFilterChange}"
-// @activeFilterClear="${this.onActiveFilterClear}"
-//     filterBioformat="VARIANT"
-//         .alias="${this._config.activeFilterAlias}"
-//         .config="${this._config.activeFilters}">
-//         </opencga-active-filters>
+
 
     render() {
         return html`
@@ -556,7 +545,17 @@ export default class OpencgaVariantBrowser extends LitElement {
 
     
     <div id="${this._prefix}MainWindow" class="col-md-10">
-        
+        <opencga-active-filters .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                defaultStudy="${this.opencgaSession.study.alias}"
+                                .query="${this.preparedQuery}"
+                                .refresh="${this.executedQuery}"
+                                .filters="${this._config.filter.examples}"
+                                @activeFilterChange="${this.onActiveFilterChange}"
+                                @activeFilterClear="${this.onActiveFilterClear}"
+                                filterBioformat="VARIANT"
+                                .alias="${this._config.activeFilterAlias}"
+                                .config="${this._config.activeFilters}">
+        </opencga-active-filters>
 
         <div class="col-md-12" style="padding: 5px 0px 5px 0px">
             <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px;margin-left: 0px">
