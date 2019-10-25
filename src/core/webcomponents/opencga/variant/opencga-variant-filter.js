@@ -375,7 +375,8 @@ export default class OpencgaVariantFilter extends LitElement {
         this.openModalOntology();
     }
 
-    handleCollapseAction(e) {
+    //DONE move to population-frequency-filter
+    /*handleCollapseAction(e) {
         let id = e.target.dataset.id;
         let elem = $("#" + id)[0];
         elem.hidden = !elem.hidden;
@@ -385,7 +386,7 @@ export default class OpencgaVariantFilter extends LitElement {
             e.target.className = "fa fa-minus";
         }
     }
-
+    //DONE move to population-frequency-filter
     keyUpAllPopFreq(e) {
         let studyId = e.target.getAttribute("data-study");
         let study = this.populationFrequencies.studies.find((study) => {
@@ -397,7 +398,7 @@ export default class OpencgaVariantFilter extends LitElement {
         });
 
         this.updateQueryFilters();
-    }
+    }*/
 
     updateConsequenceTypeFilter(e) {
         // Select LoF term checkboxes
@@ -606,10 +607,12 @@ export default class OpencgaVariantFilter extends LitElement {
             this.showPanelGenes(this.query.panel.split(","));
         }
 
+        /* implemented in cellbase-biotype-filter
         // Biotype
         if (UtilsNew.isNotUndefinedOrNull(this.query.biotype)) {
             $("#" + this._prefix + "GeneBiotypes").selectpicker("val", this.query.biotype.split(","));
         }
+         */
 
         // Panel - annot-panel
         // TODO Genes must be displayed in Xref textarea
@@ -812,28 +815,20 @@ export default class OpencgaVariantFilter extends LitElement {
         }
     }
 
-    updateQuery(key, value) {
-        if (value && value !== "") {
-            let filter = {[key]: value};
-            this.query = {...this.query, ...filter};
-        } else {
-            delete this.query[key]
-        }
-
-        this.notifyQuery(this.query);
-    }
-
-
     /***
      * Handles filterChange events from all the filter components (this is the new updateQueryFilters)
      * @param key {string} the name of the property in this.query
      * @param value {string} the new value of the property 
      */
-    onFilterChange(key,value) {
+    onFilterChange(key, value) {
         console.log("filterChange", {[key]:value});
-        
+
+        //if(!value || value === "") delete this.query[key]
+
         //TODO decomment this at the end of the refactor
         //this.query = {...this.query, {[key]:value}};
+
+        //this.notifyQuery(this.query);
         
     }
 
@@ -998,16 +993,18 @@ export default class OpencgaVariantFilter extends LitElement {
         }
 
         // Biotype
-        let biotypeDropdown = PolymerUtils.getElementById(this._prefix + "GeneBiotypes");
+        //DONE moved in cellbase-biotype-filter (actually no, I don't need the whole block)
+        /*let biotypeDropdown = PolymerUtils.getElementById(this._prefix + "GeneBiotypes");
         if (UtilsNew.isNotUndefinedOrNull(biotypeDropdown) && UtilsNew.isNotEmpty(biotypeDropdown.value)) {
             let types = PolymerUtils.querySelectorAll("option:checked", biotypeDropdown);
             let biotypes = [];
             types.forEach(option => biotypes.push(option.value));
             _filters.biotype = biotypes.join(",");
-        }
+        }*/
 
+        //DONE moved to variant-type-filter
         // Type
-        let typeCheckbox = PolymerUtils.getElementById(this._prefix + "Type");
+        /*let typeCheckbox = PolymerUtils.getElementById(this._prefix + "Type");
         if (UtilsNew.isNotUndefinedOrNull(typeCheckbox)) {
             let types = PolymerUtils.querySelectorAll("input:checked", typeCheckbox);
             let typesAux = [];
@@ -1018,10 +1015,12 @@ export default class OpencgaVariantFilter extends LitElement {
                 _filters.type = typesAux.join(",");
             }
         }
+        */
 
+        //DONE moved in population-frequency-filter
         // Population Frequencies
         // Population minor allele frequency: {study}:{population}[<|>|<=|>=]{number}
-        let popFreq = [];
+        /*let popFreq = [];
         if (UtilsNew.isNotUndefinedOrNull(this.populationFrequencies) && UtilsNew.isNotEmptyArray(this.populationFrequencies.studies)) {
             for (let i = 0; i < this.populationFrequencies.studies.length; i++) {
                 let study = this.populationFrequencies.studies[i].id;
@@ -1039,7 +1038,7 @@ export default class OpencgaVariantFilter extends LitElement {
         }
         if (popFreq.length > 0) {
             _filters["populationFrequencyAlt"] = popFreq.join(";");
-        }
+        }*/
 
         // Protein Substitution Scores -  Sift and Polyphen
         let pss = [];
@@ -1291,7 +1290,7 @@ export default class OpencgaVariantFilter extends LitElement {
             content = html`<file-filter .query="${this.query}" @filterChange="${e => this.onFilterChange("filter", e.detail.value)}"></file-filter>`;
             break;
         case "location":
-            content = html`<cellbase-region-filter .celbaseClient="${this.cellbaseClient}" region="${this.query.region}" 
+            content = html`<cellbase-region-filter .celbaseClient="${this.cellbaseClient}" region="${this.query.region || ""}" 
                             @filterChange="${e => this.onFilterChange("region", e.detail.value)}"></cellbase-region-filter>`;
             break;
         case "feature":
@@ -1301,10 +1300,10 @@ export default class OpencgaVariantFilter extends LitElement {
             content = html`<disease-filter .opencgaSession="${this.opencgaSession}"></disease-filter>`;
             break;
         case "biotype":
-            content = html`<cellbare-biotype-filter .config="${this.config}"></cellbare-biotype-filter>`;
+            content = html`<cellbase-biotype-filter .config="${this.config}" .query="${this.query}" @filterChange="${e => this.onFilterChange("biotype", e.detail.value)}"></cellbase-biotype-filter>`;
             break;
         case "type":
-            content = html`<variant-type-filter .config="${this.config}"></variant-type-filter>`;
+            content = html`<variant-type-filter .config="${this.config}" .query="${this.query}" .cellbaseClient="${this.cellbaseClient}" ></variant-type-filter>`;
             break;
         case "populationFrequency":
             content = html`<population-frequency-filter .populationFrequencies="${this.populationFrequencies}" ?showSetAll="${subsection.showSetAll}"></population-frequency-filter>`;

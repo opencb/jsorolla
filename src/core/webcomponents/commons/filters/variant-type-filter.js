@@ -16,7 +16,9 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import {checkBoxContainer} from "/src/styles/styles.js"
 
+//TODO
 export default class VariantTypeFilter extends LitElement {
 
     constructor() {
@@ -45,23 +47,20 @@ export default class VariantTypeFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "crf-" + Utils.randomString(6);
+        this._prefix = "crf-" + Utils.randomString(6) + "_";
         this._config = this.getDefaultConfig();
-
+        this.selectedVariantTypes = [];
         this.requestUpdate();
     }
 
-    updated(changedProperties) {
-        console.log("changedProperties", changedProperties); // logs previous values
-        if (changedProperties.has("cellbaseClient")) {
-            this.opencgaSessionObserver();
-        }
-        if (changedProperties.has("query")) {
-            this.queryObserver();
-        }
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-        }
+    filterChange(e) {
+        console.log("filterChange", this.selectedVariantTypes.join(",") || null)
+        let event = new CustomEvent('filterChange', {
+            detail: {
+                value: this.selectedVariantTypes.join(",") || null
+            }
+        });
+        this.dispatchEvent(event);
     }
 
     getDefaultConfig() {
@@ -69,19 +68,48 @@ export default class VariantTypeFilter extends LitElement {
             types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION", "MNV"],
         }
     }
-    onChange(e) {
-        let event = new CustomEvent('variantTypeChange', {
-            detail: {
-                region: e.target.value
-            }
-        });
-        this.dispatchEvent(event);
+    toggle(type) {
+        let checkbox = this.querySelector(`input[value=${type}]`)
+        if(!~this.selectedVariantTypes.indexOf(type)) {
+            this.selectedVariantTypes.push(type);
+            checkbox.checked = true;
+        } else {
+            this.selectedVariantTypes.splice(this.selectedVariantTypes.indexOf(type),1)
+            checkbox.checked = false;
+        }
+        console.log(this.selectedVariantTypes)
+    }
+
+    handleCollapseAction(e) {
+        let id = e.target.dataset.id;
+        let elem = $("#" + id)[0];
+        elem.hidden = !elem.hidden;
+        if (elem.hidden) {
+            e.target.className = "fa fa-plus";
+        } else {
+            e.target.className = "fa fa-minus";
+        }
     }
 
     render() {
         return html`
+            <style>
+                ${checkBoxContainer}
+            </style>    
             <div id="${this._prefix}Type">
-                ${this._config.types && this._config.types.length && this._config.types.map( type => html`<input type="checkbox" value="${type}" class="${this._prefix}FilterCheckBox" @change="${this.onChange}"> ${type}<br>`)}
+             <ul class="checkbox-container">
+                ${this._config.types && this._config.types.length && this._config.types.map( type => html`
+                    <li>
+                        <a @click="${ _ => this.toggle(type) }" style="cursor: pointer;">
+                            <!--<input type="checkbox" value="${type}"  ?checked="${~this.selectedVariantTypes.indexOf(type)}" @change="${this.onChange}" @click="${this.checkboxToggle}"
+                            ?checked="${1}" class="${this._prefix}FilterCheckBox"/> -->
+                            <input type="checkbox" value="${type}" ?checked="${~this.selectedVariantTypes.indexOf(type)}" class="${this._prefix}FilterCheckBox"/>
+                            <span class="checkmark-label">${type}</span>
+                            <span class="checkmark"></span>
+                        </a>
+                    </li>
+                `)}
+             </ul>
             </div>
         `;
     }

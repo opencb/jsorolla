@@ -94,7 +94,7 @@ export default class ConsequenceTypeFilter extends LitElement {
                                                                             </span>
                                                                     </label>
                                                                 </li>
-                                                            `)}
+                                                            `) }
                                                         </ul>
                                                     ` : html`
                                                         <input id="${this._prefix}${category.name}Checkbox" type="checkbox"

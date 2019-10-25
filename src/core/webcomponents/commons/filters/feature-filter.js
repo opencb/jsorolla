@@ -73,6 +73,7 @@ export default class FeatureFilter extends LitElement {
                 .then(response => {
                     console.log("response from cellBaseClient", response.response[0].result);
                     this.featureDatalist = response.response[0].result;
+                    this.requestUpdate();
                 });
         }
         this.requestUpdate();

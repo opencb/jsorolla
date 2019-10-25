@@ -133,15 +133,6 @@ export default class OpencbGridToolbar extends LitElement {
                             <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i id="${this._prefix}ColumnIcon" class="fa fa-columns" aria-hidden="true" style="padding-right: 5px"></i> Columns <span class="caret"></span>
                             </button>
-                            <div class="dropdown-menu btn-sm checkbox-container">
-                                
-                                            <a>
-                                                <input type="checkbox" />
-                                                <span class="checkmark-label">aaa</span>
-                                                <span class="checkmark"></span>
-                                            </a>
-                            </div>
-                            
                             <ul class="dropdown-menu btn-sm checkbox-container">
                                 ${this._config.columns.length ?
                                     this._config.columns.map(item => this.isTrue(item.eligible) ? html`

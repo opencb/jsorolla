@@ -49,14 +49,14 @@ export default class StudyFilter extends LitElement {
     }
 
     filterChange() {
-        let primaryProject = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
+        let primaryProject = this.opencgaSession.project.fqn + ":" + this.opencgaSession.study.alias;
         let querystring;
         //AND or OR operators
         if(this.operator !=="!") {
-            querystring = [primaryProject, ...this.studies.map(study => `${this.opencgaSession.project.alias}:${study}`)].join(this.operator);
+            querystring = [primaryProject, ...this.studies.map(study => `${this.opencgaSession.project.fqn}:${study}`)].join(this.operator);
         } else {
             //NOT operator
-            querystring = [primaryProject, ...this.studies.map(study => `${this.operator}${this.opencgaSession.project.alias}:${study}`)].join(";");
+            querystring = [primaryProject, ...this.studies.map(study => `${this.operator}${this.opencgaSession.project.fqn}:${study}`)].join(";");
         }
         console.log("filterChange event value:",querystring);
         let event = new CustomEvent('filterChange', {

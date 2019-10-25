@@ -1,7 +1,7 @@
 /*
  * Copyright 2015-2016 OpenCB
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "Licen=se");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -45,23 +45,12 @@ export default class CellbaseBiotypeFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "crf-" + Utils.randomString(6);
+        this._prefix = "crf-" + Utils.randomString(6) + "_";
         this._config = this.getDefaultConfig();
-
+        if(this.query && this.query.biotype && this.query.biotype.length){
+            $("#" + this._prefix + "GeneBiotypes").selectpicker("val", this.query.biotype.split(","));
+        }
         this.requestUpdate();
-    }
-
-    updated(changedProperties) {
-        console.log("changedProperties", changedProperties); // logs previous values
-        if (changedProperties.has("cellbaseClient")) {
-            this.opencgaSessionObserver();
-        }
-        if (changedProperties.has("query")) {
-            this.queryObserver();
-        }
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-        }
     }
 
     getDefaultConfig() {
@@ -78,14 +67,24 @@ export default class CellbaseBiotypeFilter extends LitElement {
         }
     }
 
+    filterChange(e) {
+        let event = new CustomEvent('filterChange', {
+            detail: {
+                value: $(e.target).val() ? $(e.target).val().join(",") : null
+            }
+        });
+        this.dispatchEvent(event);
+    }
+
     render() {
         return html`
-                    <select class="selectpicker" id="${this._prefix}GeneBiotypes" data-size="10" data-live-search="true"
-                            data-selected-text-format="count" multiple>
+            <select class="selectpicker" id="${this._prefix}GeneBiotypes" data-size="10" data-live-search="true"
+                            data-selected-text-format="count" multiple @change="${this.filterChange}"
+                            >
                             ${this._config.biotypes.length && this._config.biotypes.map( biotype => html`
                                 <option value="${biotype}">${biotype}</option>
                             `)}
-                    </select>
+            </select>
                 `;
     }
 }

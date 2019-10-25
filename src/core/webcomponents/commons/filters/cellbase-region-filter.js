@@ -47,9 +47,11 @@ export default class CellbaseRegionFilter extends LitElement {
     _init() {
         this._prefix = "crf-" + Utils.randomString(6);
         this._config = this.getDefaultConfig();
-        console.log("this.region",this.region);
+        //explicit check for undefined is required since this.region is a string Prop and lit-element cast an undefined value as the string "undefined"
 
-        this.requestUpdate();
+    }
+    firstUpdated() {
+        this.region = typeof this.region !=="undefined" ? this.region : ""
     }
 
     getDefaultConfig() {

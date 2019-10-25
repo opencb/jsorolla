@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
 
+/*
+* UX improvement: mouse drag for the numeric fields (e.g. jquery.stepper.js)
+*
+* */
 export default class PopulationFrequencyFilter extends LitElement {
 
     constructor() {
@@ -38,67 +42,107 @@ export default class PopulationFrequencyFilter extends LitElement {
         }
     }
 
-    _init(){
+    _init() {
         this._prefix = "pff-" + Utils.randomString(6) + "_";
-    }
+        this.populationFrequenciesQuery = [];
 
-    updated(changedProperties) {
-        if(changedProperties.has("property")) {
-            this.propertyObserver();
+    }
+    filterChange(e) {
+        //TODO refactor!
+        let popFreq = [];
+        if (this.populationFrequencies.studies && this.populationFrequencies.studies.length) {
+            this.populationFrequencies.studies.forEach(study => {
+                let study_id = study.id
+                if (study.populations && study.populations.length) {
+                    study.populations.forEach(population => {
+                        let population_id = population.id;
+                        let studyTextbox = this.querySelector("#" + this._prefix + study_id + population_id);
+                        if (studyTextbox && studyTextbox.value) {
+                            let operator = PolymerUtils.getElementById(this._prefix + study_id + population_id + "Operator");
+                            let pf = study_id + ":" + population_id + operator.value + studyTextbox.value;
+                            popFreq.push(pf);
+                        }
+
+                    })
+                }
+            })
         }
-    }
-
-    onChange(e) {
-        //TODO fire a unique event
-        console.log("populationFrequencyFilter change", e.target);
-        let event = new CustomEvent('populationFrequencyFilterChange', {
+        console.log(popFreq);
+        let event = new CustomEvent("filterChange", {
             detail: {
-                populationFrequency: e.target.value
-
+                value: popFreq ? popFreq.join(";") : null
             }
         });
         this.dispatchEvent(event);
     }
 
+    handleCollapseAction(e) {
+        let id = e.target.dataset.id;
+        let elem = $("#" + id)[0];
+        elem.hidden = !elem.hidden;
+        if (elem.hidden) {
+            e.target.className = "fa fa-plus";
+        } else {
+            e.target.className = "fa fa-minus";
+        }
+    }
+
+    keyUpAllPopFreq(e) {
+        let studyId = e.target.getAttribute("data-study");
+        let study = this.populationFrequencies.studies.find((study) => {
+            return study.id === studyId;
+        });
+        study.populations.forEach((popFreq) => {
+            console.log(e.target.value)
+            this.querySelector("#" + this._prefix + studyId + popFreq.id).value = e.target.value;
+        });
+        this.filterChange();
+    }
+
     render() {
         return html`
-                        ${this.populationFrequencies.studies && this.populationFrequencies.studies.length && this.populationFrequencies.studies.map(study => html`
-                            <div style="padding-top: 10px">
-                                <i id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}" class="fa fa-plus" style="cursor: pointer;padding-right: 10px" @click="${this.handleCollapseAction}"></i>
-                                <strong>${study.title}</strong>
-                                <div id="${this._prefix}${study.id}" class="form-horizontal" hidden>
-                                    ${this.showSetAll ? html`
-                                        <div class="form-group" style="margin: 5px 0px">
-                                            <span class="col-md-7 control-label" data-toggle="tooltip" data-placement="top" style="text-align: left;">Set all</span>
-                                            <div class="col-md-5" style="padding: 0px 10px">
-                                                <input id="${this._prefix}${study.id}Input" type="text" data-study="${study.id}" value="" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                                name="${study.id}Input" @keyup="${this.keyUpAllPopFreq}" @change="${this.updateQueryFilters}" >
-                                            </div>
-                                        </div>
-                                    ` : ""}
-                                    ${study.populations && study.populations.length && study.populations.map(popFreq => html`
-                                        <div class="form-group" style="margin: 5px 0px">
-                                            <span class="col-md-3 control-label" data-toggle="tooltip" data-placement="top" title="${popFreq.title}">${popFreq.id}</span>
-                                            <div class="col-md-4" style="padding: 0px 10px">
-                                                <select id="${this._prefix}${study.id}${popFreq.id}Operator" name="${popFreq.id}Operator"
-                                                        class="form-control input-sm ${this._prefix}FilterSelect" style="padding: 0px 5px" @change="${this.updateQueryFilters}">
-                                                    <option value="<" selected><</option>
-                                                    <option value="<="><=</option>
-                                                    <option value=">">></option>
-                                                    <option value=">=">>=</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-5" style="padding: 0px 10px">
-                                                <input id="${this._prefix}${study.id}${popFreq.id}" type="text" value="" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                                        name="${study.id}_${popFreq.id}" @keyup="${this.updateQueryFilters}">
-                                            </div>
-                                        </div>
-                                    `)}
+            ${this.populationFrequencies.studies && this.populationFrequencies.studies.length && this.populationFrequencies.studies.map(study => html`
+                <div style="padding-top: 10px">
+                    <i id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}" class="fa fa-plus"
+                       style="cursor: pointer;padding-right: 10px" @click="${this.handleCollapseAction}"></i>
+                    <strong>${study.title}</strong>
+                    <div id="${this._prefix}${study.id}" class="form-horizontal" hidden>
+                        ${this.showSetAll ? html`
+                            <div class="form-group" style="margin: 5px 0px">
+                                <span class="col-md-7 control-label" data-toggle="tooltip" data-placement="top"
+                                      style="text-align: left;">Set all</span>
+                                <div class="col-md-5" style="padding: 0px 10px">
+                                    <input id="${this._prefix}${study.id}Input" type="number" data-study="${study.id}" value=""
+                                           class="form-control input-sm ${this._prefix}FilterTextInput"
+                                           name="${study.id}Input" @input="${this.keyUpAllPopFreq}">
+                                </div>
+                            </div>
+                        ` : ""}
+                        ${study.populations && study.populations.length && study.populations.map(popFreq => html`
+                            <div class="form-group" style="margin: 5px 0px">
+                                <span class="col-md-3 control-label" data-toggle="tooltip" data-placement="top" title="${popFreq.title}">${popFreq.id}</span>
+                                <div class="col-md-4" style="padding: 0px 10px">
+                                    <select id="${this._prefix}${study.id}${popFreq.id}Operator" name="${popFreq.id}Operator"
+                                            class="form-control input-sm ${this._prefix}FilterSelect" style="padding: 0px 5px"
+                                            @change="${this.filterChange}">
+                                        <option value="<" selected>&lt;</option>
+                                        <option value="<=">&le;</option>
+                                        <option value=">">&gt;</option>
+                                        <option value=">=">&ge;</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-5" style="padding: 0px 10px">
+                                    <input id="${this._prefix}${study.id}${popFreq.id}" type="number" value="${this.commonValue}"
+                                           class="form-control input-sm ${this._prefix}FilterTextInput"
+                                           name="${study.id}_${popFreq.id}" @input="${this.filterChange}">
                                 </div>
                             </div>
                         `)}
-                `;
+                    </div>
+                </div>
+            `)}
+        `;
     }
 }
 
-customElements.define('population-frequency-filter', PopulationFrequencyFilter);
+customElements.define("population-frequency-filter", PopulationFrequencyFilter);
