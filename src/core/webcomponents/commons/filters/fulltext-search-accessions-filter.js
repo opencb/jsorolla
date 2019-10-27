@@ -20,6 +20,8 @@ export default class FulltextSearchAccessionsFilter extends LitElement {
 
     constructor() {
         super();
+
+        // Set status and init private properties
         this._init();
     }
 
@@ -31,80 +33,42 @@ export default class FulltextSearchAccessionsFilter extends LitElement {
         return {
             opencgaSession: {
                 type: Object
+            },
+            placeholder: {
+                type: String
             }
         }
     }
 
     _init(){
         this._prefix = "fsaf-" + Utils.randomString(6) + "_";
+        this.placeholder = "Full-text search, e.g. *melanoma*";
     }
 
-    updated(changedProperties) {
-        if(changedProperties.has("property")) {
-            this.propertyObserver();
+    firstUpdated(_changedProperties) {
+        if (this.query && typeof this.query["traits"] !== "undefined") {
+            PolymerUtils.setValue(this._prefix + "TraitsTextarea", this.query.traits);
         }
     }
 
-    onChange(e) {
-        //TODO fire a unique event
-        console.log("fulltextSearchAccessionsFilterChange change", e.target);
-        let event = new CustomEvent('fulltextSearchAccessionsFilterChange', {
+    filterChange(e) {
+        let traits;
+        let inputTextArea = PolymerUtils.getElementById(this._prefix + "TraitsTextarea");
+        if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
+            traits = inputTextArea.value;
+        }
+        console.log("filterChange", traits);
+        let event = new CustomEvent('filterChange', {
             detail: {
-                fulltextSearchAccessionsFilter: e.target.value
-
+                value: traits || null
             }
         });
         this.dispatchEvent(event);
     }
 
-    updateQueryFilters(){
-        console.log("TODO implement&refactor from opencga-variant-filter");
-    }
-
     render() {
         return html`
-            <div style="padding-top: 10px">
-                <div class="row">
-                    <div class="col-md-5 form-group" style="padding-right: 5px">
-                        <span class="control-label">Raw</span>
-                    </div>
-                    <div class="col-md-3" style="padding: 0px 5px">
-                        <select name="caddRawOperator" id="${this._prefix}CaddRawOperator"
-                                class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px"
-                                @change="${this.updateQueryFilters}">
-                            <option value="<"><</option>
-                            <option value="<="><=</option>
-                            <option value=">" selected>></option>
-                            <option value=">=">>=</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4" style="padding-left: 5px">
-                        <input type="text" value="" class="${this._prefix}FilterTextInput form-control input-sm"
-                               id="${this._prefix}CaddRawInput" name="caddRaw" @change="${this.updateQueryFilters}">
-                    </div>
-            
-                </div>
-            </div>
-            
-            <div style="padding-top: 10px">
-                <div class="row">
-                    <span class="col-md-5 control-label" style="padding-right: 5px">Scaled</span>
-                    <div class="col-md-3" style="padding: 0px 5px">
-                        <select name="caddRScaledOperator" id="${this._prefix}CaddScaledOperator"
-                                class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px"
-                                @change="${this.updateQueryFilters}">
-                            <option value="<" selected><</option>
-                            <option value="<="><=</option>
-                            <option value=">">></option>
-                            <option value=">=">>=</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4" style="padding-left: 5px">
-                        <input type="text" value="" class="${this._prefix}FilterTextInput form-control input-sm"
-                               id="${this._prefix}CaddScaledInput" name="caddScaled" @change="${this.updateQueryFilters}">
-                    </div>
-                </div>
-            </div>
+            <textarea id="${this._prefix}TraitsTextarea" class="form-control clearable ${this._prefix}FilterTextInput" rows="5" name="traits" placeholder="${this.placeholder}" @keyup="${this.filterChange}"></textarea>
         `;
     }
 }

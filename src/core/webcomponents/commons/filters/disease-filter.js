@@ -16,10 +16,13 @@
 
 import {LitElement, html} from '/web_modules/lit-element.js';
 
+//TODO proper functionality check
 export default class DiseaseFilter extends LitElement {
 
     constructor() {
         super();
+
+        // Set status and init private properties
         this._init();
     }
 
@@ -38,9 +41,22 @@ export default class DiseaseFilter extends LitElement {
     _init(){
         this._prefix = "ff-" + Utils.randomString(6) + "_";
     }
+    
+    firstUpdated(_changedProperties) {
+        if (this.query && this.query.panel) {
+            $(`select#${this._prefix}DiseasePanels`).selectpicker("val", this.query.panel.split(","));
+            this.showPanelGenes(this.query.panel.split(","));
+        }
+        $(`select#${this._prefix}DiseasePanels`).selectpicker("render");
+        $(`select#${this._prefix}DiseasePanels`).selectpicker({
+            iconBase: "fa",
+            tickIcon: "fa-check"
+        });
+
+    }
 
     filterChange() {
-        console.log("filterChange event value:");
+        console.log("filterChange", this.panel);
         let event = new CustomEvent('filterChange', {
             detail: {
                 value: ""
@@ -49,8 +65,52 @@ export default class DiseaseFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
+    //TODO urgent refactor
+    showPanelGenes(panels) {
+        PolymerUtils.getElementById(this._prefix + "DiseasePanelsTextarea").value = "";
+        if (UtilsNew.isNotEmptyArray(panels)) {
+            let _this = this;
+            this.opencgaSession.opencgaClient.panels()
+                .info(panels.join(","), {
+                    study: _this.opencgaSession.study.fqn,
+                    include: "id,name,genes.id,genes.name,regions.id"
+                }, {})
+                .then(function (response) {
+                    let text = "";
+                    for (let panelResponse of response.response) {
+                        let panel = panelResponse.result[0];
+                        let geneNames = [];
+                        for (let gene of panel.genes) {
+                            geneNames.push(gene.name);
+                        }
+                        let regions = [];
+                        for (let region of panel.regions) {
+                            regions.push(region.id);
+                        }
+                        text += `${panel.name} (${geneNames.length} genes and ${regions.length} regions): ${geneNames.join(",")} \n`;
+                        text += `${geneNames.join(",")} \n`;
+                        text += `${regions.join(",")} \n\n`;
+                    }
+                    PolymerUtils.getElementById(_this._prefix + "DiseasePanelsTextarea").value = text;
+                })
+                .catch(function (response) {
+                    console.error(response);
+                });
+        }
+    }
+    
     onChange(e) {
-        console.log("disease-filter", e)
+        console.log("disease-filter", e);
+        let panelsDropdown = this.querySelector("#" + this._prefix + "DiseasePanels");
+        if (UtilsNew.isNotUndefinedOrNull(panelsDropdown)) {
+            let selectedPanels = panelsDropdown.querySelectorAll("option:checked");
+            let panels = [];
+            selectedPanels.forEach(option => panels.push(option.value));
+            if (panels.length > 0) {
+                this.panel = panels.join(",");
+                this.showPanelGenes(panels);
+            }
+        }
     }
 
     render() {
@@ -65,7 +125,7 @@ export default class DiseaseFilter extends LitElement {
                         </option>
                     `)}
                 </select>
-            <textarea id="${this._prefix}DiseasePanelsTextarea" class="form-control" rows="4" style="margin-top: 5px;background: #f7f7f7" disabled> </textarea>
+                <textarea id="${this._prefix}DiseasePanelsTextarea" class="form-control" rows="4" style="margin-top: 5px;background: #f7f7f7" disabled> </textarea>
             </div>
         `;
     }

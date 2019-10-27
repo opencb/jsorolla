@@ -20,6 +20,8 @@ export default class ClinvarAccessionsFilter extends LitElement {
 
     constructor() {
         super();
+
+        // Set status and init private properties
         this._init();
     }
 
@@ -34,6 +36,9 @@ export default class ClinvarAccessionsFilter extends LitElement {
             },
             placeholder: {
                 type: String
+            },
+            query: {
+                type: Object
             }
         }
     }
@@ -43,30 +48,30 @@ export default class ClinvarAccessionsFilter extends LitElement {
         this.placeholder = "RCV000058226";
     }
 
-    updated(changedProperties) {
-        if(changedProperties.has("property")) {
-            this.propertyObserver();
+    firstUpdated(_changedProperties) {
+        if (this.query && typeof this.query["clinvar"] !== "undefined") {
+            PolymerUtils.setValue(this._prefix + "ClinVarTextarea", this.query["clinvar"]);
         }
     }
 
-    onChange(e) {
-        //TODO fire a unique event
-        console.log("ClinvarAccessionsFilter change", e.target);
-        let event = new CustomEvent('clinvarAccessionsFilterChange', {
+    filterChange(e) {
+        let _clinvar;
+        let inputTextArea = PolymerUtils.getElementById(this._prefix + "ClinVarTextarea");
+        if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
+            _clinvar = inputTextArea.value.trim();
+            _clinvar = _clinvar.replace(/\r?\n/g, ",").replace(/\s/g, "");
+        }
+        console.log("filterChange", _clinvar);
+        let event = new CustomEvent('filterChange', {
             detail: {
-                clinvarAccessionsFilter: e.target.value
-
+                value: _clinvar || null
             }
         });
         this.dispatchEvent(event);
     }
 
-    updateQueryFilters(){
-        console.log("TODO implement&refactor from opencga-variant-filter");
-    }
-
     render() {
-        return html`<textarea id="${this._prefix}ClinVarTextarea" class="form-control clearable ${this._prefix}FilterTextInput" rows="3" name="clinvar" placeholder="${this.placeholder}" @keyup="${this.updateQueryFilters}"></textarea>`;
+        return html`<textarea id="${this._prefix}ClinVarTextarea" class="form-control clearable ${this._prefix}FilterTextInput" rows="3" name="clinvar" placeholder="${this.placeholder}" @keyup="${this.filterChange}"></textarea>`;
     }
 }
 

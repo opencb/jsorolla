@@ -20,6 +20,8 @@ export default class FileFilter extends LitElement {
 
     constructor() {
         super();
+
+        // Set status and init private properties
         this._init();
     }
 

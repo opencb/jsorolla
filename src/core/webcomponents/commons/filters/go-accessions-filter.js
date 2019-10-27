@@ -20,6 +20,8 @@ export default class GoAccessionsFilter extends LitElement {
 
     constructor() {
         super();
+
+        // Set status and init private properties
         this._init();
     }
 
@@ -31,6 +33,9 @@ export default class GoAccessionsFilter extends LitElement {
         return {
             opencgaSession: {
                 type: Object
+            },
+            query: {
+                type: Object
             }
         }
     }
@@ -39,72 +44,60 @@ export default class GoAccessionsFilter extends LitElement {
         this._prefix = "gaf-" + Utils.randomString(6) + "_";
     }
 
-    updated(changedProperties) {
-        if(changedProperties.has("property")) {
-            this.propertyObserver();
+    firstUpdated(_changedProperties) {
+        if (this.query && typeof this.query["go"] !== "undefined") {
+            PolymerUtils.setValue(this._prefix + "GeneOntologyTextarea", this.query["go"]);
         }
     }
 
-    onChange(e) {
-        //TODO fire a unique event
-        console.log("goAccessionsFilter change", e.target);
-        let event = new CustomEvent('goAccessionsFilterChange', {
+    filterChange(e) {
+        let go;
+        let inputTextArea = PolymerUtils.getElementById(this._prefix + "GeneOntologyTextarea");
+        if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
+            go = inputTextArea.value.trim();
+            go = go.replace(/\r?\n/g, ",").replace(/\s/g, "");
+        }
+        console.log("filterChange", go || null);
+        let event = new CustomEvent('filterChange', {
             detail: {
-                goAccessionsFilter: e.target.value
-
+                value: go || null
             }
         });
         this.dispatchEvent(event);
     }
 
-    updateQueryFilters(){
-        console.log("TODO implement&refactor from opencga-variant-filter");
+
+    /*openModalOntology() {
+        //modal in variant-modal-ontology component
+        $("#ontologyModal").modal("show");
+    }*/
+
+    onOntologyModal() {
+        console.log("onOntologyModal")
+       /* this.openHPO = false;
+        this.ontologyTerm = "GO";
+        this.selectedTermsOntology = this.selectedTermsGO;
+        this.ontologyFilter = "go";*/
+        let event = new CustomEvent('ontologyModal', {
+            detail: {
+                openHPO: false,
+                ontologyTerm: "GO",
+                selectedTermsOntology: this.selectedTermsGO,
+                ontologyFilter: "go"
+            }
+        });
+        this.dispatchEvent(event);
+
     }
 
     render() {
         return html`
-            <div style="padding-top: 10px">
-                <div class="row">
-                    <div class="col-md-5 form-group" style="padding-right: 5px">
-                        <span class="control-label">Raw</span>
-                    </div>
-                    <div class="col-md-3" style="padding: 0px 5px">
-                        <select name="caddRawOperator" id="${this._prefix}CaddRawOperator"
-                                class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px"
-                                @change="${this.updateQueryFilters}">
-                            <option value="<"><</option>
-                            <option value="<="><=</option>
-                            <option value=">" selected>></option>
-                            <option value=">=">>=</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4" style="padding-left: 5px">
-                        <input type="text" value="" class="${this._prefix}FilterTextInput form-control input-sm"
-                               id="${this._prefix}CaddRawInput" name="caddRaw" @change="${this.updateQueryFilters}">
-                    </div>
-            
-                </div>
-            </div>
-            
-            <div style="padding-top: 10px">
-                <div class="row">
-                    <span class="col-md-5 control-label" style="padding-right: 5px">Scaled</span>
-                    <div class="col-md-3" style="padding: 0px 5px">
-                        <select name="caddRScaledOperator" id="${this._prefix}CaddScaledOperator"
-                                class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px"
-                                @change="${this.updateQueryFilters}">
-                            <option value="<" selected><</option>
-                            <option value="<="><=</option>
-                            <option value=">">></option>
-                            <option value=">=">>=</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4" style="padding-left: 5px">
-                        <input type="text" value="" class="${this._prefix}FilterTextInput form-control input-sm"
-                               id="${this._prefix}CaddScaledInput" name="caddScaled" @change="${this.updateQueryFilters}">
-                    </div>
-                </div>
-            </div>
+            <textarea id="${this._prefix}GeneOntologyTextarea" class="form-control clearable ${this._prefix}FilterTextInput"
+                                rows="3" name="geneOntology" placeholder="GO:0000145" @keyup="${this.filterChange}"></textarea>
+                    <span class="input-group-addon btn btn-primary searchingSpan" id="${this._prefix}buttonOpenGoAccesions" @click="${this.onOntologyModal}">
+                        <strong style="color: white">Add GO Term</strong>
+                        <i class="fa fa-search searchingButton" aria-hidden="true"></i>
+                    </span>
         `;
     }
 }

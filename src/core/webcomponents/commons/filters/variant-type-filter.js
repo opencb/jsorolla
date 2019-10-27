@@ -16,9 +16,8 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import {checkBoxContainer} from "/src/styles/styles.js"
+import {checkBoxWidget} from "/src/styles/styles.js"
 
-//TODO
 export default class VariantTypeFilter extends LitElement {
 
     constructor() {
@@ -53,8 +52,23 @@ export default class VariantTypeFilter extends LitElement {
         this.requestUpdate();
     }
 
+    firstUpdated(_changedProperties) {
+        //TODO recheck & refactor
+        if (this.query && typeof this.query.type !== "undefined") {
+            let types = this.query.type.split(",");
+            let checkBoxes = PolymerUtils.querySelectorAll("input", this._prefix + "Type");
+            for (let i = 0; i < types.length; i++) {
+                for (let j = 0; j < checkBoxes.length; j++) {
+                    if (checkBoxes[j].value === types[i]) {
+                        checkBoxes[j].checked = true;
+                    }
+                }
+            }
+        }
+    }
+
     filterChange(e) {
-        console.log("filterChange", this.selectedVariantTypes.join(",") || null)
+        console.log("filterChange", this.selectedVariantTypes.join(",") || null);
         let event = new CustomEvent('filterChange', {
             detail: {
                 value: this.selectedVariantTypes.join(",") || null
@@ -77,7 +91,7 @@ export default class VariantTypeFilter extends LitElement {
             this.selectedVariantTypes.splice(this.selectedVariantTypes.indexOf(type),1)
             checkbox.checked = false;
         }
-        console.log(this.selectedVariantTypes)
+        this.filterChange()
     }
 
     handleCollapseAction(e) {
@@ -94,8 +108,8 @@ export default class VariantTypeFilter extends LitElement {
     render() {
         return html`
             <style>
-                ${checkBoxContainer}
-            </style>    
+                ${checkBoxWidget}
+            </style>
             <div id="${this._prefix}Type">
              <ul class="checkbox-container">
                 ${this._config.types && this._config.types.length && this._config.types.map( type => html`

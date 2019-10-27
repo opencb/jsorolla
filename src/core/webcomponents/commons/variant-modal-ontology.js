@@ -5,7 +5,7 @@
 import {LitElement, html} from '/web_modules/lit-element.js';
 
 export default class VariantModalOntology extends LitElement {
-    
+
     constructor() {
         super();
         // Set status and init private properties
@@ -24,20 +24,17 @@ export default class VariantModalOntology extends LitElement {
             },
             term: {
                 type: String
-            },
-            prefix: {
-                type: String
-            },
+            }
             //todo add recheck listCurrentSelected
 
         };
     }
-    
+
     updated(changedProperties) {
         if(changedProperties.has("ontologyFilter"))
             this.ontologyFilterObserver();
     }
-    
+
     firstUpdated() {
         let _this = this;
         let typeahead_field = $("#" + this._prefix + "typeahead");
@@ -60,6 +57,7 @@ export default class VariantModalOntology extends LitElement {
     }
 
     _init() {
+        this._prefix = "vmo-" + Utils.randomString(6) + "_";
         this.ebiConfig = {
             root: "https://www.ebi.ac.uk/ols/api",
             tree: {
@@ -132,8 +130,6 @@ export default class VariantModalOntology extends LitElement {
     }
 
     searchTerm(query, process) {
-
-        debugger;
         let rowsPerPage = 15;
         let _this = this;
         let queryEncoded = query;
@@ -247,7 +243,7 @@ export default class VariantModalOntology extends LitElement {
         return html`
         <style include="jso-styles"></style>
 
-        <div class="modal fade" id="${this._prefix}ontologyModal" tabindex="-1" role="dialog"
+        <div class="modal fade" id="ontologyModal" tabindex="-1" role="dialog"
              aria-labelledby="ontologyLabel" data-backdrop="static" data-keyboard="false">
             <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
                 <div class="modal-content">

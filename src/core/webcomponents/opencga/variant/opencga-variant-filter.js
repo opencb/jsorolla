@@ -31,7 +31,7 @@ import "./../../commons/filters/fulltext-search-accessions-filter.js";
 import "./../../commons/filters/go-accessions-filter.js";
 import "./../../commons/filters/hpo-accessions-filter.js";
 import "./../../commons/filters/population-frequency-filter.js";
-import "./../../commons/filters/proteine-substitution-score-filter.js";
+import "./../../commons/filters/protein-substitution-score-filter.js";
 import "./../../commons/filters/sample-filter.js";
 import "./../../commons/filters/study-filter.js";
 import "./../../commons/filters/variant-type-filter.js";
@@ -110,12 +110,14 @@ export default class OpencgaVariantFilter extends LitElement {
         this._addAllTooltips();
 
 
+
         // this.fetchDiseasePanels();
-        $("select.selectpicker").selectpicker("render");
+        //MOVED to disease-filter
+        /*$("select.selectpicker").selectpicker("render");
         $("select.selectpicker").selectpicker({
             iconBase: "fa",
             tickIcon: "fa-check"
-        });
+        });*/
 
         this._initialised = true;
 
@@ -342,7 +344,6 @@ export default class OpencgaVariantFilter extends LitElement {
 
     propagateOkHPO(e) {
         if (this.openHPO) {
-            //TODO remove PolymerUtils.setValue() and clean up the whole PolymerUtils class..
             PolymerUtils.setValue(this._prefix + "HumanPhenotypeOntologyTextarea", e.detail.result.join(","));
             this.selectedTermsHPO = e.detail.originalResult;
         } else {
@@ -354,27 +355,37 @@ export default class OpencgaVariantFilter extends LitElement {
         this.updateQueryFilters();
     }
 
-    openModalOntology() {
-        $("#" + this._prefix + "ontologyModal").modal("show");
+    //from go-accessions-filter and hpo-accessions-filter
+    onOntologyModal(e) {
+        console.log("onOntologyModal variant-filter",e);
+        //modal window from variant-modal-ontology
+        this.openHPO = e.target.openHPO;
+        this.ontologyTerm = e.target.ontologyTerm;
+        this.selectedTermsOntology = e.target.selectedTermsOntology; //selectedTermsGO and selectedTermsHPO
+        this.ontologyFilter = e.target.ontologyFilter;
+        console.log(this.openHPO, this.ontologyTerm)
+        $("#ontologyModal").modal("show");
     }
 
-    openModalHpo() {
+    //DONE moved in hpo-accession-filter
+    /*openModalHpo() {
         this.openHPO = true;
         this.ontologyTerm = "HPO";
         this.selectedTermsOntology = this.selectedTermsHPO;
         this.ontologyFilter = "hp";
         this.openModalOntology();
-    }
+    }*/
 
-    openModalGo() {
+    //DONE moved to go-accessions-filter
+    /*openModalGo() {
         this.openHPO = false;
         this.ontologyTerm = "GO";
         this.selectedTermsOntology = this.selectedTermsGO;
         this.ontologyFilter = "go";
         this.openModalOntology();
-    }
+    }*/
 
-    //DONE move to population-frequency-filter
+    //DONE moved to population-frequency-filter
     /*handleCollapseAction(e) {
         let id = e.target.dataset.id;
         let elem = $("#" + id)[0];
@@ -385,7 +396,7 @@ export default class OpencgaVariantFilter extends LitElement {
             e.target.className = "fa fa-minus";
         }
     }
-    //DONE move to population-frequency-filter
+    //DONE moved to population-frequency-filter
     keyUpAllPopFreq(e) {
         let studyId = e.target.getAttribute("data-study");
         let study = this.populationFrequencies.studies.find((study) => {
@@ -399,7 +410,8 @@ export default class OpencgaVariantFilter extends LitElement {
         this.updateQueryFilters();
     }*/
 
-    updateConsequenceTypeFilter(e) {
+    //DONE moved to consequence-type-filter
+    /*updateConsequenceTypeFilter(e) {
         // Select LoF term checkboxes
         let lofCheckBox = PolymerUtils.getElementById(this._prefix + "LossOfFunctionCheckBox");
         if (e.currentTarget.id === this._prefix + "LossOfFunctionCheckBox") {
@@ -432,11 +444,12 @@ export default class OpencgaVariantFilter extends LitElement {
             }
         });
 
-        this.ct = soTerms; //todo check if it has to be managed by litelement
+        this.ct = soTerms;
         this.updateQueryFilters();
-    }
+    }*/
 
-    checkScore(e) {
+    //DONE moved in proteine-substitution-score-filter
+    /*checkScore(e) {
         let inputElement = $("#" + this._prefix + e.target.name + "Input");
         let operatorElement = $("#" + this._prefix + e.target.name + "Operator");
         if (e.target.value === "score") {
@@ -449,7 +462,7 @@ export default class OpencgaVariantFilter extends LitElement {
             operatorElement.prop("disabled", true);
         }
         this.updateQueryFilters();
-    }
+    }*/
 
 
     renderClinicalQuerySummary() {
@@ -514,6 +527,7 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     //binding::from this.query to the view
+    //most of those blocks have been refactored and moved in firstUpdated() in each filter component
     setQueryFilters() {
         if (!this._initialised) {
             return;
@@ -556,9 +570,9 @@ export default class OpencgaVariantFilter extends LitElement {
          */
 
 
-        // TODO implement in filter
+        // DONE moved in cohort-filter
         // Cohorts
-        let cohortArray = [];
+        /*let cohortArray = [];
         if (typeof this.query.cohortStatsAlt !== "undefined") {
             cohortArray = this.query.cohortStatsAlt.split(new RegExp("[,;]"));
             for (let i = 0; i < cohortArray.length; i++) {
@@ -568,7 +582,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 PolymerUtils.setValue(this._prefix + study + cohort + "Cohort", freq);
                 PolymerUtils.setValue(this._prefix + study + cohort + "CohortOperator", operator);
             }
-        }
+        }*/
 
         // implemented in file-filter
         /*// Filter PASS
@@ -600,11 +614,13 @@ export default class OpencgaVariantFilter extends LitElement {
         }
         */
 
+        // DONE moved in disease-filter
         // Disease panels
-        if (UtilsNew.isNotUndefinedOrNull(this.query.panel)) {
+        /*if (UtilsNew.isNotUndefinedOrNull(this.query.panel)) {
             $("#" + this._prefix + "DiseasePanels").selectpicker("val", this.query.panel.split(","));
             this.showPanelGenes(this.query.panel.split(","));
         }
+        */
 
         /* implemented in biotype-filter
         // Biotype
@@ -623,7 +639,8 @@ export default class OpencgaVariantFilter extends LitElement {
             }
         }
 
-        // Type
+        //DONE moved in variant-type-filter
+        /*// Type
         if (typeof this.query.type !== "undefined") {
             let types = this.query.type.split(",");
             let checkBoxes = PolymerUtils.querySelectorAll("input", this._prefix + "Type");
@@ -634,8 +651,10 @@ export default class OpencgaVariantFilter extends LitElement {
                     }
                 }
             }
-        }
+        }*/
 
+        //DONE moved to population-frequency-filter TODO recheck
+        /*
         // Population Frequencies
         let pfArray = [];
         if (typeof this.query["alternate_frequency"] !== "undefined") {
@@ -658,8 +677,10 @@ export default class OpencgaVariantFilter extends LitElement {
                     }
                 }
             }
-        }
+        }*/
 
+        //DONE moved in proteine-substitution-score-filter TODO recheck
+        /*
         // Protein Substitution scores
         if (UtilsNew.isNotUndefinedOrNull(this.query["protein_substitution"])) {
             let pss = this.query["protein_substitution"].split(new RegExp("[,;]"));
@@ -695,9 +716,11 @@ export default class OpencgaVariantFilter extends LitElement {
                 }
             }
         }
+         */
 
+        //DONE moved to cadd-filter
         // Cadd scores
-        if (typeof this.query["annot-functional-score"] !== "undefined") {
+        /*if (typeof this.query["annot-functional-score"] !== "undefined") {
             let fields = this.query["annot-functional-score"].split(new RegExp("[,;]"));
             for (let i = 0; i < fields.length; i++) {
                 let source = fields[i].split(/[<=>]+/)[0];
@@ -712,8 +735,10 @@ export default class OpencgaVariantFilter extends LitElement {
                     break;
                 }
             }
-        }
+        }*/
 
+        //DONE moved in conservation-filter
+        /*
         // Conservation
         if (typeof this.query.conservation !== "undefined") {
             let fields = this.query.conservation.split(new RegExp("[,;]"));
@@ -735,53 +760,48 @@ export default class OpencgaVariantFilter extends LitElement {
                 }
             }
         }
+         */
 
+        //DONE moved in consequence-type-filter
         // Consequence Type
-        let ct = [];
+        /*let ct = [];
         if (typeof this.query.ct !== "undefined") {
             let types = this.query.ct.split(",");
-            // let checkBoxes = PolymerUtils.querySelectorAll("li input", this._prefix + "consequenceTypeFilter");
-            // let checkBoxes2 = PolymerUtils.querySelectorAll("li label input", this._prefix + "consequenceTypeFilter");
-            // let checkBoxes3 = PolymerUtils.querySelectorAll("ul li label input", this._prefix + "consequenceTypeFilter");
-            // debugger
-            // if (UtilsNew.isNotEmptyArray(checkBoxes)) {
             for (let i = 0; i < types.length; i++) {
-                // for (let j = 0; j < checkBoxes.length; j++) {
-                //     if (UtilsNew.isNotUndefinedOrNull(checkBoxes[j]) && checkBoxes[j].getAttribute("data-id") === types[i]) {
-                //         checkBoxes[j].checked = true;
-                //         ct.push(types[i]);
-                //     }
-                // }
                 let checkbox = PolymerUtils.getElementById(this._prefix + types[i] + "Checkbox");
                 if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
                     checkbox.checked = true;
                     ct.push(types[i]);
                 }
             }
-            // }
         }
-        this.ct = ct; //todo check if have to be managed by litelement
+        this.ct = ct;*/
 
         // Gene Ontology and Human Phenotype Ontology
+
+        //DONE moved to go-accessions-filter
+        /*
         if (typeof this.query["go"] !== "undefined") {
             PolymerUtils.setValue(this._prefix + "GeneOntologyTextarea", this.query["go"]);
-        }
-        if (typeof this.query["annot-hpo"] !== "undefined") {
+        }*/
+        //DONE moved to hpo-accessions-filter
+        /*if (typeof this.query["annot-hpo"] !== "undefined") {
             PolymerUtils.setValue(this._prefix + "HumanPhenotypeOntologyTextarea", this.query["annot-hpo"]);
-        }
-        if (typeof this.query["clinvar"] !== "undefined") {
+        }*/
+        //DONE moved to clinvar-accessions-filter
+       /* if (typeof this.query["clinvar"] !== "undefined") {
             PolymerUtils.setValue(this._prefix + "ClinVarTextarea", this.query["clinvar"]);
         }
-
-        if (typeof this.query["traits"] !== "undefined") {
+        */
+        //DONE moved to fulltext-searc-accessions-filter
+       /*if (typeof this.query["traits"] !== "undefined") {
             PolymerUtils.setValue(this._prefix + "TraitsTextarea", this.query.traits);
-        }
-
-        console.log(PolymerUtils.querySelectorAll("input", this._prefix + "DifferentStudies"))
+        }*/
         // this.requestUpdate();
     }
 
-    showPanelGenes(panels) {
+    //DONE MOVED to disease-filter TODO recheck & refactor
+    /*showPanelGenes(panels) {
         PolymerUtils.getElementById(this._prefix + "DiseasePanelsTextarea").value = "";
         if (UtilsNew.isNotEmptyArray(panels)) {
             let _this = this;
@@ -812,21 +832,17 @@ export default class OpencgaVariantFilter extends LitElement {
                     console.error(response);
                 });
         }
-    }
+    }*/
 
     /***
      * Handles filterChange events from all the filter components (this is the new updateQueryFilters)
      * @param key {string} the name of the property in this.query
-     * @param value {string} the new value of the property 
+     * @param value {string} the new value of the property
      */
     onFilterChange(key, value) {
         console.log("filterChange", {[key]:value});
-        
-        //TODO decomment this at the end of the refactor
-        //this.query = {...this.query, {[key]:value}};
         if (value && value !== "") {
-            let filter = {[key]: value};
-            this.query = {...this.query, ...filter};
+            this.query = {...this.query, ...{[key]: value}};
         } else {
             delete this.query[key]
         }
@@ -835,6 +851,7 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     //binding::from the view to this.query
+    //most of those blocks have been refactored & moved in filterChange() in each filter component
     updateQueryFilters() {
 
         if (!this._initialised) {
@@ -862,7 +879,8 @@ export default class OpencgaVariantFilter extends LitElement {
         }
 
         // Add Cohort stats ALT filter: [{study.alias}]:{cohort}[<|>|<=|>=]{number}
-        let cohortFreq = [];
+        //DONE moved to cohort-filter
+        /*let cohortFreq = [];
         if (UtilsNew.isNotEmpty(this._cohorts)) {
             for (let studyId in this._cohorts) {
                 for (let cohort of this._cohorts[studyId]) {
@@ -883,7 +901,7 @@ export default class OpencgaVariantFilter extends LitElement {
         if (cohortFreq.length > 0) {
             // _filters["cohortStatsMaf"] = cohortFreq.join(';');
             _filters.cohortStatsAlt = cohortFreq.join(";");
-        }
+        }*/
 
 
        /*
@@ -955,18 +973,17 @@ export default class OpencgaVariantFilter extends LitElement {
         */
 
 
-        //DONE Move DOM elements checking in file-filter
-        let locationTextArea = PolymerUtils.getElementById(this._prefix + "LocationTextarea");
+        //DONE Move DOM elements checking in region-filter
+        /*let locationTextArea = PolymerUtils.getElementById(this._prefix + "LocationTextarea");
         if (UtilsNew.isNotUndefinedOrNull(locationTextArea) && UtilsNew.isNotEmpty(locationTextArea.value)) {
             let _region = locationTextArea.value.trim();
             _region = _region.replace(/\r?\n/g, ",").replace(/\s/g, "");
             _filters.region = _region;
-        }
+        }*/
 
-        //TODO move in feature-filter
+        //DONE moved in feature-filter
         // Features: Gene, SNP ID
-        //--------------------------------------------continue from here/////////////
-        let featureTextArea = PolymerUtils.getElementById(this._prefix + "FeatureTextarea");
+        /*let featureTextArea = PolymerUtils.getElementById(this._prefix + "FeatureTextarea");
         if (UtilsNew.isNotUndefinedOrNull(featureTextArea) && UtilsNew.isNotEmpty(featureTextArea.value)) {
             let features = featureTextArea.value.trim();
             features = features.replace(/\r?\n/g, ",").replace(/\s/g, "");
@@ -980,10 +997,11 @@ export default class OpencgaVariantFilter extends LitElement {
                 }
             }
             _filters.xref = featureArray.join(",");
-        }
+        }*/
 
+        //DONE moved to disease-filter
         // Disease Panel - panel
-        let panelsDropdown = PolymerUtils.getElementById(this._prefix + "DiseasePanels");
+        /*let panelsDropdown = PolymerUtils.getElementById(this._prefix + "DiseasePanels");
         if (UtilsNew.isNotUndefinedOrNull(panelsDropdown)) {
             let selectedPanels = PolymerUtils.querySelectorAll("option:checked", panelsDropdown);
             let panels = [];
@@ -992,10 +1010,10 @@ export default class OpencgaVariantFilter extends LitElement {
                 _filters.panel = panels.join(",");
                 this.showPanelGenes(panels);
             }
-        }
+        }*/
 
         // Biotype
-        //DONE moved in cellbase-biotype-filter (actually no, I don't need the whole block)
+        //DONE moved in biotype-filter (actually no, I don't need the whole block)
         /*let biotypeDropdown = PolymerUtils.getElementById(this._prefix + "GeneBiotypes");
         if (UtilsNew.isNotUndefinedOrNull(biotypeDropdown) && UtilsNew.isNotEmpty(biotypeDropdown.value)) {
             let types = PolymerUtils.querySelectorAll("option:checked", biotypeDropdown);
@@ -1042,6 +1060,8 @@ export default class OpencgaVariantFilter extends LitElement {
             _filters["populationFrequencyAlt"] = popFreq.join(";");
         }*/
 
+        //DONE moved in protein-substitution-score-filter
+        /*
         // Protein Substitution Scores -  Sift and Polyphen
         let pss = [];
         let numFilters = 0;
@@ -1070,10 +1090,11 @@ export default class OpencgaVariantFilter extends LitElement {
             } else {
                 _filters.protein_substitution = pss.join(",");
             }
-        }
+        }*/
 
+        //DONE moved to cadd-filter
         // Cadd scores
-        let cadd = [];
+        /*let cadd = [];
         let caddRawInput = PolymerUtils.getElementById(this._prefix + "CaddRawInput");
         let caddScaledInput = PolymerUtils.getElementById(this._prefix + "CaddScaledInput");
         if (UtilsNew.isNotUndefinedOrNull(caddRawInput) && UtilsNew.isNotUndefinedOrNull(caddScaledInput)) {
@@ -1088,11 +1109,12 @@ export default class OpencgaVariantFilter extends LitElement {
             _filters["annot-functional-score"] = cadd.join(",");
         }
 
-        // Conservation
+         */
+
+        //DONE moved in conservation-filter
+        /*// Conservation
         let arr = {"Phylop": "phylop", "Phastcons": "phastCons", "Gerp": "gerp"};
         let conserArr = [];
-
-        //TODO use map()
         for (let key of Object.keys(arr)) {
             let inputTextArea = PolymerUtils.getElementById(this._prefix + key + "Input");
             if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
@@ -1113,22 +1135,27 @@ export default class OpencgaVariantFilter extends LitElement {
             } else {
                 _filters.conservation = conserArr.join(",");
             }
-        }
+        }*/
 
+        //DONE moved in consequence-type-filter
         // Consequence Type
+        /*
         if (UtilsNew.isNotEmptyArray(this.ct)) {
             _filters["ct"] = this.ct.join(",");
-        }
+        }*/
 
+        //DONE moved go-accessions-filter
         // Gene Ontology and Human Phenotype Ontology
+        /*
         let inputTextArea = PolymerUtils.getElementById(this._prefix + "GeneOntologyTextarea");
         if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
             let _go = inputTextArea.value.trim();
             _go = _go.replace(/\r?\n/g, ",").replace(/\s/g, "");
             _filters.go = _go;
-        }
+        }*/
 
-        inputTextArea = PolymerUtils.getElementById(this._prefix + "HumanPhenotypeOntologyTextarea");
+        //DONE moved to hpo-accessions-filter
+        /*let inputTextArea = PolymerUtils.getElementById(this._prefix + "HumanPhenotypeOntologyTextarea");
         if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
             let hpoValues = inputTextArea.value.split(",");
 
@@ -1142,19 +1169,21 @@ export default class OpencgaVariantFilter extends LitElement {
                 }
             }
             // _filters["annot-hpo"] = inputTextArea.value;
-        }
+        }*/
 
-        inputTextArea = PolymerUtils.getElementById(this._prefix + "ClinVarTextarea");
+        //DONE moved to clinvar-accessions-filter
+/*        let inputTextArea = PolymerUtils.getElementById(this._prefix + "ClinVarTextarea");
         if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
             let _clinvar = inputTextArea.value.trim();
             _clinvar = _clinvar.replace(/\r?\n/g, ",").replace(/\s/g, "");
             _filters.clinvar = _clinvar;
-        }
+        }*/
 
-        inputTextArea = PolymerUtils.getElementById(this._prefix + "TraitsTextarea");
+        //DONE fulltext-search-accessions-filter
+        /*let inputTextArea = PolymerUtils.getElementById(this._prefix + "TraitsTextarea");
         if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
             _filters["traits"] = inputTextArea.value;
-        }
+        }*/
 
         // To prevent to call setQueryFilters we set this to false
         this._reset = false;
@@ -1288,7 +1317,7 @@ export default class OpencgaVariantFilter extends LitElement {
             content = html`<sample-filter ?enabled="${subsection.showSelectSamples}"> </sample-filter>`;
             break;
         case "file":
-            //TODO it needs this.query.filter and this.query.qual (maybe change name..)
+            //TODO this handles this.query.filter and this.query.qual (merge in an unique object?)
             content = html`<file-filter .query="${this.query}" @filterChange="${e => this.onFilterChange("filter", e.detail.value)}"></file-filter>`;
             break;
         case "location":
@@ -1296,26 +1325,27 @@ export default class OpencgaVariantFilter extends LitElement {
                                            @filterChange="${e => this.onFilterChange("region", e.detail.value)}"></region-filter>`;
             break;
         case "feature":
-            content = html`<feature-filter .cellbaseClient="${this.cellbaseClient}" .query=${this.query} 
+            //TODO move limit to global config?
+            content = html`<feature-filter .cellbaseClient="${this.cellbaseClient}" .query=${this.query} limit="10"
                                             @filterChange="${e => this.onFilterChange("xref", e.detail.value)}"></feature-filter>`;
             break;
         case "diseasePanels":
-            content = html`<disease-filter .opencgaSession="${this.opencgaSession}"></disease-filter>`;
+            content = html`<disease-filter .config="${this.config}" .opencgaSession="${this.opencgaSession}"></disease-filter>`;
             break;
         case "biotype":
-            content = html`<biotype-filter biotypes="" .config="${this.config}"></biotype-filter>`;
+            content = html`<biotype-filter .config="${this.config}"></biotype-filter>`;
             break;
         case "type":
             content = html`<variant-type-filter .config="${this.config}" .query="${this.query}" .cellbaseClient="${this.cellbaseClient}" ></variant-type-filter>`;
             break;
         case "populationFrequency":
-            content = html`<population-frequency-filter .populationFrequencies="${this.populationFrequencies}" ?showSetAll="${subsection.showSetAll}"></population-frequency-filter>`;
+            content = html`<population-frequency-filter .populationFrequencies="${this.populationFrequencies}" ?showSetAll="${subsection.showSetAll}" .query="${this.query}"></population-frequency-filter>`;
             break;
         case "consequenceType":
             content = html`<consequence-type-filter .consequenceTypes="${this.consequenceTypes}"></consequence-type-filter>`;
             break;
         case "proteinSubstitutionScore":
-            content = html`<proteine-substitution-score-filter></proteine-substitution-score-filter>`;
+            content = html`<protein-substitution-score-filter .query="${this.query}"></protein-substitution-score-filter>`;
             break;
         case "cadd":
             content = html`<cadd-filter></cadd-filter>`;
@@ -1324,7 +1354,7 @@ export default class OpencgaVariantFilter extends LitElement {
             content = html`<conservation-filter></conservation-filter>`;
             break;
         case "go":
-            content = html`<go-accessions-filter></go-accessions-filter>`;
+            content = html`<go-accessions-filter @ontologyModal="${this.onOntologyModal}"></go-accessions-filter>`;
             break;
         case "hpo":
             content = html`<hpo-accessions-filter></hpo-accessions-filter>`;
@@ -1503,8 +1533,8 @@ export default class OpencgaVariantFilter extends LitElement {
                 <select id="${this._prefix}DiseasePanels" class="selectpicker" data-size="10" data-live-search="true" data-selected-text-format="count" multiple @change="${this.updateQueryFilters}">
                     ${this.opencgaSession.study.panels && this.opencgaSession.study.panels.length && this.opencgaSession.study.panels.map(panel => html`
                         <option value="${panel.id}">
-                            ${panel.name} 
-                            ${panel.source ? "v" + panel.source.version : ""} 
+                            ${panel.name}
+                            ${panel.source ? "v" + panel.source.version : ""}
                             ( ${panel.stats ? panel.stats.numberOfGenes + "genes, " + panel.stats.numberOfRegions + "regions" : "0 genes, 0 regions"})
                         </option>
                     `)}
@@ -1519,7 +1549,7 @@ export default class OpencgaVariantFilter extends LitElement {
         return html`
             <select class="selectpicker" id="${this._prefix}GeneBiotypes" data-size="10" data-live-search="true" data-selected-text-format="count" multiple @change="${this.updateQueryFilters}">
                 ${biotypes.map(biotype => html`
-                     <option value="${biotype}">${biotype}</option>                       
+                     <option value="${biotype}">${biotype}</option>
                 `)}
             </select>
         `;

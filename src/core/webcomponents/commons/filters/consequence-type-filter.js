@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
 
 export default class ConsequenceTypeFilter extends LitElement {
 
     constructor() {
         super();
+
+        // Set status and init private properties
         this._init();
     }
 
@@ -35,42 +37,66 @@ export default class ConsequenceTypeFilter extends LitElement {
             consequenceTypes: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = "ctf-" + Utils.randomString(6) + "_";
     }
 
-    updated(changedProperties) {
-        if(changedProperties.has("property")) {
-            this.propertyObserver();
+    onChange(e) {
+        //TODO refactor!
+        let lofCheckBox = this.querySelector("#" + this._prefix + "LossOfFunctionCheckBox");
+        if (e.currentTarget.id === this._prefix + "LossOfFunctionCheckBox") {
+            for (let ct of this.consequenceTypes.lof) {
+                let checkbox = this.querySelector("#" + this._prefix + ct + "Checkbox");
+                if (checkbox) {
+                    checkbox.checked = e.currentTarget.checked;
+                }
+            }
         }
+        // Select/Unselect the items from one category
+        if (e.target.parentNode.parentNode.id !== "") {
+            $("#" + e.target.parentNode.parentNode.id + " ul li input").each(function() {
+                $(this).prop("checked", e.target.checked);
+            });
+        }
+        let soTerms = [];
+        let selected = this.querySelector("#" + this._prefix + "consequenceTypeFilter").querySelectorAll("li input");
+        selected.forEach(sel => {
+            if (sel.checked && typeof sel.dataset !== "undefined" && typeof sel.dataset.id !== "undefined") {
+                soTerms.push(sel.dataset.id);
+            } else {
+                // If one term from LoF array is not selected we remove LoF check
+                let dataId = sel.getAttribute("data-id");
+                if (lofCheckBox.checked && UtilsNew.isNotUndefinedOrNull(dataId) && this.consequenceTypes.lof.includes(dataId)) {
+                    lofCheckBox.checked = false;
+                }
+            }
+        });
+        console.log("soTerms", soTerms);
+        this.ct = soTerms;
+        this.filterChange();
     }
 
-    onChange(e) {
-        //TODO fire a unique event
-        console.log("ConsequenceType change", e.target);
-        let event = new CustomEvent('consequenceTypeChange', {
+    filterChange(e) {
+        console.log("filterChange", this.ct ? this.ct.join(",") : null);
+        let event = new CustomEvent("filterChange", {
             detail: {
-                consequenceType: e.target.value
-
+                value: this.ct ? this.ct.join(",") : null
             }
         });
         this.dispatchEvent(event);
     }
-    updateConsequenceTypeFilter(){
-        console.log("TODO implement&refactor from opencga-variant-filter");
-    }
 
     render() {
-        return html`
+        return html`  
             <div style="padding-top: 15px">Loss-of-Function (LoF) terms:</div>
             <div class="form-check" style="margin-top: 5px;">
                 <div class="form-check-label">
                     <label id="${this._prefix}LossOfFunctionCheckBoxLabel" class="notbold">
                         <input id="${this._prefix}LossOfFunctionCheckBox" type="checkbox" class="${this._prefix}FilterCheckBox"
-                               style="cursor: pointer" @change="${this.updateConsequenceTypeFilter}"/>
+                               style="cursor: pointer" @change="${this.onChange}"/>
                         LoF terms
                     </label>
                 </div>
@@ -79,32 +105,34 @@ export default class ConsequenceTypeFilter extends LitElement {
             <div class="browser-ct-tree-view browser-ct-item">
                 <ul id="${this._prefix}consequenceTypeFilter">
                     ${this.consequenceTypes.categories && this.consequenceTypes.categories.length && this.consequenceTypes.categories.map(category => html`
-                                                <li id="${category.title ? category.title : category.name}" class="form-check" style="margin-top: 10px;">
-                                                    ${category.terms && category.terms.length ? html`
-                                                        <label class="form-check-label notbold">
-                                                            <input id="${this._prefix}${category.title}Input" type="checkbox" class="${this._prefix}FilterCheckBox" @change="${this.updateConsequenceTypeFilter}"> ${category.title}
-                                                        </label>
-                                                        <ul>
-                                                            ${category.terms.map(item => html`
-                                                                <li class="form-check">
-                                                                    <label class="form-check-label notbold">
-                                                                        <input id="${this._prefix}${item.name}Checkbox" type="checkbox" data-id="${item.name}" class="soTermCheckBox ${this._prefix}FilterCheckBox" @change="${this.updateConsequenceTypeFilter}">
-                                                                            <span title="${item.description}">
-                                                                                ${item.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${item.id}" target="_blank">${item.id}</a>)
-                                                                            </span>
-                                                                    </label>
-                                                                </li>
-                                                            `) }
-                                                        </ul>
-                                                    ` : html`
-                                                        <input id="${this._prefix}${category.name}Checkbox" type="checkbox"
-                                                                   data-id="${category.name}" class="soTermCheckBox ${this._prefix}FilterCheckBox" @change="${this.updateConsequenceTypeFilter}">
-                                                            <span title="${category.description}">
-                                                                ${category.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${category.id}" target="_blank">${category.id}</a>)
-                                                            </span>
-                                                    `}
-                                                </li>
-                                            `)}
+                        <li id="${category.title ? category.title : category.name}" class="form-check" style="margin-top: 10px;">
+                            ${category.terms && category.terms.length ? html`
+                                <label class="form-check-label notbold">
+                                    <input id="${this._prefix}${category.title}Input" type="checkbox" class="${this._prefix}FilterCheckBox" @change="${this.onChange}"> ${category.title}
+                                </label>
+                                <ul>
+                                    ${category.terms.map(item => html`
+                                    <li class="form-check">
+                                        <label class="form-check-label notbold">
+                                            <input id="${this._prefix}${item.name}Checkbox" type="checkbox" data-id="${item.name}"
+                                                   class="soTermCheckBox ${this._prefix}FilterCheckBox" @change="${this.onChange}">
+                                            <span title="${item.description}">
+                                            ${item.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${item.id}" target="_blank">${item.id}</a>)
+                                            </span>
+                                        </label>
+                                    </li>
+                                    `)}
+                                </ul>
+                                ` : html`
+                                    <input id="${this._prefix}${category.name}Checkbox" type="checkbox"
+                                        data-id="${category.name}" class="soTermCheckBox ${this._prefix}FilterCheckBox" @change="${this.onChange}">
+                                    <span title="${category.description}">
+                                        ${category.name}
+                                        (<a href="http://www.sequenceontology.org/browser/current_svn/term/${category.id}" target="_blank">${category.id}</a>)
+                                    </span>
+                                `}
+                            </li>
+                    `)}
                 </ul>
             </div>
             </div>
@@ -112,4 +140,4 @@ export default class ConsequenceTypeFilter extends LitElement {
     }
 }
 
-customElements.define('consequence-type-filter', ConsequenceTypeFilter);
+customElements.define("consequence-type-filter", ConsequenceTypeFilter);

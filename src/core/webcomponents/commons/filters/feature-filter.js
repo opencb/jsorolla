@@ -17,13 +17,15 @@
 import {LitElement, html} from '/web_modules/lit-element.js';
 
 /*
-TODO handle GENES and define the return value
-*
+* TODO handle GENES
+* TODO UX improvement: turn textarea in a tag input with autocomplete
 * **/
 export default class FeatureFilter extends LitElement {
 
     constructor() {
         super();
+
+        // Set status and init private properties
         this._init();
     }
 
@@ -38,45 +40,57 @@ export default class FeatureFilter extends LitElement {
             },
             query: {
                 type: Object
+            },
+            limit: {
+                type: Number
             }
         }
     }
 
     _init(){
-
-        console.log("this.query", this.query)
-
         this._prefix = "feaf-" + Utils.randomString(6) + "_";
         this.featureDatalist = [];
-
-        //TODO recheck why there are 2 fields in query object..
+        //TODO check why there are 2 fields in query object..
         this.featureTextArea = this.query && this.query["xref"] || "";
         this.featureIds = this.query && this.query.ids || [];
-
     }
 
     filterChange(e) {
+        let xref;
+        let featureTextArea = this.querySelector("#" + this._prefix + "FeatureTextarea");
+        if (featureTextArea && featureTextArea.value) {
+            let features = featureTextArea.value.trim();
+            features = features.replace(/\r?\n/g, ",").replace(/\s/g, "");
+            let featureArray = [];
+            for (let feature of features.split(",")) {
+                if (feature.startsWith("rs") || feature.split(":").length > 2) {
+                    featureArray.push(feature);
+                } else {
+                    // Genes must be uppercase
+                    featureArray.push(feature.toUpperCase());
+                }
+            }
+            xref = featureArray.join(",");
+        }
+
         let event = new CustomEvent('filterChange', {
             detail: {
-                value: "" // xref, ids, gene
+                value: xref // xref, ids, gene
             }
         });
         this.dispatchEvent(event);
     }
 
-    //TODO add a limit in results?
     autocomplete(e) {
         // Only gene symbols are going to be searched and not Ensembl IDs
         let featureId = e.target.value.trim();
         if (featureId && featureId.length >= 3 && !featureId.startsWith("ENS")) {
             this.cellbaseClient.get("feature", "id", featureId.toUpperCase(), "starts_with", {}, {})
                 .then(response => {
-                    console.log("response from cellBaseClient", response.response[0].result);
-                    this.featureDatalist = response.response[0].result;
+                    this.featureDatalist = response.response[0].result.slice(0,this.limit);
                     this.requestUpdate();
                 });
         }
-        this.requestUpdate();
     }
 
     //TODO it needs a proper input validation..
@@ -85,8 +99,8 @@ export default class FeatureFilter extends LitElement {
         //let ids = this.featureTextArea.split(",").filter(id => id ? id : false);
 
         let featureIdText = this.querySelector("#" + this._prefix + "FeatureIdText");
-        if(featureIdText) {
-            if (this.featureIds.indexOf(featureIdText.value) === -1) {
+        if(featureIdText.value) {
+            if (!~this.featureIds.indexOf(featureIdText.value)) {
                 this.featureIds.push(featureIdText.value);
             }
             featureIdText.value = "";
@@ -94,6 +108,7 @@ export default class FeatureFilter extends LitElement {
             featureTextArea.value = this.featureIds.join(",");
             this.filterChange();
         }
+        console.log("this.featureIds",this.featureIds)
     }
 
     updateFeatureTextArea(e){

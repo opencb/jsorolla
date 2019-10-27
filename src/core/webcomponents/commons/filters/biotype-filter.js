@@ -1,5 +1,5 @@
-/*
- * Copyright 2015-2016 OpenCB
+/**
+ * Copyright 2015-2019 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 
@@ -32,9 +31,6 @@ export default class BiotypeFilter extends LitElement {
 
     static get properties() {
         return {
-            cellbaseClient: {
-                type: Object
-            },
             query: {
                 type: Object
             },
@@ -50,10 +46,6 @@ export default class BiotypeFilter extends LitElement {
     _init() {
         this._prefix = "crf-" + Utils.randomString(6) + "_";
         this._config = this.getDefaultConfig();
-        if(this.query && this.query.biotype && this.query.biotype.length){
-            $("#" + this._prefix + "GeneBiotypes").selectpicker("val", this.query.biotype.split(","));
-        }
-        this.requestUpdate();
     }
 
     getDefaultConfig() {
@@ -70,7 +62,15 @@ export default class BiotypeFilter extends LitElement {
         }
     }
 
+    firstUpdated(_changedProperties) {
+        if(this.query && this.query.biotype && this.query.biotype.length){
+            $("#" + this._prefix + "GeneBiotypes").selectpicker("val", this.query.biotype.split(","));
+        }
+        this.requestUpdate();
+    }
+
     filterChange(e) {
+        console.log("filterChange", $(e.target).val() ? $(e.target).val().join(",") : null);
         let event = new CustomEvent('filterChange', {
             detail: {
                 value: $(e.target).val() ? $(e.target).val().join(",") : null

@@ -46,8 +46,6 @@ export default class RegionFilter extends LitElement {
 
     _init() {
         this._prefix = "crf-" + Utils.randomString(6);
-
-        this.region = "";
         this._config = this.getDefaultConfig();
         //explicit check for undefined is required since this.region is a string Prop and lit-element cast an undefined value as the string "undefined"
 

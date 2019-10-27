@@ -19,7 +19,10 @@ import {LitElement, html} from '/web_modules/lit-element.js';
 export default class CohortFilter extends LitElement {
 
     constructor() {
-        super()
+        super();
+
+        // Set status and init private properties
+        this._init();
     }
 
     createRenderRoot() {
@@ -43,30 +46,56 @@ export default class CohortFilter extends LitElement {
     _init(){
         this._prefix = "cf-" + Utils.randomString(6) + "_";
         this.cohortsPerStudy = this.cohorts[this.opencgaSession.project.id];
-        console.log("this.cohortsPerStudy",this.cohortsPerStudy)
 
     }
-
-    updated(changedProperties) {
-        if(changedProperties.has("property")) {
-            this.propertyObserver();
+    firstUpdated(_changedProperties) {
+        let cohortArray = [];
+        if (this.query && typeof this.query.cohortStatsAlt !== "undefined") {
+            cohortArray = this.query.cohortStatsAlt.split(new RegExp("[,;]"));
+            for (let i = 0; i < cohortArray.length; i++) {
+                let [study, cohortFreq] = cohortArray[i].split(":");
+                let [cohort, freq] = cohortFreq.split(/[<=>]+/);
+                let operator = cohortFreq.split(/[-A-Za-z0-9._:]+/)[1];
+                PolymerUtils.setValue(this._prefix + study + cohort + "Cohort", freq);
+                PolymerUtils.setValue(this._prefix + study + cohort + "CohortOperator", operator);
+            }
         }
     }
 
-    onChange(e) {
-        //TODO fire a unique event
-        console.log("cohort change", e.target)
-        let event = new CustomEvent('cohortFilterChange', {
+    //TODO refactor!
+    filterChange(e) {
+        let cohortFreq = [];
+        let cohortStatsAlt;
+        if (UtilsNew.isNotEmpty(this._cohorts)) {
+            for (let studyId in this._cohorts) {
+                for (let cohort of this._cohorts[studyId]) {
+                    let cohortInput = PolymerUtils.getElementById(this._prefix + studyId + cohort.id + "Cohort");
+                    let operator = PolymerUtils.getElementById(this._prefix + studyId + cohort.id + "CohortOperator");
+                    if (cohortInput !== null && UtilsNew.isNotEmpty(cohortInput.value)) {
+                        operator = operator.value;
+                        // FIXME to be removed!!
+                        if (studyId === "BRIDGE") {
+                            studyId = "bridge";
+                        }
+                        let pf = studyId + ":" + cohort.id + operator + cohortInput.value;
+                        cohortFreq.push(pf);
+                    }
+                }
+            }
+        }
+        if (cohortFreq.length > 0) {
+            // _filters["cohortStatsMaf"] = cohortFreq.join(';');
+            cohortStatsAlt = cohortFreq.join(";");
+        }
+        let event = new CustomEvent('filterChange', {
             detail: {
-                cohort: e.target.value
+                cohort: cohortStatsAlt ? cohortStatsAlt : null
 
             }
         });
         this.dispatchEvent(event);
     }
 
-    //todo implement logic 
-    
     render() {
         return this.cohortsPerStudy ? html`
             ${Object.keys(this.cohortsPerStudy).map(study => html`
@@ -80,16 +109,16 @@ export default class CohortFilter extends LitElement {
                                 <span class="col-md-4 control-label">${cohort.name}</span>
                                 <div class="col-md-4" style="padding: 0px 10px">
                                     <select id="${this._prefix}${study}${cohort.id}CohortOperator" name="${cohort.id}Operator"
-                                            class="form-control input-sm ${this._prefix}FilterSelect" style="padding: 0px 5px" @change="${this.onChange}">
-                                        <option value="<" selected><</option>
-                                        <option value="<="><=</option>
-                                        <option value=">">></option>
-                                        <option value=">=">>=</option>
+                                            class="form-control input-sm ${this._prefix}FilterSelect" style="padding: 0px 5px" @change="${this.filterChange}">
+                                        <option value="<" selected>&lt;</option>
+                                        <option value="<=">&le;</option>
+                                        <option value=">">&gt;</option>
+                                        <option value=">=">&ge;</option>
                                     </select>
                                 </div>
                                 <div class="col-md-4" style="padding: 0px 10px">
                                     <input type="text" value="" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                           name="${study}_${cohort.id}" id="${this._prefix}${study}${cohort.id}Cohort" @change="${this.onChange}">
+                                           name="${study}_${cohort.id}" id="${this._prefix}${study}${cohort.id}Cohort" @change="${this.filterChange}">
                                 </div>
                             </div>
                         `)}

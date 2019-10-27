@@ -24,6 +24,8 @@ export default class PopulationFrequencyFilter extends LitElement {
 
     constructor() {
         super();
+
+        // Set status and init private properties
         this._init();
     }
 
@@ -45,20 +47,46 @@ export default class PopulationFrequencyFilter extends LitElement {
     _init() {
         this._prefix = "pff-" + Utils.randomString(6) + "_";
         this.populationFrequenciesQuery = [];
-
     }
+
+    firstUpdated(_changedProperties) {
+        //TODO recheck block and debug
+        let pfArray = [];
+        if (this.query && typeof this.query["alternate_frequency"] !== "undefined") {
+            pfArray = this.query["alternate_frequency"].split(new RegExp("[,;]"));
+        }
+        if (this.query && typeof  this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
+            for (let i = 0; i < this.populationFrequencies.studies.length; i++) {
+                let study = this.populationFrequencies.studies[i].id;
+                for (let j = 0; j < this.populationFrequencies.studies[i].populations.length; j++) {
+                    let population = this.populationFrequencies.studies[i].populations[j].id;
+                    if (pfArray.length > 0) {
+                        for (let k = 0; k < pfArray.length; k++) {
+                            let pf = pfArray[k];
+                            if (pf.startsWith(study + ":" + population)) {
+                                PolymerUtils.setValue(this._prefix + study + population, pf.split(/[<=>]+/)[1]);
+                                PolymerUtils.setValue(this._prefix + study + population + "Operator", pf.split(/[-A-Za-z0-9._:]+/)[1]);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     filterChange(e) {
         //TODO refactor!
         let popFreq = [];
         if (this.populationFrequencies.studies && this.populationFrequencies.studies.length) {
             this.populationFrequencies.studies.forEach(study => {
-                let study_id = study.id
+                let study_id = study.id;
                 if (study.populations && study.populations.length) {
                     study.populations.forEach(population => {
                         let population_id = population.id;
                         let studyTextbox = this.querySelector("#" + this._prefix + study_id + population_id);
                         if (studyTextbox && studyTextbox.value) {
-                            let operator = PolymerUtils.getElementById(this._prefix + study_id + population_id + "Operator");
+                            let operator = this.querySelector("#" + this._prefix + study_id + population_id + "Operator");
                             let pf = study_id + ":" + population_id + operator.value + studyTextbox.value;
                             popFreq.push(pf);
                         }
@@ -89,11 +117,8 @@ export default class PopulationFrequencyFilter extends LitElement {
 
     keyUpAllPopFreq(e) {
         let studyId = e.target.getAttribute("data-study");
-        let study = this.populationFrequencies.studies.find((study) => {
-            return study.id === studyId;
-        });
+        let study = this.populationFrequencies.studies.find( study => study.id === studyId);
         study.populations.forEach((popFreq) => {
-            console.log(e.target.value)
             this.querySelector("#" + this._prefix + studyId + popFreq.id).value = e.target.value;
         });
         this.filterChange();

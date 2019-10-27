@@ -198,7 +198,6 @@ export default class OpencgaVariantBrowser extends LitElement {
      */
     onQueryFilterChange(e) {
         this.preparedQuery = e.detail.query;
-        debugger
         this.requestUpdate();
     }
 
@@ -519,7 +518,8 @@ export default class OpencgaVariantBrowser extends LitElement {
 <link rel="import" href="opencga-variant-detail-template.html">
 -->
 
-        ${this.checkProjects ? html`<div class="panel" style="margin-bottom: 15px">
+        ${this.checkProjects ? html`
+<div class="panel" style="margin-bottom: 15px">
     <h3 style="margin: 10px 10px 10px 15px">
                             <span @click="${this.onCollapse}" style="cursor: pointer;margin: 0px 30px 0px 0px">
                                 <i class="fa fa-bars" aria-hidden="true"></i>
@@ -738,7 +738,6 @@ export default class OpencgaVariantBrowser extends LitElement {
         </div>
     </div> 
 </div>
-            
         ` : html`
                 <h3>No public projects available to browse. Please login to continue</h3>
         `}

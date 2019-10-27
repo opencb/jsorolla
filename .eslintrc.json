@@ -1,7 +1,8 @@
 {
   "extends": ["eslint:recommended", "google"],
   "parserOptions": {
-    "ecmaVersion": 6
+    "ecmaVersion": 6,
+    "sourceType": "module"
   },
   "env": {
     "browser": true
@@ -16,6 +17,7 @@
     "no-unused-vars": ["warn", { "varsIgnorePattern": "^[A-Za-z]+$" }],
     "no-use-before-define": ["error", { "classes": false }],
     "padded-blocks": ["error", { "classes": "always" }],
-    "quotes": ["warn", "double"]
+    "quotes": ["warn", "double"],
+    "comma-dangle": ["error", "never"]
   }
 }
