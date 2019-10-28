@@ -305,48 +305,54 @@ export default class OpencgaVariantFilterClinical extends LitElement {
 
     renderSampleTable() {
         return html`
-            ${this.sampleFilters && this.sampleFilters.length && this.sampleFilters.map(sampleFilter => html`
-                    <tr data-sample="${sampleFilter.id}">
-                                <td style="vertical-align: middle">
-                                    <div>
-                                            <span data-toggle="tooltip" data-placement="bottom" title="" style="${(sampleFilter.affected ? "color: darkred;" : "font-weight: normal;")}${sampleFilter.proband ? "font-weight: bold" : ""}">
-                                                ${sampleFilter.id} <i class='fa ${this._config.sexIConMap[sampleFilter.sex]} fa-lg' style='padding-left: 5px'></i>
-                                            </span>
-                                    </div>
-                                </td>
-                                <td style="padding-left: 20px">
-                                    ${sampleFilter.proband ? html`
-                                        <span data-toggle="tooltip" data-placement="bottom" title="Proband">
-                                            <i class='fa fa-check' style='color: green'></i>
-                                        </span>` : html`
-                                            <span><i class='fa fa-times' style='color: red'></i></span>
-                                    `}
-                                </td>
-                                <td style="padding-left: 20px">
-                                    ${sampleFilter.affected ? html`
-                                        <span data-toggle="tooltip" data-placement="bottom" title="Affected"><i class='fa fa-check' style='color: green'></i></span>` : html`
-                                        <span><i class='fa fa-times' style='color: red'></i></span>`
-        }
-                                </td>
-                                <td style="padding-left: 20px">
-                                    <span>${sampleFilter.father}</span>
-                                </td>
-                                <td style="padding-left: 20px">
-                                    <span>${sampleFilter.mother}</span>
-                                </td>
-                                <td style="padding-left: 20px">
-                                    <input id="${this._prefix}${sampleFilter.id}00" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/0" ${sampleFilter.genotypes.includes("0/0") ? "checked" : ""} @click="${this.onSampleTableChange}">
-                                </td>
-                                <td style="padding-left: 20px">
-                                    <input id="${this._prefix}${sampleFilter.id}01" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/1" ${sampleFilter.genotypes.includes("0/1") ? "checked" : ""} @click="${this.onSampleTableChange}">
-                                </td>
-                                <td style="padding-left: 20px">
-                                    <input id="${this._prefix}${sampleFilter.id}11" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="1/1" ${sampleFilter.genotypes.includes("1/1") ? "checked" : ""} @click="${this.onSampleTableChange}">
-                                </td>
-                                <td style="padding-left: 10px">
-                                    <input id="${this._prefix}${sampleFilter.id}DP" type="text" value="${sampleFilter.dp !== undefined && sampleFilter.dp > 0 ? sampleFilter.dp : ""}" class="form-control input-sm sample-dp-textbox" aria-label="..." placeholder="e.g. 15" style="width: 60px" @keyup="${this.onSampleTableChange}">
-                                </td>
-                    </tr>
+            ${this.sampleFilters && this.sampleFilters.length && this.sampleFilters.map(sampleFilter => html`<tr data-sample="${sampleFilter.id}">
+                <td style="vertical-align: middle">
+                    <div>
+                        <span data-toggle="tooltip" data-placement="bottom" title=""
+                                                              style="${(sampleFilter.affected ? "color: darkred;" : "font-weight: normal;")}${sampleFilter.proband ? "font-weight: bold" : ""}">
+                                                            ${sampleFilter.id} <i class='fa ${this._config.sexIConMap[sampleFilter.sex]} fa-lg'
+                                                                                 style='padding-left: 5px'></i>
+                        </span>
+                    </div>
+                </td>
+                <td style="padding-left: 20px">
+                    ${sampleFilter.proband ? html`
+                        <span data-toggle="tooltip" data-placement="bottom" title="Proband">
+                            <i class='fa fa-check' style='color: green'></i>
+                        </span>` : html`
+                        <span><i class='fa fa-times' style='color: red'></i></span>
+                    `}
+                </td>
+                <td style="padding-left: 20px">
+                    ${sampleFilter.affected ? html`
+                        <span data-toggle="tooltip" data-placement="bottom" title="Affected"><i class='fa fa-check' style='color: green'></i></span>` : html`
+                        <span><i class='fa fa-times' style='color: red'></i></span>`
+                    }
+                </td>
+                <td style="padding-left: 20px">
+                    <span>${sampleFilter.father}</span>
+                </td>
+                <td style="padding-left: 20px">
+                    <span>${sampleFilter.mother}</span>
+                </td>
+                <td style="padding-left: 20px">
+                    <input id="${this._prefix}${sampleFilter.id}00" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/0"
+                           ${sampleFilter.genotypes.includes("0/0") ? "checked" : ""} @click="${this.onSampleTableChange}">
+                </td>
+                <td style="padding-left: 20px">
+                    <input id="${this._prefix}${sampleFilter.id}01" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/1"
+                           ${sampleFilter.genotypes.includes("0/1") ? "checked" : ""} @click="${this.onSampleTableChange}">
+                </td>
+                <td style="padding-left: 20px">
+                    <input id="${this._prefix}${sampleFilter.id}11" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="1/1"
+                           ${sampleFilter.genotypes.includes("1/1") ? "checked" : ""} @click="${this.onSampleTableChange}">
+                </td>
+                <td style="padding-left: 10px">
+                    <input id="${this._prefix}${sampleFilter.id}DP" type="text" value="${sampleFilter.dp !== undefined && sampleFilter.dp > 0 ? sampleFilter.dp : ""}"
+                           class="form-control input-sm sample-dp-textbox" aria-label="..." placeholder="e.g. 15"
+                           style="width: 60px" @input="${this.onSampleTableChange}">
+                </td>
+            </tr>
             `)}
         `;
     }

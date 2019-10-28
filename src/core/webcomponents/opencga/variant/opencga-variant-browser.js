@@ -216,10 +216,13 @@ export default class OpencgaVariantBrowser extends LitElement {
 
     //it was called onClear
     onActiveFilterClear() {
+        console.log("onActiveFilterClear")
         this.query = {
             study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
         };
+        this.preparedQuery = {...this.query} //TODO quick fix to update
     }
+
 
 
     onSampleChange(e) {
@@ -676,8 +679,8 @@ export default class OpencgaVariantBrowser extends LitElement {
                                         <div id="${this._prefix}network" role="tabpanel" class="tab-pane">
                                             <div style="width: 75%;padding-top: 8px">
                                                 <reactome-variant-network .opencgaSession="${this.opencgaSession}"
-                                                                          reactomeClient="${this.reactomeClient}" genes="${this.genes}"
-                                                                          active="${this.detailActiveTabs.network}"></reactome-variant-network>
+                                                                          .reactomeClient="${this.reactomeClient}" .genes="${this.genes}"
+                                                                          ?active="${this.detailActiveTabs.network}"></reactome-variant-network>
                                             </div>
                                         </div>
             
@@ -739,7 +742,7 @@ export default class OpencgaVariantBrowser extends LitElement {
     </div> 
 </div>
         ` : html`
-                <h3>No public projects available to browse. Please login to continue</h3>
+                <h3 class="text-center">No public projects available to browse. Please login to continue</h3>
         `}
 `;
     }

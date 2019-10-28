@@ -45,7 +45,7 @@ export default class CohortFilter extends LitElement {
 
     _init(){
         this._prefix = "cf-" + Utils.randomString(6) + "_";
-        this.cohortsPerStudy = this.cohorts[this.opencgaSession.project.id];
+        this.cohortsPerStudy = this.cohorts ? this.cohorts[this.opencgaSession.project.id] : null;
 
     }
     firstUpdated(_changedProperties) {

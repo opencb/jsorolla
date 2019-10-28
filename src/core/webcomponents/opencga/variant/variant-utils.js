@@ -2,6 +2,9 @@
  * Created by swaathi on 28/03/17.
  */
 
+/*
+*  TODO add jsdoc
+* */
 class VariantUtils {
 
     static jsonToTabConvert(json, studiesPopFrequencies, samples, nucleotideGenotype) {

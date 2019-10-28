@@ -9,7 +9,7 @@
   },
   "rules": {
     "indent": ["error", 4],
-    "max-len": ["error", 140],
+    "max-len": ["error", 160],
     "no-console": ["error", { "allow": ["log", "warn", "error", "time", "timeEnd"] }],
     "no-param-reassign": ["warn", { "props": true }],
     "no-undef": ["warn"],
@@ -18,6 +18,7 @@
     "no-use-before-define": ["error", { "classes": false }],
     "padded-blocks": ["error", { "classes": "always" }],
     "quotes": ["warn", "double"],
-    "comma-dangle": ["error", "never"]
+    "comma-dangle": ["error", "never"],
+    "arrow-parens": ["error","as-needed"]
   }
 }
