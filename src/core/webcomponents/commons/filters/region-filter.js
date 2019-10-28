@@ -46,12 +46,13 @@ export default class RegionFilter extends LitElement {
 
     _init() {
         this._prefix = "crf-" + Utils.randomString(6);
-        this._config = this.getDefaultConfig();
-        //explicit check for undefined is required since this.region is a string Prop and lit-element cast an undefined value as the string "undefined"
+        this.region = "";
 
+        this._config = this.getDefaultConfig();
     }
+
     firstUpdated() {
-        this.region = typeof this.region !=="undefined" ? this.region : ""
+        this.region = (typeof this.region === "undefined" || this.region === "undefined") ? "" : this.region;
     }
 
     getDefaultConfig() {
@@ -60,13 +61,15 @@ export default class RegionFilter extends LitElement {
         }
     }
 
-    onChange(e) {
+    filterChange(e) {
         // Remove new line and empty characters
         let _region = e.target.value.trim().replace(/\r?\n/g, ",").replace(/\s/g, "");
         let event = new CustomEvent('filterChange', {
             detail: {
                 value: _region
-            }
+            },
+            bubbles: true,
+            composed: true
         });
         this.dispatchEvent(event);
     }
@@ -76,7 +79,7 @@ export default class RegionFilter extends LitElement {
                     <textarea id="${this._prefix}LocationTextarea" name="location" 
                         class="form-control clearable ${this._prefix}FilterTextInput"
                         rows="3" placeholder="${this._config.placeholder}"
-                        @change="${e => this.onChange(e)}">${this.region}</textarea>
+                        @input="${e => this.filterChange(e)}">${this.region}</textarea>
                 `;
     }
 }

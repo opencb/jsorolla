@@ -88,7 +88,7 @@ export default class OpencgaVariantFilter extends LitElement {
             this.opencgaSessionObserver();
         }
         if (changedProperties.has("query")) {
-            this.queryObserver();
+            // this.queryObserver();
         }
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalObserver();
@@ -122,7 +122,7 @@ export default class OpencgaVariantFilter extends LitElement {
         this._initialised = true;
 
         this.opencgaSessionObserver();
-        this.queryObserver();
+        // this.queryObserver();
         //this.setQueryFilters();
         //this.clinicalObserver();
     }
@@ -135,6 +135,8 @@ export default class OpencgaVariantFilter extends LitElement {
         if (PANELS) {
             this.panelList = PANELS; //todo check if have to be managed by litelement
         }
+
+        this.preparedQuery = {};
 
         this.modalHpoActive = false;
         this.modalGoActive = false;
@@ -231,7 +233,7 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     onSearch() {
-        this.notifySearch(this.query);
+        this.notifySearch(this.preparedQuery);
     }
 
     notifyQuery(query) {
@@ -335,11 +337,12 @@ export default class OpencgaVariantFilter extends LitElement {
         //Only update query if really needed, this avoids unneeded web refresh
         if (needUpdateQuery) {
             this.updateClinicalFilterQuery = false;
-            this.query = _query;
+            debugger
+            this.preparedQuery = _query;
             this.updateClinicalFilterQuery = true;
         }
 
-        this.notifyQuery(this.query);
+        this.notifyQuery(this.preparedQuery);
     }
 
     propagateOkHPO(e) {
@@ -536,8 +539,8 @@ export default class OpencgaVariantFilter extends LitElement {
         // Clear filter menu before rendering
         this._clearHtmlDom();
         // Check 'query' is not null or empty there is nothing else to do
-        if (UtilsNew.isUndefinedOrNull(this.query) || Object.keys(this.query).length === 0) {
-            console.warn("this.query is NULL:", this.query)
+        if (UtilsNew.isUndefinedOrNull(this.preparedQuery) || Object.keys(this.preparedQuery).length === 0) {
+            console.warn("this.preparedQuery is NULL:", this.preparedQuery)
             return;
         }
 
@@ -842,12 +845,12 @@ export default class OpencgaVariantFilter extends LitElement {
     onFilterChange(key, value) {
         console.log("filterChange", {[key]:value});
         if (value && value !== "") {
-            this.query = {...this.query, ...{[key]: value}};
+            this.preparedQuery = {...this.preparedQuery, ...{[key]: value}};
         } else {
-            delete this.query[key]
+            delete this.preparedQuery[key]
         }
-
-        this.notifyQuery(this.query);
+debugger
+        this.notifyQuery(this.preparedQuery);
     }
 
     //binding::from the view to this.query
@@ -1186,11 +1189,11 @@ export default class OpencgaVariantFilter extends LitElement {
         }*/
 
         // To prevent to call setQueryFilters we set this to false
-        this._reset = false;
-        this.query = _filters;
-        this._reset = true;
-
-        this.notifyQuery(this.query)
+        // this._reset = false;
+        // this.query = _filters;
+        // this._reset = true;
+        //
+        // this.notifyQuery(this.query)
 
         // this.requestUpdate()
     }
@@ -1330,7 +1333,8 @@ export default class OpencgaVariantFilter extends LitElement {
                                             @filterChange="${e => this.onFilterChange("xref", e.detail.value)}"></feature-filter>`;
             break;
         case "diseasePanels":
-            content = html`<disease-filter .config="${this.config}" .opencgaSession="${this.opencgaSession}"></disease-filter>`;
+            content = html`<disease-filter .opencgaSession="${this.opencgaSession}" .config="${this.config}" 
+                                @filterChange="${e => this.onFilterChange("panel", e.detail.value)}"></disease-filter>`;
             break;
         case "biotype":
             content = html`<biotype-filter .config="${this.config}"></biotype-filter>`;

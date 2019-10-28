@@ -111,8 +111,17 @@ export default class FeatureFilter extends LitElement {
         console.log("this.featureIds",this.featureIds)
     }
 
-    updateFeatureTextArea(e){
-        this.featureTextArea = e.target.value;
+    onInput(e) {
+        // Remove new line and empty characters
+        let _featureTextArea = e.target.value.trim().replace(/\r?\n/g, ",").replace(/\s/g, "");
+        let event = new CustomEvent('filterChange', {
+            detail: {
+                value: _featureTextArea
+            },
+            bubbles: true,
+            composed: true
+        });
+        this.dispatchEvent(event);
     }
 
     render() {
@@ -136,7 +145,7 @@ export default class FeatureFilter extends LitElement {
                 <textarea id="${this._prefix}FeatureTextarea" name="geneSnp"
                     class="form-control clearable ${this._prefix}FilterTextInput"
                     rows="3" placeholder="BRCA2,ENSG00000139618,ENST00000544455,rs28897700"
-                    style="margin-top: 5px" @keyup="${this.updateFeatureTextArea}"> ${this.featureTextArea}</textarea>
+                    style="margin-top: 5px" @input="${e => this.onInput(e)}">${this.featureTextArea}</textarea>
             </div>
         `;
     }

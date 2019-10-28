@@ -34,6 +34,12 @@ export default class DiseaseFilter extends LitElement {
         return {
             opencgaSession: {
                 type: Object
+            },
+            // panels: {
+            //     type: Array
+            // },
+            config: {
+                type: Object
             }
         }
     }
@@ -43,6 +49,8 @@ export default class DiseaseFilter extends LitElement {
     }
     
     firstUpdated(_changedProperties) {
+        this.opencgaSession
+        debugger
         if (this.query && this.query.panel) {
             $(`select#${this._prefix}DiseasePanels`).selectpicker("val", this.query.panel.split(","));
             this.showPanelGenes(this.query.panel.split(","));
@@ -53,16 +61,6 @@ export default class DiseaseFilter extends LitElement {
             tickIcon: "fa-check"
         });
 
-    }
-
-    filterChange() {
-        console.log("filterChange", this.panel);
-        let event = new CustomEvent('filterChange', {
-            detail: {
-                value: ""
-            }
-        });
-        this.dispatchEvent(event);
     }
 
     //TODO urgent refactor
@@ -98,25 +96,36 @@ export default class DiseaseFilter extends LitElement {
                 });
         }
     }
-    
-    onChange(e) {
+
+    filterChange(e) {
         console.log("disease-filter", e);
+        let panelId = "";
+        let panelObjects = [];
         let panelsDropdown = this.querySelector("#" + this._prefix + "DiseasePanels");
         if (UtilsNew.isNotUndefinedOrNull(panelsDropdown)) {
             let selectedPanels = panelsDropdown.querySelectorAll("option:checked");
-            let panels = [];
-            selectedPanels.forEach(option => panels.push(option.value));
-            if (panels.length > 0) {
-                this.panel = panels.join(",");
-                this.showPanelGenes(panels);
+            selectedPanels.forEach(option => panelObjects.push(option.value));
+            if (panelObjects.length > 0) {
+                panelId = panelObjects.join(",");
+                this.showPanelGenes(panelObjects);
             }
         }
+
+        let event = new CustomEvent('filterChange', {
+            detail: {
+                value: panelId,
+                panels: panelObjects
+            },
+            bubbles: true,
+            composed: true
+        });
+        this.dispatchEvent(event);
     }
 
     render() {
         return html`
             <div>
-                <select id="${this._prefix}DiseasePanels" class="selectpicker" data-size="10" data-live-search="true" data-selected-text-format="count" multiple @change="${this.onChange}">
+                <select id="${this._prefix}DiseasePanels" class="selectpicker" data-size="10" data-live-search="true" data-selected-text-format="count" multiple @change="${e => this.filterChange(e)}">
                     ${this.opencgaSession.study.panels && this.opencgaSession.study.panels.length && this.opencgaSession.study.panels.map(panel => html`
                         <option value="${panel.id}">
                             ${panel.name} 

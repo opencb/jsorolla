@@ -202,6 +202,7 @@ export default class OpencgaVariantBrowser extends LitElement {
     }
 
     onQueryFilterSearch(e) {
+        debugger
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
         this.requestUpdate();
@@ -481,8 +482,6 @@ export default class OpencgaVariantBrowser extends LitElement {
         }
     }
 
-
-
     render() {
         return html`
         <style include="jso-styles">
@@ -521,6 +520,7 @@ export default class OpencgaVariantBrowser extends LitElement {
 <link rel="import" href="opencga-variant-detail-template.html">
 -->
 
+        
         ${this.checkProjects ? html`
 <div class="panel" style="margin-bottom: 15px">
     <h3 style="margin: 10px 10px 10px 15px">
@@ -548,6 +548,7 @@ export default class OpencgaVariantBrowser extends LitElement {
 
     
     <div id="${this._prefix}MainWindow" class="col-md-10">
+       
         <opencga-active-filters .opencgaClient="${this.opencgaSession.opencgaClient}"
                                 defaultStudy="${this.opencgaSession.study.alias}"
                                 .query="${this.preparedQuery}"
@@ -559,7 +560,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                                 .alias="${this._config.activeFilterAlias}"
                                 .config="${this._config.activeFilters}">
         </opencga-active-filters>
-
+        
         <div class="col-md-12" style="padding: 5px 0px 5px 0px">
             <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px;margin-left: 0px">
                 <div id="${this._prefix}LeftToolbar" style="padding-bottom: 0px">
