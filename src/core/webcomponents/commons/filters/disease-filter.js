@@ -47,10 +47,8 @@ export default class DiseaseFilter extends LitElement {
     _init(){
         this._prefix = "ff-" + Utils.randomString(6) + "_";
     }
-    
+
     firstUpdated(_changedProperties) {
-        this.opencgaSession
-        debugger
         if (this.query && this.query.panel) {
             $(`select#${this._prefix}DiseasePanels`).selectpicker("val", this.query.panel.split(","));
             this.showPanelGenes(this.query.panel.split(","));
@@ -110,11 +108,10 @@ export default class DiseaseFilter extends LitElement {
                 this.showPanelGenes(panelObjects);
             }
         }
-
         let event = new CustomEvent('filterChange', {
             detail: {
                 value: panelId,
-                panels: panelObjects
+                //panels: panelObjects
             },
             bubbles: true,
             composed: true

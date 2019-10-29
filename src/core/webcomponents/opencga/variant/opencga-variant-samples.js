@@ -31,12 +31,11 @@ export default class OpencgaVariantSamples extends LitElement {
             },
             variant: {
                 type: String,
-                observer: "variantObserver"
+                //observer: "variantObserver"
             },
             active: {
                 type: Boolean,
-                value: false,
-                observer: "activeObserver"
+                //observer: "activeObserver"
             }
         };
     }
@@ -44,13 +43,11 @@ export default class OpencgaVariantSamples extends LitElement {
     _init() {
         this._prefix = "ovcs" + Utils.randomString(6);
         this.catalogUiUtils = new CatalogUIUtils();
+        this.active = false;
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("variant")) {
-            this.variantObserver();
-        }
-        if (changedProperties.has("active")) {
+        if (changedProperties.has("variant") || changedProperties.has("active")) {
             this.activeObserver();
         }
     }

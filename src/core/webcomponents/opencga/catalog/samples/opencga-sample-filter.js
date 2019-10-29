@@ -5,7 +5,7 @@ import OpencgaDateFilter from './../opencga-date-filter.js'
 
 // TODO complete properties type checking
 export default class OpencgaSampleFilter extends LitElement {
-    
+
     constructor() {
         super()
         this._init();
@@ -14,7 +14,7 @@ export default class OpencgaSampleFilter extends LitElement {
     createRenderRoot() {
         return this;
     }
-    
+
     static get properties() {
         return {
             opencgaSession: {
@@ -31,7 +31,6 @@ export default class OpencgaSampleFilter extends LitElement {
                 type: Object,
                 value: {},
                 notify: true, //todo check notify
-                observer: 'onQueryUpdate'
             },
             search: {
                 type: Object,
@@ -42,11 +41,9 @@ export default class OpencgaSampleFilter extends LitElement {
             },
             variables: {
                 type: Array,
-                observer: 'variablesChanged' //todo recheck this doesn't exist
             },
             minYear: {
-                type: Number,
-                value: 1920
+                type: Number
             },
             compact: {
                 type: Boolean
@@ -79,6 +76,7 @@ export default class OpencgaSampleFilter extends LitElement {
         this.dateFilterConfig = {
             recentDays: 10
         };
+        this.minYear = 1920;
     }
 
     onSearch() {
@@ -223,225 +221,226 @@ export default class OpencgaSampleFilter extends LitElement {
     }
 
     render() {
-        return html`<style include="jso-styles">
-    .label-opencga-sample-filter {
-        padding-top: 10px;
-    }
-
-    span + span {
-        margin-left: 10px;
-    }
-
-    .browser-ct-scroll {
-        /*max-height: 450px;*/
-        /*overflow-y: scroll;*/
-        overflow-x: scroll;
-    }
-
-    .browser-ct-tree-view,
-    .browser-ct-tree-view * {
-        padding: 0;
-        margin: 0;
-        list-style: none;
-    }
-
-    .browser-ct-tree-view li ul {
-        margin: 0 0 0 22px;
-    }
-
-    .browser-ct-tree-view * {
-        vertical-align: middle;
-    }
-
-    .browser-ct-tree-view {
-        /*font-size: 14px;*/
-    }
-
-    .browser-ct-tree-view input[type="checkbox"] {
-        cursor: pointer;
-    }
-
-    .browser-ct-item {
-        white-space: nowrap;
-        display: inline
-    }
-
-    div.block {
-        overflow: hidden;
-    }
-
-    div.block label {
-        width: 80px;
-        display: block;
-        float: left;
-        text-align: left;
-        font-weight: normal;
-    }
-
-    select + select {
-        margin-left: 10px;
-    }
-
-    select + input {
-        margin-left: 10px;
-    }
-
-    .browser-subsection {
-        font-size: 1.35rem;
-        font-weight: bold;
-        padding: 5px 0px;
-        color: #444444;
-        border-bottom: 1px solid rgba(221, 221, 221, 0.8);
-    }
-
-    .subsection-content {
-        margin: 5px 5px;
-    }
-
-    span.searchingSpan {
-        background-color: #286090;
-    }
-
-    .searchingButton {
-        color: #fff;
-    }
-
-    .notbold {
-        font-weight: normal;
-    }
-
-    .bootstrap-select {
-        width: 100% !important;
-    }
-</style>
-
-<div style="width: 60%;margin: 0 auto">
-    <button type="button" class="btn btn-lg btn-primary" style="width: 100%" @click="${this.onSearch}">
-        <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i> Search
-    </button>
-</div>
-<!--<br>-->
-
-<div class="panel-group" id="${this.prefix}Accordion" role="tablist" aria-multiselectable="true"
-     style="padding-top: 20px">
-
-    <!-- Sample field attributes -->
-    <div class="panel panel-default">
-        <div class="panel-heading" role="tab" id="${this.prefix}SampleSelectionHeading">
-            <h4 class="panel-title">
-                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this.prefix}Accordion"
-                   href="#${this.prefix}SampleSelection" aria-expanded="true"
-                   aria-controls="${this.prefix}SampleSelection">
-                    Sample
-                    <!--<div style="float: right" class="tooltip-div">-->
-                    <!--<a data-toggle="tooltip" title="Sample selection">-->
-                    <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
-                    <!--</a>-->
-                    <!--</div>-->
-                </a>
-            </h4>
-        </div>
-
-        <div id="${this.prefix}SampleSelection" class="panel-collapse collapse in" role="tabpanel"
-             aria-labelledby="${this.prefix}SampleSelectionHeading">
-            <div class="panel-body">
-
-                <div class="form-group">
-                    <div class="browser-subsection">Id
+        return html`
+            <style include="jso-styles">
+                .label-opencga-sample-filter {
+                    padding-top: 10px;
+                }
+            
+                span + span {
+                    margin-left: 10px;
+                }
+            
+                .browser-ct-scroll {
+                    /*max-height: 450px;*/
+                    /*overflow-y: scroll;*/
+                    overflow-x: scroll;
+                }
+            
+                .browser-ct-tree-view,
+                .browser-ct-tree-view * {
+                    padding: 0;
+                    margin: 0;
+                    list-style: none;
+                }
+            
+                .browser-ct-tree-view li ul {
+                    margin: 0 0 0 22px;
+                }
+            
+                .browser-ct-tree-view * {
+                    vertical-align: middle;
+                }
+            
+                .browser-ct-tree-view {
+                    /*font-size: 14px;*/
+                }
+            
+                .browser-ct-tree-view input[type="checkbox"] {
+                    cursor: pointer;
+                }
+            
+                .browser-ct-item {
+                    white-space: nowrap;
+                    display: inline
+                }
+            
+                div.block {
+                    overflow: hidden;
+                }
+            
+                div.block label {
+                    width: 80px;
+                    display: block;
+                    float: left;
+                    text-align: left;
+                    font-weight: normal;
+                }
+            
+                select + select {
+                    margin-left: 10px;
+                }
+            
+                select + input {
+                    margin-left: 10px;
+                }
+            
+                .browser-subsection {
+                    font-size: 1.35rem;
+                    font-weight: bold;
+                    padding: 5px 0px;
+                    color: #444444;
+                    border-bottom: 1px solid rgba(221, 221, 221, 0.8);
+                }
+            
+                .subsection-content {
+                    margin: 5px 5px;
+                }
+            
+                span.searchingSpan {
+                    background-color: #286090;
+                }
+            
+                .searchingButton {
+                    color: #fff;
+                }
+            
+                .notbold {
+                    font-weight: normal;
+                }
+            
+                .bootstrap-select {
+                    width: 100% !important;
+                }
+            </style>
+            
+            <div style="width: 60%;margin: 0 auto">
+                <button type="button" class="btn btn-lg btn-primary" style="width: 100%" @click="${this.onSearch}">
+                    <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i> Search
+                </button>
+            </div>
+            <!--<br>-->
+            
+            <div class="panel-group" id="${this.prefix}Accordion" role="tablist" aria-multiselectable="true"
+                 style="padding-top: 20px">
+            
+                <!-- Sample field attributes -->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="${this.prefix}SampleSelectionHeading">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this.prefix}Accordion"
+                               href="#${this.prefix}SampleSelection" aria-expanded="true"
+                               aria-controls="${this.prefix}SampleSelection">
+                                Sample
+                                <!--<div style="float: right" class="tooltip-div">-->
+                                <!--<a data-toggle="tooltip" title="Sample selection">-->
+                                <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
+                                <!--</a>-->
+                                <!--</div>-->
+                            </a>
+                        </h4>
                     </div>
-                    <div id="${this.prefix}-name" class="subsection-content form-group">
-                        <input type="text" id="${this.prefix}-sample-input"
-                               class="form-control input-sm ${this.prefix}FilterTextInput"
-                               placeholder="HG01879, HG01880, HG01881..." @keyup="${this.calculateFilters}">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="browser-subsection">Individual
-                    </div>
-                    <div id="${this.prefix}-individual" class="subsection-content form-group">
-                        <input type="text" id="${this.prefix}-individual-input"
-                               class="form-control input-sm ${this.prefix}FilterTextInput"
-                               placeholder="LP-1234, LP-4567 ..." @keyup="${this.calculateFilters}">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="browser-subsection">Source
-                    </div>
-                    <div id="${this.prefix}-source" class="subsection-content form-group">
-                        <input type="text" id="${this.prefix}-source-input"
-                               class="form-control input-sm ${this.prefix}FilterTextInput"
-                               placeholder="Blood, Liver ..." @keyup="${this.calculateFilters}">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="browser-subsection" id="${this.prefix}-annotationss">Sample annotations
-                        <div style="float: right" class="tooltip-div">
-                            <a><i class="fa fa-info-circle" aria-hidden="true"
-                                  id="${this.prefix}-annotations-tooltip"></i></a>
+            
+                    <div id="${this.prefix}SampleSelection" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="${this.prefix}SampleSelectionHeading">
+                        <div class="panel-body">
+            
+                            <div class="form-group">
+                                <div class="browser-subsection">Id
+                                </div>
+                                <div id="${this.prefix}-name" class="subsection-content form-group">
+                                    <input type="text" id="${this.prefix}-sample-input"
+                                           class="form-control input-sm ${this.prefix}FilterTextInput"
+                                           placeholder="HG01879, HG01880, HG01881..." @keyup="${this.calculateFilters}">
+                                </div>
+                            </div>
+            
+                            <div class="form-group">
+                                <div class="browser-subsection">Individual
+                                </div>
+                                <div id="${this.prefix}-individual" class="subsection-content form-group">
+                                    <input type="text" id="${this.prefix}-individual-input"
+                                           class="form-control input-sm ${this.prefix}FilterTextInput"
+                                           placeholder="LP-1234, LP-4567 ..." @keyup="${this.calculateFilters}">
+                                </div>
+                            </div>
+            
+                            <div class="form-group">
+                                <div class="browser-subsection">Source
+                                </div>
+                                <div id="${this.prefix}-source" class="subsection-content form-group">
+                                    <input type="text" id="${this.prefix}-source-input"
+                                           class="form-control input-sm ${this.prefix}FilterTextInput"
+                                           placeholder="Blood, Liver ..." @keyup="${this.calculateFilters}">
+                                </div>
+                            </div>
+            
+                            <div class="form-group">
+                                <div class="browser-subsection" id="${this.prefix}-annotationss">Sample annotations
+                                    <div style="float: right" class="tooltip-div">
+                                        <a><i class="fa fa-info-circle" aria-hidden="true"
+                                              id="${this.prefix}-annotations-tooltip"></i></a>
+                                    </div>
+                                </div>
+                                <div id="${this.prefix}-annotations" class="subsection-content">
+                                    <opencga-annotation-filter .opencga-session="${this.opencgaSession}"
+                                                               .opencga-client="${this.opencgaClient}"
+                                                               entity="SAMPLE"
+                                                               .config="${this.annotationFilterConfig}"
+                                                               @filterannotation="${this.addAnnotation}">
+                                    </opencga-annotation-filter>
+                                </div>
+                            </div>
+            
+                            <div class="form-group">
+                                <div class="browser-subsection">Phenotypes
+                                </div>
+                                <div id="${this.prefix}-phenotypes" class="subsection-content form-group">
+                                    <input type="text" id="${this.prefix}-phenotypes-input"
+                                           class="form-control input-sm ${this.prefix}FilterTextInput"
+                                           placeholder="Full-text search, e.g. *melanoma*" @keyup="calculateFilters">
+                                </div>
+                            </div>
+            
+                            <div class="form-group">
+                                <div class="browser-subsection">Somatic
+                                </div>
+                                <form id="${this.prefix}-somatic" class="subsection-content form-group">
+                                    <input id="${this.prefix}-somatic-option-none"
+                                           class="form-group-sm ${this.prefix}FilterRadio"
+                                           type="radio" name="${this.prefix}-somatic-options" value="None"
+                                           @click="${this.calculateFilters}" checked>
+                                    <span class="small">None</span>
+                                    <br>
+                                    <input id="${this.prefix}-somatic-option-true"
+                                           class="form-group-sm ${this.prefix}FilterRadio"
+                                           type="radio" name="${this.prefix}-somatic-options" value="True"
+                                           @click="${this.calculateFilters}">
+                                    <span class="small">True</span>
+                                    <br>
+                                    <input id="${this.prefix}-somatic-option-false"
+                                           class="form-group-sm ${this.prefix}FilterRadio"
+                                           type="radio" name="${this.prefix}-somatic-options" value="False"
+                                           @click="${this.calculateFilters}">
+                                    <span class="small">False</span>
+                                </form>
+                            </div>
+            
+                            <div class="form-group">
+                                <div class="browser-subsection" id="${this.prefix}-date">Date
+                                    <div style="float: right" class="tooltip-div">
+                                        <a><i class="fa fa-info-circle" aria-hidden="true" id="${this.prefix}-date-tooltip"></i></a>
+                                    </div>
+                                </div>
+                                <div id="${this.prefix}-date-content" class="subsection-content">
+                                    <opencga-date-filter .config="${this.dateFilterConfig}"
+                                                         @datechanged="${this.onDateChanged}"></opencga-date-filter>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div id="${this.prefix}-annotations" class="subsection-content">
-                        <opencga-annotation-filter .opencga-session="${this.opencgaSession}"
-                                                   .opencga-client="${this.opencgaClient}"
-                                                   entity="SAMPLE"
-                                                   .config="${this.annotationFilterConfig}"
-                                                   @filterannotation="${this.addAnnotation}">
-                        </opencga-annotation-filter>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="browser-subsection">Phenotypes
-                    </div>
-                    <div id="${this.prefix}-phenotypes" class="subsection-content form-group">
-                        <input type="text" id="${this.prefix}-phenotypes-input"
-                               class="form-control input-sm ${this.prefix}FilterTextInput"
-                               placeholder="Full-text search, e.g. *melanoma*" @keyup="calculateFilters">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="browser-subsection">Somatic
-                    </div>
-                    <form id="${this.prefix}-somatic" class="subsection-content form-group">
-                        <input id="${this.prefix}-somatic-option-none"
-                               class="form-group-sm ${this.prefix}FilterRadio"
-                               type="radio" name="${this.prefix}-somatic-options" value="None"
-                               @click="${this.calculateFilters}" checked>
-                        <span class="small">None</span>
-                        <br>
-                        <input id="${this.prefix}-somatic-option-true"
-                               class="form-group-sm ${this.prefix}FilterRadio"
-                               type="radio" name="${this.prefix}-somatic-options" value="True"
-                               @click="${this.calculateFilters}">
-                        <span class="small">True</span>
-                        <br>
-                        <input id="${this.prefix}-somatic-option-false"
-                               class="form-group-sm ${this.prefix}FilterRadio"
-                               type="radio" name="${this.prefix}-somatic-options" value="False"
-                               @click="${this.calculateFilters}">
-                        <span class="small">False</span>
-                    </form>
-                </div>
-
-                <div class="form-group">
-                    <div class="browser-subsection" id="${this.prefix}-date">Date
-                        <div style="float: right" class="tooltip-div">
-                            <a><i class="fa fa-info-circle" aria-hidden="true" id="${this.prefix}-date-tooltip"></i></a>
-                        </div>
-                    </div>
-                    <div id="${this.prefix}-date-content" class="subsection-content">
-                        <opencga-date-filter .config="${this.dateFilterConfig}"
-                                             @datechanged="${this.onDateChanged}"></opencga-date-filter>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
         `;
     }
 }

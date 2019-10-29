@@ -43,6 +43,9 @@ export default class FeatureFilter extends LitElement {
             },
             limit: {
                 type: Number
+            },
+            featureTextArea: {
+                type: String
             }
         }
     }
@@ -55,30 +58,10 @@ export default class FeatureFilter extends LitElement {
         this.featureIds = this.query && this.query.ids || [];
     }
 
-    filterChange(e) {
-        let xref;
-        let featureTextArea = this.querySelector("#" + this._prefix + "FeatureTextarea");
-        if (featureTextArea && featureTextArea.value) {
-            let features = featureTextArea.value.trim();
-            features = features.replace(/\r?\n/g, ",").replace(/\s/g, "");
-            let featureArray = [];
-            for (let feature of features.split(",")) {
-                if (feature.startsWith("rs") || feature.split(":").length > 2) {
-                    featureArray.push(feature);
-                } else {
-                    // Genes must be uppercase
-                    featureArray.push(feature.toUpperCase());
-                }
-            }
-            xref = featureArray.join(",");
+    updated(_changedProperties) {
+        if (_changedProperties.has("featureTextArea")) {
+            this.filterChange();
         }
-
-        let event = new CustomEvent('filterChange', {
-            detail: {
-                value: xref // xref, ids, gene
-            }
-        });
-        this.dispatchEvent(event);
     }
 
     autocomplete(e) {
@@ -104,22 +87,42 @@ export default class FeatureFilter extends LitElement {
                 this.featureIds.push(featureIdText.value);
             }
             featureIdText.value = "";
-            let featureTextArea = this.querySelector("#" + this._prefix + "FeatureTextarea");
-            featureTextArea.value = this.featureIds.join(",");
-            this.filterChange();
+            //let featureTextArea = this.querySelector("#" + this._prefix + "FeatureTextarea");
+            this.featureTextArea = this.featureIds.join(",");
+            //this.filterChange();
         }
-        console.log("this.featureIds",this.featureIds)
     }
 
     onInput(e) {
-        // Remove new line and empty characters
-        let _featureTextArea = e.target.value.trim().replace(/\r?\n/g, ",").replace(/\s/g, "");
+        this.featureTextArea = e.target.value;
+        this.featureIds = this.featureTextArea.split(",").filter(_ => _);
+    }
+
+    filterChange() {
+        let xref;
+        let featureTextArea = this.querySelector("#" + this._prefix + "FeatureTextarea");
+        //console.log("featureTextArea selector", featureTextArea)
+
+        if (featureTextArea && featureTextArea.value) {
+            let features = featureTextArea.value.trim();
+            features = features.replace(/\r?\n/g, ",").replace(/\s/g, "");
+            let featureArray = [];
+            for (let feature of features.split(",")) {
+                if (feature.startsWith("rs") || feature.split(":").length > 2) {
+                    featureArray.push(feature);
+                } else {
+                    // Genes must be uppercase
+                    featureArray.push(feature.toUpperCase());
+                }
+            }
+            xref = featureArray.join(",");
+        }
+
         let event = new CustomEvent('filterChange', {
             detail: {
-                value: _featureTextArea
-            },
-            bubbles: true,
-            composed: true
+                value: xref, // xref, ids, gene
+                featureIds: this.featureIds
+            }
         });
         this.dispatchEvent(event);
     }
@@ -130,7 +133,7 @@ export default class FeatureFilter extends LitElement {
                 <div class="col-md-9">
                     <input id="${this._prefix}FeatureIdText" type="text" class="form-control"
                            list="${this._prefix}FeatureDatalist"
-                           placeholder="Search for Gene Symbols" value="" @keyup="${this.autocomplete}">
+                           placeholder="Search for Gene Symbols" value="" @input="${this.autocomplete}">
                     <datalist id="${this._prefix}FeatureDatalist">
                         ${this.featureDatalist.map( feature => html`<option value="${feature.name}">${feature.name}</option>`)}
                     </datalist>
@@ -141,11 +144,12 @@ export default class FeatureFilter extends LitElement {
                     </button>
                 </div>
             </div>
+            
             <div class="form-group">
                 <textarea id="${this._prefix}FeatureTextarea" name="geneSnp"
                     class="form-control clearable ${this._prefix}FilterTextInput"
                     rows="3" placeholder="BRCA2,ENSG00000139618,ENST00000544455,rs28897700"
-                    style="margin-top: 5px" @input="${e => this.onInput(e)}">${this.featureTextArea}</textarea>
+                    style="margin-top: 5px" @input="${this.onInput}">${this.featureTextArea}</textarea>
             </div>
         `;
     }

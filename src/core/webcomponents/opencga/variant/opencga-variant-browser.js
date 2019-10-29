@@ -202,7 +202,6 @@ export default class OpencgaVariantBrowser extends LitElement {
     }
 
     onQueryFilterSearch(e) {
-        debugger
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
         this.requestUpdate();

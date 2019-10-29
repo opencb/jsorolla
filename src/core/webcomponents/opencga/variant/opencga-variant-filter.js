@@ -468,7 +468,8 @@ export default class OpencgaVariantFilter extends LitElement {
     }*/
 
 
-    renderClinicalQuerySummary() {
+    //DONE moved in sample-filter
+    /*renderClinicalQuerySummary() {
         if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
             // Get Individuals (and samples) from Clinical Analysis
             let individuals = [];
@@ -527,7 +528,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 elementById.innerHTML = sampleTableTr;
             }
         }
-    }
+    }*/
 
     //binding::from this.query to the view
     //most of those blocks have been refactored and moved in firstUpdated() in each filter component
@@ -846,10 +847,10 @@ export default class OpencgaVariantFilter extends LitElement {
         console.log("filterChange", {[key]:value});
         if (value && value !== "") {
             this.preparedQuery = {...this.preparedQuery, ...{[key]: value}};
+            console.log("this.preparedQuery",this.preparedQuery)
         } else {
             delete this.preparedQuery[key]
         }
-debugger
         this.notifyQuery(this.preparedQuery);
     }
 
@@ -1317,7 +1318,7 @@ debugger
             content = html`<cohort-filter .cohorts="${subsection.cohorts}"> </cohort-filter>`;
             break;
         case "sample":
-            content = html`<sample-filter ?enabled="${subsection.showSelectSamples}"> </sample-filter>`;
+            content = html`<sample-filter ?enabled="${subsection.showSelectSamples}" .clinicalAnalysis="${this.clinicalAnalysis}" .query="${this.query}"></sample-filter>`;
             break;
         case "file":
             //TODO this handles this.query.filter and this.query.qual (merge in an unique object?)

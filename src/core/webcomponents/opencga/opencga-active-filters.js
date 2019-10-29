@@ -1,7 +1,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 
 export default class OpencgaActiveFilters extends LitElement {
-    
+
     constructor() {
         super();
         this.init();
@@ -22,7 +22,7 @@ export default class OpencgaActiveFilters extends LitElement {
                 type: String
             },
             alias: {
-                type: Object,
+                type: Object
             },
             defaultStudy: {
                 type: String
@@ -31,6 +31,9 @@ export default class OpencgaActiveFilters extends LitElement {
                 type: Object
             },
             config: {
+                type: Object
+            },
+            preparedQuery: {
                 type: Object
             }
         }
@@ -227,6 +230,7 @@ export default class OpencgaActiveFilters extends LitElement {
 
         let name = e.target.dataset.filterName;
         let value = e.target.dataset.filterValue;
+        console.log("onQueryFilterDelete", name,value)
 
         if (UtilsNew.isEmpty(value)) {
             delete _queryList[name];
@@ -267,6 +271,7 @@ export default class OpencgaActiveFilters extends LitElement {
             $("#filtersList option[value='none']").prop("selected", true);
         }
 
+        console.log("activeFilterChange",_queryList);
         this.dispatchEvent(new CustomEvent("activeFilterChange", {
             detail: _queryList,
             bubbles: true,
@@ -359,6 +364,8 @@ export default class OpencgaActiveFilters extends LitElement {
             }
         }
         this.queryList = _queryList;
+
+        console.log("this.queryList",this.queryList)
         this.requestUpdate();
     }
 
@@ -431,7 +438,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                 ${item.text}
                                 </button>
                             ` : html`
-                                <button type="button" class="btn btn-warning btn-sm ${this.item.name}ActiveFilter active-filter-button" data-filter-name="${this.item.name}" data-filter-value=""
+                                <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button" data-filter-name="${item.name}" data-filter-value=""
                                          @click="${this.onQueryFilterDelete}" title="${item.message}" disabled>
                                     ${item.text}
                                 </button>
@@ -439,8 +446,8 @@ export default class OpencgaActiveFilters extends LitElement {
                                 <!-- Multi-valued filters -->
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button" data-filter-name="${item.name}" data-filter-value=""
-                                            @click="${this.onQueryFilterDelete}" @mouseover="${this._onMouseOver}" @mouseout="${this._onMouseOut}" ${item.status}>
-                                        ${item.text}
+                                            @click="${this.onQueryFilterDelete}" @mouseover="${this._onMouseOver}" @mouseout="${this._onMouseOut}" >
+                                        ${item.text} <span class="badge">${item.items.length}</span>
                                     </button>
                                     <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <span class="caret"></span>
@@ -450,7 +457,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                         ${item.items.length && item.items.map(filterItem => html`
                                             <li class="small active-filter-button" style="cursor: pointer">
                                                 <a @click="${this.onQueryFilterDelete}" data-filter-name="${item.name}" data-filter-value="${filterItem}">
-                                                    ${filterItem}
+                                                    ${filterItem} 
                                                 </a>
                                             </li>
                                         `)}

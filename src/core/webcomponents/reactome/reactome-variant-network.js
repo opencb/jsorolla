@@ -88,6 +88,8 @@ export default class ReactomeVariantNetwork extends LitElement {
         }*/
     }
 
+
+    //TODO recheck if connectedCallback() works
     connectedCallback() {
         super.connectedCallback();
 
@@ -219,4 +221,4 @@ export default class ReactomeVariantNetwork extends LitElement {
         `;
     }
 }
-customElements.define("ReactomeVariantNetwork", ReactomeVariantNetwork);
+customElements.define("reactome-variant-network", ReactomeVariantNetwork);

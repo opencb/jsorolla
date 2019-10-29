@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+//TODO check functionality
+
 import {LitElement, html} from '/web_modules/lit-element.js';
 
 export default class FileFilter extends LitElement {
@@ -42,22 +44,24 @@ export default class FileFilter extends LitElement {
     }
 
     filterChange() {
+        let value = `${this.qual ? `qual=${this.qual},` : ""}${this.filter ? `filter=${this.filter}` : ""}`;
+        console.log("filterChange",value);
         let event = new CustomEvent('filterChange', {
             detail: {
-                value: "" //TODO send this.qual and this.filter both
+                value: value || null
             }
         });
         this.dispatchEvent(event);
     }
-    
+
     onChangePass(e) {
         this.filter = e.target.checked ? "PASS" : null;
     }
-    
+
     onChangeQual(e){
         this.qual = ">=" + e.target.value;
     }
-    
+
     onChangeQualCheckBox(e){
         this.qualEnabled = e.target.checked;
     }

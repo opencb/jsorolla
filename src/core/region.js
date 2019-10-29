@@ -1,5 +1,5 @@
-
-class Region {
+//TODO decomment at the end of the refactor
+/*export default */ class Region {
 
     constructor(args) {
         this.chromosome = null;

@@ -1,15 +1,30 @@
-import {LitElement, html} from '/web_modules/lit-element.js';
-import OpencbGridToolbar from "../../../commons/opencb-grid-toolbar";
+/**
+ * Copyright 2015-2019 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
+//TODO check functionality
+
+import {LitElement, html} from '/web_modules/lit-element.js';
+import "../../../commons/opencb-grid-toolbar.js";
 
 export default class OpencgaSampleGrid extends LitElement {
-    
+
     constructor() {
         super();
-        this.prefix = "VarSampleGrid" + Utils.randomString(6);
-    }
-    createRenderRoot() {
-        return this;
+
+        this._init();
     }
 
     static get properties() {
@@ -24,27 +39,29 @@ export default class OpencgaSampleGrid extends LitElement {
                 type: Object
             },
             active: {
-                type: Boolean,
-                value: false
+                type: Boolean
             },
             config: {
                 type: Object
-            },
+            }
         }
     }
 
+    __init() {
+        this.prefix = "VarSampleGrid" + Utils.randomString(6) + "_";
+        this.active = false;
+    }
+
     updated(changedProperties) {
-        console.log("changedProperties", changedProperties); // logs previous values
         if(changedProperties.has("opencgaSession") ||
-            changedProperties.has("search")||
-            changedProperties.has("config")||
+            changedProperties.has("search") ||
+            changedProperties.has("config") ||
             changedProperties.has("active")) {
             this.propertyObserver();
         }
     }
 
     connectedCallback() {
-        console.log("connectedCallback")
         super.connectedCallback();
 
         this.renderTable(this.active);
@@ -53,7 +70,7 @@ export default class OpencgaSampleGrid extends LitElement {
 
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = Object.assign(this.getDefaultConfig(), this.config);
         this._columns = this._initTableColumns();
 
         // Config for the grid toolbar
@@ -61,7 +78,7 @@ export default class OpencgaSampleGrid extends LitElement {
             columns: this._columns[0]
         };
 
-        this.renderTable(active);
+        this.renderTable(this.active);
     }
 
     renderTable(active) {
@@ -71,7 +88,7 @@ export default class OpencgaSampleGrid extends LitElement {
 
         this.opencgaClient = this.opencgaSession.opencgaClient;
 
-        this.samples = [];
+        this.set('samples', []);
 
         let filters = Object.assign({}, this.search);
 
@@ -195,11 +212,10 @@ export default class OpencgaSampleGrid extends LitElement {
                     }
 
                     // we add samples to selected samples
-                    _this._samples.push(row);
-                    _this.samples = _this._samples.slice();
+                    _this.push("_samples", row);
+                    _this.set('samples', _this._samples.slice());
 
                 },
-                //todo refactor in functional way
                 onUncheck: function (row, elem) {
                     let sampleToDeleteIdx = -1;
                     for (let i in _this.samples) {
@@ -213,8 +229,8 @@ export default class OpencgaSampleGrid extends LitElement {
                         return;
                     }
 
-                    _this._samples.splice(sampleToDeleteIdx, 1); 
-                    _this.samples =_this._samples.slice();
+                    _this.splice('_samples', sampleToDeleteIdx, 1);
+                    _this.set('samples', _this._samples.slice());
                 },
                 onCheckAll: function (rows) {
                     let newSamples = _this._samples.slice();
@@ -231,7 +247,7 @@ export default class OpencgaSampleGrid extends LitElement {
 
                     // we add samples to selected samples
                     _this._samples = newSamples;
-                    _this.samples = newSamples.slice();
+                    _this.set('samples', newSamples.slice());
 
                 },
                 onUncheckAll: function (rows) {
@@ -245,7 +261,7 @@ export default class OpencgaSampleGrid extends LitElement {
 
                     // we add samples to selected samples
 //                            _this.push("_samples", row);
-                    _this.samples =_this._samples.slice();
+                    _this.set('samples', _this._samples.slice());
 
                 },
                 onLoadSuccess: function (data) {
@@ -418,10 +434,11 @@ export default class OpencgaSampleGrid extends LitElement {
         }
     }
 
+
     render() {
         return html`
         <style include="jso-styles"></style>
-        <opencb-grid-toolbar from="${this.from}" to="${this.to}" numTotalResultsText="${this.numTotalResultsText}"
+            <opencb-grid-toolbar from="${this.from}}" to="${this.to}" numTotalResultsText="${this.numTotalResultsText}"
                              .config="${this.toolbarConfig}" @columnchange="${this.onColumnChange}"></opencb-grid-toolbar>
 
         <div id="${this.prefix}GridTableDiv" style="margin-top: 10px">
@@ -433,4 +450,4 @@ export default class OpencgaSampleGrid extends LitElement {
     }
 }
 
-customElements.define('opencga-sample-grid',OpencgaSampleGrid);
+customElements.define("opencga-sample-grid", OpencgaSampleGrid);

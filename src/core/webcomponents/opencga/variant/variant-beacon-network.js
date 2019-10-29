@@ -38,11 +38,11 @@ export default class VariantBeaconNetwork extends LitElement {
             },
             clear: {
                 type: String,
-                observer: 'clearResponse'
+                //observer: 'clearResponse'
             },
             config: {
                 type: Object,
-                observer: "configObserver"
+                //observer: "configObserver"
             }
         }
     }

@@ -3,7 +3,7 @@ import {LitElement, html} from '/web_modules/lit-element.js';
 import OpencgaVariableSelector from './opencga-variable-selector';
 
 export default class OpencgaAnnotationFilter extends LitElement {
-    
+
     constructor() {
         super();
         this._init();
@@ -314,9 +314,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
                            placeholder="${this.selectedVariable.id} name" data-variable-name$="${this.selectedVariable.id}"
                            pattern="${this.variable.attributes.pattern}"
                            aria-describedby="basic-addon1" @change="${this.addInputFilter}">
-                ` : this.selectedVariable.type === 'NUMERIC' ||
-        this.selectedVariable.type === 'INTEGER' ||
-        this.selectedVariable.type === 'DOUBLE' ? html`
+                ` : this.selectedVariable.type === 'NUMERIC' || this.selectedVariable.type === 'INTEGER' || this.selectedVariable.type === 'DOUBLE' ? html`
                     <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
                     <input type="text" class$="form-control ${this.prefix}}AnnotationTextInput"
                            placeholder="${this.selectedVariable.id} number" data-variable-name$="${this.selectedVariable.id}"
