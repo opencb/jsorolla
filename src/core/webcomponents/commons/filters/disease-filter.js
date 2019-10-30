@@ -75,14 +75,8 @@ export default class DiseaseFilter extends LitElement {
                     let text = "";
                     for (let panelResponse of response.response) {
                         let panel = panelResponse.result[0];
-                        let geneNames = [];
-                        for (let gene of panel.genes) {
-                            geneNames.push(gene.name);
-                        }
-                        let regions = [];
-                        for (let region of panel.regions) {
-                            regions.push(region.id);
-                        }
+                        let geneNames = panel.genes.map(gene => gene.name);
+                        let regions = panel.regions.map(region => region.id);
                         text += `${panel.name} (${geneNames.length} genes and ${regions.length} regions): ${geneNames.join(",")} \n`;
                         text += `${geneNames.join(",")} \n`;
                         text += `${regions.join(",")} \n\n`;
@@ -96,7 +90,7 @@ export default class DiseaseFilter extends LitElement {
     }
 
     filterChange(e) {
-        console.log("disease-filter", e);
+        //console.log("disease-filter", e);
         let panelId = "";
         let panelObjects = [];
         let panelsDropdown = this.querySelector("#" + this._prefix + "DiseasePanels");
@@ -108,10 +102,11 @@ export default class DiseaseFilter extends LitElement {
                 this.showPanelGenes(panelObjects);
             }
         }
-        let event = new CustomEvent('filterChange', {
+        let event = new CustomEvent("filterChange", {
             detail: {
                 value: panelId,
-                //panels: panelObjects
+                //value: panelObjects,
+                //toString: panelId
             },
             bubbles: true,
             composed: true

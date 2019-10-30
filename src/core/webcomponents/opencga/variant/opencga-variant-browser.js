@@ -60,6 +60,10 @@ export default class OpencgaVariantBrowser extends LitElement {
             config: {
                 type: Object
             },
+            //FIXME temp solution
+            preparedQuery: {
+                type: Object
+            }
             // executedQuery: {
             //     type: Object
             // },
@@ -197,6 +201,9 @@ export default class OpencgaVariantBrowser extends LitElement {
      * Variant Filter component listeners
      */
     onQueryFilterChange(e) {
+        console.log("onQueryFilterChange on variant browser",e.detail.query )
+
+
         this.preparedQuery = e.detail.query;
         this.requestUpdate();
     }
@@ -211,7 +218,10 @@ export default class OpencgaVariantBrowser extends LitElement {
      * Active Filters component listeners
      */
     onActiveFilterChange(e) {
+        console.log("onActiveFilterChange on variant browser",e.detail )
+        this.preparedQuery = Object.assign({study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias}, e.detail);
         this.query = Object.assign({study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias}, e.detail);
+        this.requestUpdate();
     }
 
     //it was called onClear

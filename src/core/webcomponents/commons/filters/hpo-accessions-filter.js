@@ -84,8 +84,20 @@ export default class HpoAccessionsFilter extends LitElement {
         this.openModalOntology();
     }
 
+    //TODO handle function and open moal in variant-filter
     openModalOntology() {
         $("#ontologyModal").modal("show");
+        let event = new CustomEvent('openModalOntology', {
+            detail: {
+                value: {
+                    openHPO: true,
+                    ontologyTerm: "HPO",
+                    selectedTermsOntology: selectedTermsHPO,
+                    ontologyFilter: "hp"
+                }
+            }
+        });
+        this.dispatchEvent(event);
     }
 
     render() {

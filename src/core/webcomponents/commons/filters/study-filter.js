@@ -35,6 +35,9 @@ export default class StudyFilter extends LitElement {
             differentStudies: {
                 type: Object
             },
+            preparedQuery: {
+                type: Object
+            },
             query: {
                 type: Object
             }
@@ -46,6 +49,9 @@ export default class StudyFilter extends LitElement {
         //array of aliases of the studies currently active
         this.studies = this.query ? this.query.studies.split(new RegExp("[,;]")).map(study => study[1]) : [];
         this.operator = ";";
+    }
+    updated(_changedProperties) {
+        this.studies = this.query && this.query.studies ? this.query.studies.split(new RegExp("[,;]")).map(study => study[1]) : [];
     }
 
     filterChange() {
@@ -76,7 +82,7 @@ export default class StudyFilter extends LitElement {
             this.operator = "!";
         this.filterChange();
     }
-    
+
     onChangeStudy(e) {
         if(e.target.checked) {
             this.studies.push(e.target.value);
@@ -103,7 +109,7 @@ export default class StudyFilter extends LitElement {
                 <span style="font-weight: bold;font-style: italic;color: darkred">${this.opencgaSession.study.alias}</span>
                 ${this.differentStudies && this.differentStudies.length && this.differentStudies.map(study => html`
                     <br>
-                    <input id="${this._prefix}${study.alias}Checkbox" type="checkbox" @change="${this.onChangeStudy}" value="${study.alias}" data-id="${study.id}" class="${this._prefix}FilterCheckBox" ?checked="${~this.studies.indexOf(study.alias)}" >
+                    <input id="${this._prefix}${study.alias}Checkbox" type="checkbox" @change="${this.onChangeStudy}" value="${study.alias}" data-id="${study.id}" class="${this._prefix}FilterCheckBox" ?checked="${-1 !== this.studies.indexOf(study.alias)}" >
                     ${study.alias}
                  `)}
             </div>

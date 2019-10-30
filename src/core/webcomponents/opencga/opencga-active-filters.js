@@ -12,6 +12,7 @@ export default class OpencgaActiveFilters extends LitElement {
             opencgaClient: {
                 type: Object
             },
+            //NOTE this is actually preparedQuery
             query: {
                 type: Object
             },
@@ -62,6 +63,7 @@ export default class OpencgaActiveFilters extends LitElement {
         this._prefix = "oaf" + Utils.randomString(6);
         this._config = this.getDefaultConfig();
         this.filters = [];
+        this.preparedQuery = {};
 
         //todo recheck why function?
         this.opencgaClient = function () {
@@ -70,10 +72,11 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     connectedCallback() {
+        console.log("connectedCallback")
         super.connectedCallback();
 
         // Small trick to force the warning message display after DOM is renderer
-        this.query = Object.assign({}, this.query);
+        this.query = {...this.query};
 
         // We need to init _previousQuery with query in order to work before executing any search
         this._previousQuery = this.query;
@@ -231,9 +234,12 @@ export default class OpencgaActiveFilters extends LitElement {
         let name = e.target.dataset.filterName;
         let value = e.target.dataset.filterValue;
         console.log("onQueryFilterDelete", name,value)
+        console.log("preparedQuery",this.preparedQuery)
+
 
         if (UtilsNew.isEmpty(value)) {
             delete _queryList[name];
+            //TODO check the reason of this condition
             if (UtilsNew.isEqual(name, "genotype")) {
                 if (this.modeInheritance === "xLinked" || this.modeInheritance === "yLinked") {
                     delete _queryList["region"];
@@ -242,9 +248,7 @@ export default class OpencgaActiveFilters extends LitElement {
         } else {
 //                    let filterFields = _queryList[name].split(new RegExp("[,;]"));
             let filterFields;
-            if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1)
-                // if ((_queryList[name].indexOf(";") !== -1 && _queryList[name].indexOf(",") !== -1)
-                || this._config.complexFields.indexOf(name) !== -1) {
+            if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1)  || this._config.complexFields.indexOf(name) !== -1) {
                 filterFields = _queryList[name].split(new RegExp(";"));
             } else {
                 filterFields = _queryList[name].split(new RegExp("[,;]"));

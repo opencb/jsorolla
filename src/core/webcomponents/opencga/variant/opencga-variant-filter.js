@@ -94,7 +94,6 @@ export default class OpencgaVariantFilter extends LitElement {
             this.clinicalObserver();
         }
         if (changedProperties.has("samples")) {
-            console.warn("samplesObserver() doesn't actually exists")
             //this.samplesObserver();
         }
     }
@@ -236,6 +235,7 @@ export default class OpencgaVariantFilter extends LitElement {
         this.notifySearch(this.preparedQuery);
     }
 
+    //TODO rename to filterChange
     notifyQuery(query) {
         this.dispatchEvent(new CustomEvent("queryChange", {
             detail: {
@@ -1312,7 +1312,7 @@ export default class OpencgaVariantFilter extends LitElement {
         let content = "";
         switch (subsection.id) {
         case "study":
-            content = html`<study-filter .opencgaSession="${this.opencgaSession}" .differentStudies="${this.differentStudies}" .query="${this.query}" @filterChange="${e => this.onFilterChange("studies", e.detail.value)}"></study-filter>`;
+            content = html`<study-filter .opencgaSession="${this.opencgaSession}" .differentStudies="${this.differentStudies}" .query="${this.query}" .preparedQuery="${this.preparedQuery}" @filterChange="${e => this.onFilterChange("studies", e.detail.value)}"></study-filter>`;
             break;
         case "cohort":
             content = html`<cohort-filter .cohorts="${subsection.cohorts}"> </cohort-filter>`;

@@ -146,7 +146,7 @@ export default class VariantModalOntology extends LitElement {
         const rowsPerPage = 15;
         const _this = this;
         const queryEncoded = query;
-        //TODO shouldn't this uses encodeURIComponent()?
+        //TODO shouldn't this use encodeURIComponent()?
         return fetch(this.ebiConfig.root + this.ebiConfig.search + "?q=*" + queryEncoded + "*&ontology=" + this.ontologyFilter + "&rows=" + rowsPerPage + "&queryFields=label,obo_id")
             .then((response) => {
                 return response.json().then((json) => {
