@@ -35,7 +35,7 @@ export default class CohortFilter extends LitElement {
                 type: Object
             },
             cohorts: {
-                type: Array
+                type: Object
             },
             config: {
                 type: Object
