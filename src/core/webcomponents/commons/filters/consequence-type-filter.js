@@ -80,10 +80,11 @@ export default class ConsequenceTypeFilter extends LitElement {
     }
 
     filterChange(e) {
-        console.log("filterChange", this.ct ? this.ct.join(",") : null);
+        const ct = this.ct ? this.ct.join(",") : null;
+        console.log("filterChange", ct);
         let event = new CustomEvent("filterChange", {
             detail: {
-                value: this.ct ? this.ct.join(",") : null
+                value: ct
             }
         });
         this.dispatchEvent(event);

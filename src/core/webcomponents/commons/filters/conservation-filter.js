@@ -34,6 +34,9 @@ export default class ConservationFilter extends LitElement {
         return {
             opencgaSession: {
                 type: Object
+            },
+            query: {
+                type: Object
             }
         }
     }

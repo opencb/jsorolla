@@ -70,10 +70,11 @@ export default class BiotypeFilter extends LitElement {
     }
 
     filterChange(e) {
-        console.log("filterChange", $(e.target).val() ? $(e.target).val().join(",") : null);
+        let value = $(e.target).val() ? $(e.target).val().join(",") : null;
+        console.log("filterChange", value);
         let event = new CustomEvent('filterChange', {
             detail: {
-                value: $(e.target).val() ? $(e.target).val().join(",") : null
+                value: value
             }
         });
         this.dispatchEvent(event);

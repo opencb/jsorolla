@@ -233,8 +233,6 @@ export default class OpencgaVariantBrowser extends LitElement {
         this.preparedQuery = {...this.query} //TODO quick fix to update
     }
 
-
-
     onSampleChange(e) {
         this.samples = e.detail.samples;
         this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));

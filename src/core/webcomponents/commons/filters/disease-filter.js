@@ -40,31 +40,41 @@ export default class DiseaseFilter extends LitElement {
             // },
             config: {
                 type: Object
+            },
+            query: {
+                type: Object
             }
         }
     }
 
     _init(){
         this._prefix = "ff-" + Utils.randomString(6) + "_";
+        this.panel = this.query && this.query.panel ? this.query.panel : "";
     }
 
     firstUpdated(_changedProperties) {
-        if (this.query && this.query.panel) {
-            $(`select#${this._prefix}DiseasePanels`).selectpicker("val", this.query.panel.split(","));
-            this.showPanelGenes(this.query.panel.split(","));
-        }
         $(`select#${this._prefix}DiseasePanels`).selectpicker("render");
         $(`select#${this._prefix}DiseasePanels`).selectpicker({
             iconBase: "fa",
             tickIcon: "fa-check"
         });
 
+
+    }
+
+    updated(_changedProperties) {
+        console.log("this.panel", this.panel);
+        if (this.panel && this.panel.split(",")) {
+            $(`select#${this._prefix}DiseasePanels`).selectpicker("val", this.panel.split(","));
+            this.showPanelGenes(this.panel.split(","));
+        }
     }
 
     //TODO urgent refactor
     showPanelGenes(panels) {
         PolymerUtils.getElementById(this._prefix + "DiseasePanelsTextarea").value = "";
-        if (UtilsNew.isNotEmptyArray(panels)) {
+
+        if (panels && panels !== "undefined" && panels.length) {
             let _this = this;
             this.opencgaSession.opencgaClient.panels()
                 .info(panels.join(","), {
@@ -90,21 +100,12 @@ export default class DiseaseFilter extends LitElement {
     }
 
     filterChange(e) {
-        //console.log("disease-filter", e);
-        let panelId = "";
-        let panelObjects = [];
-        let panelsDropdown = this.querySelector("#" + this._prefix + "DiseasePanels");
-        if (UtilsNew.isNotUndefinedOrNull(panelsDropdown)) {
-            let selectedPanels = panelsDropdown.querySelectorAll("option:checked");
-            selectedPanels.forEach(option => panelObjects.push(option.value));
-            if (panelObjects.length > 0) {
-                panelId = panelObjects.join(",");
-                this.showPanelGenes(panelObjects);
-            }
-        }
+        let select_vals = $("#" + this._prefix + "DiseasePanels").val() || [];
+        let value = select_vals && select_vals.length ? select_vals.join(",") : null;
+        this.showPanelGenes(select_vals);
         let event = new CustomEvent("filterChange", {
             detail: {
-                value: panelId,
+                value: value
                 //value: panelObjects,
                 //toString: panelId
             },
@@ -120,8 +121,8 @@ export default class DiseaseFilter extends LitElement {
                 <select id="${this._prefix}DiseasePanels" class="selectpicker" data-size="10" data-live-search="true" data-selected-text-format="count" multiple @change="${e => this.filterChange(e)}">
                     ${this.opencgaSession.study.panels && this.opencgaSession.study.panels.length && this.opencgaSession.study.panels.map(panel => html`
                         <option value="${panel.id}">
-                            ${panel.name} 
-                            ${panel.source ? "v" + panel.source.version : ""} 
+                            ${panel.name}
+                            ${panel.source ? "v" + panel.source.version : ""}
                             ( ${panel.stats ? panel.stats.numberOfGenes + "genes, " + panel.stats.numberOfRegions + "regions" : "0 genes, 0 regions"})
                         </option>
                     `)}
@@ -132,4 +133,4 @@ export default class DiseaseFilter extends LitElement {
     }
 }
 
-customElements.define('disease-filter', DiseaseFilter);
+customElements.define("disease-filter", DiseaseFilter);

@@ -36,6 +36,9 @@ export default class FulltextSearchAccessionsFilter extends LitElement {
             },
             placeholder: {
                 type: String
+            },
+            query: {
+                type: Object
             }
         }
     }

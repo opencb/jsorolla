@@ -54,11 +54,28 @@ export default class FeatureFilter extends LitElement {
         this._prefix = "feaf-" + Utils.randomString(6) + "_";
         this.featureDatalist = [];
         //TODO check why there are 2 fields in query object..
-        this.featureTextArea = this.query && this.query["xref"] || "";
+
         this.featureIds = this.query && this.query.ids || [];
+        this.separator = ",";
+        this.featureTextArea = "";
+
+
     }
 
     updated(_changedProperties) {
+        // XRefs, Gene and Variant Ids
+        if(this.query) {
+            if(this.query["xref"]) {
+                this.featureTextArea = this.query["xref"];
+            }
+            if(this.query.ids) {
+                this.featureTextArea = this.query.ids;
+            }
+            if(this.query.gene) {
+                this.featureTextArea = this.query.gene;
+            }
+            this.featureIds = this.featureTextArea.split(this.separator).filter(_ => _);
+        }
         if (_changedProperties.has("featureTextArea")) {
             this.filterChange();
         }
@@ -78,36 +95,51 @@ export default class FeatureFilter extends LitElement {
 
     //TODO it needs a proper input validation..
     addFeatureId(e) {
+
         //split by comma and filters empty strings
         //let ids = this.featureTextArea.split(",").filter(id => id ? id : false);
 
         let featureIdText = this.querySelector("#" + this._prefix + "FeatureIdText");
+        console.log("addFeatureId",featureIdText.value)
         if(featureIdText.value) {
             if (!~this.featureIds.indexOf(featureIdText.value)) {
                 this.featureIds.push(featureIdText.value);
             }
             featureIdText.value = "";
             //let featureTextArea = this.querySelector("#" + this._prefix + "FeatureTextarea");
-            this.featureTextArea = this.featureIds.join(",");
-            //this.filterChange();
+            this.featureTextArea = this.featureIds.join(this.separator);
+
+            //FIXME the below line shouldn't be necessary!
+            // TODO Isolate the issue
+            // Step to reproduce: 1. add a value using the select 2. edit manually the textarea 3. add a value from the select.
+            // The last one will be in this.featureTextArea and this.featureIds, but the textArea won't reflect the update.
+            this.querySelector("#" + this._prefix + "FeatureTextarea").value = this.featureTextArea;
+
+            this.requestUpdate();
+            this.filterChange();
         }
     }
 
     onInput(e) {
         this.featureTextArea = e.target.value;
-        this.featureIds = this.featureTextArea.split(",").filter(_ => _);
+        this.featureIds = this.featureTextArea.split(this.separator).filter(_ => _);
+        this.filterChange();
+
     }
 
     filterChange() {
+
+        console.log("this.featureTextArea",this.featureTextArea,"this.featureIds",this.featureIds)
         let xref;
-        let featureTextArea = this.querySelector("#" + this._prefix + "FeatureTextarea");
+        //let featureTextArea = this.querySelector("#" + this._prefix + "FeatureTextarea");
+
         //console.log("featureTextArea selector", featureTextArea)
 
-        if (featureTextArea && featureTextArea.value) {
-            let features = featureTextArea.value.trim();
-            features = features.replace(/\r?\n/g, ",").replace(/\s/g, "");
+        if (this.featureTextArea) {
+            let features = this.featureTextArea.trim();
+            features = features.replace(/\r?\n/g, this.separator).replace(/\s/g, "");
             let featureArray = [];
-            for (let feature of features.split(",")) {
+            for (let feature of features.split(this.separator)) {
                 if (feature.startsWith("rs") || feature.split(":").length > 2) {
                     featureArray.push(feature);
                 } else {
@@ -115,7 +147,7 @@ export default class FeatureFilter extends LitElement {
                     featureArray.push(feature.toUpperCase());
                 }
             }
-            xref = featureArray.join(",");
+            xref = featureArray.filter(_ => _).join(this.separator);
         }
 
         let event = new CustomEvent('filterChange', {
@@ -124,6 +156,8 @@ export default class FeatureFilter extends LitElement {
                 featureIds: this.featureIds
             }
         });
+
+        this.requestUpdate();
         this.dispatchEvent(event);
     }
 

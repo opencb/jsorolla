@@ -45,10 +45,10 @@ export default class RegionFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "crf-" + Utils.randomString(6);
+        this._prefix = "crf-" + Utils.randomString(6) + "_";
         this.region = "";
-
         this._config = this.getDefaultConfig();
+        this.separator = ","
     }
 
     firstUpdated() {
@@ -62,9 +62,15 @@ export default class RegionFilter extends LitElement {
     }
 
     filterChange(e) {
-        // Remove new line and empty characters
-        let _region = e.target.value.trim().replace(/\r?\n/g, ",").replace(/\s/g, "");
-        let event = new CustomEvent('filterChange', {
+        // Process the textarea: remove newline chars, empty chars, leading/trailing commas
+        const _region = e.target.value.trim()
+                        .replace(/\r?\n/g, this.separator)
+                        .replace(/\s/g, "")
+                        .split(this.separator)
+                        .filter(_ => _)
+                        .join(this.separator);
+        console.log("_region",_region);
+        const event = new CustomEvent("filterChange", {
             detail: {
                 value: _region
             },

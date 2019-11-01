@@ -40,6 +40,9 @@ export default class PopulationFrequencyFilter extends LitElement {
             },
             showSetAll: {
                 type: Boolean
+            },
+            query: {
+                type: Object
             }
         }
     }

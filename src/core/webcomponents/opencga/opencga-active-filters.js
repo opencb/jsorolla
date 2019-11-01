@@ -33,9 +33,6 @@ export default class OpencgaActiveFilters extends LitElement {
             },
             config: {
                 type: Object
-            },
-            preparedQuery: {
-                type: Object
             }
         }
     }
@@ -63,7 +60,7 @@ export default class OpencgaActiveFilters extends LitElement {
         this._prefix = "oaf" + Utils.randomString(6);
         this._config = this.getDefaultConfig();
         this.filters = [];
-        this.preparedQuery = {};
+
 
         //todo recheck why function?
         this.opencgaClient = function () {
@@ -71,8 +68,8 @@ export default class OpencgaActiveFilters extends LitElement {
         }
     }
 
+    //TODO recheck connectedCallback
     connectedCallback() {
-        console.log("connectedCallback")
         super.connectedCallback();
 
         // Small trick to force the warning message display after DOM is renderer
@@ -234,7 +231,6 @@ export default class OpencgaActiveFilters extends LitElement {
         let name = e.target.dataset.filterName;
         let value = e.target.dataset.filterValue;
         console.log("onQueryFilterDelete", name,value)
-        console.log("preparedQuery",this.preparedQuery)
 
 
         if (UtilsNew.isEmpty(value)) {
@@ -275,7 +271,6 @@ export default class OpencgaActiveFilters extends LitElement {
             $("#filtersList option[value='none']").prop("selected", true);
         }
 
-        console.log("activeFilterChange",_queryList);
         this.dispatchEvent(new CustomEvent("activeFilterChange", {
             detail: _queryList,
             bubbles: true,
@@ -369,7 +364,6 @@ export default class OpencgaActiveFilters extends LitElement {
         }
         this.queryList = _queryList;
 
-        console.log("this.queryList",this.queryList)
         this.requestUpdate();
     }
 

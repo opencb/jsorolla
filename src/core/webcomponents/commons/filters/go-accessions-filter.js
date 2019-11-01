@@ -93,11 +93,12 @@ export default class GoAccessionsFilter extends LitElement {
     render() {
         return html`
             <textarea id="${this._prefix}GeneOntologyTextarea" class="form-control clearable ${this._prefix}FilterTextInput"
-                                rows="3" name="geneOntology" placeholder="GO:0000145" @keyup="${this.filterChange}"></textarea>
-                    <span class="input-group-addon btn btn-primary searchingSpan" id="${this._prefix}buttonOpenGoAccesions" @click="${this.onOntologyModal}">
-                        <strong style="color: white">Add GO Term</strong>
-                        <i class="fa fa-search searchingButton" aria-hidden="true"></i>
-                    </span>
+                                rows="3" name="geneOntology" placeholder="GO:0000145" @keyup="${this.filterChange}">
+            </textarea>
+            <span class="input-group-addon btn btn-primary searchingSpan" id="${this._prefix}buttonOpenGoAccesions" @click="${this.onOntologyModal}">
+                <strong style="color: white">Add GO Term</strong>
+                <i class="fa fa-search searchingButton" aria-hidden="true"></i>
+            </span>
         `;
     }
 }

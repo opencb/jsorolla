@@ -33,6 +33,9 @@ export default class CaddFilter extends LitElement {
         return {
             opencgaSession: {
                 type: Object
+            },
+            query: {
+                type: Object
             }
         }
     }

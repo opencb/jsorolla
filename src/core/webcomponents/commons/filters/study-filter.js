@@ -35,9 +35,6 @@ export default class StudyFilter extends LitElement {
             differentStudies: {
                 type: Object
             },
-            preparedQuery: {
-                type: Object
-            },
             query: {
                 type: Object
             }
@@ -47,9 +44,10 @@ export default class StudyFilter extends LitElement {
     _init(){
         this._prefix = "sf-" + Utils.randomString(6) + "_";
         //array of aliases of the studies currently active
-        this.studies = this.query ? this.query.studies.split(new RegExp("[,;]")).map(study => study[1]) : [];
+        //this.studies = this.query ? this.query.studies.split(new RegExp("[,;]")).map(study => study[1]) : [];
         this.operator = ";";
     }
+
     updated(_changedProperties) {
         this.studies = this.query && this.query.studies ? this.query.studies.split(new RegExp("[,;]")).map(study => study[1]) : [];
     }
@@ -64,7 +62,6 @@ export default class StudyFilter extends LitElement {
             //NOT operator
             querystring = [primaryProject, ...this.studies.map(study => `${this.operator}${this.opencgaSession.project.fqn}:${study}`)].join(";");
         }
-        console.log("filterChange event value:",querystring);
         let event = new CustomEvent('filterChange', {
             detail: {
                 value: querystring
@@ -110,7 +107,7 @@ export default class StudyFilter extends LitElement {
                 ${this.differentStudies && this.differentStudies.length && this.differentStudies.map(study => html`
                     <br>
                     <input id="${this._prefix}${study.alias}Checkbox" type="checkbox" @change="${this.onChangeStudy}" value="${study.alias}" data-id="${study.id}" class="${this._prefix}FilterCheckBox" ?checked="${-1 !== this.studies.indexOf(study.alias)}" >
-                    ${study.alias}
+                     ${study.alias}
                  `)}
             </div>
         `;

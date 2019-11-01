@@ -130,4 +130,4 @@ export default class CohortFilter extends LitElement {
     }
 }
 
-customElements.define('cohort-filter',CohortFilter);
+customElements.define("cohort-filter", CohortFilter);
