@@ -1251,8 +1251,12 @@ export default class OpencgaVariantFilter extends LitElement {
         }
 
         // Deselect bootstrap-select dropdowns
-        $("#" + this._prefix + "DiseasePanels").selectpicker("val", []);
-        $("#" + this._prefix + "GeneBiotypes").selectpicker("val", []);
+
+        //handled in updated() in disease-filter
+        //$("#" + this._prefix + "DiseasePanels").selectpicker("val", []);
+        //handled in updated() in biotype-filter
+        //$("#" + this._prefix + "GeneBiotypes").selectpicker("val", []);
+
         $("#" + this._prefix + "vcfFilterSelect").selectpicker("val", []);
     }
 
@@ -1325,7 +1329,7 @@ export default class OpencgaVariantFilter extends LitElement {
             content = html`<file-filter .query="${this.query}" @filterChange="${e => this.onFilterChange("filter", e.detail.value)}"></file-filter>`;
             break;
         case "location":
-            content = html`<region-filter .cellbaseClient="${this.cellbaseClient}" region="${this.query.region}" 
+            content = html`<region-filter .cellbaseClient="${this.cellbaseClient}" .query="${this.query}" .region="${this.query.region}" 
                                            @filterChange="${e => this.onFilterChange("region", e.detail.value)}"></region-filter>`;
             break;
         case "feature":
@@ -1338,7 +1342,7 @@ export default class OpencgaVariantFilter extends LitElement {
                                 @filterChange="${e => this.onFilterChange("panel", e.detail.value)}"></disease-filter>`;
             break;
         case "biotype":
-            content = html`<biotype-filter .config="${this.config}" 
+            content = html`<biotype-filter .config="${this.config}" .query=${this.query}
                                 @filterChange="${e => this.onFilterChange("biotype", e.detail.value)}"></biotype-filter>`;
             break;
         case "type":

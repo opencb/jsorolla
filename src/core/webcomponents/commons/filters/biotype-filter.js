@@ -61,12 +61,18 @@ export default class BiotypeFilter extends LitElement {
             ],
         }
     }
-
     firstUpdated(_changedProperties) {
-        if(this.query && this.query.biotype && this.query.biotype.length){
-            $("#" + this._prefix + "GeneBiotypes").selectpicker("val", this.query.biotype.split(","));
+        $("#" + this._prefix + "GeneBiotypes").selectpicker("val", []);
+    }
+
+    updated(_changedProperties) {
+        if (_changedProperties.has("query")) {
+            if(this.query.biotype) {
+                $("#" + this._prefix + "GeneBiotypes").selectpicker("val", this.query.biotype.split(","));
+            } else {
+                $("#" + this._prefix + "GeneBiotypes").selectpicker("val", []);
+            }
         }
-        this.requestUpdate();
     }
 
     filterChange(e) {

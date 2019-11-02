@@ -49,7 +49,6 @@ export default class DiseaseFilter extends LitElement {
 
     _init(){
         this._prefix = "ff-" + Utils.randomString(6) + "_";
-        this.panel = this.query && this.query.panel ? this.query.panel : "";
     }
 
     firstUpdated(_changedProperties) {
@@ -63,19 +62,22 @@ export default class DiseaseFilter extends LitElement {
     }
 
     updated(_changedProperties) {
-        console.log("this.panel", this.panel);
-        if (this.panel && this.panel.split(",")) {
-            $(`select#${this._prefix}DiseasePanels`).selectpicker("val", this.panel.split(","));
-            this.showPanelGenes(this.panel.split(","));
+        if(_changedProperties.has("query")) {
+            if (this.query && this.query.panel) {
+                this.panel = this.query.panel.split(",");
+            } else {
+                this.panel = [];
+            }
+            $(`select#${this._prefix}DiseasePanels`).selectpicker("val", this.panel);
+            this.showPanelGenes(this.panel);
         }
     }
 
-    //TODO urgent refactor
     showPanelGenes(panels) {
         PolymerUtils.getElementById(this._prefix + "DiseasePanelsTextarea").value = "";
+        let _this = this;
 
-        if (panels && panels !== "undefined" && panels.length) {
-            let _this = this;
+        if (panels && panels.length) {
             this.opencgaSession.opencgaClient.panels()
                 .info(panels.join(","), {
                     study: _this.opencgaSession.study.fqn,
@@ -96,12 +98,15 @@ export default class DiseaseFilter extends LitElement {
                 .catch(function (response) {
                     console.error(response);
                 });
+        } else {
+            PolymerUtils.getElementById(_this._prefix + "DiseasePanelsTextarea").value = "";
         }
     }
 
     filterChange(e) {
         let select_vals = $("#" + this._prefix + "DiseasePanels").val() || [];
         let value = select_vals && select_vals.length ? select_vals.join(",") : null;
+        console.log("FilterChange disease-filter", value)
         this.showPanelGenes(select_vals);
         let event = new CustomEvent("filterChange", {
             detail: {

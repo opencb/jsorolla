@@ -56,7 +56,11 @@ export default class StudyFilter extends LitElement {
     updated(_changedProperties) {
         if (_changedProperties.has("query")) {
             this.studies = this.query && this.query.studies ? this.query.studies.split(new RegExp("[,;]")) : [this.primaryProject];
+
+            //this shouldn't be necessary since this.query is being updated..
             this.requestUpdate();
+
+            //NOTE Do NOT fire filterChange in updated(), it would interferes with other filters changes and active-filters
         }
     }
 

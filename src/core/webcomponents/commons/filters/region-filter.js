@@ -40,36 +40,45 @@ export default class RegionFilter extends LitElement {
             },
             config: {
                 type: Object
+            },
+            query: {
+                type: Object
             }
-        }
+        };
     }
 
     _init() {
         this._prefix = "crf-" + Utils.randomString(6) + "_";
+        // FIXME in case of region as a prop (with value = this.query.region from variant-filter) in case opencga-active-filter deletes a region filter this component is not updated.
+        // A temp solution is to add query as prop and watch for its edits in updated() [this.region as prop is not used anymore].
         this.region = "";
         this._config = this.getDefaultConfig();
-        this.separator = ","
+        this.separator = ",";
     }
 
-    firstUpdated() {
-        this.region = (typeof this.region === "undefined" || this.region === "undefined") ? "" : this.region;
+    updated(_changedProperties) {
+        if (_changedProperties.has("query")) {
+            this.region = this.query && this.query.region ? this.query.region : "";
+            //this shouldn't be necessary.. component view is refreshed but the textArea isn't.
+            this.querySelector("#" + this._prefix + "LocationTextarea").value = this.region;
+        }
     }
 
     getDefaultConfig() {
         return {
             placeholder: "3:444-55555,1:1-100000"
-        }
+        };
     }
 
     filterChange(e) {
         // Process the textarea: remove newline chars, empty chars, leading/trailing commas
         const _region = e.target.value.trim()
-                        .replace(/\r?\n/g, this.separator)
-                        .replace(/\s/g, "")
-                        .split(this.separator)
-                        .filter(_ => _)
-                        .join(this.separator);
-        console.log("_region",_region);
+            .replace(/\r?\n/g, this.separator)
+            .replace(/\s/g, "")
+            .split(this.separator)
+            .filter(_ => _)
+            .join(this.separator);
+        this.region = _region;
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: _region
@@ -77,6 +86,7 @@ export default class RegionFilter extends LitElement {
             bubbles: true,
             composed: true
         });
+        this.requestUpdate();
         this.dispatchEvent(event);
     }
 

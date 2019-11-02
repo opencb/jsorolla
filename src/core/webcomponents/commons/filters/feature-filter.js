@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
 
 /*
 * TODO handle GENES
@@ -43,19 +43,17 @@ export default class FeatureFilter extends LitElement {
             },
             limit: {
                 type: Number
-            },
-            featureTextArea: {
-                type: String
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = "feaf-" + Utils.randomString(6) + "_";
         this.featureDatalist = [];
         //TODO check why there are 2 fields in query object..
 
-        this.featureIds = this.query && this.query.ids || [];
+        //this.featureIds = this.query && this.query.ids || [];
+        this.featureIds = [];
         this.separator = ",";
         this.featureTextArea = "";
 
@@ -64,23 +62,22 @@ export default class FeatureFilter extends LitElement {
 
     updated(_changedProperties) {
         // XRefs, Gene and Variant Ids
-        if(this.query) {
-            if(this.query["xref"]) {
+        if (_changedProperties.has("query")) {
+            if (this.query["xref"]) {
                 this.featureTextArea = this.query["xref"];
             }
-            if(this.query.ids) {
+            else if (this.query.ids) {
                 this.featureTextArea = this.query.ids;
             }
-            if(this.query.gene) {
+            else if (this.query.gene) {
                 this.featureTextArea = this.query.gene;
+            } else {
+                //this block covers the case of opencga-active-filters deletes all features filters
+                this.featureTextArea = "";
             }
             this.featureIds = this.featureTextArea.split(this.separator).filter(_ => _);
+            this.querySelector("#" + this._prefix + "FeatureTextarea").value = this.featureTextArea;
         }
-
-        //TODO recheck if necessary
-        /*if (_changedProperties.has("featureTextArea")) {
-            this.filterChange();
-        }*/
     }
 
     autocomplete(e) {
@@ -89,7 +86,7 @@ export default class FeatureFilter extends LitElement {
         if (featureId && featureId.length >= 3 && !featureId.startsWith("ENS")) {
             this.cellbaseClient.get("feature", "id", featureId.toUpperCase(), "starts_with", {}, {})
                 .then(response => {
-                    this.featureDatalist = response.response[0].result.slice(0,this.limit);
+                    this.featureDatalist = response.response[0].result.slice(0, this.limit);
                     this.requestUpdate();
                 });
         }
@@ -102,8 +99,8 @@ export default class FeatureFilter extends LitElement {
         //let ids = this.featureTextArea.split(",").filter(id => id ? id : false);
 
         let featureIdText = this.querySelector("#" + this._prefix + "FeatureIdText");
-        console.log("addFeatureId",featureIdText.value)
-        if(featureIdText.value) {
+        console.log("addFeatureId", featureIdText.value);
+        if (featureIdText.value) {
             if (!~this.featureIds.indexOf(featureIdText.value)) {
                 this.featureIds.push(featureIdText.value);
             }
@@ -131,7 +128,7 @@ export default class FeatureFilter extends LitElement {
 
     filterChange() {
 
-        console.log("this.featureTextArea",this.featureTextArea,"this.featureIds",this.featureIds)
+        console.log("this.featureTextArea", this.featureTextArea, "this.featureIds", this.featureIds);
         let xref;
         //let featureTextArea = this.querySelector("#" + this._prefix + "FeatureTextarea");
 
@@ -152,7 +149,7 @@ export default class FeatureFilter extends LitElement {
             xref = featureArray.filter(_ => _).join(this.separator);
         }
 
-        let event = new CustomEvent('filterChange', {
+        let event = new CustomEvent("filterChange", {
             detail: {
                 value: xref, // xref, ids, gene
                 featureIds: this.featureIds
@@ -171,7 +168,7 @@ export default class FeatureFilter extends LitElement {
                            list="${this._prefix}FeatureDatalist"
                            placeholder="Search for Gene Symbols" value="" @input="${this.autocomplete}">
                     <datalist id="${this._prefix}FeatureDatalist">
-                        ${this.featureDatalist.map( feature => html`<option value="${feature.name}">${feature.name}</option>`)}
+                        ${this.featureDatalist.map(feature => html`<option value="${feature.name}">${feature.name}</option>`)}
                     </datalist>
                 </div>
                 <div class="col-md-3">
@@ -191,4 +188,4 @@ export default class FeatureFilter extends LitElement {
     }
 }
 
-customElements.define('feature-filter', FeatureFilter);
+customElements.define("feature-filter", FeatureFilter);

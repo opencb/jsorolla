@@ -16,7 +16,7 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import {checkBoxWidget} from "/src/styles/styles.js"
+import {checkBoxWidget} from "/src/styles/styles.js";
 
 export default class VariantTypeFilter extends LitElement {
 
@@ -52,9 +52,9 @@ export default class VariantTypeFilter extends LitElement {
         this.requestUpdate();
     }
 
-    firstUpdated(_changedProperties) {
+    updated(_changedProperties) {
         //TODO recheck & refactor
-        if (this.query && typeof this.query.type !== "undefined") {
+/*        if (this.query && typeof this.query.type !== "undefined") {
             let types = this.query.type.split(",");
             let checkBoxes = PolymerUtils.querySelectorAll("input", this._prefix + "Type");
             for (let i = 0; i < types.length; i++) {
@@ -64,6 +64,15 @@ export default class VariantTypeFilter extends LitElement {
                     }
                 }
             }
+        }*/
+        if (_changedProperties.has("query")) {
+            if(this.query.type) {
+                this.selectedVariantTypes = this.query.type.split(",");
+            } else {
+                this.selectedVariantTypes = [];
+            }
+            this.requestUpdate();
+
         }
     }
 
@@ -117,7 +126,7 @@ export default class VariantTypeFilter extends LitElement {
                         <a @click="${ _ => this.toggle(type) }" style="cursor: pointer;">
                             <!--<input type="checkbox" value="${type}"  ?checked="${~this.selectedVariantTypes.indexOf(type)}" @change="${this.onChange}" @click="${this.checkboxToggle}"
                             ?checked="${1}" class="${this._prefix}FilterCheckBox"/> -->
-                            <input type="checkbox" value="${type}" ?checked="${~this.selectedVariantTypes.indexOf(type)}" class="${this._prefix}FilterCheckBox"/>
+                            <input type="checkbox" value="${type}" .checked="${~this.selectedVariantTypes.indexOf(type)}" class="${this._prefix}FilterCheckBox"/>
                             <span class="checkmark-label">${type}</span>
                             <span class="checkmark"></span>
                         </a>
