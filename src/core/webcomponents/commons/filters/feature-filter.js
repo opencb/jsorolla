@@ -76,9 +76,11 @@ export default class FeatureFilter extends LitElement {
             }
             this.featureIds = this.featureTextArea.split(this.separator).filter(_ => _);
         }
-        if (_changedProperties.has("featureTextArea")) {
+
+        //TODO recheck if necessary
+        /*if (_changedProperties.has("featureTextArea")) {
             this.filterChange();
-        }
+        }*/
     }
 
     autocomplete(e) {

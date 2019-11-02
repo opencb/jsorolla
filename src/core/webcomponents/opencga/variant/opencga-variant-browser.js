@@ -89,13 +89,12 @@ export default class OpencgaVariantBrowser extends LitElement {
     // }
 
     updated(changedProperties) {
-        console.log("changedProperties", changedProperties); // logs previous values
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-        // if (changedProperties.has("query")) {
-        //     this.queryObserver();
-        // }
+        if (changedProperties.has("query")) {
+            this.queryObserver();
+        }
     }
 
     _init() {
@@ -202,8 +201,6 @@ export default class OpencgaVariantBrowser extends LitElement {
      */
     onQueryFilterChange(e) {
         console.log("onQueryFilterChange on variant browser",e.detail.query )
-
-
         this.preparedQuery = e.detail.query;
         this.requestUpdate();
     }
@@ -219,8 +216,11 @@ export default class OpencgaVariantBrowser extends LitElement {
      */
     onActiveFilterChange(e) {
         console.log("onActiveFilterChange on variant browser",e.detail )
-        this.preparedQuery = Object.assign({study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias}, e.detail);
-        this.query = Object.assign({study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias}, e.detail);
+        //TODO FIXME!! study prop have to be wiped off! use studies instead
+        this.preparedQuery = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
+           ...e.detail};
+        this.query = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
+            ...e.detail};
         this.requestUpdate();
     }
 

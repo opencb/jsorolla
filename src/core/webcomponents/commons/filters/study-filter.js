@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
 
 export default class StudyFilter extends LitElement {
 
@@ -38,57 +38,68 @@ export default class StudyFilter extends LitElement {
             query: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = "sf-" + Utils.randomString(6) + "_";
-        //array of aliases of the studies currently active
-        //this.studies = this.query ? this.query.studies.split(new RegExp("[,;]")).map(study => study[1]) : [];
         this.operator = ";";
+        //FIXME this component uses this.studies as an array of aliases, while it receives in query an array of pairs fqn:alias, this is a problem with saved filters
+        //array of aliases of the studies currently active
+        this.studies = [];
+    }
+
+    firstUpdated(_changedProperties) {
+        this.primaryProject = this.opencgaSession.project.fqn + ":" + this.opencgaSession.study.alias;
     }
 
     updated(_changedProperties) {
-        this.studies = this.query && this.query.studies ? this.query.studies.split(new RegExp("[,;]")).map(study => study[1]) : [];
+        if (_changedProperties.has("query")) {
+            this.studies = this.query && this.query.studies ? this.query.studies.split(new RegExp("[,;]")) : [this.primaryProject];
+            this.requestUpdate();
+        }
     }
 
     filterChange() {
-        let primaryProject = this.opencgaSession.project.fqn + ":" + this.opencgaSession.study.alias;
         let querystring;
-        //AND or OR operators
-        if(this.operator !=="!") {
-            querystring = [primaryProject, ...this.studies.map(study => `${this.opencgaSession.project.fqn}:${study}`)].join(this.operator);
+        // AND or OR operators
+        if (this.operator !== "!") {
+            querystring = [this.primaryProject, ...this.studies.map(study => `${this.opencgaSession.project.fqn}:${study}`)].join(this.operator);
         } else {
-            //NOT operator
-            querystring = [primaryProject, ...this.studies.map(study => `${this.operator}${this.opencgaSession.project.fqn}:${study}`)].join(";");
+            // NOT operator
+            querystring = [this.primaryProject, ...this.studies.map(study => `${this.operator}${this.opencgaSession.project.fqn}:${study}`)].join(";");
         }
-        let event = new CustomEvent('filterChange', {
+        const event = new CustomEvent("filterChange", {
             detail: {
                 value: querystring
             }
         });
         this.dispatchEvent(event);
+        this.requestUpdate();
     }
 
     onChangeOperator(e) {
-        if(e.target.value === "in")
+        if (e.target.value === "in") {
             this.operator = ";";
-        else if(e.target.value === "atleast")
+        } else if (e.target.value === "atleast") {
             this.operator = ",";
-        else if(e.target.value === "not in")
+        } else if (e.target.value === "not in") {
             this.operator = "!";
+        }
         this.filterChange();
     }
 
     onChangeStudy(e) {
-        if(e.target.checked) {
-            this.studies.push(e.target.value);
+        const study = e.target.value;
+        if (e.target.checked) {
+            this.studies.push(study);
         } else {
-            let indx = this.studies.indexOf(e.target.value);
-            if(!~indx) {
+            const indx = this.studies.indexOf(study);
+            if (!~indx) {
                 console.error("Trying to remove non active study");
+            } else {
+                this.studies.splice(indx);
             }
-            this.studies.splice(indx);
         }
         this.filterChange();
     }
@@ -106,7 +117,7 @@ export default class StudyFilter extends LitElement {
                 <span style="font-weight: bold;font-style: italic;color: darkred">${this.opencgaSession.study.alias}</span>
                 ${this.differentStudies && this.differentStudies.length && this.differentStudies.map(study => html`
                     <br>
-                    <input id="${this._prefix}${study.alias}Checkbox" type="checkbox" @change="${this.onChangeStudy}" value="${study.alias}" data-id="${study.id}" class="${this._prefix}FilterCheckBox" ?checked="${-1 !== this.studies.indexOf(study.alias)}" >
+                    <input id="${this._prefix}${study.alias}Checkbox" type="checkbox" @change="${this.onChangeStudy}" value="${study.alias}" data-id="${study.id}" class="${this._prefix}FilterCheckBox" .checked="${~this.studies.indexOf(study.alias)}" >
                      ${study.alias}
                  `)}
             </div>

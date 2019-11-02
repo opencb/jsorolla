@@ -126,7 +126,6 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     launchModal() {
-        //TODO Refactor
         $(PolymerUtils.getElementById(this._prefix + "SaveModal")).modal("show");
     }
 
@@ -477,8 +476,10 @@ export default class OpencgaActiveFilters extends LitElement {
                             <li><a style="font-weight: bold">Saved Filters</a></li>
                             ${this.filters.map(item => html`
                                 <li> <!-- TODO recheck and simplify!!-->
-                                    ${!item.active ? html`<a data-filter-name="${item.name}" style="cursor: pointer" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.name}</a>` : html`
-                                            <a data-filter-name="${item.name}" style="cursor: pointer;color: green" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.name}</a>`}
+                                    ${!item.active ? html`
+                                        <a data-filter-name="${item.name}" style="cursor: pointer" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.name}</a>` : html`
+                                        <a data-filter-name="${item.name}" style="cursor: pointer;color: green" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.name}</a>
+                                    `}
                                 </li>
                             `)}
                             ${this.checkSid(this.opencgaClient._config) ? html`
