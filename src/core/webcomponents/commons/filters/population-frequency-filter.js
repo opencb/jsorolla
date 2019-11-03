@@ -52,9 +52,10 @@ export default class PopulationFrequencyFilter extends LitElement {
         this.populationFrequenciesQuery = [];
     }
 
-    firstUpdated(_changedProperties) {
-        //TODO recheck block and debug
+    //FIXME IVA (polymer2) have a bug on this when you edits the filters from active-filters
+    updated(_changedProperties) {
         let pfArray = [];
+        //TODO this.query["alternate_frequency"]?
         if (this.query && typeof this.query["alternate_frequency"] !== "undefined") {
             pfArray = this.query["alternate_frequency"].split(new RegExp("[,;]"));
         }
@@ -75,6 +76,10 @@ export default class PopulationFrequencyFilter extends LitElement {
                     }
                 }
             }
+        } else {
+            //this block covers the case of opencga-active-filters deletes all pop filters
+            $("." + this._prefix + "FilterTextInput").val(1111);
+            $("." + this._prefix + "FilterTextInput").prop("disabled", false);
         }
     }
 
@@ -140,7 +145,7 @@ export default class PopulationFrequencyFilter extends LitElement {
                                 <span class="col-md-7 control-label" data-toggle="tooltip" data-placement="top"
                                       style="text-align: left;">Set all</span>
                                 <div class="col-md-5" style="padding: 0px 10px">
-                                    <input id="${this._prefix}${study.id}Input" type="number" data-study="${study.id}" value=""
+                                    <input id="${this._prefix}${study.id}Input" type="number" data-study="${study.id}"
                                            class="form-control input-sm ${this._prefix}FilterTextInput"
                                            name="${study.id}Input" @input="${this.keyUpAllPopFreq}">
                                 </div>
@@ -160,7 +165,7 @@ export default class PopulationFrequencyFilter extends LitElement {
                                     </select>
                                 </div>
                                 <div class="col-md-5" style="padding: 0px 10px">
-                                    <input id="${this._prefix}${study.id}${popFreq.id}" type="number" value="${this.commonValue}"
+                                    <input id="${this._prefix}${study.id}${popFreq.id}" type="number"
                                            class="form-control input-sm ${this._prefix}FilterTextInput"
                                            name="${study.id}_${popFreq.id}" @input="${this.filterChange}">
                                 </div>

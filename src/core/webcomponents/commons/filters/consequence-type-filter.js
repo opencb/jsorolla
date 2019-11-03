@@ -36,12 +36,37 @@ export default class ConsequenceTypeFilter extends LitElement {
             },
             consequenceTypes: {
                 type: Object
+            },
+            query: {
+                type: Object
             }
         };
     }
 
     _init() {
         this._prefix = "ctf-" + Utils.randomString(6) + "_";
+        this.selectedCt = [];
+    }
+
+    updated(_changedProperties) {
+        if (_changedProperties.has("query")) {
+            if(this.query.ct) {
+                console.log("this.query.ct",this.query.ct)
+                this.selectedCt = this.query.ct.split(",");
+                this.requestUpdate();
+            }
+        }
+    }
+
+    filterChange(e) {
+        const ct = this.ct ? this.ct.join(",") : null;
+        console.log("filterChange", ct);
+        let event = new CustomEvent("filterChange", {
+            detail: {
+                value: ct
+            }
+        });
+        this.dispatchEvent(event);
     }
 
     onChange(e) {
@@ -74,20 +99,15 @@ export default class ConsequenceTypeFilter extends LitElement {
                 }
             }
         });
-        console.log("soTerms", soTerms);
+
         this.ct = soTerms;
         this.filterChange();
-    }
 
-    filterChange(e) {
-        const ct = this.ct ? this.ct.join(",") : null;
-        console.log("filterChange", ct);
-        let event = new CustomEvent("filterChange", {
-            detail: {
-                value: ct
-            }
-        });
-        this.dispatchEvent(event);
+        //TODO onSelect an item, this refers to the whole category and to the the title of the category
+        //this will be useful to automatially select the category checkbox when all the items in it are selected (useful with saved filters as well)
+        //console.log("checked: ", $("input[type=checkbox]", e.target.parentNode.parentNode.parentNode).length)
+        //console.log("total: ", $("input[type=checkbox]:checked", e.target.parentNode.parentNode.parentNode).length)
+        //console.log("title", e.target.parentNode.parentNode.parentNode.parentNode.id)
     }
 
     render() {
@@ -116,7 +136,7 @@ export default class ConsequenceTypeFilter extends LitElement {
                                     <li class="form-check">
                                         <label class="form-check-label notbold">
                                             <input id="${this._prefix}${item.name}Checkbox" type="checkbox" data-id="${item.name}"
-                                                   class="soTermCheckBox ${this._prefix}FilterCheckBox" @change="${this.onChange}">
+                                                   class="soTermCheckBox ${this._prefix}FilterCheckBox" @change="${this.onChange}" .checked="${~this.selectedCt.indexOf(item.name)}">
                                             <span title="${item.description}">
                                             ${item.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${item.id}" target="_blank">${item.id}</a>)
                                             </span>

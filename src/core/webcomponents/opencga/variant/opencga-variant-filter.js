@@ -82,7 +82,7 @@ export default class OpencgaVariantFilter extends LitElement {
             this.opencgaSessionObserver();
         }
         if (changedProperties.has("query")) {
-            // this.queryObserver();
+            this.queryObserver();
         }
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalObserver();
@@ -204,7 +204,16 @@ export default class OpencgaVariantFilter extends LitElement {
         }
     }
 
-    queryObserver(newValue, oldValue) {
+    queryObserver() {
+
+        //the following line FIX the "silent" persistence of active filters once 1 is deleted, due to an inconsistence between query and preparedQuery. Step to reproduce:
+        // 1. add some filters from variant=filter
+        // 2. delete 1 filter from active-filter
+        // 3. add another filter from variant-filter
+        // 4. you will see again the deleted filter in active-filters
+        this.preparedQuery = this.query;
+
+
         if (this.updateClinicalFilterQuery) {
             this.clinicalFilterQuery = this.query;
         } else {
@@ -844,7 +853,8 @@ export default class OpencgaVariantFilter extends LitElement {
             this.preparedQuery = {...this.preparedQuery, ...{[key]: value}};
         } else {
             console.log("deleting", key, "from preparedQuery")
-            delete this.preparedQuery[key]
+            delete this.preparedQuery[key];
+            this.preparedQuery = {...this.preparedQuery};
         }
         this.notifyQuery(this.preparedQuery);
         this.requestUpdate()
@@ -1238,8 +1248,12 @@ export default class OpencgaVariantFilter extends LitElement {
         // Empty everything before rendering
         $("." + this._prefix + "FilterSelect").prop("selectedIndex", 0);
         $("." + this._prefix + "FilterSelect").prop("disabled", false);
+
+        //handled in population-frecuency-filter
+        //TODO many other components use this!
         $("." + this._prefix + "FilterTextInput").val("");
         $("." + this._prefix + "FilterTextInput").prop("disabled", false);
+
         $("." + this._prefix + "FilterCheckBox").prop("checked", false);
         $("." + this._prefix + "FilterRadio").prop("checked", false);
         $("." + this._prefix + "FilterRadio").filter("[value=\"or\"]").prop("checked", true);
@@ -1353,7 +1367,7 @@ export default class OpencgaVariantFilter extends LitElement {
             content = html`<population-frequency-filter .populationFrequencies="${this.populationFrequencies}" ?showSetAll="${subsection.showSetAll}" .query="${this.query}" @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}"></population-frequency-filter>`;
             break;
         case "consequenceType":
-            content = html`<consequence-type-filter .consequenceTypes="${this.consequenceTypes}" @filterChange="${e => this.onFilterChange("ct", e.detail.value)}"></consequence-type-filter>`;
+            content = html`<consequence-type-filter .consequenceTypes="${this.consequenceTypes}" .query="${this.query}"  @filterChange="${e => this.onFilterChange("ct", e.detail.value)}"></consequence-type-filter>`;
             break;
         case "proteinSubstitutionScore":
             content = html`<protein-substitution-score-filter .query="${this.query}" @filterChange="${e => this.onFilterChange("protein_substitution", e.detail.value)}"></protein-substitution-score-filter>`;
@@ -1362,15 +1376,15 @@ export default class OpencgaVariantFilter extends LitElement {
             content = html`<cadd-filter .query="${this.query}" @filterChange="${e => this.onFilterChange("annot-functional-score", e.detail.value)}"></cadd-filter>`;
             break;
         case "conservation":
-            content = html`<conservation-filter .query="${this.query}" @filterChange="${e => this.onFilterChange("query", e.detail.value)}"></conservation-filter>`;
+            content = html`<conservation-filter .query="${this.query}" @filterChange="${e => this.onFilterChange("conservation", e.detail.value)}"></conservation-filter>`;
             break;
         case "go":
             //TODO fix modal
-            content = html`<go-accessions-filter @ontologyModal="${this.onOntologyModal}" @filterChange="${e => this.onFilterChange("go", e.detail.value)}"></go-accessions-filter>`;
+            content = html`<go-accessions-filter .query="${this.query}"  @ontologyModal="${this.onOntologyModal}" @filterChange="${e => this.onFilterChange("go", e.detail.value)}"></go-accessions-filter>`;
             break;
         case "hpo":
             //TODO fix modal
-            content = html`<hpo-accessions-filter @filterChange="${e => this.onFilterChange("annot-hpo", e.detail.value)}"></hpo-accessions-filter>`;
+            content = html`<hpo-accessions-filter .query="${this.query}" @filterChange="${e => this.onFilterChange("annot-hpo", e.detail.value)}"></hpo-accessions-filter>`;
             break;
         case "clinvar":
             content = html`<clinvar-accessions-filter .query="${this.query}" @filterChange="${e => this.onFilterChange("clinvar", e.detail.value)}"></clinvar-accessions-filter>`;

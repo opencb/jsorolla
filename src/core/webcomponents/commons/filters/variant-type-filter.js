@@ -53,18 +53,6 @@ export default class VariantTypeFilter extends LitElement {
     }
 
     updated(_changedProperties) {
-        //TODO recheck & refactor
-/*        if (this.query && typeof this.query.type !== "undefined") {
-            let types = this.query.type.split(",");
-            let checkBoxes = PolymerUtils.querySelectorAll("input", this._prefix + "Type");
-            for (let i = 0; i < types.length; i++) {
-                for (let j = 0; j < checkBoxes.length; j++) {
-                    if (checkBoxes[j].value === types[i]) {
-                        checkBoxes[j].checked = true;
-                    }
-                }
-            }
-        }*/
         if (_changedProperties.has("query")) {
             if(this.query.type) {
                 this.selectedVariantTypes = this.query.type.split(",");
