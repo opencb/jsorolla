@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 
+//TODO FIXME selectedTerms: reopening the modal they are wrong (array of strings)
 export default class VariantModalOntology extends LitElement {
 
     constructor() {
@@ -31,18 +32,27 @@ export default class VariantModalOntology extends LitElement {
 
     static get properties() {
         return {
+            //there will be 2 instances of this component, so it inherit the prefix from the related father (hpo-accessions-filter/go-accessions-filter)
+            _prefix: {
+                type: String
+            },
             ontologyFilter: {
                 type: String
             },
             term: {
                 type: String
+            },
+            selectedTerms: {
+                type: Array
             }
-            // todo add recheck listCurrentSelected
-
         };
     }
 
     updated(changedProperties) {
+        if (changedProperties.has("selectedTerms")) {
+            console.log("this.selectedTerms", this.selectedTerms);
+            console.log("this.selectedTermsFull", this.selectedTermsFull);
+        }
         if (changedProperties.has("ontologyFilter")) {
             this.ontologyFilterObserver();
         }
@@ -50,9 +60,9 @@ export default class VariantModalOntology extends LitElement {
 
     firstUpdated() {
         const _this = this;
-        const typeahead_field = $("#" + this._prefix + "typeahead");
-        typeahead_field.typeahead("destroy");
-        typeahead_field.typeahead({
+        const typeaheadField = $("#" + this._prefix + "typeahead");
+        typeaheadField.typeahead("destroy");
+        typeaheadField.typeahead({
             source: function(query, process) {
                 return _this.searchTerm(query, process);
             },
@@ -70,7 +80,7 @@ export default class VariantModalOntology extends LitElement {
     }
 
     _init() {
-        this._prefix = "vmo-" + Utils.randomString(6) + "_";
+        // this._prefix = "vmo-" + Utils.randomString(6) + "_";
         this.ebiConfig = {
             root: "https://www.ebi.ac.uk/ols/api",
             tree: {
@@ -82,6 +92,8 @@ export default class VariantModalOntology extends LitElement {
             },
             search: "/search"
         };
+        this.selectedTerms = [];
+        this.selectedTermsFull = [];
     }
 
     ontologyFilterObserver() {
@@ -89,54 +101,50 @@ export default class VariantModalOntology extends LitElement {
         this.selectedTerm = {};
         this.listCurrentSelected = [];
         PolymerUtils.setValue(this._prefix + "typeahead", "");
-        if (UtilsNew.isNotEmptyArray(this.selectedTerms)) {
+        /*if (UtilsNew.isNotEmptyArray(this.selectedTerms)) {
             this.listCurrentSelected = this.selectedTerms.slice();
-        }
+        }*/
         this.requestUpdate();
     }
 
     selectTerm(selected) {
+        console.log("select term", selected);
         if (UtilsNew.isNotUndefinedOrNull(this.fullTerms)) {
-            this.selectedTerm = this.fullTerms.find((elem) => {
-                return elem.label === selected.label;
-            });
-        }
-    }
-
-    addSelectedTermToList(e) {
-        const selectedTerm = JSON.parse(e.target.getAttribute("data-selected-term"));
-        if (UtilsNew.isUndefinedOrNull(this.listCurrentSelected)) {
-            this.listCurrentSelected = [];
-        }
-
-        const containsSelectedElement = this.listCurrentSelected.find((element) => {
-            return element.label === selectedTerm.label;
-        });
-
-        if (UtilsNew.isUndefinedOrNull(containsSelectedElement)) {
-            this.listCurrentSelected.push(selectedTerm);
+            this.selectedTerm = this.fullTerms.find(elem => elem.label === selected.label);
         }
         this.requestUpdate();
 
     }
 
-    deletedTermFromList(e) {
-        const deletedTerm = JSON.parse(e.target.getAttribute("data-selected-term"));
-        this.listCurrentSelected = this.listCurrentSelected.filter((element) => {
-            return element.label !== deletedTerm.label;
-        });
+    addSelectedTermToList(e) {
+        // const selectedTerm = e.target.getAttribute("data-selected-term");
+        const selectedTerm = this.selectedTerm;
+        const isPresent = this.selectedTerms.find(id => id === selectedTerm.obo_id);
+        if (!isPresent) {
+            this.selectedTerms.push(selectedTerm.obo_id);
+            this.selectedTermsFull.push(selectedTerm);
+        }
+        this.requestUpdate();
+
+    }
+
+    deleteTermFromList(e) {
+        const deletedTermId = e.target.getAttribute("data-selected-term-id");
+        const index = this.selectedTerms.indexOf(deletedTermId);
+        if (index > -1) {
+            this.selectedTerms.splice(index, 1);
+            this.selectedTermsFull.splice(index, 1);
+            this.selectedTerms = [...this.selectedTerms];
+        }
+        this.requestUpdate();
     }
 
     clickOkModal(e) {
-        let result = [];
-        if (UtilsNew.isNotEmptyArray(this.listCurrentSelected)) {
-            result = this.listCurrentSelected.map((element) => {
-                return element.obo_id;
-            });
-        }
-
-        this.dispatchEvent(new CustomEvent("propagateok", {
-            detail: {result: result, originalResult: this.listCurrentSelected},
+        this.dispatchEvent(new CustomEvent("clickOkModal", {
+            detail: {
+                result: this.selectedTerms,
+                resultFull: this.selectedTermsFull
+            },
             bubbles: true,
             composed: true
         }));
@@ -146,22 +154,21 @@ export default class VariantModalOntology extends LitElement {
         const rowsPerPage = 15;
         const _this = this;
         const queryEncoded = query;
-        //TODO shouldn't this use encodeURIComponent()?
+        // TODO shouldn't this use encodeURIComponent()?
         return fetch(this.ebiConfig.root + this.ebiConfig.search + "?q=*" + queryEncoded + "*&ontology=" + this.ontologyFilter + "&rows=" + rowsPerPage + "&queryFields=label,obo_id")
-            .then((response) => {
-                return response.json().then((json) => {
+            .then(response => {
+                return response.json().then(json => {
                     _this.fullTerms = json.response.docs;
                     const arraySearch = [];
-                    json.response.docs.forEach((elem) => {
+                    json.response.docs.forEach(elem => {
                         arraySearch.push({name: elem.label + " - (" + elem.obo_id + ")", label: elem.label, id: elem.obo_id});
                     });
                     process(arraySearch);
                 });
             })
-            .catch((error) => {
+            .catch(error => {
                 console.error(error);
             });
-
     }
 
     drawTree(data) {
@@ -169,11 +176,12 @@ export default class VariantModalOntology extends LitElement {
         $(PolymerUtils.getElementById(this._prefix + "TermsTree")).treeview({
             data: data,
             onNodeSelected: function(event, node) {
-                _this.selectedTerm = _this.fullTree.find((elem) => {
-                    return elem.label == node.text;
+                _this.selectedTerm = _this.fullTree.find(elem => {
+                    return elem.label === node.text;
                 });
                 if (UtilsNew.isNotUndefinedOrNull(_this.selectedTerm)) {
                     PolymerUtils.setValue(_this._prefix + "typeahead", node.text);
+                    _this.requestUpdate();
                 }
             },
             onNodeUnselected: function(event, node) {
@@ -182,13 +190,13 @@ export default class VariantModalOntology extends LitElement {
             onNodeExpanded: function(event, node) {
                 if (UtilsNew.isEmptyArray(node.nodes)) {
                     let currentNodeInTree = _this.rootTree[0];
-                    node.path.forEach((elem) => {
+                    node.path.forEach(elem => {
                         currentNodeInTree = currentNodeInTree.nodes[elem];
                     });
                     fetch(node.children)
-                        .then((response) => {
-                            response.json().then((json) => {
-                                json._embedded.terms.forEach((elem) => {
+                        .then(response => {
+                            response.json().then(json => {
+                                json._embedded.terms.forEach(elem => {
                                     _this.fullTree.push(elem);
                                     const path = currentNodeInTree.path.slice();
                                     path.push(currentNodeInTree.nodes.length);
@@ -207,8 +215,8 @@ export default class VariantModalOntology extends LitElement {
                                 _this.drawTree(data);
                             });
                         })
-                        .catch((error) => {
-                            console.error("ERROR: ", error);
+                        .catch(error => {
+                            console.error("Error fetching Tree data: ", error);
                         });
                 }
             }
@@ -222,10 +230,10 @@ export default class VariantModalOntology extends LitElement {
         const _this = this;
         const defaultsNodes = this.ebiConfig.tree[this.ontologyFilter];
         if (UtilsNew.isNotEmptyArray(defaultsNodes)) {
-            defaultsNodes.forEach((nodeUrl) => {
+            defaultsNodes.forEach(nodeUrl => {
                 fetch(this.ebiConfig.root + nodeUrl)
-                    .then((response) => {
-                        response.json().then((json) => {
+                    .then(response => {
+                        response.json().then(json => {
                             console.log(json);
                             //                                json._embedded.terms.forEach((elem) => {
                             _this.fullTree.push(json);
@@ -243,7 +251,7 @@ export default class VariantModalOntology extends LitElement {
                             _this.drawTree(_this.rootTree);
                         });
                     })
-                    .catch((error) => {
+                    .catch(error => {
                         console.error("ERROR: ", error);
                     });
             });
@@ -256,7 +264,7 @@ export default class VariantModalOntology extends LitElement {
         return html`
         <style include="jso-styles"></style>
 
-        <div class="modal fade" id="ontologyModal" tabindex="-1" role="dialog"
+        <div class="modal fade" id="${this._prefix}ontologyModal" tabindex="-1" role="dialog"
              aria-labelledby="ontologyLabel" data-backdrop="static" data-keyboard="false">
             <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
                 <div class="modal-content">
@@ -274,7 +282,7 @@ export default class VariantModalOntology extends LitElement {
                             <form>
                                 <fieldset>
                                     <div class="form-group">
-                                        <input matcher="${this.searchTerm}" class="form-control typeahead" name="query"  id="${this._prefix}typeahead" data-provide="typeahead" placeholder="Start typing something to search..." type="text">
+                                        <input matcher="${this.searchTerm}" class="form-control typeahead" name="query"  id="${this._prefix}typeahead" data-provide="typeahead" placeholder="Start typing something to search..." type="text" autocomplete="off">
                                     </div>
                                 </fieldset>
                             </form>
@@ -285,14 +293,14 @@ export default class VariantModalOntology extends LitElement {
                                     <li class="list-group-item"><strong>Obo Id: </strong>${this.selectedTerm.obo_id}</li>
                                     <li class="list-group-item"><strong>IRI: </strong>${this.selectedTerm.iri}</li>
                                     <li class="list-group-item"><strong>Description: </strong>${this.selectedTerm.description}</li>
-                                    <li class="list-group-item"><button type="button" class="btn btn-info" @click="${this.addSelectedTermToList}" data-selected-term="${this.selectedTerm}">Add Term</button></li>
+                                    <li class="list-group-item"><button type="button" class="btn btn-info" @click="${this.addSelectedTermToList}">Add Term</button></li>
                                 </ul>
-                            ` : null }
+                            ` : null}
 
                             <ul class="list-group">
-                                ${this.listCurrentSelected && this.listCurrentSelected.length && this.listCurrentSelected.map( (item) => html`
-                                    <li class="list-group-item">${item.label}(${item.obo_id}) <button type="button" class="btn danger" @click="${this.deletedTermFromList}" data-selected-term="${item}">X</button></li>
-                                `)}
+                                ${this.selectedTermsFull && this.selectedTermsFull.length ? this.selectedTermsFull.map(item => html`
+                                    <li class="list-group-item">${item.label}(${item.obo_id}) <button type="button" class="btn danger" @click="${this.deleteTermFromList}" data-selected-term-id="${item.obo_id}">X</button></li>
+                                `) : null}
                             </ul>
                         </div>
 

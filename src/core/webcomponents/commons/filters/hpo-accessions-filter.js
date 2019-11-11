@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
 
 export default class HpoAccessionsFilter extends LitElement {
 
     constructor() {
-        super()
+        super();
 
         // Set status and init private properties
         this._init();
@@ -37,76 +37,95 @@ export default class HpoAccessionsFilter extends LitElement {
             query: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = "hpof-" + Utils.randomString(6) + "_";
     }
 
-    firstUpdated(_changedProperties) {
-        if (this.query && typeof this.query["annot-hpo"] !== "undefined") {
-            PolymerUtils.setValue(this._prefix + "HumanPhenotypeOntologyTextarea", this.query["annot-hpo"]);
+    updated(_changedProperties) {
+        if (_changedProperties.has("query")) {
+            if (this.query["annot-hpo"]) {
+                this.querySelector("#" + this._prefix + "HumanPhenotypeOntologyTextarea").value = this.query["annot-hpo"];
+
+                //parse operator
+                if (this.query["annot-hpo"].split(",").length > 2) {
+                    let operator;
+                    // TODO create an Util function getOperator(str) to discriminate the operator in a query filter string
+                    const or = this.query["annot-hpo"].split(",");
+                    const and = this.query["annot-hpo"].split(";");
+                    if (or.length >= and.length) {
+                        operator = "or";
+                    } else {
+                        operator = "and";
+                    }
+                    $("input:radio[value=" + operator + "]").attr("disabled", false);
+                    $("input:radio[value=" + operator + "]").checked = true;
+                    this.selectedTerms = this.query["annot-hpo"].split(operator);
+                } else {
+                    //disable radio buttons if there are less than 2 values
+                    $("input:radio").attr("disabled", true);
+                }
+            } else {
+                console.log("cleaning hpo");
+                this.selectedTerms = [];
+                this.querySelector("#" + this._prefix + "HumanPhenotypeOntologyTextarea").value = "";
+                $("input:radio").attr("disabled", true);
+            }
         }
     }
 
     filterChange(e) {
-        let annot_hpo;
-        let inputTextArea = PolymerUtils.getElementById(this._prefix + "HumanPhenotypeOntologyTextarea");
-        if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
-            let hpoValues = inputTextArea.value.split(",");
+        let annotHpo;
+        const inputTextArea = this.querySelector("#" + this._prefix + "HumanPhenotypeOntologyTextarea");
+        if (inputTextArea && inputTextArea.value) {
+            const hpoValues = inputTextArea.value.split(",");
             if (UtilsNew.isNotEmptyArray(hpoValues)) {
                 $("input:radio[name=hpoRadio]").attr("disabled", false);
-                let filter = $("input:radio[name=hpoRadio]:checked").val();
+                const filter = $("input:radio[name=hpoRadio]:checked").val();
                 if (filter === "and") {
-                    annot_hpo = hpoValues.join(";");
+                    annotHpo = hpoValues.join(";");
                 } else {
-                    annot_hpo = hpoValues.join(",");
+                    annotHpo = hpoValues.join(",");
                 }
             }
-            // _filters["annot-hpo"] = inputTextArea.value;
         }
 
-        console.log("filterChange", annot_hpo);
-        let event = new CustomEvent('filterChange', {
+        console.log("filterChange", annotHpo);
+        const event = new CustomEvent("filterChange", {
             detail: {
-                value: annot_hpo
+                value: annotHpo || null
             }
         });
         this.dispatchEvent(event);
     }
 
-    openModalHpo() {
+    onClickOkModal(e) {
+        this.selectedTerms = e.detail.result;
+        this.querySelector("#" + this._prefix + "HumanPhenotypeOntologyTextarea").value = e.detail.result.join(","); //join by comma no matter the operator (in textarea only)
+        this.filterChange();
+        $("#" + this._prefix + "ontologyModal").modal("hide");
+
+    }
+
+    // from variant-filter
+    openModal(e) {
+        console.log("onOntologyModalOpen variant-filter", e.detail);
+        // modal window from variant-modal-ontology
         this.openHPO = true;
         this.ontologyTerm = "HPO";
-        this.selectedTermsOntology = this.selectedTermsHPO;
         this.ontologyFilter = "hp";
-        this.openModalOntology();
-    }
-
-    //TODO handle function and open moal in variant-filter
-    openModalOntology() {
-        $("#ontologyModal").modal("show");
-        let event = new CustomEvent('openModalOntology', {
-            detail: {
-                value: {
-                    openHPO: true,
-                    ontologyTerm: "HPO",
-                    selectedTermsOntology: selectedTermsHPO,
-                    ontologyFilter: "hp"
-                }
-            }
-        });
-        this.dispatchEvent(event);
+        this.requestUpdate();
+        $("#" + this._prefix + "ontologyModal").modal("show");
     }
 
     render() {
         return html`
             <textarea id="${this._prefix}HumanPhenotypeOntologyTextarea"
                       class="form-control clearable ${this._prefix}FilterTextInput"
-                      rows="3" name="hpo" placeholder="HP:0000001, HP:3000079" @keyup="${this.filterChange}"></textarea>
-            <span class="input-group-addon btn btn-primary searchingSpan" id="${this._prefix}buttonOpenHpoAccesions"
-                  @click="${this.openModalHpo}">
+                      rows="3" name="hpo" placeholder="HP:0000001, HP:3000079" @input="${this.filterChange}"></textarea>
+            <span class="input-group-addon btn btn-primary searchingSpan" id="${this._prefix}buttonOpenHpoAccesions"  @click="${this.openModal}">
                                     <strong style="color: white">Add HPO Term</strong>
                                     <i class="fa fa-search searchingButton" aria-hidden="true"></i>
                                 </span>
@@ -117,8 +136,16 @@ export default class HpoAccessionsFilter extends LitElement {
                 <input type="radio" name="hpoRadio" id="${this._prefix}hpoAndRadio" value="and"
                        class="${this._prefix}FilterRadio" style="margin-left: 102px" @change="${this.filterChange}"> AND <br>
             </form>
+            
+            <variant-modal-ontology _prefix=${this._prefix}
+                                ontologyFilter="${this.ontologyFilter}"
+                                term="${this.ontologyTerm}"
+                                .selectedTerms="${this.selectedTerms}"
+                                @clickOkModal="${this.onClickOkModal}">
+            </variant-modal-ontology>
         `;
     }
+
 }
 
-customElements.define('hpo-accessions-filter', HpoAccessionsFilter);
+customElements.define("hpo-accessions-filter", HpoAccessionsFilter);

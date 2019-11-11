@@ -37,47 +37,91 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
             query: {
                 type: Object
             }
-        }
+        };
     }
 
     _init() {
         this._prefix = "pssf-" + Utils.randomString(6) + "_";
     }
 
-    //TODO refactor
-    firstUpdated(_changedProperties) {
-        if (this.query && this.query["protein_substitution"]) {
-            let pss = this.query["protein_substitution"].split(new RegExp("[,;]"));
-            if (pss.length > 0) {
-                for (let i = 0; i < pss.length; i++) {
-                    if (pss[i].startsWith("sift")) {
-                        let value = pss[i].split("sift")[1];
+    //TODO proper refactor
+    updated(_changedProperties) {
+        if (_changedProperties.has("query")) {
+            if (this.query["protein_substitution"]) {
+                let pss = this.query["protein_substitution"].split(new RegExp("[,;]"));
+                console.log("PSS", pss);
+                if (pss.length > 0) {
+                    let sift = pss.find(el => el.startsWith("sift"));
+                    if (sift) {
+                        let value = sift.split("sift")[1];
                         if (value.startsWith("<") || value.startsWith(">")) {
-                            PolymerUtils.setValue(this._prefix + "SiftInput", value.split(/[<=>]+/)[1]);
-                            PolymerUtils.setValue(this._prefix + "SiftOperator", value.split(/[-0-9.]+/)[0]);
+                            this.querySelector("#" + this._prefix + "SiftInput").value = value.split(/[<=>]+/)[1];
+                            //PolymerUtils.setValue(this._prefix + "SiftInput", value.split(/[<=>]+/)[1]);
+                            this.querySelector("#" + this._prefix + "SiftOperator").value = value.split(/[-0-9.]+/)[0];
+                            //PolymerUtils.setValue(this._prefix + "SiftOperator", value.split(/[-0-9.]+/)[0]);
                         } else {
-                            PolymerUtils.setValue(this._prefix + "SiftValues", value.split("==")[1]);
+                            //PolymerUtils.setValue(this._prefix + "SiftValues", value.split("==")[1]);
+                            this.querySelector("#" + this._prefix + "SiftValues").value = value.split("==")[1];
                         }
                         this.querySelector("#" + this._prefix + "SiftInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
                         this.querySelector("#" + this._prefix + "SiftOperator").disabled = !(value.startsWith("<") || value.startsWith(">"));
-                    } else if (pss[i].startsWith("polyphen")) {
-                        let value = pss[i].split("polyphen")[1];
+                    } else {
+                        //PolymerUtils.setValue(this._prefix + "SiftInput", "");
+                        this.querySelector("#" + this._prefix + "SiftInput").value = "";
+                    }
+
+                    let polyphen = pss.find(el => el.startsWith("polyphen"));
+                    if (polyphen) {
+                        let value = polyphen.split("polyphen")[1];
                         if (value.startsWith("<") || value.startsWith(">")) {
-                            PolymerUtils.setValue(this._prefix + "PolyphenInput", value.split(/[<=>]+/)[1]);
-                            PolymerUtils.setValue(this._prefix + "PolyphenOperator", value.split(/[-0-9.]+/)[0]);
+                            this.querySelector("#" + this._prefix + "PolyphenInput").value = value.split(/[<=>]+/)[1];
+                            this.querySelector("#" + this._prefix + "PolyphenOperator").value = value.split(/[-0-9.]+/)[0];
                         } else {
-                            PolymerUtils.setValue(this._prefix + "PolyphenValues", value.split("==")[1]);
+                            this.querySelector("#" + this._prefix + "PolyphenValues").value = value.split("==")[1];
                         }
                         this.querySelector("#" + this._prefix + "PolyphenInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
                         this.querySelector("#" + this._prefix + "PolyphenOperator").disabled = !(value.startsWith("<") || value.startsWith(">"));
+                    } else {
+                        this.querySelector("#" + this._prefix + "PolyphenInput").value = "";
                     }
+                    /*for (let i = 0; i < pss.length; i++) {
+                        if (pss[i].startsWith("sift")) {
+                            let value = pss[i].split("sift")[1];
+                            if (value.startsWith("<") || value.startsWith(">")) {
+                                PolymerUtils.setValue(this._prefix + "SiftInput", value.split(/[<=>]+/)[1]);
+                                PolymerUtils.setValue(this._prefix + "SiftOperator", value.split(/[-0-9.]+/)[0]);
+                            } else {
+                                PolymerUtils.setValue(this._prefix + "SiftValues", value.split("==")[1]);
+                            }
+                            this.querySelector("#" + this._prefix + "SiftInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
+                            this.querySelector("#" + this._prefix + "SiftOperator").disabled = !(value.startsWith("<") || value.startsWith(">"));
+                        } else if (pss[i].startsWith("polyphen")) {
+                            let value = pss[i].split("polyphen")[1];
+                            if (value.startsWith("<") || value.startsWith(">")) {
+                                PolymerUtils.setValue(this._prefix + "PolyphenInput", value.split(/[<=>]+/)[1]);
+                                PolymerUtils.setValue(this._prefix + "PolyphenOperator", value.split(/[-0-9.]+/)[0]);
+                            } else {
+                                PolymerUtils.setValue(this._prefix + "PolyphenValues", value.split("==")[1]);
+                            }
+                            this.querySelector("#" + this._prefix + "PolyphenInput").disabled = !(value.startsWith("<") || value.startsWith(">"));
+                            this.querySelector("#" + this._prefix + "PolyphenOperator").disabled = !(value.startsWith("<") || value.startsWith(">"));
+                        }
+                    }*/
                 }
-            }
-            if (pss.length === 2) {
-                $("input:radio[name=pss]").attr("disabled", false);
-                if (this.query["protein_substitution"].includes(";")) {
-                    $("input:radio[name=pss][value=and]").prop("checked", true);
+                if (pss.length === 2) {
+                    $("input:radio[name=pss]").attr("disabled", false);
+                    if (this.query["protein_substitution"].includes(";")) {
+                        $("input:radio[name=pss][value=and]").prop("checked", true);
+                    }
+                } else {
+                    $("input:radio[name=pss]").attr("disabled", true);
                 }
+            } else {
+                $("." + this._prefix + "FilterTextInput").val("");
+                $("." + this._prefix + "FilterTextInput").prop("disabled", false);
+                $("." + this._prefix + "FilterRadio").prop("checked", false);
+                $("." + this._prefix + "FilterRadio").filter("[value=or]").prop("checked", true);
+                $("." + this._prefix + "FilterRadio").prop("disabled", true);
             }
         }
     }
@@ -118,6 +162,8 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
         // If both Sift and Polyphen are selected then we activate the AND/OR control
         if (numFilters === 2) {
             $("input:radio[name=pss]").attr("disabled", false);
+        } else {
+            $("input:radio[name=pss]").attr("disabled", true);
         }
         if (pss.length > 0) {
             let filter = $("input:radio[name=pss]:checked").val();
@@ -208,6 +254,7 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
             </div>
             `;
     }
+
 }
 
 customElements.define("protein-substitution-score-filter", ProteinSubstitutionScoreFilter);

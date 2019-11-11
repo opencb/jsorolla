@@ -347,6 +347,8 @@ export default class OpencgaVariantFilter extends LitElement {
         this.notifyQuery(this.preparedQuery);
     }
 
+    /*
+    //refactored and moved in go-accessions-filter and hpo-accessions-filter
     propagateOkHPO(e) {
         if (this.openHPO) {
             PolymerUtils.setValue(this._prefix + "HumanPhenotypeOntologyTextarea", e.detail.result.join(","));
@@ -355,22 +357,24 @@ export default class OpencgaVariantFilter extends LitElement {
             PolymerUtils.setValue(this._prefix + "GeneOntologyTextarea", e.detail.result.join(","));
             this.selectedTermsGO = e.detail.originalResult;
         }
-        $("#" + this._prefix + "ontologyModal").modal("hide");
+        $("#ontologyModal").modal("hide");
 
         this.updateQueryFilters();
     }
+    */
 
-    //from go-accessions-filter and hpo-accessions-filter
-    onOntologyModal(e) {
-        console.log("onOntologyModal variant-filter",e);
+    //refactored and moved in go-accessions-filter and hpo-accessions-filter
+    /*onOntologyModalOpen(e) {
+        console.log("onOntologyModalOpen variant-filter",e.detail);
         //modal window from variant-modal-ontology
-        this.openHPO = e.target.openHPO;
-        this.ontologyTerm = e.target.ontologyTerm;
-        this.selectedTermsOntology = e.target.selectedTermsOntology; //selectedTermsGO and selectedTermsHPO
-        this.ontologyFilter = e.target.ontologyFilter;
-        console.log(this.openHPO, this.ontologyTerm)
+        this.openHPO = e.detail.openHPO;
+        this.ontologyTerm = e.detail.ontologyTerm;
+        this.selectedTermsOntology = e.detail.selectedTermsOntology; //selectedTermsGO and selectedTermsHPO
+        this.ontologyFilter = e.detail.ontologyFilter;
+        console.log(this.openHPO, this.ontologyTerm);
+        this.requestUpdate();
         $("#ontologyModal").modal("show");
-    }
+    }*/
 
     //DONE moved in hpo-accession-filter
     /*openModalHpo() {
@@ -1380,11 +1384,11 @@ export default class OpencgaVariantFilter extends LitElement {
             break;
         case "go":
             //TODO fix modal
-            content = html`<go-accessions-filter .query="${this.query}"  @ontologyModal="${this.onOntologyModal}" @filterChange="${e => this.onFilterChange("go", e.detail.value)}"></go-accessions-filter>`;
+            content = html`<go-accessions-filter .query="${this.query}"  @ontologyModalOpen="${this.onOntologyModalOpen}" @filterChange="${e => this.onFilterChange("go", e.detail.value)}"></go-accessions-filter>`;
             break;
         case "hpo":
             //TODO fix modal
-            content = html`<hpo-accessions-filter .query="${this.query}" @filterChange="${e => this.onFilterChange("annot-hpo", e.detail.value)}"></hpo-accessions-filter>`;
+            content = html`<hpo-accessions-filter .query="${this.query}" @ontologyModalOpen="${this.onOntologyModalOpen}" @filterChange="${e => this.onFilterChange("annot-hpo", e.detail.value)}"></hpo-accessions-filter>`;
             break;
         case "clinvar":
             content = html`<clinvar-accessions-filter .query="${this.query}" @filterChange="${e => this.onFilterChange("clinvar", e.detail.value)}"></clinvar-accessions-filter>`;
@@ -2190,12 +2194,11 @@ export default class OpencgaVariantFilter extends LitElement {
                 </div>
             </div>
         </div>
+        <!--
         <variant-modal-ontology prefix=${this._prefix} @propagateok="${this.propagateOkHPO}" ontologyFilter="${this.ontologyFilter}" term="${this.ontologyTerm}"
                                 selectedTerms="${this.selectedTermsOntology}">
         </variant-modal-ontology>
-
-
-        
+        -->
         `;
     }
 }

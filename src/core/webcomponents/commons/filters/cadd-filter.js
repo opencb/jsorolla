@@ -37,38 +37,58 @@ export default class CaddFilter extends LitElement {
             query: {
                 type: Object
             }
-        }
+        };
     }
 
-    //TODO refactor & check functionality
     _init() {
         this._prefix = "caddf-" + Utils.randomString(6) + "_";
     }
 
-    firstUpdated(_changedProperties) {
-        if (this.query && typeof this.query["annot-functional-score"] !== "undefined") {
-            let fields = this.query["annot-functional-score"].split(new RegExp("[,;]"));
-            for (let i = 0; i < fields.length; i++) {
-                let source = fields[i].split(/[<=>]+/)[0];
-                switch (source) {
-                case "cadd_raw":
-                    PolymerUtils.setValue(this._prefix + "CaddRawInput", fields[i].split(/[<=>]+/)[1]);
-                    PolymerUtils.setValue(this._prefix + "CaddRawOperator", fields[i].split(/[-A-Za-z0-9_]+/)[1]);
-                    break;
-                case "cadd_scaled":
-                    PolymerUtils.setValue(this._prefix + "CaddScaledInput", fields[i].split(/[<=>]+/)[1]);
-                    PolymerUtils.setValue(this._prefix + "CaddScaledOperator", fields[i].split(/[-A-Za-z0-9_]+/)[1]);
-                    break;
+    updated(_changedProperties) {
+        if (_changedProperties.has("query")) {
+            if (this.query["annot-functional-score"]) {
+                const fields = this.query["annot-functional-score"].split(new RegExp("[,;]"));
+                const cadd_raw = fields.find(el => el.startsWith("cadd_raw"));
+                if (cadd_raw) {
+                    this.querySelector("#" + this._prefix + "CaddRawInput").value = cadd_raw.split(/[<=>]+/)[1];
+                    this.querySelector("#" + this._prefix + "CaddRawOperator").value = cadd_raw.split(/[-A-Za-z0-9_]+/)[1];
+                } else {
+                    this.querySelector("#" + this._prefix + "CaddRawInput").value = "";
+
                 }
+                const cadd_scaled = fields.find(el => el.startsWith("cadd_scaled"));
+                if (cadd_scaled) {
+                    this.querySelector("#" + this._prefix + "CaddScaledInput").value = cadd_scaled.split(/[<=>]+/)[1];
+                    this.querySelector("#" + this._prefix + "CaddScaledOperator").value = cadd_scaled.split(/[-A-Za-z0-9_]+/)[1];
+                } else {
+                    this.querySelector("#" + this._prefix + "CaddScaledInput").value = "";
+                }
+                /*
+                for (let i = 0; i < fields.length; i++) {
+                    let source = fields[i].split(/[<=>]+/)[0];
+                    switch (source) {
+                    case "cadd_raw":
+                        PolymerUtils.setValue(this._prefix + "CaddRawInput", fields[i].split(/[<=>]+/)[1]);
+                        PolymerUtils.setValue(this._prefix + "CaddRawOperator", fields[i].split(/[-A-Za-z0-9_]+/)[1]);
+                        break;
+                    case "cadd_scaled":
+                        PolymerUtils.setValue(this._prefix + "CaddScaledInput", fields[i].split(/[<=>]+/)[1]);
+                        PolymerUtils.setValue(this._prefix + "CaddScaledOperator", fields[i].split(/[-A-Za-z0-9_]+/)[1]);
+                        break;
+                    }
+                }*/
+            } else {
+                $("." + this._prefix + "FilterTextInput").val("");
+                $("." + this._prefix + "FilterTextInput").prop("disabled", false);
             }
         }
     }
 
-    //TODO refactor
+    // TODO refactor
     filterChange(e) {
-        let cadd = [];
-        let caddRawInput = PolymerUtils.getElementById(this._prefix + "CaddRawInput");
-        let caddScaledInput = PolymerUtils.getElementById(this._prefix + "CaddScaledInput");
+        const cadd = [];
+        const caddRawInput = PolymerUtils.getElementById(this._prefix + "CaddRawInput");
+        const caddScaledInput = PolymerUtils.getElementById(this._prefix + "CaddScaledInput");
         if (UtilsNew.isNotUndefinedOrNull(caddRawInput) && UtilsNew.isNotUndefinedOrNull(caddScaledInput)) {
             if (UtilsNew.isNotEmpty(caddRawInput.value)) {
                 cadd.push("cadd_raw" + PolymerUtils.getElementById(this._prefix + "CaddRawOperator").value + caddRawInput.value);
@@ -78,7 +98,7 @@ export default class CaddFilter extends LitElement {
             }
         }
         console.log("filterChange", cadd && cadd.length ? cadd.join(",") : null);
-        let event = new CustomEvent("filterChange", {
+        const event = new CustomEvent("filterChange", {
             detail: {
                 value: cadd && cadd.length ? cadd.join(",") : null
             }
@@ -132,6 +152,7 @@ export default class CaddFilter extends LitElement {
             </div>
         `;
     }
+
 }
 
 customElements.define("cadd-filter", CaddFilter);

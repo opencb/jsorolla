@@ -44,7 +44,7 @@ export default class PopulationFrequencyFilter extends LitElement {
             query: {
                 type: Object
             }
-        }
+        };
     }
 
     _init() {
@@ -52,59 +52,50 @@ export default class PopulationFrequencyFilter extends LitElement {
         this.populationFrequenciesQuery = [];
     }
 
-    //FIXME IVA (polymer2) have a bug on this when you edits the filters from active-filters
     updated(_changedProperties) {
         let pfArray = [];
-        //TODO this.query["alternate_frequency"]?
-        if (this.query && typeof this.query["alternate_frequency"] !== "undefined") {
-            pfArray = this.query["alternate_frequency"].split(new RegExp("[,;]"));
-        }
-        if (this.query && typeof  this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
-            for (let i = 0; i < this.populationFrequencies.studies.length; i++) {
-                let study = this.populationFrequencies.studies[i].id;
-                for (let j = 0; j < this.populationFrequencies.studies[i].populations.length; j++) {
-                    let population = this.populationFrequencies.studies[i].populations[j].id;
-                    if (pfArray.length > 0) {
-                        for (let k = 0; k < pfArray.length; k++) {
-                            let pf = pfArray[k];
-                            if (pf.startsWith(study + ":" + population)) {
-                                PolymerUtils.setValue(this._prefix + study + population, pf.split(/[<=>]+/)[1]);
-                                PolymerUtils.setValue(this._prefix + study + population + "Operator", pf.split(/[-A-Za-z0-9._:]+/)[1]);
-                                break;
-                            }
-                        }
-                    }
-                }
+        if (this.query && typeof this.query["populationFrequencyAlt"] !== "undefined") {
+            pfArray = this.query["populationFrequencyAlt"].split(new RegExp("[,;]"));
+            // reset and update input fields and select fields
+            $("." + this._prefix + "FilterTextInput").val("");
+            $("." + this._prefix + "FilterTextInput").prop("disabled", false);
+            if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
+                pfArray.forEach(queryElm => {
+                    const popFreq = queryElm.split(/[<=>]+/);
+                    const [study, population] = popFreq[0].split(":");
+                    const value = popFreq[1];
+                    const operator = queryElm.split(/[-A-Za-z0-9._:]+/)[1];
+                    this.querySelector("#" + this._prefix + study + population).value = value;
+                    $("#" + this._prefix + study + population + "Operator").val(operator);
+                });
             }
         } else {
-            //this block covers the case of opencga-active-filters deletes all pop filters
-            $("." + this._prefix + "FilterTextInput").val(1111);
+            // this block covers the case of opencga-active-filters deletes all populationFrequencyAlt filters
+            $("." + this._prefix + "FilterTextInput").val("");
             $("." + this._prefix + "FilterTextInput").prop("disabled", false);
         }
     }
 
     filterChange(e) {
-        //TODO refactor!
-        let popFreq = [];
+        // TODO refactor!
+        const popFreq = [];
         if (this.populationFrequencies.studies && this.populationFrequencies.studies.length) {
             this.populationFrequencies.studies.forEach(study => {
-                let study_id = study.id;
+                const study_id = study.id;
                 if (study.populations && study.populations.length) {
                     study.populations.forEach(population => {
-                        let population_id = population.id;
-                        let studyTextbox = this.querySelector("#" + this._prefix + study_id + population_id);
+                        const population_id = population.id;
+                        const studyTextbox = this.querySelector("#" + this._prefix + study_id + population_id);
                         if (studyTextbox && studyTextbox.value) {
-                            let operator = this.querySelector("#" + this._prefix + study_id + population_id + "Operator");
-                            let pf = study_id + ":" + population_id + operator.value + studyTextbox.value;
+                            const operator = this.querySelector("#" + this._prefix + study_id + population_id + "Operator");
+                            const pf = study_id + ":" + population_id + operator.value + studyTextbox.value;
                             popFreq.push(pf);
                         }
-
-                    })
+                    });
                 }
-            })
+            });
         }
-        console.log(popFreq);
-        let event = new CustomEvent("filterChange", {
+        const event = new CustomEvent("filterChange", {
             detail: {
                 value: popFreq ? popFreq.join(";") : null
             }
@@ -113,8 +104,8 @@ export default class PopulationFrequencyFilter extends LitElement {
     }
 
     handleCollapseAction(e) {
-        let id = e.target.dataset.id;
-        let elem = $("#" + id)[0];
+        const id = e.target.dataset.id;
+        const elem = $("#" + id)[0];
         elem.hidden = !elem.hidden;
         if (elem.hidden) {
             e.target.className = "fa fa-plus";
@@ -124,9 +115,9 @@ export default class PopulationFrequencyFilter extends LitElement {
     }
 
     keyUpAllPopFreq(e) {
-        let studyId = e.target.getAttribute("data-study");
-        let study = this.populationFrequencies.studies.find( study => study.id === studyId);
-        study.populations.forEach((popFreq) => {
+        const studyId = e.target.getAttribute("data-study");
+        const study = this.populationFrequencies.studies.find(study => study.id === studyId);
+        study.populations.forEach(popFreq => {
             this.querySelector("#" + this._prefix + studyId + popFreq.id).value = e.target.value;
         });
         this.filterChange();
@@ -176,6 +167,7 @@ export default class PopulationFrequencyFilter extends LitElement {
             `)}
         `;
     }
+
 }
 
 customElements.define("population-frequency-filter", PopulationFrequencyFilter);

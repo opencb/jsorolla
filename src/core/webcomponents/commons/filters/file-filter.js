@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-//TODO check functionality
+// TODO check functionality
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
 
 export default class FileFilter extends LitElement {
 
@@ -36,17 +36,21 @@ export default class FileFilter extends LitElement {
             opencgaSession: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = "ff-" + Utils.randomString(6) + "_";
     }
 
+    updated(_changedProperties) {
+
+    }
+
     filterChange() {
-        let value = `${this.qual ? `qual=${this.qual},` : ""}${this.filter ? `filter=${this.filter}` : ""}`;
-        console.log("filterChange",value);
-        let event = new CustomEvent('filterChange', {
+        const value = `${this.qual ? `qual=${this.qual},` : ""}${this.filter ? `filter=${this.filter}` : ""}`;
+        console.log("filterChange", value);
+        const event = new CustomEvent("filterChange", {
             detail: {
                 value: value || null
             }
@@ -58,11 +62,11 @@ export default class FileFilter extends LitElement {
         this.filter = e.target.checked ? "PASS" : null;
     }
 
-    onChangeQual(e){
+    onChangeQual(e) {
         this.qual = ">=" + e.target.value;
     }
 
-    onChangeQualCheckBox(e){
+    onChangeQualCheckBox(e) {
         this.qualEnabled = e.target.checked;
     }
 
@@ -88,6 +92,7 @@ export default class FileFilter extends LitElement {
             </div>
         `;
     }
+
 }
 
-customElements.define('file-filter', FileFilter);
+customElements.define("file-filter", FileFilter);

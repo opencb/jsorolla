@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from '/web_modules/lit-element.js';
-import {switchWidget} from '/src/styles/styles.js'
+import {LitElement, html} from "/web_modules/lit-element.js";
+import {switchWidget} from "/src/styles/styles.js";
 
 export default class ConservationFilter extends LitElement {
 
@@ -38,45 +38,97 @@ export default class ConservationFilter extends LitElement {
             query: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = "ff-" + Utils.randomString(6) + "_";
     }
 
-    firstUpdated(_changedProperties) {
-        if (this.query && typeof this.query.conservation !== "undefined") {
-            let fields = this.query.conservation.split(new RegExp("[,;]"));
-            for (let i = 0; i < fields.length; i++) {
-                let source = fields[i].split(/[<=>]+/)[0];
-                switch (source) {
-                case "phylop":
-                    PolymerUtils.setValue(this._prefix + "PhylopInput", fields[i].split(/[<=>]+/)[1]);
-                    PolymerUtils.setValue(this._prefix + "PhylopOperator", fields[i].split(/[-A-Za-z0-9]+/)[1]);
-                    break;
-                case "phastCons":
-                    PolymerUtils.setValue(this._prefix + "PhastconsInput", fields[i].split(/[<=>]+/)[1]);
-                    PolymerUtils.setValue(this._prefix + "PhastconsOperator", fields[i].split(/[-A-Za-z0-9]+/)[1]);
-                    break;
-                case "gerp":
-                    PolymerUtils.setValue(this._prefix + "GerpInput", fields[i].split(/[<=>]+/)[1]);
-                    PolymerUtils.setValue(this._prefix + "GerpOperator", fields[i].split(/[-A-Za-z0-9]+/)[1]);
-                    break;
+    updated(_changedProperties) {
+        if (_changedProperties.has("query")) {
+            if (this.query.conservation) {
+                let operator;
+                // TODO create an Util function getOperator(str) to discriminate the operator in a query filter string
+                const or = this.query.conservation.split(",");
+                const and = this.query.conservation.split(";");
+                if (or.length >= and.length) {
+                    operator = "or";
+                } else {
+                    operator = "and";
                 }
+                const fields = this.query.conservation.split(new RegExp("[,;]"));
+                if (fields && fields.length) {
+                    const phylop = fields.find(el => el.startsWith("phylop"));
+                    if (phylop) {
+                        this.querySelector("#" + this._prefix + "PhylopInput").value = phylop.split(/[<=>]+/)[1];
+                        this.querySelector("#" + this._prefix + "PhylopOperator").value = phylop.split(/[-A-Za-z0-9]+/)[1];
+                    } else {
+                        this.querySelector("#" + this._prefix + "PhylopInput").value = "";
+                    }
+                    const phastCons = fields.find(el => el.startsWith("phastCons"));
+                    if (phastCons) {
+                        this.querySelector("#" + this._prefix + "PhastconsInput").value = phastCons.split(/[<=>]+/)[1];
+                        this.querySelector("#" + this._prefix + "PhastconsOperator").value = phastCons.split(/[-A-Za-z0-9]+/)[1];
+                    } else {
+                        this.querySelector("#" + this._prefix + "PhastconsInput").value = "";
+                    }
+                    const gerp = fields.find(el => el.startsWith("gerp"));
+                    if (gerp) {
+                        this.querySelector("#" + this._prefix + "GerpInput").value = gerp.split(/[<=>]+/)[1];
+                        this.querySelector("#" + this._prefix + "GerpOperator").value = gerp.split(/[-A-Za-z0-9]+/)[1];
+                    } else {
+                        this.querySelector("#" + this._prefix + "GerpInput").value = "";
+                    }
+
+                    if (fields.length > 1) {
+                        $("." + this._prefix + "FilterRadio").prop("disabled", false);
+                        $("." + this._prefix + "FilterRadio[value=" + operator + "]").prop("checked", true);
+
+                    } else {
+                        $("." + this._prefix + "FilterRadio").prop("disabled", true);
+                        $("." + this._prefix + "FilterRadio").filter("[value=or]").prop("checked", true);
+
+                    }
+
+                    /* for (let i = 0; i < fields.length; i++) {
+                        let source = fields[i].split(/[<=>]+/)[0];
+                        switch (source) {
+                        case "phylop":
+                            PolymerUtils.setValue(this._prefix + "PhylopInput", fields[i].split(/[<=>]+/)[1]);
+                            PolymerUtils.setValue(this._prefix + "PhylopOperator", fields[i].split(/[-A-Za-z0-9]+/)[1]);
+                            break;
+                        case "phastCons":
+                            PolymerUtils.setValue(this._prefix + "PhastconsInput", fields[i].split(/[<=>]+/)[1]);
+                            PolymerUtils.setValue(this._prefix + "PhastconsOperator", fields[i].split(/[-A-Za-z0-9]+/)[1]);
+                            break;
+                        case "gerp":
+                            PolymerUtils.setValue(this._prefix + "GerpInput", fields[i].split(/[<=>]+/)[1]);
+                            PolymerUtils.setValue(this._prefix + "GerpOperator", fields[i].split(/[-A-Za-z0-9]+/)[1]);
+                            break;
+                        }
+                    }*/
+                }
+            } else {
+                //reset all and disable radio button
+                $("." + this._prefix + "FilterTextInput").val("");
+                $("." + this._prefix + "FilterTextInput").prop("disabled", false);
+                $("." + this._prefix + "FilterRadio").prop("disabled", true);
+                $("." + this._prefix + "FilterRadio").filter("[value=or]").prop("checked", true);
             }
         }
     }
 
-    //TODO refactor
+    // TODO refactor
     filterChange(e) {
-        let arr = {"Phylop": "phylop", "Phastcons": "phastCons", "Gerp": "gerp"};
-        let conserArr = [];
+        const arr = {"Phylop": "phylop", "Phastcons": "phastCons", "Gerp": "gerp"};
+        const conserArr = [];
         let conservation;
-        for (let key of Object.keys(arr)) {
-            let inputTextArea = PolymerUtils.getElementById(this._prefix + key + "Input");
+
+        for (const key of Object.keys(arr)) {
+            const inputTextArea = PolymerUtils.getElementById(this._prefix + key + "Input");
             if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
-                let operator = PolymerUtils.getElementById(this._prefix + key + "Operator");
+                const operator = PolymerUtils.getElementById(this._prefix + key + "Operator");
                 conserArr.push(arr[key] + operator.value + inputTextArea.value);
             }
         }
@@ -87,7 +139,7 @@ export default class ConservationFilter extends LitElement {
             $("input:radio[name=conservation]").attr("disabled", true);
         }
         if (conserArr.length > 0) {
-            let filter = $("input:radio[name=conservation]:checked").val();
+            const filter = $("input:radio[name=conservation]:checked").val();
             if (filter === "and") {
                 conservation = conserArr.join(";");
             } else {
@@ -95,7 +147,7 @@ export default class ConservationFilter extends LitElement {
             }
         }
         console.log("filterChange", conservation);
-        let event = new CustomEvent('filterChange', {
+        const event = new CustomEvent("filterChange", {
             detail: {
                 value: conservation ? conservation : null
             }
@@ -105,7 +157,6 @@ export default class ConservationFilter extends LitElement {
 
     render() {
         return html`
-
             <style>
                 ${switchWidget}
             </style>  
@@ -199,6 +250,7 @@ export default class ConservationFilter extends LitElement {
             </div>
         `;
     }
+
 }
 
-customElements.define('conservation-filter', ConservationFilter);
+customElements.define("conservation-filter", ConservationFilter);
