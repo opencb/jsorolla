@@ -68,7 +68,6 @@ export default class HpoAccessionsFilter extends LitElement {
                     $("input:radio").attr("disabled", true);
                 }
             } else {
-                console.log("cleaning hpo");
                 this.selectedTerms = [];
                 this.querySelector("#" + this._prefix + "HumanPhenotypeOntologyTextarea").value = "";
                 $("input:radio").attr("disabled", true);

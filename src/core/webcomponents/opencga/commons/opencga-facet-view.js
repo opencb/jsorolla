@@ -39,7 +39,7 @@ export default class OpencgaFacetView extends LitElement {
                 type: Object
             },
             variableSets: {
-                type: Array,
+                type: Array
             },
             entity: {
                 type: String

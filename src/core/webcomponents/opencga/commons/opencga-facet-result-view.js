@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-<!-- TODO check where does "item" in template comes from  -->
+
+ /*TODO fix "item" references coming from opencga-facet-view */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 
 
-class OpencgaFacetResultView extends LitElement {
+export default class OpencgaFacetResultView extends LitElement {
 
     constructor() {
         super();
@@ -64,6 +65,7 @@ class OpencgaFacetResultView extends LitElement {
 
 
     updated(changedProperties) {
+        console.log("this.facetResult", this.facetResult)
         if (changedProperties.has("facetResult") || changedProperties.has("config")) {
             this.renderFacets();
         }
@@ -445,39 +447,42 @@ class OpencgaFacetResultView extends LitElement {
                 <!-- TODO check where does "item" comes from  -->
                 
                 <!-- Facet Field Table -->
-                <template is="dom-if" if="{{checkField(item.category)}}">
+                ${this.facetResult.category ? html`
                     <thead class="table-header bg-primary">
-                    <tr>
-                        <th>{{item.title}}</th>
-                        <template is="dom-if" if="{{subFieldExists(item.subField)}}">
-                            <th>{{item.subField}}</th>
-                        </template>
-                        <th>Number of Variants</th>
-                    </tr>
+                        <tr>
+                            <th>${this.facetResult.title}}</th>
+                            <template is="dom-if" if="{{subFieldExists(this.facetResult.subField)}}">
+                                <th>{{item.subField}}</th>
+                            </template>
+                            <th>Number of Variants</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <template is="dom-repeat" items="{{facetResult.buckets}}" as="count">
-                        <template is="dom-if" if="{{fieldExists(count)}}">
-                            <tr>
-                                <td rowspan$="{{countSubFields(count)}}">{{count.value}}</td>
-                            </tr>
-
-                            <template is="dom-repeat" items="{{count.field.counts}}" as="subFieldCount">
+                        <template is="dom-repeat" items="{{facetResult.buckets}}" as="count">
+                            <template is="dom-if" if="{{fieldExists(count)}}">
                                 <tr>
-                                    <td>{{subFieldCount.value}}</td>
-                                    <td>{{subFieldCount.count}}</td>
+                                    <td rowspan$="{{countSubFields(count)}}">{{count.value}}</td>
+                                </tr>
+    
+                                <template is="dom-repeat" items="{{count.field.counts}}" as="subFieldCount">
+                                    <tr>
+                                        <td>{{subFieldCount.value}}</td>
+                                        <td>{{subFieldCount.count}}</td>
+                                    </tr>
+                                </template>
+                            </template>
+    
+                            <template is="dom-if" if="{{!fieldExists(count)}}">
+                                <tr>
+                                    <td>{{count.value}}</td>
+                                    <td>{{count.count}}</td>
                                 </tr>
                             </template>
                         </template>
-
-                        <template is="dom-if" if="{{!fieldExists(count)}}">
-                            <tr>
-                                <td>{{count.value}}</td>
-                                <td>{{count.count}}</td>
-                            </tr>
-                        </template>
-                    </template>
                     </tbody>
+                ` : null}
+                <template is="dom-if" if="{{checkField(facetResult.category)}}">
+                    
                 </template>
 
                 <!-- Facet Range Table -->
@@ -503,5 +508,5 @@ class OpencgaFacetResultView extends LitElement {
     }
 }
 
-customElements.define(OpencgaFacetResultView.is, OpencgaFacetResultView);
+customElements.define("opencga-facet-result-view", OpencgaFacetResultView);
 

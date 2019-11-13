@@ -57,11 +57,12 @@ class OpencgaVariantDetailTemplate extends LitElement {
      */
     _init() {
         // All id fields in the template must start with prefix, this allows components to be instantiated more than once
-        this.prefix = "ovdt" + Utils.randomString(6);
+        this._prefix = "ovdt" + Utils.randomString(6) + "_";
 
         this.active = false;
         // Initially we set the default config, this will be overridden if 'config' is passed
         this._config = this.getDefaultConfig();
+        this._variant = {};
     }
 
     updated(_changedProperties) {
@@ -114,7 +115,7 @@ class OpencgaVariantDetailTemplate extends LitElement {
         return html`
         <style include="jso-styles"></style>
 
-        <div id="${this.prefix}}UniqueId" style="padding: 20px">
+        <div id="${this._prefix}UniqueId" style="padding: 20px">
             <p>Put your HTML here. You can use opencgaSession, cellbaseClient, variant and _config objects</p>
             <p>Example:</p>
             <p>${this._variant.id}</p>

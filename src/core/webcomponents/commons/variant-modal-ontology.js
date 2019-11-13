@@ -50,8 +50,7 @@ export default class VariantModalOntology extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("selectedTerms")) {
-            console.log("this.selectedTerms", this.selectedTerms);
-            console.log("this.selectedTermsFull", this.selectedTermsFull);
+            //selectedTerm observer to handle subsequent reopening of the modal after a first selection 
         }
         if (changedProperties.has("ontologyFilter")) {
             this.ontologyFilterObserver();
@@ -108,7 +107,6 @@ export default class VariantModalOntology extends LitElement {
     }
 
     selectTerm(selected) {
-        console.log("select term", selected);
         if (UtilsNew.isNotUndefinedOrNull(this.fullTerms)) {
             this.selectedTerm = this.fullTerms.find(elem => elem.label === selected.label);
         }
@@ -256,65 +254,70 @@ export default class VariantModalOntology extends LitElement {
                     });
             });
         }
-
         return [];
     }
 
     render() {
         return html`
-        <style include="jso-styles"></style>
-
-        <div class="modal fade" id="${this._prefix}ontologyModal" tabindex="-1" role="dialog"
-             aria-labelledby="ontologyLabel" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <h4 class="modal-title" id="${this._prefix}EditorLabel">${this.term} terms selector</h4>
-                    </div>
-                    <div class="modal-body" style="height: 500px">
-                        <div class="col-sm-12">
-                            <label>Introduce an ${this.term} term</label>
+            <style include="jso-styles"></style>
+            <div class="modal fade" id="${this._prefix}ontologyModal" tabindex="-1" role="dialog"
+                 aria-labelledby="ontologyLabel" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4 class="modal-title" id="${this._prefix}EditorLabel">${this.term} terms selector</h4>
                         </div>
-                        <div class="col-sm-6" style="overflow-y: auto; height:400px;" id="${this._prefix}divDatalist">
-                            <form>
-                                <fieldset>
-                                    <div class="form-group">
-                                        <input matcher="${this.searchTerm}" class="form-control typeahead" name="query"  id="${this._prefix}typeahead" data-provide="typeahead" placeholder="Start typing something to search..." type="text" autocomplete="off">
+                        <div class="modal-body">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <label>Introduce an ${this.term} term</label>
                                     </div>
-                                </fieldset>
-                            </form>
-                            ${this.selectedTerm ? html`
-                                <ul class="list-group infoHpo">
-                                    <li class="list-group-item"><strong>Label: </strong>${this.selectedTerm.label}</li>
-                                    <li class="list-group-item"><strong>Short form: </strong>${this.selectedTerm.short_form}</li>
-                                    <li class="list-group-item"><strong>Obo Id: </strong>${this.selectedTerm.obo_id}</li>
-                                    <li class="list-group-item"><strong>IRI: </strong>${this.selectedTerm.iri}</li>
-                                    <li class="list-group-item"><strong>Description: </strong>${this.selectedTerm.description}</li>
-                                    <li class="list-group-item"><button type="button" class="btn btn-info" @click="${this.addSelectedTermToList}">Add Term</button></li>
-                                </ul>
-                            ` : null}
-
-                            <ul class="list-group">
-                                ${this.selectedTermsFull && this.selectedTermsFull.length ? this.selectedTermsFull.map(item => html`
-                                    <li class="list-group-item">${item.label}(${item.obo_id}) <button type="button" class="btn danger" @click="${this.deleteTermFromList}" data-selected-term-id="${item.obo_id}">X</button></li>
-                                `) : null}
-                            </ul>
+                                    <div class="col-sm-6" style="overflow-y: auto; height:400px;" id="${this._prefix}divDatalist">
+                                        <form>
+                                            <fieldset>
+                                                <div class="form-group">
+                                                    <input matcher="${this.searchTerm}" class="form-control typeahead" name="query"
+                                                           id="${this._prefix}typeahead" data-provide="typeahead"
+                                                           placeholder="Start typing something to search..." type="text"
+                                                           autocomplete="off">
+                                                </div>
+                                            </fieldset>
+                                        </form>
+                                        ${this.selectedTerm ? html`
+                                            <ul class="list-group infoHpo">
+                                                <li class="list-group-item"><strong>Label: </strong>${this.selectedTerm.label}</li>
+                                                <li class="list-group-item"><strong>Short form: </strong>${this.selectedTerm.short_form}</li>
+                                                <li class="list-group-item"><strong>Obo Id: </strong>${this.selectedTerm.obo_id}</li>
+                                                <li class="list-group-item"><strong>IRI: </strong>${this.selectedTerm.iri}</li>
+                                                <li class="list-group-item"><strong>Description: </strong>${this.selectedTerm.description}</li>
+                                                <li class="list-group-item"><button type="button" class="btn btn-info" @click="${this.addSelectedTermToList}">Add Term</button></li>
+                                            </ul>
+                                        ` : null}
+            
+                                        <ul class="list-group">
+                                            ${this.selectedTermsFull && this.selectedTermsFull.length ? this.selectedTermsFull.map(item => html`
+                                                <li class="list-group-item">${item.label}(${item.obo_id}) <button type="button" class="btn danger" @click="${this.deleteTermFromList}" data-selected-term-id="${item.obo_id}">X</button></li>
+                                            `) : null}
+                                        </ul>
+                                    </div>
+            
+                                    <div class="col-sm-6" style="overflow-y: auto; height:400px;">
+                                        <div id="${this._prefix}TermsTree"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-
-                        <div class="col-sm-6" style="overflow-y: auto; height:400px;">
-                            <div id="${this._prefix}TermsTree"></div>
+            
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" @click="${this.clickOkModal}">OK</button>
                         </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" @click="${this.clickOkModal}">OK</button>
                     </div>
                 </div>
-            </div>
-        </div>`;
+            </div>`;
     }
 
 }

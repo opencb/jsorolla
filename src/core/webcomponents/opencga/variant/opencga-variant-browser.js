@@ -17,6 +17,29 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import "./opencga-variant-filter.js";
 import "./../opencga-active-filters.js";
 import "./opencga-variant-grid.js";
+import "./opencga-variant-cohort-stats.js";
+import "./opencga-variant-samples.js";
+import "./opencga-variant-facet-query.js";
+import "./variant-beacon-network.js";
+import "./variant-genome-browser.js";
+import "../opencga-genome-browser.js";
+import "../../reactome/reactome-variant-network.js";
+import "../../cellbase/variation/cellbase-variantannotation-view.js";
+import "./opencga-variant-detail-template.js";
+
+
+/* TODO implement in lit-element
+<link rel="import" href="opencga-variant-cohort-stats.html">
+<link rel="import" href="opencga-variant-samples.html">
+<link rel="import" href="opencga-variant-facet-query.html">
+<link rel="import" href="variant-beacon-network.html">
+<link rel="import" href="variant-genome-browser.html">
+<link rel="import" href="../opencga-active-filters.html">
+<link rel="import" href="../opencga-genome-browser.html">
+<link rel="import" href="../../reactome/reactome-variant-network.html">
+<link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
+<link rel="import" href="opencga-variant-detail-template.html">
+*/
 
 export default class OpencgaVariantBrowser extends LitElement {
 
@@ -512,21 +535,6 @@ export default class OpencgaVariantBrowser extends LitElement {
                 padding-right: 5px;
             }
         </style>
-
-
-<!-- TODO implement in lit-element
-<link rel="import" href="opencga-variant-cohort-stats.html">
-<link rel="import" href="opencga-variant-samples.html">
-<link rel="import" href="opencga-variant-facet-query.html">
-<link rel="import" href="variant-beacon-network.html">
-<link rel="import" href="variant-genome-browser.html">
-<link rel="import" href="../opencga-active-filters.html">
-<link rel="import" href="../opencga-genome-browser.html">
-<link rel="import" href="../../reactome/reactome-variant-network.html">
-<link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
-<link rel="import" href="opencga-variant-detail-template.html">
--->
-
         
         ${this.checkProjects ? html`
 <div class="panel" style="margin-bottom: 15px">
@@ -647,7 +655,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                                                                                  _prefix="${this._prefix}"
                                                                                  .cellbaseClient="${this.cellbaseClient}"
                                                                                  mode="vertical"
-                                                                                 hashFragmentCredentials="${this.hashFragmentCredentials}"
+                                                                                 .hashFragmentCredentials="${this.hashFragmentCredentials}"
                                                                                  .consequenceTypes="${this.consequenceTypes}"
                                                                                  .proteinSubstitutionScores="${this.proteinSubstitutionScores}">
                                                 </cellbase-variantannotation-view>
@@ -659,7 +667,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                                             <div style="width: 75%;padding-top: 8px">
                                                 <opencga-variant-cohort-stats .opencgaSession="${this.opencgaSession}"
                                                                               variant="${this.variant}"
-                                                                              active="${this.detailActiveTabs.cohortStats}"
+                                                                              .active="${this.detailActiveTabs.cohortStats}"
                                                                               .config="${this.config.filter.menu}">
                                                 </opencga-variant-cohort-stats>
                                             </div>
@@ -670,7 +678,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                                             <div style="width: 75%;padding-top: 8px">
                                                 <opencga-variant-samples .opencgaSession="${this.opencgaSession}"
                                                                          variant="${this.variant}"
-                                                                         active="${this.detailActiveTabs.samples}">
+                                                                         .active="${this.detailActiveTabs.samples}">
                                                 </opencga-variant-samples>
                                             </div>
                                         </div>
@@ -696,8 +704,8 @@ export default class OpencgaVariantBrowser extends LitElement {
                                         <div id="${this._prefix}template" role="tabpanel" class="tab-pane">
                                             <div style="width: 75%;padding-top: 8px">
                                                 <opencga-variant-detail-template .opencgaSession="${this.opencgaSession}"
-                                                                                 variant="${this.variant}"
-                                                                                 active="${this.detailActiveTabs.template}"></opencga-variant-detail-template>
+                                                                                 .variant="${this.variant}"
+                                                                                 .active="${this.detailActiveTabs.template}"></opencga-variant-detail-template>
                                             </div>
                                         </div>
                                     </div>
@@ -711,7 +719,7 @@ export default class OpencgaVariantBrowser extends LitElement {
             <div id="${this._prefix}Summary" class="variant-browser-content" style="display: none; padding: 0px 15px">
                 <opencga-variant-facet-query .opencgaSession="${this.opencgaSession}"
                                              .cellbaseClient="${this.cellbaseClient}"
-                                             populationFrequencies="${this.populationFrequencies}"
+                                             .populationFrequencies="${this.populationFrequencies}"
                                              .query=${this.executedQuery}>
                 </opencga-variant-facet-query>
             </div>
@@ -723,9 +731,12 @@ export default class OpencgaVariantBrowser extends LitElement {
                 <opencga-genome-browser .opencgaSession="${this.opencgaSession}"
                                         .opencgaClient="${this.opencgaSession.opencgaClient}"
                                         .cellbaseClient="${this.cellbaseClient}"
-                                        query=${this.preparedQuery} search=${this.executedQuery} species=${this.config.species}
-                                        region="${this.region}" active="${this._genomeBrowserActive}"
-                                        fullScreen="${this.fullScreen}"
+                                        .query=${this.preparedQuery}
+                                        .search=${this.executedQuery}
+                                        .species=${this.config.species}
+                                        .region="${this.region}"
+                                        .active="${this._genomeBrowserActive}"
+                                        .fullScreen="${this.fullScreen}"
                                         .config="${this._config.genomeBrowser}">
                 </opencga-genome-browser>
             </div>

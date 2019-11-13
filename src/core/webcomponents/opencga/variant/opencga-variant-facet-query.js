@@ -74,6 +74,10 @@ class OpencgaVariantFacetQuery extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
+    firstUpdated(_changedProperties) {
+        $(".bootstrap-select", this).selectpicker();
+    }
+
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession") || changedProperties.has("query")) {
             this.propertyObserver();
@@ -124,6 +128,7 @@ class OpencgaVariantFacetQuery extends LitElement {
             this.facets.add(this._config.defaultStats.fields[i]);
         }
         this.facetFilters = Array.from(this.facets);
+        this.requestUpdate();
     }
 
     addFacet(e) {
@@ -149,12 +154,15 @@ class OpencgaVariantFacetQuery extends LitElement {
             PolymerUtils.setValue(this._prefix + "FacetFieldIncludes", "");
             PolymerUtils.setValue(this._prefix + "NestedFacetField", "none");
             PolymerUtils.setValue(this._prefix + "NestedFacetFieldIncludes", "");
+
+            this.requestUpdate();
         }
     }
 
     removeFacet(e) {
         this.facets.delete(e.target.dataset.facet);
         this.facetFilters = Array.from(this.facets);
+        this.requestUpdate();
     }
 
     isTerm(facetField) {
@@ -181,7 +189,7 @@ class OpencgaVariantFacetQuery extends LitElement {
 
         this.clearPlots();
         // Shows loading modal
-        $(PolymerUtils.getElementById(this._prefix + "LoadingModal")).modal("show");
+        $("#" + this._prefix + "LoadingModal").modal("show");
 
         // Join 'query' from left menu and facet filters
         let queryParams = Object.assign({}, this.query,
@@ -193,6 +201,7 @@ class OpencgaVariantFacetQuery extends LitElement {
             });
 
         let _this = this;
+        //TODO check why setTimeout
         setTimeout(() => {
                 this.opencgaSession.opencgaClient.variants().aggregationStats(queryParams, {})
                     .then(function(queryResponse) {
@@ -243,6 +252,7 @@ class OpencgaVariantFacetQuery extends LitElement {
         PolymerUtils.setValue(this._prefix + "NestedFieldIncludes", "");
         PolymerUtils.setValue(this._prefix + "ChromosomeInput", "");
         PolymerUtils.removeAttribute(this._prefix + "ChromosomeAdd", "disabled");
+        this.requestUpdate();
     }
 
     // onHistogramChart(e) {
@@ -388,6 +398,9 @@ class OpencgaVariantFacetQuery extends LitElement {
             .active-filter-button:hover {
                 text-decoration: line-through;
             }
+            .deletable:hover {
+                text-decoration: line-through;
+            }
         </style>
 
         <!--<template is="dom-if" if="{{checkProjects}}">-->
@@ -411,27 +424,27 @@ class OpencgaVariantFacetQuery extends LitElement {
                     <div class="form-group">
                         <div class="col-md-2">
                             <label>Select a Term or Range Facet</label>
-                            <select id="${this._prefix}FacetField" class$="form-control ${this._prefix}FilterSelect" @change="${this.onFacetFieldChange}">
+                            <select id="${this._prefix}FacetField" class="form-control ${this._prefix}FilterSelect bootstrap-select" @change="${this.onFacetFieldChange}">
                                 <option value="none" selected>Select a field...</option>
-                                <optgroup label="Terms Facet">
+                                <optgroup label="TERM FACET">
                                     ${this._config.fields && this._config.fields.terms && this._config.fields.terms.length && this._config.fields.terms.map(item => html`
                                         <option value="${item.value}" data-facettype="term">${item.name}</option>
                                     `)}
                                 </optgroup>
-                                <optgroup label="Range Facet">
+                                <optgroup label="RANGE FACET">
                                     ${this._config.fields.ranges ? html`
-                                        <option disabled>CONSERVATION & DELETERIOUSNESS</option>
+                                        <option disabled>Conservation & Deleteriousness</option>
                                         ${this._config.fields.ranges.map(item => html`
                                             <option value="${item.value}" data-range="${item.default}" data-facettype="range">${item.name}</option>
                                         `)}
                                     ` : null}
                                     ${this._config.populationFrequencies ? html`
-                                        <option disabled>POPULATION FREQUENCIES</option>
-                                        ${this.populationFrequencies.studies.length && this.populationFrequencies.studies.map(study => html`
-                                            ${study.population.length && study.population.map(population => html`
+                                        <option disabled>Population frequencies</option>
+                                        ${this.populationFrequencies && this.populationFrequencies.studies.length ? this.populationFrequencies.studies.map(study => html`
+                                            ${study.populations.length ? study.populations.map(population => html`
                                                 <option value="${study.id}_${population.id}" data-range="[0..1]:0.1" data-facettype="range">${study.id}_${population.id}</option>
-                                            `)}
-                                        `)}
+                                            `) : null}
+                                        `) : null}
                                     ` : null}
                                 </optgroup>
                             </select>
@@ -446,7 +459,7 @@ class OpencgaVariantFacetQuery extends LitElement {
                                 <span role="button" class="input-group-addon dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                                       aria-expanded="false">
                                                 <span class="caret"></span>
-                                            </span>
+                                </span>
 
                                 <!--<input id="${this._prefix}FacetFieldIncludes" type="text" class="form-control" value="" placeholder="Include values or range">-->
                                 <!--<div class="input-group-btn">-->
@@ -475,26 +488,26 @@ class OpencgaVariantFacetQuery extends LitElement {
 
                         <div class="col-md-2" style="padding-left: 50px">
                             <label>Nested Facet (optional)</label>
-                            <select id="${this._prefix}NestedFacetField" class$="form-control ${this._prefix}FilterSelect" @change="${this.onNestedFacetFieldChange}">
+                            <select id="${this._prefix}NestedFacetField" class="form-control ${this._prefix}FilterSelect bootstrap-select" @change="${this.onNestedFacetFieldChange}">
                                 <option value="none" selected>Select a field...</option>
-                                <optgroup label="Terms Facet">
+                                <optgroup label="TERM FACET">
                                     ${this._config.fields && this._config.fields.terms && this._config.fields.terms.length && this._config.fields.terms.map(item => html`
                                         <option value="${item.value}" data-facettype="term">${item.name}</option>
                                     `)}
                                 </optgroup>
-                                <optgroup label="Range Facet">
+                                <optgroup label="RANGE FACET">
                                     ${this._config.fields.ranges ? html`
-                                      <option disabled>CONSERVATION & DELETERIOUSNESS</option>
+                                        <option disabled>Conservation & Deleteriousness</option>
                                         ${this._config.fields.ranges.length && this._config.fields.ranges.map(item => html`
                                             <option value="${item.value}" data-range="${item.default}" data-facettype="range">${item.name}</option>
                                         `)}  
                                     ` : null}
                                     ${this._config.populationFrequencies ? html`
-                                        <option disabled>POPULATION FREQUENCIES</option>
+                                        <option disabled>Population frequencies</option>
                                         ${this.populationFrequencies.studies.map(study => html`
-                                            ${study.population.map(population => html`
+                                            ${study.populations.length ? study.populations.map(population => html`
                                                 <option value="${study.id}_${population.id}" data-range="[0..1]:0.1" data-facettype="range">${study.id}_${population.id}</option>
-                                            `)}
+                                            `) : null}
                                         `)}
                                     ` : null}
                                 </optgroup>
@@ -516,8 +529,8 @@ class OpencgaVariantFacetQuery extends LitElement {
                         ${this.facetFilters.length ? html`
                             <span style="font-weight: bold; padding: 0px 20px">Selected Facets:</span>
                             ${this.facetFilters.map(item => html`
-                                <button type="button" class$="btn btn-warning btn-sm ${item}" data-facet$="${item}"
-                                        @click="${this.removeFacet}" @mouseover="${this._onMouseOver}" @mouseout="${this._onMouseOut}">
+                                <button type="button" class="btn btn-warning btn-sm ${item} deletable" data-facet="${item}"
+                                        @click="${this.removeFacet}">
                                     ${item}
                                 </button>
                             `)}
@@ -580,9 +593,8 @@ class OpencgaVariantFacetQuery extends LitElement {
                 </div>
             </div>
         </div>
-    `}
+    `;
+    }
 }
 
 customElements.define("opencga-variant-facet-query", OpencgaVariantFacetQuery);
-
-

@@ -316,7 +316,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
                            aria-describedby="basic-addon1" @change="${this.addInputFilter}">
                 ` : this.selectedVariable.type === 'NUMERIC' || this.selectedVariable.type === 'INTEGER' || this.selectedVariable.type === 'DOUBLE' ? html`
                     <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
-                    <input type="text" class$="form-control ${this.prefix}}AnnotationTextInput"
+                    <input type="text" class="form-control ${this.prefix}}AnnotationTextInput"
                            placeholder="${this.selectedVariable.id} number" data-variable-name$="${this.selectedVariable.id}"
                            pattern="^[0-9]+$" @change="${this.addInputFilter}">
                 ` : this.selectedVariable.type === 'CATEGORICAL' ? html`
