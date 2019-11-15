@@ -1,6 +1,6 @@
 import {LitElement, html} from '/web_modules/lit-element.js';
 import OpencgaAnnotationFilter from './../variableSets/opencga-annotation-filter.js'
-import OpencgaDateFilter from './../opencga-date-filter.js'
+import OpencgaDateFilter2 from './../opencga-date-filter.js'
 
 
 // TODO complete properties type checking

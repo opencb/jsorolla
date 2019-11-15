@@ -15,7 +15,7 @@
  */
 
 
- /*TODO fix "item" references coming from opencga-facet-view */
+//TODO fixbug querying opencga-client PhastCons - 1kG_phase3_EAS
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 
@@ -65,7 +65,7 @@ export default class OpencgaFacetResultView extends LitElement {
 
 
     updated(changedProperties) {
-        console.log("this.facetResult", this.facetResult)
+        console.log("this.facetResult", this.facetResult);
         if (changedProperties.has("facetResult") || changedProperties.has("config")) {
             this.renderFacets();
         }
@@ -113,11 +113,13 @@ export default class OpencgaFacetResultView extends LitElement {
         // PolymerUtils.addClass(button, "active");
     }
 
-    renderHistogramChart() {
+    renderHistogramChart(e) {
         PolymerUtils.hide(this._prefix + "Table");
         // PolymerUtils.removeStyleByClass("plots", "active");
         // PolymerUtils.removeClass(this._prefix + "HistogramChartButton", "active");
-        // PolymerUtils.removeClass(".plots", "active");
+        PolymerUtils.removeClass(".plots", "active");
+        //this.querySelector(this._prefix + "HistogramChartButton").classList.add("active");
+
 
         let params = this._getHistogramData();
 
@@ -414,6 +416,18 @@ export default class OpencgaFacetResultView extends LitElement {
         return donutData;
     }
 
+    subFieldExists(field) {
+        return UtilsNew.isNotEmpty(field);
+    }
+
+    fieldExists(countObj) {
+        return UtilsNew.isNotUndefined(countObj.field);
+    }
+
+    countSubFields(countObj) {
+        return countObj.field.counts.length + 1;
+    }
+
     getDefaultConfig() {
         return {
             property: "example property"
@@ -424,7 +438,6 @@ export default class OpencgaFacetResultView extends LitElement {
     render() {
         return html`
         <style include="jso-styles"></style>
-
         <div style="padding: 5px 10px">
             <!--<h3>{{facetResult.name}}</h3>-->
             <div class="btn-group" style="float: right">
@@ -442,66 +455,56 @@ export default class OpencgaFacetResultView extends LitElement {
 
             <!--Table-->
             <br>
-            <table id="${this._prefix}Table" class="table table-bordered" style="display: none;">
-
-                <!-- TODO check where does "item" comes from  -->
-                
+            <table id="${this._prefix}Table" class="table table-bordered" style="display: none;">               
                 <!-- Facet Field Table -->
                 ${this.facetResult.category ? html`
                     <thead class="table-header bg-primary">
                         <tr>
                             <th>${this.facetResult.title}}</th>
-                            <template is="dom-if" if="{{subFieldExists(this.facetResult.subField)}}">
-                                <th>{{item.subField}}</th>
-                            </template>
+                            ${this.subFieldExists(this.facetResult.subField) ? html`
+                                <th>${this.facetResult.subField}</th>
+                            ` : null}
                             <th>Number of Variants</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <template is="dom-repeat" items="{{facetResult.buckets}}" as="count">
-                            <template is="dom-if" if="{{fieldExists(count)}}">
+                        ${this.facetResult.buckets && this.facetResult.buckets ? this.facetResult.buckets.map(count => html`
+                            ${this.fieldExists(count) ? html`
                                 <tr>
-                                    <td rowspan$="{{countSubFields(count)}}">{{count.value}}</td>
+                                    <td rowspan="${this.countSubFields(count)}">${count.value}</td>
                                 </tr>
-    
-                                <template is="dom-repeat" items="{{count.field.counts}}" as="subFieldCount">
+                                ${count.field.counts && count.field.counts.length ? count.field.counts.map(subFieldCount => html`
                                     <tr>
-                                        <td>{{subFieldCount.value}}</td>
-                                        <td>{{subFieldCount.count}}</td>
+                                        <td>${subFieldCount.value}</td>
+                                        <td>${subFieldCount.count}</td>
                                     </tr>
-                                </template>
-                            </template>
-    
-                            <template is="dom-if" if="{{!fieldExists(count)}}">
+                                `) : null}
+                            ` : html`
                                 <tr>
-                                    <td>{{count.value}}</td>
-                                    <td>{{count.count}}</td>
+                                    <td>${count.value}}</td>
+                                    <td>${count.count}}</td>
                                 </tr>
-                            </template>
-                        </template>
+                            `}                              
+                        `) : null}
+                      
                     </tbody>
-                ` : null}
-                <template is="dom-if" if="{{checkField(facetResult.category)}}">
-                    
-                </template>
-
+                ` : html`
                 <!-- Facet Range Table -->
-                <template is="dom-if" if="{{!checkField(item.category)}}">
-                    <thead class="table-header bg-primary">
+                <thead class="table-header bg-primary">
                     <tr>
                         <th>Range</th>
                         <th>Number of Variants</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <template is="dom-repeat" items="{{item.data}}" as="data">
+                    ${this.facetResult.data && this.facetResult.data.length ? this.facetResult.data.map(data => html`
                         <tr>
-                            <td>{{data.range}}</td>
-                            <td>{{data.count}}</td>
+                            <td>${data.range}</td>
+                            <td>${data.count}</td>
                         </tr>
-                    </template>
-                    </tbody>
-                </template>
+                    `) : null}
+                </tbody>
+               `}
             </table>
         </div>
         `;

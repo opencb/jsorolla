@@ -1,11 +1,23 @@
 /**
- * Created by Antonio Altamura on 08/10/2019.
+ * Copyright 2015-2019 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
 
 export default class OpencgaLogin extends LitElement {
-    
+
     constructor() {
         super();
         this.userName = "";
@@ -34,47 +46,43 @@ export default class OpencgaLogin extends LitElement {
             notifyEventMessage: {
                 type: String
             }
-        }
+        };
     }
 
-    //TODO recheck
+    // TODO recheck
     ready() {
         super.ready();
     }
 
-    //connectedCallback in Polyer 2
     firstUpdated(changedProperties) {
-        changedProperties.forEach((oldValue, propName) => {
-            console.log(`${propName} changed. oldValue: ${oldValue}`);
-        });
-        $("#formLogin").validator('update');
-        $("#formLogin").validator().on('submit', e => this.submitLogin(e));
+        $("#formLogin").validator("update");
+        $("#formLogin").validator().on("submit", e => this.submitLogin(e));
     }
 
     submitLogin(e) {
-        console.log("e", e)
+        console.log("e", e);
         if (e.isDefaultPrevented()) {
-            console.error("submitLogin() Error", e)
+            console.error("submitLogin() Error", e);
             // handle the invalid form...
             // this._clearHtmlDom(true);
         } else {
             // everything looks good!
             e.preventDefault();
-            let user = document.getElementById("opencgaUser").value;
-            let pass = document.getElementById("opencgaPassword").value;
-            let _this = this;
+            const user = document.getElementById("opencgaUser").value;
+            const pass = document.getElementById("opencgaPassword").value;
+            const _this = this;
             this.opencgaClient.users().login(user, pass)
                 .then(function(response) {
 
                     document.getElementById("opencgaUser").value = "";
                     document.getElementById("opencgaPassword").value = "";
-                    let sessionId =  response.response[0].result[0].id;
-                    let decoded = jwt_decode(sessionId); //TODO expose as module
-                    let dateExpired = new Date(decoded.exp * 1000);
-                    let validTimeSessionId =  moment(dateExpired, "YYYYMMDDHHmmss").format('D MMM YY HH:mm:ss'); //TODO expose as module
+                    const sessionId = response.response[0].result[0].id;
+                    const decoded = jwt_decode(sessionId); // TODO expose as module
+                    const dateExpired = new Date(decoded.exp * 1000);
+                    const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss"); // TODO expose as module
 
 
-                    _this.dispatchEvent(new CustomEvent('login', {
+                    _this.dispatchEvent(new CustomEvent("login", {
                         detail: {
                             userId: user,
                             sessionId: sessionId
@@ -87,7 +95,7 @@ export default class OpencgaLogin extends LitElement {
                         detail: {
                             message: "Welcome " + user +". Your session is valid until " + validTimeSessionId,
                             options: {
-                                icon: 'fa fa-user',
+                                icon: "fa fa-user"
                             },
                             type: UtilsNew.MESSAGE_SUCCESS
                         },
@@ -96,7 +104,7 @@ export default class OpencgaLogin extends LitElement {
                     }));
                 })
                 .catch(function(response) {
-                    let _message = this.errorMessage = response.error;
+                    const _message = this.errorMessage = response.error;
                     this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
                         detail: {
                             message: _message, type: UtilsNew.MESSAGE_ERROR
@@ -171,7 +179,8 @@ export default class OpencgaLogin extends LitElement {
         </div>
         `;
     }
+
 }
 
-customElements.define('opencga-login',OpencgaLogin);
+customElements.define("opencga-login", OpencgaLogin);
 

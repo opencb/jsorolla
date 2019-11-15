@@ -1,15 +1,28 @@
 /**
- * Created by Antonio Altamura on 09/10/2019.
+ * Copyright 2015-2019 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
 
 export default class OpencgaDateFilter extends LitElement {
-    
+
     constructor() {
         super();
         this._init();
     }
+
     createRenderRoot() {
         return this;
     }
@@ -17,59 +30,58 @@ export default class OpencgaDateFilter extends LitElement {
     static get properties() {
         return {
             config: {
-                type: Object
-            },
-            years: {
-                type: Array
+                type: Object,
+                observer: "configObserver"
             }
-        }
+        };
     }
 
-    updated(changedProperties) {
-        console.log("changing:: ",changedProperties)
-        if (changedProperties.has("config")) {
-            this.configObserver()
-        }
-    }
     _init() {
-        // super.ready();
         this._prefix = "odf-" + Utils.randomString(6);
-        this._config = this.getDefaultConfig(); // TODO recheck  _config or config?
+        this._config = this.getDefaultConfig();
 
         this.activatedRanges = false;
         this.activatedDate = false;
         this.activatedRecent = false;
     }
 
+    updated(changedProperties) {
+        if (changedProperties.has("property")) {
+            this.propertyObserver();
+        }
+    }
+
     configObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config}
+        const config = {};
+        Object.assign(config, this.getDefaultConfig(), this.config);
+        this._config = config;
     }
 
     connectedCallback() {
-        let _years = [];
-        let fullDate = new Date();
-        let limitYear = fullDate.getFullYear();
+        const _years = [];
+        const fullDate = new Date();
+        const limitYear = fullDate.getFullYear();
         for (let year = this._config.minYear; year <= limitYear; year++) {
             _years.push(year);
         }
-        // This change triggers the polymer dom-repeat //todo check dom-repeat
+        // This change triggers the polymer dom-repeat
         this.years = _years;
 
 
         // Init arrays for Date selector
-        let _yearsToSearch = [];
+        const _yearsToSearch = [];
         for (let year = limitYear, i = 0; i < 5; year--, i++) {
             _yearsToSearch.push(year);
         }
-        this.yearsToSearch = _yearsToSearch; // todo should it be managed by litlement?
+        this.yearsToSearch = _yearsToSearch;
 
         this.monthToSearch = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-        let _days = [];
+        const _days = [];
         for (let i = 1; i <= 31; i++) {
             _days.push(i);
         }
-        this.daysToSearch = _days; // todo should it be managed by litlement?
+        this.daysToSearch = _days;
 
         if (UtilsNew.isNotEmpty(this._config.inputClass)) {
             PolymerUtils.addClassByQuerySelector(`opencga-date-filter .${this._prefix}-codeDis`, this._config.inputClass);
@@ -78,7 +90,7 @@ export default class OpencgaDateFilter extends LitElement {
     }
 
     calculateFilters(e) {
-        let dateOption = $(`#${this._prefix}DateRadioButton input[type='radio']:checked`).val();
+        const dateOption = $(`#${this._prefix}DateRadioButton input[type='radio']:checked`).val();
         let date = "";
         switch (dateOption) {
         case "recently":
@@ -87,7 +99,7 @@ export default class OpencgaDateFilter extends LitElement {
             this.activatedRecent = true;
 
             // Last x days
-            let da = new Date();
+            const da = new Date();
             da.setDate(da.getDate() - PolymerUtils.querySelector(`#${this._prefix}RecentSelect`).value);
             // If the month and day have one digit we add 0 before
             let m = da.getMonth() + 1;
@@ -124,19 +136,19 @@ export default class OpencgaDateFilter extends LitElement {
             break;
         }
 
-        this.dispatchEvent(new CustomEvent('datechanged', {detail: {date: date}}));
+        this.dispatchEvent(new CustomEvent("datechanged", {detail: {date: date}}));
     }
 
     _getDateFilter() {
-        let year = PolymerUtils.getElementById(this._prefix + "YearSelect").value;
-        let month =  PolymerUtils.getElementById(this._prefix + "MonthSelect").value;
-        let day =  PolymerUtils.getElementById(this._prefix + "DaySelect").value;
+        const year = PolymerUtils.getElementById(this._prefix + "YearSelect").value;
+        let month = PolymerUtils.getElementById(this._prefix + "MonthSelect").value;
+        let day = PolymerUtils.getElementById(this._prefix + "DaySelect").value;
         if (month === "any") {
             month = "";
             day = "";
         } else {
-            let monthIndex = this.monthToSearch.indexOf(month) + 1;
-            month = monthIndex < 10 ? `0${monthIndex}` : monthIndex; //TODO use padStart
+            const monthIndex = this.monthToSearch.indexOf(month) + 1;
+            month = monthIndex < 10 ? `0${monthIndex}` : monthIndex; // TODO use padStart
 
             if (day === "any") {
                 day = "";
@@ -149,8 +161,8 @@ export default class OpencgaDateFilter extends LitElement {
     }
 
     _getRangeFilter() {
-        let from = this._getFromDate();
-        let to = this._getToDate();
+        const from = this._getFromDate();
+        const to = this._getToDate();
 
         if (to > from) {
             return `${from}-${to}`;
@@ -159,13 +171,13 @@ export default class OpencgaDateFilter extends LitElement {
     }
 
     _getFromDate() {
-        let year = PolymerUtils.getElementById(this._prefix + "YearSelectFrom").value;
-        let month =  PolymerUtils.getElementById(this._prefix + "MonthSelectFrom").value;
-        let day =  PolymerUtils.getElementById(this._prefix + "DaySelectFrom").value;
+        const year = PolymerUtils.getElementById(this._prefix + "YearSelectFrom").value;
+        let month = PolymerUtils.getElementById(this._prefix + "MonthSelectFrom").value;
+        let day = PolymerUtils.getElementById(this._prefix + "DaySelectFrom").value;
         if (month === "any") {
             month = "01";
         } else {
-            let monthIndex = this.monthToSearch.indexOf(month) + 1;
+            const monthIndex = this.monthToSearch.indexOf(month) + 1;
             month = monthIndex < 10 ? `0${monthIndex}` : monthIndex;
         }
         if (day === "any") {
@@ -177,13 +189,13 @@ export default class OpencgaDateFilter extends LitElement {
     }
 
     _getToDate() {
-        let year = PolymerUtils.getElementById(this._prefix + "YearSelectTo").value;
-        let month =  PolymerUtils.getElementById(this._prefix + "MonthSelectTo").value;
-        let day =  PolymerUtils.getElementById(this._prefix + "DaySelectTo").value;
+        const year = PolymerUtils.getElementById(this._prefix + "YearSelectTo").value;
+        let month = PolymerUtils.getElementById(this._prefix + "MonthSelectTo").value;
+        let day = PolymerUtils.getElementById(this._prefix + "DaySelectTo").value;
         if (month === "any") {
             month = "12";
         } else {
-            let monthIndex = this.monthToSearch.indexOf(month) + 1;
+            const monthIndex = this.monthToSearch.indexOf(month) + 1;
             month = monthIndex < 10 ? `0${monthIndex}` : monthIndex;
         }
         if (day === "any") {
@@ -210,26 +222,26 @@ export default class OpencgaDateFilter extends LitElement {
 
     checkYears(e) {
         e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-        PolymerUtils.innerHTML(this._prefix + '_errorDiv_birthYear', '');
-        PolymerUtils.innerHTML(this._prefix + '_errorDiv_testYear', '');
-        let currentElement =  PolymerUtils.getElementById(e.target.id);
-        let identifier = e.target.id;
-        let pairElement = '';
-        let divSuffix = '';
-        let message = '';
-        if (identifier.search('birthYear') !== -1) { // Birth year element raises the event -> check Test year
-            pairElement =  PolymerUtils.getElementById(this._prefix + "testYear");
+        PolymerUtils.innerHTML(this._prefix + "_errorDiv_birthYear", "");
+        PolymerUtils.innerHTML(this._prefix + "_errorDiv_testYear", "");
+        let currentElement = PolymerUtils.getElementById(e.target.id);
+        const identifier = e.target.id;
+        let pairElement = "";
+        let divSuffix = "";
+        let message = "";
+        if (identifier.search("birthYear") !== -1) { // Birth year element raises the event -> check Test year
+            pairElement = PolymerUtils.getElementById(this._prefix + "testYear");
             divSuffix = "birthYear";
             message = "Year of Birth must be prior to year of Test";
         } else { // Year of test element raises the event -> swap elements and check the birth year
-            currentElement =  PolymerUtils.getElementById(this._prefix + "birthYear");
-            pairElement =  PolymerUtils.getElementById(e.target.id);
+            currentElement = PolymerUtils.getElementById(this._prefix + "birthYear");
+            pairElement = PolymerUtils.getElementById(e.target.id);
             divSuffix = "testYear";
             message = "Year of Test must be posterior to year of Birth";
         }
 
-        if (PolymerUtils.querySelectorAll("option:selected",pairElement) !== ""
-            && (parseInt(PolymerUtils.querySelectorAll("option:selected", currentElement).textContent) > parseInt(PolymerUtils.querySelectorAll("option:selected", pairElement).textContent))) { // Year of birth cannot be lower than Year of test
+        if (PolymerUtils.querySelectorAll("option:selected", pairElement) !== "" &&
+            (parseInt(PolymerUtils.querySelectorAll("option:selected", currentElement).textContent) > parseInt(PolymerUtils.querySelectorAll("option:selected", pairElement).textContent))) { // Year of birth cannot be lower than Year of test
             PolymerUtils.innerHTML(this._prefix + "_errorDiv_" + divSuffix, message);
         }
     }
@@ -245,18 +257,18 @@ export default class OpencgaDateFilter extends LitElement {
      */
     _clearHtmlDom() {
         // Input controls
-        PolymerUtils.setPropertyByClassName(this._prefix + "FilterTextInput", 'value', '');
-        PolymerUtils.removeAttributebyclass(this._prefix + "FilterTextInput", 'disabled');
+        PolymerUtils.setPropertyByClassName(this._prefix + "FilterTextInput", "value", "");
+        PolymerUtils.removeAttributebyclass(this._prefix + "FilterTextInput", "disabled");
         // Uncheck checkboxes
-        PolymerUtils.setPropertyByClassName(this._prefix + "FilterCheckBox", 'checked', false);
+        PolymerUtils.setPropertyByClassName(this._prefix + "FilterCheckBox", "checked", false);
         // Set first option and make it active
-        PolymerUtils.setAttributeByClassName(this._prefix + "FilterSelect", 'selectedIndex', 0);
-        PolymerUtils.removeAttributebyclass(this._prefix + "FilterSelect", 'disabled');
-        PolymerUtils.setPropertyByClassName(this._prefix + "FilterRadio", 'checked', false);
-        PolymerUtils.setAttributeByClassName(this._prefix + "FilterRadio", 'disabled', true);
+        PolymerUtils.setAttributeByClassName(this._prefix + "FilterSelect", "selectedIndex", 0);
+        PolymerUtils.removeAttributebyclass(this._prefix + "FilterSelect", "disabled");
+        PolymerUtils.setPropertyByClassName(this._prefix + "FilterRadio", "checked", false);
+        PolymerUtils.setAttributeByClassName(this._prefix + "FilterRadio", "disabled", true);
 
-        //TODO Refactor
-        $("." + this._prefix + "FilterRadio").filter('[value="or"]').prop('checked', true);
+        // TODO Refactor
+        $("." + this._prefix + "FilterRadio").filter("[value=\"or\"]").prop("checked", true);
     }
 
     getDefaultConfig() {
@@ -265,7 +277,7 @@ export default class OpencgaDateFilter extends LitElement {
             recentDays: 7,
             inputClass: "input-sm",
             class: "small"
-        }
+        };
     }
 
     render() {
@@ -438,6 +450,5 @@ export default class OpencgaDateFilter extends LitElement {
             </form>
         </div>`;
     }
-}
 
-customElements.define('opencga-date-filter', OpencgaDateFilter);
+}

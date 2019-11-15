@@ -94,7 +94,6 @@ export default class OpencgaVariantFilter extends LitElement {
 
     //it was connectedCallback() in polymer 2
     firstUpdated() {
-        console.log("firstUpdated", this.query)
         // Render filter menu and add event and tooltips
 
         //this now returns html
