@@ -15,13 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import "../individual/opencga-individual-browser.js";
 
-/*
-<link rel="import" href="../individual/opencga-individual-browser.html">
-*/
-
-
-export default class extends LitElement {
+export default class OpencgaFamilyEditor extends LitElement {
 
     constructor() {
         super();

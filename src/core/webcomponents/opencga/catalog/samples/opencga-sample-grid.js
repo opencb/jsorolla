@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-//TODO check functionality
-
-import {LitElement, html} from '/web_modules/lit-element.js';
+// TODO check functionality (this.set and this.push has been replaced)
+import {LitElement, html} from "/web_modules/lit-element.js";
 import "../../../commons/opencb-grid-toolbar.js";
 
 export default class OpencgaSampleGrid extends LitElement {
@@ -25,6 +24,10 @@ export default class OpencgaSampleGrid extends LitElement {
         super();
 
         this._init();
+    }
+
+    createRenderRoot() {
+        return this;
     }
 
     static get properties() {
@@ -44,16 +47,16 @@ export default class OpencgaSampleGrid extends LitElement {
             config: {
                 type: Object
             }
-        }
+        };
     }
 
-    __init() {
-        this.prefix = "VarSampleGrid" + Utils.randomString(6) + "_";
+    _init() {
+        this._prefix = "VarSampleGrid" + Utils.randomString(6) + "_";
         this.active = false;
     }
 
     updated(changedProperties) {
-        if(changedProperties.has("opencgaSession") ||
+        if (changedProperties.has("opencgaSession") ||
             changedProperties.has("search") ||
             changedProperties.has("config") ||
             changedProperties.has("active")) {
@@ -61,11 +64,10 @@ export default class OpencgaSampleGrid extends LitElement {
         }
     }
 
-    connectedCallback() {
-        super.connectedCallback();
+    firstUpdated() {
 
         this.renderTable(this.active);
-        // this.table = PolymerUtils.getElementById(this.prefix + "SampleBrowserGrid");
+        // this.table = PolymerUtils.getElementById(this._prefix + "SampleBrowserGrid");
     }
 
     propertyObserver() {
@@ -88,19 +90,19 @@ export default class OpencgaSampleGrid extends LitElement {
 
         this.opencgaClient = this.opencgaSession.opencgaClient;
 
-        this.set('samples', []);
+        this.samples = [];
 
         let filters = Object.assign({}, this.search);
 
         this.from = 1;
         this.to = 10;
 
-        if (UtilsNew.isNotUndefined(this.opencgaClient) && UtilsNew.isNotUndefined(this.opencgaSession.study)
-            && UtilsNew.isNotUndefined(this.opencgaSession.study.fqn)) {
+        if (UtilsNew.isNotUndefined(this.opencgaClient) && UtilsNew.isNotUndefined(this.opencgaSession.study) &&
+            UtilsNew.isNotUndefined(this.opencgaSession.study.fqn)) {
 
             filters["study"] = this.opencgaSession.study.fqn;
-            if (UtilsNew.isNotUndefinedOrNull(this.lastFilters)
-                && JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
+            if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
+                JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
                 // Abort destroying and creating again the grid. The filters have not changed
                 return;
             }
@@ -117,21 +119,21 @@ export default class OpencgaSampleGrid extends LitElement {
             // Check that HTTP protocol is present and complete the URL
             let opencgaHostUrl = this.opencgaClient.getConfig().host;
             if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
-                opencgaHostUrl = 'http://' + opencgaHostUrl;
+                opencgaHostUrl = "http://" + opencgaHostUrl;
             }
-            opencgaHostUrl += '/webservices/rest/v1/samples/search';
+            opencgaHostUrl += "/webservices/rest/v1/samples/search";
 
             let skipCount = false;
 
-            let _table = $('#' + this.prefix + 'SampleBrowserGrid');
+            const _table = $("#" + this._prefix + "SampleBrowserGrid");
 
-            let _this = this;
-            $("#" + this.prefix + 'SampleBrowserGrid').bootstrapTable('destroy');
-            $("#" + this.prefix + 'SampleBrowserGrid').bootstrapTable({
+            const _this = this;
+            $("#" + this._prefix + "SampleBrowserGrid").bootstrapTable("destroy");
+            $("#" + this._prefix + "SampleBrowserGrid").bootstrapTable({
                 url: opencgaHostUrl,
                 columns: _this._columns,
-                method: 'get',
-                sidePagination: 'server',
+                method: "get",
+                sidePagination: "server",
                 uniqueId: "id",
 
                 // Table properties
@@ -142,19 +144,19 @@ export default class OpencgaSampleGrid extends LitElement {
                 detailView: _this._config.detailView,
                 detailFormatter: _this._config.detailFormatter,
 
-                queryParams: function (params) {
+                queryParams: function(params) {
                     if (this.pageNumber > 1) {
                         skipCount = true;
                     }
 
-                    let auxParams = {
+                    const auxParams = {
                         sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
                         order: params.order,
                         sort: params.sort,
                         limit: params.limit,
                         skip: params.offset,
                         includeIndividual: true,
-                        skipCount: skipCount,
+                        skipCount: skipCount
                         // include: "id,source,collection,processing,creationDate,status,type,version,release,individual.id"
                     };
 
@@ -163,20 +165,20 @@ export default class OpencgaSampleGrid extends LitElement {
                     }
                     return Object.assign(filters, auxParams);
                 },
-                responseHandler: function (response) {
+                responseHandler: function(response) {
                     if (!skipCount) {
                         if (!_this.hasOwnProperty("numTotalResults")) {
                             _this.numTotalResults = 0;
                         }
-                        if (_this.numTotalResults !== response.response[0].numTotalResults
-                            && response.queryOptions.skip === 0) {
+                        if (_this.numTotalResults !== response.response[0].numTotalResults &&
+                            response.queryOptions.skip === 0) {
                             _this.numTotalResults = response.response[0].numTotalResults;
                         }
                     }
 
                     _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-                    if(response.queryOptions.skip === 0 && _this.numTotalResults < response.queryOptions.limit){
+                    if (response.queryOptions.skip === 0 && _this.numTotalResults < response.queryOptions.limit) {
                         _this.from = 1;
                         _this.to = _this.numTotalResults;
                     }
@@ -186,39 +188,39 @@ export default class OpencgaSampleGrid extends LitElement {
                         rows: response.response[0].result
                     };
                 },
-                onClickRow: function (row, element, field) {
+                onClickRow: function(row, element, field) {
                     if (_this._config.multiSelection) {
-                        $(element).toggleClass('success');
-                        let index = element[0].getAttribute("data-index");
+                        $(element).toggleClass("success");
+                        const index = element[0].getAttribute("data-index");
                         // Check and uncheck actions trigger events that are captured below
                         if ("selected" === element[0].className) {
-                            $(PolymerUtils.getElementById(_this.prefix + 'SampleBrowserGrid')).bootstrapTable('uncheck', index);
+                            $(PolymerUtils.getElementById(_this._prefix + "SampleBrowserGrid")).bootstrapTable("uncheck", index);
                         } else {
-                            $(PolymerUtils.getElementById(_this.prefix + "SampleBrowserGrid")).bootstrapTable('check', index);
+                            $(PolymerUtils.getElementById(_this._prefix + "SampleBrowserGrid")).bootstrapTable("check", index);
                         }
                     } else {
-                        $('.success').removeClass('success');
-                        $(element).addClass('success');
+                        $(".success").removeClass("success");
+                        $(element).addClass("success");
                     }
 
                     _this._onSelectSample(row);
                 },
-                onCheck: function (row, elem) {
+                onCheck: function(row, elem) {
                     // check sample is not already selected
-                    for (let i in _this._samples) {
+                    for (const i in _this._samples) {
                         if (_this._samples[i].id === row.id) {
                             return;
                         }
                     }
 
                     // we add samples to selected samples
-                    _this.push("_samples", row);
-                    _this.set('samples', _this._samples.slice());
+                    _this._samples = row;
+                    _this.samples = _this._samples.slice();
 
                 },
-                onUncheck: function (row, elem) {
+                onUncheck: function(row, elem) {
                     let sampleToDeleteIdx = -1;
-                    for (let i in _this.samples) {
+                    for (const i in _this.samples) {
                         if (_this.samples[i].id === row.id) {
                             sampleToDeleteIdx = i;
                             break;
@@ -229,54 +231,56 @@ export default class OpencgaSampleGrid extends LitElement {
                         return;
                     }
 
-                    _this.splice('_samples', sampleToDeleteIdx, 1);
-                    _this.set('samples', _this._samples.slice());
+                    _this._samples = _this._samples.splice(sampleToDeleteIdx, 1);
+                    _this.samples = _this._samples.slice();
                 },
-                onCheckAll: function (rows) {
-                    let newSamples = _this._samples.slice();
+                onCheckAll: function(rows) {
+                    const newSamples = _this._samples.slice();
                     // check sample is not already selected
-                    rows.forEach((sample) => {
-                        let existsNewSelected = _this._samples.some((sampleSelected) => {
+                    rows.forEach(sample => {
+                        const existsNewSelected = _this._samples.some(sampleSelected => {
                             return sampleSelected.id === sample.id;
                         });
 
-                        if(!existsNewSelected) {
+                        if (!existsNewSelected) {
                             newSamples.push(sample);
                         }
                     });
 
                     // we add samples to selected samples
                     _this._samples = newSamples;
-                    _this.set('samples', newSamples.slice());
+                    _this.samples = newSamples.slice();
 
                 },
-                onUncheckAll: function (rows) {
+                onUncheckAll: function(rows) {
                     // check sample is not already selected
-                    rows.forEach((sample) => {
-                        _this._samples = _this._samples.filter((sampleSelected) => {
+                    rows.forEach(sample => {
+                        _this._samples = _this._samples.filter(sampleSelected => {
                             return sampleSelected.id !== sample.id;
                         });
 
                     });
 
                     // we add samples to selected samples
-//                            _this.push("_samples", row);
-                    _this.set('samples', _this._samples.slice());
+                    //                            _this.push("_samples", row);
+                    // _this.set('samples', _this._samples.slice());
+                    _this.samples =_this._samples.slice();
+
 
                 },
-                onLoadSuccess: function (data) {
+                onLoadSuccess: function(data) {
                     // Check all already selected rows. Selected samples are stored in this.samples array
                     if (UtilsNew.isNotUndefinedOrNull(_table)) {
                         if (!_this._config.multiSelection) {
-                            PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
+                            PolymerUtils.querySelector(_table.selector).rows[1].setAttribute("class", "success");
                             _this._onSelectSample(data.rows[0]);
                         }
 
                         if (_this.samples !== "undefined") {
-                            for (let idx in _this.samples) {
-                                for (let j in data.rows) {
+                            for (const idx in _this.samples) {
+                                for (const j in data.rows) {
                                     if (_this.samples[idx].id === data.rows[j].id) {
-                                        $(PolymerUtils.getElementById(_this.prefix + 'SampleBrowserGrid')).bootstrapTable('check', j);
+                                        $(PolymerUtils.getElementById(_this._prefix + "SampleBrowserGrid")).bootstrapTable("check", j);
                                         break;
                                     }
                                 }
@@ -286,33 +290,33 @@ export default class OpencgaSampleGrid extends LitElement {
 
 
                 },
-                onPageChange: function (page, size) {
+                onPageChange: function(page, size) {
                     _this.from = (page - 1) * size + 1;
                     _this.to = page * size;
-                },
-//                         onPostBody: function() {
-//                             if(PolymerUtils.getElementsByClassName(_this.prefix + 'Download')) {
-//                                 PolymerUtils.querySelectorAll("." + _this.prefix + "Download").forEach(elem => elem.addEventListener("click", _this.downloadQCFile.bind(_this), true));
-//
-// //                                PolymerUtils.getElementById(_this.prefix + 'Download').addEventListener('click', _this.downloadQCFile.bind(_this));
-//                             }
-//                         }
+                }
+                //                         onPostBody: function() {
+                //                             if(PolymerUtils.getElementsByClassName(_this._prefix + 'Download')) {
+                //                                 PolymerUtils.querySelectorAll("." + _this._prefix + "Download").forEach(elem => elem.addEventListener("click", _this.downloadQCFile.bind(_this), true));
+                //
+                // //                                PolymerUtils.getElementById(_this._prefix + 'Download').addEventListener('click', _this.downloadQCFile.bind(_this));
+                //                             }
+                //                         }
             });
         } else {
             // Delete table
-            $(PolymerUtils.getElementById(this.prefix + 'SampleBrowserGrid')).bootstrapTable('destroy');
+            $(PolymerUtils.getElementById(this._prefix + "SampleBrowserGrid")).bootstrapTable("destroy");
             this.numTotalResults = 0;
         }
     }
 
     _onSelectSample(row) {
         if (typeof row !== "undefined") {
-            this.dispatchEvent(new CustomEvent('selectsample', {detail: {id: row.id, sample: row}}));
+            this.dispatchEvent(new CustomEvent("selectsample", {detail: {id: row.id, sample: row}}));
         }
     }
 
     onColumnChange(e) {
-        let table = $('#' + this.prefix + 'SampleBrowserGrid');
+        const table = $("#" + this._prefix + "SampleBrowserGrid");
         if (e.detail.selected) {
             table.bootstrapTable("showColumn", e.detail.id);
         } else {
@@ -331,16 +335,16 @@ export default class OpencgaSampleGrid extends LitElement {
     // }
 
     individualFormatter(value, row) {
-        if (UtilsNew.isNotUndefined(row.attributes) && UtilsNew.isNotUndefined(row.attributes.individual)
-            && UtilsNew.isNotUndefined(row.attributes.individual.id)) {
+        if (UtilsNew.isNotUndefined(row.attributes) && UtilsNew.isNotUndefined(row.attributes.individual) &&
+            UtilsNew.isNotUndefined(row.attributes.individual.id)) {
             return row.attributes.individual.id;
         } else {
-            return '-'
+            return "-";
         }
     }
 
     dateFormatter(value, row) {
-        return moment(value, "YYYYMMDDHHmmss").format('D MMM YYYY');
+        return moment(value, "YYYYMMDDHHmmss").format("D MMM YYYY");
     }
 
     cellTypeFormatter(value, row) {
@@ -348,10 +352,10 @@ export default class OpencgaSampleGrid extends LitElement {
     }
 
     _initTableColumns() {
-        let columns = [];
+        const columns = [];
         if (this._config.multiSelection) {
             columns.push({
-                field: {source: 'state', context: this},
+                field: {source: "state", context: this},
                 checkbox: true,
                 // formatter: this.stateFormatter,
                 eligible: false
@@ -361,25 +365,25 @@ export default class OpencgaSampleGrid extends LitElement {
         this._columns = [
             columns.concat([
                 {
-                    title: 'Sample ID',
-                    field: 'id'
+                    title: "Sample ID",
+                    field: "id"
                 },
                 {
-                    title: 'Individual ID',
-                    field: 'attributes.individual.id',
+                    title: "Individual ID",
+                    field: "attributes.individual.id",
                     formatter: this.individualFormatter
                 },
                 {
-                    title: 'Source',
-                    field: 'source',
+                    title: "Source",
+                    field: "source"
                 },
                 {
-                    title: 'Collection Method',
-                    field: 'collection.method',
+                    title: "Collection Method",
+                    field: "collection.method"
                 },
                 {
-                    title: 'Preparation Method',
-                    field: 'processing.preparationMethod',
+                    title: "Preparation Method",
+                    field: "processing.preparationMethod"
                 },
                 // {
                 //     title: 'Sex',
@@ -404,17 +408,17 @@ export default class OpencgaSampleGrid extends LitElement {
                 //     formatter: this.motherFormatter
                 // },
                 {
-                    title: 'Cell Line',
+                    title: "Cell Line",
                     formatter: this.cellTypeFormatter
                 },
                 {
-                    title: 'Creation Date',
-                    field: 'creationDate',
+                    title: "Creation Date",
+                    field: "creationDate",
                     formatter: this.dateFormatter
                 },
                 {
-                    title: 'Status',
-                    field: 'status.name'
+                    title: "Status",
+                    field: "status.name"
                 }
             ])
         ];
@@ -431,23 +435,24 @@ export default class OpencgaSampleGrid extends LitElement {
             detailView: false,
             detailFormatter: undefined, // function with the detail formatter
             multiSelection: false
-        }
+        };
     }
 
 
     render() {
         return html`
         <style include="jso-styles"></style>
-            <opencb-grid-toolbar from="${this.from}}" to="${this.to}" numTotalResultsText="${this.numTotalResultsText}"
+            <opencb-grid-toolbar .from="${this.from}" .to="${this.to}" .numTotalResultsText="${this.numTotalResultsText}"
                              .config="${this.toolbarConfig}" @columnchange="${this.onColumnChange}"></opencb-grid-toolbar>
 
-        <div id="${this.prefix}GridTableDiv" style="margin-top: 10px">
-            <table id="${this.prefix}SampleBrowserGrid">
+        <div id="${this._prefix}GridTableDiv" style="margin-top: 10px">
+            <table id="${this._prefix}SampleBrowserGrid">
                 <thead style="background-color: #eee"></thead>
             </table>
         </div>
         `;
     }
+
 }
 
 customElements.define("opencga-sample-grid", OpencgaSampleGrid);

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-//TODO check functionality
+// TODO check functionality
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
 
 export default class OpencgaFacetViewSelector extends LitElement {
 
@@ -45,7 +45,7 @@ export default class OpencgaFacetViewSelector extends LitElement {
             clear: {
                 type: Boolean
             }
-        }
+        };
     }
 
     _init() {
@@ -58,30 +58,31 @@ export default class OpencgaFacetViewSelector extends LitElement {
     }
 
     updated(changedProperties) {
-        if(changedProperties.has("terms") || changedProperties.has("variableSets")) {
+        if (changedProperties.has("terms") || changedProperties.has("variableSets")) {
             this.renderSelector();
         }
-        if(changedProperties.has("disabled")) {
+        if (changedProperties.has("disabled")) {
             this.renderSelector();
         }
-        if(changedProperties.has("clear")) {
+        if (changedProperties.has("clear")) {
             this.clearFieldsObserver();
         }
     }
 
-    connectedCallback() {
-        super.connectedCallback();
+    // it was connectedCallback()
+    firstUpdated(_changedProperties) {
 
         // Deselect any item selected
-        $(`#${this._prefix}-value-select`).selectpicker('val', '');
-        $(`#${this._prefix}-term-select`).selectpicker('val', '');
+        $(`#${this._prefix}-value-select`).selectpicker("val", "");
+        $(`#${this._prefix}-term-select`).selectpicker("val", "");
 
         // Remove span with text from one of the select pickers so it only shows the caret and not the text
         $(`button[data-id=${this._prefix}-value-select]`)[0].firstElementChild.remove();
+        console.log($(`button[data-id=${this._prefix}-value-select]`));
     }
 
     onSelectedItemChange(e) {
-        let input = $(`#${this._prefix}-input`)[0];
+        const input = $(`#${this._prefix}-input`)[0];
 
         if (e.target.id === `${this._prefix}-value-select`) {
             input.value = e.target.selectedOptions[0].dataset.value;
@@ -91,45 +92,45 @@ export default class OpencgaFacetViewSelector extends LitElement {
             }
         }
 
-        let term = $(`#${this._prefix}-term-select`)[0].selectedOptions[0];
+        const term = $(`#${this._prefix}-term-select`)[0].selectedOptions[0];
 
-        this.dispatchEvent(new CustomEvent('variablechange', {
-                detail: {
-                    term: UtilsNew.isNotUndefinedOrNull(term) ? term.dataVariable.tags : "",
-                    value: input.value
-                }
+        this.dispatchEvent(new CustomEvent("variablechange", {
+            detail: {
+                term: UtilsNew.isNotUndefinedOrNull(term) ? term.dataVariable.tags : "",
+                value: input.value
             }
+        }
         ));
     }
 
     onInputTextChange(e) {
-        let input = $(`#${this._prefix}-input`)[0];
+        const input = $(`#${this._prefix}-input`)[0];
 
         // Deselect any item selected
-        $(`#${this._prefix}-value-select`).selectpicker('val', '');
+        $(`#${this._prefix}-value-select`).selectpicker("val", "");
 
-        let term = $(`#${this._prefix}-term-select`)[0].selectedOptions[0];
+        const term = $(`#${this._prefix}-term-select`)[0].selectedOptions[0];
 
-        this.dispatchEvent(new CustomEvent('variablechange', {
-                detail: {
-                    term: UtilsNew.isNotUndefinedOrNull(term) ? term.dataVariable.tags : "",
-                    value: input.value
-                }
+        this.dispatchEvent(new CustomEvent("variablechange", {
+            detail: {
+                term: UtilsNew.isNotUndefinedOrNull(term) ? term.dataVariable.tags : "",
+                value: input.value
             }
+        }
         ));
     }
 
     clearFieldsObserver(clear) {
         if (clear) {
-            $(`#${this._prefix}-value-select`).selectpicker('val', '');
-            $(`#${this._prefix}-term-select`).selectpicker('val', '');
+            $(`#${this._prefix}-value-select`).selectpicker("val", "");
+            $(`#${this._prefix}-term-select`).selectpicker("val", "");
             $(`#${this._prefix}-input`)[0].value = "";
         }
     }
 
     disabledObserver(disabled) {
-        let picker = $(`#${this._prefix}-ofvs .selectpicker`);
-        let input = $(`#${this._prefix}-input`)[0];
+        const picker = $(`#${this._prefix}-ofvs .selectpicker`);
+        const input = $(`#${this._prefix}-input`)[0];
 
         if (typeof picker[0] === "undefined") {
             return;
@@ -140,9 +141,9 @@ export default class OpencgaFacetViewSelector extends LitElement {
             picker[1].setAttribute("disabled", true);
             input.setAttribute("disabled", true);
         } else {
-            picker[0].removeAttribute('disabled');
-            picker[1].removeAttribute('disabled');
-            input.removeAttribute('disabled');
+            picker[0].removeAttribute("disabled");
+            picker[1].removeAttribute("disabled");
+            input.removeAttribute("disabled");
         }
 
         picker.selectpicker("refresh");
@@ -152,9 +153,9 @@ export default class OpencgaFacetViewSelector extends LitElement {
         if (UtilsNew.isUndefinedOrNull(fields) || fields.length === 0) {
             return fields;
         }
-        let myFields = [];
+        const myFields = [];
         for (let i = 0; i < fields.length; i++) {
-            let field = Object.assign({}, fields[i]);
+            const field = Object.assign({}, fields[i]);
             field["disabled"] = false;
             field["margin"] = 25;
             field["cursor"] = "pointer";
@@ -167,9 +168,9 @@ export default class OpencgaFacetViewSelector extends LitElement {
     }
 
     renderSelector(fields, variableSets) {
-        let myFields = this.applyRenderFilters(fields);
+        const myFields = this.applyRenderFilters(fields);
 
-        let showTerms = [];
+        const showTerms = [];
         showTerms.push({
             name: "Data model",
             values: myFields
@@ -204,14 +205,14 @@ export default class OpencgaFacetViewSelector extends LitElement {
             <div class="col-md-7">
                 <label>Select a Field</label>
                 <select id="${this.prefix}-term-select" class="selectpicker" data-live-search="true"
-                        ?disabled=${this.disabled} @change="${this.onSelectedItemChange}">
+                        .disabled=${this.disabled} @change="${this.onSelectedItemChange}">
                     ${this.showTerms && this.showTerms.length && this.showTerms.map( optterm => html`
-                        <optgroup label="${this.optterm.name}" style="font-size: 1.1em; font-weight: bold">
+                        <optgroup label="${optterm.name}" style="font-size: 1.1em; font-weight: bold">
                             ${optterm.values && optterm.values.length && optterm.values.map( term => html`
                                 <option data-tokens="${term.tags}" data-variable="${term}"
                                         data-id="${term.id}"
                                         style="padding-left: ${term.margin}px; cursor: ${term.cursor};"
-                                        disabled="${term.disabled}">
+                                        .disabled="${term.disabled}">
                                     ${term.name}
                                 </option>
                             `)}
@@ -246,7 +247,8 @@ export default class OpencgaFacetViewSelector extends LitElement {
         </div>
         `;
     }
+
 }
 
-customElements.define('opencga-facet-view-selector', OpencgaFacetViewSelector);
+customElements.define("opencga-facet-view-selector", OpencgaFacetViewSelector);
 

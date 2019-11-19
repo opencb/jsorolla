@@ -16,10 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "../../../commons/opencb-grid-toolbar.js";
-import "./opencga-family-filter.js";
-import "../../commons/CatalogUIUtils.js";
 
-export default class OpencgaFamilyGrid extends LitElement {
+export default class OpencgaIndividualGrid extends LitElement {
 
     constructor() {
         super();
@@ -35,15 +33,14 @@ export default class OpencgaFamilyGrid extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            families: {
+            individuals: {
                 type: Array
             },
             search: {
                 type: Object
             },
             active: {
-                type: Boolean,
-                value: false
+                type: Boolean
             },
             config: {
                 type: Object
@@ -52,8 +49,9 @@ export default class OpencgaFamilyGrid extends LitElement {
     }
 
     _init() {
-        this._prefix = "VarFamilyGrid" + Utils.randomString(6);
+        this._prefix = "VarIndividualGrid" + Utils.randomString(6);
         this.catalogUiUtils = new CatalogUIUtils();
+        this.active = false;
     }
 
     updated(changedProperties) {
@@ -61,21 +59,16 @@ export default class OpencgaFamilyGrid extends LitElement {
             changedProperties.has("search") ||
             changedProperties.has("config") ||
             changedProperties.has("active")) {
-            this.propertyObserver(this.opencgaSession, this.search, this.config, this.active);
+            this.propertyObserver();
         }
     }
-
-    /* connectedCallback() {
-        super.connectedCallback();
-
-        this.renderTable(this.active);
-    }*/
 
     firstUpdated(_changedProperties) {
         this.renderTable(this.active);
     }
 
-    propertyObserver(opencgaSession, search, config, active) {
+
+    propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = Object.assign(this.getDefaultConfig(), this.config);
         this._columns = this._initTableColumns();
@@ -85,7 +78,7 @@ export default class OpencgaFamilyGrid extends LitElement {
             columns: this._columns[0]
         };
 
-        this.renderTable(active);
+        this.renderTable(this.active);
     }
 
     renderTable(active) {
@@ -95,7 +88,7 @@ export default class OpencgaFamilyGrid extends LitElement {
 
         this.opencgaClient = this.opencgaSession.opencgaClient;
 
-        this.families = [];
+        this.set("individuals", []);
 
         let filters = Object.assign({}, this.search);
 
@@ -103,23 +96,23 @@ export default class OpencgaFamilyGrid extends LitElement {
         this.from = 1;
         this.to = this._config.pageSize;
 
-        if (UtilsNew.isNotUndefined(this.opencgaClient) && UtilsNew.isNotUndefined(this.opencgaSession.study) &&
-            UtilsNew.isNotUndefined(this.opencgaSession.study.fqn)) {
+        if (UtilsNew.isNotUndefined(this.opencgaClient) && UtilsNew.isNotUndefined(this.opencgaSession.study)
+            && UtilsNew.isNotUndefined(this.opencgaSession.study.fqn)) {
 
             filters.study = this.opencgaSession.study.fqn;
-            if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
-                JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
+            if (UtilsNew.isNotUndefinedOrNull(this.lastFilters)
+                && JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
                 // Abort destroying and creating again the grid. The filters have not changed
                 return;
             }
             // Store the current filters
             this.lastFilters = Object.assign({}, filters);
 
-            // Make a copy of the families (if they exist), we will use this private copy until it is assigned to this.families
-            if (UtilsNew.isNotUndefined(this.families)) {
-                this._families = this.families;
+            // Make a copy of the individuals (if they exist), we will use this private copy until it is assigned to this.individuals
+            if (UtilsNew.isNotUndefined(this.individuals)) {
+                this._individuals = this.individuals;
             } else {
-                this._families = [];
+                this._individuals = [];
             }
 
             // Check that HTTP protocol is present and complete the URL
@@ -127,15 +120,15 @@ export default class OpencgaFamilyGrid extends LitElement {
             if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
                 opencgaHostUrl = "http://" + opencgaHostUrl;
             }
-            opencgaHostUrl += "/webservices/rest/v1/families/search";
+            opencgaHostUrl += "/webservices/rest/v1/individuals/search";
 
             let skipCount = false;
 
-            const _table = $("#" + this._prefix + "FamilyBrowserGrid");
+            let _table = $("#" + this._prefix + "IndividualBrowserGrid");
 
-            const _this = this;
-            $("#" + this._prefix + "FamilyBrowserGrid").bootstrapTable("destroy");
-            $("#" + this._prefix + "FamilyBrowserGrid").bootstrapTable({
+            let _this = this;
+            $("#" + this._prefix + "IndividualBrowserGrid").bootstrapTable("destroy");
+            $("#" + this._prefix + "IndividualBrowserGrid").bootstrapTable({
                 url: opencgaHostUrl,
                 columns: _this._columns,
                 method: "get",
@@ -158,15 +151,16 @@ export default class OpencgaFamilyGrid extends LitElement {
                         skipCount = true;
                     }
 
-                    const auxParams = {
+                    let auxParams = {
                         sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
                         order: params.order,
                         sort: params.sort,
                         limit: params.limit,
                         skip: params.offset,
-                        // includeFamily: true,
                         skipCount: skipCount
-                        // include: "id,creationDate,status,uuid,version,release,modificationDate,phenotypes,members,expectedSize"
+                        // include: "id,creationDate,status,uuid,sex,version,release,father,mother,population,"
+                        //     + "dateOfBirth,modificationDate,lifeStatus,affectationStatus,phenotypes,samples,"
+                        //     + "parentalConsanguinity,multiples"
                     };
 
                     if (UtilsNew.isUndefined(filters)) {
@@ -179,8 +173,8 @@ export default class OpencgaFamilyGrid extends LitElement {
                         if (!_this.hasOwnProperty("numTotalResults")) {
                             _this.numTotalResults = 0;
                         }
-                        if (_this.numTotalResults !== response.response[0].numTotalResults &&
-                            response.queryOptions.skip === 0) {
+                        if (_this.numTotalResults !== response.response[0].numTotalResults
+                            && response.queryOptions.skip === 0) {
                             _this.numTotalResults = response.response[0].numTotalResults;
                         }
                     }
@@ -202,23 +196,23 @@ export default class OpencgaFamilyGrid extends LitElement {
                     if (_this._config.multiSelection) {
                         // Check and uncheck when clicking in the checkbox TD cell
                         if (field === "state") {
-                            const index = element[0].dataset.index;
+                            let index = element[0].dataset.index;
                             if (element[0].className.includes("selected")) {
-                                $(PolymerUtils.getElementById(_this._prefix + "FamilyBrowserGrid")).bootstrapTable("uncheck", index);
+                                $(PolymerUtils.getElementById(_this._prefix + "IndividualBrowserGrid")).bootstrapTable("uncheck", index);
                             } else {
-                                $(PolymerUtils.getElementById(_this._prefix + "FamilyBrowserGrid")).bootstrapTable("check", index);
+                                $(PolymerUtils.getElementById(_this._prefix + "IndividualBrowserGrid")).bootstrapTable("check", index);
 
                                 $(".success").removeClass("success");
                                 $(element).addClass("success");
                             }
                         } else {
                             // If user has clicked in the row
-                            const index = element[0].dataset.index;
+                            let index = element[0].dataset.index;
                             if (element[0].className.includes("selected")) {
-                                $(PolymerUtils.getElementById(_this._prefix + "FamilyBrowserGrid")).bootstrapTable("uncheck", index);
+                                $(PolymerUtils.getElementById(_this._prefix + "IndividualBrowserGrid")).bootstrapTable("uncheck", index);
                                 $(element).removeClass("success");
                             } else {
-                                $(PolymerUtils.getElementById(_this._prefix + "FamilyBrowserGrid")).bootstrapTable("check", index);
+                                $(PolymerUtils.getElementById(_this._prefix + "IndividualBrowserGrid")).bootstrapTable("check", index);
                             }
                         }
                     } else {
@@ -227,30 +221,30 @@ export default class OpencgaFamilyGrid extends LitElement {
                         $(element).addClass("success");
                     }
 
-                    _this._onSelectFamily(row);
+                    _this._onSelectIndividual(row);
                 },
                 onDblClickRow: function(row, element, field) {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (_this._config.detailView) {
                         if (element[0].innerHTML.includes("icon-plus")) {
-                            $(PolymerUtils.getElementById(_this._prefix + "FamilyBrowserGrid")).bootstrapTable("expandRow", element[0].dataset.index);
+                            $(PolymerUtils.getElementById(_this._prefix + "IndividualBrowserGrid")).bootstrapTable("expandRow", element[0].dataset.index);
                         } else {
-                            $(PolymerUtils.getElementById(_this._prefix + "FamilyBrowserGrid")).bootstrapTable("collapseRow", element[0].dataset.index);
+                            $(PolymerUtils.getElementById(_this._prefix + "IndividualBrowserGrid")).bootstrapTable("collapseRow", element[0].dataset.index);
                         }
                     }
                 },
                 onCheck: function(row, element) {
-                    // check family is not already selected
-                    for (const i in _this._families) {
-                        if (_this._families[i].id === row.id) {
+                    // check individual is not already selected
+                    for (let i in _this._individuals) {
+                        if (_this._individuals[i].id === row.id) {
                             return;
                         }
                     }
 
-                    // we add families to selected families
-                    _this._families.push(row);
-                    _this.families = _this._families.slice();
+                    // we add individuals to selected individuals
+                    _this.push("_individuals", row);
+                    _this.set("individuals", _this._individuals.slice());
 
                     // We only activate the row when checking
                     if (_this._config.detailView) {
@@ -259,38 +253,38 @@ export default class OpencgaFamilyGrid extends LitElement {
                     $(element[0].parentElement.parentElement).addClass("success");
 
                     // If exist on single nested sample we must check it
-                    if (row.members.length === 1) {
-                        const checkbox = PolymerUtils.getElementById(_this._prefix + row.members[0].id + "Checkbox");
+                    if (row.samples.length === 1) {
+                        let checkbox = PolymerUtils.getElementById(_this._prefix + row.samples[0].id + "Checkbox");
                         if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
                             checkbox.checked = true;
                         }
                     }
                 },
                 onUncheck: function(row, elem) {
-                    let familyToDeleteIdx = -1;
-                    for (const i in _this.families) {
-                        if (_this.families[i].id === row.id) {
-                            familyToDeleteIdx = i;
+                    let individualToDeleteIdx = -1;
+                    for (let i in _this.individuals) {
+                        if (_this.individuals[i].id === row.id) {
+                            individualToDeleteIdx = i;
                             break;
                         }
                     }
 
-                    if (familyToDeleteIdx === -1) {
+                    if (individualToDeleteIdx === -1) {
                         return;
                     }
 
-                    _this._families = _this._families.splice(familyToDeleteIdx, 1);
-                    _this.families = this._families.slice();
+                    _this.splice("_individuals", individualToDeleteIdx, 1);
+                    _this.set("individuals", _this._individuals.slice());
 
                     // We detail view is active we expand the row automatically
                     if (_this._config.detailView) {
-                        $(PolymerUtils.getElementById(_this._prefix + "FamilyBrowserGrid")).bootstrapTable("collapseRow", elem[0].dataset.index);
+                        $(PolymerUtils.getElementById(_this._prefix + "IndividualBrowserGrid")).bootstrapTable("collapseRow", elem[0].dataset.index);
                     }
 
                     // We must uncheck nested checked samples
-                    if (row.members.length > 0) {
-                        for (const sample of row.members) {
-                            const checkbox = PolymerUtils.getElementById(_this._prefix + sample.id + "Checkbox");
+                    if (row.samples.length > 0) {
+                        for (let sample of row.samples) {
+                            let checkbox = PolymerUtils.getElementById(_this._prefix + sample.id + "Checkbox");
                             if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
                                 checkbox.checked = false;
                             }
@@ -298,26 +292,26 @@ export default class OpencgaFamilyGrid extends LitElement {
                     }
                 },
                 onCheckAll: function(rows) {
-                    const newFamilies = _this._families.slice();
-                    // check family is not already selected
-                    rows.forEach(family => {
-                        const existsNewSelected = _this._families.some(familySelected => {
-                            return familySelected.id === family.id;
+                    let newIndividuals = _this._individuals.slice();
+                    // check individual is not already selected
+                    rows.forEach((individual) => {
+                        let existsNewSelected = _this._individuals.some((individualSelected) => {
+                            return individualSelected.id === individual.id;
                         });
 
                         if (!existsNewSelected) {
-                            newFamilies.push(family);
+                            newIndividuals.push(individual);
                         }
                     });
 
-                    // we add families to selected families
-                    _this._families = newFamilies;
-                    _this.families = newFamilies.slice();
+                    // we add individuals to selected individuals
+                    _this._individuals = newIndividuals;
+                    _this.set("individuals", newIndividuals.slice());
 
                     // We must uncheck nested checked samples
-                    for (const row of rows) {
-                        if (row.members.length === 1) {
-                            const checkbox = PolymerUtils.getElementById(_this._prefix + row.members[0].id + "Checkbox");
+                    for (let row of rows) {
+                        if (row.samples.length === 1) {
+                            let checkbox = PolymerUtils.getElementById(_this._prefix + row.samples[0].id + "Checkbox");
                             if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
                                 checkbox.checked = true;
                             }
@@ -325,21 +319,21 @@ export default class OpencgaFamilyGrid extends LitElement {
                     }
                 },
                 onUncheckAll: function(rows) {
-                    // check family is not already selected
-                    rows.forEach(family => {
-                        _this._families = _this._families.filter(familySelected => {
-                            return familySelected.id !== family.id;
+                    // check individual is not already selected
+                    rows.forEach((individual) => {
+                        _this._individuals = _this._individuals.filter((individualSelected) => {
+                            return individualSelected.id !== individual.id;
                         });
                     });
 
-                    // we add families to selected families
-                    //                            _this.push("_families", row);
-                    _this.families = _this._families.slice();
+                    // we add individuals to selected individuals
+//                            _this.push("_individuals", row);
+                    _this.set("individuals", _this._individuals.slice());
 
                     // We must uncheck nested checked samples
-                    for (const row of rows) {
-                        for (const sample of row.members) {
-                            const checkbox = PolymerUtils.getElementById(_this._prefix + sample.id + "Checkbox");
+                    for (let row of rows) {
+                        for (let sample of row.samples) {
+                            let checkbox = PolymerUtils.getElementById(_this._prefix + sample.id + "Checkbox");
                             if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
                                 checkbox.checked = false;
                             }
@@ -347,18 +341,18 @@ export default class OpencgaFamilyGrid extends LitElement {
                     }
                 },
                 onLoadSuccess: function(data) {
-                    // Check all already selected rows. Selected families are stored in this.families array
+                    // Check all already selected rows. Selected individuals are stored in this.individuals array
                     if (UtilsNew.isNotUndefinedOrNull(_table)) {
-                        if (_this._config.detailView) {
+                        if (!_this._config.multiSelection) {
                             PolymerUtils.querySelector(_table.selector).rows[1].setAttribute("class", "success");
-                            _this._onSelectFamily(data.rows[0]);
+                            _this._onSelectIndividual(data.rows[0], "onLoad");
                         }
 
-                        if (_this.families !== "undefined") {
-                            for (const idx in _this.families) {
-                                for (const j in data.rows) {
-                                    if (_this.families[idx].id === data.rows[j].id) {
-                                        $(PolymerUtils.getElementById(_this._prefix + "FamilyBrowserGrid")).bootstrapTable("check", j);
+                        if (_this.individuals !== "undefined") {
+                            for (let idx in _this.individuals) {
+                                for (let j in data.rows) {
+                                    if (_this.individuals[idx].id === data.rows[j].id) {
+                                        $(PolymerUtils.getElementById(_this._prefix + "IndividualBrowserGrid")).bootstrapTable("check", j);
                                         break;
                                     }
                                 }
@@ -373,29 +367,30 @@ export default class OpencgaFamilyGrid extends LitElement {
                 onPostBody: function(data) {
                     // Add tooltips
                     _this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
-                    _this.catalogUiUtils.addTooltip("div.membersTooltip", "Members");
                 }
             });
         } else {
             // Delete table
-            $(PolymerUtils.getElementById(this._prefix + "FamilyBrowserGrid")).bootstrapTable("destroy");
+            $(PolymerUtils.getElementById(this._prefix + "IndividualBrowserGrid")).bootstrapTable("destroy");
             this.numTotalResults = 0;
         }
     }
 
-    _onSelectFamily(row) {
-        if (typeof row !== "undefined") {
-            this.dispatchEvent(new CustomEvent("selectfamily", {
-                detail: {
-                    id: row.id,
-                    family: row
-                }
-            }));
+    _onSelectIndividual(row, event) {
+        if (UtilsNew.isNotUndefinedOrNull(row)) {
+            if (UtilsNew.isUndefinedOrNull(event) || event !== "onLoad") {
+                this.dispatchEvent(new CustomEvent("selectindividual", {
+                    detail: {
+                        id: row.id,
+                        individual: row
+                    }
+                }));
+            }
         }
     }
 
     onColumnChange(e) {
-        const table = $("#" + this._prefix + "FamilyBrowserGrid");
+        let table = $("#" + this._prefix + "IndividualBrowserGrid");
         if (e.detail.selected) {
             table.bootstrapTable("showColumn", e.detail.id);
         } else {
@@ -403,14 +398,13 @@ export default class OpencgaFamilyGrid extends LitElement {
         }
     }
 
-
     detailFormatter(value, row) {
         let result = `<div class='row' style="padding: 5px 10px 20px 10px">
                                 <div class='col-md-12'>
-                                    <h5 style="font-weight: bold">Members</h5>
+                                    <h5 style="font-weight: bold">Samples</h5>
                 `;
 
-        if (UtilsNew.isNotEmptyArray(row.members)) {
+        if (UtilsNew.isNotEmptyArray(row.samples)) {
             let tableCheckboxHeader = "";
 
             if (this.gridContext._config.multiSelection) {
@@ -422,91 +416,97 @@ export default class OpencgaFamilyGrid extends LitElement {
                                     <thead>
                                         <tr class="table-header">
                                             ${tableCheckboxHeader}
-                                            <th>ID</th>
-                                            <th>Sex</th>
-                                            <th>Father</th>
-                                            <th>Mother</th>
-                                            <th>Affectation Status</th>
-                                            <th>Life Status</th>
-                                            <th>Year of Birth</th>
+                                            <th>Sample ID</th>
+                                            <th>Source</th>
+                                            <th>Collection Method</th>
+                                            <th>Preparation Method</th>
+                                            <th>Somatic</th>
                                             <th>Creation Date</th>
                                             <th>Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>`;
 
-            for (const member of row.members) {
+            for (let sample of row.samples) {
                 let tableCheckboxRow = "";
                 // If parent row is checked and there is only one samlpe then it must be selected
                 if (this.gridContext._config.multiSelection) {
                     let checkedStr = "";
-                    for (const family of this.gridContext.families) {
-                        if (family.id === row.id && row.members.length === 1) {
-                            // TODO check member has been checked before, we need to store them
+                    for (let individual of this.gridContext.individuals) {
+                        if (individual.id === row.id && row.samples.length === 1) {
+                            // TODO check sampkle has been checked before, we need to store them
                             checkedStr = "checked";
                             break;
                         }
                     }
 
-                    tableCheckboxRow = `<td><input id='${this.gridContext.prefix}${member.id}Checkbox' type='checkbox' ${checkedStr}></td>`;
+                    tableCheckboxRow = `<td><input id='${this.gridContext.prefix}${sample.id}Checkbox' type='checkbox' ${checkedStr}></td>`;
                 }
 
-                const father = (UtilsNew.isNotEmpty(member.father.id)) ? member.father.id : "-";
-                const mother = (UtilsNew.isNotEmpty(member.mother.id)) ? member.mother.id : "-";
-                const affectation = (UtilsNew.isNotEmpty(member.affectationStatus)) ? member.affectationStatus : "-";
-                const lifeStatus = (UtilsNew.isNotEmpty(member.lifeStatus)) ? member.lifeStatus : "-";
-                const dateOfBirth = UtilsNew.isNotEmpty(member.dateOfBirth) ? moment(member.dateOfBirth, "YYYYMMDD").format("YYYY") : "-";
-                const creationDate = moment(member.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY");
+                let source = (UtilsNew.isNotEmpty(sample.source)) ? sample.source : "-";
+                let collectionMethod = (sample.collection !== undefined) ? sample.collection.method : "-";
+                let preparationMethod = (sample.processing !== undefined) ? sample.processing.preparationMethod : "-";
+                let cellLine = (sample.somatic) ? "Somatic" : "Germline";
+                let creationDate = moment(sample.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY");
 
                 result += `<tr class="detail-view-row">
                                         ${tableCheckboxRow}
-                                        <td>${member.id}</td>
-                                        <td>${member.sex}</td>
-                                        <td>${father}</td>
-                                        <td>${mother}</td>
-                                        <td>${affectation}</td>
-                                        <td>${lifeStatus}</td>
-                                        <td>${dateOfBirth}</td>
+                                        <td>${sample.id}</td>
+                                        <td>${source}</td>
+                                        <td>${collectionMethod}</td>
+                                        <td>${preparationMethod}</td>
+                                        <td>${cellLine}</td>
                                         <td>${creationDate}</td>
-                                        <td>${member.status.name}</td>
+                                        <td>${sample.status.name}</td>
                                    </tr>`;
             }
-            result += "</tbody></table></diV>";
+            result += `</tbody></table></diV>`;
         } else {
-            result += "No members found";
+            result += "No samples found";
         }
 
         result += "</div></div>";
         return result;
     }
 
-    membersFormatter(value, row) {
-        if (UtilsNew.isNotEmptyArray(value)) {
-            let members = "";
-            for (const member of value) {
-                members += `<div style="padding: 5px">
-                                        <span>
-                                            ${member.id} (${member.sex})
-                                        </span>
-                                    </div>`;
-            }
+    // stateFormatter(value, row, index) {
+    // if (this.gridContext !== undefined && typeof this.gridContext.individuals !== "undefined") {
+    //     for (let idx in this.gridContext.individuals) {
+    //         if (this.gridContext.individuals[idx].name === row.name) {
+    //             break;
+    //         }
+    //     }
+    // }
+    // }
 
-            const html = `<div class="membersTooltip" data-tooltip-text='${members}' align="center">
-                                    <a style="cursor: pointer">
-                                        ${value.length} members found
-                                    </a>
-                                </div>
-                    `;
-            return html;
+    sexFormatter(value, row) {
+        let sexHtml = `<span>${row.sex}</span>`;
+        if (UtilsNew.isNotEmpty(row.karyotypicSex)) {
+            sexHtml += ` (${row.karyotypicSex})`;
+        }
+        return sexHtml;
+    }
+
+    fatherFormatter(value, row) {
+        if (UtilsNew.isNotUndefinedOrNull(row.father) && UtilsNew.isNotEmpty(row.father.id)) {
+            return row.father.id;
         } else {
-            return "No members found";
+            return "-";
+        }
+    }
+
+    motherFormatter(value, row) {
+        if (UtilsNew.isNotUndefinedOrNull(row.mother) && UtilsNew.isNotEmpty(row.mother.id)) {
+            return row.mother.id;
+        } else {
+            return "-";
         }
     }
 
     disordersFormatter(value, row) {
         if (UtilsNew.isNotEmpty(value)) {
             let disordersHtml = "<div>";
-            for (const disorder of value) {
+            for (let disorder of value) {
                 disordersHtml += `<span>${disorder.id}</span>`;
             }
             disordersHtml += "</div>";
@@ -519,11 +519,12 @@ export default class OpencgaFamilyGrid extends LitElement {
     phenotypesFormatter(value, row) {
         if (UtilsNew.isNotEmptyArray(value)) {
             let phenotypeTooltipText = "";
-
-            for (const phenotype of value) {
-                phenotypeTooltipText += "<div style=\"padding: 5px\">";
+            for (let phenotype of value) {
+                phenotypeTooltipText += `<div style="padding: 5px">`;
                 if (UtilsNew.isNotUndefinedOrNull(phenotype.source) && phenotype.source.toUpperCase() === "HPO") {
-                    phenotypeTooltipText += `<span><a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})</span>
+                    phenotypeTooltipText += `<span>
+                                                        <a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})
+                                                    </span>
                                 `;
                 } else {
                     phenotypeTooltipText += `<span>${phenotype.id} (${phenotype.status})</span>`;
@@ -531,7 +532,7 @@ export default class OpencgaFamilyGrid extends LitElement {
                 phenotypeTooltipText += "</div>";
             }
 
-            const html = `<div class="phenotypesTooltip" data-tooltip-text='${phenotypeTooltipText}' align="center">
+            let html = `<div class="phenotypesTooltip" data-tooltip-text='${phenotypeTooltipText}' align="center">
                                     <a style="cursor: pointer">
                                         ${value.length} terms found
                                     </a>
@@ -543,23 +544,36 @@ export default class OpencgaFamilyGrid extends LitElement {
         }
     }
 
+    samplesFormatter(value, row) {
+        if (UtilsNew.isNotEmptyArray(row.samples)) {
+            let samples = "<div>";
+            for (let sample of row.samples) {
+                samples += `<div>${sample.id}</div>`;
+            }
+            samples += "</div>";
+            return samples;
+        } else {
+            return "-";
+        }
+    }
+
     customAnnotationFormatter(value, row) {
         // debugger
     }
 
     dateFormatter(value, row) {
-        if (UtilsNew.isUndefinedOrNull(value)) {
-            return "-";
+        if (UtilsNew.isNotUndefinedOrNull(value)) {
+            return moment(value, "YYYYMMDDHHmmss").format("D MMM YYYY");
         }
-        return moment(value, "YYYYMMDDHHmmss").format("D MMM YYYY");
+        return "-";
     }
 
     _initTableColumns() {
         // Check column visibility
-        const customAnnotationVisible = (UtilsNew.isNotUndefinedOrNull(this._config.customAnnotations) &&
-            UtilsNew.isNotEmptyArray(this._config.customAnnotations.fields));
+        let customAnnotationVisible = (UtilsNew.isNotUndefinedOrNull(this._config.customAnnotations)
+            && UtilsNew.isNotEmptyArray(this._config.customAnnotations.fields));
 
-        const columns = [];
+        let columns = [];
         if (this._config.multiSelection) {
             columns.push({
                 field: "state",
@@ -574,15 +588,34 @@ export default class OpencgaFamilyGrid extends LitElement {
             columns.concat(
                 [
                     {
-                        title: "Family",
+                        title: "Individual",
                         field: "id",
                         sortable: true,
                         halign: this._config.header.horizontalAlign
                     },
                     {
-                        title: "Members",
-                        field: "members",
-                        formatter: this.membersFormatter.bind(this),
+                        title: "Samples",
+                        field: "samples",
+                        formatter: this.samplesFormatter,
+                        halign: this._config.header.horizontalAlign
+                    },
+                    {
+                        title: "Sex",
+                        field: "sex",
+                        sortable: true,
+                        formatter: this.sexFormatter,
+                        halign: this._config.header.horizontalAlign
+                    },
+                    {
+                        title: "Father",
+                        field: "father.id",
+                        formatter: this.fatherFormatter,
+                        halign: this._config.header.horizontalAlign
+                    },
+                    {
+                        title: "Mother",
+                        field: "mother.id",
+                        formatter: this.motherFormatter,
                         halign: this._config.header.horizontalAlign
                     },
                     {
@@ -597,6 +630,16 @@ export default class OpencgaFamilyGrid extends LitElement {
                         formatter: this.phenotypesFormatter.bind(this),
                         halign: this._config.header.horizontalAlign
                     },
+                    // {
+                    //     title: 'Affectation Status',
+                    //     field: 'affectationStatus',
+                    //     halign: this._config.header.horizontalAlign
+                    // },
+                    {
+                        title: "Life Status",
+                        field: "lifeStatus",
+                        halign: this._config.header.horizontalAlign
+                    },
                     {
                         title: "Custom Annotations",
                         field: "customAnnotation",
@@ -605,10 +648,17 @@ export default class OpencgaFamilyGrid extends LitElement {
                         halign: this._config.header.horizontalAlign
                     },
                     {
+                        title: "Date of Birth",
+                        field: "dateOfBirth",
+                        sortable: true,
+                        formatter: this.dateFormatter,
+                        halign: this._config.header.horizontalAlign
+                    },
+                    {
                         title: "Creation Date",
                         field: "creationDate",
-                        formatter: this.dateFormatter,
                         sortable: true,
+                        formatter: this.dateFormatter,
                         halign: this._config.header.horizontalAlign
                     },
                     {
@@ -643,9 +693,10 @@ export default class OpencgaFamilyGrid extends LitElement {
         };
     }
 
+
     render() {
         return html`
-        <style include="jso-styles">
+<style include="jso-styles">
             .detail-view :hover {
                 background-color: white;
             }
@@ -658,30 +709,21 @@ export default class OpencgaFamilyGrid extends LitElement {
                 cursor: pointer;
             }
 
-            .members-link-dropdown:hover .dropdown-menu {
-                display: block;
-            }
-
             .phenotypes-link-dropdown:hover .dropdown-menu {
                 display: block;
             }
         </style>
 
-        <opencb-grid-toolbar .from="${this.from}" .to="${this.to}"
-                             .numTotalResultsText="${this.numTotalResultsText}"
-                             .config="${this.toolbarConfig}"
-                             @columnchange="${this.onColumnChange}">
-        </opencb-grid-toolbar>
+        <opencb-grid-toolbar from="{{from}}" to="{{to}}" num-total-results-text="{{numTotalResultsText}}"
+                             config="{{toolbarConfig}}" on-columnchange="onColumnChange"></opencb-grid-toolbar>
 
         <div id="${this._prefix}GridTableDiv" style="margin-top: 10px">
-            <table id="${this._prefix}FamilyBrowserGrid">
+            <table id="${this._prefix}IndividualBrowserGrid">
                 <thead style="background-color: #eee"></thead>
             </table>
         </div>
         `;
     }
-
 }
 
-customElements.define("opencga-family-grid", OpencgaFamilyGrid);
-
+customElements.define("opencga-individual-grid", OpencgaIndividualGrid);

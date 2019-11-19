@@ -16,12 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 
-/* TODO implement
-
-<link rel="import" href="../commons/opencga-facet-result-view.html">
-    <link rel="import" href="../commons/opencga-facet-view-selector.html">
-*/
-
+import "../commons/opencga-facet-result-view.js";
+import "../commons/opencga-facet-view-selector.js";
 
 export default class OpencgaFacetView extends LitElement {
 
@@ -32,6 +28,9 @@ export default class OpencgaFacetView extends LitElement {
         this._init();
     }
 
+    createRenderRoot() {
+        return this;
+    }
 
     static get properties() {
         return {
@@ -288,6 +287,7 @@ export default class OpencgaFacetView extends LitElement {
             this.facets.add(this._config.defaultStats[i]);
         }
         this.facetFilters = Array.from(this.facets);
+        this.requestUpdate();
     }
 
     addFacet(e) {
@@ -333,6 +333,7 @@ export default class OpencgaFacetView extends LitElement {
     removeFacet(e) {
         this.facets.delete(e.target.dataset.facet);
         this.facetFilters = Array.from(this.facets);
+        this.requestUpdate();
     }
 
     fetchData() {
@@ -425,13 +426,13 @@ export default class OpencgaFacetView extends LitElement {
                     <h3>Select Aggregation Stats</h3>
     
                     <div class="col-md-12">
-                        ${this._config.defaultStats && this._config.defaultStats.length ? html`
+                        ${this._config && this._config.defaultStats && this._config.defaultStats.length ? html`
                             <h4 style="padding-top: 5px">Default Aggregation Stats</h4>
                             <span style="padding-left: 10px">Add default aggregation stats</span>
                             <span style="padding-left: 10px">
                                 <button type="button" class="btn btn-primary" @click="${this.addDefaultStats}">Add</button>
                             </span>
-                            ` : null}
+                            ` : null }
                     </div>
     
                     <div class="col-md-12">
@@ -440,12 +441,12 @@ export default class OpencgaFacetView extends LitElement {
                         <div class="row">
                             <div class="col-md-5" style="padding: 0px 30px 0px 10px">
                                 <opencga-facet-view-selector id="${this._prefix}-ofvs-first" .terms="${this.dataModelTerms}" .variableSets="${this.variableSets}"
-                                                             @variablechange="${this.onVariableSelectedChange}" ?clear="${this.clearSelectedOptions}">
+                                                             @variablechange="${this.onVariableSelectedChange}" .clear="${this.clearSelectedOptions}">
                                 </opencga-facet-view-selector>
                             </div>
                             <div class="col-md-5" style="padding: 0px 10px 0px 30px">
-                                <opencga-facet-view-selector id="${this._prefix}-ofvs-nested" .terms="${this.dataModelTerms}" variableSets="${this.variableSets}"
-                                                             @variablechange="${this.onVariableSelectedChange}" clear="${this.clearSelectedOptions}"
+                                <opencga-facet-view-selector id="${this._prefix}-ofvs-nested" .terms="${this.dataModelTerms}" .variableSets="${this.variableSets}"
+                                                             @variablechange="${this.onVariableSelectedChange}" .clear="${this.clearSelectedOptions}"
                                                              ?disabled="${this.disableNestedSelector}">
                                 </opencga-facet-view-selector>
                             </div>

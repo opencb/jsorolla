@@ -418,6 +418,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     _onSelectClinicalAnalysis(row) {
+        console.log("clicked!")
         if (typeof row !== "undefined") {
             this.dispatchEvent(new CustomEvent("selectanalysis", {
                 detail: {

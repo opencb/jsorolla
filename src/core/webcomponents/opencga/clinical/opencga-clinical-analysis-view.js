@@ -39,8 +39,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                 type: Object
             },
             clinicalAnalysisId: {
-                type: String,
-                observer: "clinicalAnalysisIdObserver"
+                type: String
             },
             // title: {
             //     type: String,
@@ -66,12 +65,19 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
     }
 
     updated(changedProperties) {
+        if (changedProperties.has("clinicalAnalysisId")){
+            this.clinicalAnalysisIdObserver();
+        }
         if (changedProperties.has("opencgaSession") ||
             changedProperties.has("clinicalAnalysis") ||
             changedProperties.has("mode") ||
             changedProperties.has("config")) {
             this.propertyObserver(this.opencgaSession, this.clinicalAnalysis, this.config);
         }
+    }
+
+    firstUpdated(_changedProperties) {
+
     }
 
     propertyObserver(opencgaSession, clinicalAnalysis, config) {
@@ -157,6 +163,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                 .then(function(response) {
                     _this.showSummary = false;
                     if (response.response[0].numResults === 1) {
+                        console.log("aysnc response", response.response[0].numResults)
                         _this.clinicalAnalysis = response.response[0].result[0];
                         _this._dueDate = moment(_this.clinicalAnalysis.dueDate, "YYYYMMDDHHmmss").format("D MMM YY");
                         _this._creationDate = moment(_this.clinicalAnalysis.creationDate, "YYYYMMDDHHmmss").format("D MMM YY");
@@ -215,7 +222,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                     querySelector.appendChild(this.svg);
                 }
             }
-
+            this.requestUpdate();
         }
     }
 
@@ -292,6 +299,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                 </div>
             ` : null }
 
+            ${this.clinicalAnalysis ? html`
             <div id="${this._prefix}Summary" class="col-md-12 section-padding">
                 <!--<h3><span style="color: #8a6d3b;">{{clinicalAnalysis.id}}</span> - Analysis Summary</h3>-->
                 <!--<hr class="hr-underline">-->
@@ -380,7 +388,6 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                     </div>
                 </form>
             </div>
-
 
             <div id="${this._prefix}Proband" class="col-md-12 section-padding">
                 <div>
@@ -527,6 +534,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                 ` : null}
             </div>
         </div>
+        ` : null }
 
         <!--<div id="${this._prefix}Interperetations" class="col-md-12 section-padding">-->
             <!--<div>-->

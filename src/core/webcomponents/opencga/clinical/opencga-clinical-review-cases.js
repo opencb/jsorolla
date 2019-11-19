@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
 
 import "./opencga-clinical-analysis-grid.js";
 import "./opencga-clinical-analysis-view.js";
 
-export default class  extends LitElement {
+export default class OpencgaClinicalReviewCases extends LitElement {
 
     constructor() {
         super();
@@ -41,15 +41,16 @@ export default class  extends LitElement {
             config: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = "ocrc-" + Utils.randomString(6) + "_";
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
-        if(changedProperties.has("opencgaSession") || changedProperties.has("query")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("query")) {
             this.propertyObserver();
         }
     }
@@ -61,7 +62,7 @@ export default class  extends LitElement {
 
         this.active = true;
 
-        $('select.selectpicker').selectpicker('render');
+        $("select.selectpicker").selectpicker("render");
     }
 
     propertyObserver() {
@@ -89,14 +90,14 @@ export default class  extends LitElement {
     }
 
     onClearQuery(e) {
-        $(`#${this._prefix}-type`).selectpicker('val', '');
-        $(`#${this._prefix}-priority`).selectpicker('val', '');
-        $(`#${this._prefix}-status`).selectpicker('val', '');
-        $(`#${this._prefix}-assigned`).selectpicker('val', '');
+        $(`#${this._prefix}-type`).selectpicker("val", "");
+        $(`#${this._prefix}-priority`).selectpicker("val", "");
+        $(`#${this._prefix}-status`).selectpicker("val", "");
+        $(`#${this._prefix}-assigned`).selectpicker("val", "");
 
         // We create a dummy event so the input listeners are called and everything is automatically cleaned up
-        let event = new CustomEvent("keyup", {});
-        let inputElements = PolymerUtils.querySelectorAll(`.${this._prefix}-input`);
+        const event = new CustomEvent("keyup", {});
+        const inputElements = PolymerUtils.querySelectorAll(`.${this._prefix}-input`);
         for (let i = 0; i < inputElements.length; i++) {
             inputElements[i].value = "";
             inputElements[i].dispatchEvent(event);
@@ -106,11 +107,13 @@ export default class  extends LitElement {
     }
 
     onSelectClinicalAnalysis(e) {
+        console.log("handled")
         this.clinicalAnalysis = e.detail.analysis;
+        this.requestUpdate();
     }
 
     onFilterChange(e) {
-        for (let exampleFilter of this._config.filter.examples) {
+        for (const exampleFilter of this._config.filter.examples) {
             if (e.currentTarget.dataset.filterName === exampleFilter.name) {
                 this._query = exampleFilter.query;
                 this.setQueryFilters(this._query);
@@ -120,14 +123,14 @@ export default class  extends LitElement {
     }
 
     onFilterInputText(e) {
-        let filterId = e.currentTarget.dataset.id;
-        let value = e.currentTarget.value;
+        const filterId = e.currentTarget.dataset.id;
+        const value = e.currentTarget.value;
 
         this.updateInputTextMenuItem(filterId, value);
     }
 
     updateInputTextMenuItem(filterId, value) {
-        let buttonElem = PolymerUtils.getElementById(this._prefix + filterId + "Menu");
+        const buttonElem = PolymerUtils.getElementById(this._prefix + filterId + "Menu");
         if (UtilsNew.isNotEmpty(value)) {
             this[filterId] = value;
             buttonElem.style.color = "#333";
@@ -138,9 +141,9 @@ export default class  extends LitElement {
     }
 
     updateQuery() {
-        let _query = {};
+        const _query = {};
 
-        let defaultValue = "All";
+        const defaultValue = "All";
 
         if (this.case !== defaultValue && this.case !== "") {
             _query.id = this.case;
@@ -158,22 +161,22 @@ export default class  extends LitElement {
             _query.disorder = this.disorder;
         }
 
-        let type = $(`#${this._prefix}-type`).selectpicker('val');
+        const type = $(`#${this._prefix}-type`).selectpicker("val");
         if (UtilsNew.isNotEmpty(type)) {
             _query.type = type.join(",");
         }
 
-        let status = $(`#${this._prefix}-status`).selectpicker('val');
+        const status = $(`#${this._prefix}-status`).selectpicker("val");
         if (UtilsNew.isNotEmpty(status)) {
             _query.status = status.join(",");
         }
 
-        let priority = $(`#${this._prefix}-priority`).selectpicker('val');
+        const priority = $(`#${this._prefix}-priority`).selectpicker("val");
         if (UtilsNew.isNotEmpty(priority)) {
             _query.priority = priority.join(",");
         }
 
-        let assigned = $(`#${this._prefix}-assigned`).selectpicker('val');
+        const assigned = $(`#${this._prefix}-assigned`).selectpicker("val");
         if (UtilsNew.isNotEmpty(assigned)) {
             _query.analystAssignee = assigned.join(",");
         }
@@ -203,24 +206,24 @@ export default class  extends LitElement {
         }
 
         if (UtilsNew.isNotUndefinedOrNull(query.type)) {
-            $("#" + this._prefix + "-type").selectpicker('val', query.type.split(","));
+            $("#" + this._prefix + "-type").selectpicker("val", query.type.split(","));
         }
 
         if (UtilsNew.isNotUndefinedOrNull(query.status)) {
-            $("#" + this._prefix + "-status").selectpicker('val', query.status.split(","));
+            $("#" + this._prefix + "-status").selectpicker("val", query.status.split(","));
         }
 
         if (UtilsNew.isNotUndefinedOrNull(query.priority)) {
-            $("#" + this._prefix + "-priority").selectpicker('val', query.priority.split(","));
+            $("#" + this._prefix + "-priority").selectpicker("val", query.priority.split(","));
         }
 
         if (UtilsNew.isNotUndefinedOrNull(query.assigned)) {
-            $("#" + this._prefix + "-assigned").selectpicker('val', query.analystAssignee.split(","));
+            $("#" + this._prefix + "-assigned").selectpicker("val", query.analystAssignee.split(","));
         }
     }
 
-    _updateValidateFormFields(){
-        $("#" + this._prefix + "-assigned").validator('update');
+    _updateValidateFormFields() {
+        $("#" + this._prefix + "-assigned").validator("update");
     }
 
     getDefaultConfig() {
@@ -234,10 +237,10 @@ export default class  extends LitElement {
                         active: false,
                         query: {
                             type: "FAMILY",
-                            priority: "URGENT,HIGH",
+                            priority: "URGENT,HIGH"
                             // assigned: "cafetero"
-                        },
-                    },
+                        }
+                    }
                 ]
             },
             grid: {
@@ -246,7 +249,7 @@ export default class  extends LitElement {
                 detailView: false,
                 multiSelection: false
             }
-        }
+        };
     }
 
 
@@ -316,7 +319,7 @@ export default class  extends LitElement {
                                     <li style="padding: 5px;">
                                         <div style="display: inline-flex;width: 300px">
                                             <label class="filter-label">Proband ID:</label>
-                                            <input type="text" id="${this._prefix}probandInput" class="${this._prefix}-input form-control" data-id="proband" placeholder="All" on-keyup="onFilterInputText">
+                                            <input type="text" id="${this._prefix}probandInput" class="${this._prefix}-input form-control" data-id="proband" placeholder="All" @keyup="${this.onFilterInputText}">
                                         </div>
                                     </li>
                                 </ul>
@@ -401,7 +404,7 @@ export default class  extends LitElement {
                                 <select class="selectpicker" data-width="125px" id="${this._prefix}-assigned" multiple
                                         title="Assignee: All" @change="${this.updateQuery}">
                                         ${this._studyUsers && this._studyUsers.length ? this._studyUsers.map( item => html`
-                                            <option value="${item}">${item}</option>
+                                            <option on-dom-change="_updateValidateFormFields" value="${item}">${item}</option>
                                         `) : null }
                                         
                                     <!-- TODO recheck ondomchange!! 
@@ -442,7 +445,7 @@ export default class  extends LitElement {
                                     ${this.checkSid(this.opencgaSession.opencgaClient._config) ? html`
                                         <li role="separator" class="divider"></li>
                                         <li>
-                                            <a style="cursor: pointer" on-click="launchModal"><i class="fa fa-floppy-o" aria-hidden="true" style="padding-right: 5px"></i> Save...</a>
+                                            <a style="cursor: pointer" @click="${this.launchModal}"><i class="fa fa-floppy-o" aria-hidden="true" style="padding-right: 5px"></i> Save...</a>
                                         </li>
                                     ` : null }
                                 </ul>
@@ -453,48 +456,53 @@ export default class  extends LitElement {
                     <div>
                         <opencga-clinical-analysis-grid .opencgaSession="${this.opencgaSession}"
                                                         .search="${this._query}" style="font-size: 12px"
-                                                        @selectanalysis="${this.onSelectClinicalAnalysis}"
                                                         .active="${this.active}"
-                                                        .config="${this._config.grid}">
+                                                        .config="${this._config.grid}"
+                                                        @selectanalysis="${this.onSelectClinicalAnalysis}">
                         </opencga-clinical-analysis-grid>
 
                         <!-- Bottom tabs with specific variant information -->
-                        <div style="padding-top: 20px" hidden="{{!                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         }}">
-                            <h3>Case Study: {{clinicalAnalysis.id}}</h3>
+                        ${ this.clinicalAnalysis ? html`
                             <div style="padding-top: 20px">
-                                <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
-                                    <li role="presentation" class="active">
-                                        <a href="#${this._prefix}Info" role="tab" data-toggle="tab" class="browser-variant-tab-title">Case Information</a>
-                                    </li>
-                                    <!--<li role="presentation">-->
-                                        <!--<a href="#${this._prefix}Proband" role="tab" data-toggle="tab" class="browser-variant-tab-title">Proband Info</a>-->
-                                    <!--</li>-->
-                                </ul>
-
-                                <div class="tab-content" style="height: 680px">
-                                    <div id="${this._prefix}Info" role="tabpanel" class="tab-pane active">
-                                        <div style="padding: 10px 20px; width: 90%">
-                                            <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
-                                                                            .clinicalAnalysis=${this.clinicalAnalysis}
-                                                                            .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                                            style="font-size: 12px"
-                                                                            .config="${this.config}">
-                                            </opencga-clinical-analysis-view>
+                                <h3>Case Study: ${this.clinicalAnalysis.id}</h3>
+                                <div style="padding-top: 20px">
+                                    <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
+                                        <li role="presentation" class="active">
+                                            <a href="#${this._prefix}Info" role="tab" data-toggle="tab" class="browser-variant-tab-title">Case Information</a>
+                                        </li>
+                                        <!--<li role="presentation">-->
+                                            <!--<a href="#${this._prefix}Proband" role="tab" data-toggle="tab" class="browser-variant-tab-title">Proband Info</a>-->
+                                        <!--</li>-->
+                                    </ul>
+    
+                                    <div class="tab-content" style="height: 680px">
+                                        <div id="${this._prefix}Info" role="tabpanel" class="tab-pane active">
+                                            <div style="padding: 10px 20px; width: 90%">
+                                                <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
+                                                                                .clinicalAnalysis=${this.clinicalAnalysis}
+                                                                                .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                                                                style="font-size: 12px"
+                                                                                .config="${this.config}">
+                                                </opencga-clinical-analysis-view>
+                                            </div>
                                         </div>
-                                    </div>
-
-                                    <!--<div id="${this._prefix}Proband" role="tabpanel" class="tab-pane">-->
-                                        <!--<div style="padding: 10px 20px; width: 90%">-->
-                                            <!--<span>Work in progress</span>-->
+    
+                                        <!--<div id="${this._prefix}Proband" role="tabpanel" class="tab-pane">-->
+                                            <!--<div style="padding: 10px 20px; width: 90%">-->
+                                                <!--<span>Work in progress</span>-->
+                                            <!--</div>-->
                                         <!--</div>-->
-                                    <!--</div>-->
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        ` : null }
                     </div>
                 </div>
             </div>
         </div>
         `;
     }
+
 }
+
+customElements.define("opencga-clinical-review-cases", OpencgaClinicalReviewCases);

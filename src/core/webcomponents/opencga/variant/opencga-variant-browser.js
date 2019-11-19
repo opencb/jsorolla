@@ -14,32 +14,18 @@
  * limitations under the License.
  */
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "./opencga-variant-filter.js";
-import "./../opencga-active-filters.js";
-import "./opencga-variant-grid.js";
 import "./opencga-variant-cohort-stats.js";
 import "./opencga-variant-samples.js";
 import "./opencga-variant-facet-query.js";
 import "./variant-beacon-network.js";
 import "./variant-genome-browser.js";
+import "./../opencga-active-filters.js";
 import "../opencga-genome-browser.js";
 import "../../reactome/reactome-variant-network.js";
 import "../../cellbase/variation/cellbase-variantannotation-view.js";
+import "./opencga-variant-filter.js";
+import "./opencga-variant-grid.js";
 import "./opencga-variant-detail-template.js";
-
-
-/* TODO implement in lit-element
-<link rel="import" href="opencga-variant-cohort-stats.html">
-<link rel="import" href="opencga-variant-samples.html">
-<link rel="import" href="opencga-variant-facet-query.html">
-<link rel="import" href="variant-beacon-network.html">
-<link rel="import" href="variant-genome-browser.html">
-<link rel="import" href="../opencga-active-filters.html">
-<link rel="import" href="../opencga-genome-browser.html">
-<link rel="import" href="../../reactome/reactome-variant-network.html">
-<link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
-<link rel="import" href="opencga-variant-detail-template.html">
-*/
 
 export default class OpencgaVariantBrowser extends LitElement {
 

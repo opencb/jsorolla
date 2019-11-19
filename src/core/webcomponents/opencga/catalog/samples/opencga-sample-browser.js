@@ -18,8 +18,8 @@
 
 import {LitElement, html} from '/web_modules/lit-element.js';
 
-import "opencga-sample-filter.js";
-import "opencga-sample-grid.js";
+import "./opencga-sample-filter.js";
+import "./opencga-sample-grid.js";
 import "../../opencga-active-filters.js";
 import "../variableSets/opencga-annotation-comparator.js";
 import "../../commons/opencga-facet-view.js";
@@ -31,6 +31,10 @@ export default class OpencgaSampleBrowser extends LitElement {
 
         // Set status and init private properties
         this._init();
+    }
+
+    createRenderRoot() {
+        return this;
     }
 
     static get properties() {
@@ -63,6 +67,10 @@ export default class OpencgaSampleBrowser extends LitElement {
             complexFields: ["annotation"]
         };
 
+
+    }
+
+    firstUpdated(_changedProperties) {
     }
 
     updated(changedProperties) {
@@ -74,7 +82,7 @@ export default class OpencgaSampleBrowser extends LitElement {
             this.configObserver();
         }
         if (changedProperties.has("opencgaClient")) {
-            this.renderAnalysisTable();
+            //this.renderAnalysisTable();
         }
 
         if (changedProperties.has("filters")) {
@@ -128,7 +136,7 @@ export default class OpencgaSampleBrowser extends LitElement {
             table: e.currentTarget.dataset.id === "table",
             comparator: e.currentTarget.dataset.id === "comparator"
         };
-        this.set("activeMenu", activeMenu);
+        this.activeMenu = activeMenu;
 
         $('.sample-browser-view-content').hide(); // hides all content divs
         if (typeof e.target !== "undefined" && typeof e.target.dataset.view !== "undefined") {
@@ -144,15 +152,15 @@ export default class OpencgaSampleBrowser extends LitElement {
         }
     }
 
-    filterAvailableVariableSets(opencgaSession, config) {
-        if (this._config.variableSetIds.length === 0 && UtilsNew.isNotUndefinedOrNull(opencgaSession.study)) {
-            this.variableSets = opencgaSession.study.variableSets;
+    filterAvailableVariableSets() {
+        if (this._config.variableSetIds.length === 0 && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study)) {
+            this.variableSets = this.opencgaSession.study.variableSets;
         } else {
             let variableSets = [];
-            if (UtilsNew.isNotUndefinedOrNull(opencgaSession.study) && UtilsNew.isNotEmptyArray(opencgaSession.study.variableSets)) {
-                for (let i = 0; i < opencgaSession.study.variableSets.length; i++) {
-                    if (this._config.variableSetIds.indexOf(opencgaSession.study.variableSets[i].id) !== -1) {
-                        variableSets.push(opencgaSession.study.variableSets[i]);
+            if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study) && UtilsNew.isNotEmptyArray(this.opencgaSession.study.variableSets)) {
+                for (let i = 0; i < this.opencgaSession.study.variableSets.length; i++) {
+                    if (this._config.variableSetIds.indexOf(this.opencgaSession.study.variableSets[i].id) !== -1) {
+                        variableSets.push(this.opencgaSession.study.variableSets[i]);
                     }
                 }
             }
@@ -209,21 +217,31 @@ export default class OpencgaSampleBrowser extends LitElement {
         ${this._config.showTitle ? html`
             <div class="panel" style="margin-bottom: 15px">
                 <h3 style="margin: 10px 10px 10px 15px">
-                    <i class="fa fa-users" aria-hidden="true"></i> &nbsp;{{_config.title}}
+                    <i class="fa fa-users" aria-hidden="true"></i> &nbsp;${this._config.title}
                 </h3>
             </div>
         ` : null }
         
         <div class="row" style="padding: 0px 10px">
             <div class="col-md-2">
-                <opencga-sample-filter .opencgaSession="${this.opencgaSession}}" .config="${this._config.filter}" .samples="${this.samples}"
-                                       .opencgaClient="${this.opencgaSession.opencgaClient}}" .query="${this.query}" search="${this.search}">
+                <opencga-sample-filter .opencgaSession="${this.opencgaSession}"
+                                       .config="${this._config.filter}"
+                                       .samples="${this.samples}"
+                                       .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                       .query="${this.query}"
+                                       .search="${this.search}">
                 </opencga-sample-filter>
             </div>
 
             <div class="col-md-10">
-                <opencga-active-filters .opencgaClient="${this.opencgaClient}" .query="${this.query}" defaultStudy="${this.opencgaSession.study.alias}"
-                                        .config="${this.filtersConfig}" .alias="${this.activeFilterAlias}" refresh="${this.search}" @clear="${this.onClear}" @filterchange="${this.onActiveFilterChange}">
+                <opencga-active-filters .opencgaClient="${this.opencgaClient}"
+                                        .query="${this.query}"
+                                        .defaultStudy="${this.opencgaSession.study.alias}"
+                                        .config="${this.filtersConfig}"
+                                        .alias="${this.activeFilterAlias}"
+                                        .refresh="${this.search}"
+                                        @clear="${this.onClear}"
+                                        @filterchange="${this.onActiveFilterChange}">
                 </opencga-active-filters>
 
                 <!-- Sample View Buttons -->

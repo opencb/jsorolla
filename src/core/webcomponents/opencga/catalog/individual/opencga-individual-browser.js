@@ -15,15 +15,15 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-/*
 
-<link rel="import" href="opencga-individual-filter.html">
-    <link rel="import" href="opencga-individual-grid.html">
-    <link rel="import" href="../../opencga-active-filters.html">
-    <link rel="import" href="../variableSets/opencga-annotation-comparator.html">
-    <link rel="import" href="../../commons/opencga-facet-view.html">
+import "./opencga-individual-filter.js";
+import "./opencga-individual-grid.js";
+import "../../opencga-active-filters.js";
+import "../../commons/opencga-facet-view.js";
+
+/* it was imported as html module but not used
+import "../variableSets/opencga-annotation-comparator.js";
 */
-
 
 export default class OpencgaIndividualBrowser extends LitElement {
 
@@ -65,6 +65,16 @@ export default class OpencgaIndividualBrowser extends LitElement {
         this.filtersConfig = {
             complexFields: ["annotation"]
         };
+
+        this.activeMenu = {
+            table: true,
+            comparator: false
+        };
+
+        this.detailActiveTabs = {
+            info: true,
+            familyGrid: false
+        };
     }
 
     updated(changedProperties) {
@@ -84,15 +94,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
     }*/
 
     firstUpdated(_changedProperties) {
-        this.activeMenu = {
-            table: true,
-            comparator: false
-        };
 
-        this.detailActiveTabs = {
-            info: true,
-            familyGrid: false
-        };
     }
 
     configObserver() {

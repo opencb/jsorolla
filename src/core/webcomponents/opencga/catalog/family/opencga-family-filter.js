@@ -15,11 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import "../variableSets/opencga-annotation-filter.js";
+import "../opencga-date-filter.js";
 
-/*
-<link rel="import" href="../variableSets/opencga-annotation-filter.html">
-<link rel="import" href="../opencga-date-filter.html">
-*/
 export default class OpencgaFamilyFilter extends LitElement {
 
     constructor() {

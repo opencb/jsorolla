@@ -130,13 +130,11 @@ export default class VariantBeaconNetwork extends LitElement {
 
     render() {
         return html`
-        <div>
-           <template>
         <style include="jso-styles"></style>
 
         <div style="padding: 15px 20px">
             <div style="padding: 0px 0px 10px 0px">
-                <button class="btn btn-primary" type="button" on-click="searchBeaconNetwork">Search Beacon Network</button>
+                <button class="btn btn-primary" type="button" @click="${this.searchBeaconNetwork}">Search Beacon Network</button>
                 <a data-toggle="tooltip"
                    title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/"><i
                         class="fa fa-info-circle" aria-hidden="true"></i></a>
@@ -159,8 +157,6 @@ export default class VariantBeaconNetwork extends LitElement {
                 `)}
                 </tbody>
             </table>
-        </div>
-    </template> 
         </div>
         `;
     }

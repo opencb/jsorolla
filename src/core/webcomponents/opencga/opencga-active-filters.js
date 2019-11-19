@@ -116,7 +116,7 @@ export default class OpencgaActiveFilters extends LitElement {
         this.dispatchEvent(new CustomEvent("activeFilterClear", {detail: {}, bubbles: true, composed: true}));
     }
 
-    //todo refactor in CSS!!!!
+    //todo refactor in CSS
     _onMouseOver(e) {
         PolymerUtils.addStyleByClass(e.target.dataset.filterName + "ActiveFilter", "text-decoration", "line-through");
     }

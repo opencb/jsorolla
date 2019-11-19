@@ -16,8 +16,10 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+//import "../../../genome-browser/webcomponent/genome-browser.js";
+import "./catalog/samples/opencga-sample-browser.js";
 
-class OpencgaGenomeBrowser extends LitElement {
+export default class OpencgaGenomeBrowser extends LitElement {
 
     constructor() {
         super();
@@ -57,7 +59,7 @@ class OpencgaGenomeBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = "OpencgaGenomeBrowser" + Utils.randomString(6);
+        this._prefix = "OpencgaGenomeBrowser" + Utils.randomString(6) + "_";
 
         this._availableFiles = [];
         if (!UtilsNew.isNotUndefinedOrNull(this.region)) {
@@ -88,11 +90,11 @@ class OpencgaGenomeBrowser extends LitElement {
         if (changedProperties.has("samples")) {
             this.samplesObserver();
         }
-        if (changedProperties.has("active")) {
-            this.propertyObserver();
+        if (changedProperties.has("region")) {
+            this.regionObserver();
         }
-        if (changedProperties.has("property")) {
-            this._setActive();
+        if (changedProperties.has("active")) {
+            //this._setActive();
         }
         if (changedProperties.has("config")) {
             this.configObserver();
@@ -105,7 +107,8 @@ class OpencgaGenomeBrowser extends LitElement {
     }
 
     toggleCollapsedFilter() {
-        this.set("_filtersCollapsed", !this._filtersCollapsed);
+        this._filtersCollapsed = !this._filtersCollapsed;
+        this.requestUpdate();
     }
 
     regionObserver() {
@@ -127,33 +130,33 @@ class OpencgaGenomeBrowser extends LitElement {
     }
 
     samplesObserver() {
-        for (let sample of this.samples) {
+        for (const sample of this.samples) {
             this._addSample(sample.name);
         }
     }
 
     addSample(e) {
-        let sample = PolymerUtils.getElementById(this._prefix + "AutocompleteSearchInput").value;
+        const sample = PolymerUtils.getElementById(this._prefix + "AutocompleteSearchInput").value;
         this._addSample(sample);
     }
 
     _addSample(sample) {
-        for (let i in this._availableFiles) {
-            let existingSample = this._availableFiles[i].name;
+        for (const i in this._availableFiles) {
+            const existingSample = this._availableFiles[i].name;
             if (existingSample === sample) {
                 // The sample is already in the shown list
                 return;
             }
         }
 
-        let queryParams = {
+        const queryParams = {
             study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
             sample: sample,
             format: "VCF,BAM",
             include: "path,name,format,bioformat"
         };
 
-        let _this = this;
+        const _this = this;
         this.opencgaClient.files().search(queryParams)
             .then(values => {
                 if (values.response[0].result !== undefined && values.response[0].result.length > 0) {
@@ -164,17 +167,18 @@ class OpencgaGenomeBrowser extends LitElement {
                 }
             })
             .catch(function(response) {
-                _this.showErrorAlert(response.error);
+                //_this.showErrorAlert(response.error);
+                console.log("Error: ",response.error)
             });
     }
 
     deleteSample(e) {
-        let sample = e.currentTarget.dataSample;
+        const sample = e.currentTarget.dataSample;
 
         // We make a copy of the list of available files excluding the selected sample
-        let availableFiles = [];
-        for (let i in this._availableFiles) {
-            let item = this._availableFiles[i];
+        const availableFiles = [];
+        for (const i in this._availableFiles) {
+            const item = this._availableFiles[i];
             if (item.name !== sample) {
                 availableFiles.push(item);
             }
@@ -185,9 +189,9 @@ class OpencgaGenomeBrowser extends LitElement {
 
     _autocompleteSampleSearch(e) {
         // Only gene symbols are going to be searched and not Ensembl IDs
-        let sampleNamePrefix = PolymerUtils.getElementById(this._prefix + "AutocompleteSearchInput").value;
+        const sampleNamePrefix = PolymerUtils.getElementById(this._prefix + "AutocompleteSearchInput").value;
         if (UtilsNew.isNotUndefinedOrNull(sampleNamePrefix) && sampleNamePrefix.length >= 4) {
-            let _this = this;
+            const _this = this;
             this.opencgaClient.samples()
                 .search({
                     study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
@@ -197,10 +201,10 @@ class OpencgaGenomeBrowser extends LitElement {
                     limit: 20
                 }, {})
                 .then(function(response) {
-//                            _this.autocompleteSampleData = response.response[0].result;
+                    //                            _this.autocompleteSampleData = response.response[0].result;
                     let options = "";
-                    for (let sample of response.response[0].result) {
-                        let sampleStr = JSON.stringify(sample);
+                    for (const sample of response.response[0].result) {
+                        const sampleStr = JSON.stringify(sample);
                         options += `<option id="${_this._prefix}Sample${sample.name}" value="${sample.name}" data-sample='` + sampleStr + "'>";
                     }
                     PolymerUtils.innerHTML(_this._prefix + "AutocompleteSearchDataList", options);
@@ -209,15 +213,15 @@ class OpencgaGenomeBrowser extends LitElement {
     }
 
     showSelectionInGenomeBrowser() {
-        let genomeBrowser = PolymerUtils.getElementById(this._prefix + "gb");
+        const genomeBrowser = PolymerUtils.getElementById(this._prefix + "gb");
 
         if (genomeBrowser !== undefined && genomeBrowser !== null) {
-            let inputArray = document.querySelectorAll("input[name=" + this._prefix + "file-checkbox]:checked");
+            const inputArray = document.querySelectorAll("input[name=" + this._prefix + "file-checkbox]:checked");
 
-            let myVariantFiles = [];
-            let myAlignmentFiles = [];
+            const myVariantFiles = [];
+            const myAlignmentFiles = [];
             inputArray.forEach(function(input) {
-                let file = input.data;
+                const file = input.data;
                 if (file.format === "VCF") {
                     myVariantFiles.push(file);
                 } else if (file.format === "BAM") {
@@ -226,7 +230,7 @@ class OpencgaGenomeBrowser extends LitElement {
             });
 
             // In order to notify of the changes to the genome browser, we make a copy of the tracks object
-            let _tracks = this.tracks;
+            const _tracks = this.tracks;
             _tracks.variant.config.files = myVariantFiles;
             _tracks.alignment.config.files = myAlignmentFiles;
             this.tracks = Object.assign({}, _tracks);
@@ -311,7 +315,7 @@ class OpencgaGenomeBrowser extends LitElement {
                         <!--List of available files to browse -->
                         <div class="col-md-12">
                             <div style="padding: 5px;max-height: 300px; overflow-y: auto">
-                                ${this._availableFiles && this._availableFiles.length && this._availableFiles.map(sample => html`
+                                ${this._availableFiles && this._availableFiles.length ? this._availableFiles.map(sample => html`
                                     <div>
                                         <div style="font-weight: bold; text-decoration: underline; display: inline-block;padding: 5px 10px">
                                             <span>${sample.name}</span>
@@ -326,7 +330,7 @@ class OpencgaGenomeBrowser extends LitElement {
                                         <span style="word-wrap:break-word;">${file.name}</span><br>
                                     `)} 
                                     <br>
-                                `)}
+                                `) : null }
                             </div>
                         </div>
                     </div>
@@ -347,7 +351,7 @@ class OpencgaGenomeBrowser extends LitElement {
                 <h4>Genome Browser</h4>
                 <hr style="width: 80%; margin: 2px 0px;border-top: 2px solid #eee">
 
-                <div style$="padding: 20px 0px;display: ${this.displayGenomeBrowserMessage};">
+                <div style="padding: 20px 0px;display: ${this.displayGenomeBrowserMessage};">
                     <div style="padding: 20px">
                         <span style="font-weight: bolder">Please select some data above</span>
                     </div>
@@ -381,4 +385,7 @@ class OpencgaGenomeBrowser extends LitElement {
         </div>
         `;
     }
+
 }
+
+customElements.define("opencga-genome-browser", OpencgaGenomeBrowser);

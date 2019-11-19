@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
 
-//TODO check functionality and table _generateTable!
+// TODO check functionality and table _generateTable!
 
-import "opencga-variable-selector"
+import "opencga-variable-selector";
 
 export default class OpencgaAnnotationViewer extends LitElement {
 
@@ -43,7 +43,7 @@ export default class OpencgaAnnotationViewer extends LitElement {
                 // Allowed values are SAMPLE,INDIVIDUAL,COHORT,FAMILY,FILE
                 type: String
             }
-        }
+        };
     }
 
     _init() {
@@ -61,10 +61,10 @@ export default class OpencgaAnnotationViewer extends LitElement {
     }
 
     updated(changedProperties) {
-        if(changedProperties.has("opencgaSession")) {
+        if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-        if(changedProperties.has("entryIds")) {
+        if (changedProperties.has("entryIds")) {
             this.entryIdsObserver();
         }
     }
@@ -82,17 +82,17 @@ export default class OpencgaAnnotationViewer extends LitElement {
         if (typeof this.opencgaSession.study.variableSets !== "undefined") {
             this._updateVariableSets(this.opencgaSession.study);
         } else {
-            let _this = this;
+            const _this = this;
 
             this.opencgaClient.studies().info(this.opencgaSession.study.id, {include: "variableSets"})
-                .then(function (response) {
+                .then(function(response) {
                     _this._updateVariableSets(response.response[0].result[0]);
                 })
-                .catch(function () {
+                .catch(function() {
                     _this.multipleVariableSets = false;
 
                     // Hide all selectpicker selectors
-                    $(`#${this._prefix}-variableSetSelect`).selectpicker('hide');
+                    $(`#${this._prefix}-variableSetSelect`).selectpicker("hide");
 
                     console.log("Could not obtain the variable sets of the study " + _this.opencgaSession.study);
                 });
@@ -102,10 +102,10 @@ export default class OpencgaAnnotationViewer extends LitElement {
     entryIdsObserver(e) {
         // Get the selected variableSet
         if (typeof e.target === "undefined") {
-            let variableSet = $(`button[data-id=${this._prefix}-variableSetSelect]`)[0];
+            const variableSet = $(`button[data-id=${this._prefix}-variableSetSelect]`)[0];
             if (typeof variableSet !== "undefined") {
-                let variableSetId = variableSet.title;
-                for (let i in this.variableSets) {
+                const variableSetId = variableSet.title;
+                for (const i in this.variableSets) {
                     if (this.variableSets[i].id === variableSetId) {
                         this.selectedVariableSet = this.variableSets[i];
                         break;
@@ -113,7 +113,7 @@ export default class OpencgaAnnotationViewer extends LitElement {
                 }
             }
         } else {
-            for (let i in this.variableSets) {
+            for (const i in this.variableSets) {
                 if (this.variableSets[i].id === e.target.value) {
                     this.selectedVariableSet = this.variableSets[i];
                     break;
@@ -144,23 +144,23 @@ export default class OpencgaAnnotationViewer extends LitElement {
         }
 
         // Extract sample ids
-        let entryIds = [];
-        for (let i in this.entryIds) {
+        const entryIds = [];
+        for (const i in this.entryIds) {
             if (!(this.entryIds[i].id in this._annotations)) {
                 entryIds.push(this.entryIds[i].id);
             }
         }
 
-        let _this = this;
+        const _this = this;
         if (entryIds.length > 0) {
             client.info(entryIds.join(","), {
                 study: this.opencgaSession.study.id,
                 include: "annotationSets,id"
             })
-                .then(function (response) {
+                .then(function(response) {
                     _this._storeAnnotations(response);
                     _this._renderNewTable();
-                })
+                });
         } else {
             this._storeAnnotations(undefined);
             this._renderNewTable();
@@ -168,7 +168,7 @@ export default class OpencgaAnnotationViewer extends LitElement {
     }
 
     onSelectedVariablesChange(e) {
-        let selectedVariables = [];
+        const selectedVariables = [];
         for (let i = 0; i < e.detail.value.length; i++) {
             selectedVariables.push(e.detail.value[i].tags);
         }
@@ -178,8 +178,8 @@ export default class OpencgaAnnotationViewer extends LitElement {
     }
 
     _renderNewTable() {
-        let annotations = {};
-        for (let entry in this._annotations) {
+        const annotations = {};
+        for (const entry in this._annotations) {
             for (let i = 0; i < this._annotations[entry].length; i++) {
                 if (this._annotations[entry][i]["variableSetId"] === this.selectedVariableSet.id) {
                     if (!(entry in annotations)) {
@@ -193,7 +193,7 @@ export default class OpencgaAnnotationViewer extends LitElement {
         this._generateTable(annotations);
     }
 
-    //TODO urgent refactor
+    // TODO urgent refactor
     _generateTable(annotations) {
         console.error("_generateTable needs to be refactored in lit-element");
         /*
@@ -231,25 +231,25 @@ export default class OpencgaAnnotationViewer extends LitElement {
             return;
         }
 
-        let head = '';
-        let body = '';
+        let head = "";
+        let body = "";
 
-        let filteredAnnotations = {};
-        let annotationIds = [];
+        const filteredAnnotations = {};
+        const annotationIds = [];
 
-        for (let sampleKey in annotations) {
-            head += '<th>' + sampleKey;
+        for (const sampleKey in annotations) {
+            head += "<th>" + sampleKey;
 
             let annotationHtml = "";
             for (let i = 0; i < annotations[sampleKey].length; i++) {
-                let key = this._prefix + "-" + sampleKey + "-"+ annotations[sampleKey][i]["variableSetId"] + "-"
-                    + annotations[sampleKey][i]["id"];
-                let annotationId = sampleKey + "-"+ annotations[sampleKey][i]["variableSetId"] + "-"
-                    + annotations[sampleKey][i]["id"] + ".json";
+                const key = this._prefix + "-" + sampleKey + "-"+ annotations[sampleKey][i]["variableSetId"] + "-" +
+                    annotations[sampleKey][i]["id"];
+                const annotationId = sampleKey + "-"+ annotations[sampleKey][i]["variableSetId"] + "-" +
+                    annotations[sampleKey][i]["id"] + ".json";
 
                 // We filter the current annotation
                 filteredAnnotations[key] = this.getFilteredAnnotations(annotations[sampleKey][i]);
-                let annotationString = JSON.stringify(filteredAnnotations[key]);
+                const annotationString = JSON.stringify(filteredAnnotations[key]);
 
                 // We generate a button to be able to download the filtered annotation
                 head += `<a data-annotation='${annotationString}' data-title='${annotationId}'
@@ -258,17 +258,17 @@ export default class OpencgaAnnotationViewer extends LitElement {
                                 </a>`;
                 annotationIds.push(annotationId);
 
-                annotationHtml += '<div id="' + key + '"></div>';
+                annotationHtml += "<div id=\"" + key + "\"></div>";
             }
 
-            head += '</th>';
-            body += '<td>' + annotationHtml + '</td>';
+            head += "</th>";
+            body += "<td>" + annotationHtml + "</td>";
         }
 
-        let html = '<table class="table">';
-        html += '<thead><tr>' + head + '</tr></thead>';
-        html += '<tbody><tr>' + body + '</tr></tbody>';
-        html += '</table>';
+        let html = "<table class=\"table\">";
+        html += "<thead><tr>" + head + "</tr></thead>";
+        html += "<tbody><tr>" + body + "</tr></tbody>";
+        html += "</table>";
 
         PolymerUtils.innerHTML(this._prefix + "-table", html);
         // We now add the on-click event (it was impossible adding it to the html directly)
@@ -277,29 +277,29 @@ export default class OpencgaAnnotationViewer extends LitElement {
         }
 
         // Now we iterate again to view the jsons in the table
-        for (let sampleKey in annotations) {
+        for (const sampleKey in annotations) {
             for (let i = 0; i < annotations[sampleKey].length; i++) {
-                let key = this._prefix + "-" + sampleKey + "-"+ annotations[sampleKey][i]["variableSetId"] + "-"
-                    + annotations[sampleKey][i]["id"];
-                $('#' + key).jsonViewer(filteredAnnotations[key]);
+                const key = this._prefix + "-" + sampleKey + "-"+ annotations[sampleKey][i]["variableSetId"] + "-" +
+                    annotations[sampleKey][i]["id"];
+                $("#" + key).jsonViewer(filteredAnnotations[key]);
             }
         }
     }
 
     downloadFile(e) {
-        let mime_type = "text/plain";
+        const mime_type = "text/plain";
 
-        let name = e.currentTarget.dataset.title;
-        let contents = e.currentTarget.dataset.annotation;
+        const name = e.currentTarget.dataset.title;
+        const contents = e.currentTarget.dataset.annotation;
 
-        let blob = new Blob([contents], {type: mime_type});
+        const blob = new Blob([contents], {type: mime_type});
 
-        let dlink = document.createElement("a");
+        const dlink = document.createElement("a");
         dlink.download = name;
         dlink.href = window.URL.createObjectURL(blob);
         dlink.onclick = function(e) {
             // revokeObjectURL needs a delay to work properly
-            var that = this;
+            const that = this;
             setTimeout(function() {
                 window.URL.revokeObjectURL(that.href);
             }, 1500);
@@ -314,7 +314,7 @@ export default class OpencgaAnnotationViewer extends LitElement {
         if (typeof response !== "undefined") {
             for (let i = 0; i < response.response.length; i++) {
                 for (let j = 0; j < response.response[i].result.length; j++) {
-                    let entry = response.response[i].result[j];
+                    const entry = response.response[i].result[j];
                     if (UtilsNew.isNotUndefinedOrNull(entry.annotationSets)) {
                         this._annotations[entry.id] = entry.annotationSets;
                     }
@@ -323,12 +323,12 @@ export default class OpencgaAnnotationViewer extends LitElement {
         }
 
         // Remove unselected samples
-        let selectedEntries = [];
+        const selectedEntries = [];
         for (let i = 0; i < this.entryIds.length; i++) {
             selectedEntries.push(this.entryIds[i].id);
         }
 
-        for (let entry in this._annotations) {
+        for (const entry in this._annotations) {
             if (selectedEntries.indexOf(entry) === -1) {
                 delete this._annotations[entry];
             }
@@ -341,12 +341,12 @@ export default class OpencgaAnnotationViewer extends LitElement {
             return annotationSet;
         }
 
-        let annotationSetCopy = {};
+        const annotationSetCopy = {};
         Object.assign(annotationSetCopy, annotationSet);
 
-        let annotations = {};
+        const annotations = {};
         for (let i = 0; i < this.selectedVariables.length; i++) {
-            let keys = this.selectedVariables[i].split(".");
+            const keys = this.selectedVariables[i].split(".");
             this._addFilteredAnnotation(keys, annotations, annotationSet.annotations);
         }
 
@@ -357,7 +357,7 @@ export default class OpencgaAnnotationViewer extends LitElement {
 
     // This method will clone in 'annotationClone' the object keys 'keys' read from 'annotation'
     _addFilteredAnnotation(keys, annotationClone, annotation) {
-        let myKey = keys[0];
+        const myKey = keys[0];
 
         if (keys.length === 1) {
             if (typeof annotation !== "undefined" && typeof annotation[myKey] !== "undefined") {
@@ -401,20 +401,20 @@ export default class OpencgaAnnotationViewer extends LitElement {
             // this.variables = this.parseVariableForDisplay(this.variableSets[0].variables); // select first one by default
 
             // Show selectpicker selector
-            $(`#${this._prefix}-variableSetSelect`).selectpicker('show');
+            $(`#${this._prefix}-variableSetSelect`).selectpicker("show");
 
             this.multipleVariableSets = this.variableSets.length > 1;
         } else {
             this.multipleVariableSets = false;
 
             // Hide selectpicker selector
-            $(`#${this._prefix}-variableSetSelect`).selectpicker('hide');
+            $(`#${this._prefix}-variableSetSelect`).selectpicker("hide");
         }
     }
 
     renderDomRepeat(e) {
-        $('select.selectpicker').selectpicker('refresh');
-        $('select.selectpicker').selectpicker('deselectAll');
+        $("select.selectpicker").selectpicker("refresh");
+        $("select.selectpicker").selectpicker("deselectAll");
     }
 
     render() {
@@ -456,6 +456,7 @@ export default class OpencgaAnnotationViewer extends LitElement {
         </div>
         `;
     }
+
 }
 
 customElements.define("opencga-annotation-viewer", OpencgaAnnotationViewer);

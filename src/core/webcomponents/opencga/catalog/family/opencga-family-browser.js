@@ -17,13 +17,12 @@
 //TODO check functionality
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-/* todo migrate
-<link rel="import" href="opencga-family-filter.html">
-    <link rel="import" href="opencga-family-grid.html">
-    <link rel="import" href="../../opencga-active-filters.html">
-    <link rel="import" href="../variableSets/opencga-annotation-comparator.html">
-    <link rel="import" href="../../commons/opencga-facet-view.html">
-    */
+import "./opencga-family-filter.js";
+import "./opencga-family-grid.js";
+import "../../opencga-active-filters.js";
+import "../variableSets/opencga-annotation-comparator.js";
+import "../../commons/opencga-facet-view.js";
+
 
 export default class OpencgaFamilyBrowser extends LitElement {
 
@@ -300,8 +299,8 @@ export default class OpencgaFamilyBrowser extends LitElement {
                                              .eventNotifyName="${this.eventNotifyName}"
                                              .families="${this.families}"
                                              .search="${this.search}" style="font-size: 12px"
-                                             @selectfamily="${this.onSelectFamily}"
-                                             .active="${this.activeMenu.table}">
+                                             .active="${this.activeMenu.table}"
+                                             @selectfamily="${this.onSelectFamily}">
                         </opencga-family-grid>
 
                         <!--<div style="padding-top: 5px">-->
@@ -340,7 +339,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
                     <div id="${this._prefix}AggregationStats" class="family-browser-view-content" style="display: none">
                         <opencga-facet-view .opencgaSession="${this.opencgaSession}"
                                             entity="FAMILY"
-                                            variableSets="${this.variableSets}">
+                                            .variableSets="${this.variableSets}">
                         </opencga-facet-view>
                     </div>
 
@@ -359,7 +358,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
                             <opencga-annotation-viewer .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                         .opencgaSession="${this.opencgaSession}"
                                                         .config="${this._config.gridComparator}"
-                                                        entryIds="${this.families}"
+                                                        .entryIds="${this.families}"
                                                         entity="INDIVIDUAL">
                             </opencga-annotation-viewer>
                         </div>

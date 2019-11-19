@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
+import "../catalog/individual/opencga-individual-browser.js";
+import "../catalog/family/opencga-family-editor.js";
+import "../catalog/family/opencga-family-browser.js";
 
-
-/* todo migrate
-<link rel="import" href="../catalog/individual/opencga-individual-browser.html">
-    <link rel="import" href="../catalog/family/opencga-family-browser.html">
-    <link rel="import" href="../catalog/family/opencga-family-editor.html">
-*/
+// TODO recheck functionality
+//TODO CHECK on-dom-change="renderDomRepeat"
 
 export default class OpencgaClinicalAnalysisEditor extends LitElement {
 
@@ -43,13 +42,12 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                 type: Object
             },
             mode: {
-                type: String,
-                value: "create"
+                type: String
             },
             config: {
-                type: Object,
+                type: Object
             }
-        }
+        };
     }
 
     _init() {
@@ -98,11 +96,13 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
             },
             variableSetIds: []
         };
-        this._clinicalAnalysis = {}; //FIXME quick fix needs a proper check
+        this.mode = "create";
+        this._clinicalAnalysis = {}; // FIXME quick fix needs a proper check
+
     }
 
     updated(changedProperties) {
-        if(changedProperties.has("opencgaSession") ||
+        if (changedProperties.has("opencgaSession") ||
             changedProperties.has("clinicalAnalysis") ||
             changedProperties.has("mode") ||
             changedProperties.has("config")) {
@@ -113,12 +113,12 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     firstUpdated(_changedProperties) {
 
         $("#" + this._prefix + "DuePickerDate").datetimepicker({
-            format: 'DD/MM/YYYY',
+            format: "DD/MM/YYYY"
             // minDate: moment().add(1, "days"),
             // date: moment().add(1, "months")
         });
 
-        $('select.selectpicker').selectpicker('render');
+        $("select.selectpicker").selectpicker("render");
 
         // Render default values when clinicalAnalysis property is not set
         if (UtilsNew.isUndefinedOrNull(this.clinicalAnalysis)) {
@@ -143,21 +143,21 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
             type: "FAMILY",
             priority: "MEDIUM",
             analyst: {
-                assignee: this.opencgaSession.user.id,
+                assignee: this.opencgaSession.user.id
             },
-            dueDate: moment().add(7, 'days').format("DD/MM/YYYY")
+            dueDate: moment().add(7, "days").format("DD/MM/YYYY")
         };
     }
-    //TODO recheck functionality
-    propertyObserver(opencgaSession, clinicalAnalysis, mode, config) {
+    // TODO recheck functionality
+    propertyObserver() {
         this._config = Object.assign(this.getDefaultConfig(), this.config);
 
         // Set a private variable with all the users in this study: owner + @members group.
         // By default, the user creating the Case is selected as default
-        if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study)
-            && UtilsNew.isNotEmptyArray(this.opencgaSession.study.groups)) {
+        if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study) &&
+            UtilsNew.isNotEmptyArray(this.opencgaSession.study.groups)) {
             // let _studyUsers = [opencgaSession.user.id];
-            for (let group of this.opencgaSession.study.groups) {
+            for (const group of this.opencgaSession.study.groups) {
                 if (group.id === "@members" || group.name === "@members") {
                     this._studyUsers = group.userIds;
                 }
@@ -165,7 +165,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         }
 
         if (UtilsNew.isNotUndefinedOrNull(this.mode)) {
-            this.isCreate = mode.toLowerCase() === "create";
+            this.isCreate = this.mode.toLowerCase() === "create";
         }
 
 
@@ -183,13 +183,13 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     }
 
     onSelectChange(e) {
-        let field = e.currentTarget.dataset.field;
-        let fieldCapital = field.charAt(0).toUpperCase() + field.slice(1);
+        const field = e.currentTarget.dataset.field;
+        const fieldCapital = field.charAt(0).toUpperCase() + field.slice(1);
 
-        let select = PolymerUtils.getElementById(this._prefix + fieldCapital);
+        const select = PolymerUtils.getElementById(this._prefix + fieldCapital);
         if (UtilsNew.isNotUndefinedOrNull(select) && UtilsNew.isNotEmpty(select.value)) {
-            let selected = PolymerUtils.querySelectorAll("option:checked", select);
-            let values = [];
+            const selected = PolymerUtils.querySelectorAll("option:checked", select);
+            const values = [];
 
             selected.forEach(option => values.push(option.value));
             if (e.currentTarget.dataset.fieldType === "string") {
@@ -207,11 +207,11 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     }
 
     onInputChange(e) {
-        let field = e.currentTarget.dataset.field;
-        let fieldCapital = field.charAt(0).toUpperCase() + field.slice(1);
+        const field = e.currentTarget.dataset.field;
+        const fieldCapital = field.charAt(0).toUpperCase() + field.slice(1);
 
-        let text = PolymerUtils.getElementById(this._prefix + fieldCapital);
-        if (UtilsNew.isNotUndefinedOrNull(text)) {  // && UtilsNew.isNotEmpty(text.value)
+        const text = PolymerUtils.getElementById(this._prefix + fieldCapital);
+        if (UtilsNew.isNotUndefinedOrNull(text)) { // && UtilsNew.isNotEmpty(text.value)
             this._clinicalAnalysis[field] = text.value;
 
             this._clinicalAnalysis = Object.assign({}, this._clinicalAnalysis);
@@ -250,15 +250,15 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         }
 
         if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.type)) {
-            $("#" + this._prefix + "Type").selectpicker('val', clinicalAnalysis.type);
+            $("#" + this._prefix + "Type").selectpicker("val", clinicalAnalysis.type);
         }
 
         if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.assigned)) {
-            $("#" + this._prefix + "Assigned").selectpicker('val', clinicalAnalysis.analyst.assignee);
+            $("#" + this._prefix + "Assigned").selectpicker("val", clinicalAnalysis.analyst.assignee);
         }
 
         if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.priority)) {
-            $("#" + this._prefix + "Priority").selectpicker('val', clinicalAnalysis.priority);
+            $("#" + this._prefix + "Priority").selectpicker("val", clinicalAnalysis.priority);
         }
 
         if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.dueDate)) {
@@ -266,7 +266,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         }
 
         if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.flags)) {
-            $("#" + this._prefix + "Flags").selectpicker('val', clinicalAnalysis.flags);
+            $("#" + this._prefix + "Flags").selectpicker("val", clinicalAnalysis.flags);
         }
 
         if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.description)) {
@@ -274,7 +274,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         }
 
         if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.disorder)) {
-            $("#" + this._prefix + "Disorder").selectpicker('val', clinicalAnalysis.disorder.id);
+            $("#" + this._prefix + "Disorder").selectpicker("val", clinicalAnalysis.disorder.id);
         }
 
         this.notifyEnabled = true;
@@ -286,11 +286,11 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         $("." + this._prefix + "Input").prop("disabled", false);
 
         // Deselect bootstrap-select dropdowns
-        $("#" + this._prefix + "Type").selectpicker('val', []);
-        $("#" + this._prefix + "Assigned").selectpicker('val', []);
-        $("#" + this._prefix + "Priority").selectpicker('val', []);
-        $("#" + this._prefix + "Flags").selectpicker('val', []);
-        $("#" + this._prefix + "Disorder").selectpicker('val', []);
+        $("#" + this._prefix + "Type").selectpicker("val", []);
+        $("#" + this._prefix + "Assigned").selectpicker("val", []);
+        $("#" + this._prefix + "Priority").selectpicker("val", []);
+        $("#" + this._prefix + "Flags").selectpicker("val", []);
+        $("#" + this._prefix + "Disorder").selectpicker("val", []);
     }
 
     notifyClinicalAnalysis() {
@@ -307,7 +307,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     }
 
     onIndividualSelect(e) {
-        let individuals = [e.detail.individual];
+        const individuals = [e.detail.individual];
         this._clinicalAnalysis.family = undefined;
         this.updateIndividual(individuals);
     }
@@ -315,19 +315,19 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     onFamilySelect(e) {
         this._clinicalAnalysis.family = e.detail.family;
 
-        let individualIds = [];
-        for (let individual of e.detail.family.members) {
+        const individualIds = [];
+        for (const individual of e.detail.family.members) {
             individualIds.push(individual.id);
         }
 
-        let _this = this;
+        const _this = this;
         this.opencgaSession.opencgaClient.individuals().search({
             id: individualIds.join(","),
-            study: this.opencgaSession.study.fqn,
+            study: this.opencgaSession.study.fqn
         }).then(function(response) {
-                _this._clinicalAnalysis.family.members = response.response[0].result;
-                _this.updateIndividual(response.response[0].result);
-            }
+            _this._clinicalAnalysis.family.members = response.response[0].result;
+            _this.updateIndividual(response.response[0].result);
+        }
         );
     }
 
@@ -343,23 +343,23 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         //     this._clinicalAnalysis.proband = individuals[0];
         // }
 
-        let sampleIds = [];
-        for (let individual of individuals) {
-            for (let sample of individual.samples) {
+        const sampleIds = [];
+        for (const individual of individuals) {
+            for (const sample of individual.samples) {
                 sampleIds.push(sample.id);
             }
         }
 
         // This triggers the render of Disorder dropdown
-        let disorders = this.getDisordersFromIndividuals(individuals);
+        const disorders = this.getDisordersFromIndividuals(individuals);
         this._disorders = disorders;
         if (UtilsNew.isNotEmptyArray(disorders) && disorders.length === 1) {
             this._clinicalAnalysis.disorder = disorders[0];
         }
 
         if (UtilsNew.isNotEmptyArray(sampleIds)) {
-            let promises = [];
-            for (let sampleId of sampleIds) {
+            const promises = [];
+            for (const sampleId of sampleIds) {
                 // We look for the files related to the samples
                 promises.push(this.opencgaSession.opencgaClient.files().search({
                     samples: sampleId,
@@ -371,13 +371,13 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                     return {
                         sampleId: sampleId,
                         files: response.response[0].result
-                    }
+                    };
                 }));
             }
 
-            let files = {};
+            const files = {};
             Promise.all(promises).then(values => {
-                for (let value of values) {
+                for (const value of values) {
                     files[value.sampleId] = value.files;
                 }
                 this._clinicalAnalysis.files = files;
@@ -394,13 +394,13 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     showIndividualSelector(e) {
         e.preventDefault();
         this.individualModal = UtilsNew.isUndefined(this.individualModal) ? true : !this.individualModal;
-        $("#" + this._prefix + "IndividualBrowser").modal('show');
+        $("#" + this._prefix + "IndividualBrowser").modal("show");
     }
 
     showFamilySelector(e) {
         e.preventDefault();
         this.familyModal = UtilsNew.isUndefined(this.familyModal) ? true : !this.familyModal;
-        $("#" + this._prefix + "FamilyBrowser").modal('show');
+        $("#" + this._prefix + "FamilyBrowser").modal("show");
     }
 
     showFamilyCreator(e) {
@@ -425,11 +425,11 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     }
 
     getDisordersFromIndividuals(individuals) {
-        let disorders = [];
+        const disorders = [];
         if (UtilsNew.isNotEmptyArray(individuals)) {
-            for (let individual of individuals) {
+            for (const individual of individuals) {
                 if (UtilsNew.isNotEmptyArray(individual.disorders)) {
-                    for (let disorder of individual.disorders) {
+                    for (const disorder of individual.disorders) {
                         // disorders array does not contain the element we're looking for
                         if (disorders.filter(e => e.id === disorder.id).length === 0) {
                             disorders.push(disorder);
@@ -449,7 +449,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     }
 
     renderDomRepeat(e) {
-        $('select.selectpicker').selectpicker('refresh');
+        $("select.selectpicker").selectpicker("refresh");
     }
 
     onClear() {
@@ -465,7 +465,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     }
 
     onCreate() {
-        let _clinicalAnalysis = Object.assign({}, this._clinicalAnalysis);
+        const _clinicalAnalysis = Object.assign({}, this._clinicalAnalysis);
         _clinicalAnalysis.proband = {
             id: _clinicalAnalysis.proband.id,
             samples: [
@@ -479,11 +479,11 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         // delete _clinicalAnalysis.assigned;
 
         if (UtilsNew.isNotUndefinedOrNull(_clinicalAnalysis.family)) {
-            let _family = {
+            const _family = {
                 id: _clinicalAnalysis.family.id,
                 members: []
             };
-            for (let member of _clinicalAnalysis.family.members) {
+            for (const member of _clinicalAnalysis.family.members) {
                 _family.members.push({
                     id: member.id,
                     samples: [
@@ -497,10 +497,10 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         }
 
         if (UtilsNew.isNotUndefinedOrNull(_clinicalAnalysis.files)) {
-            let _files = {};
-            for (let sampleId in _clinicalAnalysis.files) {
-                let fileIds = [];
-                for (let file of _clinicalAnalysis.files[sampleId]) {
+            const _files = {};
+            for (const sampleId in _clinicalAnalysis.files) {
+                const fileIds = [];
+                for (const file of _clinicalAnalysis.files[sampleId]) {
                     fileIds.push(file.id);
                 }
                 _files[sampleId] = fileIds;
@@ -509,17 +509,17 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         }
 
         if (UtilsNew.isNotUndefinedOrNull(_clinicalAnalysis.dueDate)) {
-            let dueDate = moment(_clinicalAnalysis.dueDate, "DD/MM/YYYY").format("YYYYMMDDHHMMSS");
+            const dueDate = moment(_clinicalAnalysis.dueDate, "DD/MM/YYYY").format("YYYYMMDDHHMMSS");
             _clinicalAnalysis.dueDate = dueDate;
         }
 
-        let _this = this;
+        const _this = this;
         this.opencgaSession.opencgaClient.clinical().create({study: this.opencgaSession.study.fqn}, _clinicalAnalysis)
             .then(function(response) {
                 _this.onClear();
                 NotificationUtils.showNotify(`Family ${response.response[0].result[0].id} created successfully`, "SUCCESS");
             })
-            .catch(function (response) {
+            .catch(function(response) {
                 console.error(response);
                 NotificationUtils.showNotify(response.error, "ERROR");
             });
@@ -530,11 +530,11 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
      */
 
     renderTable() {
-        let columns = this._initTableColumns();
+        const columns = this._initTableColumns();
 
-        let _this = this;
-        $("#" + this._prefix + 'IndividualBrowserGrid').bootstrapTable('destroy');
-        $("#" + this._prefix + 'IndividualBrowserGrid').bootstrapTable({
+        const _this = this;
+        $("#" + this._prefix + "IndividualBrowserGrid").bootstrapTable("destroy");
+        $("#" + this._prefix + "IndividualBrowserGrid").bootstrapTable({
             columns: columns,
             data: _this._individuals,
 
@@ -547,17 +547,17 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
             // Make Polymer components available to table formatters
             gridContext: _this,
 
-            onPostBody: function (data) {
-                $('.selectpicker').selectpicker('refresh');
+            onPostBody: function(data) {
+                $(".selectpicker").selectpicker("refresh");
 
-                let removeIndividualButtons = PolymerUtils.querySelectorAll(".removeIndividualButton");
+                const removeIndividualButtons = PolymerUtils.querySelectorAll(".removeIndividualButton");
                 for (let i = 0; i < removeIndividualButtons.length; i++) {
-                    removeIndividualButtons[i].addEventListener('click', _this.removeIndividualButtonClicked.bind(_this));
+                    removeIndividualButtons[i].addEventListener("click", _this.removeIndividualButtonClicked.bind(_this));
                 }
 
-                let probandRadio = PolymerUtils.querySelectorAll(".probandRadio");
+                const probandRadio = PolymerUtils.querySelectorAll(".probandRadio");
                 for (let i = 0; i < probandRadio.length; i++) {
-                    probandRadio[i].addEventListener('click', _this.aaa.bind(_this));
+                    probandRadio[i].addEventListener("click", _this.aaa.bind(_this));
                     // removeIndividualButtons[i].addEventListener('change', _this.aaa.bind(_this));
                 }
                 // Add tooltips
@@ -567,7 +567,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     }
 
     removeIndividualButtonClicked(e) {
-        let individuals = [];
+        const individuals = [];
         for (let i = 0; i < this._individuals.length; i++) {
             if (this._individuals[i].id !== e.target.dataset.id) {
                 individuals.push(this._individuals[i]);
@@ -576,13 +576,13 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
 
         this._individuals = individuals;
         // Reload data of the table
-        $("#" + this._prefix + 'IndividualBrowserGrid').bootstrapTable('load', this._individuals);
+        $("#" + this._prefix + "IndividualBrowserGrid").bootstrapTable("load", this._individuals);
 
         if (this._individuals.length === 0 && !this.isFamilyAnalysis(this._clinicalAnalysis.type)) {
             // Re-enable disabled buttons
             PolymerUtils.getElementById(`${this._prefix}-browseIndividual`).disabled = false;
 
-            let buttons = PolymerUtils.getElementsByClassName(`${this._prefix}-type`);
+            const buttons = PolymerUtils.getElementsByClassName(`${this._prefix}-type`);
             for (let i = 0; i < buttons.length; i++) {
                 buttons[i].disabled = false;
             }
@@ -612,52 +612,47 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
 
     individualFormatter(value, row) {
         if (UtilsNew.isNotUndefinedOrNull(value) && UtilsNew.isNotUndefinedOrNull(row)) {
-            let sampleIcon = this._config.sexIconMap[row.sex];
+            const sampleIcon = this._config.sexIconMap[row.sex];
             let sampleIdStyle = "color: black";
             if (UtilsNew.isNotEmptyArray(row.disorders)) {
-                for (let disorder of row.disorders) {
+                for (const disorder of row.disorders) {
                     if (disorder.id === this._clinicalAnalysis.disorder.id) {
                         sampleIdStyle = "color: red";
                         break;
                     }
                 }
             }
-
-            let html = `<div>
-                                    <span data-toggle="tooltip" data-placement="bottom" style="${sampleIdStyle}" title="" >
-                                        ${value} <i class='fa ${sampleIcon} fa-lg' style='padding-left: 5px'></i>
-                                    </span>
-                               </div>
-                        `;
-            return html;
+            return html`<div>
+                            <span data-toggle="tooltip" data-placement="bottom" style="${sampleIdStyle}" title="" >
+                            ${value} <i class='fa ${sampleIcon} fa-lg' style='padding-left: 5px'></i>
+                            </span>
+                        </div>`;
         } else {
-            return "-";
+            return html`-`;
         }
     }
 
     samplesFormatter(value, row) {
+
         if (UtilsNew.isNotEmptyArray(row.samples)) {
-            let samples = "<span>";
             // for (let sample of row.samples) {
             //     samples += `<div>${sample.id}</div>`;
             // }
-            samples += row.samples[0].id;
-            samples += "</span>";
-            return samples;
+            return html`<span>${row.samples[0].id}</span>`
         } else {
-            return "-";
+            return html`-`;
         }
     }
 
     probandFormatter(value, row) {
-        return `<input type="radio" name="${this._prefix}-optradio" class="probandRadio" data-individual-id="${row.id}">`;
+        return html`<input type="radio" name="${this._prefix}-optradio" class="probandRadio" data-individual-id="${row.id}">`;
     }
 
     aaa(e) {
-        let individualId = e.currentTarget.dataset.individualId;
-        if (UtilsNew.isNotUndefinedOrNull(this._clinicalAnalysis.family)
-            && UtilsNew.isNotEmptyArray(this._clinicalAnalysis.family.members)) {
-            for (let member of this._clinicalAnalysis.family.members) {
+        const individualId = e.currentTarget.dataset.individualId;
+        if (UtilsNew.isNotUndefinedOrNull(this._clinicalAnalysis.family) &&
+            UtilsNew.isNotEmptyArray(this._clinicalAnalysis.family.members)) {
+            for (const member of this._clinicalAnalysis.family.members) {
                 if (member.id === individualId) {
                     this._clinicalAnalysis.proband = member;
                 }
@@ -670,69 +665,67 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     disordersFormatter(value, row) {
         if (UtilsNew.isNotEmpty(value)) {
             let disordersHtml = "<div>";
-            for (let disorder of value) {
+            for (const disorder of value) {
                 disordersHtml += `<span>${disorder.id}</span>`;
             }
             disordersHtml += "</div>";
             return disordersHtml;
         } else {
-            return '-';
+            return "-";
         }
     }
 
     phenotypesFormatter(value, row) {
         if (UtilsNew.isNotEmptyArray(value)) {
             let phenotypeTooltipText = "";
-            for (let phenotype of value) {
-                phenotypeTooltipText += `<div style="padding: 5px">`;
+            for (const phenotype of value) {
+                phenotypeTooltipText += "<div style=\"padding: 5px\">";
                 if (UtilsNew.isNotUndefinedOrNull(phenotype.source) && phenotype.source.toUpperCase() === "HPO") {
-                    phenotypeTooltipText += `<span>
-                                                        <a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})
-                                                    </span>
-                                `;
+                    phenotypeTooltipText += `<span><a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})</span>`;
                 } else {
                     phenotypeTooltipText += `<span>${phenotype.id} (${phenotype.status})</span>`;
                 }
                 phenotypeTooltipText += "</div>";
             }
 
-            let html = `<div class="phenotypesTooltip" data-tooltip-text='${phenotypeTooltipText}'>
+            const html = `<div class="phenotypesTooltip" data-tooltip-text='${phenotypeTooltipText}'>
                                     <a style="cursor: pointer">
                                         ${value.length} terms found
                                     </a>
-                                </div>
+                           </div>
                     `;
             return html;
         } else {
-            return '-';
+            return "-";
         }
     }
 
     filesFormatter(value, row) {
         if (UtilsNew.isNotUndefinedOrNull(this._clinicalAnalysis.files)) {
-            let html = '<div>';
+            let html = "<div>";
             if (UtilsNew.isNotEmptyArray(row.samples)) {
-                let files = this._clinicalAnalysis.files[row.samples[0].id];
+                const files = this._clinicalAnalysis.files[row.samples[0].id];
                 if (UtilsNew.isNotEmptyArray(files)) {
-                    for (let file of files) {
+                    for (const file of files) {
                         html += `<div>${file.name}</div>`;
                     }
                 }
             }
-            html += '</div>';
+            html += "</div>";
             return html;
         }
     }
 
-    flagsFormatter(value, row) {
-        let html = `<select class="selectpicker" data-id=${row.id}  data-width="100%" on-change="updateQuery"
+    //not used, not converted in litElement
+/*    flagsFormatter(value, row) {
+        const html = `<select class="selectpicker" data-id=${row.id}  data-width="100%" on-change="updateQuery"
                                     on-dom-change="renderDomRepeat" multiple data-selected-text-format="count > 1">
                                 <template is="dom-repeat" items="${this._config.flags}">
                                     <option value="{{item}}">{{item}}</option>
                                 </template>
                             </select>`;
         return html;
-    }
+    }*/
 
     removeButtonFormatter(value, row) {
         return `<button data-id=${row.id} class='btn btn-sm btn-danger removeIndividualButton'>
@@ -743,47 +736,47 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         return [
             [
                 {
-                    title: 'Individual',
-                    field: 'id',
+                    title: "Individual",
+                    field: "id",
                     formatter: this.individualFormatter.bind(this),
                     halign: this._config.grid.header.horizontalAlign
                 },
                 {
-                    title: 'Sample',
-                    field: 'samples',
+                    title: "Sample",
+                    field: "samples",
                     formatter: this.samplesFormatter,
                     halign: this._config.grid.header.horizontalAlign
                 },
                 {
-                    title: 'Proband',
+                    title: "Proband",
                     formatter: this.probandFormatter.bind(this),
                     align: this._config.grid.header.horizontalAlign,
                     halign: this._config.grid.header.horizontalAlign
                 },
                 {
-                    title: 'Father',
-                    field: 'father.id',
+                    title: "Father",
+                    field: "father.id",
                     halign: this._config.grid.header.horizontalAlign
                 },
                 {
-                    title: 'Mother',
-                    field: 'mother.id',
+                    title: "Mother",
+                    field: "mother.id",
                     halign: this._config.grid.header.horizontalAlign
                 },
                 {
-                    title: 'Disorders',
+                    title: "Disorders",
                     field: "disorders",
                     formatter: this.disordersFormatter,
                     halign: this._config.grid.header.horizontalAlign
                 },
                 {
-                    title: 'Phenotypes',
+                    title: "Phenotypes",
                     field: "phenotypes",
                     formatter: this.phenotypesFormatter,
                     halign: this._config.grid.header.horizontalAlign
                 },
                 {
-                    title: 'Files',
+                    title: "Files",
                     field: "files",
                     formatter: this.filesFormatter.bind(this),
                     halign: this._config.grid.header.horizontalAlign
@@ -796,8 +789,8 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                 //     align: this._config.grid.header.horizontalAlign
                 // },
                 {
-                    title: 'Remove',
-                    field: 'id',
+                    title: "Remove",
+                    field: "id",
                     formatter: this.removeButtonFormatter,
                     align: this._config.grid.header.horizontalAlign,
                     halign: this._config.grid.header.horizontalAlign
@@ -817,8 +810,8 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                 detailFormatter: this.detailFormatter,
                 // multiSelection: false,
                 header: {
-                    horizontalAlign: 'center',
-                    verticalAlign: 'bottom'
+                    horizontalAlign: "center",
+                    verticalAlign: "bottom"
                 }
             },
             flags: ["mixed_chemistries", "low_tumour_purity", "uniparental_isodisomy", "uniparental_heterodisomy",
@@ -939,7 +932,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                             <label class="control-label col-md-1 jso-label-title">Due Date</label>
                             <div class="date col-md-3">
                                 <div class='input-group date' id="${this._prefix}DuePickerDate">
-                                    <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" data-field="dueDate" @keyup="${this.onInputChange}" />
+                                    <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" data-field="dueDate" @input="${this.onInputChange}" />
                                     <span class="input-group-addon">
                                     <span class="fa fa-calendar"></span>
                                 </span>
@@ -951,7 +944,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                             <label class="control-label col-md-1 jso-label-title">Description</label>
                             <div class="col-md-3">
                                 <textarea id="${this._prefix}Description" class="${this._prefix}Input form-control"
-                                          placeholder="Description of the case" data-field="description" @keyup="${this.onInputChange}"></textarea>
+                                          placeholder="Description of the case" data-field="description" @input="${this.onInputChange}"></textarea>
                             </div>
                         </div>
                     </div>
@@ -968,11 +961,11 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                 <div class="col-md-1">
                                     <!--Search family-->
                                     <button id="${this._prefix}-browseFamily2" class="btn btn-sm btn-primary"
-                                            data-toggle="modal" data-placement="bottom" on-click="showFamilySelector"
+                                            data-toggle="modal" data-placement="bottom" @click="${this.showFamilySelector}"
                                             style="display: inline">Browse...</button>
                                 </div>
                                 <div>
-                                    <a on-click="showFamilyCreator" class="col-md-2" style="cursor:pointer;">
+                                    <a @click="${this.showFamilyCreator}" class="col-md-2" style="cursor:pointer;">
                                         Don't have a family?
                                     </a>
                                 </div>
@@ -982,7 +975,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                 <label class="control-label col-md-1 jso-label-title">Search Proband</label>
                                 <div class="col-md-1">
                                     <button id="${this._prefix}-browseIndividual2" class="btn btn-sm btn-primary"
-                                            data-toggle="modal" data-placement="bottom" on-click="showIndividualSelector"
+                                            data-toggle="modal" data-placement="bottom" @click="${this.showIndividualSelector}"
                                             style="display: inline">Browse...</button>
                                 </div>
                             </div>
@@ -1083,6 +1076,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         <!--</template>-->
         `;
     }
+
 }
 
 customElements.define("opencga-clinical-analysis-editor", OpencgaClinicalAnalysisEditor);
