@@ -190,13 +190,14 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                     }
 
                     // Set the num total rows in a human readable format
+
                     _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
                     if (response.queryOptions.skip === 0 && _this.numTotalResults < response.queryOptions.limit) {
                         _this.from = 1;
                         _this.to = _this.numTotalResults;
                     }
-
+                    _this.requestUpdate();
                     return {
                         total: _this.numTotalResults,
                         rows: response.response[0].result
@@ -418,7 +419,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     _onSelectClinicalAnalysis(row) {
-        console.log("clicked!")
         if (typeof row !== "undefined") {
             this.dispatchEvent(new CustomEvent("selectanalysis", {
                 detail: {

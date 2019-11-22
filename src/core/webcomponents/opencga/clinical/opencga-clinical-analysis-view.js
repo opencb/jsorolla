@@ -235,7 +235,6 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
 
     render() {
         return html`
-        <template>
         <style include="jso-styles">
             .section-padding {
                 padding: 10px 25px 5px 25px;
@@ -324,12 +323,13 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                         </div>
                     </div>
 
-                    <div class="form-group" style="margin-bottom: 5px">
-                        <label class="control-label col-md-1 jso-label-title pad-top-5">Disorder</label>
-                        <div class="col-md-3 pad-top-5">
-                            <span>${this.clinicalAnalysis.disorder.name} (${this.clinicalAnalysis.disorder.id})</span>
-                        </div>
-                    </div>
+                    ${this.clinicalAnalysis.disorder ? html`
+                        <div class="form-group" style="margin-bottom: 5px">
+                            <label class="control-label col-md-1 jso-label-title pad-top-5">Disorder</label>
+                            <div class="col-md-3 pad-top-5">
+                                <span>${this.clinicalAnalysis.disorder.name} (${this.clinicalAnalysis.disorder.id})</span>
+                            </div>
+                        </div>` : null }
 
                     <div class="form-group" style="margin-bottom: 5px">
                         <label class="control-label col-md-1 jso-label-title pad-top-5">Analysis Type</label>
@@ -453,8 +453,8 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                                         <td>${this.clinicalAnalysis.proband.samples[0].id}</td>
                                         <!--<td>{{clinicalAnalysis.proband.samples.0.source}}</td>-->
                                         <td>${this._probandFiles}</td>
-                                        <td>${this.clinicalAnalysis.proband.samples[0].collection.method}</td>
-                                        <td>${this.clinicalAnalysis.proband.samples[0].processing.preparationMethod}</td>
+                                        <td>${this.clinicalAnalysis.proband.samples[0].collection ? this.clinicalAnalysis.proband.samples[0].collection.method : ""}</td>
+                                        <td>${this.clinicalAnalysis.proband.samples[0].processing ? this.clinicalAnalysis.proband.samples[0].processing.preparationMethod : ""}</td>
                                         <td>${this.clinicalAnalysis.proband.samples[0].somatic}</td>
                                         <td>${this.clinicalAnalysis.proband.samples[0].creationDate}</td>
                                         <td>${this.clinicalAnalysis.proband.samples[0].status.name}</td>
@@ -503,21 +503,20 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <template is="dom-repeat" items="{{clinicalAnalysis.family.members}}" as="member">
-                                            <!--<span style="padding-left: 2px">{{item.name}} ({{item.status}}), </span>-->
+                                        ${this.clinicalAnalysis.family && this.clinicalAnalysis.family.members ? this.clinicalAnalysis.family.members.map( member => html`
                                             <tr>
-                                                <td>${this.member.id}</td>
-                                                <td>${this.member.sex}</td>
-                                                <td>${this.member.father.id}</td>
-                                                <td>${this.member.mother.id}</td>
-                                                <td>${this.member.disorders[0].name}</td>
-                                                <td>${this.member.phenotypes[0].name}</td>
-                                                <td>${this.member.lifeStatus}</td>
-                                                <td>${this.member.dateOfBirth}</td>
-                                                <td>${this.member.creationDate}</td>
-                                                <td>${this.member.status.name}</td>
+                                                <td>${member.id}</td>
+                                                <td>${member.sex}</td>
+                                                <td>${member.father.id}</td>
+                                                <td>${member.mother.id}</td>
+                                                <td>${member.disorders && member.disorders.length ? member.disorders[0].name : null }</td>
+                                                <td>${member.phenotypes && member.phenotypes.length ? member.phenotypes[0].name : null }</td>
+                                                <td>${member.lifeStatus}</td>
+                                                <td>${member.dateOfBirth}</td>
+                                                <td>${member.creationDate}</td>
+                                                <td>${member.status.name}</td>
                                             </tr>
-                                        </template>
+                                        `) : null }
                                         </tbody>
                                     </table>
                                 </div>
@@ -542,7 +541,6 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
             <!--</div>-->
             <!--<div>No interpretations found.</div>-->
         <!--</div>-->
-    </template>
         `;
     }
 

@@ -240,8 +240,8 @@ export default class OpencgaSampleBrowser extends LitElement {
                                         .config="${this.filtersConfig}"
                                         .alias="${this.activeFilterAlias}"
                                         .refresh="${this.search}"
-                                        @clear="${this.onClear}"
-                                        @filterchange="${this.onActiveFilterChange}">
+                                        @activeFilterClear="${this.onClear}"
+                                        @activeFilterChange="${this.onActiveFilterChange}">
                 </opencga-active-filters>
 
                 <!-- Sample View Buttons -->

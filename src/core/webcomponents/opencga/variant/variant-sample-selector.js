@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-//TODO check functionality, ready() and connectedCallback() methods
+// TODO check functionality, ready() and connectedCallback() methods
+// TODO migrate to litelement import "../catalog/samples/opencga-family-editor-new.js";
 
-import {LitElement, html} from '/web_modules/lit-element.js';
-
+import {LitElement, html} from "/web_modules/lit-element.js";
 import "../catalog/samples/opencga-sample-filter.js";
-
-//TODO migrate to litelement import "../catalog/samples/opencga-family-editor-new.js";
-
 
 export default class VariantSampleSelector extends LitElement {
 
@@ -51,7 +48,7 @@ export default class VariantSampleSelector extends LitElement {
             },
             samples: {
                 type: Array,
-                notify: true,
+                notify: true
             },
             family: {
                 type: Object,
@@ -59,7 +56,7 @@ export default class VariantSampleSelector extends LitElement {
             },
             filters: {
                 type: Object,
-                notify: true,
+                notify: true
             },
             query: {
                 type: Object
@@ -68,26 +65,26 @@ export default class VariantSampleSelector extends LitElement {
                 type: Object,
                 notify: true
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this.mode = "sample";
     }
 
     updated(changedProperties) {
-        if(changedProperties.has("mode")) {
+        if (changedProperties.has("mode")) {
             this._onUpdateMode();
         }
-        if(changedProperties.has("samples")) {
+        if (changedProperties.has("samples")) {
             this.sampleChanged();
         }
-        if(changedProperties.has("filters")) {
+        if (changedProperties.has("filters")) {
             this.onFilterUpdate();
         }
 
-        //TODO check : observer was on filteredVariables.variables.*
-        if(changedProperties.has("filteredVariables")) {
+        // TODO check : observer was on filteredVariables.variables.*
+        if (changedProperties.has("filteredVariables")) {
             this.calculateFilters();
         }
     }
@@ -107,17 +104,17 @@ export default class VariantSampleSelector extends LitElement {
     }
 
     initFamily() {
-        let family = {};
+        const family = {};
         if (UtilsNew.isNotUndefinedOrNull(this.samples)) {
             family.name = "";
             family.description = "";
             family.diseases = [];
             family.members = [];
             family.annotationSets = [];
-//                    this.family.createDate = new Date();
+            //                    this.family.createDate = new Date();
             family.attributes = {};
-            let _this = this;
-            this.samples.forEach((sample) => {
+            const _this = this;
+            this.samples.forEach(sample => {
                 family.members[sample.id] = {
                     father: undefined,
                     mother: undefined,
@@ -125,7 +122,7 @@ export default class VariantSampleSelector extends LitElement {
                     //                            multiples: [],
                     //                            samples: [],
                     parentalConsanguinity: false
-                }
+                };
             });
         }
         return family;
@@ -136,9 +133,9 @@ export default class VariantSampleSelector extends LitElement {
         if (UtilsNew.isUndefinedOrNull(this.family)) {
             this.family = this.initFamily();
         } else {
-            let members = [];
-            this.samples.forEach((sample) => {
-                if(UtilsNew.isNotUndefinedOrNull(this.family.members[sample.id])) {
+            const members = [];
+            this.samples.forEach(sample => {
+                if (UtilsNew.isNotUndefinedOrNull(this.family.members[sample.id])) {
                     members[sample.id] = this.family.members[sample.id];
                 } else {
                     members[sample.id] = {
@@ -146,7 +143,7 @@ export default class VariantSampleSelector extends LitElement {
                         mother: undefined,
                         phenotypes: [],
                         parentalConsanguinity: false
-                    }
+                    };
                 }
             });
             this.family.members = members;
@@ -188,24 +185,24 @@ export default class VariantSampleSelector extends LitElement {
             return;
         }
 
-        let sampleName = PolymerUtils.getValue(this.prefix + "NameTextarea");
+        const sampleName = PolymerUtils.getValue(this.prefix + "NameTextarea");
         if (!filters.hasOwnProperty("name") && UtilsNew.isNotUndefined(sampleName) && sampleName.length > 0) {
             PolymerUtils.setValue(this.prefix + "NameTextarea", "");
         }
 
-        let individual =  PolymerUtils.getValue(this.prefix + "IndividualTextarea");
+        const individual = PolymerUtils.getValue(this.prefix + "IndividualTextarea");
         if (!filters.hasOwnProperty("individual.id") && UtilsNew.isNotUndefined(individual) && individual.length > 0) {
-            PolymerUtils.setValue(this.prefix + "IndividualTextarea","");
+            PolymerUtils.setValue(this.prefix + "IndividualTextarea", "");
         }
 
         if (this.filteredVariables.variables.length > 0) {
             if (!filters.hasOwnProperty("annotation")) {
                 // Remove the filter variableSetId as it won't make more sense.
-//                        delete filters.variableSetId;
+                //                        delete filters.variableSetId;
                 this.set("filteredVariables.variables", []);
 
             } else if (filters.annotation.length < this.filteredVariables.variables.length) {
-                let tmpVariables = [];
+                const tmpVariables = [];
                 filters.annotation.forEach(function(variable) {
                     tmpVariables.push(variable);
                 });
@@ -220,7 +217,7 @@ export default class VariantSampleSelector extends LitElement {
      * Read from the values in the forms, and sets the filters.
      */
     calculateFilters() {
-        let filters = {};
+        const filters = {};
         let sampleName = "";
         let individual = "";
 
@@ -240,8 +237,8 @@ export default class VariantSampleSelector extends LitElement {
         }
 
         if (UtilsNew.isNotUndefined(this.filteredVariables.variables) && this.filteredVariables.variables.length > 0) {
-//                    filters["variableSetId"] = this.filteredVariables.variableSet;
-            let annotations = [];
+            //                    filters["variableSetId"] = this.filteredVariables.variableSet;
+            const annotations = [];
             this.filteredVariables.variables.forEach(function(variable) {
                 annotations.push(variable);
             });
@@ -252,20 +249,20 @@ export default class VariantSampleSelector extends LitElement {
 
     onSearch() {
         // Convert the filters to an objectParam that can be directly send to the sample search
-        let filterParams = {};
+        const filterParams = {};
 
-        let keys = Object.keys(this.filters);
+        const keys = Object.keys(this.filters);
         for (let i = 0; i < keys.length; i++) {
             // Some filters can come as an array of things.
             // annotation = [{name: name, value: Smith}, {name: age, value: >5}]
             if (Array.isArray(this.filters[keys[i]])) {
-                let myArray = this.filters[keys[i]];
+                const myArray = this.filters[keys[i]];
 
                 let myArrayFilter = [];
 
                 // The elements in the array can be either an object
                 if (Object.getPrototypeOf(myArray[0]) === Object.prototype) {
-                    let myArray = this.filters[keys[i]];
+                    const myArray = this.filters[keys[i]];
                     for (let j = 0; j < myArray.length; j++) {
                         // TODO: We have to check if the value already has an operand
                         myArrayFilter.push(myArray[j].name + "=" + myArray[j].value);
@@ -309,7 +306,7 @@ export default class VariantSampleSelector extends LitElement {
 
             <div class="col-md-9">
                 <opencga-active-filters .opencgaClient="${this.opencgaClient}" .query="${this.query}" .defaultStudy="${this.study.alias}"
-                                        alias="${this.activeFilterAlias}" refresh="{{search}}" @clear="${this.onClear}" @filterchange="${this.onFilterChange}">
+                                        alias="${this.activeFilterAlias}" refresh="{{search}}" @activeFilterClear="${this.onClear}" @activeFilterChange="${this.onFilterChange}">
                 </opencga-active-filters>
 
                 <!--<h3>Sample results</h3>-->
@@ -326,6 +323,7 @@ export default class VariantSampleSelector extends LitElement {
         </div>
         `;
     }
+
 }
 
-customElements.define('variant-sample-selector', VariantSampleSelector);
+customElements.define("variant-sample-selector", VariantSampleSelector);

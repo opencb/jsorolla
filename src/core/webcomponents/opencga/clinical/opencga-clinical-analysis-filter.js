@@ -15,11 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-
-/*
-<link rel="import" href="../catalog/opencga-date-filter.html">
-*/
-
+import "../catalog/opencga-date-filter.js";
 
 export default class OpencgaClinicalAnalysisFilter extends LitElement {
 

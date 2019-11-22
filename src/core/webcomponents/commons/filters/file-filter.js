@@ -74,18 +74,18 @@ export default class FileFilter extends LitElement {
         return html`
             <div class="row">
                 <div class="col-md-12">
-                    <input id="${this._prefix}FilePassCheckbox" type="checkbox" class="${this._prefix}FilterCheckBox" @change="${this.onChangePass}" ?checked="${this.query.filter === "PASS"}"><span
+                    <input id="${this._prefix}FilePassCheckbox" type="checkbox" class="${this._prefix}FilterCheckBox" @change="${this.onChangePass}" .checked="${this.query.filter === "PASS"}"><span
                         style="padding-left: 5px">Only include <span style="font-weight: bold;">PASS</span> variants</span>
                 </div>
                 <form class="form-horizontal">
                     <div class="form-group col-md-12">
                         <div class="col-md-8">
                             <input id="${this._prefix}FileQualCheckbox" type="checkbox"
-                                   class="${this._prefix}FilterCheckBox" @change="${this.onChangeQualCheckBox}" ?checked="${this.qualEnabled && this.query.qual > 0}"><span style="padding-left: 5px">Introduce min. <span
+                                   class="${this._prefix}FilterCheckBox" @change="${this.onChangeQualCheckBox}" .checked="${this.qualEnabled && this.query.qual > 0}"><span style="padding-left: 5px">Introduce min. <span
                                 style="font-weight: bold;">QUAL</span></span>
                         </div>
                         <div class="col-md-4">
-                            <input id="${this._prefix}FileQualInput" type="text" class="form-control input-sm ${this._prefix}FilterTextInput" ?disabled="${this.query.qual > 0}" value="${this.query.qual}" @change="${this.onChangeQual}">
+                            <input id="${this._prefix}FileQualInput" type="text" class="form-control input-sm ${this._prefix}FilterTextInput" .disabled="${this.query.qual > 0}" value="${this.query.qual}" @change="${this.onChangeQual}">
                         </div>
                     </div>
                 </form>

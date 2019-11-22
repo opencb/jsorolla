@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-
 import {LitElement, html} from "/web_modules/lit-element.js";
-//import "../../../genome-browser/webcomponent/genome-browser.js";
+import "../../../genome-browser/webcomponent/genome-browser.js";
 import "./catalog/samples/opencga-sample-browser.js";
 
 export default class OpencgaGenomeBrowser extends LitElement {

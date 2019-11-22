@@ -268,8 +268,8 @@ export default class OpencgaFamilyBrowser extends LitElement {
                                         .config="${this._config.activeFilters}"
                                         .alias="${this.activeFilterAlias}"
                                         .refresh="${this.search}"
-                                        @clear="${this.onClear}"
-                                        @filterchange="${this.onActiveFilterChange}">
+                                        @activeFilterClear="${this.onClear}"
+                                        @activeFilterChange="${this.onActiveFilterChange}">
                 </opencga-active-filters>
 
                 <!-- Family View Buttons -->

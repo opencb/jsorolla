@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "./../../commons/variant-modal-ontology.js";
-
 import "./../../commons/filters/cadd-filter.js";
 import "../../commons/filters/biotype-filter.js";
 import "../../commons/filters/region-filter.js";
@@ -1252,7 +1251,7 @@ export default class OpencgaVariantFilter extends LitElement {
         $("." + this._prefix + "FilterSelect").prop("selectedIndex", 0);
         $("." + this._prefix + "FilterSelect").prop("disabled", false);
 
-        //handled in population-frecuency-filter
+        //handled in population-frequency-filter
         //TODO many other components use this!
         $("." + this._prefix + "FilterTextInput").val("");
         $("." + this._prefix + "FilterTextInput").prop("disabled", false);
@@ -1288,7 +1287,6 @@ export default class OpencgaVariantFilter extends LitElement {
         // TODO move tooltips init somewhere after template has been rendered
         //this._addEventListeners();
         return this.config.menu.sections && this.config.menu.sections.length && this.config.menu.sections.map(section => this._createSection(section));
-        this.requestUpdate();
     }
 
     _createSection(section) {
@@ -1350,7 +1348,7 @@ export default class OpencgaVariantFilter extends LitElement {
                                            @filterChange="${e => this.onFilterChange("region", e.detail.value)}"></region-filter>`;
             break;
         case "feature":
-            //TODO move limit to global config?
+            //TODO move limit to global config
             content = html`<feature-filter .cellbaseClient="${this.cellbaseClient}" .query=${this.query} limit="10"
                                             @filterChange="${e => this.onFilterChange("xref", e.detail.value)}"></feature-filter>`;
             break;
@@ -1382,11 +1380,9 @@ export default class OpencgaVariantFilter extends LitElement {
             content = html`<conservation-filter .query="${this.query}" @filterChange="${e => this.onFilterChange("conservation", e.detail.value)}"></conservation-filter>`;
             break;
         case "go":
-            //TODO fix modal
             content = html`<go-accessions-filter .query="${this.query}"  @ontologyModalOpen="${this.onOntologyModalOpen}" @filterChange="${e => this.onFilterChange("go", e.detail.value)}"></go-accessions-filter>`;
             break;
         case "hpo":
-            //TODO fix modal
             content = html`<hpo-accessions-filter .query="${this.query}" @ontologyModalOpen="${this.onOntologyModalOpen}" @filterChange="${e => this.onFilterChange("annot-hpo", e.detail.value)}"></hpo-accessions-filter>`;
             break;
         case "clinvar":

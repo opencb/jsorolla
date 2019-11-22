@@ -193,8 +193,8 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                                         .config="${this.filtersConfig}"
                                         .alias="${this.activeFilterAlias}"
                                         .refresh="${this.search}"
-                                        @clear="${this.onClear}"
-                                        @filterchange="${this.onActiveFilterChange}">
+                                        @activeFilterClear="${this.onClear}"
+                                        @activeFilterChange="${this.onActiveFilterChange}">
                 </opencga-active-filters>
 
 

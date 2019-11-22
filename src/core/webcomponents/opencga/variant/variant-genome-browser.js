@@ -15,12 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-
-
-//TODO migrate
-/*
-<link rel="import" href="../../../../genome-browser/webcomponent/genome-browser.html">
-*/
+import "../../../../genome-browser/webcomponent/genome-browser.js";
 
 export default class VariantGenomeBrowser extends LitElement {
 

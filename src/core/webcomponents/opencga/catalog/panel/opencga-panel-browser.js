@@ -153,8 +153,8 @@ export default class OpencgaPanelBrowser extends LitElement {
                                                 .filters="${this._config.filters}"
                                                 .defaultStudy="${this.opencgaSession.study.fqn}"
                                                 .refresh="${this.search}"
-                                                @clear="${this.onClear}"
-                                                @filterchange="${this.onActiveFilterChange}">
+                                                @activeFilterClear="${this.onClear}"
+                                                @activeFilterChange="${this.onActiveFilterChange}">
                         </opencga-active-filters>
                         <opencga-panel-grid .opencgaSession="${this.opencgaSession}}"
                                             .opencgaClient="${this.opencgaClient}"

@@ -107,7 +107,6 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     onSelectClinicalAnalysis(e) {
-        console.log("handled")
         this.clinicalAnalysis = e.detail.analysis;
         this.requestUpdate();
     }
@@ -182,6 +181,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         }
 
         this._query = _query;
+        this.requestUpdate();
     }
 
     setQueryFilters(query) {

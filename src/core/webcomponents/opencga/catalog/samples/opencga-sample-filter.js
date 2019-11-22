@@ -1,6 +1,20 @@
+/**
+ * Copyright 2015-2019 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {LitElement, html} from '/web_modules/lit-element.js';
-
-
 import './../variableSets/opencga-annotation-filter.js';
 import './../opencga-date-filter.js';
 import "../../commons/opencga-facet-view.js";
@@ -55,14 +69,7 @@ export default class OpencgaSampleFilter extends LitElement {
         }
     }
 
-    updated(changedProperties) {
-        if(changedProperties.has("query")) {
-            this.onQueryUpdate()
-        }
-        if(changedProperties.has("variables")) {
-            //this.variablesChanged()
-        }
-    }
+
     _init() {
         // super.ready();
         this._prefix = "osf-" + Utils.randomString(6) + "_";
@@ -78,8 +85,29 @@ export default class OpencgaSampleFilter extends LitElement {
         };
         this.minYear = 1920;
 
-        this.query = {aaa:22};
+        this.query = {}; // TODO quickfix
     }
+
+    updated(changedProperties) {
+        if(changedProperties.has("query")) {
+            this.onQueryUpdate()
+        }
+        if(changedProperties.has("variables")) {
+            //this.variablesChanged()
+        }
+    }
+
+/*    //TODO in progress, added to replace notify
+    filterChange() {
+        const value = ``;
+        console.log("filterChange", value);
+        const event = new CustomEvent("filterChange", {
+            detail: {
+                value: value || null
+            }
+        });
+        this.dispatchEvent(event);
+    }*/
 
     onSearch() {
         this.search = {...this.query};
@@ -115,7 +143,7 @@ export default class OpencgaSampleFilter extends LitElement {
         }
 
         this._reset = false;
-        this.set("query", query);
+        this.query = query;
         this._reset = true;
     }
 
@@ -158,6 +186,7 @@ export default class OpencgaSampleFilter extends LitElement {
         } else {
             PolymerUtils.setPropertyById(`${this._prefix}-somatic-option-none`, 'checked', true);
         }
+        this.requestUpdate();
     }
 
     calculateFilters(e) {

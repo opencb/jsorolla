@@ -15,15 +15,11 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import "./cellbase-variant-annotation-summary.js";
+import "../cellbase-annotation-consequencetype-grid.js";
+import "../cellbase-population-frequency-grid.js";
 
-/* TODO convert in litelement
-<link rel="import" href="cellbase-variant-annotation-summary.html">
-<link rel="import" href="../cellbase-annotation-consequencetype-grid.html">
-<link rel="import" href="../cellbase-population-frequency-grid.html">
-*/
-
-
-export default class VariantAnnotationView extends LitElement {
+export default class CellbaseVariantAnnotationView extends LitElement {
 
     constructor() {
         super();
@@ -90,7 +86,6 @@ export default class VariantAnnotationView extends LitElement {
         }
     }
 
-    //TODO is it actually called?
     attached() {
         if (this.mode === "vertical") {
             $("#" + this._prefix + "Div").addClass("col-xs-10");
@@ -185,14 +180,14 @@ export default class VariantAnnotationView extends LitElement {
                         <li role="presentation" class="active"><a href="#${this._prefix}VariantAnnotationSummary" role="tab"
                                                                   data-toggle="tab">Summary</a></li>
                         <li role="presentation"><a href="#${this._prefix}VariantAnnotationConsequenceTypes" role="tab"
-                                                   data-toggle="tab">Consequence Types ({{numberConsequenceTypes}})</a></li>
+                                                   data-toggle="tab">Consequence Types (${this.numberConsequenceTypes})</a></li>
                         <li role="presentation"><a href="#${this._prefix}VariantAnnotationPopulationFrequencies" role="tab"
                                                    data-toggle="tab">Population Frequencies
-                            ({{numberPopulationFrequencies}})</a></li>
+                            (${this.numberPopulationFrequencies})</a></li>
                         <li role="presentation"><a href="#${this._prefix}VariantAnnotationVTA" role="tab" data-toggle="tab">Variant
-                            Trait Association ({{numberVTA}})</a></li>
+                            Trait Association (${this.numberVTA})</a></li>
                         <li role="presentation"><a href="#${this._prefix}VariantAnnotationGTA" role="tab" data-toggle="tab">Gene
-                            Trait Association ({{numberGTA}})</a></li>
+                            Trait Association (${this.numberGTA})</a></li>
                     </ul>
                 </div>` : null}
         
@@ -202,14 +197,14 @@ export default class VariantAnnotationView extends LitElement {
                     <li role="presentation" class="active"><a href="#${this._prefix}VariantAnnotationSummary" role="tab"
                                                               data-toggle="tab">Summary</a></li>
                     <li role="presentation"><a href="#${this._prefix}VariantAnnotationConsequenceTypes" role="tab" data-toggle="tab">Consequence
-                        Types ({{numberConsequenceTypes}})</a></li>
+                        Types (${this.numberConsequenceTypes})</a></li>
                     <li role="presentation"><a href="#${this._prefix}VariantAnnotationPopulationFrequencies" role="tab"
-                                               data-toggle="tab">Population Frequencies ({{numberPopulationFrequencies}})</a>
+                                               data-toggle="tab">Population Frequencies (${this.numberPopulationFrequencies})</a>
                     </li>
                     <li role="presentation"><a href="#${this._prefix}VariantAnnotationVTA" role="tab" data-toggle="tab">Variant Trait
-                        Association ({{numberVTA}})</a></li>
+                        Association (${this.numberVTA})</a></li>
                     <li role="presentation"><a href="#${this._prefix}VariantAnnotationGTA" role="tab" data-toggle="tab">Gene Trait
-                        Association ({{numberGTA}})</a></li>
+                        Association (${this.numberGTA})</a></li>
                 </ul>
                 ` : null}
 
@@ -218,21 +213,24 @@ export default class VariantAnnotationView extends LitElement {
             <!--Summary Tab-->
             <div role="tabpanel" class="tab-pane active" id="${this._prefix}VariantAnnotationSummary">
                 <br>
-                <cellbase-variant-annotation-summary data="{{variantAnnotation}}"
-                                                     consequence-types="{{consequenceTypes}}"
-                                                     protein-substitution-scores="{{proteinSubstitutionScores}}"></cellbase-variant-annotation-summary>
+                <cellbase-variant-annotation-summary .data="${this.variantAnnotation}"
+                                                     .consequenceTypes="${this.consequenceTypes}"
+                                                     .proteinSubstitutionScores="${this.proteinSubstitutionScores}">
+                </cellbase-variant-annotation-summary>
             </div>
             <!--Consequence types Tab-->
             <div role="tabpanel" class="tab-pane" id="${this._prefix}VariantAnnotationConsequenceTypes">
-                <cellbase-annotation-consequencetype-grid data="{{variantAnnotation.consequenceTypes}}"
-                                                          prefix="${this._prefix}annotationView"
-                                                          hash-fragment-credentials="{{hashFragmentCredentials}}"
-                                                          consequence-types="{{consequenceTypes}}"></cellbase-annotation-consequencetype-grid>
+                <cellbase-annotation-consequencetype-grid .data="${this.variantAnnotation.consequenceTypes}"
+                                                          .prefix="${this._prefix}annotationView"
+                                                          .hashFragmentCredentials="${this.hashFragmentCredentials}"
+                                                          .consequenceTypes="${this.consequenceTypes}">
+                </cellbase-annotation-consequencetype-grid>
             </div>
             <!--Population frequency Tab-->
             <div role="tabpanel" class="tab-pane" id="${this._prefix}VariantAnnotationPopulationFrequencies">
-                <cellbase-population-frequency-grid data="{{variantAnnotation.populationFrequencies}}"
-                                                    prefix="${this._prefix}annotationView"></cellbase-population-frequency-grid>
+                <cellbase-population-frequency-grid .data="${this.variantAnnotation.populationFrequencies}"
+                                                    .prefix="${this._prefix}annotationView">
+                </cellbase-population-frequency-grid>
             </div>
             <!--Gene Trait Association Tab-->
             <div role="tabpanel" class="tab-pane" id="${this._prefix}VariantAnnotationGTA">
@@ -326,3 +324,5 @@ export default class VariantAnnotationView extends LitElement {
         `;
     }
 }
+
+customElements.define("cellbase-variantannotation-view", CellbaseVariantAnnotationView);

@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-
-/* TODO migrate
-<link rel="import" href="opencga-variant-filter.html">
-<link rel="import" href="../opencga-active-filters.html">
-<link rel="import" href="opencga-variant-grid.html">
-<link rel="import" href="opencga-variant-interpretation-grid.html">
-<link rel="import" href="opencga-variant-interpretation-detail.html">
-<link rel="import" href="../opencga-genome-browser.html">
-<link rel="import" href="../clinical/opencga-clinical-analysis-view.html">
-<link rel="import" href="../clinical/clinical-interpretation-view.html">
-import {LitElement, html} from '/web_modules/lit-element.js';
- */
 import {LitElement, html} from "/web_modules/lit-element.js";
+import "./opencga-variant-filter.js";
+import "../opencga-active-filters.js";
+import "./opencga-variant-grid.js";
+import "./opencga-variant-interpretation-grid.js";
+import "./opencga-variant-interpretation-detail.js";
+import "../opencga-genome-browser.js";
+import "../clinical/opencga-clinical-analysis-view.js";
+import "../clinical/clinical-interpretation-view.js";
 
 
 export default class OpencgaVariantInterpretationEditor extends LitElement {
@@ -42,30 +38,11 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
 
     static get properties() {
         return {
-            cellbaseClient: {
-                type: Object
-            },
-            query: {
-                type: Object
-            },
-            config: {
-                type: Object
-            }
-        }
-    }
-
-    _init(){
-        this._prefix = "sf-" + Utils.randomString(6) + "_";
-    }
-
-    static get properties() {
-        return {
             opencgaSession: {
                 type: Object
             },
             interpretation: {
-                type: Object,
-                observer: "interpretationObserver"
+                type: Object
             },
             cellbaseClient: {
                 type: Object
@@ -80,48 +57,13 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
                 type: Object
             },
             mode: {
-                type: String,
-                value: "create"
+                type: String
             },
             config: {
                 type: Object
             }
-        }
+        };
     }
-
-    updated(changedProperties) {
-        if(changedProperties.has("property")) {
-            this.propertyObserver();
-        }
-    }
-
-    static get observers() {
-        /*
-         * We do not need to Observer 'query' property, when passed it will be shared (bound) with the other components.
-         * 'search; is observed to ensure 'query' is in sync.
-         */
-        return [
-            "propertyObserver(opencgaSession, mode, config)"
-        ];
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        // if (!this.interactive) {
-        //     this.collapseFilter();
-        // }
-
-        // CellBase version
-        this.cellbaseClient.getMeta("about").then(response => {
-            if (UtilsNew.isNotUndefinedOrNull(response) && UtilsNew.isNotEmptyArray(response.response)) {
-                if (UtilsNew.isNotUndefinedOrNull(response.response[0].result) && UtilsNew.isNotEmptyArray(response.response[0].result)) {
-                    this.cellbaseVersion = response.response[0].result[0]["Version: "];
-                }
-            }
-        });
-    }
-
 
     _init() {
         this._prefix = "ovi-" + Utils.randomString(6);
@@ -146,6 +88,36 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
         this.reportedVariants = [];
 
         this._config = this.getDefaultConfig();
+
+        this.mode = "create";
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.has("opencgaSession") ||
+            changedProperties.has("mode") ||
+            changedProperties.has("config")) {
+            this.propertyObserver();
+        }
+        if (changedProperties.has("interpretation")) {
+            this.interpretationObserver();
+        }
+    }
+
+    // TODO check functionality. it was connectedCallback()
+    firstUpdated(_changedProperties) {
+
+        // if (!this.interactive) {
+        //     this.collapseFilter();
+        // }
+
+        // CellBase version
+        this.cellbaseClient.getMeta("about").then(response => {
+            if (UtilsNew.isNotUndefinedOrNull(response) && UtilsNew.isNotEmptyArray(response.response)) {
+                if (UtilsNew.isNotUndefinedOrNull(response.response[0].result) && UtilsNew.isNotEmptyArray(response.response[0].result)) {
+                    this.cellbaseVersion = response.response[0].result[0]["Version: "];
+                }
+            }
+        });
     }
 
     propertyObserver(opencgaSession, mode, config) {
@@ -157,7 +129,7 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
         this._config = _config;
 
         // Check if Beacon hosts are configured
-        for (let detail of this._config.detail) {
+        for (const detail of this._config.detail) {
             if (detail.id === "beacon" && UtilsNew.isNotEmptyArray(detail.hosts)) {
                 this.beaconConfig = {
                     hosts: detail.hosts
@@ -235,15 +207,15 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
 
 
     _changeBottomTab(e) {
-        let _activeTabs = {}
-        for (let detail of this.config.detail) {
+        const _activeTabs = {};
+        for (const detail of this.config.detail) {
             _activeTabs[detail.id] = (detail.id === e.currentTarget.dataset.id);
         }
         this.set("detailActiveTabs", _activeTabs);
     }
 
     checkVariant(variant) {
-        return variant.split(':').length > 2;
+        return variant.split(":").length > 2;
     }
 
     onSelectVariant(e) {
@@ -276,11 +248,11 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
     // }
 
     onGenomeBrowserPositionChange(e) {
-        $('.variant-interpretation-content').hide(); // hides all content divs
+        $(".variant-interpretation-content").hide(); // hides all content divs
         $("#" + this._prefix + "GenomeBrowser").show(); // get the href and use it find which div to show
 
         // Show the active button
-        $('.variant-interpretation-view-buttons').removeClass("active");
+        $(".variant-interpretation-view-buttons").removeClass("active");
         // $(e.target).addClass("active");
         PolymerUtils.addClass(this._prefix + "GenomeBrowserButton", "active");
 
@@ -290,11 +262,11 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
     }
 
     _backToSelectAnalysis(e) {
-        this.dispatchEvent(new CustomEvent('backtoselectanalysis', {detail: {idTab: "PrioritizationButton"}}));
+        this.dispatchEvent(new CustomEvent("backtoselectanalysis", {detail: {idTab: "PrioritizationButton"}}));
     }
 
     _goToReport(e) {
-        this.dispatchEvent(new CustomEvent('gotoreport', {detail: {interpretation: this.interpretation}}));
+        this.dispatchEvent(new CustomEvent("gotoreport", {detail: {interpretation: this.interpretation}}));
     }
 
     triggerBeacon(e) {
@@ -307,9 +279,9 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
     }
 
     onSaveInterpretation(e, obj) {
-        let id = PolymerUtils.getValue(this._prefix + "IDInterpretation");
-        let description = PolymerUtils.getValue(this._prefix + "DescriptionInterpretation");
-        let comment = PolymerUtils.getValue(this._prefix + "CommentInterpretation");
+        const id = PolymerUtils.getValue(this._prefix + "IDInterpretation");
+        const description = PolymerUtils.getValue(this._prefix + "DescriptionInterpretation");
+        const comment = PolymerUtils.getValue(this._prefix + "CommentInterpretation");
 
         if (UtilsNew.isNotEmpty(id)) {
             if (/s/.test(id)) {
@@ -388,17 +360,17 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
                 study: this.opencgaSession.study.fqn
             };
 
-            let _this = this;
+            const _this = this;
             this.opencgaSession.opencgaClient.interpretations().create(this.clinicalAnalysis.id, params, interpretation)
-                .then((response) => {
+                .then(response => {
                     console.log(response);
                     // TODO We should update here clinicalAnalysis and add to interpretation list this file with its name from save interpertation form.
                     if (UtilsNew.isNotUndefinedOrNull(interpretation) && UtilsNew.isNotUndefinedOrNull(interpretation.clinicalAnalysis)) {
                         if (UtilsNew.isEmptyArray(interpretation.clinicalAnalysis.interpretations)) {
                             interpretation.clinicalAnalysis.interpretations = [];
                         } else {
-                            interpretation.clinicalAnalysis.interpretations = interpretation.clinicalAnalysis.interpretations.map((interpretation) => {
-                                return { id: interpretation.id, name: interpretation.name, file:  interpretation.file.id };
+                            interpretation.clinicalAnalysis.interpretations = interpretation.clinicalAnalysis.interpretations.map(interpretation => {
+                                return {id: interpretation.id, name: interpretation.name, file: interpretation.file.id};
                             });
                         }
                         interpretation.clinicalAnalysis.interpretations.push({
@@ -411,12 +383,12 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
                     params = {
                         study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias
                     };
-                    let interpretations =  { interpretations: interpretation.clinicalAnalysis.interpretations };
+                    const interpretations = {interpretations: interpretation.clinicalAnalysis.interpretations};
                     _this.opencgaSession.opencgaClient.clinical().update(interpretation.clinicalAnalysis.id, params, interpretations)
-                        .then((response) => {
+                        .then(response => {
                             this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
                                 detail: {
-                                    message:  interpretation.id + " interpretation has been created correctly.",
+                                    message: interpretation.id + " interpretation has been created correctly.",
                                     type: UtilsNew.MESSAGE_SUCCESS
                                 },
                                 bubbles: true,
@@ -428,10 +400,10 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
                             // Update analysis with new interpretations
                             _this.getAnalysisInterpretations();
                         })
-                        .catch((err) => {
+                        .catch(err => {
                             this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
                                 detail: {
-                                    message:  err.error,
+                                    message: err.error,
                                     type: UtilsNew.MESSAGE_ERROR
                                 },
                                 bubbles: true,
@@ -439,10 +411,10 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
                             }));
                         });
                 })
-                .catch((err) => {
+                .catch(err => {
                     this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
                         detail: {
-                            message:  err.error,
+                            message: err.error,
                             type: UtilsNew.MESSAGE_ERROR
                         },
                         bubbles: true,
@@ -453,7 +425,7 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
         } catch (err) {
             this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
                 detail: {
-                    message:  err,
+                    message: err,
                     type: UtilsNew.MESSAGE_ERROR
                 },
                 bubbles: true,
@@ -470,12 +442,12 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
     }
 
     getAnalysisInterpretations() {
-        let params = {
+        const params = {
             study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
         };
-        let _this = this;
+        const _this = this;
         this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, params, {})
-            .then(function(response){
+            .then(function(response) {
                 _this.showSummary = false;
                 if (response.response[0].numResults === 1) {
                     _this.clinicalAnalysis = response.response[0].result[0];
@@ -498,7 +470,7 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
             genomeBrowser: {
                 showTitle: false
             }
-        }
+        };
     }
 
     render() {
@@ -557,7 +529,7 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
                         <div class="alert alert-danger" role="alert" id="${this._prefix}messageError" style="margin:5px auto;">${this.messageErrorText}</div>
                     ` : null}
                     ${this.messageSuccess ? html `
-                        <div class="alert alert-success" role="alert" id="${this._prefix}messageSuccess" style="margin:5px auto;">{{messageSuccessText}}</div>
+                        <div class="alert alert-success" role="alert" id="${this._prefix}messageSuccess" style="margin:5px auto;">${this.messageSuccessText}</div>
                     ` : null}
                 </div>
 
@@ -582,12 +554,12 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
                                 <div class="col-md-3">
                                     ${this.isCreate ? html`
                                         <input type="text" id="${this._prefix}IDInterpretation" class="${this._prefix}TextInput form-control"
-                                               placeholder="ID of the interpretation" data-field="id" @keyup="${this.onInputChange}"
+                                               placeholder="ID of the interpretation" data-field="id" @input="${this.onInputChange}"
                                                value="${this._interpretation.id}">
                                     ` : html`
                                         <div class="input-group">
                                             <input type="text" id="${this._prefix}IDInterpretation" class="${this._prefix}TextInput form-control"
-                                                   placeholder="ID of the interpretation" data-field="id" on-keyup="onInputChange">
+                                                   placeholder="ID of the interpretation" data-field="id" @input="${this.onInputChange}">
                                             <span class="input-group-btn">
                                             <button class="btn btn-default" type="button">
                                                 <i class="fa fa-search" aria-hidden="true"></i>
@@ -602,7 +574,7 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
                             <div class="form-group">
                                 <label class="control-label col-md-1 jso-label-title">Comment</label>
                                 <div class="col-md-3">
-                                    <input type="text" id="${this._prefix}CommentInterpretation" class$="${this._prefix}TextInput form-control"
+                                    <input type="text" id="${this._prefix}CommentInterpretation" class="${this._prefix}TextInput form-control"
                                            placeholder="Add a comment" data-field="comment">
                                 </div>
                             </div>
@@ -610,9 +582,9 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
                             <div class="form-group">
                                 <label class="control-label col-md-1 jso-label-title">Description</label>
                                 <div class="col-md-3">
-                                <textarea id="${this._prefix}DescriptionInterpretation" class$="${this._prefix}TextInput form-control"
+                                <textarea id="${this._prefix}DescriptionInterpretation" class="${this._prefix}TextInput form-control"
                                           placeholder="Description of the interpretation" data-field="description"
-                                          on-keyup="onInputChange"></textarea>
+                                          @input="${this.onInputChange}"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -620,68 +592,66 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
 
                     <div style="padding-top: 5px">
                         <!--                        <h3 class="form-section-title">Edit Reported Variants</h3>-->
-                        <div style="display: inline; cursor:pointer" on-click="toggleVariantsCollapsed"
-                             data-toggle="collapse" href$="#${this._prefix}collapsibleVariants">
+                        <div style="display: inline; cursor:pointer" @click="${this.toggleVariantsCollapsed}"
+                             data-toggle="collapse" href="#${this._prefix}collapsibleVariants">
                             <h3 class="form-section-title">
-                                <template is="dom-if" if="{{variantsCollapsed}}">
+                                ${this.variantsCollapsed ? html`
                                     <i class="fa fa-caret-right" aria-hidden="true" style="width: 20px;padding-left: 5px;padding-right: 5px"></i>
-                                </template>
-                                <template is="dom-if" if="{{!variantsCollapsed}}">
+                                ` : html`
                                     <i class="fa fa-caret-down" aria-hidden="true" style="width: 20px;padding-left: 5px;padding-right: 5px"></i>
-                                </template>
+                                `}
                                 Primary Findings
                             </h3>
                         </div>
 
                         <div id="${this._prefix}collapsibleVariants" class="collapse in">
-                            <template is="dom-if" if="{{isInterpretedVariants}}">
-                                <opencga-variant-interpretation-grid opencga-session="{{opencgaSession}}"
-                                                                     reported-variants="{{_interpretation.primaryFindings}}"
-                                                                     clinical-analysis="{{clinicalAnalysis}}"
-                                                                     consequence-types="{{consequenceTypes}}"
-                                                                     population-frequencies="{{populationFrequencies}}"
-                                                                     protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                                     on-selected="selectedGene"
-                                                                     on-selectvariant2="onSelectVariant2"
-                                                                     on-checkvariant="onCheckVariant"
-                                                                     on-reviewvariant="onReviewVariant"
-                                                                     on-setgenomebrowserposition="onGenomeBrowserPositionChange"
-                                                                     config="{{_config.grid}}">
+                            ${this.isInterpretedVariants ? html`
+                                <opencga-variant-interpretation-grid .opencgaSession="${this.opencgaSession}"
+                                                                     .reportedVariants="${this._interpretation.primaryFindings}"
+                                                                     .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                     .consequenceTypes="${this.consequenceTypes}"
+                                                                     .populationFrequencies="${this.populationFrequencies}"
+                                                                     .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                                     .config="${this._config.grid}}"
+                                                                     @selected="${this.selectedGene}"
+                                                                     @selectvariant2="${this.onSelectVariant2}"
+                                                                     @checkvariant="${this.onCheckVariant}"
+                                                                     @reviewvariant="${this.onReviewVariant}"
+                                                                     @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
                                 </opencga-variant-interpretation-grid>
 
-                                <opencga-variant-interpretation-detail opencga-session={{opencgaSession}}
-                                                                       cellbase-client={{cellbaseClient}}
-                                                                       variant={{selectedVariant}}
-                                                                       clinical-analysis={{clinicalAnalysis}}
-                                                                       consequence-types={{consequenceTypes}}
-                                                                       protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                                       config={{_config.detail}}>
+                                <opencga-variant-interpretation-detail .opencgaSession="${this.opencgaSession}"
+                                                                       .cellbaseClient="${this.cellbaseClient}"
+                                                                       .variant="${this.selectedVariant}"
+                                                                       .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                       .consequenceTypes="${this.consequenceTypes}"
+                                                                       .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                                       .config="${this._config.detail}">
                                 </opencga-variant-interpretation-detail>
-                            </template>
-
-                            <template is="dom-if" if="{{!isInterpretedVariants}}">
+                            ` : html`
                                 <h4 style="padding: 20px">No interpreted variants</h4>
-                            </template>
+                            ` }
+
                         </div>
                     </div>
                 </div>
 
                 <div class="col-md-12">
                     <div class="col-md-4 col-md-offset-8" style="padding: 0px 20px;">
-                        <button type="button" class="btn btn-primary" on-click="onViewInterpretation">View</button>
-                        <button type="button" class="btn btn-primary" on-click="onSaveInterpretation">Save</button>
+                        <button type="button" class="btn btn-primary" @click="${this.onViewInterpretation}">View</button>
+                        <button type="button" class="btn btn-primary" @click="${this.onSaveInterpretation}">Save</button>
                     </div>
                 </div>
 
                 <div class="col-md-12">
-                    <template is="dom-if" if="{{interpretationView}}">
+                    <template is="dom-if" if="${this.interpretationView}}">
                         <clinical-interpretation-view id="id"
-                                                      interpretation="{{interpretationView}}"
-                                                      opencga-session="{{opencgaSession}}"
-                                                      opencga-client="{{opencgaSession.opencgaClient}}"
-                                                      cellbase-client="{{cellbaseClient}}"
-                                                      consequence-types="{{consequenceTypes}}"
-                                                      protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                                      interpretation="${this.interpretationView}"
+                                                      .opencgaSession="${this.opencgaSession}"
+                                                      .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                                      .cellbaseClient="${this.cellbaseClient}"
+                                                      .consequenceTypes="${this.consequenceTypes}"
+                                                      .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                                       style="font-size: 12px">
                         </clinical-interpretation-view>
                     </template>
@@ -690,11 +660,13 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
         </div>
         <!--</template>-->
 
-        <!--<template is="dom-if" if="{{!checkProjects}}">-->
+        <!--<template is="dom-if" if="${!this.checkProjects}}">-->
         <!--<span style="text-align: center"><h3>No public projects available to browse. Please login to continue</h3></span>-->
         <!--</template>-->
 
-    `}
+    `;
+    }
+
 }
 
 customElements.define("opencga-variant-interpretation-editor", OpencgaVariantInterpretationEditor);

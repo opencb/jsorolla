@@ -15,22 +15,18 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-
-/* TODO migrate to litElement
-<link rel="import" href="opencga-variant-interpretation-editor.html">
-<link rel="import" href="opencga-variant-grid.html">
-<link rel="import" href="opencga-variant-interpretation-grid.html">
-<link rel="import" href="opencga-variant-interpretation-detail.html">
-<link rel="import" href="opencga-variant-family-analysis.html">
-<link rel="import" href="../alignment/opencga-panel-transcript-view.html">
-<link rel="import" href="../clinical/opencga-clinical-analysis-view.html">
-<link rel="import" href="../clinical/clinical-interpretation-view.html">
-<link rel="import" href="../opencga-active-filters.html">
-<link rel="import" href="../opencga-genome-browser.html">
-<link rel="import" href="opencga-variant-interpreter-genome-browser.html">*/
-
 import "./opencga-variant-filter.js";
-
+import "./opencga-variant-interpretation-editor.js";
+import "./opencga-variant-grid.js";
+import "./opencga-variant-interpretation-grid.js";
+import "./opencga-variant-interpretation-detail.js";
+import "./opencga-variant-family-analysis.js";
+import "../alignment/opencga-panel-transcript-view.js";
+import "../clinical/opencga-clinical-analysis-view.js";
+import "../opencga-active-filters.js";
+import "../opencga-genome-browser.js";
+import "../clinical/clinical-interpretation-view.js";
+import "./opencga-variant-interpreter-genome-browser.js";
 
 class OpencgaVariantInterpretation extends LitElement {
 

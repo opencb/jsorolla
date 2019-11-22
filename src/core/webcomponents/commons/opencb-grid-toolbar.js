@@ -121,59 +121,60 @@ export default class OpencbGridToolbar extends LitElement {
             <style>
             ${checkBoxWidget}
             </style>
-            <div class="row">
-                <div class="col-md-12" style="padding: 5px 0px 0px 0px">
-                    <div id="${this._prefix}ToolbarLeft" class="col-md-6" style="padding: 15px 0px 0px 0px">
-                            <span style="padding: 0px">
-                                Showing <label>${this.from}-${this.to}</label> of <label>${this.numTotalResultsText}</label> ${this._config.label}
-                            </span>
-                    </div>
-            
-                    <div id="${this._prefix}toolbar" class="col-md-6" style="padding: 0px">
-            
-                        <div class="form-inline" style="padding: 0px; float: right">
-            
-                            ${this._config.columns.length ? html`
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i id="${this._prefix}ColumnIcon" class="fa fa-columns" aria-hidden="true" style="padding-right: 5px"></i> Columns <span class="caret"></span>
-                                        </button>
-                                        <ul class="dropdown-menu btn-sm checkbox-container">
-                                            ${this._config.columns.length ?
-                                                this._config.columns.map(item => this.isTrue(item.eligible) ? html`
-                                                    <li>
-                                                        <a data-column-id="${item.field}" @click="${this.onColumnClick}" style="cursor: pointer;">
-                                                            <input type="checkbox" @click="${this.checkboxToggle}" ?checked="${this.isTrue(item.visible)}"/>
-                                                            <span class="checkmark-label">${item.title}</span>
-                                                            <span class="checkmark"></span>
-                                                        </a>
-                                                    </li>` : null)
-                                            : null}
-                                        </ul>
-                                    </div>`
-                                : null }
-            
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"
-                                        aria-haspopup="true" aria-expanded="false">
-                                    <i id="${this._prefix}DownloadRefresh" class="fa fa-refresh fa-spin" aria-hidden="true"
-                                       style="font-size:14px;display: none"></i>
-                                    <i id="${this._prefix}DownloadIcon" class="fa fa-download" aria-hidden="true"
-                                       style="padding-right: 5px"></i> Download <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu btn-sm">
-                                    ${this._config.download.length && this._config.download.map(item => html`
-                                            <li><a data-download-option="${item}" @click="${this.onDownloadFile}">${item}</a></li>
-            `                           )}
-                                </ul>
-                            </div>
-            
-                            <!--Share URL-->
-                            ${this.showShareLink ? html`
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12" style="padding: 5px 0px 0px 0px">
+                        <div id="${this._prefix}ToolbarLeft" class="col-md-6" style="padding: 15px 0px 0px 0px">
+                                <span style="padding: 0px">
+                                    Showing <label>${this.from}-${this.to}</label> of <label>${this.numTotalResultsText}</label> ${this._config.label}
+                                </span>
+                        </div>
+                
+                        <div id="${this._prefix}toolbar" class="col-md-6" style="padding: 0px">
+                
+                            <div class="form-inline" style="padding: 0px; float: right">
+                                ${this._config.columns.length ? html`
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <i id="${this._prefix}ColumnIcon" class="fa fa-columns" aria-hidden="true" style="padding-right: 5px"></i> Columns <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu btn-sm checkbox-container">
+                                                ${this._config.columns.length ?
+                                                    this._config.columns.map(item => this.isTrue(item.eligible) ? html`
+                                                        <li>
+                                                            <a data-column-id="${item.field}" @click="${this.onColumnClick}" style="cursor: pointer;">
+                                                                <input type="checkbox" @click="${this.checkboxToggle}" ?checked="${this.isTrue(item.visible)}"/>
+                                                                <span class="checkmark-label">${item.title}</span>
+                                                                <span class="checkmark"></span>
+                                                            </a>
+                                                        </li>` : null)
+                                                : null}
+                                            </ul>
+                                        </div>`
+                                    : null }
+                
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"
+                                            aria-haspopup="true" aria-expanded="false">
+                                        <i id="${this._prefix}DownloadRefresh" class="fa fa-refresh fa-spin" aria-hidden="true"
+                                           style="font-size:14px;display: none"></i>
+                                        <i id="${this._prefix}DownloadIcon" class="fa fa-download" aria-hidden="true"
+                                           style="padding-right: 5px"></i> Download <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu btn-sm">
+                                        ${this._config.download.length && this._config.download.map(item => html`
+                                                <li><a data-download-option="${item}" @click="${this.onDownloadFile}">${item}</a></li>
+                                        `) }
+                                    </ul>
+                                </div>
+                
+                                <!--Share URL-->
+                                ${this.showShareLink ? html`
                                     <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" @click="onShareLink">
                                         <i class="fa fa-share-alt" aria-hidden="true" style="padding-right: 5px"></i> Share
                                     </button>
-                                    ` : null }
+                                ` : null }
+                            </div>
                         </div>
                     </div>
                 </div>
