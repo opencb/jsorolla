@@ -551,15 +551,15 @@ export default class OpencgaVariantBrowser extends LitElement {
     <div id="${this._prefix}MainWindow" class="col-md-10">
        
         <opencga-active-filters .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                defaultStudy="${this.opencgaSession.study.alias}"
+                                .defaultStudy="${this.opencgaSession.study.alias}"
                                 .query="${this.preparedQuery}"
                                 .refresh="${this.executedQuery}"
                                 .filters="${this._config.filter.examples}"
-                                @activeFilterChange="${this.onActiveFilterChange}"
-                                @activeFilterClear="${this.onActiveFilterClear}"
-                                filterBioformat="VARIANT"
                                 .alias="${this._config.activeFilterAlias}"
-                                .config="${this._config.activeFilters}">
+                                .config="${this._config.activeFilters}"
+                                filterBioformat="VARIANT"
+                                @activeFilterChange="${this.onActiveFilterChange}"
+                                @activeFilterClear="${this.onActiveFilterClear}">
         </opencga-active-filters>
         
         <div class="col-md-12" style="padding: 5px 0px 5px 0px">

@@ -69,6 +69,12 @@ export default class ConsequenceTypeFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
+    clearSelection() {
+        $("input[type=checkbox]", this).prop("checked", false);
+        this.ct = [];
+        this.filterChange();
+    }
+
     onChange(e) {
         //TODO refactor!
         let lofCheckBox = this.querySelector("#" + this._prefix + "LossOfFunctionCheckBox");
@@ -111,7 +117,8 @@ export default class ConsequenceTypeFilter extends LitElement {
     }
 
     render() {
-        return html`  
+        return html` 
+            <button class="btn" @click="${this.clearSelection}">clear</button> 
             <div style="padding-top: 15px">Loss-of-Function (LoF) terms:</div>
             <div class="form-check" style="margin-top: 5px;">
                 <div class="form-check-label">

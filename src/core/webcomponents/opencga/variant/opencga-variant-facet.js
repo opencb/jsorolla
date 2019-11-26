@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-
 import "./opencga-variant-filter.js";
 import "../commons/opencga-facet-result-view.js";
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
 
 export default class FulltextSearchAccessionsFilter extends LitElement {
 
@@ -31,37 +31,39 @@ export default class FulltextSearchAccessionsFilter extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             placeholder: {
                 type: String
             },
             query: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = "fsaf-" + Utils.randomString(6) + "_";
         this.placeholder = "Full-text search, e.g. *melanoma*";
     }
 
-    firstUpdated(_changedProperties) {
-        if (this.query && typeof this.query["traits"] !== "undefined") {
-            PolymerUtils.setValue(this._prefix + "TraitsTextarea", this.query.traits);
+    updated(_changedProperties) {
+        if (_changedProperties.has("query")) {
+            if(this.query.traits) {
+                this.querySelector("#" + this._prefix + "TraitsTextarea").value = this.query.traits;
+            } else {
+                this.querySelector("#" + this._prefix + "TraitsTextarea").value = "";
+            }
+
         }
     }
 
     filterChange(e) {
         let traits;
-        let inputTextArea = PolymerUtils.getElementById(this._prefix + "TraitsTextarea");
+        const inputTextArea = PolymerUtils.getElementById(this._prefix + "TraitsTextarea");
         if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
             traits = inputTextArea.value;
         }
         console.log("filterChange", traits);
-        let event = new CustomEvent('filterChange', {
+        const event = new CustomEvent("filterChange", {
             detail: {
                 value: traits || null
             }
@@ -71,9 +73,10 @@ export default class FulltextSearchAccessionsFilter extends LitElement {
 
     render() {
         return html`
-            <textarea id="${this._prefix}TraitsTextarea" class="form-control clearable ${this._prefix}FilterTextInput" rows="5" name="traits" placeholder="${this.placeholder}" @keyup="${this.filterChange}"></textarea>
+            <textarea id="${this._prefix}TraitsTextarea" class="form-control clearable ${this._prefix}FilterTextInput" rows="5" name="traits" placeholder="${this.placeholder}" @input="${this.filterChange}"></textarea>
         `;
     }
+
 }
 
-customElements.define('fulltext-search-accessions-filter', FulltextSearchAccessionsFilter);
+customElements.define("fulltext-search-accessions-filter", FulltextSearchAccessionsFilter);

@@ -48,8 +48,11 @@ export default class OpencgaFileBrowser extends LitElement {
             },
             config: {
                 type: Object
+            },
+            query: {
+                type: Object
             }
-        }
+        };
     }
 
     _init() {
@@ -88,6 +91,7 @@ export default class OpencgaFileBrowser extends LitElement {
     }
 
     onActiveFilterChange(e) {
+        console.log("onActiveFilterChange", e)
         this.query = e.detail;
         this.search = e.detail;
     }

@@ -82,6 +82,7 @@ export default class OpencgaActiveFilters extends LitElement {
         this.opencgaClient = function () {
             return {"_config": {}};
         }
+        this.query = {};
     }
 
     //TODO recheck connectedCallback
