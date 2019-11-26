@@ -1389,7 +1389,7 @@ export default class OpencgaVariantFilter extends LitElement {
             content = html`<clinvar-accessions-filter .query="${this.query}" @filterChange="${e => this.onFilterChange("clinvar", e.detail.value)}"></clinvar-accessions-filter>`;
             break;
         case "fullTextSearch":
-            content = html`<fulltext-search-accessions-filter  .query="${this.query}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></fulltext-search-accessions-filter>`;
+            content = html`<fulltext-search-accessions-filter .query="${this.query}"  @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></fulltext-search-accessions-filter>`;
             break;
         }
 

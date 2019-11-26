@@ -31,13 +31,10 @@ export default class FulltextSearchAccessionsFilter extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            query: {
                 type: Object
             },
-            placeholder: {
-                type: String
-            },
-            query: {
+            config: {
                 type: Object
             }
         }
@@ -45,22 +42,28 @@ export default class FulltextSearchAccessionsFilter extends LitElement {
 
     _init(){
         this._prefix = "fsaf-" + Utils.randomString(6) + "_";
-        this.placeholder = "Full-text search, e.g. *melanoma*";
+        this._config = this.getDefaultConfig();
     }
 
     firstUpdated(_changedProperties) {
-        if (this.query && typeof this.query["traits"] !== "undefined") {
-            PolymerUtils.setValue(this._prefix + "TraitsTextarea", this.query.traits);
+        this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
+    updated(_changedProperties) {
+        if (_changedProperties.has("query")) {
+            let _traits = this.query && this.query.traits ? this.query.traits : "";
+            this.querySelector("#" + this._prefix + "TraitsTextarea").value = _traits;
+            // FIXME The preferred way of updating shold be requestUpdate, but for any reason is not working now
+            // this.requestUpdate();
         }
     }
 
     filterChange(e) {
         let traits;
-        let inputTextArea = PolymerUtils.getElementById(this._prefix + "TraitsTextarea");
+        let inputTextArea = document.getElementById(this._prefix + "TraitsTextarea");
         if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
             traits = inputTextArea.value;
         }
-        console.log("filterChange", traits);
         let event = new CustomEvent('filterChange', {
             detail: {
                 value: traits || null
@@ -69,9 +72,17 @@ export default class FulltextSearchAccessionsFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
+    getDefaultConfig() {
+        return {
+            rows: 5,
+            placeholder: "Full-text search, e.g. melanoma"
+        };
+    }
+
     render() {
         return html`
-            <textarea id="${this._prefix}TraitsTextarea" class="form-control clearable ${this._prefix}FilterTextInput" rows="5" name="traits" placeholder="${this.placeholder}" @keyup="${this.filterChange}"></textarea>
+            <textarea id="${this._prefix}TraitsTextarea" class="form-control clearable ${this._prefix}FilterTextInput" 
+                rows="${this._config.rows}" name="traits" placeholder="${this._config.placeholder}" @keyup="${this.filterChange}"></textarea>
         `;
     }
 }
