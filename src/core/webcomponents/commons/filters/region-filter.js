@@ -35,9 +35,12 @@ export default class RegionFilter extends LitElement {
             cellbaseClient: {
                 type: Object
             },
-            query: {
-                type: Object
+            region: {
+                type: String
             },
+            // query: {
+            //     type: Object
+            // },
             config: {
                 type: Object
             }
@@ -48,23 +51,24 @@ export default class RegionFilter extends LitElement {
         this._prefix = "crf-" + Utils.randomString(6) + "_";
         // FIXME in case of region as a prop (with value = this.query.region from variant-filter) in case opencga-active-filter deletes a region filter this component is not updated.
         // A temp solution is to add query as prop and watch for its edits in updated() [this.region as prop is not used anymore].
-        // this.region = "";
-        this._config = this.getDefaultConfig();
+        this.region = "";
         this.separator = ",";
+        this._config = this.getDefaultConfig();
+    }
+
+    firstUpdated(_changedProperties) {
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(_changedProperties) {
-        if (_changedProperties.has("query")) {
-            let _region = this.query && this.query.region ? this.query.region : "";
-            //this shouldn't be necessary.. component view is refreshed but the textArea isn't.
-            this.querySelector("#" + this._prefix + "LocationTextarea").value = _region;
-        }
-    }
+        // if (_changedProperties.has("query")) {
+        //     let _region = this.query && this.query.region ? this.query.region : "";
+        //     //this shouldn't be necessary.. component view is refreshed but the textArea isn't.
+        //     this.querySelector("#" + this._prefix + "LocationTextarea").value = _region;
+        // }
 
-    getDefaultConfig() {
-        return {
-            placeholder: "3:444-55555,1:1-100000"
-        };
+        let _region = _changedProperties.has("region") && this.region ? this.region : "";
+        this.querySelector("#" + this._prefix + "LocationTextarea").value = _region;
     }
 
     filterChange(e) {
@@ -87,11 +91,18 @@ export default class RegionFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
+    getDefaultConfig() {
+        return {
+            rows: 3,
+            placeholder: "3:444-55555,1:1-100000"
+        };
+    }
+
     render() {
         return html`
                     <textarea id="${this._prefix}LocationTextarea" name="location" 
                         class="form-control clearable ${this._prefix}FilterTextInput"
-                        rows="3" placeholder="${this._config.placeholder}"
+                        rows="${this._config.rows}" placeholder="${this._config.placeholder}"
                         @input="${e => this.filterChange(e)}"></textarea>
                 `;
     }

@@ -1336,7 +1336,7 @@ export default class OpencgaVariantFilter extends LitElement {
             content = html`<file-filter .query="${this.query}" @filterChange="${e => this.onFilterChange("filter", e.detail.value)}"></file-filter>`;
             break;
         case "location":
-            content = html`<region-filter .cellbaseClient="${this.cellbaseClient}" .query="${this.query}" .region="${this.query.region}" 
+            content = html`<region-filter .cellbaseClient="${this.cellbaseClient}" .region="${this.preparedQuery.region}" 
                                            @filterChange="${e => this.onFilterChange("region", e.detail.value)}"></region-filter>`;
             break;
         case "feature":
