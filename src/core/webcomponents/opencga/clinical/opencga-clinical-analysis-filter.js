@@ -39,7 +39,6 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
             },
             query: {
                 type: Object,
-                value: {},
                 notify: true
             },
             search: {
@@ -61,7 +60,7 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
 
     _init() {
         // super.ready();
-        this.prefix = "osf-" + Utils.randomString(6);
+        this._prefix = "osf-" + Utils.randomString(6) + "_";
 
         this.minYear = 1920;
 
@@ -74,6 +73,7 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
         this.dateFilterConfig = {
             recentDays: 10
         };
+        this.query = {};
     }
 
     updated(changedProperties) {
@@ -96,7 +96,8 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
         }
 
         this._reset = false;
-        this.set("query", query);
+        //this.set("query", query);
+        this.query = query;
         this._reset = true;
     }
 
@@ -115,64 +116,64 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
 
         // ClinicalAnalysis
         if (UtilsNew.isNotUndefined(this.query.id)) {
-            PolymerUtils.setValue(`${this.prefix}-analysis-input`, this.query.id);
+            PolymerUtils.setValue(`${this._prefix}-analysis-input`, this.query.id);
         }
 
         // Family
         if (UtilsNew.isNotUndefined(this.query.family)) {
-            PolymerUtils.setValue(`${this.prefix}-family-input`, this.query.family);
+            PolymerUtils.setValue(`${this._prefix}-family-input`, this.query.family);
         }
 
         // Proband
         if (UtilsNew.isNotUndefined(this.query.proband)) {
-            PolymerUtils.setValue(`${this.prefix}-proband-input`, this.query.proband);
+            PolymerUtils.setValue(`${this._prefix}-proband-input`, this.query.proband);
         }
 
         // Sample
         if (UtilsNew.isNotUndefined(this.query.sample)) {
-            PolymerUtils.setValue(`${this.prefix}-sample-input`, this.query.sample);
+            PolymerUtils.setValue(`${this._prefix}-sample-input`, this.query.sample);
         }
 
         // Priority
         if (UtilsNew.isNotUndefined(this.query.priority)) {
-            $(`#${this.prefix}-analysis-priority-select`).selectpicker("val", this.query.priority.split(","));
+            $(`#${this._prefix}-analysis-priority-select`).selectpicker("val", this.query.priority.split(","));
         }
 
         // Type
         if (UtilsNew.isNotUndefined(this.query.type)) {
-            $(`#${this.prefix}-analysis-type-select`).selectpicker("val", this.query.type.split(","));
+            $(`#${this._prefix}-analysis-type-select`).selectpicker("val", this.query.type.split(","));
         }
     }
 
     calculateFilters(e) {
         const _query = {};
 
-        const name = PolymerUtils.getValue(`${this.prefix}-analysis-input`);
+        const name = PolymerUtils.getValue(`${this._prefix}-analysis-input`);
         if (UtilsNew.isNotEmpty(name)) {
             _query.id = name;
         }
 
-        const family = PolymerUtils.getValue(`${this.prefix}-family-input`);
+        const family = PolymerUtils.getValue(`${this._prefix}-family-input`);
         if (UtilsNew.isNotEmpty(family)) {
             _query.family = family;
         }
 
-        const proband = PolymerUtils.getValue(`${this.prefix}-proband-input`);
+        const proband = PolymerUtils.getValue(`${this._prefix}-proband-input`);
         if (UtilsNew.isNotEmpty(proband)) {
             _query.proband = proband;
         }
 
-        const samples = PolymerUtils.getValue(`${this.prefix}-sample-input`);
+        const samples = PolymerUtils.getValue(`${this._prefix}-sample-input`);
         if (UtilsNew.isNotEmpty(samples)) {
             _query.sample = samples;
         }
 
-        const priority = $(`#${this.prefix}-analysis-priority-select`).selectpicker("val");
+        const priority = $(`#${this._prefix}-analysis-priority-select`).selectpicker("val");
         if (UtilsNew.isNotEmpty(priority)) {
             _query.priority = priority.join(",");
         }
 
-        const type = $(`#${this.prefix}-analysis-type-select`).selectpicker("val");
+        const type = $(`#${this._prefix}-analysis-type-select`).selectpicker("val");
         if (UtilsNew.isNotEmpty(type)) {
             _query.type = type.join(",");
         }
@@ -184,7 +185,8 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
 
         // To prevent to call renderQueryFilters we set this to false
         this._reset = false;
-        this.set("query", _query);
+        //this.set("query", _query);
+        this.query = _query;
         this._reset = true;
     }
 
@@ -193,10 +195,10 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
      */
     _clearHtmlDom() {
         // Input controls
-        PolymerUtils.setPropertyByClassName(this.prefix + "FilterTextInput", "value", "");
-        PolymerUtils.removeAttributebyclass(this.prefix + "FilterTextInput", "disabled");
+        PolymerUtils.setPropertyByClassName(this._prefix + "FilterTextInput", "value", "");
+        PolymerUtils.removeAttributebyclass(this._prefix + "FilterTextInput", "disabled");
 
-        $(`#${this.prefix}ClinicalAnalysisSelection .selectpicker`).selectpicker("val", "");
+        $(`#${this._prefix}ClinicalAnalysisSelection .selectpicker`).selectpicker("val", "");
     }
 
     render() {
@@ -242,70 +244,70 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
         </style>
 
         <div style="width: 60%;margin: 0 auto">
-            <button type="button" class="btn btn-lg btn-primary" style="width: 100%" on-click="onSearch">
+            <button type="button" class="btn btn-lg btn-primary" style="width: 100%" @click="${this.onSearch}">
                 <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i> Search
             </button>
         </div>
 
-        <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true" style="padding-top: 20px">
+        <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true" style="padding-top: 20px">
 
             <!-- ClinicalAnalysis field attributes -->
             <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="{{prefix}}ClinicalAnalysisSelectionHeading">
+                <div class="panel-heading" role="tab" id="${this._prefix}ClinicalAnalysisSelectionHeading">
                     <h4 class="panel-title">
-                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                           href="#{{prefix}}ClinicalAnalysisSelection" aria-expanded="true" aria-controls="{{prefix}}ClinicalAnalysisSelection">
+                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
+                           href="#${this._prefix}ClinicalAnalysisSelection" aria-expanded="true" aria-controls="${this._prefix}ClinicalAnalysisSelection">
                             Clinical Analysis
                         </a>
                     </h4>
                 </div>
 
-                <div id="{{prefix}}ClinicalAnalysisSelection" class="panel-collapse collapse in" role="tabpanel"
-                     aria-labelledby="{{prefix}}ClinicalAnalysisSelectionHeading">
+                <div id="${this._prefix}ClinicalAnalysisSelection" class="panel-collapse collapse in" role="tabpanel"
+                     aria-labelledby="${this._prefix}ClinicalAnalysisSelectionHeading">
                     <div class="panel-body">
 
                         <div class="form-group">
                             <div class="browser-subsection">Clinical Analysis ID
                             </div>
-                            <div id="{{prefix}}-name" class="subsection-content form-group">
-                                <input type="text" id="{{prefix}}-analysis-input" class$="form-control input-sm {{prefix}}FilterTextInput"
-                                       placeholder="CA-1234,CA-2345..." on-keyup="calculateFilters">
+                            <div id="${this._prefix}-name" class="subsection-content form-group">
+                                <input type="text" id="${this._prefix}-analysis-input" class="form-control input-sm ${this._prefix}FilterTextInput"
+                                       placeholder="CA-1234,CA-2345..." @input="${this.calculateFilters}">
                             </div>
                         </div>
 
                         <div class="form-group">
                             <div class="browser-subsection">Family ID
                             </div>
-                            <div id="{{prefix}}-family" class="subsection-content form-group">
-                                <input type="text" id="{{prefix}}-family-input" class$="form-control input-sm {{prefix}}FilterTextInput"
-                                       placeholder="FAM123, FAM124..." on-keyup="calculateFilters">
+                            <div id="${this._prefix}-family" class="subsection-content form-group">
+                                <input type="text" id="${this._prefix}-family-input" class="form-control input-sm ${this._prefix}FilterTextInput"
+                                       placeholder="FAM123, FAM124..." @input="${this.calculateFilters}">
                             </div>
                         </div>
 
                         <div class="form-group">
                             <div class="browser-subsection">Proband ID
                             </div>
-                            <div id="{{prefix}}-proband" class="subsection-content form-group">
-                                <input type="text" id="{{prefix}}-proband-input" class$="form-control input-sm {{prefix}}FilterTextInput"
-                                       placeholder="LP-1234, LP-2345..." on-keyup="calculateFilters">
+                            <div id="${this._prefix}-proband" class="subsection-content form-group">
+                                <input type="text" id="${this._prefix}-proband-input" class="form-control input-sm ${this._prefix}FilterTextInput"
+                                       placeholder="LP-1234, LP-2345..." @input="${this.calculateFilters}">
                             </div>
                         </div>
 
                         <div class="form-group">
                             <div class="browser-subsection">Sample ID
                             </div>
-                            <div id="{{prefix}}-sample" class="subsection-content form-group">
-                                <input type="text" id="{{prefix}}-sample-input" class$="form-control input-sm {{prefix}}FilterTextInput"
-                                       placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">
+                            <div id="${this._prefix}-sample" class="subsection-content form-group">
+                                <input type="text" id="${this._prefix}-sample-input" class="form-control input-sm ${this._prefix}FilterTextInput"
+                                       placeholder="HG01879, HG01880, HG01881..." @input="${this.calculateFilters}">
                             </div>
                         </div>
 
                         <div class="form-group">
                             <div class="browser-subsection">Priority
                             </div>
-                            <div id="{{prefix}}-analysis-priority" class="subsection-content form-group">
-                                <select id="{{prefix}}-analysis-priority-select" class="selectpicker" multiple
-                                        on-change="calculateFilters" data-width="100%">
+                            <div id="${this._prefix}-analysis-priority" class="subsection-content form-group">
+                                <select id="${this._prefix}-analysis-priority-select" class="selectpicker" multiple
+                                        @change="${this.calculateFilters}" data-width="100%">
                                     <option>URGENT</option>
                                     <option>HIGH</option>
                                     <option>MEDIUM</option>
@@ -317,9 +319,9 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
                         <div class="form-group">
                             <div class="browser-subsection">Analysis type
                             </div>
-                            <div id="{{prefix}}-analysis-type" class="subsection-content form-group">
-                                <select id="{{prefix}}-analysis-type-select" class="selectpicker" multiple
-                                        on-change="calculateFilters" data-width="100%">
+                            <div id="${this._prefix}-analysis-type" class="subsection-content form-group">
+                                <select id="${this._prefix}-analysis-type-select" class="selectpicker" multiple
+                                        @change="${this.calculateFilters}" data-width="100%">
                                     <option>SINGLE</option>
                                     <option>DUO</option>
                                     <option>TRIO</option>
@@ -331,13 +333,13 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
                         </div>
 
                         <div class="form-group">
-                            <div class="browser-subsection" id="{{prefix}}-date">Date
+                            <div class="browser-subsection" id="${this._prefix}-date">Date
                                 <div style="float: right" class="tooltip-div">
-                                    <a><i class="fa fa-info-circle" aria-hidden="true" id="{{prefix}}-date-tooltip"></i></a>
+                                    <a><i class="fa fa-info-circle" aria-hidden="true" id="${this._prefix}-date-tooltip"></i></a>
                                 </div>
                             </div>
-                            <div id="{{prefix}}-date-content" class="subsection-content">
-                                <opencga-date-filter config="{{dateFilterConfig}}" on-datechanged="onDateChanged"></opencga-date-filter>
+                            <div id="${this._prefix}-date-content" class="subsection-content">
+                                <opencga-date-filter .config="${this.dateFilterConfig}" @datechanged="${this.onDateChanged}"></opencga-date-filter>
                             </div>
                         </div>
                     </div>

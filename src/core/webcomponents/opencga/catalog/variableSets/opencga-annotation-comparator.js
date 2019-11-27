@@ -31,14 +31,12 @@ export default class OpencgaAnnotationComparator extends LitElement {
         return {
             opencgaSession: {
                 type: Object,
-                observer: "opencgaSessionObserver"
             },
             opencgaClient: {
                 type: Object
             },
             entryIds: {
                 type: Array,
-                observer: "entryIdsObserver"
             },
             entity: {
                 // Allowed values are SAMPLE,INDIVIDUAL,COHORT,FAMILY

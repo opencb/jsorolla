@@ -72,7 +72,7 @@ export default class OpencgaFamilyGrid extends LitElement {
     }*/
 
     firstUpdated(_changedProperties) {
-        this.renderTable(this.active);
+        //this.renderTable(this.active);
     }
 
     propertyObserver(opencgaSession, search, config, active) {

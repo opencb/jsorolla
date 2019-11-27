@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 
 // TODO check functionality and table _generateTable!
 
-import "opencga-variable-selector";
+import "./opencga-variable-selector.js";
 
 export default class OpencgaAnnotationViewer extends LitElement {
 
@@ -425,7 +425,7 @@ export default class OpencgaAnnotationViewer extends LitElement {
 
             <div id="${this._prefix}-main-annotation-comparator-div">
                 
-                ${this.variableSets.length ? html`
+                ${this.variableSets && this.variableSets.length ? html`
                 <!-- Annotations -->
                     ${this.multipleVariableSets ? html`
                         <div style="width: 40%">

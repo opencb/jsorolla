@@ -53,6 +53,12 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
         this._prefix = "ocab-" + Utils.randomString(6) + "_";
         this.analyses = [];
         this._config = this.getDefaultConfig();
+        this.activeMenu = {
+            table: true
+        };
+
+        //it is defined in opencga-clinical-analysis-grid, it must be initialized here because clinical-analysis-view have it as prop
+        this.analysis = {};
     }
 
     updated(changedProperties) {
@@ -65,9 +71,6 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        this.activeMenu = {
-            table: true
-        };
     }
 
     configObserver() {
@@ -100,22 +103,22 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
     }
 
     _changeBottomTab(e) {
-        let _activeTabs = {
+        const _activeTabs = {
             info: e.currentTarget.dataset.id === "info"
             // familyGrid: e.currentTarget.dataset.id === "familyGrid"
         };
 
-        this.set("detailActiveTabs", _activeTabs);
+        this.detailActiveTabs = _activeTabs;
     }
 
     _changeView(e) {
         e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
 
-        let activeMenu = {
+        const activeMenu = {
             table: e.currentTarget.dataset.id === "table"
             // comparator: e.currentTarget.dataset.id === "comparator"
         };
-        this.set("activeMenu", activeMenu);
+        this.activeMenu = activeMenu;
 
         $(".clinical-analysis-browser-view-content").hide(); // hides all content divs
         if (typeof e.target !== "undefined" && typeof e.target.dataset.view !== "undefined") {
@@ -155,7 +158,6 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
 
     render() {
         return html`
-        <template>
         <style include="jso-styles">
             .icon-padding {
                 padding-left: 4px;
@@ -257,7 +259,6 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                 </div>
             </div>
         </div>
-    </template>
         `;
     }
 

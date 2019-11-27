@@ -55,6 +55,7 @@ export default class OpencgaIndividualGrid extends LitElement {
     }
 
     updated(changedProperties) {
+        console.log("changedProperties", changedProperties)
         if (changedProperties.has("opencgaSession") ||
             changedProperties.has("search") ||
             changedProperties.has("config") ||
@@ -64,7 +65,7 @@ export default class OpencgaIndividualGrid extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        this.renderTable(this.active);
+        //this.renderTable(this.active);
     }
 
 
@@ -79,16 +80,18 @@ export default class OpencgaIndividualGrid extends LitElement {
         };
 
         this.renderTable(this.active);
+
     }
 
     renderTable(active) {
+        console.log("renderTable", active)
         if (!active) {
             return;
         }
 
         this.opencgaClient = this.opencgaSession.opencgaClient;
 
-        this.set("individuals", []);
+        this.individuals = [];
 
         let filters = Object.assign({}, this.search);
 
@@ -243,8 +246,10 @@ export default class OpencgaIndividualGrid extends LitElement {
                     }
 
                     // we add individuals to selected individuals
-                    _this.push("_individuals", row);
-                    _this.set("individuals", _this._individuals.slice());
+                    //_this.push("_individuals", row);
+                    //_this.set("individuals", _this._individuals.slice());
+                    _this._individuals.push(row);
+                    _this.individuals = _this._individuals.slice();
 
                     // We only activate the row when checking
                     if (_this._config.detailView) {
@@ -273,8 +278,10 @@ export default class OpencgaIndividualGrid extends LitElement {
                         return;
                     }
 
-                    _this.splice("_individuals", individualToDeleteIdx, 1);
-                    _this.set("individuals", _this._individuals.slice());
+                    //_this.splice("_individuals", individualToDeleteIdx, 1);
+                    //_this.set("individuals", _this._individuals.slice());
+                    _this._individuals.splice(individualToDeleteIdx, 1);
+                    _this.individuals = _this._individuals.slice();
 
                     // We detail view is active we expand the row automatically
                     if (_this._config.detailView) {
@@ -306,7 +313,8 @@ export default class OpencgaIndividualGrid extends LitElement {
 
                     // we add individuals to selected individuals
                     _this._individuals = newIndividuals;
-                    _this.set("individuals", newIndividuals.slice());
+                    //_this.set("individuals", newIndividuals.slice());
+                    _this.individuals = newIndividuals.slice();
 
                     // We must uncheck nested checked samples
                     for (let row of rows) {
@@ -327,8 +335,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                     });
 
                     // we add individuals to selected individuals
-//                            _this.push("_individuals", row);
-                    _this.set("individuals", _this._individuals.slice());
+                    _this.individuals = _this._individuals.slice();
 
                     // We must uncheck nested checked samples
                     for (let row of rows) {
@@ -522,10 +529,7 @@ export default class OpencgaIndividualGrid extends LitElement {
             for (let phenotype of value) {
                 phenotypeTooltipText += `<div style="padding: 5px">`;
                 if (UtilsNew.isNotUndefinedOrNull(phenotype.source) && phenotype.source.toUpperCase() === "HPO") {
-                    phenotypeTooltipText += `<span>
-                                                        <a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})
-                                                    </span>
-                                `;
+                    phenotypeTooltipText += `<span><a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})</span>`;
                 } else {
                     phenotypeTooltipText += `<span>${phenotype.id} (${phenotype.status})</span>`;
                 }
@@ -696,7 +700,7 @@ export default class OpencgaIndividualGrid extends LitElement {
 
     render() {
         return html`
-<style include="jso-styles">
+        <style include="jso-styles">
             .detail-view :hover {
                 background-color: white;
             }
@@ -714,8 +718,12 @@ export default class OpencgaIndividualGrid extends LitElement {
             }
         </style>
 
-        <opencb-grid-toolbar from="{{from}}" to="{{to}}" num-total-results-text="{{numTotalResultsText}}"
-                             config="{{toolbarConfig}}" on-columnchange="onColumnChange"></opencb-grid-toolbar>
+        <opencb-grid-toolbar .from="${this.from}"
+                             .to="${this.to}"
+                             .numTotalResultsText="${this.numTotalResultsText}"
+                             .config="${this.toolbarConfig}"
+                             @columnchange="${this.onColumnChange}">
+        </opencb-grid-toolbar>
 
         <div id="${this._prefix}GridTableDiv" style="margin-top: 10px">
             <table id="${this._prefix}IndividualBrowserGrid">

@@ -43,7 +43,6 @@ export default class OpencgaFamilyFilter extends LitElement {
             },
             query: {
                 type: Object,
-                value: {},
                 notify: true
             },
             search: {
@@ -83,6 +82,8 @@ export default class OpencgaFamilyFilter extends LitElement {
         this.dateFilterConfig = {
             recentDays: 10
         };
+
+        this.query = {};
     }
 
     updated(changedProperties) {
@@ -138,7 +139,7 @@ export default class OpencgaFamilyFilter extends LitElement {
 
     onQueryUpdate() {
         if (this._reset) {
-            console.log("onQueryUpdate: calling to 'renderQueryFilters()'");
+            console.log("onQueryUpdate: calling to 'renderQueryFilters()'", this.query);
             this.renderQueryFilters();
         } else {
             this._reset = true;

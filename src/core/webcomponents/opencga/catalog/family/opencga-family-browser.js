@@ -77,7 +77,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
             this.onFilterUpdate();
         }
         if (changedProperties.has("opencgaClient")) {
-            this.renderAnalysisTable();
+            //this.renderAnalysisTable(); it doesn't exists
         }
         if (changedProperties.has("families")) {
             this.familyObserver();

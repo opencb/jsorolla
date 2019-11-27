@@ -121,6 +121,7 @@ export default class OpencgaSampleBrowser extends LitElement {
     }
 
     onActiveFilterChange(e) {
+        console.log("onActiveFilterChange", e.detail)
         this.query = e.detail;
         this.search = e.detail;
     }

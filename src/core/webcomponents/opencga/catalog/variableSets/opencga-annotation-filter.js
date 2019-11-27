@@ -357,4 +357,4 @@ export default class OpencgaAnnotationFilter extends LitElement {
     }
 }
 
-customElements.define('opencga-annotation-filter',OpencgaAnnotationFilter);
+customElements.define('opencga-annotation-filter', OpencgaAnnotationFilter);

@@ -481,8 +481,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                                 <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
                                                                                 .clinicalAnalysis=${this.clinicalAnalysis}
                                                                                 .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                                                style="font-size: 12px"
-                                                                                .config="${this.config}">
+                                                                                .config="${this.config}"
+                                                                                style="font-size: 12px">
                                                 </opencga-clinical-analysis-view>
                                             </div>
                                         </div>

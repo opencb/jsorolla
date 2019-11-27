@@ -59,7 +59,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = "osb-" + Utils.randomString(6);
+        this._prefix = "osb-" + Utils.randomString(6) + "_";
         this.individuals = [];
         this._config = this.getDefaultConfig();
         this.filtersConfig = {
@@ -79,13 +79,19 @@ export default class OpencgaIndividualBrowser extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaClient")) {
-            this.renderAnalysisTable();
+            //this.renderAnalysisTable(); TODO it doesn't exist
         }
         if (changedProperties.has("filters")) {
             this.onFilterUpdate();
         }
         if (changedProperties.has("config")) {
             this.configObserver();
+        }
+        if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
+            this.filterAvailableVariableSets(this.opencgaSession, this.config);
+        }
+        if (changedProperties.has("individuals")) {
+            this.individualObserver();
         }
     }
 
@@ -94,7 +100,6 @@ export default class OpencgaIndividualBrowser extends LitElement {
     }*/
 
     firstUpdated(_changedProperties) {
-
     }
 
     configObserver() {
@@ -225,7 +230,6 @@ export default class OpencgaIndividualBrowser extends LitElement {
 
     render() {
         return html`
-<template>
         <style include="jso-styles">
             .icon-padding {
                 padding-left: 4px;
@@ -249,7 +253,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
         <div class="row" style="padding: 0px 10px">
             <div class="col-md-2">
                 <opencga-individual-filter  .opencgaSession="${this.opencgaSession}"
-                                            .config="$this._config.filter}"
+                                            .config="${this._config.filter}"
                                             .individuals="${this.individuals}"
                                             .opencgaClient="${this.opencgaSession.opencgaClient}"
                                             .query="${this.query}"
@@ -275,10 +279,11 @@ export default class OpencgaIndividualBrowser extends LitElement {
                             <button type="button" class="btn btn-success individual-browser-view-buttons active" data-view="TableResult" @click="${this._changeView}" data-id="table">
                                 <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" @click="${this._changeView}" data-id="table"></i> Table Result
                             </button>
-                            <button type="button" class="btn btn-success individual-browser-view-buttons" data-view="AggregationStats" @click="${this._changeView}" .disabled="${!this._config.showAggregationStats}">
+                            <button type="button" class="btn btn-success individual-browser-view-buttons" data-view="AggregationStats" @click="${this._changeView}" ?disabled="${!this._config.showAggregationStats}">
+                            
                                 <i class="fa fa-line-chart icon-padding" aria-hidden="true" data-view="AggregationStats" @click="_changeView"></i> Aggregation Stats
                             </button>
-                            <button type="button" class="btn btn-success individual-browser-view-buttons" data-view="IndividualComparator" @click="${this._changeView}" data-id="comparator" .disabled="${!this._config.showComparator}">
+                            <button type="button" class="btn btn-success individual-browser-view-buttons" data-view="IndividualComparator" @click="${this._changeView}" data-id="comparator" ?disabled="${!this._config.showComparator}">
                                 <i class="fa fa-users icon-padding" aria-hidden="true" data-view="IndividualComparator" @click="${this._changeView}" data-id="comparator"></i> Individual Comparator
                             </button>
                         </div>
@@ -335,8 +340,8 @@ export default class OpencgaIndividualBrowser extends LitElement {
 
                     <div id="${this._prefix}AggregationStats" class="individual-browser-view-content" style="display: none">
                         <opencga-facet-view .opencgaSession="${this.opencgaSession}"
-                                            entity="INDIVIDUAL"
-                                            variableSets="${this.variableSets}">
+                                            .variableSets="${this.variableSets}"
+                                            entity="INDIVIDUAL">
                         </opencga-facet-view>
                     </div>
 
@@ -365,7 +370,6 @@ export default class OpencgaIndividualBrowser extends LitElement {
 
             </div>
         </div>
-    </template>
         `;
     }
 
