@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
 
 export default class FulltextSearchAccessionsFilter extends LitElement {
 
@@ -40,10 +40,10 @@ export default class FulltextSearchAccessionsFilter extends LitElement {
             config: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = "fsaf-" + Utils.randomString(6) + "_";
         this._config = this.getDefaultConfig();
     }
@@ -94,6 +94,7 @@ export default class FulltextSearchAccessionsFilter extends LitElement {
                 rows="${this._config.rows}" name="traits" placeholder="${this._config.placeholder}" @keyup="${this.filterChange}"></textarea>
         `;
     }
+
 }
 
-customElements.define('fulltext-search-accessions-filter', FulltextSearchAccessionsFilter);
+customElements.define("fulltext-search-accessions-filter", FulltextSearchAccessionsFilter);

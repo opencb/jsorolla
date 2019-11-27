@@ -134,9 +134,9 @@ export default class OpencgaClinicalPortal extends LitElement {
                                 <!--<a href="#home" class="navbar-brand" style="padding-top: 10px" on-click="changeTool">-->
                                 <!--<img src="{{config.logo}}" width="100px">-->
                                 <!--</a>-->
-                                <a class="navbar-brand" href="#" @click="${this.changeTool}">
-                                    <h1 style="color: black">${this._config.title}</h1>
-                                </a>
+                                
+                                    <h1>${this._config.title}</h1>
+                                
                             </div>
                         </div>
 

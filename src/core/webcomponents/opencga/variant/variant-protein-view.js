@@ -97,7 +97,7 @@ export default class VariantProteinView extends LitElement {
                     }
                     _this.proteins = _proteins;
 
-                    // DO NOT EVEN DARE TO TOUCH THIS LINE! //fixme dont tell me what to do dude
+                    // DO NOT EVEN DARE TO TOUCH THIS LINE! //fixme to LitElement
                     _this.$.proteinsDiv.render();
 
                     if (proteinObjects.length > 0 && typeof _this.opencgaSession.project !== "undefined" &&

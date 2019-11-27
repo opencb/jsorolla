@@ -70,7 +70,7 @@ export default class OpencgaFileFilter extends LitElement {
 
     _init() {
         // super.ready();
-        this._prefix = "osf-" + Utils.randomString(6);
+        this._prefix = "osf-" + Utils.randomString(6) + "_";
 
         this.annotationFilterConfig = {
             class: "small",
@@ -87,6 +87,7 @@ export default class OpencgaFileFilter extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("query")) {
+            console.log("onQueryUpdate", this.query)
             this.onQueryUpdate();
         }
         if (changedProperties.has("variables")) {
@@ -172,6 +173,15 @@ export default class OpencgaFileFilter extends LitElement {
         this.requestUpdate();
     }
 
+    filterChanged(e) {
+        console.log(e.target.name, e.target.value.trim());
+        if (e.target.value.trim()) {
+            this.query[e.target.name] = e.target.value.trim();
+        } else {
+            delete this.query[e.target.name];
+        }
+    }
+
     calculateFilters(e) {
         const _query = {};
 
@@ -213,6 +223,7 @@ export default class OpencgaFileFilter extends LitElement {
         // To prevent to call renderQueryFilters we set this to false
         this._reset = false;
         this.query = _query;
+        console.log("this.query", this.query);
         this._reset = true;
     }
 
@@ -348,7 +359,7 @@ export default class OpencgaFileFilter extends LitElement {
                             </div>
                             <div id="${this._prefix}-name" class="subsection-content form-group">
                                 <input type="text" id="${this._prefix}-name-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="accepted_hits.bam, phenotypes.vcf..." @input="${this.calculateFilters}">
+                                       placeholder="accepted_hits.bam, phenotypes.vcf..." name="name" @input="${this.filterChanged}">
                             </div>
                         </div>
 
@@ -357,7 +368,7 @@ export default class OpencgaFileFilter extends LitElement {
                             </div>
                             <div id="${this._prefix}-path" class="subsection-content form-group">
                                 <input type="text" id="${this._prefix}-path-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="genomes/resources/files/..." @input="${this.calculateFilters}">
+                                       placeholder="genomes/resources/files/..." name="path" @input="${this.filterChanged}">
                             </div>
                         </div>
 
@@ -366,7 +377,7 @@ export default class OpencgaFileFilter extends LitElement {
                             </div>
                             <div id="${this._prefix}-sample" class="subsection-content form-group">
                                 <input type="text" id="${this._prefix}-sample-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="HG01879, HG01880, HG01881..." @input="${this.calculateFilters}">
+                                       placeholder="HG01879, HG01880, HG01881..." name="sample" @input="${this.calculateFilters}">
                             </div>
                         </div>
 
@@ -375,7 +386,7 @@ export default class OpencgaFileFilter extends LitElement {
                             </div>
                             <div id="${this._prefix}-format" class="subsection-content form-group">
                                 <input type="text" id="${this._prefix}-format-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="BAM,VCF..." @input="${this.calculateFilters}">
+                                       placeholder="BAM,VCF..." name="format" @input="${this.calculateFilters}">
                             </div>
                         </div>
 
@@ -384,7 +395,7 @@ export default class OpencgaFileFilter extends LitElement {
                             </div>
                             <div id="${this._prefix}-bioformat" class="subsection-content form-group">
                                 <input type="text" id="${this._prefix}-bioformat-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="ALIGNMENT,VARIANT..." @input="${this.calculateFilters}">
+                                       placeholder="ALIGNMENT,VARIANT..." name="bioformat" @input="${this.calculateFilters}">
                             </div>
                         </div>
 

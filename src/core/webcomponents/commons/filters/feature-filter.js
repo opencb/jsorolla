@@ -40,9 +40,6 @@ export default class FeatureFilter extends LitElement {
             },
             query: {
                 type: Object
-            },
-            limit: {
-                type: Number
             }
         };
     }
@@ -50,9 +47,9 @@ export default class FeatureFilter extends LitElement {
     _init() {
         this._prefix = "feaf-" + Utils.randomString(6) + "_";
         this.featureDatalist = [];
-        //TODO check why there are 2 fields in query object..
+        // TODO check why there are 2 fields in query object..
 
-        //this.featureIds = this.query && this.query.ids || [];
+        // this.featureIds = this.query && this.query.ids || [];
         this.featureIds = [];
         this.separator = ",";
         this.featureTextArea = "";
@@ -65,14 +62,12 @@ export default class FeatureFilter extends LitElement {
         if (_changedProperties.has("query")) {
             if (this.query["xref"]) {
                 this.featureTextArea = this.query["xref"];
-            }
-            else if (this.query.ids) {
+            } else if (this.query.ids) {
                 this.featureTextArea = this.query.ids;
-            }
-            else if (this.query.gene) {
+            } else if (this.query.gene) {
                 this.featureTextArea = this.query.gene;
             } else {
-                //this block covers the case of opencga-active-filters deletes all features filters
+                // this block covers the case of opencga-active-filters deletes all features filters
                 this.featureTextArea = "";
             }
             this.featureIds = this.featureTextArea.split(this.separator).filter(_ => _);
@@ -82,33 +77,33 @@ export default class FeatureFilter extends LitElement {
 
     autocomplete(e) {
         // Only gene symbols are going to be searched and not Ensembl IDs
-        let featureId = e.target.value.trim();
+        const featureId = e.target.value.trim();
         if (featureId && featureId.length >= 3 && !featureId.startsWith("ENS")) {
-            this.cellbaseClient.get("feature", "id", featureId.toUpperCase(), "starts_with", {}, {})
+            this.cellbaseClient.get("feature", "id", featureId.toUpperCase(), "starts_with", {limit: 50}, {})
                 .then(response => {
-                    this.featureDatalist = response.response[0].result.slice(0, this.limit);
+                    this.featureDatalist = response.response[0].result;
                     this.requestUpdate();
                 });
         }
     }
 
-    //TODO it needs a proper input validation..
+    // TODO it needs a proper input validation..
     addFeatureId(e) {
 
-        //split by comma and filters empty strings
-        //let ids = this.featureTextArea.split(",").filter(id => id ? id : false);
+        // split by comma and filters empty strings
+        // let ids = this.featureTextArea.split(",").filter(id => id ? id : false);
 
-        let featureIdText = this.querySelector("#" + this._prefix + "FeatureIdText");
+        const featureIdText = this.querySelector("#" + this._prefix + "FeatureIdText");
         console.log("addFeatureId", featureIdText.value);
         if (featureIdText.value) {
             if (!~this.featureIds.indexOf(featureIdText.value)) {
                 this.featureIds.push(featureIdText.value);
             }
             featureIdText.value = "";
-            //let featureTextArea = this.querySelector("#" + this._prefix + "FeatureTextarea");
+            // let featureTextArea = this.querySelector("#" + this._prefix + "FeatureTextarea");
             this.featureTextArea = this.featureIds.join(this.separator);
 
-            //FIXME the below line shouldn't be necessary!
+            // FIXME the below line shouldn't be necessary!
             // TODO Isolate the issue
             // Step to reproduce: 1. add a value using the select 2. edit manually the textarea 3. add a value from the select.
             // The last one will be in this.featureTextArea and this.featureIds, but the textArea won't reflect the update.
@@ -130,15 +125,15 @@ export default class FeatureFilter extends LitElement {
 
         console.log("this.featureTextArea", this.featureTextArea, "this.featureIds", this.featureIds);
         let xref;
-        //let featureTextArea = this.querySelector("#" + this._prefix + "FeatureTextarea");
+        // let featureTextArea = this.querySelector("#" + this._prefix + "FeatureTextarea");
 
-        //console.log("featureTextArea selector", featureTextArea)
+        // console.log("featureTextArea selector", featureTextArea)
 
         if (this.featureTextArea) {
             let features = this.featureTextArea.trim();
             features = features.replace(/\r?\n/g, this.separator).replace(/\s/g, "");
-            let featureArray = [];
-            for (let feature of features.split(this.separator)) {
+            const featureArray = [];
+            for (const feature of features.split(this.separator)) {
                 if (feature.startsWith("rs") || feature.split(":").length > 2) {
                     featureArray.push(feature);
                 } else {
@@ -149,7 +144,7 @@ export default class FeatureFilter extends LitElement {
             xref = featureArray.filter(_ => _).join(this.separator);
         }
 
-        let event = new CustomEvent("filterChange", {
+        const event = new CustomEvent("filterChange", {
             detail: {
                 value: xref, // xref, ids, gene
                 featureIds: this.featureIds
@@ -186,6 +181,7 @@ export default class FeatureFilter extends LitElement {
             </div>
         `;
     }
+
 }
 
 customElements.define("feature-filter", FeatureFilter);

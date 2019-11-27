@@ -1284,6 +1284,7 @@ export default class OpencgaVariantFilter extends LitElement {
         let id = section.title.replace(/ /g, "");
         let collapsed = section.collapsed ? "" : "in";
 
+        //TODO check if the continue statement was necessary
         return html`
                     <div class="panel panel-default filter-section">
                         <div class="panel-heading" role="tab" id="${this._prefix}${id}Heading">
@@ -1339,8 +1340,7 @@ export default class OpencgaVariantFilter extends LitElement {
                                            @filterChange="${e => this.onFilterChange("region", e.detail.value)}"></region-filter>`;
             break;
         case "feature":
-            //TODO move limit to global config
-            content = html`<feature-filter .cellbaseClient="${this.cellbaseClient}" .query=${this.query} limit="10"
+            content = html`<feature-filter .cellbaseClient="${this.cellbaseClient}" .query=${this.query}
                                             @filterChange="${e => this.onFilterChange("xref", e.detail.value)}"></feature-filter>`;
             break;
         case "diseasePanels":
