@@ -70,10 +70,47 @@ export default class OpencgaVariantFilter extends LitElement {
             config: {
                 type: Object
             },
-            samples: {
-                type: Array
-            }
+            // samples: {
+            //     type: Array
+            // }
         }
+    }
+
+
+    _init() {
+        this._prefix = `ovf${Utils.randomString(6)}_`;
+
+        this._initialised = false;
+        // this._reset = true;
+        if (PANELS) {
+            this.panelList = PANELS; //todo check if have to be managed by litelement
+        }
+
+        this.query = {};
+        this.preparedQuery = {};
+
+        this.modalHpoActive = false;
+        this.modalGoActive = false;
+
+        // this.samples = [];
+        this.updateClinicalFilterQuery = true;
+    }
+
+
+    //it was connectedCallback() in polymer 2
+    firstUpdated() {
+        // Render filter menu and add event and tooltips
+        //this now returns html
+        //this._renderFilterMenu();
+
+        this._addAllTooltips();
+
+        this._initialised = true;
+
+        this.opencgaSessionObserver();
+        // this.queryObserver();
+        //this.setQueryFilters();
+        //this.clinicalObserver();
     }
 
     updated(changedProperties) {
@@ -86,55 +123,11 @@ export default class OpencgaVariantFilter extends LitElement {
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalObserver();
         }
-        if (changedProperties.has("samples")) {
+        // if (changedProperties.has("samples")) {
             //this.samplesObserver();
-        }
+        // }
     }
 
-    //it was connectedCallback() in polymer 2
-    firstUpdated() {
-        // Render filter menu and add event and tooltips
-
-        //this now returns html
-        //this._renderFilterMenu();
-
-        this._addAllTooltips();
-
-
-
-        // this.fetchDiseasePanels();
-        //MOVED to disease-filter
-        /*$("select.selectpicker").selectpicker("render");
-        $("select.selectpicker").selectpicker({
-            iconBase: "fa",
-            tickIcon: "fa-check"
-        });*/
-
-        this._initialised = true;
-
-        this.opencgaSessionObserver();
-        // this.queryObserver();
-        //this.setQueryFilters();
-        //this.clinicalObserver();
-    }
-
-    _init() {
-        this._prefix = `ovf${Utils.randomString(6)}_`;
-
-        this._initialised = false;
-        // this._reset = true;
-        if (PANELS) {
-            this.panelList = PANELS; //todo check if have to be managed by litelement
-        }
-
-        this.preparedQuery = {};
-
-        this.modalHpoActive = false;
-        this.modalGoActive = false;
-
-        this.samples = [];
-        this.updateClinicalFilterQuery = true;
-    }
 
     // static get observers() {
     //     return [
@@ -203,15 +196,13 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     queryObserver() {
-
         //the following line FIX the "silent" persistence of active filters once 1 is deleted, due to an inconsistence between query and preparedQuery. Step to reproduce:
         // 1. add some filters from variant=filter
         // 2. delete 1 filter from active-filter
         // 3. add another filter from variant-filter
         // 4. you will see again the deleted filter in active-filters
         this.preparedQuery = this.query;
-
-
+        
         if (this.updateClinicalFilterQuery) {
             this.clinicalFilterQuery = this.query;
         } else {
@@ -1389,7 +1380,7 @@ export default class OpencgaVariantFilter extends LitElement {
             content = html`<clinvar-accessions-filter .query="${this.query}" @filterChange="${e => this.onFilterChange("clinvar", e.detail.value)}"></clinvar-accessions-filter>`;
             break;
         case "fullTextSearch":
-            content = html`<fulltext-search-accessions-filter .query="${this.query}"  @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></fulltext-search-accessions-filter>`;
+            content = html`<fulltext-search-accessions-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></fulltext-search-accessions-filter>`;
             break;
         }
 

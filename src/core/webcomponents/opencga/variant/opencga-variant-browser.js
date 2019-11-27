@@ -209,7 +209,7 @@ export default class OpencgaVariantBrowser extends LitElement {
      * Variant Filter component listeners
      */
     onQueryFilterChange(e) {
-        console.log("onQueryFilterChange on variant browser",e.detail.query )
+        console.log("onQueryFilterChange on variant browser", e.detail.query);
         this.preparedQuery = e.detail.query;
         this.requestUpdate();
     }
@@ -224,22 +224,18 @@ export default class OpencgaVariantBrowser extends LitElement {
      * Active Filters component listeners
      */
     onActiveFilterChange(e) {
-        console.log("onActiveFilterChange on variant browser",e.detail )
+        console.log("onActiveFilterChange on variant browser", e.detail)
         //TODO FIXME!! study prop have to be wiped off! use studies instead
-        this.preparedQuery = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
-           ...e.detail};
-        this.query = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
-            ...e.detail};
+        this.preparedQuery = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias, ...e.detail};
+        this.query = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias, ...e.detail};
         this.requestUpdate();
     }
 
     //it was called onClear
     onActiveFilterClear() {
         console.log("onActiveFilterClear")
-        this.query = {
-            study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
-        };
-        this.preparedQuery = {...this.query} //TODO quick fix to update
+        this.query = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
+        this.preparedQuery = {...this.query}; //TODO quick fix to update
     }
 
     onSampleChange(e) {

@@ -31,9 +31,12 @@ export default class FulltextSearchAccessionsFilter extends LitElement {
 
     static get properties() {
         return {
-            query: {
-                type: Object
+            traits: {
+                type: String
             },
+            // query: {
+            //     type: Object
+            // },
             config: {
                 type: Object
             }
@@ -50,12 +53,18 @@ export default class FulltextSearchAccessionsFilter extends LitElement {
     }
 
     updated(_changedProperties) {
-        if (_changedProperties.has("query")) {
-            let _traits = this.query && this.query.traits ? this.query.traits : "";
-            this.querySelector("#" + this._prefix + "TraitsTextarea").value = _traits;
-            // FIXME The preferred way of updating shold be requestUpdate, but for any reason is not working now
-            // this.requestUpdate();
-        }
+        // if (_changedProperties.has("query")) {
+        //     let _traits = this.query && this.query.traits ? this.query.traits : "";
+        //     this.querySelector("#" + this._prefix + "TraitsTextarea").value = _traits;
+        //     // FIXME The preferred way of updating shold be requestUpdate, but for any reason is not working now
+        //     // this.requestUpdate();
+        //     debugger
+        // }
+
+        let _traits = _changedProperties.has("traits") && this.traits ? this.traits : "";
+        this.querySelector("#" + this._prefix + "TraitsTextarea").value = _traits;
+        // FIXME The preferred way of updating shold be requestUpdate, but for any reason is not working now
+        // this.requestUpdate();
     }
 
     filterChange(e) {
