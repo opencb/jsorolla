@@ -256,7 +256,7 @@
                     <h4 class="form-section-title">Family</h4>
                 </div>
 
-                <template is="dom-if" if="{{clinicalAnalysis.family.members}}">
+                <div id="{{prefix}}FamilySection">
                     <form class="form-horizontal" style="padding: 10px 0px 0px 0px;">
 
                         <div class="form-group" style="margin-bottom: 5px">
@@ -315,7 +315,7 @@
                             </div>
                         </div>
                     </form>
-                </template>
+                </div>
             </div>
         </div>
 
@@ -464,7 +464,7 @@
         }
 
         clinicalAnalysisIdObserver(){
-            if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId)) {
+            if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId)) {
                 let params = {
                     study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
                 };
@@ -478,7 +478,14 @@
                             _this._creationDate = moment(_this.clinicalAnalysis.creationDate, "YYYYMMDDHHmmss").format('D MMM YY');
                             _this.showSummary = true;
 //                                _this.title =  "Clinical Analysis Summary: " + _this.clinicalAnalysis.name;
-                            _this.pedigreeRender();
+
+                            if (_this.clinicalAnalysis.family !== undefined) {
+                                PolymerUtils.show(this.prefix + "FamilySection");
+                                _this.pedigreeRender();
+                            } else {
+                                PolymerUtils.hide(this.prefix + "FamilySection");
+                            }
+
                         }
                     });
             }

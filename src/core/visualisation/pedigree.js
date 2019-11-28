@@ -215,8 +215,8 @@ class Pedigree {
         }
 
         let colorMap = {};
-        for (let idx in family.phenotypes) {
-            colorMap[family.phenotypes[idx].id] = idx;
+        for (let idx in family.disorders) {
+            colorMap[family.disorders[idx].id] = idx;
         }
 
         family.children = [];
@@ -244,9 +244,9 @@ class Pedigree {
             }
 
             // We save the corresponding disease color pattern for each sample
-            if (m.phenotypes !== undefined && m.phenotypes.length > 0) {
+            if (m.disorders !== undefined && m.disorders.length > 0) {
                 let colorIdx = [];
-                for (let c of m.phenotypes) {
+                for (let c of m.disorders) {
                     colorIdx.push(colorMap[c]);
                 }
                 // Pattern suffix IDs must be sorted, eg. Pattern_01
@@ -274,7 +274,7 @@ class Pedigree {
         svgDefs.appendChild(pattern);
 
         // We create all possible combination (incrementally with no reptition, eg. 0, 01, 02, 1, 12, ...)
-        for (let i = 0; i < family.phenotypes.length; i++) {
+        for (let i = 0; i < family.disorders.length; i++) {
             // Add the single disease color, eg. 0, 1, 2
             let pattern = SVG.create("pattern", {id: "Pattern_" + i, x: 0, y: 0, width: 1, height: 1});
             let rect = SVG.create("rect", {
@@ -285,7 +285,7 @@ class Pedigree {
             svgDefs.appendChild(pattern);
 
             // Add the double disease color, eg. 01, 02, 12, ...
-            for (let j = i + 1; j < family.phenotypes.length; j++) {
+            for (let j = i + 1; j < family.disorders.length; j++) {
                 let pattern = SVG.create("pattern", {id: "Pattern_" + i + j, x: 0, y: 0, width: 1, height: 1});
                 let rect1 = SVG.create("rect", {
                     x: 0,                       y: 0,
@@ -322,8 +322,8 @@ class Pedigree {
             let newMember = {};
             newMember.name = member.name;
 
-            if(typeof member.phenotypes !== "undefined" && member.phenotypes.length > 0) {
-                newMember.phenotypes = member.phenotypes.map((disease) => {return disease.id});
+            if(typeof member.disorders !== "undefined" && member.disorders.length > 0) {
+                newMember.disorders = member.disorders.map((disease) => {return disease.id});
             }
             if(UtilsNew.isNotUndefinedOrNull(member.father) && UtilsNew.isUndefinedOrNull(member.father.id)) {
 
@@ -340,7 +340,7 @@ class Pedigree {
         });
         let pedigreFromFamily = {
             name: family.name,
-            phenotypes: family.phenotypes,
+            disorders: family.disorders,
             members: newMembers,
         };
 
