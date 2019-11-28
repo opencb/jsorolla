@@ -106,6 +106,18 @@
             .bootstrap-select {
                 width: 100%!important;
             }
+
+            .geneOntologyMonitor {
+                padding: 10px;
+                font-weight: bold;
+                display: none;
+                text-align: center;
+            }
+
+            .geneOntologyMonitor span {
+                display: block;
+            }
+
         </style>
 
         <div>
@@ -1171,10 +1183,25 @@
 
                 // Gene Ontology and Human Phenotype Ontology
                 let inputTextArea = PolymerUtils.getElementById(this.prefix + "GeneOntologyTextarea");
+                let go_message = this.querySelector("#" + this.prefix + "GeneOntologyMonitor");
                 if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
-                    let _go = inputTextArea.value.trim();
-                    _go = _go.replace(/\r?\n/g, ",").replace(/\s/g, "");
-                    _filters.go = _go;
+                    // Process the textarea: remove newline chars, empty chars, leading/trailing commas
+                    let _go = inputTextArea.value.trim()
+                        .replace(/\r?\n/g, ",")
+                        .replace(/\s/g, "")
+                        .split(",")
+                        .filter(_ => _);
+                    if(_go.length < 100) {
+                        _filters.go = _go.join(",");
+                        go_message.innerHTML = "";
+                        go_message.style.display = "none";
+                    } else {
+                        _filters.go = _go.slice(0,99).join(",");
+                        let msg = `${_go.length} has been selected. Only the first 100 will be taken into account.`;
+                        //NotificationUtils.showNotify(msg, "WARNING");
+                        go_message.style.display = "block";
+                        go_message.innerHTML = `<i class="fa fa-exclamation-triangle fa-2x"></i><span>${msg}</span>`;
+                    }
                 }
 
                 inputTextArea = PolymerUtils.getElementById(this.prefix + "HumanPhenotypeOntologyTextarea");
@@ -1948,6 +1975,7 @@
                         <strong style="color: white">Add GO Term</strong>
                         <i class="fa fa-search searchingButton" aria-hidden="true"></i>
                     </span>
+                    <p class="bg-warning geneOntologyMonitor" id="${prefix}GeneOntologyMonitor"></p>
                 `;
             }
 
