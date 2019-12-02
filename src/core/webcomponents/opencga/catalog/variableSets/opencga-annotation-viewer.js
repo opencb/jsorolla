@@ -99,9 +99,10 @@ export default class OpencgaAnnotationViewer extends LitElement {
         }
     }
 
+    //TODO refactor
     entryIdsObserver(e) {
         // Get the selected variableSet
-        if (typeof e.target === "undefined") {
+        if (e && typeof e.target === "undefined") {
             const variableSet = $(`button[data-id=${this._prefix}-variableSetSelect]`)[0];
             if (typeof variableSet !== "undefined") {
                 const variableSetId = variableSet.title;
@@ -445,7 +446,7 @@ export default class OpencgaAnnotationViewer extends LitElement {
                             </opencga-variable-selector>
                         </div>
                     
-                    ` : null}
+                    ` : null }
                     
                     <div id="${this._prefix}-table" style="padding: 25px 10px; max-height: 500px; overflow-x: auto; overflow-y: auto;"></div>
 

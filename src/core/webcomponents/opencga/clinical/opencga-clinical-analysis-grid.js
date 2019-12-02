@@ -725,6 +725,76 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         return this._columns;
     }
 
+    //TODO copied from variant-grid adapt to this component
+    onDownload(e) {
+        let urlQueryParams = this._getUrlQueryParams();
+        let params = urlQueryParams.queryParams;
+        params.limit = 1000; // Default limit is 1000 for now
+
+        this.downloadRefreshIcon.css("display", "inline-block");
+        this.downloadIcon.css("display", "none");
+
+        let _this = this;
+        this.opencgaSession.opencgaClient.variants().query(params)
+            .then(function(response) {
+                let result = response.response[0].result;
+                let dataString = [];
+                let mimeType = "";
+                let extension = "";
+
+                // Check if user clicked in Tab or JSON format
+                if (e.detail.option.toLowerCase() === "tab") {
+                    dataString = VariantUtils.jsonToTabConvert(result, _this.populationFrequencies.studies, _this.samples, _this._config.nucleotideGenotype);
+                    mimeType = "text/plain";
+                    extension = ".txt";
+                } else {
+                    for (let res of result) {
+                        dataString.push(JSON.stringify(res));
+                    }
+                    mimeType = "application/json";
+                    extension = ".json";
+                }
+
+                // Build file and anchor link
+                let data = new Blob([dataString.join("\n")], {type: mimeType});
+                let file = window.URL.createObjectURL(data);
+                let a = document.createElement("a");
+                a.href = file;
+                a.download = _this.opencgaSession.study.alias + extension;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(function() {
+                    document.body.removeChild(a);
+                }, 0);
+            })
+            .then(function() {
+                _this.downloadRefreshIcon.css("display", "none");
+                _this.downloadIcon.css("display", "inline-block");
+            });
+    }
+
+    //TODO copied from variant-grid adapt to this component
+    onShare() {
+        let _this = this;
+        $("[data-toggle=popover]").popover({
+            content: function() {
+                let getUrlQueryParams = _this._getUrlQueryParams();
+                let query = ["limit=1000"];
+                for (let key in getUrlQueryParams.queryParams) {
+                    // Check sid has a proper value. For public projects sid is undefined. In that case, sid must be removed from the url
+                    if (key === "sid" && getUrlQueryParams.queryParams[key] === undefined) {
+                        delete getUrlQueryParams.queryParams["sid"];
+                    } else {
+                        query.push(key + "=" + getUrlQueryParams.queryParams[key]);
+                    }
+                }
+                return getUrlQueryParams.host + "?" + query.join("&");
+            }
+        }).on("show.bs.popover", function() {
+            $(this).data("bs.popover").tip().css("max-width", "none");
+        });
+    }
+
     getDefaultConfig() {
         return {
             pagination: true,
@@ -775,8 +845,13 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             }
         </style>
 
-        <opencb-grid-toolbar .from="${this.from}" .to="${this.to}" .numTotalResultsText="${this.numTotalResultsText}"
-                             .config="${this.toolbarConfig}" @columnchange="${this.onColumnChange}">
+        <opencb-grid-toolbar .from="${this.from}"
+                             .to="${this.to}"
+                             .numTotalResultsText="${this.numTotalResultsText}"
+                             .config="${this.toolbarConfig}"
+                             @columnchange="${this.onColumnChange}"
+                             @download="${this.onDownload}"
+                             @sharelink="${this.onShare}">
         </opencb-grid-toolbar>
 
         <div id="${this._prefix}GridTableDiv" style="margin-top: 10px">

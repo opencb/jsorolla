@@ -16,7 +16,7 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import OpencbGridToolbar from "./../../commons/opencb-grid-toolbar.js";
+import "./../../commons/opencb-grid-toolbar.js";
 
 export default class OpencgaVariantGrid extends LitElement {
 

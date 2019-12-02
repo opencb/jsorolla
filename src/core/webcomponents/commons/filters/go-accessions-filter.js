@@ -48,7 +48,7 @@ export default class GoAccessionsFilter extends LitElement {
         if (_changedProperties.has("query")) {
             if (this.query["go"]) {
                 this.querySelector("#" + this._prefix + "GeneOntologyTextarea").value = this.query["go"];
-                let q = this.query["go"].replace(/\r?\n/g, ",").replace(/\s/g, "");
+                const q = this.query["go"].replace(/\r?\n/g, ",").replace(/\s/g, "");
                 this.selectedTerms = q.split(",");
             } else {
                 this.selectedTerms = [];
@@ -58,24 +58,41 @@ export default class GoAccessionsFilter extends LitElement {
     }
 
     filterChange() {
-        let go;
-        const inputTextArea = this.querySelector("#" + this._prefix + "GeneOntologyTextarea");
+        const inputTextArea = PolymerUtils.getElementById(this._prefix + "GeneOntologyTextarea");
+        const go_message = this.querySelector("#" + this._prefix + "GeneOntologyMonitor");
         if (inputTextArea && inputTextArea.value) {
-            go = inputTextArea.value.trim();
-            go = go.replace(/\r?\n/g, ",").replace(/\s/g, "");
-        }
-        console.log("filterChange", go || null);
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: go || null
+            // Process the textarea: remove newline chars, empty chars, leading/trailing commas
+            let _go = inputTextArea.value.trim()
+                .replace(/\r?\n/g, ",")
+                .replace(/\s/g, "")
+                .split(",")
+                .filter(_ => _);
+            console.log("_go", _go)
+            console.log("LENGTH", _go.length)
+            if (_go.length < 100) {
+                go_message.innerHTML = "";
+                go_message.style.display = "none";
+                _go = _go.join(",");
+            } else {
+                const msg = `${_go.length} has been selected. Only the first 100 will be taken into account.`;
+                // NotificationUtils.showNotify(msg, "WARNING");
+                go_message.style.display = "block";
+                go_message.innerHTML = `<i class="fa fa-exclamation-triangle fa-2x"></i><span>${msg}</span>`;
+                _go = _go.slice(0, 99).join(",");
             }
-        });
-        this.dispatchEvent(event);
+            console.log("filterChange", _go || null);
+            const event = new CustomEvent("filterChange", {
+                detail: {
+                    value: _go || null
+                }
+            });
+            this.dispatchEvent(event);
+        }
     }
 
     onClickOkModal(e) {
         this.selectedTerms = e.detail.result;
-        this.querySelector("#" + this._prefix + "GeneOntologyTextarea").value = e.detail.result.join(","); //join by comma no matter the operator (in textarea only)
+        this.querySelector("#" + this._prefix + "GeneOntologyTextarea").value = e.detail.result.join(","); // join by comma no matter the operator (in textarea only)
         this.filterChange();
         $("#" + this._prefix + "ontologyModal").modal("hide");
     }
@@ -88,18 +105,31 @@ export default class GoAccessionsFilter extends LitElement {
         this.ontologyFilter = "go";
         this.requestUpdate();
         $("#" + this._prefix + "ontologyModal").modal("show");
-        //this.openModal = true;
+        // this.openModal = true;
     }
 
     render() {
         return html`
+            <style>
+            .geneOntologyMonitor {
+                padding: 10px;
+                font-weight: bold;
+                display: none;
+                text-align: center;
+            }
+
+            .geneOntologyMonitor span {
+                display: block;
+            }
+            </style>
             <textarea id="${this._prefix}GeneOntologyTextarea" class="form-control clearable ${this._prefix}FilterTextInput"
                                 rows="3" name="geneOntology" placeholder="GO:0000145" @input="${this.filterChange}"></textarea>
             <span class="input-group-addon btn btn-primary searchingSpan" id="${this._prefix}buttonOpenGoAccesions" @click="${this.onOntologyModalOpen}">
                 <strong style="color: white">Add GO Term</strong>
                 <i class="fa fa-search searchingButton" aria-hidden="true"></i>
             </span>
-            
+            <p class="bg-warning geneOntologyMonitor" id="${this._prefix}GeneOntologyMonitor"></p>
+
             <variant-modal-ontology _prefix=${this._prefix}
                                 ontologyFilter="${this.ontologyFilter}"
                                 term="${this.ontologyTerm}"
