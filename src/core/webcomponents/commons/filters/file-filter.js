@@ -48,6 +48,7 @@ export default class FileFilter extends LitElement {
     }
 
     filterChange() {
+        console.warn("split in 2 filter 'qual' and 'filter'")
         const value = `${this.qual ? `qual=${this.qual},` : ""}${this.filter ? `filter=${this.filter}` : ""}`;
         console.log("filterChange", value);
         const event = new CustomEvent("filterChange", {

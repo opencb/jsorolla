@@ -180,6 +180,7 @@ export default class OpencgaFileFilter extends LitElement {
         } else {
             delete this.query[e.target.name];
         }
+        console.log(this.query)
     }
 
     calculateFilters(e) {

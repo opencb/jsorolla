@@ -266,7 +266,7 @@ export default class OpencgaCohortBrowser extends LitElement {
             </div>
 
             <div class="col-md-10">
-                <opencga-active-filters .opencgaClient="${this.opencgaClient}"
+                <opencga-active-filters .opencgaClient="${this.opencgaSession.opencgaClient}"
                                         .query="${this.query}"
                                         .filters="${this._config.filters}"
                                         .defaultStudy="${this.opencgaSession.study.alias}"

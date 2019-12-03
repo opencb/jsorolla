@@ -49,7 +49,7 @@ export default class OpencgaFacetViewSelector extends LitElement {
     }
 
     _init() {
-        this._prefix = "ofvs-" + Utils.randomString(6);
+        this._prefix = "ofvs-" + Utils.randomString(6) + "_";
         this._showInitMessage = true;
         this.facets = new Set();
         this.facetFilters = [];
@@ -77,7 +77,10 @@ export default class OpencgaFacetViewSelector extends LitElement {
         $(`#${this._prefix}-term-select`).selectpicker("val", "");
 
         // Remove span with text from one of the select pickers so it only shows the caret and not the text
-        $(`button[data-id=${this._prefix}-value-select]`)[0].firstElementChild.remove();
+
+        //TODO fix?
+        //$(`button[data-id=${this._prefix}-value-select]`)[0].firstElementChild.remove();
+
         console.log($(`button[data-id=${this._prefix}-value-select]`));
     }
 
@@ -227,7 +230,7 @@ export default class OpencgaFacetViewSelector extends LitElement {
                     <input id="${this.prefix}-input" type="text" class="form-control" value=""
                            placeholder="Include values or range" @keyup="${this.onInputTextChange}">
                     <div class="input-group-btn">
-                        <select id="${this.prefix}-value-select" class="selectpicker" ?disabled=${this.disabled}
+                        <select id="${this.prefix}-value-select" class="selectpicker" .disabled=${this.disabled}
                                 @change="${this.onSelectedItemChange}">
                             <optgroup label="Aggregation Function">
                                 <option data-value="average">Average</option>

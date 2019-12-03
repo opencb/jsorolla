@@ -201,7 +201,9 @@ export default class OpencgaFileBrowser extends LitElement {
                                      .files="${this.files}"
                                      .query="${this.query}"
                                      .search="${this.search}"
-                                     .variableSets="${this.variableSets}">
+                                     .variableSets="${this.variableSets}"
+                                     @queryChange="${this.onQueryFilterChange}"
+                                     @querySearch="${this.onQueryFilterSearch}">
                 </opencga-file-filter>
             </div>
 

@@ -533,6 +533,9 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         const columns = this._initTableColumns();
 
         const _this = this;
+
+        console.log("_this._individuals",_this._individuals)
+
         $("#" + this._prefix + "IndividualBrowserGrid").bootstrapTable("destroy");
         $("#" + this._prefix + "IndividualBrowserGrid").bootstrapTable({
             columns: columns,
@@ -648,7 +651,9 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         return html`<input type="radio" name="${this._prefix}-optradio" class="probandRadio" data-individual-id="${row.id}">`;
     }
 
+    //TODO change name
     aaa(e) {
+        console.warn("change name function!")
         const individualId = e.currentTarget.dataset.individualId;
         if (UtilsNew.isNotUndefinedOrNull(this._clinicalAnalysis.family) &&
             UtilsNew.isNotEmptyArray(this._clinicalAnalysis.family.members)) {
@@ -922,7 +927,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                 <select class="selectpicker" data-width="100%" id="${this._prefix}Assigned" data-field="assigned" data-field-type="object"
                                         @change="${this.onSelectChange}" on-dom-change="renderDomRepeat">
                                     ${this._studyUsers && this._studyUsers.length ? this._studyUsers.map( item => html`
-                                        <option value="{{item}}" data-value$="{{item}}">{{item}}</option>
+                                        <option value="${item}" data-value="${item}">${item}</option>
                                     `) : null}
                                 </select>
                             </div>

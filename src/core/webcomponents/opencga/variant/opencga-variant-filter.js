@@ -111,6 +111,8 @@ export default class OpencgaVariantFilter extends LitElement {
         // this.queryObserver();
         //this.setQueryFilters();
         //this.clinicalObserver();
+
+        console.log("this.config",this.config)
     }
 
     updated(changedProperties) {
@@ -197,12 +199,13 @@ export default class OpencgaVariantFilter extends LitElement {
 
     queryObserver() {
         //the following line FIX the "silent" persistence of active filters once 1 is deleted, due to an inconsistence between query and preparedQuery. Step to reproduce:
+        // 0. comment the line `this.preparedQuery = this.query;`
         // 1. add some filters from variant=filter
         // 2. delete 1 filter from active-filter
         // 3. add another filter from variant-filter
         // 4. you will see again the deleted filter in active-filters
         this.preparedQuery = this.query;
-        
+
         if (this.updateClinicalFilterQuery) {
             this.clinicalFilterQuery = this.query;
         } else {
@@ -1304,7 +1307,7 @@ export default class OpencgaVariantFilter extends LitElement {
                                     
                                     ${subsection.id === "cadd" && this.opencgaSession.project.organism.assembly.toLowerCase() === "grch38" ? html`/continue_statement_missing/` : html``}
                                     
-                                    ${!this.config.menu.skipSubsections || !this.config.menu.skipSubsections.length || ~this.config.menu.skipSubsections.indexOf(subsection.id) ? this._createSubSection(subsection) : null}
+                                    ${this.config.menu.skipSubsections && this.config.menu.skipSubsections.length && !!~this.config.menu.skipSubsections.indexOf(subsection.id) ? null : this._createSubSection(subsection)}
                                     
                                 `)}
                             
@@ -2169,7 +2172,7 @@ export default class OpencgaVariantFilter extends LitElement {
         </style>
         <div>
             <div style="width: 60%;margin: 0 auto;padding-top: 10px">
-                <button type="button" class="btn btn-primary" style="width: 100%" @click="${this.onSearch}">
+                <button type="button" class="btn btn-primary ripple" style="width: 100%" @click="${this.onSearch}">
                     <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i> ${this.config.menu.searchButtonText}
                 </button>
             </div>

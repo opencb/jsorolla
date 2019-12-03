@@ -99,7 +99,7 @@ export default class OpencgaAnnotationViewer extends LitElement {
         }
     }
 
-    //TODO refactor
+    // TODO refactor
     entryIdsObserver(e) {
         // Get the selected variableSet
         if (e && typeof e.target === "undefined") {
@@ -196,7 +196,7 @@ export default class OpencgaAnnotationViewer extends LitElement {
 
     // TODO urgent refactor
     _generateTable(annotations) {
-        console.error("_generateTable needs to be refactored in lit-element");
+        console.warn("_generateTable needs to be refactored in lit-element");
         /*
         * <table class="table">
             <thead>
@@ -237,6 +237,22 @@ export default class OpencgaAnnotationViewer extends LitElement {
 
         const filteredAnnotations = {};
         const annotationIds = [];
+
+        console.log("annotations", annotations);
+        //TODO continue migration table
+/*        const head1 = annotations.map( sampleKey => html`<th> ${sampleKey} ${annotations[sampleKey].map( el => {
+            const key = this._prefix + "-" + sampleKey + "-"+ el["variableSetId"] + "-" + el["id"];
+            const annotationId = sampleKey + "-"+ el["variableSetId"] + "-" + el["id"] + ".json";
+            // We filter the current annotation
+            filteredAnnotations[key] = this.getFilteredAnnotations(el);
+            const annotationString = JSON.stringify(filteredAnnotations[key]);
+            // We generate a button to be able to download the filtered annotation
+            return html`<a data-annotation='${annotationString}' data-title='${annotationId}'
+                                    title='Download ${annotationId}' style='cursor: pointer; margin-left: 5px'>
+                                     <i class='fa fa-download fa-lg' aria-hidden='true'></i>
+                                </a>`;
+
+            }).join("") }` ).join("");*/
 
         for (const sampleKey in annotations) {
             head += "<th>" + sampleKey;

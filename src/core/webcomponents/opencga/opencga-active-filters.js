@@ -65,7 +65,7 @@ export default class OpencgaActiveFilters extends LitElement {
             this.searchClicked();
         }
         if (changedProperties.has("config")) {
-            this.configObserver(this.config);
+            this.configObserver();
         }
         if (changedProperties.has("opencgaClient")) {
             this.checkFilters(this.config);
@@ -73,7 +73,7 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     init() {
-        this._prefix = "oaf" + Utils.randomString(6);
+        this._prefix = "oaf" + Utils.randomString(6) + "_";
         this._config = this.getDefaultConfig();
         this.filters = [];
 
@@ -81,7 +81,7 @@ export default class OpencgaActiveFilters extends LitElement {
         //todo recheck why function?
         this.opencgaClient = function () {
             return {"_config": {}};
-        }
+        };
         this.query = {};
     }
 
@@ -108,16 +108,14 @@ export default class OpencgaActiveFilters extends LitElement {
                     break;
                 }
             }
-
         }
-
     }
 
-    configObserver(config) {
-        this._config = Object.assign({}, this.getDefaultConfig(), config);
+    configObserver() {
+        this._config = Object.assign({}, this.getDefaultConfig(), this.config);
 
         // Overwrite default alias with the one passed
-        this._config.alias = Object.assign({}, this.getDefaultConfig().alias, config.alias);
+        this._config.alias = Object.assign({}, this.getDefaultConfig().alias, this.config.alias);
 
         this.lockedFieldsMap = {};
         for (let lockedField of this._config.lockedFields) {
@@ -435,7 +433,7 @@ export default class OpencgaActiveFilters extends LitElement {
 
         <div class="panel panel-default" style="margin-bottom: 5px">
             <div class="panel-body">
-                <button type="button" class="btn btn-primary" @click="${this.clear}">
+                <button type="button" class="btn btn-primary ripple" @click="${this.clear}">
                     <i class="fa fa-eraser" aria-hidden="true" style="padding-right: 5px"></i> Clear
                 </button>
 
@@ -486,19 +484,20 @@ export default class OpencgaActiveFilters extends LitElement {
                 <!-- TODO we probably need a new property for this -->
                 ${this.showSelectFilters(this.opencgaClient._config) ? html`
                     <div class="btn-group" style="float: right">
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <button type="button" class="btn btn-primary dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i> Filters <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li><a style="font-weight: bold">Saved Filters</a></li>
-                            ${this.filters.map(item => html`
+                            <!--TODO check why filter is initialized (init()) but I still need to check for truthy-->
+                            ${this.filters && this.filters.length ? this.filters.map(item => html`
                                 <li> <!-- TODO recheck and simplify!!-->
                                     ${!item.active ? html`
                                         <a data-filter-name="${item.name}" style="cursor: pointer" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.name}</a>` : html`
                                         <a data-filter-name="${item.name}" style="cursor: pointer;color: green" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.name}</a>
                                     `}
                                 </li>
-                            `)}
+                            `) : null }
                             ${this.checkSid(this.opencgaClient._config) ? html`
                                 <li role="separator" class="divider"></li>
                                 <li>

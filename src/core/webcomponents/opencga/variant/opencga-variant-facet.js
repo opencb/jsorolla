@@ -100,6 +100,8 @@ export default class OpencgaVariantFacet extends LitElement {
 
     firstUpdated(_changedProperties) {
       //$(".bootstrap-select", this).selectpicker();
+
+        console.log("this.config",this.config)
     }
 
     updated(changedProperties) {
