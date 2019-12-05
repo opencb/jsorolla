@@ -38,6 +38,9 @@ export default class OpencgaSampleGrid extends LitElement {
             samples: {
                 type: Array
             },
+            query: {
+                type: Object
+            },
             search: {
                 type: Object
             },
@@ -55,6 +58,11 @@ export default class OpencgaSampleGrid extends LitElement {
         this.active = false;
     }
 
+    firstUpdated() {
+        //this.renderTable(this.active);
+        // this.table = PolymerUtils.getElementById(this._prefix + "SampleBrowserGrid");
+    }
+
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession") ||
             changedProperties.has("search") ||
@@ -62,12 +70,6 @@ export default class OpencgaSampleGrid extends LitElement {
             changedProperties.has("active")) {
             this.propertyObserver();
         }
-    }
-
-    firstUpdated() {
-
-        this.renderTable(this.active);
-        // this.table = PolymerUtils.getElementById(this._prefix + "SampleBrowserGrid");
     }
 
     propertyObserver() {
@@ -92,7 +94,7 @@ export default class OpencgaSampleGrid extends LitElement {
 
         this.samples = [];
 
-        let filters = Object.assign({}, this.search);
+        let filters = Object.assign({}, this.query);
 
         this.from = 1;
         this.to = 10;
@@ -182,6 +184,8 @@ export default class OpencgaSampleGrid extends LitElement {
                         _this.from = 1;
                         _this.to = _this.numTotalResults;
                     }
+
+                    _this.requestUpdate(); // it is necessary to refresh numTotalResultsText in opencga-grid-toolbar
 
                     return {
                         total: _this.numTotalResults,
@@ -307,6 +311,7 @@ export default class OpencgaSampleGrid extends LitElement {
             $(PolymerUtils.getElementById(this._prefix + "SampleBrowserGrid")).bootstrapTable("destroy");
             this.numTotalResults = 0;
         }
+        this.requestUpdate();
     }
 
     _onSelectSample(row) {

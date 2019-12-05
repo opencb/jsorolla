@@ -54,6 +54,10 @@ export default class OpencgaIndividualGrid extends LitElement {
         this.active = false;
     }
 
+    firstUpdated(_changedProperties) {
+        //this.renderTable(this.active);
+    }
+
     updated(changedProperties) {
         console.log("changedProperties", changedProperties)
         if (changedProperties.has("opencgaSession") ||
@@ -63,11 +67,6 @@ export default class OpencgaIndividualGrid extends LitElement {
             this.propertyObserver();
         }
     }
-
-    firstUpdated(_changedProperties) {
-        //this.renderTable(this.active);
-    }
-
 
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
@@ -189,6 +188,8 @@ export default class OpencgaIndividualGrid extends LitElement {
                         _this.from = 1;
                         _this.to = _this.numTotalResults;
                     }
+
+                    _this.requestUpdate(); // it is necessary to refresh numTotalResultsText in opencga-grid-toolbar
 
                     return {
                         total: _this.numTotalResults,

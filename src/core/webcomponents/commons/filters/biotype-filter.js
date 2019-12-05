@@ -94,8 +94,8 @@ export default class BiotypeFilter extends LitElement {
                             ${this._config.biotypes.length && this._config.biotypes.map( biotype => html`
                                 <option value="${biotype}">${biotype}</option>
                             `)}
-                    </select>
-               `;
+            </select>
+        `;
     }
 }
 

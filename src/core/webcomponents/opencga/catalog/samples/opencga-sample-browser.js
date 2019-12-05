@@ -45,6 +45,9 @@ export default class OpencgaSampleBrowser extends LitElement {
             opencgaClient: {
                 type: Object
             },
+            config: {
+                type: Object
+            },
             filters: {
                 type: Object,
                 notify: true //TODO recheck notify
@@ -53,7 +56,7 @@ export default class OpencgaSampleBrowser extends LitElement {
                 type: Object,
                 notify: true //TODO recheck notify
             },
-            config: {
+            query: {
                 type: Object
             }
         };
@@ -66,11 +69,12 @@ export default class OpencgaSampleBrowser extends LitElement {
         this.filtersConfig = {
             complexFields: ["annotation"]
         };
-
+        this.query = {};
 
     }
 
     firstUpdated(_changedProperties) {
+
     }
 
     updated(changedProperties) {
@@ -84,9 +88,11 @@ export default class OpencgaSampleBrowser extends LitElement {
         if (changedProperties.has("opencgaClient")) {
             //this.renderAnalysisTable();
         }
-
         if (changedProperties.has("filters")) {
             this.onFilterUpdate();
+        }
+        if (changedProperties.has("query")) {
+            this.queryObserver();
         }
     }
 
@@ -104,6 +110,24 @@ export default class OpencgaSampleBrowser extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
+    //TODO recheck if sample-browser needs study param in query
+    queryObserver() {
+        // Query passed is executed and set to variant-filter, active-filters and variant-grid components
+        let _query = {};
+        if (UtilsNew.isEmpty(this.query) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study)) {
+            _query = {
+                study: this.opencgaSession.study.fqn
+            };
+        }
+
+        if (UtilsNew.isNotUndefinedOrNull(this.query)) {
+            this.preparedQuery = {..._query, ...this.query};
+            this.executedQuery ={..._query, ...this.query};
+        }
+        // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
+        this.requestUpdate();
+    }
+
     sampleObserver() {
         this.dispatchEvent(new CustomEvent("samplechange", {
             detail: {
@@ -111,19 +135,6 @@ export default class OpencgaSampleBrowser extends LitElement {
             },
             bubbles: true, composed: true
         }));
-    }
-
-    onClear() {
-        this._config = Object.assign(this.getDefaultConfig(), this.config);
-        this.query = {};
-        // this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
-        this.search = {};
-    }
-
-    onActiveFilterChange(e) {
-        console.log("onActiveFilterChange", e.detail)
-        this.query = e.detail;
-        this.search = e.detail;
     }
 
     onSelectSample(e) {
@@ -173,6 +184,36 @@ export default class OpencgaSampleBrowser extends LitElement {
 
     }
 
+    onQueryFilterChange(e) {
+        console.log("onQueryFilterChange on sample browser", e.detail.query);
+        this.preparedQuery = e.detail.query;
+        this.requestUpdate();
+    }
+
+    onQueryFilterSearch(e) {
+        this.preparedQuery = e.detail.query;
+        this.executedQuery = e.detail.query;
+        this.requestUpdate();
+    }
+
+    //TODO recheck what's/if there is a default param in sample-browser. study key comes from variant-browser.
+    onActiveFilterChange(e) {
+        console.log("onActiveFilterChange on sample browser", e.detail)
+        //TODO FIXME!! study prop have to be wiped off! use studies instead
+        this.preparedQuery = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias, ...e.detail};
+        this.query = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias, ...e.detail};
+        this.requestUpdate();
+    }
+
+    onActiveFilterClear() {
+        this._config = Object.assign(this.getDefaultConfig(), this.config);
+        this.query = {};
+        // this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
+        //this.search = {};
+        this.preparedQuery = {};
+        this.requestUpdate();
+    }
+
     getDefaultConfig() {
         return {
             title: "Sample Browser",
@@ -198,8 +239,6 @@ export default class OpencgaSampleBrowser extends LitElement {
             variableSetIds: []
         };
     }
-
-
 
     render() {
         return html`
@@ -230,18 +269,19 @@ export default class OpencgaSampleBrowser extends LitElement {
                                        .samples="${this.samples}"
                                        .opencgaClient="${this.opencgaSession.opencgaClient}"
                                        .query="${this.query}"
-                                       .search="${this.search}">
+                                        @queryChange="${this.onQueryFilterChange}"
+                                        @querySearch="${this.onQueryFilterSearch}">
                 </opencga-sample-filter>
             </div>
 
             <div class="col-md-10">
                 <opencga-active-filters .opencgaClient="${this.opencgaClient}"
-                                        .query="${this.query}"
+                                        .query="${this.preparedQuery}"
                                         .defaultStudy="${this.opencgaSession.study.alias}"
                                         .config="${this.filtersConfig}"
                                         .alias="${this.activeFilterAlias}"
-                                        .refresh="${this.search}"
-                                        @activeFilterClear="${this.onClear}"
+                                        .refresh="${this.executedQuery}"
+                                        @activeFilterClear="${this.onActiveFilterClear}"
                                         @activeFilterChange="${this.onActiveFilterChange}">
                 </opencga-active-filters>
 
@@ -266,9 +306,14 @@ export default class OpencgaSampleBrowser extends LitElement {
                 <!-- Sample View Content -->
                 <div>
                     <div id="${this._prefix}TableResult" class="sample-browser-view-content">
-                        <opencga-sample-grid .opencgaSession="${this.opencgaSession}" .config="${this._config.grid}"
-                                             .samples="${this.samples}" .search="${this.search}" style="font-size: 12px"
-                                             @selectsample="${this.onSelectSample}" ?active="${this.activeMenu.table}">
+                        <opencga-sample-grid .opencgaSession="${this.opencgaSession}"
+                                             .query="${this.executedQuery}"
+                                             .search="${this.executedQuery}"
+                                             .config="${this._config.grid}"
+                                             .samples="${this.samples}"
+                                             .active="${this.activeMenu.table}"
+                                             style="font-size: 12px"
+                                             @selectsample="${this.onSelectSample}">
                         </opencga-sample-grid>
 
                         <!--<div style="padding-top: 5px">-->

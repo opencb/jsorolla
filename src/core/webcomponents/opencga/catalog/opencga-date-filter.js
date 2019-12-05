@@ -91,7 +91,7 @@ export default class OpencgaDateFilter extends LitElement {
         }
     }
 
-    calculateFilters(e) {
+    async calculateFilters(e) {
         const dateOption = $(`#${this._prefix}DateRadioButton input[type='radio']:checked`).val();
         let date = "";
         switch (dateOption) {
@@ -99,35 +99,35 @@ export default class OpencgaDateFilter extends LitElement {
             this.activatedRanges = false;
             this.activatedDate = false;
             this.activatedRecent = true;
-            this.requestUpdate().then(() => {
-                // Last x days
-                const da = new Date();
-                da.setDate(da.getDate() - this.querySelector(`#${this._prefix}RecentSelect`).value);
-                // If the month and day have one digit we add 0 before
-                let m = da.getMonth() + 1;
-                if (m < 10) {
-                    m = "0" + m;
-                }
-                let d = da.getDate();
-                if (d < 10) {
-                    d = "0" + d;
-                }
+            await this.requestUpdate();
+            // Last x days
+            const da = new Date();
+            da.setDate(da.getDate() - this.querySelector(`#${this._prefix}RecentSelect`).value);
+            // If the month and day have one digit we add 0 before
+            let m = da.getMonth() + 1;
+            if (m < 10) {
+                m = "0" + m;
+            }
+            let d = da.getDate();
+            if (d < 10) {
+                d = "0" + d;
+            }
 
-                date = `>=${da.getFullYear()}${m}${d}`;
-            });
+            date = `>=${da.getFullYear()}${m}${d}`;
             break;
         case "date":
             this.activatedRanges = false;
             this.activatedDate = true;
             this.activatedRecent = false;
-            this.requestUpdate().then(() => date = this._getDateFilter());
-
+            await this.requestUpdate();
+            date = this._getDateFilter();
             break;
         case "range":
             this.activatedRanges = true;
             this.activatedDate = false;
             this.activatedRecent = false;
-            this.requestUpdate().then(() => date = this._getRangeFilter());
+            await this.requestUpdate();
+            date = this._getRangeFilter();
             break;
         case "all":
         default:
@@ -138,7 +138,8 @@ export default class OpencgaDateFilter extends LitElement {
             break;
         }
 
-        this.dispatchEvent(new CustomEvent("datechanged", {detail: {date: date}}));
+        console.log("date", date);
+        this.dispatchEvent(new CustomEvent("filterChange", {detail: {value: date}}));
     }
 
     _getDateFilter() {
@@ -288,18 +289,16 @@ export default class OpencgaDateFilter extends LitElement {
 
         <div class="form-group">
             <form id="${this._prefix}DateRadioButton">
-                <input type="radio" name="selectionButtons" id="allRadio" value="all"
-                       class="${this._prefix}FilterRadio" checked @change="${this.calculateFilters}" style="padding-left: 20px">
-                <span class="${this._prefix}-text">All</span>
-                <br>
-                <input type="radio" name="selectionButtons" id="recentlyRadio" value="recently"
-                       class="${this._prefix}FilterRadio" @change="${this.calculateFilters}" style="padding-left: 20px">
-                <span class="${this._prefix}-text">Recent</span>
+            
+                <div class="radio">
+                    <label><input type="radio" name="selectionButtons" id="allRadio" value="all" class="${this._prefix}FilterRadio" @change="${this.calculateFilters}" ><span class="${this._prefix}-text">All</span></label>
+                </div>
+                
+                <div class="radio">
+                    <label><input type="radio" name="selectionButtons" id="recentlyRadio" value="recently" class="${this._prefix}FilterRadio" @change="${this.calculateFilters}" ><span class="${this._prefix}-text">Recent</span></label>
+                </div>
 
-
-                ${!this.activatedRecent ? html`
-                    <br>
-                ` : html`
+                ${this.activatedRecent ? html`
                     <div>
                         <form class="form-inline">
                             <div class="form-group row" style="padding-left: 30px;">
@@ -341,20 +340,19 @@ export default class OpencgaDateFilter extends LitElement {
                             </div>
                         </form>
                     </div>
-                `}
+                ` : null}
                 
-                <input type="radio" name="selectionButtons" id="dateRadio" value="date"
-                       class="${this._prefix}FilterRadio" @change="${this.calculateFilters}" style="padding-left: 20px">
-                <span class="${this._prefix}-text">Date</span>
+                <div class="radio">
+                    <label><input type="radio" name="selectionButtons" id="dateRadio" value="date" class="${this._prefix}FilterRadio" @change="${this.calculateFilters}" ><span class="${this._prefix}-text">Date</span></label>
+                </div>
 
-                ${!this.activatedDate ? html` <br>
-                ` : html`
+                ${this.activatedDate ? html`
                     <div>
                         <form class="form-inline">
                             <div class="form-group row" style="padding-left: 30px;">
                                 <select class="form-control ${this._prefix}SelectInput ${this._prefix}-codeDis"
                                         id="${this._prefix}YearSelect" name="birthYear" required @change="${this.calculateFilters}">
-                                    ${this.yearsToSearch.length && this.yearsToSearch.map( item => html`
+                                    ${this.yearsToSearch.length && this.yearsToSearch.map(item => html`
                                         <option value="${item}">${item}</option>
                                     `)}
                                 </select>
@@ -363,7 +361,7 @@ export default class OpencgaDateFilter extends LitElement {
                                 <select class="form-control ${this._prefix}SelectInput ${this._prefix}-codeDis"
                                         id="${this._prefix}MonthSelect" name="birthYear" required @change="${this.calculateFilters}">
                                     <option value="any">Any</option>
-                                    ${this.monthToSearch.length && this.monthToSearch.map( item => html`
+                                    ${this.monthToSearch.length && this.monthToSearch.map(item => html`
                                         <option value="${item}">${item}</option>
                                     `)}
                                 </select>
@@ -372,20 +370,19 @@ export default class OpencgaDateFilter extends LitElement {
                                 <select class="form-control ${this._prefix}SelectInput ${this._prefix}-codeDis"
                                         id="${this._prefix}DaySelect" name="birthYear" required @change="${this.calculateFilters}">
                                     <option value="any">Any</option>
-                                    ${this.daysToSearch.length && this.daysToSearch.map( item => html`
+                                    ${this.daysToSearch.length && this.daysToSearch.map(item => html`
                                         <option value="${item}">${item}</option>
                                     `)}
                                 </select>
                             </div>
                         </form>
                     </div>
-                `}
+                ` : null}
+
+                <div class="radio">
+                    <label><input type="radio" name="selectionButtons" id="rangesRadi" value="range" class="${this._prefix}FilterRadio" @change="${this.calculateFilters}" ><span class="${this._prefix}-text">Range</span></label>
+                </div>
                 
-
-                <input type="radio" name="selectionButtons" id="rangesRadio" value="range"
-                       class="${this._prefix}FilterRadio" @change="${this.calculateFilters}" style="padding-left: 20px">
-                <span class="${this._prefix}-text">Range</span>
-
                 ${this.activatedRanges ? html`
                     <div>
                         <label class="${this._prefix}-text" style="padding-left: 10px;">Begin periode</label>
@@ -393,7 +390,7 @@ export default class OpencgaDateFilter extends LitElement {
                             <div class="form-group row" style="padding-left: 30px;">
                                 <select class="form-control ${this._prefix}SelectInput ${this._prefix}-codeDis"
                                         id="${this._prefix}YearSelectFrom" name="birthYear" required @change="${this.calculateFilters}">
-                                     ${this.yearsToSearch.length && this.yearsToSearch.map( item => html`
+                                     ${this.yearsToSearch.length && this.yearsToSearch.map(item => html`
                                         <option value="${item}">${item}</option>
                                     `)}
                                 </select>
@@ -402,7 +399,7 @@ export default class OpencgaDateFilter extends LitElement {
                                 <select class="form-control ${this._prefix}SelectInput ${this._prefix}-codeDis"
                                         id="${this._prefix}MonthSelectFrom" name="birthYear" required @change="${this.calculateFilters}">
                                     <option value="any">Any</option>
-                                     ${this.monthToSearch.length && this.monthToSearch.map( item => html`
+                                     ${this.monthToSearch.length && this.monthToSearch.map(item => html`
                                         <option value="${item}">${item}</option>
                                     `)}
                                 </select>
@@ -411,7 +408,7 @@ export default class OpencgaDateFilter extends LitElement {
                                 <select class="form-control ${this._prefix}SelectInput ${this._prefix}-codeDis"
                                         id="${this._prefix}DaySelectFrom" name="birthYear" required @change="${this.calculateFilters}">
                                     <option value="any">Any</option>
-                                     ${this.daysToSearch.length && this.daysToSearch.map( item => html`
+                                     ${this.daysToSearch.length && this.daysToSearch.map(item => html`
                                         <option value="${item}">${item}</option>
                                     `)}
                                 </select>
@@ -423,7 +420,7 @@ export default class OpencgaDateFilter extends LitElement {
                             <div class="form-group row" style="padding-left: 30px;">
                                 <select class="form-control ${this._prefix}SelectInput ${this._prefix}-codeDis"
                                         id="${this._prefix}YearSelectTo" name="birthYear" required @change="${this.calculateFilters}">
-                                     ${this.yearsToSearch.length && this.yearsToSearch.map( item => html`
+                                     ${this.yearsToSearch.length && this.yearsToSearch.map(item => html`
                                         <option value="${item}">${item}</option>
                                     `)}
                                 </select>
@@ -432,7 +429,7 @@ export default class OpencgaDateFilter extends LitElement {
                                 <select class="form-control ${this._prefix}SelectInput ${this._prefix}-codeDis"
                                         id="${this._prefix}MonthSelectTo" name="birthYear" required @change="${this.calculateFilters}">
                                     <option value="any">Any</option>
-                                     ${this.monthToSearch.length && this.monthToSearch.map( item => html`
+                                     ${this.monthToSearch.length && this.monthToSearch.map(item => html`
                                         <option value="${item}">${item}</option>
                                     `)}
                                 </select>
@@ -441,13 +438,19 @@ export default class OpencgaDateFilter extends LitElement {
                                 <select class="form-control ${this._prefix}SelectInput ${this._prefix}-codeDis"
                                         id="${this._prefix}DaySelectTo" name="birthYear" required @change="${this.calculateFilters}">
                                     <option value="any">Any</option>
-                                     ${this.daysToSearch.length && this.daysToSearch.map( item => html`
+                                     ${this.daysToSearch.length && this.daysToSearch.map(item => html`
                                         <option value="${item}">${item}</option>
                                     `)}
                                 </select>
                             </div>
                         </form>
-                    </div>` : null }
+                    </div>` : null}
+<!--                <div class="btn-group">-->
+<!--                  <button type="button" class="btn btn-default ripple">All</button>-->
+<!--                  <button type="button" class="btn ripple">Recent</button>-->
+<!--                  <button type="button" class="btn ripple">Date</button>-->
+<!--                  <button type="button" class="btn ripple">Range</button>-->
+<!--                </div>-->
             </form>
         </div>`;
     }

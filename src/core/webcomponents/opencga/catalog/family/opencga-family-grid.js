@@ -193,6 +193,8 @@ export default class OpencgaFamilyGrid extends LitElement {
                         _this.to = _this.numTotalResults;
                     }
 
+                    _this.requestUpdate(); // it is necessary to refresh numTotalResultsText in opencga-grid-toolbar
+
                     return {
                         total: _this.numTotalResults,
                         rows: response.response[0].result

@@ -83,11 +83,12 @@ export default class OpencgaActiveFilters extends LitElement {
             return {"_config": {}};
         };
         this.query = {};
+        this.lockedFieldsMap = {};
     }
 
     //TODO recheck connectedCallback
-    connectedCallback() {
-        super.connectedCallback();
+    firstUpdated() {
+        //super.connectedCallback();
 
         // Small trick to force the warning message display after DOM is renderer
         this.query = {...this.query};
@@ -302,10 +303,10 @@ export default class OpencgaActiveFilters extends LitElement {
                 let queryString = Object.entries(this.query).sort().toString();
                 let prevQueryString = Object.entries(this._previousQuery).sort().toString();
                 if (queryString !== prevQueryString) {
-                    // console.log(this.query);
-                    // console.log(this._previousQuery);
-                    // console.log(queryString);
-                    // console.log(prevQueryString);
+                     /*console.log(this.query);
+                     console.log(this._previousQuery);
+                     console.log(queryString);
+                     console.log(prevQueryString);*/
                     PolymerUtils.show(this._prefix + "Warning");
                 } else {
                     PolymerUtils.hide(this._prefix + "Warning");
@@ -428,7 +429,8 @@ export default class OpencgaActiveFilters extends LitElement {
             }
         </style>
         <div class="alert alert-warning" role="alert" id="${this._prefix}Warning" style="display: none;padding: 12px;margin-bottom: 10px">
-            <span style="font-weight: bold;font-size: 1.20em">Warning!</span>&nbsp;&nbsp;Filters changed, please click on Search button to update the results.
+            <span style="font-weight: bold;font-size: 1.20em">Warning!</span>&nbsp;&nbsp;Filters changed, please click on <button type="button" class="btn btn-primary ripple ripple-disabled">
+                    <i class="fa fa-search" aria-hidden="true"></i> Search </button> to update the results.
         </div>
 
         <div class="panel panel-default" style="margin-bottom: 5px">
@@ -445,23 +447,23 @@ export default class OpencgaActiveFilters extends LitElement {
                         ${this.queryList.map(item => !this._isMultiValued(item) ? html` 
                             ${!item.locked ? html`
                                 <!-- No multi-valued filters -->
-                                <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button" data-filter-name="${item.name}" data-filter-value=""
+                                <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple" data-filter-name="${item.name}" data-filter-value=""
                                         @click="${this.onQueryFilterDelete}">
                                 ${item.text}
                                 </button>
                             ` : html`
-                                <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button" data-filter-name="${item.name}" data-filter-value=""
+                                <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple" data-filter-name="${item.name}" data-filter-value=""
                                          @click="${this.onQueryFilterDelete}" title="${item.message}" disabled>
                                     ${item.text}
                                 </button>
                             `}` : html`
                                 <!-- Multi-valued filters -->
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button" data-filter-name="${item.name}" data-filter-value=""
+                                    <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple" data-filter-name="${item.name}" data-filter-value=""
                                             @click="${this.onQueryFilterDelete}" @mouseover="${this._onMouseOver}" @mouseout="${this._onMouseOut}" >
                                         ${item.text} <span class="badge">${item.items.length}</span>
                                     </button>
-                                    <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <button type="button" class="btn btn-warning btn-sm dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <span class="caret"></span>
                                         <span class="sr-only">Toggle Dropdown</span>
                                     </button>

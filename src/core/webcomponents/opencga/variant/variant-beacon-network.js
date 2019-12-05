@@ -70,6 +70,7 @@ export default class VariantBeaconNetwork extends LitElement {
         PolymerUtils.innerHtmlByClass("beaconResponse", "");
     }
 
+    //TODO urgent refactor
     searchBeaconNetwork() {
         if (this._config.hosts !== undefined && this.variant !== undefined && this.variant.split(':').length > 2) {
             let [chromosome, position, reference, alternate] = this.variant.split(':');
@@ -94,8 +95,10 @@ export default class VariantBeaconNetwork extends LitElement {
                                     if (beaconResponse[j].response != null) {
                                         let response = beaconResponse[j].response.toString();
                                         PolymerUtils.innerHTML(_this._prefix + _this._config.hosts[i], "" + response.charAt(0).toUpperCase() + response.slice(1));
+                                        _this.querySelector("." + _this._prefix + _this._config.hosts[i]).classList.add(response.charAt(0).toUpperCase() + response.slice(1))
                                         if (response === "true") {
-                                            PolymerUtils.addStyle(_this._prefix + _this._config.hosts[i], "color", "red"); // Highlighting the true response in the table
+                                            //PolymerUtils.addStyle(_this._prefix + _this._config.hosts[i], "color", "red"); // Highlighting the true response in the table
+
                                         } else {
                                             PolymerUtils.addStyle(_this._prefix + _this._config.hosts[i], "color", "black");
                                         }
@@ -130,18 +133,38 @@ export default class VariantBeaconNetwork extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles"></style>
+        <style include="jso-styles">
+        
+        .beacon-square {
+            width: 120px;
+            height: 120px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            background: aliceblue;
+            margin: 10px;
+            flex-flow: column;
+            transition: all .7s ease-in-out;
+        }
+        .beacon-square.False {
+            background: #dadada;
+        }
+        .beacon-square.True {
+            background: red;
+        }
+        </style>
 
         <div style="padding: 15px 20px">
             <div style="padding: 0px 0px 10px 0px">
-                <button class="btn btn-primary" type="button" @click="${this.searchBeaconNetwork}">Search Beacon Network</button>
+                <button class="btn btn-primary ripple" type="button" @click="${this.searchBeaconNetwork}">Search Beacon Network</button>
                 <a data-toggle="tooltip"
                    title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/"><i
                         class="fa fa-info-circle" aria-hidden="true"></i></a>
+                        
+                <i class="fa fa-spinner fa-spin" aria-hidden="true" id="${this._prefix}spinGif" style="display:none"></i>
             </div>
 
-            <i class="fa fa-spinner fa-spin" aria-hidden="true" id="${this._prefix}spinGif" style="display:none"></i>
-            <table class="table table-bordered" style="width: 50%">
+            <!--<table class="table table-bordered" style="width: 50%">
                 <thead style="background-color: #eee">
                 <tr>
                     <th>Host</th>
@@ -149,14 +172,15 @@ export default class VariantBeaconNetwork extends LitElement {
                 </tr>
                 </thead>
                 <tbody>
-                ${this._config.hosts && this._config.hosts.length && this._config.hosts.map( item => html`
-                     <tr>
-                        <td>${item}</td>
-                        <td id="${this._prefix}${item}" class="beaconResponse"></td>
-                    </tr> 
-                `)}
+                
                 </tbody>
-            </table>
+            </table>-->
+            ${this._config.hosts && this._config.hosts.length && this._config.hosts.map( item => html`
+                <div class="beacon-square ${this._prefix}${item}">
+                    <p>${item}</p>
+                    <p class="" id="${this._prefix}${item}" class="beaconResponse">&nbsp;</p>
+                </div> 
+            `)}
         </div>
         `;
     }

@@ -176,6 +176,8 @@ export default class OpencgaCohortGrid extends LitElement {
                         _this.to = _this.numTotalResults;
                     }
 
+                    _this.requestUpdate(); // it is necessary to refresh numTotalResultsText in opencga-grid-toolbar
+
                     return {
                         total: _this.numTotalResults,
                         rows: response.response[0].result

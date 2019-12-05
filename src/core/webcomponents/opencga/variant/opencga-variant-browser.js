@@ -536,10 +536,10 @@ export default class OpencgaVariantBrowser extends LitElement {
                                 .cellbaseClient="${this.cellbaseClient}"
                                 .populationFrequencies="${this.populationFrequencies}"
                                 .consequenceTypes="${this.consequenceTypes}"
+                                .config="${this._config.filter}"
                                 @queryChange="${this.onQueryFilterChange}"
                                 @querySearch="${this.onQueryFilterSearch}"
-                                @samplechange="${this.onSampleChange}"
-                                .config="${this._config.filter}">
+                                @samplechange="${this.onSampleChange}">
         </opencga-variant-filter>
     </div>
 

@@ -50,8 +50,13 @@ export default class OpencgaSampleView extends LitElement {
     _init() {
         // this.prefix = "osv" + Utils.randomString(6);
 
-        this.samples = [];
+        //this.samples = {};
+        //this.sample = {};
         this._config = this.getDefaultConfig();
+    }
+
+    firstUpdated(_changedProperties) {
+        this.sampleIdObserver();
     }
 
     updated(changedProperties) {
@@ -74,6 +79,7 @@ export default class OpencgaSampleView extends LitElement {
     }
 
     sampleIdObserver() {
+        console.warn("sampleIdObserver")
         if (this.sampleId !== undefined && this.sampleId !== "") {
             let params = {
                 study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
@@ -86,6 +92,8 @@ export default class OpencgaSampleView extends LitElement {
                         response.response[0].id = response.response[0].name;
                     }
                     _this.sample = response.response[0].result[0];
+                    console.log("_this.sample",_this.sample)
+                    _this.requestUpdate();
                 })
                 .catch(function (reason) {
                     console.error(reason);
@@ -120,129 +128,132 @@ export default class OpencgaSampleView extends LitElement {
             }
         </style>
 
-        ${this._config.showTitle ? html`
-            <div class="panel" style="margin-bottom: 10px">
-                <h2 >&nbsp;${this._config.title}: ${this.sample.id}</h2>
-            </div>
-        ` : null}
-        
-        <div class="row" style="padding: 0px 10px">
-            <div class="col-md-12">
-                <div class="col-md-8" style="padding-left: 0px">
-                    <!--<h2 style="margin-bottom: 5px"> Summary Sample: {{sample.id}}</h2>-->
-                    <!--<hr style="margin: 2px 0px;border-top: 2px solid #eee">-->
-
-                    <h3 class="section-title">Summary</h3>
-
-                    <div class="col-md-6">
-                        <!--<label>Sample</label>-->
+        ${this.sample ? html`
+            ${this._config.showTitle ? html`
+                <div class="panel" style="margin-bottom: 10px">
+                    <h2 >&nbsp;${this._config.title}: ${this.sample.id}</h2>
+                </div>
+            ` : null}
+            
+       
+            <div class="row" style="padding: 0px 10px">
+                <div class="col-md-12">
+                    <div class="col-md-8" style="padding-left: 0px">
+                        <!--<h2 style="margin-bottom: 5px"> Summary Sample: {{sample.id}}</h2>-->
                         <!--<hr style="margin: 2px 0px;border-top: 2px solid #eee">-->
-                        <form class="form-horizontal">
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-3 label-title">Sample ID</label>
-                                <span class="col-md-9">${this.sample.id}</span>
-                            </div>
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-3 label-title">Version</label>
-                                <span class="col-md-9">${this.sample.version}</span>
-                            </div>
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-3 label-title">UUID</label>
-                                <span class="col-md-9">${this.sample.uuid}</span>
-                            </div>
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-3 label-title">Release</label>
-                                <span class="col-md-9">${this.sample.release}</span>
-                            </div>
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-3 label-title">Status</label>
-                                <span class="col-md-9">${this.sample.status.name}</span>
-                            </div>
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-3 label-title">Creation Date</label>
-                                <span class="col-md-9">${this.sample.creationDate}</span>
-                            </div>
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-3 label-title">Modification Date</label>
-                                <span class="col-md-9">${this.sample.modificationDate}</span>
-                            </div>
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-3 label-title">Description</label>
-                                <span class="col-md-9">${this.sample.description}</span>
-                            </div>
-                        </form>
+    
+                        <h3 class="section-title">Summary</h3>
+    
+                        <div class="col-md-6">
+                            <!--<label>Sample</label>-->
+                            <!--<hr style="margin: 2px 0px;border-top: 2px solid #eee">-->
+                            <form class="form-horizontal">
+                                <div class="form-group" style="margin: 0px 2px">
+                                    <label class="col-md-3 label-title">Sample ID</label>
+                                    <span class="col-md-9">${this.sample.id}</span>
+                                </div>
+                                <div class="form-group" style="margin: 0px 2px">
+                                    <label class="col-md-3 label-title">Version</label>
+                                    <span class="col-md-9">${this.sample.version}</span>
+                                </div>
+                                <div class="form-group" style="margin: 0px 2px">
+                                    <label class="col-md-3 label-title">UUID</label>
+                                    <span class="col-md-9">${this.sample.uuid}</span>
+                                </div>
+                                <div class="form-group" style="margin: 0px 2px">
+                                    <label class="col-md-3 label-title">Release</label>
+                                    <span class="col-md-9">${this.sample.release}</span>
+                                </div>
+                                <div class="form-group" style="margin: 0px 2px">
+                                    <label class="col-md-3 label-title">Status</label>
+                                    <span class="col-md-9">${this.sample.status.name}</span>
+                                </div>
+                                <div class="form-group" style="margin: 0px 2px">
+                                    <label class="col-md-3 label-title">Creation Date</label>
+                                    <span class="col-md-9">${this.sample.creationDate}</span>
+                                </div>
+                                <div class="form-group" style="margin: 0px 2px">
+                                    <label class="col-md-3 label-title">Modification Date</label>
+                                    <span class="col-md-9">${this.sample.modificationDate}</span>
+                                </div>
+                                <div class="form-group" style="margin: 0px 2px">
+                                    <label class="col-md-3 label-title">Description</label>
+                                    <span class="col-md-9">${this.sample.description}</span>
+                                </div>
+                            </form>
+                        </div>
+    
+                        <div class="col-md-6">
+                            <form class="form-horizontal">
+                                <div class="form-group" style="margin: 0px 2px">
+                                    <label class="col-md-3 label-title">File</label>
+                                    <span class="col-md-9">${this.sample.source}</span>
+                                </div>
+                                <div class="form-group" style="margin: 0px 2px">
+                                    <label class="col-md-3 label-title">Type</label>
+                                    <span class="col-md-9">${this.sample.type}</span>
+                                </div>
+                                <div class="form-group" style="margin: 0px 2px">
+                                    <label class="col-md-3 label-title">Somatic</label>
+                                    <span class="col-md-9">${this.sample.somatic}</span>
+                                </div>
+                                <div class="form-group" style="margin: 0px 2px">
+                                    <label class="col-md-3 label-title">Phenotypes</label>
+                                    <span class="col-md-9">
+                                    ${this.sample.phenotypes && this.sample.phenotypes.length ? this.sample.phenotypes.map( item => html`
+                                        <span>${this.item.name} (<a href="http://compbio.charite.de/hpoweb/showterm?id=${this.item.id}" target="_blank">${this.item.id}</a>)</span>
+                                        <br>
+                                    `) : null}
+                                </span>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-
-                    <div class="col-md-6">
-                        <form class="form-horizontal">
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-3 label-title">File</label>
-                                <span class="col-md-9">${this.sample.source}</span>
-                            </div>
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-3 label-title">Type</label>
-                                <span class="col-md-9">${this.sample.type}</span>
-                            </div>
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-3 label-title">Somatic</label>
-                                <span class="col-md-9">${this.sample.somatic}</span>
-                            </div>
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-3 label-title">Phenotypes</label>
-                                <span class="col-md-9">
-                                ${this.sample.phenotypes && this.sample.phenotypes.length ? this.sample.phenotypes.map( item => html`
-                                    <span>${this.item.name} (<a href="http://compbio.charite.de/hpoweb/showterm?id=${this.item.id}" target="_blank">${this.item.id}</a>)</span>
-                                    <br>
-                                `) : null}
-                            </span>
-                            </div>
-                        </form>
+    
+                    <div class="col-md-4" style="padding-left: 0px">
+                        <h3 class="section-title">Individual</h3>
+                        <div class="col-md-12">
+                            <form class="form-horizontal">
+                                <div class="form-group" style="margin: 0px 2px">
+                                    <label class="col-md-3 label-title">ID</label>
+                                    <span class="col-md-9">${this.individual.id}aaa</span>
+                                </div>
+                                <div class="form-group" style="margin: 0px 2px">
+                                    <label class="col-md-3 label-title">Name</label>
+                                    <span class="col-md-9">${this.individual.name}bbb</span>
+                                </div>
+                                <div class="form-group" style="margin: 0px 2px">
+                                    <label class="col-md-3 label-title">Version</label>
+                                    <span class="col-md-9">${this.individual.version}</span>
+                                </div>
+                                <div class="form-group" style="margin: 0px 2px">
+                                    <label class="col-md-3 label-title">UUID</label>
+                                    <span class="col-md-9">${this.individual.uuid}</span>
+                                </div>
+                                <div class="form-group" style="margin: 0px 2px">
+                                    <label class="col-md-3 label-title">Sex (Karyotype)</label>
+                                    <span class="col-md-9">${this.individual.sex}MALE (${this.individual.karyotypicSex}XY)</span>
+                                </div>
+                                <div class="form-group" style="margin: 0px 2px">
+                                    <label class="col-md-3 label-title">Phenotypes</label>
+                                    <span class="col-md-9">
+                                    ${this.individual.phenotypes && this.individual.phenotypes.length ? this.individual.phenotypes.map( item => html`
+                                        <span>${this.item.name} (<a href="http://compbio.charite.de/hpoweb/showterm?id=${this.item.id}" target="_blank">${this.item.id}</a>)</span>
+                                        <br>
+                                    `) : null }
+                                </span>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-
-                <div class="col-md-4" style="padding-left: 0px">
-                    <h3 class="section-title">Individual</h3>
-                    <div class="col-md-12">
-                        <form class="form-horizontal">
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-3 label-title">ID</label>
-                                <span class="col-md-9">${this.individual.id}aaa</span>
-                            </div>
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-3 label-title">Name</label>
-                                <span class="col-md-9">${this.individual.name}bbb</span>
-                            </div>
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-3 label-title">Version</label>
-                                <span class="col-md-9">${this.individual.version}</span>
-                            </div>
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-3 label-title">UUID</label>
-                                <span class="col-md-9">${this.individual.uuid}</span>
-                            </div>
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-3 label-title">Sex (Karyotype)</label>
-                                <span class="col-md-9">${this.individual.sex}MALE (${this.individual.karyotypicSex}XY)</span>
-                            </div>
-                            <div class="form-group" style="margin: 0px 2px">
-                                <label class="col-md-3 label-title">Phenotypes</label>
-                                <span class="col-md-9">
-                                ${this.individual.phenotypes && this.individual.phenotypes.length ? this.individual.phenotypes.map( item => html`
-                                    <span>${this.item.name} (<a href="http://compbio.charite.de/hpoweb/showterm?id=${this.item.id}" target="_blank">${this.item.id}</a>)</span>
-                                    <br>
-                                `) : null }
-                            </span>
-                            </div>
-                        </form>
-                    </div>
+    
+                <div class="col-md-12">
+                    <h3 class="section-title">Annotations</h3>
+    
                 </div>
             </div>
-
-            <div class="col-md-12">
-                <h3 class="section-title">Annotations</h3>
-
-            </div>
-        </div>
+        ` : null }
         `;
     }
 }

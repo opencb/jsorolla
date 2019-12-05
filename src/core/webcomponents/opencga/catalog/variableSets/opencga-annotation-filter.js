@@ -193,6 +193,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
         } else {
             let _variableSets = [];
             for (let variableSet of study.variableSets) {
+
                 if (UtilsNew.isEmpty(this.entity) || variableSet.entities.includes(this.entity)) {
                     variableSet["name"] = UtilsNew.defaultString(variableSet.name, variableSet.id);
                     _variableSets.push(variableSet);
@@ -292,7 +293,8 @@ export default class OpencgaAnnotationFilter extends LitElement {
                                 ${this.variableSets.map(item => html`
                                     <option data-variable="${this.item}}">${this.item.name}}</option>
                                 `)}
-                            </select>` : null}
+                            </select>`
+            : null}
         
         <opencga-variable-selector .variableSet="${this.selectedVariableSet}"
                                    @variablechange="${this.onChangeSelectedVariable}">

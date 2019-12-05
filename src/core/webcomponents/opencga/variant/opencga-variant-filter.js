@@ -111,8 +111,6 @@ export default class OpencgaVariantFilter extends LitElement {
         // this.queryObserver();
         //this.setQueryFilters();
         //this.clinicalObserver();
-
-        console.log("this.config",this.config)
     }
 
     updated(changedProperties) {
@@ -1300,12 +1298,11 @@ export default class OpencgaVariantFilter extends LitElement {
                         </div>
                         <div id="${this._prefix}${id}" class="panel-collapse collapse ${collapsed}" role="tabpanel" aria-labelledby="${this._prefix}${id}Heading">
                             <div class="panel-body">
+                                <!--TODO verify if cadd condition works-->
                                 ${section.subsections && section.subsections.length && section.subsections.map(subsection => html`
-                                    ${subsection.id === "study" && this.opencgaSession.project.studies.length <= 1 ? html`
-                                        ${section.subsections.length === 1 ? html`` : html`/continue_statement_missing/`}
-                                    ` : null}
-                                    
-                                    ${subsection.id === "cadd" && this.opencgaSession.project.organism.assembly.toLowerCase() === "grch38" ? html`/continue_statement_missing/` : html``}
+                                     
+                                                                   
+                                    <!--${subsection.id === "cadd" && this.opencgaSession.project.organism.assembly.toLowerCase() === "grch38" ? html`/continue_statement_missing/` : html``} -->
                                     
                                     ${this.config.menu.skipSubsections && this.config.menu.skipSubsections.length && !!~this.config.menu.skipSubsections.indexOf(subsection.id) ? null : this._createSubSection(subsection)}
                                     
@@ -1326,6 +1323,9 @@ export default class OpencgaVariantFilter extends LitElement {
         let content = "";
         switch (subsection.id) {
         case "study":
+            if (this.opencgaSession.project.studies.length < 2) {
+                return "";
+            }
             content = html`<study-filter .opencgaSession="${this.opencgaSession}" .differentStudies="${this.differentStudies}" .query="${this.query}" @filterChange="${e => this.onFilterChange("studies", e.detail.value)}"></study-filter>`;
             break;
         case "cohort":
@@ -1368,6 +1368,9 @@ export default class OpencgaVariantFilter extends LitElement {
             content = html`<protein-substitution-score-filter .query="${this.query}" @filterChange="${e => this.onFilterChange("protein_substitution", e.detail.value)}"></protein-substitution-score-filter>`;
             break;
         case "cadd":
+            if (this.opencgaSession.project.organism.assembly.toLowerCase() === "grch38") {
+                return "";
+            }
             content = html`<cadd-filter .query="${this.query}" @filterChange="${e => this.onFilterChange("annot-functional-score", e.detail.value)}"></cadd-filter>`;
             break;
         case "conservation":
@@ -2156,24 +2159,16 @@ export default class OpencgaVariantFilter extends LitElement {
             .subsection-content {
                 margin: 5px 5px;
             }
-
-            span.searchingSpan{
-                background-color: #286090;
-            }
-            .searchingButton{
-                color: #fff;
-            }
-            .notbold{
-                font-weight: normal;
-            }
+            
             .bootstrap-select {
                 width: 100%!important;
-            }
+            }            
+            
         </style>
         <div>
-            <div style="width: 60%;margin: 0 auto;padding-top: 10px">
-                <button type="button" class="btn btn-primary ripple" style="width: 100%" @click="${this.onSearch}">
-                    <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i> ${this.config.menu.searchButtonText}
+            <div class="search-button-wrapper">
+                <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
+                    <i class="fa fa-search" aria-hidden="true"></i> ${this.config.menu.searchButtonText}
                 </button>
             </div>
 

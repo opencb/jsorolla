@@ -99,9 +99,11 @@ export default class OpencgaVariantFacet extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-      //$(".bootstrap-select", this).selectpicker();
+        $(".bootstrap-select", this).selectpicker();
+        this.query = {};
+        console.log("this.config",this.config);
 
-        console.log("this.config",this.config)
+
     }
 
     updated(changedProperties) {
@@ -114,6 +116,27 @@ export default class OpencgaVariantFacet extends LitElement {
         if (changedProperties.has("search")) {
             this.fetchVariants();
         }
+        if (changedProperties.has("query")) {
+            this.queryObserver();
+        }
+    }
+
+    //TODO recheck: copied from variant-browser
+    queryObserver() {
+        // Query passed is executed and set to variant-filter, active-filters and variant-grid components
+        let _query = {};
+        if (UtilsNew.isEmpty(this.query) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study)) {
+            _query = {
+                study: this.opencgaSession.study.fqn
+            };
+        }
+
+        if (UtilsNew.isNotUndefinedOrNull(this.query)) {
+            this.preparedQuery = {..._query, ...this.query};
+            this.executedQuery = {..._query, ...this.query};
+        }
+        // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
+        this.requestUpdate();
     }
 
     opencgaSessionObserver() {
@@ -941,6 +964,49 @@ export default class OpencgaVariantFacet extends LitElement {
         return true;
     }
 
+
+    // TODO recheck: copied from variant-browser
+    /*
+     *  Variant Filter component listeners
+     */
+    onQueryFilterChange(e) {
+        console.log("onQueryFilterChange on variant browser", e.detail.query);
+        console.error("continue from here handling filterChange and activeFilterChange events")
+        this.preparedQuery = e.detail.query;
+        this.requestUpdate();
+    }
+    // TODO recheck: copied from variant-browser
+
+    onQueryFilterSearch(e) {
+        this.preparedQuery = e.detail.query;
+        this.executedQuery = e.detail.query;
+        this.requestUpdate();
+    }
+    // TODO recheck: copied from variant-browser
+
+    /*
+     * Active Filters component listeners
+     */
+    onActiveFilterChange(e) {
+        console.log("onActiveFilterChange on variant browser", e.detail)
+        //TODO FIXME!! study prop have to be wiped off! use studies instead
+        this.preparedQuery = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias, ...e.detail};
+        this.query = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias, ...e.detail};
+        this.requestUpdate();
+    }
+    // TODO recheck: copied from variant-browser
+
+    onActiveFilterClear() {
+        console.log("onActiveFilterClear")
+        this.query = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
+        this.preparedQuery = {...this.query}; //TODO quick fix to update
+    }
+    /*TODO -----/copied from variant-browser
+    *
+    * */
+
+
+
     getDefaultConfig() {
         return {
             title: "Aggregation Stats",
@@ -1024,18 +1090,24 @@ export default class OpencgaVariantFacet extends LitElement {
                                             .populationFrequencies="${this.populationFrequencies}"
                                             .consequenceTypes="${this.consequenceTypes}"
                                             .query="${this.query}"
-                                            .search="${this.search}"
-                                            .config="${this._config.filter}" style="font-size: 12px">
+                                            .search="${ 1 /* TODO it doesn't exist this.search*/}"
+                                            .config="${this._config.filter}"
+                                            style="font-size: 12px"
+                                            @queryChange="${this.onQueryFilterChange}"
+                                            @querySearch="${this.onQueryFilterSearch}">
                     </opencga-variant-filter>
                 </div>
 
                 <div class="col-md-10">
                     <div>
                         <opencga-active-filters .opencgaClient="${this.opencgaClient}"
-                                            .query="${this.query}"
-                                            .alias="${this.activeFilterAlias}"
-                                            .defaultStudy="${this.opencgaSession.study.alias}"
-                                            .refresh="${this.search}">
+                                                .defaultStudy="${this.opencgaSession.study.alias}"
+                                                .query="${this.preparedQuery}"
+                                                .alias="${this.activeFilterAlias}"
+                                                .refresh="${this.executedQuery}"
+                                                .config="${this._config.activeFilters}"
+                                                @activeFilterChange="${this.onActiveFilterChange}"
+                                                @activeFilterClear="${this.onActiveFilterClear}">
                         </opencga-active-filters>
 
                         <div class="panel panel-default col-md-12">
@@ -1064,7 +1136,7 @@ export default class OpencgaVariantFacet extends LitElement {
                                                     <option disabled>POPULATION FREQUENCIES</option>
                                                     ${this.populationFrequencies.studies.map(study => html`
                                                         ${study.populations.map( population => html`
-                                                            <option value="${study.id}_${population.id}" data-range="[0..1]:0.1" data-facettype="range">${study.id}_${population.id}</option>
+                                                            <option value="popFreq__${study.id}__${population.id}"  data-range="[0..1]:0.1" data-facettype="range">${study.id}_${population.id}</option>
                                                         `)}
                                                     `)}
                                                 ` : null}

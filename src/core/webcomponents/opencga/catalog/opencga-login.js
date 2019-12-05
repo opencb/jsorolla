@@ -134,10 +134,6 @@ export default class OpencgaLogin extends LitElement {
                 /*min-width: 200px;*/
             }
 
-            .buttonL {
-                /*min-width: 239px;*/
-            }
-
             .label-login {
                 /*color: rgb(142, 128, 125);*/
             }
@@ -170,7 +166,7 @@ export default class OpencgaLogin extends LitElement {
                         </div>
 
                         <div class="form-group">
-                            <button type="submit" class="btn btn-lg btn-default btn-block buttonL">${this.buttonText}</button>
+                            <button type="submit" class="btn btn-lg btn-default btn-block ripple">${this.buttonText}</button>
                         </div>
 
                     </form>

@@ -57,7 +57,7 @@ export default class VariantBeacon extends LitElement {
         if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
             this.checkProjects = true;
         } else {
-            console.log("opencgaesession null")
+            console.log("opencgaesession null");
             this.checkProjects = false;
         }
     }
@@ -67,11 +67,11 @@ export default class VariantBeacon extends LitElement {
         this.querySelector("#refNameInput").value = "";
         this.querySelector("#startInput").value = "";
         this.querySelector("#alleleInput").value = "";
-//                this.querySelector("#" + textType.checked = false;
-//                this.querySelector("#" + jsonType.checked = false;
         this.result = "";
         this.clear = Utils.randomString(4); // Clear beacon network response
         this.variant = ""; // reset variant to empty
+        this.resetEnabled = false;
+        this.requestUpdate();
     }
 
     loadExample() {
@@ -84,7 +84,7 @@ export default class VariantBeacon extends LitElement {
 
     execute(e) {
         this.clear = Utils.randomString(4); // Clear beacon network response
-        let queryParams = {
+        const queryParams = {
             chrom: this.querySelector("#refNameInput").value,
             pos: Number(this.querySelector("#startInput").value) - 1,
             allele: this.querySelector("#alleleInput").value,
@@ -92,17 +92,23 @@ export default class VariantBeacon extends LitElement {
         };
 
         if (this.opencgaSession.opencgaClient instanceof OpenCGAClient) {
-            let _this = this;
+            const _this = this;
             this.opencgaSession.opencgaClient.ga4gh().beacon(queryParams, {})
                 .then(function(response) {
-                    let exists = response[0].response.toString();
+                    const exists = response[0].response.toString();
                     _this.result = exists.charAt(0).toUpperCase() + exists.slice(1);
+                    _this.requestUpdate();
                 });
         }
     }
 
-    updateVariant(e) {
-        this.variant = this.querySelector("#refNameInput").value + ":" + this.querySelector("#startInput").value + "::" + this.querySelector("#alleleInput").value;
+    updateVariant() {
+        const ref = this.querySelector("#refNameInput").value;
+        const start = this.querySelector("#startInput").value;
+        const allele = this.querySelector("#alleleInput").value;
+        this.resetEnabled = ref || start || allele;
+        this.variant = ref && start && allele ? ref + ":" + start + "::" + allele : "";
+        this.requestUpdate();
     }
 
     checkResult(result) {
@@ -133,8 +139,7 @@ export default class VariantBeacon extends LitElement {
                     <h3 style="margin: 10px 5px 15px 25px">Input Variant</h3>
                     <div style="width: 60%; margin: 0px 0px 0px 100px">
                     <span>
-                        <label>Example: </label>
-                        <a @click="${this.loadExample}">Click to load example</a>
+                        <button class="btn btn-default ripple" @click="${this.loadExample}">Load example</button>
                     </span>
                         <br>
                         <br>
@@ -174,8 +179,8 @@ export default class VariantBeacon extends LitElement {
                         <!--</div>-->
                         <!--</div>-->
                         <div class="form-group row" style="padding-left: 14px">
-                            <button type="reset" class="btn btn-default" @click="${this.clearFields}">Reset</button>
-                            <button type="submit" class="btn btn-default" @click="${this.execute}">Submit</button>
+                            <button type="reset" class="btn btn-primary ripple" @click="${this.clearFields}" .disabled="${!this.resetEnabled}">Reset</button>
+                            <button type="submit" class="btn btn-primary ripple" @click="${this.execute}" .disabled="${!this.variant}">Submit</button>
                         </div>
     
                         <!-- Result -->
@@ -206,6 +211,7 @@ export default class VariantBeacon extends LitElement {
             `}
         `;
     }
+
 }
 
 customElements.define("variant-beacon", VariantBeacon);
