@@ -77,21 +77,7 @@ class OpencgaVariantInterpretation extends LitElement {
         };
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
-        }
-        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("clinicalAnalysisId")) {
-            this.clinicalAnalysisIdObserver();
-        }
-        if (changedProperties.has("query")) {
-            this.queryObserver();
-        }
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
+    firstUpdated(_changedProperties) {
         // if (!this.interactive) {
         //     this.collapseFilter();
         // }
@@ -104,6 +90,19 @@ class OpencgaVariantInterpretation extends LitElement {
                 }
             }
         });
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+            this.requestUpdate();
+        }
+        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("clinicalAnalysisId")) {
+            this.clinicalAnalysisIdObserver();
+        }
+        if (changedProperties.has("query")) {
+            this.queryObserver();
+        }
     }
 
     _init() {
@@ -166,6 +165,7 @@ class OpencgaVariantInterpretation extends LitElement {
         } else {
             this.checkProjects = false;
         }
+        this.requestUpdate();
     }
 
     queryObserver() {
@@ -388,7 +388,8 @@ class OpencgaVariantInterpretation extends LitElement {
 
     onSampleChange(e) {
         const _samples = e.detail.samples;
-        this.set("samples", _samples.slice());
+        // this.set("samples", _samples.slice());
+        this.samples =_samples.slice();
         this.dispatchEvent(new CustomEvent("samplechange", {detail: e.detail, bubbles: true, composed: true}));
         // this._initGenotypeSamples(this.samples);
     }

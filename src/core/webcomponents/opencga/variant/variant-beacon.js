@@ -135,75 +135,79 @@ export default class VariantBeacon extends LitElement {
                     </h3>
                 </div>
     
-                <div class="col-md-10 col-md-offset-1">
-                    <h3 style="margin: 10px 5px 15px 25px">Input Variant</h3>
-                    <div style="width: 60%; margin: 0px 0px 0px 100px">
-                    <span>
-                        <button class="btn btn-default ripple" @click="${this.loadExample}">Load example</button>
-                    </span>
-                        <br>
-                        <br>
-                        <div class="form-group row">
-                            <label for="datasetInput" class="col-xs-2 col-form-label">Dataset</label>
-                            <div class="col-xs-6">
-                                <select class="form-control" name="dataset" id="datasetInput">
-                                    ${this.opencgaSession && this.opencgaSession.project.studies ? this.opencgaSession.project.studies.map(item => html`
-                                        <option value="${item.alias}">${item.name}</option>
-                                    `) : null}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="refNameInput" class="col-xs-2 col-form-label">Reference Name</label>
-                            <div class="col-xs-3">
-                                <input class="form-control" type="text" value="" id="refNameInput" @input="${this.updateVariant}">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="startInput" class="col-xs-2 col-form-label">Start</label>
-                            <div class="col-xs-3">
-                                <input class="form-control" type="text" value="" id="startInput" @input="${this.updateVariant}">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="alleleInput" class="col-xs-2 col-form-label">Allele</label>
-                            <div class="col-xs-3">
-                                <input class="form-control" type="text" value="" id="alleleInput" @input="${this.updateVariant}">
-                            </div>
-                        </div>
-                        <!--<div class="form-group row">-->
-                        <!--<label class="col-xs-2 col-form-label">Format Type</label>-->
-                        <!--<div class="col-xs-3">-->
-                        <!--<input class="form-check-input" type="checkbox" name="formatType" id="textType" value="text" checked> Text-->
-                        <!--<input class="form-check-input" type="checkbox" name="formatType" id="jsonType" value="json"> JSON-->
-                        <!--</div>-->
-                        <!--</div>-->
-                        <div class="form-group row" style="padding-left: 14px">
-                            <button type="reset" class="btn btn-primary ripple" @click="${this.clearFields}" .disabled="${!this.resetEnabled}">Reset</button>
-                            <button type="submit" class="btn btn-primary ripple" @click="${this.execute}" .disabled="${!this.variant}">Submit</button>
-                        </div>
-    
-                        <!-- Result -->
-                        ${this.checkResult(this.result) ? html`
-                            <div class="col-xs-3" style="padding-left: 0px">
-                                <div class="panel panel-primary">
-                                    <div class="panel-heading">
-                                        <h3 class="panel-title">Response</h3>
-                                    </div>
-                                    <div class="panel-body">
-                                        <span id="BeaconResponse">Exists: ${this.result}</span>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3>Input Variant</h3>
+                            <div>
+                            <span>
+                                <button class="btn btn-default ripple" @click="${this.loadExample}">Load example</button>
+                            </span>
+                                <br>
+                                <br>
+                                <div class="form-group row">
+                                    <label for="datasetInput" class="col-xs-2 col-form-label">Dataset</label>
+                                    <div class="col-xs-6">
+                                        <select class="form-control" name="dataset" id="datasetInput">
+                                            ${this.opencgaSession && this.opencgaSession.project.studies ? this.opencgaSession.project.studies.map(item => html`
+                                                <option value="${item.alias}">${item.name}</option>
+                                            `) : null}
+                                        </select>
                                     </div>
                                 </div>
+                                <div class="form-group row">
+                                    <label for="refNameInput" class="col-xs-2 col-form-label">Reference Name</label>
+                                    <div class="col-xs-3">
+                                        <input class="form-control" type="text" value="" id="refNameInput" @input="${this.updateVariant}">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="startInput" class="col-xs-2 col-form-label">Start</label>
+                                    <div class="col-xs-3">
+                                        <input class="form-control" type="text" value="" id="startInput" @input="${this.updateVariant}">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="alleleInput" class="col-xs-2 col-form-label">Allele</label>
+                                    <div class="col-xs-3">
+                                        <input class="form-control" type="text" value="" id="alleleInput" @input="${this.updateVariant}">
+                                    </div>
+                                </div>
+                                <!--<div class="form-group row">-->
+                                <!--<label class="col-xs-2 col-form-label">Format Type</label>-->
+                                <!--<div class="col-xs-3">-->
+                                <!--<input class="form-check-input" type="checkbox" name="formatType" id="textType" value="text" checked> Text-->
+                                <!--<input class="form-check-input" type="checkbox" name="formatType" id="jsonType" value="json"> JSON-->
+                                <!--</div>-->
+                                <!--</div>-->
+                                <div class="form-group row" style="padding-left: 14px">
+                                    <button type="reset" class="btn btn-primary ripple" @click="${this.clearFields}" .disabled="${!this.resetEnabled}">Reset</button>
+                                    <button type="submit" class="btn btn-primary ripple" @click="${this.execute}" .disabled="${!this.variant}">Submit</button>
+                                </div>
+            
+                                <!-- Result -->
+                                ${this.checkResult(this.result) ? html`
+                                    <div class="col-xs-3" style="padding-left: 0px">
+                                        <div class="panel panel-primary">
+                                            <div class="panel-heading">
+                                                <h3 class="panel-title">Response</h3>
+                                            </div>
+                                            <div class="panel-body">
+                                                <span id="BeaconResponse">Exists: ${this.result}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ` : null}
                             </div>
-                        ` : null}
+                        </div>
                     </div>
-                </div>
-    
-                <br>
-                <div class="col-md-10 col-md-offset-1">
-                    <h3 style="margin: 10px 5px 15px 50px">Beacon Network</h3>
-                    <div style="width: 60%; margin-left: 100px">
-                        <variant-beacon-network .variant="${this.variant}" .clear="${this.clear}" .config="${this._config}"></variant-beacon-network>
+                    <div class="row">
+                        <div class="col-md-12">
+                                <h3>Beacon Network</h3>
+                                <div>
+                                    <variant-beacon-network .variant="${this.variant}" .clear="${this.clear}" .config="${this._config}"></variant-beacon-network>
+                                </div>
+                        </div>
                     </div>
                 </div>
             ` : html`

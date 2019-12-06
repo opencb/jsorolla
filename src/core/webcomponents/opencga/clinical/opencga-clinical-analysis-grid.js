@@ -45,6 +45,9 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             },
             config: {
                 type: Object
+            },
+            query: {
+                type: Object
             }
         };
     }
@@ -63,7 +66,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        this.renderTable(this.active);
+        //this.renderTable(this.active);
     }
 
     /* connectedCallback() {
@@ -98,10 +101,9 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
         this.opencgaClient = this.opencgaSession.opencgaClient;
 
-        // TODO it was this.set('analyses', []); check functionality
         this.analyses = [];
 
-        let filters = Object.assign({}, this.search);
+        let filters = Object.assign({}, this.query);
 
         // Initialise the counters
         this.from = 1;
@@ -256,8 +258,10 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                     }
 
                     // we add analyses to selected analyses
-                    _this.push("_analyses", row);
-                    _this.set("analyses", _this._analyses.slice());
+                    //_this.push("_analyses", row);
+                    //_this.set("analyses", _this._analyses.slice());
+                    _this._analyses.push(row);
+                    _this._analyses = _this._analyses.slice();
 
                     // We only activate the row when checking
                     if (_this._config.detailView) {
@@ -286,8 +290,10 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                         return;
                     }
 
-                    _this.splice("_analyses", analysisToDeleteIdx, 1);
-                    _this.set("analyses", _this._analyses.slice());
+                    //_this.splice("_analyses", analysisToDeleteIdx, 1);
+                    //_this.set("analyses", _this._analyses.slice());
+                    _this._analyses.splice(analysisToDeleteIdx,1);
+                    _this.analyses = _this._analyses.slice();
 
                     // We detail view is active we expand the row automatically
                     if (_this._config.detailView) {
@@ -319,7 +325,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
                     // we add analyses to selected analyses
                     _this._analyses = newClinicalAnalyses;
-                    _this.set("analyses", newClinicalAnalyses.slice());
+                    //_this.set("analyses", newClinicalAnalyses.slice());
+                    _this.analyses = newClinicalAnalyses.slice();
 
                     // We must uncheck nested checked samples
                     for (const row of rows) {
@@ -341,7 +348,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
                     // we add analyses to selected analyses
                     //                            _this.push("_analyses", row);
-                    _this.set("analyses", _this._analyses.slice());
+                    //_this.set("analyses", _this._analyses.slice());
+                    _this.analyses = _this._analyses.slice();
 
                     // We must uncheck nested checked samples
                     for (const row of rows) {

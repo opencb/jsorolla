@@ -43,6 +43,9 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                 type: Object,
                 notify: true // todo check notify
             },
+            query: {
+                type: Object
+            },
             config: {
                 type: Object
             }
@@ -59,14 +62,18 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
 
         //it is defined in opencga-clinical-analysis-grid, it must be initialized here because clinical-analysis-view have it as prop
         this.analysis = {};
+        this.query = {};
     }
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaClient")) {
-            this.renderAnalysisTable();
+            //this.renderAnalysisTable();
         }
         if (changedProperties.has("config")) {
             this.configObserver();
+        }
+        if (changedProperties.has("query")) {
+            this.queryObserver();
         }
     }
 
@@ -75,6 +82,14 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
 
     configObserver() {
         this._config = Object.assign(this.getDefaultConfig(), this.config);
+    }
+
+    queryObserver() {
+        if (this.query) {
+            this.preparedQuery = {...this.query};
+            this.executedQuery ={...this.query};
+        }
+        this.requestUpdate();
     }
 
     analysisObserver() {
@@ -91,11 +106,6 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
         this.query = {};
         // this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
         this.search = {};
-    }
-
-    onActiveFilterChange(e) {
-        this.query = e.detail;
-        this.search = e.detail;
     }
 
     onSelectClinicalAnalysis(e) {
@@ -132,6 +142,33 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
         // if (e.target.dataset.view === "AggregationStats") {
         //     this.executeFacet();
         // }
+    }
+
+    onQueryFilterChange(e) {
+        console.log("onQueryFilterChange on sample browser", e.detail.query);
+        this.preparedQuery = e.detail.query;
+        this.requestUpdate();
+    }
+
+    onQueryFilterSearch(e) {
+        this.preparedQuery = e.detail.query;
+        this.executedQuery = e.detail.query;
+        this.requestUpdate();
+    }
+
+    //TODO recheck if there is a default param
+    onActiveFilterChange(e) {
+        console.log("onActiveFilterChange on clinical analysis browser", e.detail)
+        this.preparedQuery = {...e.detail};
+        this.query = {...e.detail};
+        this.requestUpdate();
+    }
+
+    onActiveFilterClear() {
+        this.query = {};
+        //this.search = {};
+        this.preparedQuery = {};
+        this.requestUpdate();
     }
 
     getDefaultConfig() {
@@ -183,19 +220,21 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                 <opencga-clinical-analysis-filter   .opencgaSession="${this.opencgaSession}"
                                                     .config="${this._config.filter}"
                                                     .analyses="${this.analyses}"
+                                                    .search="${this.search}"
                                                     .query="${this.query}"
-                                                    .search="${this.search}">
+                                                    @queryChange="${this.onQueryFilterChange}"
+                                                    @querySearch="${this.onQueryFilterSearch}">
                 </opencga-clinical-analysis-filter>
             </div>
 
             <div class="col-md-10">
-                <opencga-active-filters .opencgaClient="${this.opencgaClient}"
-                                        .query="${this.query}"
+                <opencga-active-filters .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                        .query="${this.preparedQuery}"
+                                        .refresh="${this.executedQuery}"
                                         .defaultStudy="${this.opencgaSession.study.alias}"
                                         .config="${this.filtersConfig}"
                                         .alias="${this.activeFilterAlias}"
-                                        .refresh="${this.search}"
-                                        @activeFilterClear="${this.onClear}"
+                                        @activeFilterClear="${this.onActiveFilterClear}"
                                         @activeFilterChange="${this.onActiveFilterChange}">
                 </opencga-active-filters>
 
@@ -222,7 +261,8 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                         <opencga-clinical-analysis-grid .opencgaSession="${this.opencgaSession}"
                                                         .config="${this._config.grid}"
                                                         .analyses="${this.analyses}"
-                                                        .search="${this.search}"
+                                                        .query="${this.executedQuery}"
+                                                        .search="${this.executedQuery}"
                                                         style="font-size: 12px"
                                                         .active="${this.activeMenu.table}"
                                                         @selectanalysis="${this.onSelectClinicalAnalysis}">

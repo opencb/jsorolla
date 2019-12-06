@@ -972,8 +972,6 @@ export default class OpencgaVariantFacet extends LitElement {
     }
 
     onQueryFilterChange(e) {
-        console.log("onQueryFilterChange on variant facet", e.detail.query);
-        console.error("continue from here handling filterChange and activeFilterChange events")
         this.preparedQuery = e.detail.query;
         this.requestUpdate();
     }

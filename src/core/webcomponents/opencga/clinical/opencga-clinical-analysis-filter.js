@@ -74,16 +74,18 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
             recentDays: 10
         };
         this.query = {};
+        this.preparedQuery = {};
     }
 
     updated(changedProperties) {
         if (changedProperties.has("query")) {
-            this.onQueryUpdate();
+            this.queryObserver();
         }
     }
 
     onSearch() {
-        this.search = Object.assign({}, this.query);
+        //this.search = {...this.query};
+        this.notifySearch(this.preparedQuery);
     }
 
     onDateChanged(e) {
@@ -101,10 +103,13 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
         this._reset = true;
     }
 
-    onQueryUpdate() {
+    queryObserver() {
         if (this._reset) {
-            console.log("onQueryUpdate: calling to 'renderQueryFilters()'");
-            this.renderQueryFilters();
+            console.log("queryObserver: calling to 'renderQueryFilters()'", this.query);
+            this.preparedQuery = this.query;
+            //renderQueryFilters shouldn't be necessary anymore
+            //this.renderQueryFilters();
+            this.requestUpdate()
         } else {
             this._reset = true;
         }
@@ -190,6 +195,39 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
         this._reset = true;
     }
 
+    onFilterChange(key, value) {
+        console.log("filterChange", {[key]:value});
+        if (value && value !== "") {
+            this.preparedQuery = {...this.preparedQuery, ...{[key]: value}};
+        } else {
+            console.log("deleting", key, "from preparedQuery")
+            delete this.preparedQuery[key];
+            this.preparedQuery = {...this.preparedQuery};
+        }
+        this.notifyQuery(this.preparedQuery);
+        this.requestUpdate()
+    }
+
+    notifyQuery(query) {
+        this.dispatchEvent(new CustomEvent("queryChange", {
+            detail: {
+                query: query,
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    notifySearch(query) {
+        this.dispatchEvent(new CustomEvent("querySearch", {
+            detail: {
+                query: query,
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
     /**
      * Use custom CSS class to easily reset all controls.
      */
@@ -203,7 +241,6 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
 
     render() {
         return html`
-        <template>
         <style include="jso-styles">
 
             span + span {
@@ -243,10 +280,10 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
             }
         </style>
 
-        <div style="width: 60%;margin: 0 auto">
-            <button type="button" class="btn btn-lg btn-primary" style="width: 100%" @click="${this.onSearch}">
-                <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i> Search
-            </button>
+        <div class="search-button-wrapper">
+                <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
+                    <i class="fa fa-search" aria-hidden="true"></i> Search
+                </button>
         </div>
 
         <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true" style="padding-top: 20px">
@@ -270,8 +307,7 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
                             <div class="browser-subsection">Clinical Analysis ID
                             </div>
                             <div id="${this._prefix}-name" class="subsection-content form-group">
-                                <input type="text" id="${this._prefix}-analysis-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="CA-1234,CA-2345..." @input="${this.calculateFilters}">
+                                <text-field-filter placeholder="CA-1234,CA-2345..." .value="${this.preparedQuery.id}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></text-field-filter>
                             </div>
                         </div>
 
@@ -279,8 +315,7 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
                             <div class="browser-subsection">Family ID
                             </div>
                             <div id="${this._prefix}-family" class="subsection-content form-group">
-                                <input type="text" id="${this._prefix}-family-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="FAM123, FAM124..." @input="${this.calculateFilters}">
+                                <text-field-filter placeholder="FAM123, FAM124..." .value="${this.preparedQuery.family}" @filterChange="${e => this.onFilterChange("family", e.detail.value)}"></text-field-filter>
                             </div>
                         </div>
 
@@ -288,8 +323,7 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
                             <div class="browser-subsection">Proband ID
                             </div>
                             <div id="${this._prefix}-proband" class="subsection-content form-group">
-                                <input type="text" id="${this._prefix}-proband-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="LP-1234, LP-2345..." @input="${this.calculateFilters}">
+                                <text-field-filter placeholder="LP-1234, LP-2345..." .value="${this.preparedQuery.proband}" @filterChange="${e => this.onFilterChange("proband", e.detail.value)}"></text-field-filter>
                             </div>
                         </div>
 
@@ -297,8 +331,7 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
                             <div class="browser-subsection">Sample ID
                             </div>
                             <div id="${this._prefix}-sample" class="subsection-content form-group">
-                                <input type="text" id="${this._prefix}-sample-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="HG01879, HG01880, HG01881..." @input="${this.calculateFilters}">
+                                <text-field-filter placeholder="HG01879, HG01880, HG01881..." .value="${this.preparedQuery.sample}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></text-field-filter>
                             </div>
                         </div>
 
@@ -306,13 +339,7 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
                             <div class="browser-subsection">Priority
                             </div>
                             <div id="${this._prefix}-analysis-priority" class="subsection-content form-group">
-                                <select id="${this._prefix}-analysis-priority-select" class="selectpicker" multiple
-                                        @change="${this.calculateFilters}" data-width="100%">
-                                    <option>URGENT</option>
-                                    <option>HIGH</option>
-                                    <option>MEDIUM</option>
-                                    <option>LOW</option>
-                                </select>
+                                <select-field-filter multiple .data="${['URGENT','HIGH','MEDIUM','LOW']}" .value="${this.preparedQuery.priority}" @filterChange="${e => this.onFilterChange("priority", e.detail.value)}"></select-field-filter>
                             </div>
                         </div>
 
@@ -320,15 +347,7 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
                             <div class="browser-subsection">Analysis type
                             </div>
                             <div id="${this._prefix}-analysis-type" class="subsection-content form-group">
-                                <select id="${this._prefix}-analysis-type-select" class="selectpicker" multiple
-                                        @change="${this.calculateFilters}" data-width="100%">
-                                    <option>SINGLE</option>
-                                    <option>DUO</option>
-                                    <option>TRIO</option>
-                                    <option>FAMILY</option>
-                                    <option>AUTO</option>
-                                    <option>MULTISAMPLE</option>
-                                </select>
+                                <select-field-filter multiple .data="${['SINGLE','DUO','TRIO','FAMILY','AUTO','MULTISAMPLE']}" .value="${this.preparedQuery.type}" @filterChange="${e => this.onFilterChange("type", e.detail.value)}"></select-field-filter>
                             </div>
                         </div>
 
@@ -339,15 +358,13 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
                                 </div>
                             </div>
                             <div id="${this._prefix}-date-content" class="subsection-content">
-                                <opencga-date-filter .config="${this.dateFilterConfig}" @datechanged="${this.onDateChanged}"></opencga-date-filter>
+                                <opencga-date-filter .config="${this.dateFilterConfig}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-    </template>
         `;
     }
 
