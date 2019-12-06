@@ -38,30 +38,34 @@ export default class OpencgaFamilyGrid extends LitElement {
             families: {
                 type: Array
             },
+            //TODO remove
             search: {
                 type: Object
             },
             active: {
-                type: Boolean,
-                value: false
+                type: Boolean
             },
             config: {
                 type: Object
-            }
+            },
+            query: {
+                type: Object
+            },
         };
     }
 
     _init() {
         this._prefix = "VarFamilyGrid" + Utils.randomString(6);
         this.catalogUiUtils = new CatalogUIUtils();
+        this.active = false;
     }
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession") ||
-            changedProperties.has("search") ||
+            changedProperties.has("query") ||
             changedProperties.has("config") ||
             changedProperties.has("active")) {
-            this.propertyObserver(this.opencgaSession, this.search, this.config, this.active);
+            this.propertyObserver();
         }
     }
 
@@ -75,7 +79,7 @@ export default class OpencgaFamilyGrid extends LitElement {
         //this.renderTable(this.active);
     }
 
-    propertyObserver(opencgaSession, search, config, active) {
+    propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = Object.assign(this.getDefaultConfig(), this.config);
         this._columns = this._initTableColumns();
@@ -85,7 +89,7 @@ export default class OpencgaFamilyGrid extends LitElement {
             columns: this._columns[0]
         };
 
-        this.renderTable(active);
+        this.renderTable(this.active);
     }
 
     renderTable(active) {
@@ -97,7 +101,7 @@ export default class OpencgaFamilyGrid extends LitElement {
 
         this.families = [];
 
-        let filters = Object.assign({}, this.search);
+        let filters = {...this.query};
 
         // Initialise the counters
         this.from = 1;
@@ -669,7 +673,8 @@ export default class OpencgaFamilyGrid extends LitElement {
             }
         </style>
 
-        <opencb-grid-toolbar .from="${this.from}" .to="${this.to}"
+        <opencb-grid-toolbar .from="${this.from}"
+                             .to="${this.to}"
                              .numTotalResultsText="${this.numTotalResultsText}"
                              .config="${this.toolbarConfig}"
                              @columnchange="${this.onColumnChange}">

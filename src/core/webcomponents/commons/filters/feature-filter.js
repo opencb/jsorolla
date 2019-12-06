@@ -157,22 +157,18 @@ export default class FeatureFilter extends LitElement {
 
     render() {
         return html`
-            <div class="row">
-                <div class="col-md-9">
+            <div class="form-group">
+                <div class="input-group">
                     <input id="${this._prefix}FeatureIdText" type="text" class="form-control"
-                           list="${this._prefix}FeatureDatalist"
-                           placeholder="Search for Gene Symbols" value="" @input="${this.autocomplete}">
+                                       list="${this._prefix}FeatureDatalist"
+                                       placeholder="Search for Gene Symbols" value="" @input="${this.autocomplete}">
                     <datalist id="${this._prefix}FeatureDatalist">
-                        ${this.featureDatalist.map(feature => html`<option value="${feature.name}">${feature.name}</option>`)}
+                                    ${this.featureDatalist.map(feature => html`<option value="${feature.name}">${feature.name}</option>`)}
                     </datalist>
-                </div>
-                <div class="col-md-3">
-                    <button id="${this._prefix}FeatureAddButton" type="button" class="btn btn-default btn-sm form-control" @click="${this.addFeatureId}">
-                        <i class="fa fa-plus"></i>
-                    </button>
+                <div class="input-group-addon btn" @click="${this.addFeatureId}"> <i class="fa fa-plus"></i> </div>
                 </div>
             </div>
-            
+  
             <div class="form-group">
                 <textarea id="${this._prefix}FeatureTextarea" name="geneSnp"
                     class="form-control clearable ${this._prefix}FilterTextInput"

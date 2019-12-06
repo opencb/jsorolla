@@ -84,23 +84,33 @@ export default class OpencgaFamilyFilter extends LitElement {
         };
 
         this.query = {};
+        this.preparedQuery = {};
     }
 
     updated(changedProperties) {
         if (changedProperties.has("query")) {
-            this.onQueryUpdate();
+            this.queryObserver();
         }
         if (changedProperties.has("variables")) {
             this.variablesChanged();
         }
     }
 
-    /* connectedCallback() {
-        super.connectedCallback();
-    }*/
+    queryObserver() {
+        if (this._reset) {
+            console.log("onQueryUpdate: calling to 'renderQueryFilters()'", this.query);
+            this.preparedQuery = this.query;
+            //renderQueryFilters shouldn't be necessary anymore
+            //this.renderQueryFilters();
+            this.requestUpdate()
+        } else {
+            this._reset = true;
+        }
+    }
 
     onSearch() {
-        this.search = Object.assign({}, this.query);
+        //this.search = {...this.query};
+        this.notifySearch(this.preparedQuery);
     }
 
     addAnnotation(e) {
@@ -110,8 +120,7 @@ export default class OpencgaFamilyFilter extends LitElement {
         const split = e.detail.value.split("=");
         this._annotationFilter[split[0]] = split[1];
 
-        const _query = {};
-        Object.assign(_query, this.query);
+        const _query = {...this.query};
         const annotations = [];
         for (const key in this._annotationFilter) {
             annotations.push(`${key}=${this._annotationFilter[key]}`);
@@ -170,6 +179,39 @@ export default class OpencgaFamilyFilter extends LitElement {
             PolymerUtils.setValue(`${this._prefix}-phenotypes-input`, this.query.phenotypes);
         }
 
+    }
+
+    onFilterChange(key, value) {
+        console.log("filterChange", {[key]:value});
+        if (value && value !== "") {
+            this.preparedQuery = {...this.preparedQuery, ...{[key]: value}};
+        } else {
+            console.log("deleting", key, "from preparedQuery")
+            delete this.preparedQuery[key];
+            this.preparedQuery = {...this.preparedQuery};
+        }
+        this.notifyQuery(this.preparedQuery);
+        this.requestUpdate()
+    }
+
+    notifyQuery(query) {
+        this.dispatchEvent(new CustomEvent("queryChange", {
+            detail: {
+                query: query,
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    notifySearch(query) {
+        this.dispatchEvent(new CustomEvent("querySearch", {
+            detail: {
+                query: query,
+            },
+            bubbles: true,
+            composed: true
+        }));
     }
 
     calculateFilters(e) {
@@ -263,9 +305,9 @@ export default class OpencgaFamilyFilter extends LitElement {
             }
         </style>
 
-        <div style="width: 60%;margin: 0 auto">
-            <button type="button" class="btn btn-lg btn-primary" style="width: 100%" @click="${this.onSearch}">
-                <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i> Search
+        <div class="search-button-wrapper">
+            <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
+                    <i class="fa fa-search" aria-hidden="true"></i> Search
             </button>
         </div>
 
@@ -290,8 +332,9 @@ export default class OpencgaFamilyFilter extends LitElement {
                             <div class="browser-subsection">Family id
                             </div>
                             <div id="${this._prefix}-name" class="subsection-content form-group">
-                                <input type="text" id="${this._prefix}-family-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="FAM-1234,FAM-2345..." @keyup="${this.calculateFilters}">
+                                <text-field-filter placeholder="FAM-1234,FAM-2345..." .value="${this.preparedQuery.id}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></text-field-filter>
+                               <!-- <input type="text" id="${this._prefix}-family-input" class="form-control input-sm ${this._prefix}FilterTextInput"
+                                       placeholder="FAM-1234,FAM-2345..." @keyup="${this.calculateFilters}"> -->
                             </div>
                         </div>
 
@@ -299,8 +342,9 @@ export default class OpencgaFamilyFilter extends LitElement {
                             <div class="browser-subsection">Members
                             </div>
                             <div id="${this._prefix}-members" class="subsection-content form-group">
-                                <input type="text" id="${this._prefix}-members-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="LP-1234,LP-2345..." @keyup="${this.calculateFilters}">
+                                <text-field-filter placeholder="LP-1234,LP-2345..." .value="${this.preparedQuery.members}" @filterChange="${e => this.onFilterChange("members", e.detail.value)}"></text-field-filter>
+                                <!--<input type="text" id="${this._prefix}-members-input" class="form-control input-sm ${this._prefix}FilterTextInput"
+                                       placeholder="LP-1234,LP-2345..." @keyup="${this.calculateFilters}"> -->
                             </div>
                         </div>
 
@@ -317,8 +361,9 @@ export default class OpencgaFamilyFilter extends LitElement {
                             <div class="browser-subsection">Phenotypes
                             </div>
                             <div id="${this._prefix}-phenotypes" class="subsection-content form-group">
-                                <input type="text" id="${this._prefix}-phenotypes-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="Full-text search, e.g. *melanoma*" @keyup="${this.calculateFilters}">
+                                <text-field-filter placeholder="Full-text search, e.g. *melanoma*" .value="${this.preparedQuery.phenotypes}" @filterChange="${e => this.onFilterChange("phenotypes", e.detail.value)}"></text-field-filter>
+                                <!--<input type="text" id="${this._prefix}-phenotypes-input" class="form-control input-sm ${this._prefix}FilterTextInput"
+                                       placeholder="Full-text search, e.g. *melanoma*" @keyup="${this.calculateFilters}"> -->
                             </div>
                         </div>
 
@@ -345,7 +390,8 @@ export default class OpencgaFamilyFilter extends LitElement {
                                 </div>
                             </div>
                             <div id="${this._prefix}-date-content" class="subsection-content">
-                                <opencga-date-filter .config="${this.dateFilterConfig}" @datechanged="${this.onDateChanged}"></opencga-date-filter>
+                                <!-- <opencga-date-filter .config="${this.dateFilterConfig}" @datechanged="${this.onDateChanged}"></opencga-date-filter> -->
+                                <opencga-date-filter .config="${this.dateFilterConfig}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>
                             </div>
                         </div>
 

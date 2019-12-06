@@ -124,10 +124,10 @@ export default class HpoAccessionsFilter extends LitElement {
             <textarea id="${this._prefix}HumanPhenotypeOntologyTextarea"
                       class="form-control clearable ${this._prefix}FilterTextInput"
                       rows="3" name="hpo" placeholder="HP:0000001, HP:3000079" @input="${this.filterChange}"></textarea>
-            <span class="input-group-addon btn btn-primary searchingSpan" id="${this._prefix}buttonOpenHpoAccesions"  @click="${this.openModal}">
-                                    <strong style="color: white">Add HPO Term</strong>
-                                    <i class="fa fa-search searchingButton" aria-hidden="true"></i>
-                                </span>
+            <button class="btn btn-primary ripple full-width" id="${this._prefix}buttonOpenHpoAccesions" @click="${this.openModal}">
+                <i class="fa fa-search searchingButton" aria-hidden="true"></i>
+                Add HPO Term
+            </button>
             <form style="padding-top: 15px">
                 <label style="font-weight: normal;">Logical Operator</label>
                 <input type="radio" name="hpoRadio" id="${this._prefix}hpoOrRadio" value="or" class="${this._prefix}FilterRadio"

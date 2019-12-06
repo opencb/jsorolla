@@ -443,12 +443,15 @@ export default class OpencgaSampleGrid extends LitElement {
         };
     }
 
-
     render() {
         return html`
         <style include="jso-styles"></style>
-            <opencb-grid-toolbar .from="${this.from}" .to="${this.to}" .numTotalResultsText="${this.numTotalResultsText}"
-                             .config="${this.toolbarConfig}" @columnchange="${this.onColumnChange}"></opencb-grid-toolbar>
+        <opencb-grid-toolbar .from="${this.from}"
+                             .to="${this.to}"
+                             .numTotalResultsText="${this.numTotalResultsText}"
+                             .config="${this.toolbarConfig}"
+                             @columnchange="${this.onColumnChange}">
+        </opencb-grid-toolbar>
 
         <div id="${this._prefix}GridTableDiv" style="margin-top: 10px">
             <table id="${this._prefix}SampleBrowserGrid">

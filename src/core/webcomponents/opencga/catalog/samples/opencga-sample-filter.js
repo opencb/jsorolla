@@ -83,7 +83,7 @@ export default class OpencgaSampleFilter extends LitElement {
         };
         this.minYear = 1920;
 
-        this.query = {}; // TODO quickfix
+        this.query = {};
         this.preparedQuery = {};
     }
 
@@ -151,7 +151,9 @@ export default class OpencgaSampleFilter extends LitElement {
         if (this._reset) {
             console.log("onQueryUpdate: calling to 'renderQueryFilters()'", this.query);
             this.preparedQuery = this.query;
-            this.renderQueryFilters();
+            //renderQueryFilters shouldn't be necessary anymore
+            //this.renderQueryFilters();
+            this.requestUpdate()
         } else {
             this._reset = true;
         }
@@ -205,6 +207,26 @@ export default class OpencgaSampleFilter extends LitElement {
         this.requestUpdate()
     }
 
+    notifyQuery(query) {
+        this.dispatchEvent(new CustomEvent("queryChange", {
+            detail: {
+                query: query,
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    notifySearch(query) {
+        this.dispatchEvent(new CustomEvent("querySearch", {
+            detail: {
+                query: query,
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
 
     /** @deprecated
      * In opencga-variant-browser this is an event handler for the event "filterChange" fired from the filter components.
@@ -256,26 +278,6 @@ export default class OpencgaSampleFilter extends LitElement {
         this.preparedQuery =_query;
         this.notifyQuery(this.preparedQuery);
         //this._reset = true;
-    }
-
-    notifyQuery(query) {
-        this.dispatchEvent(new CustomEvent("queryChange", {
-            detail: {
-                query: query,
-            },
-            bubbles: true,
-            composed: true
-        }));
-    }
-
-    notifySearch(query) {
-        this.dispatchEvent(new CustomEvent("querySearch", {
-            detail: {
-                query: query,
-            },
-            bubbles: true,
-            composed: true
-        }));
     }
 
     /**
@@ -392,7 +394,7 @@ export default class OpencgaSampleFilter extends LitElement {
             
             <div class="search-button-wrapper">
                 <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
-                    <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i> Search
+                    <i class="fa fa-search" aria-hidden="true"></i> Search
                 </button>
             </div>
             <!--<br>-->

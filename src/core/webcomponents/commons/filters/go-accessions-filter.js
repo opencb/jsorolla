@@ -121,13 +121,15 @@ export default class GoAccessionsFilter extends LitElement {
             .geneOntologyMonitor span {
                 display: block;
             }
+            
+           
             </style>
             <textarea id="${this._prefix}GeneOntologyTextarea" class="form-control clearable ${this._prefix}FilterTextInput"
                                 rows="3" name="geneOntology" placeholder="GO:0000145" @input="${this.filterChange}"></textarea>
-            <span class="input-group-addon btn btn-primary searchingSpan" id="${this._prefix}buttonOpenGoAccesions" @click="${this.onOntologyModalOpen}">
-                <strong style="color: white">Add GO Term</strong>
-                <i class="fa fa-search searchingButton" aria-hidden="true"></i>
-            </span>
+            <button class="btn btn-primary ripple full-width" id="${this._prefix}buttonOpenGoAccesions" @click="${this.onOntologyModalOpen}">
+                <i class="fa fa-search" aria-hidden="true"></i>  Add GO Term
+                
+            </button>
             <p class="bg-warning geneOntologyMonitor" id="${this._prefix}GeneOntologyMonitor"></p>
 
             <variant-modal-ontology _prefix=${this._prefix}

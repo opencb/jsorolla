@@ -99,7 +99,7 @@ export default class OpencgaVariantFacet extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        $(".bootstrap-select", this).selectpicker();
+        $(".bootstrap-select").selectpicker();
         this.query = {};
         console.log("this.config",this.config);
 
@@ -113,7 +113,8 @@ export default class OpencgaVariantFacet extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-        if (changedProperties.has("search")) {
+        //TODO FIXME search is not an actual param (executedQuery was search)
+        if (changedProperties.has("executedQuery")) {
             this.fetchVariants();
         }
         if (changedProperties.has("query")) {
@@ -157,6 +158,7 @@ export default class OpencgaVariantFacet extends LitElement {
             }
 
             this.checkProjects = true;
+            this.requestUpdate();
         } else {
             this.checkProjects = false;
         }
@@ -404,8 +406,9 @@ export default class OpencgaVariantFacet extends LitElement {
         // Shows loading modal
         $(PolymerUtils.getElementById(this._prefix + "LoadingModal")).modal("show");
 
+        //TODO note this.query has been changed in executedQuery
         // Join 'query' from left menu and facet filters
-        let queryParams = Object.assign({}, this.query,
+        let queryParams = Object.assign({}, this.executedQuery,
             {
                 // sid: this.opencgaClient._config.sessionId,
                 study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
@@ -420,6 +423,7 @@ export default class OpencgaVariantFacet extends LitElement {
                         // let response = queryResponse.response[0].result[0].result;
                         _this.facetResults = queryResponse.response[0].result[0].results;
 
+                        console.log("facetResults",_this.facetResults)
                         // Remove loading modal
                         $(PolymerUtils.getElementById(_this._prefix + "LoadingModal")).modal("hide");
                         _this._showInitMessage = false;
@@ -917,7 +921,9 @@ export default class OpencgaVariantFacet extends LitElement {
     //     return donutData;
     // }
 
+    //FIXME
     fetchVariants() {
+        console.log("executedQuery changed!!")
         if (UtilsNew.isNotUndefined(this.opencgaClient)) {
             let queryParams = {
                 sid: this.opencgaClient._config.sessionId,
@@ -935,6 +941,7 @@ export default class OpencgaVariantFacet extends LitElement {
             this.opencgaClient.variants().query(queryParams, {})
                 .then(function(response) {
                     _this.totalVariants = response.response[0].numTotalResults;
+                    console.log("_this.totalVariants",_this.totalVariants)
                 });
         }
     }
@@ -964,48 +971,35 @@ export default class OpencgaVariantFacet extends LitElement {
         return true;
     }
 
-
-    // TODO recheck: copied from variant-browser
-    /*
-     *  Variant Filter component listeners
-     */
     onQueryFilterChange(e) {
-        console.log("onQueryFilterChange on variant browser", e.detail.query);
+        console.log("onQueryFilterChange on variant facet", e.detail.query);
         console.error("continue from here handling filterChange and activeFilterChange events")
         this.preparedQuery = e.detail.query;
         this.requestUpdate();
     }
-    // TODO recheck: copied from variant-browser
 
     onQueryFilterSearch(e) {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
+
+        this.fetchVariants();
+
         this.requestUpdate();
     }
-    // TODO recheck: copied from variant-browser
 
-    /*
-     * Active Filters component listeners
-     */
     onActiveFilterChange(e) {
-        console.log("onActiveFilterChange on variant browser", e.detail)
+        console.log("onActiveFilterChange on variant facet", e.detail)
         //TODO FIXME!! study prop have to be wiped off! use studies instead
         this.preparedQuery = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias, ...e.detail};
         this.query = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias, ...e.detail};
         this.requestUpdate();
     }
-    // TODO recheck: copied from variant-browser
 
     onActiveFilterClear() {
         console.log("onActiveFilterClear")
         this.query = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
-        this.preparedQuery = {...this.query}; //TODO quick fix to update
+        this.preparedQuery = {...this.query};
     }
-    /*TODO -----/copied from variant-browser
-    *
-    * */
-
-
 
     getDefaultConfig() {
         return {
@@ -1090,7 +1084,6 @@ export default class OpencgaVariantFacet extends LitElement {
                                             .populationFrequencies="${this.populationFrequencies}"
                                             .consequenceTypes="${this.consequenceTypes}"
                                             .query="${this.query}"
-                                            .search="${ 1 /* TODO it doesn't exist this.search*/}"
                                             .config="${this._config.filter}"
                                             style="font-size: 12px"
                                             @queryChange="${this.onQueryFilterChange}"
@@ -1100,11 +1093,11 @@ export default class OpencgaVariantFacet extends LitElement {
 
                 <div class="col-md-10">
                     <div>
-                        <opencga-active-filters .opencgaClient="${this.opencgaClient}"
+                        <opencga-active-filters .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                 .defaultStudy="${this.opencgaSession.study.alias}"
                                                 .query="${this.preparedQuery}"
-                                                .alias="${this.activeFilterAlias}"
                                                 .refresh="${this.executedQuery}"
+                                                .alias="${this.activeFilterAlias}"
                                                 .config="${this._config.activeFilters}"
                                                 @activeFilterChange="${this.onActiveFilterChange}"
                                                 @activeFilterClear="${this.onActiveFilterClear}">

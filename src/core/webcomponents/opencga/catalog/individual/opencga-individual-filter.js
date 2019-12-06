@@ -19,6 +19,8 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 
 import "../variableSets/opencga-annotation-filter.js";
 import "../opencga-date-filter.js";
+import "../../../commons/filters/text-field-filter.js";
+import "../../../commons/filters/select-field-filter.js";
 
 export default class OpencgaIndividualFilter extends LitElement {
 
@@ -85,11 +87,13 @@ export default class OpencgaIndividualFilter extends LitElement {
             recentDays: 10
         };
         this.minYear = 1920;
+        this.query = {};
+        this.preparedQuery = {};
     }
 
     updated(changedProperties) {
         if(changedProperties.has("query")) {
-            this.onQueryUpdate();
+            this.queryObserver();
         }
         if(changedProperties.has("variables")) {
             this.variablesChanged();
@@ -97,7 +101,8 @@ export default class OpencgaIndividualFilter extends LitElement {
     }
 
     onSearch() {
-        this.search = Object.assign({}, this.query);
+        //this.search = {...this.query};
+        this.notifySearch(this.preparedQuery);
     }
 
     addAnnotation(e) {
@@ -116,7 +121,7 @@ export default class OpencgaIndividualFilter extends LitElement {
         _query['annotation'] = annotations.join(";");
 
         this._reset = false;
-        this.set("query", _query);
+        this.query = _query;
         this._reset = true;
     }
 
@@ -130,19 +135,21 @@ export default class OpencgaIndividualFilter extends LitElement {
         }
 
         this._reset = false;
-        this.set("query", query);
+        this.query = _query;
         this._reset = true;
     }
 
-    onQueryUpdate() {
+    queryObserver() {
         if (this._reset) {
-            console.log("onQueryUpdate: calling to 'renderQueryFilters()'");
-            this.renderQueryFilters();
+            console.log("onQueryUpdate: calling to 'renderQueryFilters()'", this.query);
+            this.preparedQuery = this.query;
+            //renderQueryFilters shouldn't be necessary anymore
+            //this.renderQueryFilters();
+            this.requestUpdate()
         } else {
             this._reset = true;
         }
     }
-
     renderQueryFilters() {
         // Empty everything before rendering
         this._clearHtmlDom();
@@ -193,6 +200,42 @@ export default class OpencgaIndividualFilter extends LitElement {
         }
     }
 
+    onFilterChange(key, value) {
+        console.log("filterChange", {[key]:value});
+        if (value && value !== "") {
+            this.preparedQuery = {...this.preparedQuery, ...{[key]: value}};
+        } else {
+            console.log("deleting", key, "from preparedQuery")
+            delete this.preparedQuery[key];
+            this.preparedQuery = {...this.preparedQuery};
+        }
+        this.notifyQuery(this.preparedQuery);
+        this.requestUpdate()
+    }
+
+    notifyQuery(query) {
+        this.dispatchEvent(new CustomEvent("queryChange", {
+            detail: {
+                query: query,
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    notifySearch(query) {
+        this.dispatchEvent(new CustomEvent("querySearch", {
+            detail: {
+                query: query,
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    /** @deprecated
+     *
+     * */
     calculateFilters(e) {
         let _query = {};
 
@@ -253,7 +296,7 @@ export default class OpencgaIndividualFilter extends LitElement {
 
         // To prevent to call renderQueryFilters we set this to false
         this._reset = false;
-        this.set("query", _query);
+        this.query = _query;
         this._reset = true;
     }
 
@@ -270,7 +313,7 @@ export default class OpencgaIndividualFilter extends LitElement {
 
     render() {
         return html`
-<style include="jso-styles">
+            <style include="jso-styles">
 
             span + span {
                 margin-left: 10px;
@@ -336,8 +379,7 @@ export default class OpencgaIndividualFilter extends LitElement {
                             <div class="browser-subsection">Individual ID
                             </div>
                             <div id="${this._prefix}-name" class="subsection-content form-group">
-                                <input type="text" id="${this._prefix}-individual-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="LP-1234,LP-2345..." @input="${this.calculateFilters}">
+                                <text-field-filter placeholder="LP-1234,LP-2345..." .value="${this.preparedQuery.id}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></text-field-filter>
                             </div>
                         </div>
 
@@ -345,8 +387,9 @@ export default class OpencgaIndividualFilter extends LitElement {
                             <div class="browser-subsection">Sample ID
                             </div>
                             <div id="${this._prefix}-sample" class="subsection-content form-group">
-                                <input type="text" id="${this._prefix}-sample-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="HG01879, HG01880, HG01881..." @input="${this.calculateFilters}">
+                                <text-field-filter placeholder="HG01879, HG01880, HG01881..." .value="${this.preparedQuery.samples}" @filterChange="${e => this.onFilterChange("samples", e.detail.value)}"></text-field-filter>
+                                <!--<input type="text" id="${this._prefix}-sample-input" class="form-control input-sm ${this._prefix}FilterTextInput"
+                                       placeholder="HG01879, HG01880, HG01881..." @input="${this.calculateFilters}"> -->
                             </div>
                         </div>
 
@@ -368,7 +411,7 @@ export default class OpencgaIndividualFilter extends LitElement {
                             <div class="browser-subsection">Karyotypic Sex
                             </div>
                             <div id="${this._prefix}-individual-karyotypicsex" class="subsection-content form-group">
-                                <select id="${this._prefix}-individual-karyotypicsex-select" class="selectpicker" multiple
+                                <!--<select id="${this._prefix}-individual-karyotypicsex-select" class="selectpicker" multiple
                                         @change="${this.calculateFilters}" data-width="100%">
                                     <option>UNKNOWN</option>
                                     <option>XX</option>
@@ -381,7 +424,8 @@ export default class OpencgaIndividualFilter extends LitElement {
                                     <option>XXXX</option>
                                     <option>XYY</option>
                                     <option>OTHER</option>
-                                </select>
+                                </select> -->
+                                <select-field-filter multiple .data="${['UNKNOWN','XX','XY','XO','XXY','XXX','XXYY','XXXY','XXXX','XYY','OTHER']}" .value="${this.preparedQuery.karyotypicSex}" @filterChange="${e => this.onFilterChange("karyotypicSex", e.detail.value)}"></select-field-filter>
                             </div>
                         </div>
 
@@ -389,8 +433,10 @@ export default class OpencgaIndividualFilter extends LitElement {
                             <div class="browser-subsection">Ethnicity
                             </div>
                             <div id="${this._prefix}-ethnicity" class="subsection-content form-group">
-                                <input type="text" id="${this._prefix}-ethnicity-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="White caucasian,asiatic..." @input="${this.calculateFilters}">
+                                <!--<input type="text" id="${this._prefix}-ethnicity-input" class="form-control input-sm ${this._prefix}FilterTextInput"
+                                       placeholder="White caucasian,asiatic..." @input="${this.calculateFilters}"> -->
+                                <text-field-filter placeholder="White caucasian,asiatic..." .value="${this.preparedQuery.ethnicity}" @filterChange="${e => this.onFilterChange("ethnicity", e.detail.value)}"></text-field-filter>
+
                             </div>
                         </div>
 
@@ -398,8 +444,9 @@ export default class OpencgaIndividualFilter extends LitElement {
                             <div class="browser-subsection">Disorder
                             </div>
                             <div id="${this._prefix}-disorder" class="subsection-content form-group">
-                                <input type="text" id="${this._prefix}-disorder-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="Intellectual disability,Arthrogryposis..." @input="${this.calculateFilters}">
+                                <!--<input type="text" id="${this._prefix}-disorder-input" class="form-control input-sm ${this._prefix}FilterTextInput"
+                                       placeholder="Intellectual disability,Arthrogryposis..." @input="${this.calculateFilters}"> -->
+                                <text-field-filter placeholder="Intellectual disability,Arthrogryposis..." .value="${this.preparedQuery.disorders}" @filterChange="${e => this.onFilterChange("disorders", e.detail.value)}"></text-field-filter>
                             </div>
                         </div>
 
@@ -407,13 +454,14 @@ export default class OpencgaIndividualFilter extends LitElement {
                             <div class="browser-subsection">Affectation Status
                             </div>
                             <div id="${this._prefix}-affectation-status" class="subsection-content form-group">
-                                <select id="${this._prefix}-affectation-status-select" class="selectpicker" multiple
+                                <!--<select id="${this._prefix}-affectation-status-select" class="selectpicker" multiple
                                         @change="${this.calculateFilters}" data-width="100%">
                                     <option>CONTROL</option>
                                     <option>AFFECTED</option>
                                     <option>UNAFFECTED</option>
                                     <option>UNKNOWN</option>
-                                </select>
+                                </select> -->
+                                <select-field-filter multiple .data="${['CONTROL','AFFECTED','UNAFFECTED','UNKNOWN']}" .value="${this.preparedQuery.affectationStatus}" @filterChange="${e => this.onFilterChange("affectationStatus", e.detail.value)}"></select-field-filter>
                             </div>
                         </div>
 
@@ -421,7 +469,7 @@ export default class OpencgaIndividualFilter extends LitElement {
                             <div class="browser-subsection">Life Status
                             </div>
                             <div id="${this._prefix}-life-status" class="subsection-content form-group">
-                                <select id="${this._prefix}-life-status-select" class="selectpicker" multiple
+                                <!--<select id="${this._prefix}-life-status-select" class="selectpicker" multiple
                                         @change="${this.calculateFilters}" data-width="100%">
                                     <option>ALIVE</option>
                                     <option>ABORTED</option>
@@ -430,7 +478,8 @@ export default class OpencgaIndividualFilter extends LitElement {
                                     <option>STILLBORN</option>
                                     <option>MISCARRIAGE</option>
                                     <option>UNKNOWN</option>
-                                </select>
+                                </select> -->
+                                <select-field-filter multiple .data="${['ALIVE','ABORTED','DECEASED','UNBORN','STILLBORN','MISCARRIAGE','UNKNOWN']}" .value="${this.preparedQuery.lifeStatus}" @filterChange="${e => this.onFilterChange("lifeStatus", e.detail.value)}"></select-field-filter>
                             </div>
                         </div>
 
@@ -438,8 +487,9 @@ export default class OpencgaIndividualFilter extends LitElement {
                             <div class="browser-subsection">Phenotypes
                             </div>
                             <div id="${this._prefix}-phenotypes" class="subsection-content form-group">
-                                <input type="text" id="${this._prefix}-phenotypes-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="Full-text search, e.g. *melanoma*" @input="${this.calculateFilters}">
+                                <!--<input type="text" id="${this._prefix}-phenotypes-input" class="form-control input-sm ${this._prefix}FilterTextInput"
+                                       placeholder="Full-text search, e.g. *melanoma*" @input="${this.calculateFilters}"> -->
+                                <text-field-filter placeholder="Full-text search, e.g. *melanoma*" .value="${this.preparedQuery.phenotypes}" @filterChange="${e => this.onFilterChange("phenotypes", e.detail.value)}"></text-field-filter>
                             </div>
                         </div>
 
@@ -466,9 +516,7 @@ export default class OpencgaIndividualFilter extends LitElement {
                                 </div>
                             </div>
                             <div id="${this._prefix}-date-content" class="subsection-content">
-                                <opencga-date-filter .config="${this.dateFilterConfig}"
-                                                    @datechanged="${this.onDateChanged}">
-                                </opencga-date-filter>
+                                <opencga-date-filter .config="${this.dateFilterConfig}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>
                             </div>
                         </div>
                     </div>

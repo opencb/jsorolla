@@ -78,10 +78,21 @@ export default class OpencgaFileBrowser extends LitElement {
         if(changedProperties.has("opencgaSession") || changedProperties.has("config")) {
             this.filterAvailableVariableSets(this.opencgaSession, this.config);
         }
+        if (changedProperties.has("query")) {
+            this.queryObserver();
+        }
     }
 
     configObserver() {
         this._config = Object.assign(this.getDefaultConfig(), this.config);
+    }
+
+    queryObserver() {
+        if (UtilsNew.isNotUndefinedOrNull(this.query)) {
+            this.preparedQuery = {...this.query};
+            this.executedQuery ={...this.query};
+        }
+        this.requestUpdate();
     }
 
     onClear() {
@@ -90,11 +101,11 @@ export default class OpencgaFileBrowser extends LitElement {
         this.search = {};
     }
 
-    onActiveFilterChange(e) {
+/*    onActiveFilterChange(e) {
         console.log("onActiveFilterChange", e)
         this.query = e.detail;
         this.search = e.detail;
-    }
+    }*/
 
     onSelectFile(e) {
         this.file = e.detail.file;
@@ -149,6 +160,37 @@ export default class OpencgaFileBrowser extends LitElement {
 
     isNotEmpty(myArray) {
         return UtilsNew.isNotEmptyArray(myArray);
+    }
+
+
+
+
+
+    onQueryFilterChange(e) {
+        console.log("onQueryFilterChange on sample browser", e.detail.query);
+        this.preparedQuery = e.detail.query;
+        this.requestUpdate();
+    }
+
+    onQueryFilterSearch(e) {
+        this.preparedQuery = e.detail.query;
+        this.executedQuery = e.detail.query;
+        this.requestUpdate();
+    }
+
+    //TODO recheck what's/if there is a default param in sample-browser. study key comes from variant-browser.
+    onActiveFilterChange(e) {
+        this.preparedQuery = {...e.detail};
+        this.query = {...e.detail};
+        this.requestUpdate();
+    }
+
+    onActiveFilterClear() {
+        //this._config = Object.assign(this.getDefaultConfig(), this.config);
+        this.query = {};
+        //this.search = {};
+        this.preparedQuery = {};
+        this.requestUpdate();
     }
 
     getDefaultConfig() {
@@ -209,12 +251,12 @@ export default class OpencgaFileBrowser extends LitElement {
 
             <div class="col-md-10">
                 <opencga-active-filters .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                        .query="${this.query}"
+                                        .query="${this.preparedQuery}"
+                                        .refresh="${this.executedQuery}"
                                         .defaultStudy="${this.opencgaSession.study.alias}"
                                         .config="${this.filtersConfig}"
                                         .alias="${this.activeFilterAlias}"
-                                        .refresh="${this.search}"
-                                        @activeFilterClear="${this.onClear}"
+                                        @activeFilterClear="${this.onActiveFilterClear}"
                                         @activeFilterChange="${this.onActiveFilterChange}">
                 </opencga-active-filters>
 
@@ -244,9 +286,10 @@ export default class OpencgaFileBrowser extends LitElement {
                     <div id="${this._prefix}TableResult" class="file-browser-view-content">
                         <opencga-file-grid .opencgaSession="${this.opencgaSession}"
                                            .config="${this._config.grid}"
+                                           .query="${this.executedQuery}"
+                                           .search="${this.executedQuery}"
                                            .eventNotifyName="${this.eventNotifyName}"
                                            .files="${this.files}"
-                                           .search="${this.search}"
                                            @selectfile="${this.onSelectFile}"
                                            style="font-size: 12px">
                         </opencga-file-grid>

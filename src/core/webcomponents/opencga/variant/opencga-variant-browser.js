@@ -177,6 +177,8 @@ export default class OpencgaVariantBrowser extends LitElement {
         this._sessionInitialised = true;
     }
 
+    // TODO NOTE changing an active Filter, queryObserver is used to update executedQuery and consequently the table in variant-grid.
+    // Maybe the whole query process can be simplified, onActiveFilterChange and onActiveFilterClear can edit executedQuery directly
     queryObserver() {
         // Query passed is executed and set to variant-filter, active-filters and variant-grid components
         let _query = {};

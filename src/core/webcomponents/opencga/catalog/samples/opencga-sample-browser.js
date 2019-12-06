@@ -52,9 +52,10 @@ export default class OpencgaSampleBrowser extends LitElement {
                 type: Object,
                 notify: true //TODO recheck notify
             },
+            //TODO remove
             search: {
                 type: Object,
-                notify: true //TODO recheck notify
+                notify: true
             },
             query: {
                 type: Object
@@ -277,10 +278,10 @@ export default class OpencgaSampleBrowser extends LitElement {
             <div class="col-md-10">
                 <opencga-active-filters .opencgaClient="${this.opencgaClient}"
                                         .query="${this.preparedQuery}"
+                                        .refresh="${this.executedQuery}"
                                         .defaultStudy="${this.opencgaSession.study.alias}"
                                         .config="${this.filtersConfig}"
                                         .alias="${this.activeFilterAlias}"
-                                        .refresh="${this.executedQuery}"
                                         @activeFilterClear="${this.onActiveFilterClear}"
                                         @activeFilterChange="${this.onActiveFilterChange}">
                 </opencga-active-filters>
@@ -339,21 +340,25 @@ export default class OpencgaSampleBrowser extends LitElement {
                         <!--</div>-->
                     </div>
 
+                    <!--TODO refactor is missing here -->
                     <div id="${this._prefix}AggregationStats" class="sample-browser-view-content" style="display: none">
                         <opencga-facet-view .opencgaSession="${this.opencgaSession}" entity="SAMPLE"
                                             .variableSets="${this.variableSets}"></opencga-facet-view>
                     </div>
 
                     <div id="${this._prefix}SampleComparator" class="sample-browser-view-content" style="display: none">
-                        <opencga-sample-grid .opencgaSession="${this.opencgaSession}" .config="${this._config.gridComparator}"
-                                             .samples="${this.samples}" .search="${this.search}" style="font-size: 12px"
+                        <opencga-sample-grid .opencgaSession="${this.opencgaSession}"
+                                             .config="${this._config.gridComparator}"
+                                             .samples="${this.samples}"
+                                             .search="${this.search}" style="font-size: 12px"
                                              ?active="${this.activeMenu.comparator}">
                         </opencga-sample-grid>
 
                         <div style="padding-top: 5px">
                             <h3>Annotation comparator</h3>
                             <opencga-annotation-viewer .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                       .opencgaSession="${this.opencgaSession}" .config="${this._config}"
+                                                       .opencgaSession="${this.opencgaSession}"
+                                                       .config="${this._config}"
                                                        .entryIds="${this.samples}" entity="SAMPLE">
                             </opencga-annotation-viewer>
                         </div>

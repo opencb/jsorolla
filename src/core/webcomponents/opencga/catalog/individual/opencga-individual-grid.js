@@ -36,6 +36,9 @@ export default class OpencgaIndividualGrid extends LitElement {
             individuals: {
                 type: Array
             },
+            query: {
+                type: Object
+            },
             search: {
                 type: Object
             },
@@ -92,7 +95,7 @@ export default class OpencgaIndividualGrid extends LitElement {
 
         this.individuals = [];
 
-        let filters = Object.assign({}, this.search);
+        let filters = Object.assign({}, this.query);
 
         // Initialise the counters
         this.from = 1;

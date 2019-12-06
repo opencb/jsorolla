@@ -54,6 +54,9 @@ export default class OpencgaIndividualBrowser extends LitElement {
             },
             config: {
                 type: Object
+            },
+            query: {
+                type: Object
             }
         };
     }
@@ -75,6 +78,10 @@ export default class OpencgaIndividualBrowser extends LitElement {
             info: true,
             familyGrid: false
         };
+        this.query = {};
+    }
+
+    firstUpdated(_changedProperties) {
     }
 
     updated(changedProperties) {
@@ -93,17 +100,26 @@ export default class OpencgaIndividualBrowser extends LitElement {
         if (changedProperties.has("individuals")) {
             this.individualObserver();
         }
+        if (changedProperties.has("query")) {
+            this.queryObserver();
+        }
     }
 
     /*    static get observers() {
         return ['filterAvailableVariableSets(opencgaSession, config)', 'individualObserver(individuals.*)'];
     }*/
 
-    firstUpdated(_changedProperties) {
-    }
-
     configObserver() {
         this._config = Object.assign(this.getDefaultConfig(), this.config);
+    }
+
+    queryObserver() {
+        console.log("queryobserver", this.query)
+        if (UtilsNew.isNotUndefinedOrNull(this.query)) {
+            this.preparedQuery = {...this.query};
+            this.executedQuery ={...this.query};
+        }
+        this.requestUpdate();
     }
 
     individualObserver() {
@@ -120,11 +136,6 @@ export default class OpencgaIndividualBrowser extends LitElement {
         this.query = {};
         // this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
         this.search = {};
-    }
-
-    onActiveFilterChange(e) {
-        this.query = e.detail;
-        this.search = e.detail;
     }
 
     onSelectIndividual(e) {
@@ -200,6 +211,33 @@ export default class OpencgaIndividualBrowser extends LitElement {
 
     }
 
+    onQueryFilterChange(e) {
+        this.preparedQuery = e.detail.query;
+        this.requestUpdate();
+    }
+
+    onQueryFilterSearch(e) {
+        this.preparedQuery = e.detail.query;
+        this.executedQuery = e.detail.query;
+        this.requestUpdate();
+    }
+
+    //TODO recheck if there are default params
+    onActiveFilterChange(e) {
+        console.warn("onActiveFilterChange" , e.detail)
+        this.preparedQuery = {...e.detail};
+        this.query = {...e.detail};
+        this.requestUpdate();
+    }
+
+    onActiveFilterClear() {
+        this.query = {};
+        //this.search = {};
+        this.preparedQuery = {};
+        this.requestUpdate();
+    }
+
+
     getDefaultConfig() {
         return {
             title: "Individual Browser",
@@ -257,18 +295,20 @@ export default class OpencgaIndividualBrowser extends LitElement {
                                             .individuals="${this.individuals}"
                                             .opencgaClient="${this.opencgaSession.opencgaClient}"
                                             .query="${this.query}"
-                                            .search="${this.search}">
+                                            .search="${this.search}"
+                                            @queryChange="${this.onQueryFilterChange}"
+                                            @querySearch="${this.onQueryFilterSearch}">
                 </opencga-individual-filter>
             </div>
 
             <div class="col-md-10">
                 <opencga-active-filters .opencgaClient="${this.opencgaClient}"
-                                        .query="${this.query}"
+                                        .query="${this.preparedQuery}"
+                                        .refresh="${this.executedQuery}"
                                         .defaultStudy="${this.opencgaSession.study.alias}"
                                         .config="${this.filtersConfig}"
                                         .alias="${this.activeFilterAlias}"
-                                        .refresh="${this.search}"
-                                        @activeFilterClear="${this.onClear}"
+                                        @activeFilterClear="${this.onActiveFilterClear}"
                                         @activeFilterChange="${this.onActiveFilterChange}">
                 </opencga-active-filters>
 
@@ -296,10 +336,11 @@ export default class OpencgaIndividualBrowser extends LitElement {
                     <div id="${this._prefix}TableResult" class="individual-browser-view-content">
                         <opencga-individual-grid .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                  .opencgaSession="${this.opencgaSession}"
+                                                 .query="${this.executedQuery}"
+                                                 .search="${this.executedQuery}"
                                                  .config="${this._config.grid}"
                                                  .eventNotifyName="${this.eventNotifyName}"
                                                  .individuals="${this.individuals}"
-                                                 .search="${this.search}"
                                                  .active="${this.activeMenu.table}"
                                                  style="font-size: 12px"
                                                  @selectindividual="${this.onSelectIndividual}">

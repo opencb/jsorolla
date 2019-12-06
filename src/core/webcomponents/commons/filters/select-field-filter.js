@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 
-export default class TextFieldFilter extends LitElement {
+export default class SelectFieldFilter extends LitElement {
 
     constructor() {
         super();
@@ -39,36 +39,44 @@ export default class TextFieldFilter extends LitElement {
             },
             value: {
                 type: String
+            },
+            multiple: {
+                type: Boolean
+            },
+            data: {
+                type: Object
             }
         };
     }
 
     _init() {
-        this._prefix = "tff-" + Utils.randomString(6) + "_";
+        this._prefix = "sff-" + Utils.randomString(6) + "_";
+        this.multiple = false;
+        this.data = [];
     }
 
-    /*set value(val) {
+    /* set value(val) {
         let oldVal = this._value;
         this._value = val;
         this.requestUpdate('value', oldVal);
     }*/
 
     updated(_changedProperties) {
+        if (_changedProperties.has("data")) {
+            // TODO check why lit-element execute this for all existing select-field-filter instance..wtf
+            // console.log("data",this.data)
+        }
         if (_changedProperties.has("value")) {
-            if (this.value) {
-                this.querySelector("#" + this._prefix + "-input").value = this.value;
-            } else {
-                this.querySelector("#" + this._prefix + "-input").value = "";
-            }
+            $(".selectpicker", this).selectpicker("val", this.value ? this.value.split(",") : []);
         }
     }
 
-
     filterChange(e) {
-        console.log("filterChange", e.target.value);
+        // console.log("filterChange", $(".selectpicker", this).selectpicker('val'))
+        const val = $(".selectpicker", this).selectpicker("val").join(","); // remember [] is truthy
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: e.target.value || null
+                value: val.length ? val : null
             }
         });
         this.dispatchEvent(event);
@@ -77,11 +85,14 @@ export default class TextFieldFilter extends LitElement {
     render() {
         return html`
             <div id="${this._prefix}-wrapper" class="subsection-content form-group">
-                <input type="text" id="${this._prefix}-input" class="form-control input-sm ${this._prefix}FilterTextInput" placeholder="${this.placeholder}" @input="${this.filterChange}">
+                <select id="${this._prefix}-select" class="selectpicker" ?multiple = ${this.multiple}
+                                        @change="${this.filterChange}" data-width="100%">
+                    ${this.data.map( opt => html`<option>${opt}</option>`) }
+                </select>
             </div>
         `;
     }
 
 }
 
-customElements.define("text-field-filter", TextFieldFilter);
+customElements.define("select-field-filter", SelectFieldFilter);

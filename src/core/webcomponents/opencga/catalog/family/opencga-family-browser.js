@@ -47,11 +47,15 @@ export default class OpencgaFamilyBrowser extends LitElement {
                 type: Object,
                 notify: true
             },
+            //TODO remove
             search: {
                 type: Object,
                 notify: true
             },
             config: {
+                type: Object
+            },
+            query: {
                 type: Object
             }
         };
@@ -85,6 +89,9 @@ export default class OpencgaFamilyBrowser extends LitElement {
         if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
             this.filterAvailableVariableSets(this.opencgaSession, this.config);
         }
+        if (changedProperties.has("query")) {
+            this.queryObserver();
+        }
     }
 
     connectedCallback() {
@@ -103,6 +110,14 @@ export default class OpencgaFamilyBrowser extends LitElement {
 
     configObserver() {
         this._config = Object.assign(this.getDefaultConfig(), this.config);
+    }
+
+    queryObserver() {
+        if (UtilsNew.isNotUndefinedOrNull(this.query)) {
+            this.preparedQuery = {...this.query};
+            this.executedQuery = {...this.query};
+        }
+        this.requestUpdate();
     }
 
     familyObserver() {
@@ -151,7 +166,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
             sampleGrid: e.currentTarget.dataset.id === "sampleGrid"
         };
 
-        this.set("detailActiveTabs", _activeTabs);
+        this.detailActiveTabs = _activeTabs;
     }
 
     _changeView(e) {
@@ -162,7 +177,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
             comparator: e.currentTarget.dataset.id === "comparator"
         };
 
-        this.set("activeMenu", activeMenu);
+        this.activeMenu = activeMenu;
 
         $(".family-browser-view-content").hide(); // hides all content divs
         if (typeof e.target !== "undefined" && typeof e.target.dataset.view !== "undefined") {
@@ -198,15 +213,38 @@ export default class OpencgaFamilyBrowser extends LitElement {
 
     }
 
+    onQueryFilterChange(e) {
+        console.log("onQueryFilterChange on family browser", e.detail.query);
+        this.preparedQuery = e.detail.query;
+        this.requestUpdate();
+    }
+
+    onQueryFilterSearch(e) {
+        this.preparedQuery = e.detail.query;
+        this.executedQuery = e.detail.query;
+        this.requestUpdate();
+    }
+
+    onActiveFilterChange(e) {
+        this.preparedQuery = {...e.detail};
+        this.query = {...e.detail};
+        this.requestUpdate();
+    }
+
+    onActiveFilterClear() {
+        this.query = {};
+        //this.search = {};
+        this.preparedQuery = {};
+        this.requestUpdate();
+    }
+
     getDefaultConfig() {
         return {
             title: "Family Browser",
             showTitle: true,
             showAggregationStats: true,
             showComparator: true,
-            filter: {
-
-            },
+            filter: {},
             grid: {
                 pageSize: 10,
                 pageList: [10, 25, 50],
@@ -249,26 +287,28 @@ export default class OpencgaFamilyBrowser extends LitElement {
                     <i class="fa fa-users" aria-hidden="true"></i> &nbsp;${this._config.title}
                 </h3>
             </div>
-        ` :null }
+        ` : null}
         <div class="row" style="padding: 0px 10px">
             <div class="col-md-2">
                 <opencga-family-filter .opencgaSession="${this.opencgaSession}"
                                        .config="${this._config.filter}"
                                        .families="${this.families}"
                                        .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                       .search="${this.search}"
                                        .query="${this.query}"
-                                       .search="${this.search}">
+                                        @queryChange="${this.onQueryFilterChange}"
+                                        @querySearch="${this.onQueryFilterSearch}">
                 </opencga-family-filter>
             </div>
 
             <div class="col-md-10">
                 <opencga-active-filters .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                        .query="${this.query}"
+                                        .query="${this.preparedQuery}"
+                                        .refresh="${this.executedQuery}"
                                         .defaultStudy="${this.opencgaSession.study.alias}"
                                         .config="${this._config.activeFilters}"
                                         .alias="${this.activeFilterAlias}"
-                                        .refresh="${this.search}"
-                                        @activeFilterClear="${this.onClear}"
+                                        @activeFilterClear="${this.onActiveFilterClear}"
                                         @activeFilterChange="${this.onActiveFilterChange}">
                 </opencga-active-filters>
 
@@ -295,11 +335,13 @@ export default class OpencgaFamilyBrowser extends LitElement {
                     <div id="${this._prefix}TableResult" class="family-browser-view-content">
                         <opencga-family-grid .opencgaClient="${this.opencgaSession.opencgaClient}"
                                              .opencgaSession="${this.opencgaSession}"
+                                             .query="${this.executedQuery}"
                                              .config="${this._config.grid}"
                                              .eventNotifyName="${this.eventNotifyName}"
                                              .families="${this.families}"
-                                             .search="${this.search}" style="font-size: 12px"
+                                             .search="${this.search}"
                                              .active="${this.activeMenu.table}"
+                                             style="font-size: 12px"
                                              @selectfamily="${this.onSelectFamily}">
                         </opencga-family-grid>
 

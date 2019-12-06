@@ -18,6 +18,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "../variableSets/opencga-annotation-filter.js";
 import "../opencga-date-filter.js";
+//import "../../../commons/filters/text-field-filter.js";
 
 export default class OpencgaFileFilter extends LitElement {
 
@@ -81,14 +82,14 @@ export default class OpencgaFileFilter extends LitElement {
         this.dateFilterConfig = {
             recentDays: 10
         };
-        this.query = {};
         this.minYear = 1920;
+        this.query = {};
+        this.preparedQuery = {};
     }
 
     updated(changedProperties) {
         if (changedProperties.has("query")) {
-            console.log("onQueryUpdate", this.query)
-            this.onQueryUpdate();
+            this.queryObserver();
         }
         if (changedProperties.has("variables")) {
             this.variablesChanged();
@@ -96,7 +97,8 @@ export default class OpencgaFileFilter extends LitElement {
     }
 
     onSearch() {
-        this.search = Object.assign({}, this.query);
+        //this.search = {...this.query};
+        this.notifySearch(this.preparedQuery);
     }
 
     addAnnotation(e) {
@@ -133,15 +135,18 @@ export default class OpencgaFileFilter extends LitElement {
         this._reset = true;
     }
 
-    onQueryUpdate() {
+    queryObserver() {
         if (this._reset) {
-            console.log("onQueryUpdate: calling to 'renderQueryFilters()'");
-            this.renderQueryFilters();
+            console.log("queryObserver: calling to 'renderQueryFilters()'", this.query);
+            this.preparedQuery = this.query;
+            //this.renderQueryFilters();
+            this.requestUpdate()
         } else {
             this._reset = true;
         }
     }
 
+    //TODO refactor!
     renderQueryFilters() {
         // Empty everything before rendering
         this._clearHtmlDom();
@@ -173,7 +178,7 @@ export default class OpencgaFileFilter extends LitElement {
         this.requestUpdate();
     }
 
-    filterChanged(e) {
+/*    filterChanged(e) {
         console.log(e.target.name, e.target.value.trim());
         if (e.target.value.trim()) {
             this.query[e.target.name] = e.target.value.trim();
@@ -181,6 +186,38 @@ export default class OpencgaFileFilter extends LitElement {
             delete this.query[e.target.name];
         }
         console.log(this.query)
+    }*/
+    onFilterChange(key, value) {
+        console.log("filterChange", {[key]:value});
+        if (value && value !== "") {
+            this.preparedQuery = {...this.preparedQuery, ...{[key]: value}};
+        } else {
+            console.log("deleting", key, "from preparedQuery")
+            delete this.preparedQuery[key];
+            this.preparedQuery = {...this.preparedQuery};
+        }
+        this.notifyQuery(this.preparedQuery);
+        this.requestUpdate()
+    }
+
+    notifyQuery(query) {
+        this.dispatchEvent(new CustomEvent("queryChange", {
+            detail: {
+                query: query,
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    notifySearch(query) {
+        this.dispatchEvent(new CustomEvent("querySearch", {
+            detail: {
+                query: query,
+            },
+            bubbles: true,
+            composed: true
+        }));
     }
 
     calculateFilters(e) {
@@ -331,10 +368,10 @@ export default class OpencgaFileFilter extends LitElement {
             }
         </style>
 
-        <div style="width: 60%;margin: 0 auto">
-            <button type="button" class="btn btn-lg btn-primary" style="width: 100%" @click="${this.onSearch}">
-                <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i> Search
-            </button>
+        <div class="search-button-wrapper">
+                <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
+                    <i class="fa fa-search" aria-hidden="true"></i> Search
+                </button>
         </div>
         <!--<br>-->
 
@@ -359,8 +396,9 @@ export default class OpencgaFileFilter extends LitElement {
                             <div class="browser-subsection">Name
                             </div>
                             <div id="${this._prefix}-name" class="subsection-content form-group">
-                                <input type="text" id="${this._prefix}-name-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="accepted_hits.bam, phenotypes.vcf..." name="name" @input="${this.filterChanged}">
+                               <!-- <input type="text" id="${this._prefix}-name-input" class="form-control input-sm ${this._prefix}FilterTextInput"
+                                       placeholder="accepted_hits.bam, phenotypes.vcf..." name="name" @input="${this.filterChanged}"> -->
+                                <text-field-filter placeholder="accepted_hits.bam, phenotypes.vcf..." .value="${this.preparedQuery.name}" @filterChange="${e => this.onFilterChange("name", e.detail.value)}"></text-field-filter>
                             </div>
                         </div>
 
@@ -368,8 +406,10 @@ export default class OpencgaFileFilter extends LitElement {
                             <div class="browser-subsection">Path
                             </div>
                             <div id="${this._prefix}-path" class="subsection-content form-group">
-                                <input type="text" id="${this._prefix}-path-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="genomes/resources/files/..." name="path" @input="${this.filterChanged}">
+                                <!--<input type="text" id="${this._prefix}-path-input" class="form-control input-sm ${this._prefix}FilterTextInput"
+                                       placeholder="genomes/resources/files/..." name="path" @input="${this.filterChanged}"> -->
+                                <text-field-filter placeholder="genomes/resources/files/..." .value="${this.preparedQuery.path}" @filterChange="${e => this.onFilterChange("path", e.detail.value)}"></text-field-filter>
+
                             </div>
                         </div>
 
@@ -377,8 +417,9 @@ export default class OpencgaFileFilter extends LitElement {
                             <div class="browser-subsection">Sample
                             </div>
                             <div id="${this._prefix}-sample" class="subsection-content form-group">
-                                <input type="text" id="${this._prefix}-sample-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="HG01879, HG01880, HG01881..." name="sample" @input="${this.calculateFilters}">
+                                <!--<input type="text" id="${this._prefix}-sample-input" class="form-control input-sm ${this._prefix}FilterTextInput"
+                                       placeholder="HG01879, HG01880, HG01881..." name="sample" @input="${this.calculateFilters}"> -->
+                                <text-field-filter placeholder="HG01879, HG01880, HG01881..." .value="${this.preparedQuery.sample}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></text-field-filter>
                             </div>
                         </div>
 
@@ -386,8 +427,9 @@ export default class OpencgaFileFilter extends LitElement {
                             <div class="browser-subsection">Format
                             </div>
                             <div id="${this._prefix}-format" class="subsection-content form-group">
-                                <input type="text" id="${this._prefix}-format-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="BAM,VCF..." name="format" @input="${this.calculateFilters}">
+                                <!-- <input type="text" id="${this._prefix}-format-input" class="form-control input-sm ${this._prefix}FilterTextInput"
+                                       placeholder="BAM,VCF..." name="format" @input="${this.calculateFilters}"> -->
+                                <text-field-filter placeholder="BAM,VCF.." .value="${this.preparedQuery.format}" @filterChange="${e => this.onFilterChange("format", e.detail.value)}"></text-field-filter>
                             </div>
                         </div>
 
@@ -395,8 +437,10 @@ export default class OpencgaFileFilter extends LitElement {
                             <div class="browser-subsection">Bioformat
                             </div>
                             <div id="${this._prefix}-bioformat" class="subsection-content form-group">
-                                <input type="text" id="${this._prefix}-bioformat-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="ALIGNMENT,VARIANT..." name="bioformat" @input="${this.calculateFilters}">
+                                <!--<input type="text" id="${this._prefix}-bioformat-input" class="form-control input-sm ${this._prefix}FilterTextInput"
+                                       placeholder="ALIGNMENT,VARIANT..." name="bioformat" @input="${this.calculateFilters}"> -->
+                                <text-field-filter placeholder="ALIGNMENT,VARIANT..." .value="${this.preparedQuery.bioformat}" @filterChange="${e => this.onFilterChange("bioformat", e.detail.value)}"></text-field-filter>
+
                             </div>
                         </div>
 
