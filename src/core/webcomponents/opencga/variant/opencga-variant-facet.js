@@ -96,14 +96,13 @@ export default class OpencgaVariantFacet extends LitElement {
 
         this.facetConfig = {a: 1};
         this.facetActive = true;
+        this.query = {};
     }
 
     firstUpdated(_changedProperties) {
         $(".bootstrap-select").selectpicker();
-        this.query = {};
-        console.log("this.config",this.config);
-
-
+        console.log("this.query", this.query)
+        //console.log("this.config",this.config);
     }
 
     updated(changedProperties) {

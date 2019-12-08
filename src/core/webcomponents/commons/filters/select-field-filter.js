@@ -61,6 +61,10 @@ export default class SelectFieldFilter extends LitElement {
         this.requestUpdate('value', oldVal);
     }*/
 
+    firstUpdated() {
+        $(".selectpicker", this).selectpicker("val", "");
+    }
+
     updated(_changedProperties) {
         if (_changedProperties.has("data")) {
             // TODO check why lit-element execute this for all existing select-field-filter instance..wtf

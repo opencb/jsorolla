@@ -145,6 +145,8 @@ class OpencgaVariantInterpretation extends LitElement {
         //     "frameshift_variant", "stop_lost", "start_lost", "transcript_amplification", "inframe_insertion", "inframe_deletion"].join(", ");
 
         this._config = this.getDefaultConfig();
+        this.query = {};
+        this.search = {};
     }
 
     opencgaSessionObserver() {

@@ -397,13 +397,16 @@ export default class OpencgaIndividualFilter extends LitElement {
                             <div class="browser-subsection">Sex
                             </div>
                             <div id="${this._prefix}-individual-sex" class="subsection-content form-group">
-                                <select id="${this._prefix}-individual-sex-select" class="selectpicker" multiple
+                                <!--<select id="${this._prefix}-individual-sex-select" class="selectpicker" multiple
                                         @change="${this.calculateFilters}" data-width="100%">
                                     <option>MALE</option>
                                     <option>FEMALE</option>
                                     <option>UNKNOWN</option>
                                     <option>UNDETERMINED</option>
-                                </select>
+                                </select>-->
+                                
+                                <select-field-filter multiple .data="${['MALE','FEMALE','UNKNOWN','UNDETERMINED']}" .value="${this.preparedQuery.sex}" @filterChange="${e => this.onFilterChange("sex", e.detail.value)}"></select-field-filter>
+                                
                             </div>
                         </div>
 

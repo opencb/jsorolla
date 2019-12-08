@@ -17,6 +17,8 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "../variableSets/opencga-annotation-filter.js";
 import "../opencga-date-filter.js";
+import "../../../commons/filters/text-field-filter.js";
+import "../../../commons/filters/select-field-filter.js";
 
 export default class OpencgaCohortFilter extends LitElement {
 
@@ -125,11 +127,11 @@ export default class OpencgaCohortFilter extends LitElement {
 
     firstUpdated(_changedProperties) {
         // Decrease the button and font size of the selectpicker component
-        const annotationDiv = $(`#${this._prefix}-type-div`);
+        //const annotationDiv = $(`#${this._prefix}-type-div`);
         // Add the class to the select picker buttons
-        annotationDiv.find(".selectpicker").selectpicker("setStyle", "btn-sm", "add");
+        //annotationDiv.find(".selectpicker").selectpicker("setStyle", "btn-sm", "add");
         // Add the class to the lists
-        annotationDiv.find("ul > li").addClass("small");
+        //annotationDiv.find("ul > li").addClass("small");
     }
 
     onSearch() {
@@ -230,6 +232,8 @@ export default class OpencgaCohortFilter extends LitElement {
         }));
     }
 
+    /** @deprecated
+     * */
     calculateFilters(e) {
         const _query = {};
 

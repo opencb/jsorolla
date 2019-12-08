@@ -15,10 +15,12 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import OpencgaFacetResultView from "./../commons/opencga-facet-result-view.js";
+import "./../commons/opencga-facet-result-view.js";
+import "./../../../loading-spinner.js";
 
 //TODO avg(popFreq__1kG_phase3__AFR)[0..1]:0.1>>avg(popFreq__GNOMAD_GENOMES__EAS[0..1]):0.1
 
+//TODO this components needs cleaning from the old code
 
 class OpencgaVariantFacetQuery extends LitElement {
 
@@ -92,7 +94,7 @@ class OpencgaVariantFacetQuery extends LitElement {
 
     propertyObserver(opencgaSession, query) {
         // this.clear();
-        PolymerUtils.show(this._prefix + "Warning");
+        //PolymerUtils.show(this._prefix + "Warning");
     }
 
     /**
@@ -185,6 +187,11 @@ class OpencgaVariantFacetQuery extends LitElement {
         return false;
     }
 
+    fetchDefaultData() {
+        this.addDefaultStats();
+        this.fetchData();
+    }
+
     fetchData() {
         if (UtilsNew.isUndefinedOrNull(this.opencgaSession.opencgaClient)) {
             console.log("opencgaClient is null or undefined");
@@ -200,7 +207,8 @@ class OpencgaVariantFacetQuery extends LitElement {
 
         this.clearPlots();
         // Shows loading modal
-        $("#" + this._prefix + "LoadingModal").modal("show");
+        //$("#" + this._prefix + "LoadingModal").modal("show");
+        this.querySelector("#loading").style.display = "block";
 
         // Join 'query' from left menu and facet filters
         let queryParams = Object.assign({}, this.query,
@@ -222,14 +230,18 @@ class OpencgaVariantFacetQuery extends LitElement {
                         _this.facetResults = queryResponse.response[0].result[0].results;
 
                         // Remove loading modal
-                        $(PolymerUtils.getElementById(_this._prefix + "LoadingModal")).modal("hide");
+                        //$(PolymerUtils.getElementById(_this._prefix + "LoadingModal")).modal("hide");
+                        _this.querySelector("#loading").style.display = "none";
+
                         _this._showInitMessage = false;
                         _this.requestUpdate();
                     })
                     .catch(function(e) {
                         console.log(e);
                         // Remove loading modal
-                        $(PolymerUtils.getElementById(_this._prefix + "LoadingModal")).modal("hide");
+                        //$(PolymerUtils.getElementById(_this._prefix + "LoadingModal")).modal("hide");
+                        _this.querySelector("#loading").style.display = "none";
+
                         _this._showInitMessage = false;
                         _this.requestUpdate();
                     });
@@ -345,6 +357,16 @@ class OpencgaVariantFacetQuery extends LitElement {
     //     return true;
     // }
 
+
+    facetSearch() {
+        //query.study = this.opencgaSession.study.fqn;
+        this.dispatchEvent(new CustomEvent("facetSearch", {
+            detail: this.query,
+            bubbles: true,
+            composed: true
+        }));
+    }
+
     getDefaultConfig() {
         return {
             // title: "Aggregation Stats",
@@ -416,10 +438,15 @@ class OpencgaVariantFacetQuery extends LitElement {
             .deletable:hover {
                 text-decoration: line-through;
             }
+            #loading {
+                text-align: center;
+                margin-top: 40px;
+            }
         </style>
 
-        <!--<template is="dom-if" if="{{checkProjects}}">-->
         <div class="row">
+        
+            <!-- TODO delete: there are no param to set now. Aggregation is made on default stats
             <div class="panel panel-default col-md-12">
                 <div class="col-md-12">
                     ${this._config.defaultStats.visible ? html`
@@ -431,7 +458,6 @@ class OpencgaVariantFacetQuery extends LitElement {
                     ` : null}
                 </div>
 
-                <!-- Facet Fields -->
                 <div class="col-md-12">
                     <h3 style="padding-top: 10px;padding-bottom: 10px">Aggregation Fields</h3>
 
@@ -465,7 +491,6 @@ class OpencgaVariantFacetQuery extends LitElement {
                         </div>
                         <div class="col-md-2">
                             <label>Include values or set range</label>
-                            <!--<textarea id="${this._prefix}FacetFieldIncludes" class="form-control" rows="1" placeholder="Include values or range"></textarea>-->
 
 
                             <div class="input-group">
@@ -474,23 +499,13 @@ class OpencgaVariantFacetQuery extends LitElement {
                                       aria-expanded="false">
                                     <span class="caret"></span>
                                 </span>
-
-                                <!--<input id="${this._prefix}FacetFieldIncludes" type="text" class="form-control" value="" placeholder="Include values or range">-->
-                                <!--<div class="input-group-btn">-->
-                                <!--<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
-                                <!--<span class="caret"></span>-->
-                                <!--</button>-->
-
-
                                 <ul class="dropdown-menu">
                                     <li class="dropdown-header" style="font-weight: bold;font-size: 1.10em">Aggregation Function</li>
-                                    <!--<li class="disabled"><a href="#" data-value="+47">Avg</a></li>-->
                                     <li><a href="#" data-value="avg">Average</a></li>
                                     <li><a href="#" data-value="percentile">Percentile</a></li>
                                     <li role="separator"  class="divider"></li>
                                     <li><a href="#" data-value="reset">Reset</a></li>
                                 </ul>
-                                <!--</div>-->
                             </div>
 
                             <div>
@@ -562,18 +577,26 @@ class OpencgaVariantFacetQuery extends LitElement {
                     </div>
                 </div>
             </div>
-
+            -->
 
             <!-- RESULTS - Facet Plots -->
             <div class="col-md-12">
-                <div class="alert alert-warning col-md-12" role="alert" id="${this._prefix}Warning" style="display: none;padding: 15px;margin-bottom: 10px">
+                <!--<div class="alert alert-warning col-md-12" role="alert" id="${this._prefix}Warning" style="display: none;padding: 15px;margin-bottom: 10px">
                     <span style="font-weight: bold;font-size: 1.20em">Warning!</span>&nbsp;&nbsp;Filters changed, please click on Run button to update the aggregation results.
-                </div>
+                </div>-->
 
-                <div class="col-md-12">
+                <div >
+                    <button type="button" class="btn btn-primary btn-lg ripple" @click="${this.fetchDefaultData}">Run facet query</button>
+                    <button type="button" class="btn btn-primary btn-lg ripple" @click="${this.facetSearch}">Run Advanced facet query</button>
+                </div>
+                <div >
                     <h2>Results</h2>
+                    
+                    <div id="loading" style="display: none">
+                        <loading-spinner></loading-spinner>
+                    </div>
                     ${this._showInitMessage ? html`
-                        <h4>No facet filters selected</h4>
+                        <!--<h4>No facet filters selected</h4>-->
                     ` : html`
                         ${this.facetResults.map(item => html`
                             <div style="padding: 20px">
@@ -589,9 +612,8 @@ class OpencgaVariantFacetQuery extends LitElement {
                 </div>
             </div>
         </div>
-        <!--</template>-->
 
-        <div class="modal fade" id="${this._prefix}LoadingModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
+    <!--   <div class="modal fade" id="${this._prefix}LoadingModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
              role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -605,7 +627,7 @@ class OpencgaVariantFacetQuery extends LitElement {
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
     `;
     }
 }

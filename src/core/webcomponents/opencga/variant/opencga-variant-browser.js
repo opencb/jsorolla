@@ -594,7 +594,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                                       .cohorts="${this.cohorts}"
                                       .cellbaseClient="${this.cellbaseClient}"
                                       .populationFrequencies="${this.populationFrequencies}"
-                                      active="${this.active}" 
+                                      .active="${this.active}" 
                                       .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                       .consequenceTypes="${this.consequenceTypes}"
                                       @selected="${this.selectedGene}"
@@ -704,7 +704,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                 <opencga-variant-facet-query .opencgaSession="${this.opencgaSession}"
                                              .cellbaseClient="${this.cellbaseClient}"
                                              .populationFrequencies="${this.populationFrequencies}"
-                                             .query=${this.executedQuery}>
+                                             .query="${this.executedQuery}">
                 </opencga-variant-facet-query>
             </div>
 
