@@ -15,12 +15,12 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "./opencga-cohort-filter.js";
 import "./opencga-cohort-grid.js";
 import "../../opencga-active-filters.js";
 import "../variableSets/opencga-annotation-comparator.js";
 import "../variableSets/opencga-annotation-viewer.js";
 import "../../commons/opencga-facet-view.js";
+import "./opencga-cohort-filter.js";
 
 
 export default class OpencgaCohortBrowser extends LitElement {
@@ -50,11 +50,15 @@ export default class OpencgaCohortBrowser extends LitElement {
                 notify: true
                 // observer: "onFilterUpdate" TODO it doesn't exist
             },
+            //TODO remove
             search: {
                 type: Object,
                 notify: true
             },
             config: {
+                type: Object
+            },
+            query: {
                 type: Object
             }
         };
@@ -78,6 +82,15 @@ export default class OpencgaCohortBrowser extends LitElement {
                 array: []
             };
         }
+        this.activeMenu = {
+            table: true,
+            comparator: false
+        };
+
+        this.detailActiveTabs = {
+            info: true,
+            sampleGrid: false
+        };
     }
 
     updated(changedProperties) {
@@ -90,24 +103,22 @@ export default class OpencgaCohortBrowser extends LitElement {
         if (changedProperties.has("cohorts")) {
             this.cohortObserver();
         }
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this.activeMenu = {
-            table: true,
-            comparator: false
-        };
-
-        this.detailActiveTabs = {
-            info: true,
-            sampleGrid: false
-        };
+        if (changedProperties.has("query")) {
+            this.queryObserver();
+        }
     }
 
     configObserver() {
         this._config = Object.assign(this.getDefaultConfig(), this.config);
+    }
+
+    queryObserver() {
+        if (this.query) {
+            this.preparedQuery = {...this.query};
+            this.executedQuery ={...this.query};
+        }
+        // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
+        this.requestUpdate();
     }
 
     _changeView(e) {
@@ -189,18 +200,6 @@ export default class OpencgaCohortBrowser extends LitElement {
         }));
     }
 
-    onClear() {
-        this.config = Object.assign(this.getDefaultConfig(), this.config);
-        this.query = {};
-        // this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
-        this.search = {};
-    }
-
-    onActiveFilterChange(e) {
-        this.query = e.detail;
-        this.search = e.detail;
-    }
-
     _changeBottomTab(e) {
         const _activeTabs = {
             info: e.currentTarget.dataset.id === "info",
@@ -209,6 +208,33 @@ export default class OpencgaCohortBrowser extends LitElement {
 
         // this.set("detailActiveTabs", _activeTabs);
         this.detailActiveTabs = _activeTabs;
+    }
+
+    onQueryFilterChange(e) {
+        console.log("onQueryFilterChange on sample browser", e.detail.query);
+        this.preparedQuery = e.detail.query;
+        this.requestUpdate();
+    }
+
+    onQueryFilterSearch(e) {
+        this.preparedQuery = e.detail.query;
+        this.executedQuery = e.detail.query;
+        this.requestUpdate();
+    }
+
+    onActiveFilterChange(e) {
+        console.log("onActiveFilterChange on cohort browser", e.detail)
+        this.preparedQuery = {...e.detail};
+        this.query = {...e.detail};
+        this.requestUpdate();
+    }
+
+    onActiveFilterClear() {
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.query = {};
+        //this.search = {};
+        this.preparedQuery = {};
+        this.requestUpdate();
     }
 
     getDefaultConfig() {
@@ -261,19 +287,21 @@ export default class OpencgaCohortBrowser extends LitElement {
                                        .cohorts="${this.cohorts}"
                                        .opencgaClient="${this.opencgaSession.opencgaClient}"
                                        .query="${this.query}"
-                                       .search="${this.search}">
+                                       .search="${this.search}"
+                                        @queryChange="${this.onQueryFilterChange}"
+                                        @querySearch="${this.onQueryFilterSearch}">
                 </opencga-cohort-filter>
             </div>
 
             <div class="col-md-10">
                 <opencga-active-filters .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                        .query="${this.query}"
+                                        .query="${this.preparedQuery}"
+                                        .refresh="${this.executedQuery}"
                                         .filters="${this._config.filters}"
                                         .defaultStudy="${this.opencgaSession.study.alias}"
                                         .config="${this.filtersConfig}"
                                         .alias="${this.activeFilterAlias}"
-                                        .refresh="${this.search}"
-                                        @activeFilterClear="${this.onClear}"
+                                        @activeFilterClear="${this.onActiveFilterClear}"
                                         @activeFilterChange="${this.onActiveFilterChange}">
                 </opencga-active-filters>
 
@@ -297,11 +325,12 @@ export default class OpencgaCohortBrowser extends LitElement {
                 <!-- Cohort View Content -->
                 <div>
                     <div id="${this._prefix}TableResult" class="cohort-browser-view-content">
-                        <opencga-cohort-grid .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                             .opencgaSession="${this.opencgaSession}"
+                        <opencga-cohort-grid .opencgaSession="${this.opencgaSession}"
+                                             .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                             .query="${this.executedQuery}"
+                                             .search="${this.executedQuery}"
                                              .config="${this._config.grid}"
                                              .eventNotifyName="${this.eventNotifyName}"
-                                             .search="${this.search}"
                                              .active="${this.activeMenu.table}"
                                              style="font-size: 12px"
                                              @selectcohort="${this.onSelectCohort}">

@@ -149,7 +149,7 @@ export default class OpencgaSampleFilter extends LitElement {
 
     queryObserver() {
         if (this._reset) {
-            console.log("onQueryUpdate: calling to 'renderQueryFilters()'", this.query);
+            console.log("queryObserver: calling to 'renderQueryFilters()'", this.query);
             this.preparedQuery = this.query;
             //renderQueryFilters shouldn't be necessary anymore
             //this.renderQueryFilters();
