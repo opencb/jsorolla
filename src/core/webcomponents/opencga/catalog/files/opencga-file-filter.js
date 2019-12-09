@@ -468,7 +468,7 @@ export default class OpencgaFileFilter extends LitElement {
                                 </div>
                             </div>
                             <div id="${this._prefix}-date-content" class="subsection-content">
-                                <opencga-date-filter .config="${this.dateFilterConfig}" @datechanged="${this.onDateChanged}"></opencga-date-filter>
+                                <opencga-date-filter .config="${this.dateFilterConfig}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>
                             </div>
                         </div>
 

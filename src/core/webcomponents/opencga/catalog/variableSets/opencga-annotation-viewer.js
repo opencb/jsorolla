@@ -81,6 +81,7 @@ export default class OpencgaAnnotationViewer extends LitElement {
 
         if (typeof this.opencgaSession.study.variableSets !== "undefined") {
             this._updateVariableSets(this.opencgaSession.study);
+            this.requestUpdate()
         } else {
             const _this = this;
 
@@ -95,6 +96,8 @@ export default class OpencgaAnnotationViewer extends LitElement {
                     $(`#${this._prefix}-variableSetSelect`).selectpicker("hide");
 
                     console.log("Could not obtain the variable sets of the study " + _this.opencgaSession.study);
+                    this.requestUpdate()
+
                 });
         }
     }
@@ -102,7 +105,7 @@ export default class OpencgaAnnotationViewer extends LitElement {
     // TODO refactor
     entryIdsObserver(e) {
         // Get the selected variableSet
-        if (e && typeof e.target === "undefined") {
+        if (e === undefined || typeof e.target === "undefined") {
             const variableSet = $(`button[data-id=${this._prefix}-variableSetSelect]`)[0];
             if (typeof variableSet !== "undefined") {
                 const variableSetId = variableSet.title;
@@ -121,6 +124,7 @@ export default class OpencgaAnnotationViewer extends LitElement {
                 }
             }
         }
+        console.log("this.variableSets",this.variableSets)
 
         let client = undefined;
         switch (this.entity) {
@@ -190,7 +194,7 @@ export default class OpencgaAnnotationViewer extends LitElement {
                 }
             }
         }
-
+        console.log("this._annotations",annotations)
         this._generateTable(annotations);
     }
 
@@ -287,6 +291,7 @@ export default class OpencgaAnnotationViewer extends LitElement {
         html += "<tbody><tr>" + body + "</tr></tbody>";
         html += "</table>";
 
+        console.log(html)
         PolymerUtils.innerHTML(this._prefix + "-table", html);
         // We now add the on-click event (it was impossible adding it to the html directly)
         for (let i = 0; i < annotationIds.length; i++) {

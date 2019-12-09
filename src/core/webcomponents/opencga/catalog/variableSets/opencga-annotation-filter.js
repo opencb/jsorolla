@@ -46,7 +46,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
         this._config = this.getDefaultConfig();
 
         this.variableSets = [];
-
+        this.selectedVariable = {}
     }
 
     //connectedCallback in Polyer 2
@@ -55,15 +55,15 @@ export default class OpencgaAnnotationFilter extends LitElement {
 
         // Components are already set. We will override with the classes from the configuration file
         PolymerUtils.addClassById(`${this._prefix}-main-annotation-filter-div`, [this._config.class]);
-    }
 
-    renderDomRepeat(e) {
+    //TODO recheck it was renderDomRepeat()
         // $('select.selectpicker').selectpicker('render');
         $('select.selectpicker').selectpicker('refresh');
         $('select.selectpicker').selectpicker('deselectAll');
 
         // Get selected variable
         let variableSetSelector = $(`button[data-id=${this._prefix}-annotation-picker]`)[0];
+        console.log("variableSetSelector",variableSetSelector)
         if (typeof variableSetSelector !== "undefined") {
             this.selectedVariable = this.getVariable(variableSetSelector.title);
         }
@@ -217,6 +217,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
             }
 
             this.multipleVariableSets = this.variableSets.length > 1;
+            this.requestUpdate()
             this.dispatchEvent(new CustomEvent('variablesetselected', {detail: {id: this.variableSets[0].id}}));
 
         } else {
@@ -245,6 +246,8 @@ export default class OpencgaAnnotationFilter extends LitElement {
             let variableSet = this.variableSets[i];
             if (variableSet.name === selectedVariableSet) {
                 this.selectedVariableSet = variableSet;
+                console.log("onSelectedVariableSetChange",variableSet)
+                this.requestUpdate()
                 return;
             }
         }
@@ -285,13 +288,13 @@ export default class OpencgaAnnotationFilter extends LitElement {
         ` : html`
             <!-- Annotations -->
             ${this.multipleVariableSets ? html`
-                            <label for="${this._prefix}}-variableSetSelect">Select Variable Set</label>
-                            <select class="selectpicker" id="${this._prefix}}-variableSetSelect" @change="${this.onSelectedVariableSetChange}"
+                            <label for="${this._prefix}-variableSetSelect">Select Variable Set</label>
+                            <select class="selectpicker" id="${this._prefix}-variableSetSelect" @change="${this.onSelectedVariableSetChange}"
                                     on-dom-change="renderDomRepeat" data-width="100%">
                                 <!--<select class="form-control" id="variableSetSelect" style="width: 100%"-->
                                 <!--on-change="onSelectedVariableSetChange">-->
                                 ${this.variableSets.map(item => html`
-                                    <option data-variable="${this.item}}">${this.item.name}}</option>
+                                    <option data-variable="${item}">${item.name}</option>
                                 `)}
                             </select>`
             : null}
@@ -299,7 +302,6 @@ export default class OpencgaAnnotationFilter extends LitElement {
         <opencga-variable-selector .variableSet="${this.selectedVariableSet}"
                                    @variablechange="${this.onChangeSelectedVariable}">
         </opencga-variable-selector>
-        
         <!--<label for="{{prefix}}-annotation-picker" style="margin-top: 15px;">Select variable and value(s)</label>-->
         <!--<select id="{{prefix}}-annotation-picker" class="selectpicker" data-live-search="true" data-size="10"-->
         <!--data-max-options="1" on-change="onChangeSelectedVariable" data-width="100%" data-class="btn-sm">-->
@@ -320,16 +322,16 @@ export default class OpencgaAnnotationFilter extends LitElement {
                     <!-- TEXT type: include an input text and add suitable regular expression for text-->
                     <!-- http://stackoverflow.com/questions/14237686/disabling-controls-in-bootstrap-->
                     <input type="text" class="form-control ${this._prefix}AnnotationTextInput"
-                           placeholder="${this.selectedVariable.id} name" data-variable-name$="${this.selectedVariable.id}"
+                           placeholder="${this.selectedVariable.id} name" data-variable-name="${this.selectedVariable.id}"
                            pattern="${this.variable.attributes.pattern}"
-                           aria-describedby="basic-addon1" @change="${this.addInputFilter}">
+                           aria-describedby="basic-addon1" @input="${this.addInputFilter}">
                 ` : this.selectedVariable.type === 'NUMERIC' || this.selectedVariable.type === 'INTEGER' || this.selectedVariable.type === 'DOUBLE' ? html`
                     <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
-                    <input type="text" class="form-control ${this._prefix}}AnnotationTextInput"
-                           placeholder="${this.selectedVariable.id} number" data-variable-name$="${this.selectedVariable.id}"
-                           pattern="^[0-9]+$" @change="${this.addInputFilter}">
+                    <input type="text" class="form-control ${this._prefix}AnnotationTextInput"
+                           placeholder="${this.selectedVariable.id} number" data-variable-name="${this.selectedVariable.id}"
+                           pattern="^[0-9]+$" @input="${this.addInputFilter}">
                 ` : this.selectedVariable.type === 'CATEGORICAL' ? html`
-                    <select id="${this._prefix}-categorical-selector" class="selectpicker" multiple @change="${this.addCategoricalFilter}"
+                    <select id="${this._prefix}-categorical-selector" class="selectpicker" multiple @input="${this.addCategoricalFilter}"
                             data-width="100%">
                         ${this.selectedVariable.allowedValues && this.selectedVariable.allowedValues.length && this.selectedVariable.allowedValues.map(item => html`
                                     <option value="${item}" on-dom-change="renderDomRepeat">${item}</option>
@@ -338,11 +340,11 @@ export default class OpencgaAnnotationFilter extends LitElement {
                 ` : this.selectedVariable.type === 'BOOLEAN' ? html`
                     <!-- BOOLEAN type, 2 values: radio buttons for selection: yes or no -->
                     <div class="form-check form-check-inline">
-                        <input id="${this._prefix}}${this.selectedVariable.id}}yes" class="form-check-input"
-                               type="radio" name="${this.selectedVariable.id}}Options" data-value=true @click="${this.addSelectedFilter}">
+                        <input id="${this._prefix}${this.selectedVariable.id}yes" class="form-check-input"
+                               type="radio" name="${this.selectedVariable.id}Options" data-value=true @input="${this.addSelectedFilter}">
                         True
-                        <input id="${this._prefix}}${this.selectedVariable.id}}no" class="form-check-input"
-                               type="radio" name="${this.selectedVariable.id}}Options" data-value=false @click="${this.addSelectedFilter}">
+                        <input id="${this._prefix}${this.selectedVariable.id}no" class="form-check-input"
+                               type="radio" name="${this.selectedVariable.id}Options" data-value=false @input="${this.addSelectedFilter}">
                         False
                     </div>
 

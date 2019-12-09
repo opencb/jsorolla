@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-//TODO check functionality and on-dom-repeat
+// TODO check functionality and on-dom-repeat
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
 
 export default class OpencgaVariableSelector extends LitElement {
 
@@ -40,11 +40,11 @@ export default class OpencgaVariableSelector extends LitElement {
             config: {
                 type: Object
             }
-        }
+        };
     }
 
     _init() {
-        this._prefix = "ovs-" + Utils.randomString(6);
+        this._prefix = "ovs-" + Utils.randomString(6) + "_";
         this.variables = [];
         this._config = this.getDefaultConfig();
     }
@@ -58,19 +58,23 @@ export default class OpencgaVariableSelector extends LitElement {
         }
     }
 
-    connectedCallback() {
-        super.connectedCallback();
+    firstUpdated(_changedProperties) {
+
+        const mainDiv = $(`#${this._prefix}-main-div`);
+        const selectpicker = mainDiv.find(".selectpicker");
+        selectpicker.selectpicker("refresh");
+        selectpicker.selectpicker("deselectAll");
 
         if (!this._config.multiSelection) {
             // Select first allowed variable by default
-            for (let variable of this.variables) {
+            for (const variable of this.variables) {
                 if (!variable.disabled) {
-                    $(`#${this._prefix}-annotation-picker`).find(".selectpicker").selectpicker('deselectAll');
-                    this.dispatchEvent(new CustomEvent('variablechange', {
-                            detail: {
-                                value: [variable]
-                            }
+                    $(`#${this._prefix}-annotation-picker`).find(".selectpicker").selectpicker("deselectAll");
+                    this.dispatchEvent(new CustomEvent("variablechange", {
+                        detail: {
+                            value: [variable]
                         }
+                    }
                     ));
                     return;
                 }
@@ -78,25 +82,26 @@ export default class OpencgaVariableSelector extends LitElement {
         }
     }
 
-    onVariableSetConfigChange(variableSet, config) {
+    onVariableSetConfigChange() {
         this._config = Object.assign({}, this.getDefaultConfig(), this.config);
 
-        let customConfig = {
+        const customConfig = {
             onlyAllowLeafSelection: this._config.onlyAllowLeafSelection
         };
 
-        if (UtilsNew.isNotUndefinedOrNull(variableSet)) {
-            this.variables = CatalogUIUtils.parseVariableSetVariablesForDisplay(variableSet.variables, [], 25,
+        if (UtilsNew.isNotUndefinedOrNull(this.variableSet)) {
+            this.variables = CatalogUIUtils.parseVariableSetVariablesForDisplay(this.variableSet.variables, [], 25,
                 customConfig);
+            // console.log("onVariableSetConfigChange this.variables ", this.variables)
+            this.requestUpdate();
         }
     }
 
     renderDomRepeat(e) {
-        let mainDiv = $(`#${this._prefix}-main-div`);
-
-        let selectpicker = mainDiv.find(".selectpicker");
-        selectpicker.selectpicker('refresh');
-        selectpicker.selectpicker('deselectAll');
+        const mainDiv = $(`#${this._prefix}-main-div`);
+        const selectpicker = mainDiv.find(".selectpicker");
+        selectpicker.selectpicker("refresh");
+        selectpicker.selectpicker("deselectAll");
 
         // // Add the class to the select picker buttons
         // selectpicker.selectpicker('setStyle', this._config.buttonClass, 'add');
@@ -105,20 +110,21 @@ export default class OpencgaVariableSelector extends LitElement {
     }
 
     onChangeSelectedVariable(e) {
-        let selectedVariables = [];
+        console.log("onChangeSelectedVariable");
+        const selectedVariables = [];
         for (let i = 0; i < e.currentTarget.selectedOptions.length; i++) {
             selectedVariables.push(e.currentTarget.selectedOptions[i].dataVariable);
         }
 
-        this.dispatchEvent(new CustomEvent('variablechange', {detail: {value: selectedVariables}}));
+        this.dispatchEvent(new CustomEvent("variablechange", {detail: {value: selectedVariables}}));
     }
 
     resetSelection(e) {
-        let mainDiv = $(`#${this._prefix}-main-div`);
-        let selectpicker = mainDiv.find(".selectpicker");
+        const mainDiv = $(`#${this._prefix}-main-div`);
+        const selectpicker = mainDiv.find(".selectpicker");
 
-        selectpicker.selectpicker('refresh');
-        selectpicker.selectpicker('deselectAll');
+        selectpicker.selectpicker("refresh");
+        selectpicker.selectpicker("deselectAll");
     }
 
     getDefaultConfig() {
@@ -131,7 +137,7 @@ export default class OpencgaVariableSelector extends LitElement {
             class: "small",
             buttonClass: "btn-sm",
             inputClass: "input-sm"
-        }
+        };
     }
 
     render() {
@@ -143,23 +149,26 @@ export default class OpencgaVariableSelector extends LitElement {
     </style>
 
         <div id="${this.prefix}-main-div">
-            ${this.variables.length ? html`
+            ${this.variables && this.variables.length ? html`
                 <label for="${this.prefix}-annotation-picker" style="margin-top: 15px;">${this._config.title}</label>
 
                 <form class="form-inline">
                     <div class="form-group" style="width: 80%">
                         <select class="selectpicker ovs-list" id="${this.prefix}-annotation-picker" data-live-search="true" data-size="10"
                                 @change="${this.onChangeSelectedVariable}" data-width="100%" multiple="${this._config.multiSelection}">
-                            ${this.variables && this.variables.length && this.variables.map( variable => html`
+                            ${this.variables.map( variable => {
+        console.log("variable", variable);
+        return html`
                                 <!--TODO note on-dom-change and restamp in polymer 2
                                 <template is="dom-repeat" items="{{variables}}" as="variable" on-dom-change="renderDomRepeat" restamp="true">-->
-                                <option data-tokens="${this.variable.tags}" data-variable="${this.variable}"
+                                <option data-tokens="${variable.tags}" data-variable="${variable}"
                                         style="padding-left: ${variable.margin}px; cursor: ${variable.cursor};"
                                         disabled="${variable.disabled}">
                                     ${variable.name}
                                 </option>
                                 <!--</template>-->
-                            `)}
+                            `;
+    })}
                         </select>
                     </div>
                     ${this._config.showResetButton ? html`
@@ -170,6 +179,7 @@ export default class OpencgaVariableSelector extends LitElement {
         </div>
         `;
     }
+
 }
 
 customElements.define("opencga-variable-selector", OpencgaVariableSelector);

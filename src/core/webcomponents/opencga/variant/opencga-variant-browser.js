@@ -564,12 +564,12 @@ export default class OpencgaVariantBrowser extends LitElement {
             <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px;margin-left: 0px">
                 <div id="${this._prefix}LeftToolbar" style="padding-bottom: 0px">
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-success variant-browser-view-buttons active"
+                        <button type="button" class="btn btn-success variant-browser-view-buttons active ripple"
                                 data-view="TableResult" @click="${this._changeView}">
                             <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult"
                                @click="${this._changeView}"></i> Table Result
                         </button>
-                        <button type="button" class="btn btn-success variant-browser-view-buttons" data-view="Summary"
+                        <button type="button" class="btn btn-success variant-browser-view-buttons ripple" data-view="Summary"
                                 @click="${this._changeView}">
                             <i class="fas fa-chart-bar icon-padding" aria-hidden="true" data-view="Summary"
                                @click="${this._changeView}"></i> Aggregation Stats

@@ -178,7 +178,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
             // this.notifyClinicalAnalysis();
         }
 
-        this.renderTable();
+        //this.renderTable();
         this.requestUpdate();
     }
 

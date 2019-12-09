@@ -95,7 +95,6 @@ class OpencgaVariantInterpretation extends LitElement {
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
-            this.requestUpdate();
         }
         if (changedProperties.has("clinicalAnalysis") || changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
@@ -151,7 +150,8 @@ class OpencgaVariantInterpretation extends LitElement {
 
     opencgaSessionObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
-        this._config = Object.assign({}, this.getDefaultConfig(), this.config);
+        console.log("CONFIG", this.config)
+        this._config = {...this.getDefaultConfig(), ...this.config};
 
         // Check if Beacon hosts are configured
         for (const detail of this._config.detail) {
@@ -189,6 +189,7 @@ class OpencgaVariantInterpretation extends LitElement {
                 .then(response => {
                     // This triggers the call to clinicalAnalysisObserver function below
                     _this.clinicalAnalysis = response.response[0].result[0];
+                    _this.requestUpdate()
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);

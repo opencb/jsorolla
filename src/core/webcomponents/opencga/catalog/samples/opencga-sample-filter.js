@@ -19,6 +19,8 @@ import './../variableSets/opencga-annotation-filter.js';
 import './../opencga-date-filter.js';
 import "../../commons/opencga-facet-view.js";
 import "../../../commons/filters/text-field-filter.js";
+import "../../../commons/filters/file-pass-filter.js";
+import "../../../commons/filters/file-qual-filter.js";
 import "../../../commons/filters/somatic-filter.js";
 
 
@@ -229,9 +231,6 @@ export default class OpencgaSampleFilter extends LitElement {
 
 
     /** @deprecated
-     * In opencga-variant-browser this is an event handler for the event "filterChange" fired from the filter components.
-     Here in opencga-sample-filters the filters are mostly text fields, so there are no child filter components (excluding opencga-date-filter)
-     so this method is an event handler of the event @input or @change.
     */
     ___onFilterChange(e) {
         let _query = {};
@@ -426,6 +425,12 @@ export default class OpencgaSampleFilter extends LitElement {
                             <div class="form-group">
                                 <div class="browser-subsection">Id
                                 </div>
+                                
+                                <!-- <file-pass-filter .opencgaSession="${this.opencgaSession}" .config="${this.config}" .filter="${this.preparedQuery.filter}" 
+                                @filterChange="${e => this.onFilterChange("filter", e.detail.value)}"></file-pass-filter>
+                                <file-qual-filter .opencgaSession="${this.opencgaSession}" .config="${this.config}" .qual="${this.preparedQuery.qual}" 
+                                @filterChange="${e => this.onFilterChange("qual", e.detail.value)}"></file-qual-filter> -->
+                                
                                 <text-field-filter placeholder="HG01879, HG01880, HG01881..." .value="${this.preparedQuery.id}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></text-field-filter>
                             </div>
             

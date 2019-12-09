@@ -80,6 +80,8 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
 
         this.mode = "interactive";
         this.active = true;
+
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
@@ -95,13 +97,14 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        const _config = Object.assign({}, this.getDefaultConfig(), JSON.parse(JSON.stringify(this.config)), {
+        const _config = {...this.getDefaultConfig(), ...this.config,
             title: this.getDefaultConfig().title,
             tooltip: this.getDefaultConfig().tooltip
-        });
+        };
         if (this.mode !== "interactive") {
             _config.filter.menu.skipSubsections.push("sample");
         }
+        console.log("this._config", _config)
         this._config = _config;
         this._addTooltip();
     }
