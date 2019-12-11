@@ -51,6 +51,9 @@ class OpencgaVariantFacetQuery extends LitElement {
             },
             config: {
                 type: Object
+            },
+            active: {
+                type: Boolean
             }
         };
     }
@@ -89,6 +92,9 @@ class OpencgaVariantFacetQuery extends LitElement {
         }
         if (changedProperties.has("config")) {
             this.configObserver();
+        }
+        if(changedProperties.has("active")) {
+            this.fetchDefaultData()
         }
     }
 
@@ -445,7 +451,6 @@ class OpencgaVariantFacetQuery extends LitElement {
         </style>
 
         <div class="row">
-        
             <!-- TODO delete: there are no param to set now. Aggregation is made on default stats
             <div class="panel panel-default col-md-12">
                 <div class="col-md-12">
@@ -580,14 +585,14 @@ class OpencgaVariantFacetQuery extends LitElement {
             -->
 
             <!-- RESULTS - Facet Plots -->
+            ${this.active ? html` 
             <div class="col-md-12">
                 <!--<div class="alert alert-warning col-md-12" role="alert" id="${this._prefix}Warning" style="display: none;padding: 15px;margin-bottom: 10px">
                     <span style="font-weight: bold;font-size: 1.20em">Warning!</span>&nbsp;&nbsp;Filters changed, please click on Run button to update the aggregation results.
                 </div>-->
 
-                <div >
-                    <button type="button" class="btn btn-primary btn-lg ripple" @click="${this.fetchDefaultData}">Run facet query</button>
-                    <button type="button" class="btn btn-primary btn-lg ripple" @click="${this.facetSearch}">Run Advanced facet query</button>
+                <div>
+                    <button type="button" class="btn btn-primary ripple pull-right" @click="${this.facetSearch}">Run Advanced facet query</button>
                 </div>
                 <div >
                     <h2>Results</h2>
@@ -610,7 +615,7 @@ class OpencgaVariantFacetQuery extends LitElement {
                         `)}
                     `}
                 </div>
-            </div>
+            </div>` : null}
         </div>
 
     <!--   <div class="modal fade" id="${this._prefix}LoadingModal" data-backdrop="static" data-keyboard="false" tabindex="-1"

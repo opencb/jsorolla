@@ -436,6 +436,35 @@ export default class LoadingSpinner extends LitElement {
                 font-variant: all-small-caps;
                 letter-spacing: 5px;
                 margin: 3vh 0 0 3vh;
+                text-align: left;
+            }
+            
+            .loading-text-wrapper {
+                width: 21vh;
+                margin: 0 auto;
+            }
+    
+            /*.text:after {
+                overflow: hidden;
+                display: inline-block;
+                vertical-align: bottom;
+                -webkit-animation: ellipsis steps(4,end) 900ms infinite;      
+                animation: ellipsis steps(4,end) 900ms infinite;
+                content: "\\2026"; !* ascii code for the ellipsis character *!
+                width: 0px;
+                margin-left: -8px;
+            }
+
+            @keyframes ellipsis {
+                to {
+                  width: 1.25em;    
+                }
+            }*/
+            
+            @-webkit-keyframes ellipsis {
+                to {
+                  width: 1.25em;    
+                }
             }
         
         </style>
@@ -453,8 +482,10 @@ export default class LoadingSpinner extends LitElement {
                 <div class="nucleobase"></div>
                 <div class="nucleobase"></div>
             </div>
-            <div class="text">
-                Loading...
+            <div class="loading-text-wrapper">
+                <div class="text">
+                    Loading...
+                </div>
             </div>
         </div>
         `;

@@ -424,9 +424,11 @@ export default class OpencgaVariantBrowser extends LitElement {
         $(e.target).addClass("active");
 
 
-        // if (e.target.dataset.view === "Summary") {
-        //     this.fetchFacets();
-        // }
+         if (e.target.dataset.view === "Summary") {
+             //TODO temp fix
+             this.SummaryActive = true;
+             this.requestUpdate()
+         }
 
         if (e.target.dataset.view === "GenomeBrowser") {
 //                    window.location.hash = "genomebrowser";
@@ -572,7 +574,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                         <button type="button" class="btn btn-success variant-browser-view-buttons ripple" data-view="Summary"
                                 @click="${this._changeView}">
                             <i class="fas fa-chart-bar icon-padding" aria-hidden="true" data-view="Summary"
-                               @click="${this._changeView}"></i> Aggregation Stats
+                               @click="${this._changeView}"></i> Summary Stats
                         </button>
                         <!--<template is="dom-if" if="{{config.showGenomeBrowser}}">-->
                         <!--<button id="{{prefix}}GenomeBrowserButton" type="button" class="btn btn-success variant-browser-view-buttons" data-view="GenomeBrowser" on-click="_changeView">-->
@@ -704,7 +706,8 @@ export default class OpencgaVariantBrowser extends LitElement {
                 <opencga-variant-facet-query .opencgaSession="${this.opencgaSession}"
                                              .cellbaseClient="${this.cellbaseClient}"
                                              .populationFrequencies="${this.populationFrequencies}"
-                                             .query="${this.executedQuery}">
+                                             .query="${this.executedQuery}"
+                                             .active="${this.SummaryActive}">
                 </opencga-variant-facet-query>
             </div>
 

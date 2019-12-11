@@ -49,8 +49,12 @@ export default class OpencgaActiveFilters extends LitElement {
             },
             config: {
                 type: Object
+            },
+            //variant-facet-query usage only
+            facetQuery: {
+                type: Object
             }
-        }
+        };
     }
 
     createRenderRoot() {
@@ -70,6 +74,9 @@ export default class OpencgaActiveFilters extends LitElement {
         if (changedProperties.has("opencgaClient")) {
             this.checkFilters(this.config);
         }
+        if (changedProperties.has("facetQuery")) {
+            //console.log("facetQuery changed");
+        }
     }
 
     init() {
@@ -79,11 +86,12 @@ export default class OpencgaActiveFilters extends LitElement {
 
 
         //todo recheck why function?
-        this.opencgaClient = function () {
+        this.opencgaClient = function() {
             return {"_config": {}};
         };
         this.query = {};
         this.lockedFieldsMap = {};
+        this.facetQuery = {};
     }
 
     //TODO recheck connectedCallback
@@ -132,6 +140,10 @@ export default class OpencgaActiveFilters extends LitElement {
         this.dispatchEvent(new CustomEvent("activeFilterClear", {detail: {}, bubbles: true, composed: true}));
     }
 
+    clearFacet() {
+        this.dispatchEvent(new CustomEvent("activeFacetClear", {detail: {}, bubbles: true, composed: true}));
+    }
+
     //todo refactor in CSS
     _onMouseOver(e) {
         PolymerUtils.addStyleByClass(e.target.dataset.filterName + "ActiveFilter", "text-decoration", "line-through");
@@ -157,7 +169,7 @@ export default class OpencgaActiveFilters extends LitElement {
         let _this = this;
         if (this.opencgaClient instanceof OpenCGAClient && UtilsNew.isNotUndefined(config.value.sessionId)) {
             this.opencgaClient.users().getFilters({}, {serverVersion: this.opencgaClient._config.serverVersion})
-                .then(function (response) {
+                .then(function(response) {
                     let result = response.response[0].result;
                     if (result.length > 0) {
                         if (UtilsNew.isUndefined(_this.filters)) {
@@ -184,11 +196,11 @@ export default class OpencgaActiveFilters extends LitElement {
         params.options = {};
         let _this = this;
         this.opencgaClient.users().getFilters({name: filterName}, {serverVersion: this.opencgaClient._config.serverVersion})
-            .then(function (response) {
+            .then(function(response) {
                 if (response.response[0].result.length > 0) {
                     delete params.name;
                     _this.opencgaClient.users().updateFilter(filterName, params, {})
-                        .then(function (response) {
+                        .then(function(response) {
                             for (let i in _this.filters) {
                                 if (_this.filters[i].name === filterName) {
                                     _this.filters[i] = response.response[0].result[0];
@@ -200,14 +212,14 @@ export default class OpencgaActiveFilters extends LitElement {
                 } else {
                     if (_this.opencgaClient._config.serverSession !== undefined && _this.opencgaClient._config.serverSession === "1.3") {
                         _this.opencgaClient.users().create(params, {})
-                            .then(function (response) {
+                            .then(function(response) {
                                 _this.push("filters", params);
                                 PolymerUtils.setValue("filterName", "");
                                 PolymerUtils.setValue(_this._prefix + "filterDescription", "");
                             });
                     } else {
                         _this.opencgaClient.users().updateFilters(undefined, params, {})
-                            .then(function (response) {
+                            .then(function(response) {
                                 _this.push("filters", params);
                                 PolymerUtils.setValue("filterName", "");
                                 PolymerUtils.setValue(_this._prefix + "filterDescription", "");
@@ -245,7 +257,7 @@ export default class OpencgaActiveFilters extends LitElement {
 
         let name = e.target.dataset.filterName;
         let value = e.target.dataset.filterValue;
-        console.log("onQueryFilterDelete", name,value)
+        console.log("onQueryFilterDelete", name, value);
 
 
         if (UtilsNew.isEmpty(value)) {
@@ -259,7 +271,7 @@ export default class OpencgaActiveFilters extends LitElement {
         } else {
 //                    let filterFields = _queryList[name].split(new RegExp("[,;]"));
             let filterFields;
-            if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1)  || this._config.complexFields.indexOf(name) !== -1) {
+            if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(name) !== -1) {
                 filterFields = _queryList[name].split(new RegExp(";"));
             } else {
                 filterFields = _queryList[name].split(new RegExp("[,;]"));
@@ -294,6 +306,18 @@ export default class OpencgaActiveFilters extends LitElement {
 
     }
 
+    onQueryFacetDelete(e) {
+        console.log("deleting",e.target.dataset.filterName)
+        delete this.facetQuery[e.target.dataset.filterName]
+        console.log("new facetQuery in active-filter",this.facetQuery)
+
+        this.dispatchEvent(new CustomEvent("activeFacetChange", {
+            detail: this.facetQuery,
+            bubbles: true,
+            composed: true
+        }));
+    }
+
     queryObserver() {
         let _queryList = [];
         let keys = Object.keys(this.query);
@@ -303,10 +327,10 @@ export default class OpencgaActiveFilters extends LitElement {
                 let queryString = Object.entries(this.query).sort().toString();
                 let prevQueryString = Object.entries(this._previousQuery).sort().toString();
                 if (queryString !== prevQueryString) {
-                     /*console.log(this.query);
-                     console.log(this._previousQuery);
-                     console.log(queryString);
-                     console.log(prevQueryString);*/
+                    /*console.log(this.query);
+                    console.log(this._previousQuery);
+                    console.log(queryString);
+                    console.log(prevQueryString);*/
                     PolymerUtils.show(this._prefix + "Warning");
                 } else {
                     PolymerUtils.hide(this._prefix + "Warning");
@@ -418,7 +442,7 @@ export default class OpencgaActiveFilters extends LitElement {
             complexFields: [],
             hiddenFields: ["study"],
             lockedFields: []
-        }
+        };
     }
 
     render() {
@@ -426,6 +450,37 @@ export default class OpencgaActiveFilters extends LitElement {
         <style include="jso-styles">
             .active-filter-button:hover {
                 text-decoration: line-through;
+            }
+            
+            .facet-wrapper{
+                margin: 20px 0 0 0;
+            }
+            
+            .double-arrow {
+                transform: rotate(90deg);
+                width: 60px;
+                display: block;
+                margin: 0 auto;
+                height: 60px;
+            }
+            
+            .double-arrow-wrapper {
+                display: flex;
+                margin: 5px 0;
+            }
+            
+            .button-list{
+                padding-left: 20px;
+                display: inline-block;
+            }
+            
+            .active-filter-label{
+                display: inline-block;
+                font-size: 15px;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                height: 34px;
+                line-height: 34px;
             }
         </style>
         <div class="alert alert-warning" role="alert" id="${this._prefix}Warning" style="display: none;padding: 12px;margin-bottom: 10px">
@@ -435,11 +490,9 @@ export default class OpencgaActiveFilters extends LitElement {
 
         <div class="panel panel-default" style="margin-bottom: 5px">
             <div class="panel-body">
-                <button type="button" class="btn btn-primary ripple" @click="${this.clear}">
-                    <i class="fa fa-eraser" aria-hidden="true" style="padding-right: 5px"></i> Clear
-                </button>
-
-                <span style="padding: 0px 20px">
+                <p class="active-filter-label">Filters</p>
+                
+                <div class="button-list">
                     ${this.queryList ? html`
                         ${this.queryList.length === 0 ? html`
                             <label>No filters selected</label>
@@ -447,23 +500,23 @@ export default class OpencgaActiveFilters extends LitElement {
                         ${this.queryList.map(item => !this._isMultiValued(item) ? html` 
                             ${!item.locked ? html`
                                 <!-- No multi-valued filters -->
-                                <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple" data-filter-name="${item.name}" data-filter-value=""
+                                <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
                                         @click="${this.onQueryFilterDelete}">
                                 ${item.text}
                                 </button>
                             ` : html`
-                                <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple" data-filter-name="${item.name}" data-filter-value=""
+                                <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
                                          @click="${this.onQueryFilterDelete}" title="${item.message}" disabled>
                                     ${item.text}
                                 </button>
                             `}` : html`
                                 <!-- Multi-valued filters -->
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple" data-filter-name="${item.name}" data-filter-value=""
+                                    <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
                                             @click="${this.onQueryFilterDelete}" @mouseover="${this._onMouseOver}" @mouseout="${this._onMouseOut}" >
                                         ${item.text} <span class="badge">${item.items.length}</span>
                                     </button>
-                                    <button type="button" class="btn btn-warning btn-sm dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <button type="button" class="btn btn-warning btn-sm dropdown-toggle ripple no-transform" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <span class="caret"></span>
                                         <span class="sr-only">Toggle Dropdown</span>
                                     </button>
@@ -478,37 +531,69 @@ export default class OpencgaActiveFilters extends LitElement {
                                     </ul>
                                 </div>
                             `
-                        )}
+        )}
                     `}
-                ` : null }
-                </span>
+                ` : null}
+                </div>
+                <div class="pull-right">
+                    <button type="button" class="btn btn-primary ripple pull-right" @click="${this.clear}">
+                        <i class="fa fa-eraser" aria-hidden="true" style="padding-right: 5px"></i> Clear
+                    </button>
+                    
+                    <!-- TODO we probably need a new property for this -->
+                    ${this.showSelectFilters(this.opencgaClient._config) ? html`
+                        
+                            <button type="button" class="btn btn-primary dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i> Filters <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li><a style="font-weight: bold">Saved Filters</a></li>
+                                <!--TODO check why filter is initialized (init()) but I still need to check for truthy-->
+                                ${this.filters && this.filters.length ? this.filters.map(item => html`
+                                    <li> <!-- TODO recheck and simplify!!-->
+                                        ${!item.active ? html`
+                                            <a data-filter-name="${item.name}" style="cursor: pointer" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.name}</a>` : html`
+                                            <a data-filter-name="${item.name}" style="cursor: pointer;color: green" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.name}</a>
+                                        `}
+                                    </li>
+                                `) : null}
+                                ${this.checkSid(this.opencgaClient._config) ? html`
+                                    <li role="separator" class="divider"></li>
+                                    <li>
+                                        <a style="cursor: pointer" @click="${this.launchModal}"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save...</a>
+                                    </li>
+                                ` : html``}
+                            </ul>
+                        
+                    ` : null}
+                </div>
+                <!-- aggregation stat section -->
+                ${Object.values(this.facetQuery).length ? html`
+                    <div class="facet-wrapper">
+                        <p class="active-filter-label">Aggregation fields</p>
 
-                <!-- TODO we probably need a new property for this -->
-                ${this.showSelectFilters(this.opencgaClient._config) ? html`
-                    <div class="btn-group" style="float: right">
-                        <button type="button" class="btn btn-primary dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i> Filters <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            <li><a style="font-weight: bold">Saved Filters</a></li>
-                            <!--TODO check why filter is initialized (init()) but I still need to check for truthy-->
-                            ${this.filters && this.filters.length ? this.filters.map(item => html`
-                                <li> <!-- TODO recheck and simplify!!-->
-                                    ${!item.active ? html`
-                                        <a data-filter-name="${item.name}" style="cursor: pointer" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.name}</a>` : html`
-                                        <a data-filter-name="${item.name}" style="cursor: pointer;color: green" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.name}</a>
-                                    `}
-                                </li>
-                            `) : null }
-                            ${this.checkSid(this.opencgaClient._config) ? html`
-                                <li role="separator" class="divider"></li>
-                                <li>
-                                    <a style="cursor: pointer" @click="${this.launchModal}"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save...</a>
-                                </li>
-                            ` : html``}
-                        </ul>
+                       <!-- <div class="double-arrow-wrapper">
+                            <img class="double-arrow" src="../lib/jsorolla/styles/img/double_arrow.svg" />
+                            <img class="double-arrow" src="../lib/jsorolla/styles/img/double_arrow.svg" />
+                            <img class="double-arrow" src="../lib/jsorolla/styles/img/double_arrow.svg" />
+                            <img class="double-arrow" src="../lib/jsorolla/styles/img/double_arrow.svg" />
+                        </div> -->
+                        
+                            
+                            <div class="button-list">
+                            ${Object.entries(this.facetQuery).map(facet => html`
+                                <button type="button" class="btn btn-success btn-sm ${facet[0]}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${facet[0]}" data-filter-value=""
+                                                @click="${this.onQueryFacetDelete}">
+                                    ${facet[0]}${facet[1]}
+                                </button>
+                            `)}
+                            </div>
+                            <button type="button" class="btn btn-primary ripple pull-right" @click="${this.clearFacet}">
+                                <i class="fa fa-eraser" aria-hidden="true" style="padding-right: 5px"></i> Clear
+                            </button>
                     </div>
                 ` : null}
+                
             </div>
         </div>
 

@@ -16,6 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 
+//http://bioinfo.hpc.cam.ac.uk/opencga-demo/webservices/rest/v1/analysis/variant/facet?study=exomes_grch37%3Acorpasome&timeout=60000&facet=studies&sid=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkZW1vIiwiYXVkIjoiT3BlbkNHQSB1c2VycyIsImlhdCI6MTU3NTk4OTc1MCwiZXhwIjoxNTc1OTkzMzUwfQ.pm4dX-4FLWOPH9gnbkwAc3c4lEUNXnDyzEi-zG0ZJUQ
+
 export default class OpencgaProjects extends LitElement {
 
     constructor() {

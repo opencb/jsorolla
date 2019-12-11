@@ -76,8 +76,8 @@ export default class SelectFieldFilter extends LitElement {
     }
 
     filterChange(e) {
-        // console.log("filterChange", $(".selectpicker", this).selectpicker('val'))
-        const val = $(".selectpicker", this).selectpicker("val").join(","); // remember [] is truthy
+        const selection = $(".selectpicker", this).selectpicker("val");
+        const val = this.multiple ? selection.join(",") : selection; // remember [] is truthy
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: val.length ? val : null

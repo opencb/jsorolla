@@ -70,6 +70,9 @@ export default class OpencgaVariantFilter extends LitElement {
             config: {
                 type: Object
             },
+            searchButton: {
+                type: Boolean
+            }
             // samples: {
             //     type: Array
             // }
@@ -86,7 +89,7 @@ export default class OpencgaVariantFilter extends LitElement {
             this.panelList = PANELS; //todo check if have to be managed by litelement
         }
 
-        this.query = {};
+        this.query = {}; // NOTE when no query param (or undefined) is passed to this component, this initialization is replaced with undefined value
         this.preparedQuery = {};
 
         this.modalHpoActive = false;
@@ -94,6 +97,7 @@ export default class OpencgaVariantFilter extends LitElement {
 
         // this.samples = [];
         this.updateClinicalFilterQuery = true;
+        this.searchButton = true
     }
 
 
@@ -111,6 +115,7 @@ export default class OpencgaVariantFilter extends LitElement {
         // this.queryObserver();
         //this.setQueryFilters();
         //this.clinicalObserver();
+
     }
 
     updated(changedProperties) {
@@ -202,7 +207,7 @@ export default class OpencgaVariantFilter extends LitElement {
         // 2. delete 1 filter from active-filter
         // 3. add another filter from variant-filter
         // 4. you will see again the deleted filter in active-filters
-        this.preparedQuery = this.query;
+        this.preparedQuery = this.query || {}; // TODO quick fix in case the component gets an undefined value as prop
 
         if (this.updateClinicalFilterQuery) {
             this.clinicalFilterQuery = this.query;
@@ -2166,11 +2171,13 @@ export default class OpencgaVariantFilter extends LitElement {
             
         </style>
         <div>
+            ${this.searchButton ? html`
             <div class="search-button-wrapper">
                 <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
                     <i class="fa fa-search" aria-hidden="true"></i> ${this.config.menu.searchButtonText}
                 </button>
             </div>
+            ` : null}
 
             <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true" style="padding-top: 20px">
                 <div id="FilterMenu">
