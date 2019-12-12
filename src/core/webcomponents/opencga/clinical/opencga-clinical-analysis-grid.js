@@ -574,15 +574,15 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
     // TODO check if it needs lit-html template tag
     interpretationFormatter(value, row) {
-        const tooltipText = html`
-                                   <div style="padding: 5px 15px; color: darkgray; font-weight: bolder">Rare Disease (Not Available yet)</div>
+        const tooltipText = `
+                                   <div style='padding: 5px 15px; color: darkgray; font-weight: bolder'>Rare Disease (Not Available yet)</div>
                                    <div>
-                                        <button type="button" class="btn btn-sm btn-link" title="No report tool available yet" style="padding: 2px 10px" disabled>
+                                        <button type='button' class='btn btn-sm btn-link' title='No report tool available yet' style='padding: 2px 10px' disabled>
                                             OpenCGA Tiering (based on GEL Tiering)
                                         </button>
                                    </div>
                                    <div>
-                                        <button type="button" class="btn btn-sm btn-link" title="No report tool available yet" style="padding: 2px 10px" disabled>
+                                        <button type='button' class='btn btn-sm btn-link' title='No report tool available yet' style='padding: 2px 10px' disabled>
                                             TEAM
                                         </button>
                                    </div>
@@ -593,7 +593,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                                 <i class="fa fa-filter" aria-hidden="true"></i> Open Interpreter
                             </a>
                         </div>
-                        <div class="interpretation-tooltip" data-tooltip-text='${tooltipText}'>
+                        <div class="interpretation-tooltip" data-tooltip-text="${tooltipText}">
                             <a style="cursor: pointer">
                                 Automatic Interpreters
                             </a>

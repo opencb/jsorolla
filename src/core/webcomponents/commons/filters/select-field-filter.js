@@ -43,6 +43,9 @@ export default class SelectFieldFilter extends LitElement {
             multiple: {
                 type: Boolean
             },
+            disabled: {
+                type: Boolean
+            },
             data: {
                 type: Object
             }
@@ -78,6 +81,7 @@ export default class SelectFieldFilter extends LitElement {
     filterChange(e) {
         const selection = $(".selectpicker", this).selectpicker("val");
         const val = this.multiple ? selection.join(",") : selection; // remember [] is truthy
+        console.log("select filterChange", val)
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: val.length ? val : null
@@ -89,7 +93,7 @@ export default class SelectFieldFilter extends LitElement {
     render() {
         return html`
             <div id="${this._prefix}-wrapper" class="subsection-content form-group">
-                <select id="${this._prefix}-select" class="selectpicker" ?multiple = ${this.multiple}
+                <select id="${this._prefix}-select" class="selectpicker" ?multiple = ${this.multiple} .disabled = ${this.disabled}
                                         @change="${this.filterChange}" data-width="100%">
                     ${this.data.map( opt => html`<option>${opt}</option>`) }
                 </select>

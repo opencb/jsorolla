@@ -50,6 +50,9 @@ export default class OpencgaActiveFilters extends LitElement {
             config: {
                 type: Object
             },
+            facetActive: {
+                type: Boolean
+            },
             //variant-facet-query usage only
             facetQuery: {
                 type: Object
@@ -308,9 +311,8 @@ export default class OpencgaActiveFilters extends LitElement {
 
     onQueryFacetDelete(e) {
         console.log("deleting",e.target.dataset.filterName)
-        delete this.facetQuery[e.target.dataset.filterName]
-        console.log("new facetQuery in active-filter",this.facetQuery)
-
+        delete this.facetQuery[e.target.dataset.filterName];
+        this.facetQuery = {...this.facetQuery}
         this.dispatchEvent(new CustomEvent("activeFacetChange", {
             detail: this.facetQuery,
             bubbles: true,
@@ -451,11 +453,11 @@ export default class OpencgaActiveFilters extends LitElement {
             .active-filter-button:hover {
                 text-decoration: line-through;
             }
-            
+
             .facet-wrapper{
                 margin: 20px 0 0 0;
             }
-            
+
             .double-arrow {
                 transform: rotate(90deg);
                 width: 60px;
@@ -463,17 +465,17 @@ export default class OpencgaActiveFilters extends LitElement {
                 margin: 0 auto;
                 height: 60px;
             }
-            
+
             .double-arrow-wrapper {
                 display: flex;
                 margin: 5px 0;
             }
-            
+
             .button-list{
                 padding-left: 20px;
                 display: inline-block;
             }
-            
+
             .active-filter-label{
                 display: inline-block;
                 font-size: 15px;
@@ -482,11 +484,26 @@ export default class OpencgaActiveFilters extends LitElement {
                 height: 34px;
                 line-height: 34px;
             }
+
+            .rhs {
+                float: right;
+            }
+
+            .rhs .dropdown {
+                display: inline-block;
+            }
         </style>
-        <div class="alert alert-warning" role="alert" id="${this._prefix}Warning" style="display: none;padding: 12px;margin-bottom: 10px">
-            <span style="font-weight: bold;font-size: 1.20em">Warning!</span>&nbsp;&nbsp;Filters changed, please click on <button type="button" class="btn btn-primary ripple ripple-disabled">
+        ${ this.facetActive ? html`
+            <div class="alert alert-warning" role="alert" id="${this._prefix}Warning" style="display: none;padding: 12px;margin-bottom: 10px">
+                <span style="font-weight: bold;font-size: 1.20em">Warning!</span>&nbsp;&nbsp;Filters or Facet has changed, please click on <button type="button" class="btn btn-primary ripple ripple-disabled">
+                    <i class="fa arrow-circle-right" aria-hidden="true"></i> Run </button> to update the results.
+            </div>` : html`
+            <div class="alert alert-warning" role="alert" id="${this._prefix}Warning" style="display: none;padding: 12px;margin-bottom: 10px">
+                <span style="font-weight: bold;font-size: 1.20em">Warning!</span>&nbsp;&nbsp;Filters changed, please click on <button type="button" class="btn btn-primary ripple ripple-disabled">
                     <i class="fa fa-search" aria-hidden="true"></i> Search </button> to update the results.
-        </div>
+            </div>
+        `}
+        
 
         <div class="panel panel-default" style="margin-bottom: 5px">
             <div class="panel-body">
@@ -535,14 +552,15 @@ export default class OpencgaActiveFilters extends LitElement {
                     `}
                 ` : null}
                 </div>
-                <div class="pull-right">
-                    <button type="button" class="btn btn-primary ripple pull-right" @click="${this.clear}">
+                <div class="rhs">
+                    <button type="button" class="btn btn-primary ripple" @click="${this.clear}">
                         <i class="fa fa-eraser" aria-hidden="true" style="padding-right: 5px"></i> Clear
                     </button>
                     
                     <!-- TODO we probably need a new property for this -->
                     ${this.showSelectFilters(this.opencgaClient._config) ? html`
-                        
+                        <div class="dropdown">
+
                             <button type="button" class="btn btn-primary dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i> Filters <span class="caret"></span>
                             </button>
@@ -564,36 +582,28 @@ export default class OpencgaActiveFilters extends LitElement {
                                     </li>
                                 ` : html``}
                             </ul>
-                        
+                        </div>
                     ` : null}
                 </div>
                 <!-- aggregation stat section -->
-                ${Object.values(this.facetQuery).length ? html`
+                ${this.facetActive ? html`
                     <div class="facet-wrapper">
                         <p class="active-filter-label">Aggregation fields</p>
-
-                       <!-- <div class="double-arrow-wrapper">
-                            <img class="double-arrow" src="../lib/jsorolla/styles/img/double_arrow.svg" />
-                            <img class="double-arrow" src="../lib/jsorolla/styles/img/double_arrow.svg" />
-                            <img class="double-arrow" src="../lib/jsorolla/styles/img/double_arrow.svg" />
-                            <img class="double-arrow" src="../lib/jsorolla/styles/img/double_arrow.svg" />
-                        </div> -->
-                        
-                            
                             <div class="button-list">
-                            ${Object.entries(this.facetQuery).map(facet => html`
-                                <button type="button" class="btn btn-success btn-sm ${facet[0]}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${facet[0]}" data-filter-value=""
-                                                @click="${this.onQueryFacetDelete}">
-                                    ${facet[0]}${facet[1]}
-                                </button>
-                            `)}
+                                ${Object.keys(this.facetQuery).length ? Object.entries(this.facetQuery).map(facet => html`
+                                    <button type="button" class="btn btn-success btn-sm ${facet[0]}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${facet[0]}" data-filter-value=""
+                                                 @click="${this.onQueryFacetDelete}">
+                                        ${facet[1].formatted}
+                                    </button>
+                            `) : html`
+                                <label>No aggregation field selected</label>` 
+                            }
                             </div>
                             <button type="button" class="btn btn-primary ripple pull-right" @click="${this.clearFacet}">
                                 <i class="fa fa-eraser" aria-hidden="true" style="padding-right: 5px"></i> Clear
                             </button>
-                    </div>
-                ` : null}
-                
+                        </div>
+                ` : null }
             </div>
         </div>
 

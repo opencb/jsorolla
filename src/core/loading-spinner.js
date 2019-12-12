@@ -29,6 +29,10 @@ export default class LoadingSpinner extends LitElement {
     render() {
         return html`
         <style>
+            .loading-spinner-wrapper {
+                text-align: center;
+            }
+            
             .DNA_cont {
                 display: inline-block;
                 position: relative;
@@ -431,7 +435,7 @@ export default class LoadingSpinner extends LitElement {
                 }
             }
         
-            .text {
+            .loading-spinner-wrapper .loading-text {
                 font-size: 3vh;
                 font-variant: all-small-caps;
                 letter-spacing: 5px;
@@ -468,8 +472,7 @@ export default class LoadingSpinner extends LitElement {
             }
         
         </style>
-        
-        <div>
+        <div class="loading-spinner-wrapper">
             <div class="DNA_cont">
                 <div class="nucleobase"></div>
                 <div class="nucleobase"></div>
@@ -483,7 +486,7 @@ export default class LoadingSpinner extends LitElement {
                 <div class="nucleobase"></div>
             </div>
             <div class="loading-text-wrapper">
-                <div class="text">
+                <div class="loading-text">
                     Loading...
                 </div>
             </div>
