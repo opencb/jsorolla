@@ -31,13 +31,15 @@ export default class LoadingSpinner extends LitElement {
         <style>
             .loading-spinner-wrapper {
                 text-align: center;
+                height: 13vh;
             }
             
             .DNA_cont {
                 display: inline-block;
                 position: relative;
                 -webkit-transform: scale(0.45);
-                transform: scale(0.45);
+                transform: scale(0.45);    
+                margin-top: 20px;
             }
         
             .nucleobase {

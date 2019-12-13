@@ -75,10 +75,10 @@ export default class OpencgaVariantInterpretationDetail extends LitElement {
 
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
-        this._config = Object.assign(this.getDefaultConfig(), config);
+        this._config = Object.assign(this.getDefaultConfig(), this.config);
 
-        if (UtilsNew.isNotEmpty(variant)) {
-            this._variantId = `${variant.chromosome}:${variant.start}:${variant.reference}:${variant.alternate}`;
+        if (UtilsNew.isNotEmpty(this.variant)) {
+            this._variantId = `${this.variant.chromosome}:${this.variant.start}:${this.variant.reference}:${this.variant.alternate}`;
         }
     }
 

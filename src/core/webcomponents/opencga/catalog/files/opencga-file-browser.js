@@ -101,12 +101,6 @@ export default class OpencgaFileBrowser extends LitElement {
         this.search = {};
     }
 
-/*    onActiveFilterChange(e) {
-        console.log("onActiveFilterChange", e)
-        this.query = e.detail;
-        this.search = e.detail;
-    }*/
-
     onSelectFile(e) {
         this.file = e.detail.file;
 
@@ -162,10 +156,6 @@ export default class OpencgaFileBrowser extends LitElement {
         return UtilsNew.isNotEmptyArray(myArray);
     }
 
-
-
-
-
     onQueryFilterChange(e) {
         console.log("onQueryFilterChange on sample browser", e.detail.query);
         this.preparedQuery = e.detail.query;
@@ -178,7 +168,6 @@ export default class OpencgaFileBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    //TODO recheck what's/if there is a default param in sample-browser. study key comes from variant-browser.
     onActiveFilterChange(e) {
         this.preparedQuery = {...e.detail};
         this.query = {...e.detail};
@@ -191,6 +180,10 @@ export default class OpencgaFileBrowser extends LitElement {
         //this.search = {};
         this.preparedQuery = {};
         this.requestUpdate();
+    }
+
+    onDownload() {
+        console.log("handle download")
     }
 
     getDefaultConfig() {
@@ -290,8 +283,10 @@ export default class OpencgaFileBrowser extends LitElement {
                                            .search="${this.executedQuery}"
                                            .eventNotifyName="${this.eventNotifyName}"
                                            .files="${this.files}"
+                                           style="font-size: 12px"
                                            @selectfile="${this.onSelectFile}"
-                                           style="font-size: 12px">
+                                           @download="${this.onDownload}"
+                                           >
                         </opencga-file-grid>
 
                         <div style="padding-top: 5px">

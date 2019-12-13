@@ -114,10 +114,9 @@ export default class OpencgaIndividualBrowser extends LitElement {
     }
 
     queryObserver() {
-        console.log("queryobserver", this.query)
         if (UtilsNew.isNotUndefinedOrNull(this.query)) {
             this.preparedQuery = {...this.query};
-            this.executedQuery ={...this.query};
+            this.executedQuery = {...this.query};
         }
         this.requestUpdate();
     }
@@ -164,7 +163,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
         };
 
         //this.set("detailActiveTabs", _activeTabs);
-        this.detailActiveTabs =_activeTabs;
+        this.detailActiveTabs = _activeTabs;
     }
 
     _changeView(e) {
@@ -189,6 +188,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
         if (e.target.dataset.view === "AggregationStats") {
             this.executeFacet();
         }
+        this.requestUpdate();
     }
 
     filterAvailableVariableSets(opencgaSession, config) {
@@ -224,7 +224,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
 
     //TODO recheck if there are default params
     onActiveFilterChange(e) {
-        console.warn("onActiveFilterChange" , e.detail)
+        console.warn("onActiveFilterChange", e.detail);
         this.preparedQuery = {...e.detail};
         this.query = {...e.detail};
         this.requestUpdate();
@@ -237,16 +237,13 @@ export default class OpencgaIndividualBrowser extends LitElement {
         this.requestUpdate();
     }
 
-
     getDefaultConfig() {
         return {
             title: "Individual Browser",
             showTitle: true,
             showAggregationStats: true,
             showComparator: true,
-            filter: {
-
-            },
+            filter: {},
             grid: {
                 pageSize: 10,
                 pageList: [10, 25, 50],
@@ -286,7 +283,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
                     <i class="fa fa-users" aria-hidden="true"></i> &nbsp;${this._config.title}
                 </h3>
             </div>
-        ` : null }
+        ` : null}
         
         <div class="row" style="padding: 0px 10px">
             <div class="col-md-2">

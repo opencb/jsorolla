@@ -68,6 +68,8 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
     _init() {
         this._prefix = "ovi-" + Utils.randomString(6);
 
+        //TODO recheck this variant-interpretation-editor doesn't have a "mode" prop in opencga-variant-interpretation
+        this.mode = "create";
         this.isCreate = this.mode.toLowerCase() === "create";
 
         this.interpretationCollapsed = false;
@@ -89,7 +91,6 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
 
         this._config = this.getDefaultConfig();
 
-        this.mode = "create";
     }
 
     updated(changedProperties) {

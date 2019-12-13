@@ -191,6 +191,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
         if (e.target.dataset.view === "AggregationStats") {
             this.executeFacet();
         }
+        this.requestUpdate();
     }
 
     filterAvailableVariableSets(opencgaSession, config) {

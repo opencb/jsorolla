@@ -17,6 +17,8 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "../../commons/opencb-grid-toolbar.js";
 import "./opencga-interpretation-variant-review.js";
+import "../../../loading-spinner.js";
+
 
 export default class OpencgaVariantInterpretationGrid extends LitElement {
 
@@ -94,8 +96,7 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
         }
     }
 
-    connectedCallback() {
-        super.connectedCallback();
+    firstUpdated(_changedProperties) {
         // debugger
         // TODO Refactor
         this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
@@ -106,7 +107,6 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
         } else {
             this.renderFromLocal();
         }
-
         this._initialised = true;
     }
 
@@ -184,7 +184,7 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
                 columns: _this._columns,
                 method: "get",
                 sidePagination: "server",
-
+                formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
                 // Set table properties, these are read from config property
                 uniqueId: "id",
                 pagination: _this._config.pagination,
@@ -213,6 +213,7 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
                     _this.to = Math.min(resp.response[0].numResults, this.pageSize);
                     _this.numTotalResultsText = _numTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                     _this.approximateCountResult = resp.response[0].approximateCount;
+
                     return {total: _numTotal, rows: resp.response[0].result.primaryFindings};
                 },
                 onClickRow: function(row, $element, field) {
@@ -1179,6 +1180,9 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
         };
     }
 
+    showLoading(){
+        $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable("showLoading");
+    }
     render() {
         return html`
         <style include="jso-styles">
@@ -1197,12 +1201,16 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
             .qtip-custom-class .qtip-content {
                 font-size: 12px;
             }
+            
+            /*quickfix for loading-spinner in bootstrap table*/ 
+            .fixed-table-body{
+                min-height: 20vh;
+            }
         </style>
-
 
         <opencb-grid-toolbar .from="${this.from}"
                              .to="${this.to}"
-                             .numTotalResultsText=""${this.numTotalResultsText}"
+                             .numTotalResultsText="${this.numTotalResultsText}"
                              .config="${this.toolbarConfig}"
                              @columnchange="${this.onColumnChange}"
                              @download="${this.onDownload}"

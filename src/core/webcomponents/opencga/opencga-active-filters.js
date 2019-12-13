@@ -483,6 +483,7 @@ export default class OpencgaActiveFilters extends LitElement {
                 letter-spacing: 2px;
                 height: 34px;
                 line-height: 34px;
+                margin: 0;
             }
 
             .rhs {

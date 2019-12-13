@@ -42,7 +42,7 @@ export default class VariantTypeFilter extends LitElement {
             config: {
                 type: Object
             }
-        }
+        };
     }
 
     _init() {
@@ -54,19 +54,18 @@ export default class VariantTypeFilter extends LitElement {
 
     updated(_changedProperties) {
         if (_changedProperties.has("query")) {
-            if(this.query.type) {
+            if (this.query.type) {
                 this.selectedVariantTypes = this.query.type.split(",");
             } else {
                 this.selectedVariantTypes = [];
             }
             this.requestUpdate();
-
         }
     }
 
     filterChange(e) {
         console.log("filterChange", this.selectedVariantTypes.join(",") || null);
-        let event = new CustomEvent('filterChange', {
+        const event = new CustomEvent("filterChange", {
             detail: {
                 value: this.selectedVariantTypes.join(",") || null
             }
@@ -76,24 +75,24 @@ export default class VariantTypeFilter extends LitElement {
 
     getDefaultConfig() {
         return {
-            types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION", "MNV"],
-        }
+            types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION", "MNV"]
+        };
     }
     toggle(type) {
-        let checkbox = this.querySelector(`input[value=${type}]`)
-        if(!~this.selectedVariantTypes.indexOf(type)) {
+        const checkbox = this.querySelector(`input[value=${type}]`);
+        if (!~this.selectedVariantTypes.indexOf(type)) {
             this.selectedVariantTypes.push(type);
             checkbox.checked = true;
         } else {
-            this.selectedVariantTypes.splice(this.selectedVariantTypes.indexOf(type),1)
+            this.selectedVariantTypes.splice(this.selectedVariantTypes.indexOf(type), 1);
             checkbox.checked = false;
         }
-        this.filterChange()
+        this.filterChange();
     }
 
     handleCollapseAction(e) {
-        let id = e.target.dataset.id;
-        let elem = $("#" + id)[0];
+        const id = e.target.dataset.id;
+        const elem = $("#" + id)[0];
         elem.hidden = !elem.hidden;
         if (elem.hidden) {
             e.target.className = "fa fa-plus";
@@ -124,6 +123,7 @@ export default class VariantTypeFilter extends LitElement {
             </div>
         `;
     }
+
 }
 
 customElements.define("variant-type-filter", VariantTypeFilter);

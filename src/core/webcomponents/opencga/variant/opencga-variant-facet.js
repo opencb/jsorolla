@@ -201,10 +201,18 @@ export default class OpencgaVariantFacet extends LitElement {
             }
             return str;
         };
-        for (let k in this.selectedFacet) {
-            this.selectedFacetFormatted[k] = {...this.selectedFacet[k], formatted: _valueFormatter(k, this.selectedFacet[k])};
+        if(Object.keys(this.selectedFacet).length) {
+            /*for (let k in this.selectedFacet) {
+                this.selectedFacetFormatted[k] = {...this.selectedFacet[k], formatted: _valueFormatter(k, this.selectedFacet[k])};
+            }
+            this.selectedFacetFormatted = {...this.selectedFacetFormatted};
+            */
+
+            //using Object property spreading here creates an Object with numeric indexes in Chrome 78...
+            this.selectedFacetFormatted = Object.assign({}, ...Object.keys(this.selectedFacet).map(k => ({[k]: {...this.selectedFacet[k], formatted: _valueFormatter(k, this.selectedFacet[k])} } )) );
+        } else {
+            this.selectedFacetFormatted = {};
         }
-        this.selectedFacetFormatted = {...this.selectedFacetFormatted};
         this.requestUpdate();
     }
 
@@ -244,11 +252,11 @@ export default class OpencgaVariantFacet extends LitElement {
         let selected = $(e.target).val();
         let range = e.target.querySelector(`option[value=${selected}]`).dataset.range;
         this.querySelector("#" + parentFacet + "_Nested_text").value = range || "";
-        /*if(selected === "none") {
-            this.querySelector("#" + parentFacet +"_NestedFnSelect").disabled = true
+        if(selected === "none") {
+            //this.querySelector("#" + parentFacet +"_NestedFnSelect").disabled = true
         } else {
-            this.querySelector("#" + parentFacet +"_NestedFnSelect").disabled = false
-        }*/
+           // this.querySelector("#" + parentFacet +"_NestedFnSelect").disabled = false
+        }
         this.selectedFacet[parentFacet].nested = {facet: selected, value: range || ""};
         this.selectedFacet = {...this.selectedFacet};
         this.requestUpdate();
@@ -1344,7 +1352,7 @@ export default class OpencgaVariantFacet extends LitElement {
                                                                 <label for="${facet[0]}_text">Nested Facet (optional)</label>
                                                            
                                                                 <select id="${this._prefix}${facet[0]}NestedFacetField" class="form-control ${this._prefix}FilterSelect bootstrap-select" data-parent-facet="${facet[0]}" @change="${this.onNestedFacetFieldChange}">
-                                                                    <option value="">Select nested facet...</option>
+                                                                    <option value="none">Select nested facet...</option>
                                                                     <optgroup label="Terms Facet">
                                                                             ${this._config.fields.terms && this._config.fields.terms.map(item => html`
                                                                                 <option value="${item.value}" data-facettype="term">${item.name}</option>
@@ -1374,8 +1382,8 @@ export default class OpencgaVariantFacet extends LitElement {
                                                                 <!-- <label for="${facet[0]}_text">Include values or set range</label> -->
                                                                 <input type="text" class="form-control subsection-content" id="${facet[0]}_Nested_text" @input="${this.onNestedFacetTextChange}" data-parent-facet="${facet[0]}" placeholder="Include values or set range"/>
                                                             </div>
-                                                            <div class="col-md-6">
-                                                                <select-field-filter .data="${["Range", "Avg", "Percentile"]}" .value="${"Range"}" id="${facet[0]}_NestedFnSelect" data-nested-facet="${facet[0]}" @filterChange="${e => this.onNestedFacetFnChange(facet[0], e.detail.value)}"></select-field-filter>
+                                                            <div class="col-md-6"> BOOL:${!(facet[1].nested && facet[1].nested.facet)}
+                                                                <select-field-filter .disabled="${!(facet[1].nested && facet[1].nested.facet)}" .data="${["Range", "Avg", "Percentile"]}" .value="${"Range"}" id="${facet[0]}_NestedFnSelect" data-nested-facet="${facet[0]}" @filterChange="${e => this.onNestedFacetFnChange(facet[0], e.detail.value)}"></select-field-filter>
                                                             </div>
                                                         </div>
                                                         <!-- /nested facet -->

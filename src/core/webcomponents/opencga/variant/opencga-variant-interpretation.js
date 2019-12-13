@@ -92,18 +92,6 @@ class OpencgaVariantInterpretation extends LitElement {
         });
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
-        }
-        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("clinicalAnalysisId")) {
-            this.clinicalAnalysisIdObserver();
-        }
-        if (changedProperties.has("query")) {
-            this.queryObserver();
-        }
-    }
-
     _init() {
         this._prefix = "ovi-" + Utils.randomString(6);
 
@@ -148,10 +136,28 @@ class OpencgaVariantInterpretation extends LitElement {
         this.search = {};
     }
 
+    updated(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+        }
+        if (changedProperties.has("clinicalAnalysisId")) {
+            this.clinicalAnalysisIdObserver();
+        }
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
+        }
+        if (changedProperties.has("query")) {
+            this.queryObserver();
+        }
+    }
+
+
     opencgaSessionObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         console.log("CONFIG", this.config)
         this._config = {...this.getDefaultConfig(), ...this.config};
+        console.log("CONFIG", this.config)
+        console.log("_CONFIG", this._config)
 
         // Check if Beacon hosts are configured
         for (const detail of this._config.detail) {
@@ -189,6 +195,8 @@ class OpencgaVariantInterpretation extends LitElement {
                 .then(response => {
                     // This triggers the call to clinicalAnalysisObserver function below
                     _this.clinicalAnalysis = response.response[0].result[0];
+
+                    console.log("clinicalAnalysisIdObserver _this.clinicalAnalysis",_this.clinicalAnalysis)
                     _this.requestUpdate()
                 })
                 .catch(response => {
@@ -263,7 +271,9 @@ class OpencgaVariantInterpretation extends LitElement {
 
 
     onClinicalAnalysisEditor(e) {
-        this.clinicalAnalysis = Object.assign({}, e.detail.clinicalAnalysis);
+        //TODO FIXME commented because it cause clinicalAnalysis.probant to be undefined
+        console.warn("onClinicalAnalysisEditor commented")
+       // this.clinicalAnalysis = Object.assign({}, e.detail.clinicalAnalysis);
     }
 
     // interactiveObserver() {
@@ -699,13 +709,13 @@ class OpencgaVariantInterpretation extends LitElement {
                 <div class="btn-toolbar " role="toolbar" aria-label="..." >
                     <!-- Left buttons -->
                     <div class="btn-group" role="group" aria-label="..." >
-                        <button id="${this._prefix}InteractiveButton" type="button" class="btn btn-primary variant-interpretation-view-buttons active" data-view="Interactive" @click="${this.onChangeView}">
+                        <button id="${this._prefix}InteractiveButton" type="button" class="btn btn-primary variant-interpretation-view-buttons active ripple" data-view="Interactive" @click="${this.onChangeView}">
                             <i class="fa fa-filter icon-padding" aria-hidden="true" data-view="Interactive" @click="${this.onChangeView}"></i>Interactive Analysis ${this.counterTitles.rv}
                         </button>
-                        <button id="${this._prefix}CompoundHeterozygousButton" type="button" class="btn btn-primary variant-interpretation-view-buttons" data-view="CompoundHeterozygous" @click="{this.onChangeView}">
+                        <button id="${this._prefix}CompoundHeterozygousButton" type="button" class="btn btn-primary variant-interpretation-view-buttons ripple" data-view="CompoundHeterozygous" @click="${this.onChangeView}">
                             <i class="fas fa-random icon-padding" aria-hidden="true" data-view="CompoundHeterozygous" @click="${this.onChangeView}"></i>Compound Heterozygous ${this.counterTitles.ch}
                         </button>
-                        <button id="${this._prefix}DeNovoButton" type="button" class="btn btn-primary variant-interpretation-view-buttons" data-view="DeNovo" @click="${this.onChangeView}">
+                        <button id="${this._prefix}DeNovoButton" type="button" class="btn btn-primary variant-interpretation-view-buttons ripple" data-view="DeNovo" @click="${this.onChangeView}">
                             <i class="fa fa-divide icon-padding" aria-hidden="true" data-view="DeNovo" @click="${this.onChangeView}"></i>de Novo ${this.counterTitles.dn}
                         </button>
                     </div>
@@ -718,7 +728,7 @@ class OpencgaVariantInterpretation extends LitElement {
 
                     ${this._config.showOtherTools ? html`
                         <div class="btn-group">
-                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <button type="button" class="btn btn-primary dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fa fa-wrench" aria-hidden="true" style="padding-right: 5px"></i> Other Tools <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-right">
@@ -896,7 +906,8 @@ class OpencgaVariantInterpretation extends LitElement {
                                                                    .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                                                    .consequenceTypes="${this.consequenceTypes}"
                                                                    .config="${this.config}"
-                                                                   @gene="${this.geneSelected}" @samplechange="${this.onSampleChange}"
+                                                                   @gene="${this.geneSelected}"
+                                                                   @samplechange="${this.onSampleChange}"
                                                                    style="font-size: 12px" >
                             </opencga-variant-interpretation-editor>
                         </div>

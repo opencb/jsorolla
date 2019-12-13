@@ -62,7 +62,6 @@ export default class OpencgaIndividualGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        console.log("changedProperties", changedProperties)
         if (changedProperties.has("opencgaSession") ||
             changedProperties.has("search") ||
             changedProperties.has("config") ||
@@ -86,7 +85,6 @@ export default class OpencgaIndividualGrid extends LitElement {
     }
 
     renderTable(active) {
-        console.log("renderTable", active)
         if (!active) {
             return;
         }
@@ -680,6 +678,10 @@ export default class OpencgaIndividualGrid extends LitElement {
         return this._columns;
     }
 
+    onDownload(){
+        console.warn("TODO download")
+    }
+
     getDefaultConfig() {
         return {
             pagination: true,
@@ -726,6 +728,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                              .to="${this.to}"
                              .numTotalResultsText="${this.numTotalResultsText}"
                              .config="${this.toolbarConfig}"
+                             @download="${this.onDownload}"
                              @columnchange="${this.onColumnChange}">
         </opencb-grid-toolbar>
 

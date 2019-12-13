@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
 
-//TODO proper functionality check
+// TODO proper functionality check
 export default class DiseaseFilter extends LitElement {
 
     constructor() {
@@ -44,10 +44,10 @@ export default class DiseaseFilter extends LitElement {
             query: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = "ff-" + Utils.randomString(6) + "_";
     }
 
@@ -57,12 +57,10 @@ export default class DiseaseFilter extends LitElement {
             iconBase: "fa",
             tickIcon: "fa-check"
         });
-
-
     }
 
     updated(_changedProperties) {
-        if(_changedProperties.has("query")) {
+        if (_changedProperties.has("query")) {
             if (this.query && this.query.panel) {
                 this.panel = this.query.panel.split(",");
             } else {
@@ -75,7 +73,7 @@ export default class DiseaseFilter extends LitElement {
 
     showPanelGenes(panels) {
         PolymerUtils.getElementById(this._prefix + "DiseasePanelsTextarea").value = "";
-        let _this = this;
+        const _this = this;
 
         if (panels && panels.length) {
             this.opencgaSession.opencgaClient.panels()
@@ -83,19 +81,19 @@ export default class DiseaseFilter extends LitElement {
                     study: _this.opencgaSession.study.fqn,
                     include: "id,name,genes.id,genes.name,regions.id"
                 }, {})
-                .then(function (response) {
+                .then(function(response) {
                     let text = "";
-                    for (let panelResponse of response.response) {
-                        let panel = panelResponse.result[0];
-                        let geneNames = panel.genes.map(gene => gene.name);
-                        let regions = panel.regions.map(region => region.id);
+                    for (const panelResponse of response.response) {
+                        const panel = panelResponse.result[0];
+                        const geneNames = panel.genes.map(gene => gene.name);
+                        const regions = panel.regions.map(region => region.id);
                         text += `${panel.name} (${geneNames.length} genes and ${regions.length} regions): ${geneNames.join(",")} \n`;
                         text += `${geneNames.join(",")} \n`;
                         text += `${regions.join(",")} \n\n`;
                     }
                     PolymerUtils.getElementById(_this._prefix + "DiseasePanelsTextarea").value = text;
                 })
-                .catch(function (response) {
+                .catch(function(response) {
                     console.error(response);
                 });
         } else {
@@ -104,15 +102,15 @@ export default class DiseaseFilter extends LitElement {
     }
 
     filterChange(e) {
-        let select_vals = $("#" + this._prefix + "DiseasePanels").val() || [];
-        let value = select_vals && select_vals.length ? select_vals.join(",") : null;
-        console.log("FilterChange disease-filter", value)
+        const select_vals = $("#" + this._prefix + "DiseasePanels").val() || [];
+        const value = select_vals && select_vals.length ? select_vals.join(",") : null;
+        console.log("FilterChange disease-filter", value);
         this.showPanelGenes(select_vals);
-        let event = new CustomEvent("filterChange", {
+        const event = new CustomEvent("filterChange", {
             detail: {
                 value: value
-                //value: panelObjects,
-                //toString: panelId
+                // value: panelObjects,
+                // toString: panelId
             },
             bubbles: true,
             composed: true
@@ -136,6 +134,7 @@ export default class DiseaseFilter extends LitElement {
             </div>
         `;
     }
+
 }
 
 customElements.define("disease-filter", DiseaseFilter);

@@ -51,10 +51,12 @@ export default class ConsequenceTypeFilter extends LitElement {
     updated(_changedProperties) {
         if (_changedProperties.has("query")) {
             if(this.query.ct) {
-                console.log("this.query.ct",this.query.ct)
+                //console.log("this.query.ct",this.query.ct)
                 this.selectedCt = this.query.ct.split(",");
-                this.requestUpdate();
+            } else {
+               $("input[type=checkbox]", this).prop("checked", false);
             }
+            this.requestUpdate();
         }
     }
 
@@ -117,7 +119,12 @@ export default class ConsequenceTypeFilter extends LitElement {
     }
 
     render() {
-        return html` 
+        return html`
+            <style>
+                .browser-ct-tree-view ul > li > ul label {
+                font-weight: normal;
+                }
+            </style>
             <button class="btn" @click="${this.clearSelection}">clear</button> 
             <div style="padding-top: 15px">Loss-of-Function (LoF) terms:</div>
             <div class="form-check" style="margin-top: 5px;">

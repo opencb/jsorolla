@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
+
+// TODO Refactor needed it needs updated() [never saw how does it looks in IVA]
 
 export default class CohortFilter extends LitElement {
 
@@ -40,10 +42,10 @@ export default class CohortFilter extends LitElement {
             config: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = "cf-" + Utils.randomString(6) + "_";
         this.cohortsPerStudy = this.cohorts ? this.cohorts[this.opencgaSession.project.id] : null;
 
@@ -53,23 +55,23 @@ export default class CohortFilter extends LitElement {
         if (this.query && typeof this.query.cohortStatsAlt !== "undefined") {
             cohortArray = this.query.cohortStatsAlt.split(new RegExp("[,;]"));
             for (let i = 0; i < cohortArray.length; i++) {
-                let [study, cohortFreq] = cohortArray[i].split(":");
-                let [cohort, freq] = cohortFreq.split(/[<=>]+/);
-                let operator = cohortFreq.split(/[-A-Za-z0-9._:]+/)[1];
+                const [study, cohortFreq] = cohortArray[i].split(":");
+                const [cohort, freq] = cohortFreq.split(/[<=>]+/);
+                const operator = cohortFreq.split(/[-A-Za-z0-9._:]+/)[1];
                 PolymerUtils.setValue(this._prefix + study + cohort + "Cohort", freq);
                 PolymerUtils.setValue(this._prefix + study + cohort + "CohortOperator", operator);
             }
         }
     }
 
-    //TODO refactor!
+    // TODO refactor!
     filterChange(e) {
-        let cohortFreq = [];
+        const cohortFreq = [];
         let cohortStatsAlt;
         if (UtilsNew.isNotEmpty(this._cohorts)) {
             for (let studyId in this._cohorts) {
-                for (let cohort of this._cohorts[studyId]) {
-                    let cohortInput = PolymerUtils.getElementById(this._prefix + studyId + cohort.id + "Cohort");
+                for (const cohort of this._cohorts[studyId]) {
+                    const cohortInput = PolymerUtils.getElementById(this._prefix + studyId + cohort.id + "Cohort");
                     let operator = PolymerUtils.getElementById(this._prefix + studyId + cohort.id + "CohortOperator");
                     if (cohortInput !== null && UtilsNew.isNotEmpty(cohortInput.value)) {
                         operator = operator.value;
@@ -77,7 +79,7 @@ export default class CohortFilter extends LitElement {
                         if (studyId === "BRIDGE") {
                             studyId = "bridge";
                         }
-                        let pf = studyId + ":" + cohort.id + operator + cohortInput.value;
+                        const pf = studyId + ":" + cohort.id + operator + cohortInput.value;
                         cohortFreq.push(pf);
                     }
                 }
@@ -87,7 +89,7 @@ export default class CohortFilter extends LitElement {
             // _filters["cohortStatsMaf"] = cohortFreq.join(';');
             cohortStatsAlt = cohortFreq.join(";");
         }
-        let event = new CustomEvent('filterChange', {
+        const event = new CustomEvent("filterChange", {
             detail: {
                 cohort: cohortStatsAlt ? cohortStatsAlt : null
 
@@ -128,6 +130,7 @@ export default class CohortFilter extends LitElement {
             <span>Project not found</span>
         `;
     }
+
 }
 
 customElements.define("cohort-filter", CohortFilter);

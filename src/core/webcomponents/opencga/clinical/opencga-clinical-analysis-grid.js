@@ -572,8 +572,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     //             </a>`;
     // }
 
-    // TODO check if it needs lit-html template tag
     interpretationFormatter(value, row) {
+        //console.log("interpretationFormatter",value,row)
         const tooltipText = `
                                    <div style='padding: 5px 15px; color: darkgray; font-weight: bolder'>Rare Disease (Not Available yet)</div>
                                    <div>
@@ -590,8 +590,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
         return `<div style="padding: 5px">
                             <a style="cursor: pointer" href="#interpretation/${this.opencgaSession.project.alias}/${this.opencgaSession.study.alias}/${row.id}">
-                                <i class="fa fa-filter" aria-hidden="true"></i> Open Interpreter
-                            </a>
+                                <i class="fa fa-filter" aria-hidden="true"></i> Open Interpreter 
+                            </a> 
                         </div>
                         <div class="interpretation-tooltip" data-tooltip-text="${tooltipText}">
                             <a style="cursor: pointer">

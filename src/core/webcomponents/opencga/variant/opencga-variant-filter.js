@@ -26,6 +26,8 @@ import "./../../commons/filters/conservation-filter.js";
 import "./../../commons/filters/disease-filter.js";
 import "./../../commons/filters/feature-filter.js";
 import "./../../commons/filters/file-filter.js";
+import "./../../commons/filters/file-pass-filter.js";
+import "./../../commons/filters/file-qual-filter.js";
 import "./../../commons/filters/fulltext-search-accessions-filter.js";
 import "./../../commons/filters/go-accessions-filter.js";
 import "./../../commons/filters/hpo-accessions-filter.js";
@@ -145,7 +147,7 @@ export default class OpencgaVariantFilter extends LitElement {
     //     this.queryObserver();
     // }
 
-    //TODO refactor in map() and move handlers in template
+    //TODO refactor in map()
     opencgaSessionObserver() {
         if (this.opencgaSession.study) {
             // Update the study list of studies and the selected one
@@ -1343,6 +1345,14 @@ export default class OpencgaVariantFilter extends LitElement {
             //TODO this handles this.query.filter and this.query.qual (merge in an unique object?)
             content = html`<file-filter .query="${this.query}" @filterChange="${e => this.onFilterChange("filter", e.detail.value)}"></file-filter>`;
             break;
+        case "file-pass":
+            //TODO this handles this.query.filter and this.query.qual (merge in an unique object?)
+            content = html`<file-pass-filter .filter="${this.preparedQuery.filter}" @filterChange="${e => this.onFilterChange("filter", e.detail.value)}"></file-pass-filter>`;
+            break;
+        case "file-qual":
+            //TODO this handles this.query.filter and this.query.qual (merge in an unique object?)
+            content = html`<file-qual-filter .qual="${this.preparedQuery.qual}" @filterChange="${e => this.onFilterChange("qual", e.detail.value)}"></file-qual-filter>`;
+            break;
         case "location":
             content = html`<region-filter .cellbaseClient="${this.cellbaseClient}" .region="${this.preparedQuery.region}" 
                                            @filterChange="${e => this.onFilterChange("region", e.detail.value)}"></region-filter>`;
@@ -1393,6 +1403,8 @@ export default class OpencgaVariantFilter extends LitElement {
         case "fullTextSearch":
             content = html`<fulltext-search-accessions-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></fulltext-search-accessions-filter>`;
             break;
+        default:
+            console.error("Filter component not found");
         }
 
         return html`

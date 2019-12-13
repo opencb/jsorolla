@@ -76,6 +76,10 @@ export default class SelectFieldFilter extends LitElement {
         if (_changedProperties.has("value")) {
             $(".selectpicker", this).selectpicker("val", this.value ? this.value.split(",") : []);
         }
+        if (_changedProperties.has("disabled")) {
+            console.log("disabled",this.disabled)
+            $(".selectpicker", this).selectpicker()
+        }
     }
 
     filterChange(e) {

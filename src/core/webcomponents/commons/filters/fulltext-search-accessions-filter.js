@@ -56,14 +56,14 @@ export default class FulltextSearchAccessionsFilter extends LitElement {
         // if (_changedProperties.has("query")) {
         //     let _traits = this.query && this.query.traits ? this.query.traits : "";
         //     this.querySelector("#" + this._prefix + "TraitsTextarea").value = _traits;
-        //     // FIXME The preferred way of updating shold be requestUpdate, but for any reason is not working now
+        //     // FIXME The preferred way of updating should be requestUpdate, but for any reason is not working now
         //     // this.requestUpdate();
         //     debugger
         // }
 
         let _traits = _changedProperties.has("traits") && this.traits ? this.traits : "";
         this.querySelector("#" + this._prefix + "TraitsTextarea").value = _traits;
-        // FIXME The preferred way of updating shold be requestUpdate, but for any reason is not working now
+        // FIXME The preferred way of updating should be requestUpdate, but for any reason is not working now
         // this.requestUpdate();
     }
 

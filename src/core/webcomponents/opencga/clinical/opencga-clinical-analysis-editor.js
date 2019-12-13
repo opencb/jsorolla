@@ -179,7 +179,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         }
 
         //this.renderTable();
-        this.requestUpdate();
+        //this.requestUpdate();
     }
 
     onSelectChange(e) {

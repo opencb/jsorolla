@@ -599,10 +599,10 @@ export default class OpencgaVariantBrowser extends LitElement {
                                       .active="${this.active}" 
                                       .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                       .consequenceTypes="${this.consequenceTypes}"
+                                      .config="${this.config}"
                                       @selected="${this.selectedGene}"
                                       @selectvariant="${this.onSelectVariant}"
-                                      @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}"
-                                      .config="${this.config}">
+                                      @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
                 </opencga-variant-grid>
 
 

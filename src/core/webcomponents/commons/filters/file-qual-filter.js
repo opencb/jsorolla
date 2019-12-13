@@ -47,16 +47,19 @@ export default class FileQualFilter extends LitElement {
 
     updated(_changedProperties) {
         if (_changedProperties.has("qual")) {
-            if(this.qual > 0) {
+            if(this.qual && this.qual > 0) {
                 this.querySelector("#" + this._prefix + "FileQualCheckbox").checked = true;
                 this.querySelector("#" + this._prefix + "FileQualInput").value = this.qual;
             } else {
                 this.querySelector("#" + this._prefix + "FileQualCheckbox").checked = false;
+                this.querySelector("#" + this._prefix + "FileQualInput").value = "";
+                this.qualEnabled = false;
+                this.requestUpdate();
             }
         }
     }
 
-    //filterChange is called both on checkbox and text field
+    //NOTE filterChange is called both on checkbox and text field
     filterChange(e) {
         let checked = this.querySelector("#" + this._prefix + "FileQualCheckbox").checked
         let value = this.querySelector("#" + this._prefix + "FileQualInput").value

@@ -143,6 +143,7 @@ export default class OpencgaCohortBrowser extends LitElement {
         if (e.target.dataset.view === "AggregationStats") {
             this.executeFacet();
         }
+        this.requestUpdate();
     }
 
     onSelectCohort(e) {

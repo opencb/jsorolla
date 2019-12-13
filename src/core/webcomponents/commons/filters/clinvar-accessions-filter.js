@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
+
+//TODO refactor it needs updated()
 
 export default class ClinvarAccessionsFilter extends LitElement {
 
@@ -40,10 +42,10 @@ export default class ClinvarAccessionsFilter extends LitElement {
             query: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = "cvaf-" + Utils.randomString(6) + "_";
         this.placeholder = "RCV000058226";
     }
@@ -56,13 +58,13 @@ export default class ClinvarAccessionsFilter extends LitElement {
 
     filterChange(e) {
         let _clinvar;
-        let inputTextArea = PolymerUtils.getElementById(this._prefix + "ClinVarTextarea");
+        const inputTextArea = PolymerUtils.getElementById(this._prefix + "ClinVarTextarea");
         if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
             _clinvar = inputTextArea.value.trim();
             _clinvar = _clinvar.replace(/\r?\n/g, ",").replace(/\s/g, "");
         }
         console.log("filterChange", _clinvar);
-        let event = new CustomEvent('filterChange', {
+        const event = new CustomEvent("filterChange", {
             detail: {
                 value: _clinvar || null
             }
@@ -73,6 +75,7 @@ export default class ClinvarAccessionsFilter extends LitElement {
     render() {
         return html`<textarea id="${this._prefix}ClinVarTextarea" class="form-control clearable ${this._prefix}FilterTextInput" rows="3" name="clinvar" placeholder="${this.placeholder}" @keyup="${this.filterChange}"></textarea>`;
     }
+
 }
 
-customElements.define('clinvar-accessions-filter', ClinvarAccessionsFilter);
+customElements.define("clinvar-accessions-filter", ClinvarAccessionsFilter);
