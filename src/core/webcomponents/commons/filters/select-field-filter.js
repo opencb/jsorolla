@@ -70,15 +70,14 @@ export default class SelectFieldFilter extends LitElement {
 
     updated(_changedProperties) {
         if (_changedProperties.has("data")) {
-            // TODO check why lit-element execute this for all existing select-field-filter instance..wtf
+            // TODO check why lit-element execute this for all existing select-field-filter instances..wtf
             // console.log("data",this.data)
         }
         if (_changedProperties.has("value")) {
             $(".selectpicker", this).selectpicker("val", this.value ? this.value.split(",") : []);
         }
         if (_changedProperties.has("disabled")) {
-            console.log("disabled",this.disabled)
-            $(".selectpicker", this).selectpicker()
+            $(".selectpicker", this).selectpicker('refresh');
         }
     }
 

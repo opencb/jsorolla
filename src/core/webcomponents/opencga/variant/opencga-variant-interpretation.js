@@ -273,7 +273,7 @@ class OpencgaVariantInterpretation extends LitElement {
     onClinicalAnalysisEditor(e) {
         //TODO FIXME commented because it cause clinicalAnalysis.probant to be undefined
         console.warn("onClinicalAnalysisEditor commented")
-       // this.clinicalAnalysis = Object.assign({}, e.detail.clinicalAnalysis);
+        //this.clinicalAnalysis = Object.assign({}, e.detail.clinicalAnalysis);
     }
 
     // interactiveObserver() {

@@ -253,11 +253,10 @@ export default class OpencgaVariantFacet extends LitElement {
         let range = e.target.querySelector(`option[value=${selected}]`).dataset.range;
         this.querySelector("#" + parentFacet + "_Nested_text").value = range || "";
         if(selected === "none") {
-            //this.querySelector("#" + parentFacet +"_NestedFnSelect").disabled = true
+            delete this.selectedFacet[parentFacet].nested;
         } else {
-           // this.querySelector("#" + parentFacet +"_NestedFnSelect").disabled = false
+            this.selectedFacet[parentFacet].nested = {facet: selected, value: range || ""};
         }
-        this.selectedFacet[parentFacet].nested = {facet: selected, value: range || ""};
         this.selectedFacet = {...this.selectedFacet};
         this.requestUpdate();
     }
@@ -275,7 +274,6 @@ export default class OpencgaVariantFacet extends LitElement {
     }
 
     onNestedFacetFnChange(facet, value) {
-        //TODO handle the case I select the function before the nested facet
         if (this.selectedFacet[facet].nested) {
             this.selectedFacet[facet].nested.fn = value;
         } else {
@@ -284,12 +282,13 @@ export default class OpencgaVariantFacet extends LitElement {
         }
         this.selectedFacet = {...this.selectedFacet};
         this.requestUpdate();
-
     }
 
     onNestedFacetTextChange(e) {
         //console.log("parentFacet",e.target.dataset.parentFacet)
         this.selectedFacet[e.target.dataset.parentFacet].nested.value = e.target.value;
+        this.selectedFacet = {...this.selectedFacet};
+        this.requestUpdate();
     }
 
     onFacetTextChange(e) {
@@ -1380,9 +1379,9 @@ export default class OpencgaVariantFacet extends LitElement {
                                                         <div class="row facet-row nested">
                                                             <div class="col-md-6">
                                                                 <!-- <label for="${facet[0]}_text">Include values or set range</label> -->
-                                                                <input type="text" class="form-control subsection-content" id="${facet[0]}_Nested_text" @input="${this.onNestedFacetTextChange}" data-parent-facet="${facet[0]}" placeholder="Include values or set range"/>
+                                                                <input type="text" class="form-control subsection-content" .disabled="${!(facet[1].nested && facet[1].nested.facet)}" id="${facet[0]}_Nested_text" @input="${this.onNestedFacetTextChange}" data-parent-facet="${facet[0]}" placeholder="Include values or set range"/>
                                                             </div>
-                                                            <div class="col-md-6"> BOOL:${!(facet[1].nested && facet[1].nested.facet)}
+                                                            <div class="col-md-6">
                                                                 <select-field-filter .disabled="${!(facet[1].nested && facet[1].nested.facet)}" .data="${["Range", "Avg", "Percentile"]}" .value="${"Range"}" id="${facet[0]}_NestedFnSelect" data-nested-facet="${facet[0]}" @filterChange="${e => this.onNestedFacetFnChange(facet[0], e.detail.value)}"></select-field-filter>
                                                             </div>
                                                         </div>

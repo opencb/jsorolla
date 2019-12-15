@@ -38,6 +38,9 @@ export default class SampleFilter extends LitElement {
             },
             clinicalAnalysis: {
                 type: Object
+            },
+            query: {
+                type: Object
             }
         };
     }
@@ -58,7 +61,7 @@ export default class SampleFilter extends LitElement {
 
     filterChange(e) {
         console.log("filterChange", e.target);
-        let event = new CustomEvent("filterChange", {
+        const event = new CustomEvent("filterChange", {
             detail: {
                 sample: e.target.value
 
@@ -71,7 +74,94 @@ export default class SampleFilter extends LitElement {
         $("#" + this._prefix + "SampleFilterModal").modal("show");
     }
 
-    //TODO this method has been refactored, check functionality
+    //TODO needs refactor. it comes from variant-filter
+    onClinicalFilterChange(e) {
+
+        console.warn("onClinicalFilterChange is commented")
+        return;
+
+        // Process Sample filters
+        let _genotypeFilters = [];
+        let _sampleIds = [];
+        let _dpFormatFilter = [];
+        for (let sampleFilter of e.detail.sampleFilters) {
+            // let color = (sampleFilter.affected) ? "red" : "black";
+            let genotypes = (sampleFilter.genotypes.length > 0) ? sampleFilter.genotypes.join(",") : "none";
+            let dp = (UtilsNew.isNotEmpty(sampleFilter.dp)) ? Number(sampleFilter.dp) : -1;
+
+            if (genotypes !== "none") {
+                if (e.detail.missing && !sampleFilter.proband) {
+                    genotypes += ",./0,./1,./.";
+                }
+                _genotypeFilters.push(sampleFilter.id + ":" + genotypes);
+            }
+            if (dp !== -1) {
+                _dpFormatFilter.push(sampleFilter.id + ":DP>=" + dp);
+            }
+            _sampleIds.push(sampleFilter.id)
+        }
+
+        // Process File filters
+        // let _files = [];
+        // let _qual = e.detail.qual;
+        // let _filter = e.detail.filter;
+        // for (let fileFilter of e.detail.fileFilters) {
+        //     if (fileFilter.selected) {
+        //         // _files.push(fileFilter.name);
+        //         _files.push(fileFilter.id);
+        //     }
+        // }
+
+        let needUpdateQuery = false;
+        // Add sample filters to query
+        let _query = {...this.query};
+        if (_genotypeFilters !== undefined && _genotypeFilters.length > 0) {
+            _query.genotype = _genotypeFilters.join(";");
+            delete _query.sample;
+            needUpdateQuery = true;
+        } else {
+            // debugger
+            _query.sample = _sampleIds.join(",");
+            delete _query.genotype;
+        }
+        if (_dpFormatFilter !== undefined && _dpFormatFilter.length > 0) {
+            _query.format = _dpFormatFilter.join(";");
+            needUpdateQuery = true;
+        } else {
+            if (UtilsNew.isNotUndefinedOrNull(_query.format)) {
+                delete _query.format;
+                needUpdateQuery = true;
+            }
+        }
+
+        // Add file filters to query
+        // if (_files.length > 0) {
+        //     _query.file = _files.join(";");
+        //     if (UtilsNew.isNotEmpty(_qual)) {
+        //         _query.qual = ">=" + _qual;
+        //     }
+        //     if (UtilsNew.isNotEmpty(_filter)) {
+        //         _query.filter = _filter;
+        //     }
+        //     needUpdateQuery = true;
+        // } else {
+        //     // If no files are selected we remove all files-related filters
+        //     delete _query.file;
+        //     delete _query.qual;
+        //     delete _query.filter;
+        // }
+
+        //Only update query if really needed, this avoids unneeded web refresh
+        if (needUpdateQuery) {
+            this.updateClinicalFilterQuery = false;
+            this.preparedQuery = _query;
+            this.updateClinicalFilterQuery = true;
+        }
+
+        this.notifyQuery(this.preparedQuery);
+    }
+
+    // TODO this method has been refactored, check functionality
     renderClinicalQuerySummary() {
         if (this.clinicalAnalysis) {
             // Get Individuals (and samples) from Clinical Analysis
@@ -84,32 +174,25 @@ export default class SampleFilter extends LitElement {
 
 
             // First, render Genotype table
-            let sampleGenotypeMap = {};
+            const sampleGenotypeMap = {};
             if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
-                for (let genotype of this.query.genotype.split(";")) {
-                    let sampleGt = genotype.split(":");
+                for (const genotype of this.query.genotype.split(";")) {
+                    const sampleGt = genotype.split(":");
                     sampleGenotypeMap[sampleGt[0]] = sampleGt[1].split(",");
                 }
             } else {
                 if (UtilsNew.isNotUndefinedOrNull(this.query.sample)) {
-                    for (let sample of this.query.sample.split(",")) {
+                    for (const sample of this.query.sample.split(",")) {
                         sampleGenotypeMap[sample] = ["0/1", "1/1"];
                     }
                 }
             }
 
             // Render Genotype table
-            let sampleTableTr = "";
-            let table = individuals.map(individual => {
+            return individuals.map(individual => {
                 if (UtilsNew.isNotEmptyArray(individual.samples)) {
-                    let color = (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.proband)
-                        && individual.id === this.clinicalAnalysis.proband.id)
-                        ? "darkred"
-                        : "black";
-                    let genotype = (UtilsNew.isNotUndefinedOrNull(sampleGenotypeMap[individual.samples[0].id]))
-                        ? sampleGenotypeMap[individual.samples[0].id]
-                        : "any";
-
+                    const color = this.clinicalAnalysis.proband && individual.id === this.clinicalAnalysis.proband.id ? "darkred" : "black";
+                    const genotype = sampleGenotypeMap[individual.samples[0].id] ? sampleGenotypeMap[individual.samples[0].id] : "any";
                     return html`
                             <tr data-sample="${individual.samples[0].id}">
                                 <td>
@@ -122,7 +205,6 @@ export default class SampleFilter extends LitElement {
                     `;
                 }
             });
-            return html`${table}`;
         } else {
             return html`
                 <tr>
@@ -169,7 +251,7 @@ export default class SampleFilter extends LitElement {
                             <h3>Sample and File Filters</h3>
                         </div>
                         <div class="modal-body">
-                            <opencga-variant-filter-clinical .opencgaSession=${this.opencgaSession}
+                            <opencga-variant-filter-clinical .opencgaSession="${this.opencgaSession}"
                                                              .clinicalAnalysis="${this.clinicalAnalysis}"
                                                              .query="${this.clinicalFilterQuery}"
                                                              @sampleFiltersChange="${this.onClinicalFilterChange}"
@@ -182,8 +264,9 @@ export default class SampleFilter extends LitElement {
                     </div>
                 </div>
             </div>
-        ` : ``;
+        ` : "";
     }
+
 }
 
 customElements.define("sample-filter", SampleFilter);

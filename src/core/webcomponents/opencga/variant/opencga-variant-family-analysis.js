@@ -81,23 +81,27 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
         // Initially we set the default config, this will be overridden if 'config' is passed
         // this._config = this.getDefaultConfig();
 
-        this.mode = "interactive";
+        //this.mode = "interactive";
         this.active = true;
         this._config = this.getDefaultConfig();
     }
 
     //TODO RECHECK
-    // quick fix: active-filters have this._config.filter.examples as prop and it is rendered before the component have its props available
     // ADD FLAG to avoid repeated calls
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config,
+        //since _config.filter.menu.skipSubsections in doing to be edited, a deep copy of this.config is required
+        const _config = $.extend( true, this.getDefaultConfig(), this.config, {
             title: this.getDefaultConfig().title,
             tooltip: this.getDefaultConfig().tooltip
-        };
-        //console.log("connectedCallback" , this._config)
-
+        } );
+        if (this.mode !== "interactive") {
+            _config.filter.menu.skipSubsections.push("sample");
+        }
+        this._config = _config;
+        this._addTooltip();
     }
+
     updated(changedProperties) {
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
@@ -111,18 +115,8 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        const _config = {...this.getDefaultConfig(), ...this.config,
-            title: this.getDefaultConfig().title,
-            tooltip: this.getDefaultConfig().tooltip
-        };
-        if (this.mode !== "interactive") {
-            _config.filter.menu.skipSubsections.push("sample");
-        }
-        console.log("this._config", _config)
-        this._config = _config;
-        this._addTooltip();
-    }
 
+    }
 
     clinicalAnalysisObserver() {
 

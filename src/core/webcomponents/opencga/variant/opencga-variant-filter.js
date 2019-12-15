@@ -261,7 +261,7 @@ export default class OpencgaVariantFilter extends LitElement {
         $("#" + this._prefix + "SampleFilterModal").modal("show");
     }*/
 
-    //TODO move in sample-filter
+    //TODO moved in sample-filter still not adapted
     onClinicalFilterChange(e) {
         // Process Sample filters
         let _genotypeFilters = [];
@@ -1339,7 +1339,7 @@ export default class OpencgaVariantFilter extends LitElement {
             content = html`<cohort-filter .cohorts="${subsection.cohorts}"> </cohort-filter>`;
             break;
         case "sample":
-            content = html`<sample-filter ?enabled="${subsection.showSelectSamples}" .clinicalAnalysis="${this.clinicalAnalysis}" .query="${this.query}"></sample-filter>`;
+            content = html`<sample-filter ?enabled="${subsection.showSelectSamples}" .clinicalAnalysis="${this.clinicalAnalysis}" .query="${this.query}" @filterChange="${e => this.onFilterChange("genotype", e.detail.value)}"></sample-filter>`;
             break;
         case "file":
             //TODO this handles this.query.filter and this.query.qual (merge in an unique object?)
