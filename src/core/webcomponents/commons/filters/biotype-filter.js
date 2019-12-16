@@ -37,10 +37,13 @@ export default class BiotypeFilter extends LitElement {
             biotypes: {
                 type: Array
             },
+            biotype: {
+                type: Array
+            },
             config: {
                 type: Object
             }
-        }
+        };
     }
 
     _init() {
@@ -58,17 +61,17 @@ export default class BiotypeFilter extends LitElement {
                 "protein_coding", "pseudogene", "rRNA", "retained_intron", "sense_intronic", "sense_overlapping", "snRNA",
                 "snoRNA", "transcribed_processed_pseudogene", "transcribed_unprocessed_pseudogene",
                 "translated_processed_pseudogene", "unitary_pseudogene", "unprocessed_pseudogene"
-            ],
-        }
+            ]
+        };
     }
     firstUpdated(_changedProperties) {
         $("#" + this._prefix + "GeneBiotypes").selectpicker("val", []);
     }
 
     updated(_changedProperties) {
-        if (_changedProperties.has("query")) {
-            if(this.query.biotype) {
-                $("#" + this._prefix + "GeneBiotypes").selectpicker("val", this.query.biotype.split(","));
+        if (_changedProperties.has("biotype")) {
+            if (this.biotype) {
+                $("#" + this._prefix + "GeneBiotypes").selectpicker("val", this.biotype.split(","));
             } else {
                 $("#" + this._prefix + "GeneBiotypes").selectpicker("val", []);
             }
@@ -76,9 +79,8 @@ export default class BiotypeFilter extends LitElement {
     }
 
     filterChange(e) {
-        let value = $(e.target).val() ? $(e.target).val().join(",") : null;
-        console.log("filterChange", value);
-        let event = new CustomEvent('filterChange', {
+        const value = $(e.target).val() ? $(e.target).val().join(",") : null;
+        const event = new CustomEvent("filterChange", {
             detail: {
                 value: value
             }
@@ -97,6 +99,7 @@ export default class BiotypeFilter extends LitElement {
             </select>
         `;
     }
+
 }
 
 customElements.define("biotype-filter", BiotypeFilter);

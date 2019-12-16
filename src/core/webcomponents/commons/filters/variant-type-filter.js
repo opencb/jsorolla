@@ -36,7 +36,7 @@ export default class VariantTypeFilter extends LitElement {
             cellbaseClient: {
                 type: Object
             },
-            query: {
+            type: {
                 type: Object
             },
             config: {
@@ -53,9 +53,9 @@ export default class VariantTypeFilter extends LitElement {
     }
 
     updated(_changedProperties) {
-        if (_changedProperties.has("query")) {
-            if (this.query.type) {
-                this.selectedVariantTypes = this.query.type.split(",");
+        if (_changedProperties.has("type")) {
+            if (this.type) {
+                this.selectedVariantTypes = this.type.split(",");
             } else {
                 this.selectedVariantTypes = [];
             }

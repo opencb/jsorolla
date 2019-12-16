@@ -31,10 +31,10 @@ export default class HpoAccessionsFilter extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            "opencgaSession": {
                 type: Object
             },
-            query: {
+            "annot-hpo": {
                 type: Object
             }
         };
@@ -42,19 +42,20 @@ export default class HpoAccessionsFilter extends LitElement {
 
     _init() {
         this._prefix = "hpof-" + Utils.randomString(6) + "_";
+        this.selectedTerms = [];
     }
 
     updated(_changedProperties) {
-        if (_changedProperties.has("query")) {
-            if (this.query["annot-hpo"]) {
-                this.querySelector("#" + this._prefix + "HumanPhenotypeOntologyTextarea").value = this.query["annot-hpo"];
+        if (_changedProperties.has("annot-hpo")) {
+            if (this["annot-hpo"]) {
+                this.querySelector("#" + this._prefix + "HumanPhenotypeOntologyTextarea").value = this["annot-hpo"];
 
-                //parse operator
-                if (this.query["annot-hpo"].split(",").length > 2) {
+                // parse operator
+                if (this["annot-hpo"].split(",").length > 2) {
                     let operator;
                     // TODO create an Util function getOperator(str) to discriminate the operator in a query filter string
-                    const or = this.query["annot-hpo"].split(",");
-                    const and = this.query["annot-hpo"].split(";");
+                    const or = this["annot-hpo"].split(",");
+                    const and = this["annot-hpo"].split(";");
                     if (or.length >= and.length) {
                         operator = "or";
                     } else {
@@ -62,9 +63,9 @@ export default class HpoAccessionsFilter extends LitElement {
                     }
                     $("input:radio[value=" + operator + "]").attr("disabled", false);
                     $("input:radio[value=" + operator + "]").checked = true;
-                    this.selectedTerms = this.query["annot-hpo"].split(operator);
+                    this.selectedTerms = this["annot-hpo"].split(operator);
                 } else {
-                    //disable radio buttons if there are less than 2 values
+                    // disable radio buttons if there are less than 2 values
                     $("input:radio").attr("disabled", true);
                 }
             } else {
@@ -102,7 +103,7 @@ export default class HpoAccessionsFilter extends LitElement {
 
     onClickOkModal(e) {
         this.selectedTerms = e.detail.result;
-        this.querySelector("#" + this._prefix + "HumanPhenotypeOntologyTextarea").value = e.detail.result.join(","); //join by comma no matter the operator (in textarea only)
+        this.querySelector("#" + this._prefix + "HumanPhenotypeOntologyTextarea").value = e.detail.result.join(","); // join by comma no matter the operator (in textarea only)
         this.filterChange();
         $("#" + this._prefix + "ontologyModal").modal("hide");
 

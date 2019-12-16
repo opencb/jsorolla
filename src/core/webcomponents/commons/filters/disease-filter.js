@@ -41,7 +41,7 @@ export default class DiseaseFilter extends LitElement {
             config: {
                 type: Object
             },
-            query: {
+            panel: {
                 type: Object
             }
         };
@@ -49,6 +49,7 @@ export default class DiseaseFilter extends LitElement {
 
     _init() {
         this._prefix = "ff-" + Utils.randomString(6) + "_";
+        this._panel = [];
     }
 
     firstUpdated(_changedProperties) {
@@ -60,14 +61,14 @@ export default class DiseaseFilter extends LitElement {
     }
 
     updated(_changedProperties) {
-        if (_changedProperties.has("query")) {
-            if (this.query && this.query.panel) {
-                this.panel = this.query.panel.split(",");
+        if (_changedProperties.has("panel")) {
+            if (this.panel) {
+                this._panel = this.panel.split(",");
             } else {
-                this.panel = [];
+                this._panel = [];
             }
-            $(`select#${this._prefix}DiseasePanels`).selectpicker("val", this.panel);
-            this.showPanelGenes(this.panel);
+            $(`select#${this._prefix}DiseasePanels`).selectpicker("val", this._panel);
+            this.showPanelGenes(this._panel);
         }
     }
 

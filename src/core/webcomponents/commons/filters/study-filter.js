@@ -35,8 +35,8 @@ export default class StudyFilter extends LitElement {
             differentStudies: {
                 type: Object
             },
-            query: {
-                type: Object
+            studies: {
+                type: String
             }
         };
     }
@@ -44,9 +44,9 @@ export default class StudyFilter extends LitElement {
     _init() {
         this._prefix = "sf-" + Utils.randomString(6) + "_";
         this.operator = ";";
-        //FIXME this component uses this.studies as an array of aliases, while it receives in query an array of pairs fqn:alias, this is a problem with saved filters
+        //FIXME this component uses this._studies as an array of aliases, while it receives in query an array of pairs fqn:alias, this is a problem with saved filters
         //array of aliases of the studies currently active
-        this.studies = [];
+        this._studies = [];
     }
 
     firstUpdated(_changedProperties) {
@@ -54,12 +54,11 @@ export default class StudyFilter extends LitElement {
     }
 
     updated(_changedProperties) {
-        if (_changedProperties.has("query")) {
-            this.studies = this.query && this.query.studies ? this.query.studies.split(new RegExp("[,;]")) : [this.primaryProject];
-
-            //this shouldn't be necessary since this.query is being updated..
-            this.requestUpdate();
-
+        if (_changedProperties.has("studies")) {
+            console.log("updated",this.studies)
+            this._studies = this.studies ? this.studies.split(new RegExp("[,;]")) : [this.primaryProject];
+            //this shouldn't be necessary since this.studies is being updated..
+            //this.requestUpdate();
             //NOTE Do NOT fire filterChange in updated(), it would interferes with other filters changes and active-filters
         }
     }
@@ -68,10 +67,10 @@ export default class StudyFilter extends LitElement {
         let querystring;
         // AND or OR operators
         if (this.operator !== "!") {
-            querystring = [this.primaryProject, ...this.studies.map(study => `${this.opencgaSession.project.fqn}:${study}`)].join(this.operator);
+            querystring = [this.primaryProject, ...this._studies.map(study => `${this.opencgaSession.project.fqn}:${study}`)].join(this.operator);
         } else {
             // NOT operator
-            querystring = [this.primaryProject, ...this.studies.map(study => `${this.operator}${this.opencgaSession.project.fqn}:${study}`)].join(";");
+            querystring = [this.primaryProject, ...this._studies.map(study => `${this.operator}${this.opencgaSession.project.fqn}:${study}`)].join(";");
         }
         const event = new CustomEvent("filterChange", {
             detail: {
@@ -79,7 +78,7 @@ export default class StudyFilter extends LitElement {
             }
         });
         this.dispatchEvent(event);
-        this.requestUpdate();
+        //this.requestUpdate();
     }
 
     onChangeOperator(e) {
@@ -95,14 +94,18 @@ export default class StudyFilter extends LitElement {
 
     onChangeStudy(e) {
         const study = e.target.value;
+        console.log("onChangeStudy",e.target.checked)
         if (e.target.checked) {
-            this.studies.push(study);
+            this._studies.push(study);
+            console.log("ADDING")
         } else {
-            const indx = this.studies.indexOf(study);
+            const indx = this._studies.indexOf(study);
+            console.error("indx",indx, "study",study)
             if (!~indx) {
                 console.error("Trying to remove non active study");
             } else {
-                this.studies.splice(indx);
+                console.log("REMOVING")
+                this._studies.splice(indx);
             }
         }
         this.filterChange();
@@ -121,7 +124,8 @@ export default class StudyFilter extends LitElement {
                 <span style="font-weight: bold;font-style: italic;color: darkred">${this.opencgaSession.study.alias}</span>
                 ${this.differentStudies && this.differentStudies.length && this.differentStudies.map(study => html`
                     <br>
-                    <input id="${this._prefix}${study.alias}Checkbox" type="checkbox" @change="${this.onChangeStudy}" value="${study.alias}" data-id="${study.id}" class="${this._prefix}FilterCheckBox" .checked="${~this.studies.indexOf(study.alias)}" >
+                    this._studies.indexOf(study.alias) ${this._studies.indexOf(study.alias)}
+                    <input id="${this._prefix}${study.alias}Checkbox" type="checkbox" @change="${this.onChangeStudy}" value="${study.alias}" data-id="${study.id}" class="${this._prefix}FilterCheckBox" .checked="${~this._studies.indexOf(study.alias)}" >
                      ${study.alias}
                  `)}
             </div>

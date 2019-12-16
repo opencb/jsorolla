@@ -35,7 +35,7 @@ export default class ConservationFilter extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            query: {
+            conservation: {
                 type: Object
             }
         };
@@ -46,18 +46,18 @@ export default class ConservationFilter extends LitElement {
     }
 
     updated(_changedProperties) {
-        if (_changedProperties.has("query")) {
-            if (this.query.conservation) {
+        if (_changedProperties.has("conservation")) {
+            if (this.conservation) {
                 let operator;
                 // TODO create an Util function getOperator(str) to discriminate the operator in a query filter string
-                const or = this.query.conservation.split(",");
-                const and = this.query.conservation.split(";");
+                const or = this.conservation.split(",");
+                const and = this.conservation.split(";");
                 if (or.length >= and.length) {
                     operator = "or";
                 } else {
                     operator = "and";
                 }
-                const fields = this.query.conservation.split(new RegExp("[,;]"));
+                const fields = this.conservation.split(new RegExp("[,;]"));
                 if (fields && fields.length) {
                     const phylop = fields.find(el => el.startsWith("phylop"));
                     if (phylop) {
@@ -146,7 +146,6 @@ export default class ConservationFilter extends LitElement {
                 conservation = conserArr.join(",");
             }
         }
-        console.log("filterChange", conservation);
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: conservation ? conservation : null

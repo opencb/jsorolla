@@ -16,8 +16,6 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 
-//TODO refactor it needs updated()
-
 export default class ClinvarAccessionsFilter extends LitElement {
 
     constructor() {
@@ -39,7 +37,7 @@ export default class ClinvarAccessionsFilter extends LitElement {
             placeholder: {
                 type: String
             },
-            query: {
+            clinvar: {
                 type: Object
             }
         };
@@ -50,9 +48,9 @@ export default class ClinvarAccessionsFilter extends LitElement {
         this.placeholder = "RCV000058226";
     }
 
-    firstUpdated(_changedProperties) {
-        if (this.query && typeof this.query["clinvar"] !== "undefined") {
-            PolymerUtils.setValue(this._prefix + "ClinVarTextarea", this.query["clinvar"]);
+    updated(_changedProperties) {
+        if (_changedProperties.has("clinvar")) {
+            this.querySelector("#" + this._prefix + "ClinVarTextarea").value = this.clinvar || "";
         }
     }
 

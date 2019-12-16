@@ -37,7 +37,7 @@ export default class ConsequenceTypeFilter extends LitElement {
             consequenceTypes: {
                 type: Object
             },
-            query: {
+            ct: {
                 type: Object
             }
         };
@@ -49,12 +49,12 @@ export default class ConsequenceTypeFilter extends LitElement {
     }
 
     updated(_changedProperties) {
-        if (_changedProperties.has("query")) {
-            if(this.query.ct) {
-                //console.log("this.query.ct",this.query.ct)
-                this.selectedCt = this.query.ct.split(",");
+        if (_changedProperties.has("ct")) {
+            if (this.ct) {
+                // console.log("this.query.ct",this.query.ct)
+                this.selectedCt = this.ct.split(",");
             } else {
-               $("input[type=checkbox]", this).prop("checked", false);
+                $("input[type=checkbox]", this).prop("checked", false);
             }
             this.requestUpdate();
         }
@@ -63,7 +63,7 @@ export default class ConsequenceTypeFilter extends LitElement {
     filterChange(e) {
         const ct = this.ct ? this.ct.join(",") : null;
         console.log("filterChange", ct);
-        let event = new CustomEvent("filterChange", {
+        const event = new CustomEvent("filterChange", {
             detail: {
                 value: ct
             }
@@ -78,11 +78,11 @@ export default class ConsequenceTypeFilter extends LitElement {
     }
 
     onChange(e) {
-        //TODO refactor!
-        let lofCheckBox = this.querySelector("#" + this._prefix + "LossOfFunctionCheckBox");
+        // TODO refactor!
+        const lofCheckBox = this.querySelector("#" + this._prefix + "LossOfFunctionCheckBox");
         if (e.currentTarget.id === this._prefix + "LossOfFunctionCheckBox") {
-            for (let ct of this.consequenceTypes.lof) {
-                let checkbox = this.querySelector("#" + this._prefix + ct + "Checkbox");
+            for (const ct of this.consequenceTypes.lof) {
+                const checkbox = this.querySelector("#" + this._prefix + ct + "Checkbox");
                 if (checkbox) {
                     checkbox.checked = e.currentTarget.checked;
                 }
@@ -94,14 +94,14 @@ export default class ConsequenceTypeFilter extends LitElement {
                 $(this).prop("checked", e.target.checked);
             });
         }
-        let soTerms = [];
-        let selected = this.querySelector("#" + this._prefix + "consequenceTypeFilter").querySelectorAll("li input");
+        const soTerms = [];
+        const selected = this.querySelector("#" + this._prefix + "consequenceTypeFilter").querySelectorAll("li input");
         selected.forEach(sel => {
             if (sel.checked && typeof sel.dataset !== "undefined" && typeof sel.dataset.id !== "undefined") {
                 soTerms.push(sel.dataset.id);
             } else {
                 // If one term from LoF array is not selected we remove LoF check
-                let dataId = sel.getAttribute("data-id");
+                const dataId = sel.getAttribute("data-id");
                 if (lofCheckBox.checked && UtilsNew.isNotUndefinedOrNull(dataId) && this.consequenceTypes.lof.includes(dataId)) {
                     lofCheckBox.checked = false;
                 }
@@ -111,11 +111,11 @@ export default class ConsequenceTypeFilter extends LitElement {
         this.ct = soTerms;
         this.filterChange();
 
-        //TODO onSelect an item, this refers to the whole category and to the the title of the category
-        //this will be useful to automatially select the category checkbox when all the items in it are selected (useful with saved filters as well)
-        //console.log("checked: ", $("input[type=checkbox]", e.target.parentNode.parentNode.parentNode).length)
-        //console.log("total: ", $("input[type=checkbox]:checked", e.target.parentNode.parentNode.parentNode).length)
-        //console.log("title", e.target.parentNode.parentNode.parentNode.parentNode.id)
+        // TODO onSelect an item, this refers to the whole category and to the the title of the category
+        // this will be useful to automatially select the category checkbox when all the items in it are selected (useful with saved filters as well)
+        // console.log("checked: ", $("input[type=checkbox]", e.target.parentNode.parentNode.parentNode).length)
+        // console.log("total: ", $("input[type=checkbox]:checked", e.target.parentNode.parentNode.parentNode).length)
+        // console.log("title", e.target.parentNode.parentNode.parentNode.parentNode.id)
     }
 
     render() {
@@ -173,6 +173,7 @@ export default class ConsequenceTypeFilter extends LitElement {
             </div>
         `;
     }
+
 }
 
 customElements.define("consequence-type-filter", ConsequenceTypeFilter);

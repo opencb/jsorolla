@@ -41,8 +41,8 @@ export default class PopulationFrequencyFilter extends LitElement {
             showSetAll: {
                 type: Boolean
             },
-            query: {
-                type: Object
+            populationFrequencyAlt: {
+                type: String
             }
         };
     }
@@ -54,11 +54,11 @@ export default class PopulationFrequencyFilter extends LitElement {
 
     updated(_changedProperties) {
         let pfArray = [];
-        if (this.query && typeof this.query["populationFrequencyAlt"] !== "undefined") {
-            pfArray = this.query["populationFrequencyAlt"].split(new RegExp("[,;]"));
+        if (this.populationFrequencyAlt) {
+            pfArray = this.populationFrequencyAlt.split(new RegExp("[,;]"));
             // reset and update input fields and select fields
-            $("." + this._prefix + "FilterTextInput").val("");
-            $("." + this._prefix + "FilterTextInput").prop("disabled", false);
+            //$("." + this._prefix + "FilterTextInput").val(""); //it is useless and it causes a bug when you use the set all field
+            //$("." + this._prefix + "FilterTextInput").prop("disabled", false);
             if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
                 pfArray.forEach(queryElm => {
                     const popFreq = queryElm.split(/[<=>]+/);
@@ -70,9 +70,9 @@ export default class PopulationFrequencyFilter extends LitElement {
                 });
             }
         } else {
-            // this block covers the case of opencga-active-filters deletes all populationFrequencyAlt filters
+            // this covers the case of opencga-active-filters deletes all populationFrequencyAlt filters
             $("." + this._prefix + "FilterTextInput").val("");
-            $("." + this._prefix + "FilterTextInput").prop("disabled", false);
+            //$("." + this._prefix + "FilterTextInput").prop("disabled", false);
         }
     }
 
