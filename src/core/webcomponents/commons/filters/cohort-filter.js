@@ -33,6 +33,9 @@ export default class CohortFilter extends LitElement {
 
     static get properties() {
         return {
+            opencgaSession: {
+                type: Object
+            },
             cellbaseClient: {
                 type: Object
             },
@@ -41,25 +44,42 @@ export default class CohortFilter extends LitElement {
             },
             config: {
                 type: Object
+            },
+            cohortStatsAlt: {
+                type: String
+            },
+            // TODO temp fix (should it be defined from config in component itself?)
+            _cohorts: {
+                type: Object
             }
         };
     }
 
     _init() {
         this._prefix = "cf-" + Utils.randomString(6) + "_";
-        this.cohortsPerStudy = this.cohorts ? this.cohorts[this.opencgaSession.project.id] : null;
-
     }
-    firstUpdated(_changedProperties) {
-        let cohortArray = [];
-        if (this.query && typeof this.query.cohortStatsAlt !== "undefined") {
-            cohortArray = this.query.cohortStatsAlt.split(new RegExp("[,;]"));
-            for (let i = 0; i < cohortArray.length; i++) {
-                const [study, cohortFreq] = cohortArray[i].split(":");
-                const [cohort, freq] = cohortFreq.split(/[<=>]+/);
-                const operator = cohortFreq.split(/[-A-Za-z0-9._:]+/)[1];
-                PolymerUtils.setValue(this._prefix + study + cohort + "Cohort", freq);
-                PolymerUtils.setValue(this._prefix + study + cohort + "CohortOperator", operator);
+
+    connectedCallback() {
+        super.connectedCallback();
+        this.cohortsPerStudy = this.cohorts ? this.cohorts[this.opencgaSession.project.id] : null;
+    }
+
+
+    updated(_changedProperties) {
+        if (_changedProperties.has("cohortStatsAlt")) {
+            let cohortArray = [];
+            // reset fields
+            $(`.${this._prefix}FilterTextInput`, this).val("");
+            $(`.${this._prefix}FilterSelect`, this).val("<");
+            if (this.cohortStatsAlt) {
+                cohortArray = this.cohortStatsAlt.split(new RegExp("[,;]"));
+                for (let i = 0; i < cohortArray.length; i++) {
+                    const [study, cohortFreq] = cohortArray[i].split(":");
+                    const [cohort, freq] = cohortFreq.split(/[<=>]+/);
+                    const operator = cohortFreq.split(/[-A-Za-z0-9._:]+/)[1];
+                    this.querySelector("#" + this._prefix + study + cohort + "Cohort").value = freq;
+                    this.querySelector("#" + this._prefix + study + cohort + "CohortOperator").value = operator;
+                }
             }
         }
     }
@@ -68,6 +88,8 @@ export default class CohortFilter extends LitElement {
     filterChange(e) {
         const cohortFreq = [];
         let cohortStatsAlt;
+        console.log("this._cohorts", this._cohorts);
+        console.log("this.cohorts", this.cohorts);
         if (UtilsNew.isNotEmpty(this._cohorts)) {
             for (let studyId in this._cohorts) {
                 for (const cohort of this._cohorts[studyId]) {
@@ -91,7 +113,7 @@ export default class CohortFilter extends LitElement {
         }
         const event = new CustomEvent("filterChange", {
             detail: {
-                cohort: cohortStatsAlt ? cohortStatsAlt : null
+                value: cohortStatsAlt ? cohortStatsAlt : null
 
             }
         });
@@ -103,7 +125,7 @@ export default class CohortFilter extends LitElement {
             ${Object.keys(this.cohortsPerStudy).map(study => html`
                 <div style="padding: 5px 0px">
                     <div style="padding-bottom: 5px">
-                        <span style="font-style: italic">COHORT HTML${study}</span> study:
+                        <span style="font-style: italic">${study}</span> study:
                     </div>
                     <div class="form-horizontal">
                         ${this.cohortsPerStudy[study] && this.cohortsPerStudy[study].map(cohort => html`
@@ -120,7 +142,7 @@ export default class CohortFilter extends LitElement {
                                 </div>
                                 <div class="col-md-4" style="padding: 0px 10px">
                                     <input type="text" value="" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                           name="${study}_${cohort.id}" id="${this._prefix}${study}${cohort.id}Cohort" @change="${this.filterChange}">
+                                           name="${study}_${cohort.id}" id="${this._prefix}${study}${cohort.id}Cohort" @input="${this.filterChange}">
                                 </div>
                             </div>
                         `)}

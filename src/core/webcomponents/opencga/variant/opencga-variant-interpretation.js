@@ -154,10 +154,7 @@ class OpencgaVariantInterpretation extends LitElement {
 
     opencgaSessionObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
-        console.log("CONFIG", this.config)
         this._config = {...this.getDefaultConfig(), ...this.config};
-        console.log("CONFIG", this.config)
-        console.log("_CONFIG", this._config)
 
         // Check if Beacon hosts are configured
         for (const detail of this._config.detail) {
@@ -271,9 +268,9 @@ class OpencgaVariantInterpretation extends LitElement {
 
 
     onClinicalAnalysisEditor(e) {
-        //TODO FIXME commented because it cause clinicalAnalysis.probant to be undefined
-        console.warn("onClinicalAnalysisEditor commented")
-        //this.clinicalAnalysis = Object.assign({}, e.detail.clinicalAnalysis);
+        //console.warn("onClinicalAnalysisEditor commented")
+        //console.warn(" e.detail.clinicalAnalysis", e.detail.clinicalAnalysis)
+        this.clinicalAnalysis = Object.assign({}, e.detail.clinicalAnalysis);
     }
 
     // interactiveObserver() {

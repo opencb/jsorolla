@@ -336,7 +336,10 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         // this._individuals = individuals;
 
         // Set the proband when there is just one individual
-        this._clinicalAnalysis.proband = undefined;
+        console.warn("commented line for proband undefined (the case of one individual)")
+        //this._clinicalAnalysis.proband = undefined;
+
+
         // FIXME add this comparison
         // && individuals.length === 1
         // if (UtilsNew.isNotEmptyArray(individuals) ) {

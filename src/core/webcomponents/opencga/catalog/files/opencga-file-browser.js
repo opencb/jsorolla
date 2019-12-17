@@ -284,9 +284,7 @@ export default class OpencgaFileBrowser extends LitElement {
                                            .eventNotifyName="${this.eventNotifyName}"
                                            .files="${this.files}"
                                            style="font-size: 12px"
-                                           @selectfile="${this.onSelectFile}"
-                                           @download="${this.onDownload}"
-                                           >
+                                           @selectfile="${this.onSelectFile}">
                         </opencga-file-grid>
 
                         <div style="padding-top: 5px">

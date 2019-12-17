@@ -191,6 +191,8 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
 
     onVariantFilterChange(e) {
         this.preparedQuery = this._prepareQuery(e.detail.query);
+        //console.log("onVariantFilterChange preparedQuery", this.preparedQuery)
+        this.preparedQuery = {...this.preparedQuery};
         this.requestUpdate();
     }
 
@@ -201,7 +203,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
     }
 
     onActiveFilterChange(e) {
-        console.log(e.detail)
+        //console.log("onActiveFilterChange", e.detail)
         this.query = {...e.detail};
         this.preparedQuery = {...e.detail};
         this.requestUpdate();

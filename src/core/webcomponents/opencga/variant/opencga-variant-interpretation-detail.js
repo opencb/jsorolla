@@ -63,6 +63,7 @@ export default class OpencgaVariantInterpretationDetail extends LitElement {
 
         // Initially we set the default config, this will be overridden if 'config' is passed
         this._config = this.getDefaultConfig();
+        this.detailActiveTabs = {};
     }
 
     updated(changedProperties) {
@@ -95,7 +96,7 @@ export default class OpencgaVariantInterpretationDetail extends LitElement {
         for (const detail of this.config) {
             _activeTabs[detail.id] = (detail.id === e.currentTarget.dataset.id);
         }
-        this.set("detailActiveTabs", _activeTabs);
+        this.detailActiveTabs = _activeTabs;
     }
 
     getDefaultConfig() {

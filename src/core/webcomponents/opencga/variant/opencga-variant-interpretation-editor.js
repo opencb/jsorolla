@@ -104,7 +104,11 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
         }
     }
 
-    // TODO check functionality. it was connectedCallback()
+    connectedCallback() {
+        super.connectedCallback();
+        this._interpretation = this.interpretation;
+    }
+
     firstUpdated(_changedProperties) {
 
         // if (!this.interactive) {
@@ -149,9 +153,9 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
         // }
     }
 
-    interpretationObserver(interpretation) {
+    interpretationObserver() {
         // TODO We need to respect all the changes made in the reported variants
-        this._interpretation = interpretation;
+        this._interpretation = this.interpretation;
 
         if (UtilsNew.isNotUndefinedOrNull(this._interpretation)) {
             if (UtilsNew.isNotEmptyArray(this._interpretation.primaryFindings)) {

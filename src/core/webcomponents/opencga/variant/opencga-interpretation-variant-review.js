@@ -46,9 +46,9 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
     }
 
     updated(changedProperties) {
-        if(changedProperties.has("property")) {
+        /*if(changedProperties.has("property")) {
             this.propertyObserver();
-        }
+        }*/
     }
 
     static get properties() {
@@ -58,7 +58,7 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
             },
             variant: {
                 type: Object,
-                observer: "variantObserver"
+                //observer: "variantObserver"
             },
             // active: {
             //     type: Boolean,
@@ -77,7 +77,7 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
         return html`
         <style include="jso-styles"></style>
 
-        <span>${this.variant.id}</span>
+        <span>${this.variant ? this.variant.id : ""}</span>
         <div class="form-horizontal" data-toggle="validator" role="form">
 
             <div class="form-group">

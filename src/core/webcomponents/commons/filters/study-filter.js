@@ -36,7 +36,7 @@ export default class StudyFilter extends LitElement {
                 type: Object
             },
             studies: {
-                type: String
+                type: Object
             }
         };
     }
@@ -44,8 +44,6 @@ export default class StudyFilter extends LitElement {
     _init() {
         this._prefix = "sf-" + Utils.randomString(6) + "_";
         this.operator = ";";
-        //FIXME this component uses this._studies as an array of aliases, while it receives in query an array of pairs fqn:alias, this is a problem with saved filters
-        //array of aliases of the studies currently active
         this._studies = [];
     }
 
@@ -55,8 +53,8 @@ export default class StudyFilter extends LitElement {
 
     updated(_changedProperties) {
         if (_changedProperties.has("studies")) {
-            console.log("updated",this.studies)
             this._studies = this.studies ? this.studies.split(new RegExp("[,;]")) : [this.primaryProject];
+            this.requestUpdate()
             //this shouldn't be necessary since this.studies is being updated..
             //this.requestUpdate();
             //NOTE Do NOT fire filterChange in updated(), it would interferes with other filters changes and active-filters
@@ -67,10 +65,10 @@ export default class StudyFilter extends LitElement {
         let querystring;
         // AND or OR operators
         if (this.operator !== "!") {
-            querystring = [this.primaryProject, ...this._studies.map(study => `${this.opencgaSession.project.fqn}:${study}`)].join(this.operator);
+            querystring = [...this._studies.map(study => `${study}`)].join(this.operator);
         } else {
             // NOT operator
-            querystring = [this.primaryProject, ...this._studies.map(study => `${this.operator}${this.opencgaSession.project.fqn}:${study}`)].join(";");
+            querystring = [...this._studies.map(study => `${this.operator}${study}`)].join(";");
         }
         const event = new CustomEvent("filterChange", {
             detail: {
@@ -93,18 +91,14 @@ export default class StudyFilter extends LitElement {
     }
 
     onChangeStudy(e) {
-        const study = e.target.value;
-        console.log("onChangeStudy",e.target.checked)
+        const study = e.target.dataset.id;
         if (e.target.checked) {
             this._studies.push(study);
-            console.log("ADDING")
         } else {
             const indx = this._studies.indexOf(study);
-            console.error("indx",indx, "study",study)
             if (!~indx) {
                 console.error("Trying to remove non active study");
             } else {
-                console.log("REMOVING")
                 this._studies.splice(indx);
             }
         }
@@ -124,8 +118,7 @@ export default class StudyFilter extends LitElement {
                 <span style="font-weight: bold;font-style: italic;color: darkred">${this.opencgaSession.study.alias}</span>
                 ${this.differentStudies && this.differentStudies.length && this.differentStudies.map(study => html`
                     <br>
-                    this._studies.indexOf(study.alias) ${this._studies.indexOf(study.alias)}
-                    <input id="${this._prefix}${study.alias}Checkbox" type="checkbox" @change="${this.onChangeStudy}" value="${study.alias}" data-id="${study.id}" class="${this._prefix}FilterCheckBox" .checked="${~this._studies.indexOf(study.alias)}" >
+                    <input id="${this._prefix}${study.alias}Checkbox" type="checkbox" @change="${this.onChangeStudy}" value="${study.alias}" data-id="${study.fqn}" class="${this._prefix}FilterCheckBox" .checked="${~this._studies.indexOf(study.fqn)}" >
                      ${study.alias}
                  `)}
             </div>

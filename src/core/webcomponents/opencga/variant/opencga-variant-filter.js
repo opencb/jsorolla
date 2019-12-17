@@ -172,6 +172,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 }*/
             }
 
+            //TODO should it be moved in cohort-filter?
             // Update cohorts from config, this updates the Cohort filter ALT
             if (typeof this.config !== "undefined" && typeof this.config.menu.sections !== "undefined") {
                 this._cohorts = [];
@@ -261,8 +262,8 @@ export default class OpencgaVariantFilter extends LitElement {
         $("#" + this._prefix + "SampleFilterModal").modal("show");
     }*/
 
-    //TODO moved in sample-filter still not adapted
-    onClinicalFilterChange(e) {
+    //TODO moved in sample-filter still not completed
+    /*onClinicalFilterChange(e) {
         // Process Sample filters
         let _genotypeFilters = [];
         let _sampleIds = [];
@@ -342,7 +343,7 @@ export default class OpencgaVariantFilter extends LitElement {
         }
 
         this.notifyQuery(this.preparedQuery);
-    }
+    }*/
 
     /*
     //refactored and moved in go-accessions-filter and hpo-accessions-filter
@@ -861,6 +862,25 @@ export default class OpencgaVariantFilter extends LitElement {
         this.requestUpdate()
     }
 
+    onSampleFilterChange(sampleFields) {
+        console.log("onSampleFilterChange in variant-filter", sampleFields)
+        //TODO refactor with proper optional spreading
+        this.preparedQuery = {...this.preparedQuery, ...sampleFields};
+        if(!sampleFields.genotype) {
+            delete this.preparedQuery.genotype
+        }
+        if(!sampleFields.sample) {
+            delete this.preparedQuery.sample
+        }
+        if(!sampleFields.format) {
+            delete this.preparedQuery.format
+        }
+        this.preparedQuery = {...this.preparedQuery};
+        this.notifyQuery(this.preparedQuery);
+        this.requestUpdate()
+
+    }
+
     //binding::from the view to this.query
     //most of those blocks have been refactored & moved in filterChange() in each filter component
     updateQueryFilters() {
@@ -1336,10 +1356,10 @@ export default class OpencgaVariantFilter extends LitElement {
             content = html`<study-filter .opencgaSession="${this.opencgaSession}" .differentStudies="${this.differentStudies}" .studies="${this.preparedQuery.studies}" @filterChange="${e => this.onFilterChange("studies", e.detail.value)}"></study-filter>`;
             break;
         case "cohort":
-            content = html`<cohort-filter .cohorts="${subsection.cohorts}"> </cohort-filter>`;
+            content = html`<cohort-filter .opencgaSession="${this.opencgaSession}" .cohorts="${subsection.cohorts}" ._cohorts="${this._cohorts}" .cohortStatsAlt="${this.preparedQuery.cohortStatsAlt}" @filterChange="${e => this.onFilterChange("cohortStatsAlt", e.detail.value)}"> </cohort-filter>`;
             break;
         case "sample":
-            content = html`<sample-filter ?enabled="${subsection.showSelectSamples}" .clinicalAnalysis="${this.clinicalAnalysis}" .query="${this.query}" @filterChange="${e => this.onFilterChange("genotype", e.detail.value)}"></sample-filter>`;
+            content = html`<sample-filter ?enabled="${subsection.showSelectSamples}" .opencgaSession="${this.opencgaSession}" .clinicalAnalysis="${this.clinicalAnalysis}" .query="${this.query}" @sampleFilterChange="${e => this.onSampleFilterChange(e.detail.value)}"></sample-filter>`;
             break;
         case "file":
             /** @deprecated */

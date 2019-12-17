@@ -180,7 +180,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
         // this.renderSampleTable();
         this.sampleFilters = [...this.sampleFilters];
         this.requestUpdate();
-        this.notify();
+        this.sampleFiltersChange();
     }
 
     /**
@@ -222,16 +222,14 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                 // debugger
             }
             this.sampleFilters = [...this.sampleFilters];
+            //console.error("queryObserver in modal", this.sampleFilters)
             this.requestUpdate();
         }
     }
 
-    notify() {
+    sampleFiltersChange() {
         // let compHet = false;
-        let missing = false;
-        if (PolymerUtils.getElementById(this._prefix + "MissingCheckbox") !== null) {
-            missing = PolymerUtils.getElementById(this._prefix + "MissingCheckbox").checked;
-        }
+        let missing = this.querySelector("#" + this._prefix + "MissingCheckbox").checked;
 
         // File Filters
         // let _qual = undefined;
@@ -284,6 +282,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                 for (const sampleFilter of _this.sampleFilters) {
                     // sampleFilter.genotypes = genotypeResults[sampleFilter.id];
                     sampleFilter.genotypes = genotypeResults[individualToSampleMap[sampleFilter.id]];
+                    console.log("genotypes", sampleFilter.genotypes)
                     countGenoypes += sampleFilter.genotypes.length;
                 }
                 // _this.renderSampleTable()
@@ -296,7 +295,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                     PolymerUtils.show(_this._prefix + "Warning");
                 }
 
-                _this.notify();
+                _this.sampleFiltersChange();
             }
         }).catch(function(response) {
             console.error(response);
@@ -368,6 +367,8 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                 for (let i = 5; i <= 7; i++) {
                     if (row.children[i].children[0].checked) {
                         this.sampleFilters[counter].genotypes.push(row.children[i].children[0].dataset.gt);
+                    } else {
+                        //console.log("Check", row.children[i].children[0].checked)
                     }
 
                 }
@@ -379,8 +380,8 @@ export default class OpencgaVariantFilterClinical extends LitElement {
             }
         }
         this.sampleFilters = [...this.sampleFilters];
-        console.log("this.sampleFilters", this.sampleFilters);
-        this.requestUpdate();
+        //console.log("this.sampleFilters", this.sampleFilters);
+        //this.requestUpdate();
 
         // Set MoI select to 'none' when clicked in GT
         if (UtilsNew.isNotUndefinedOrNull(e.currentTarget.dataset.gt)) {
@@ -389,7 +390,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
             PolymerUtils.hide(this._prefix + "Warning");
         }
 
-        this.notify();
+        this.sampleFiltersChange();
     }
 
     getDefaultConfig() {
@@ -438,7 +439,6 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                         </tr>
                         </thead>
                         <tbody id="${this._prefix}BasicTBody">
-                           this.sampleFilters ${JSON.stringify(this.sampleFilters)}
                            <!-- renderSampleTable() -->
                             ${this.sampleFilters && this.sampleFilters.length ? this.sampleFilters.map(sampleFilter => html`
                                 <tr data-sample="${sampleFilter.id}">
@@ -491,7 +491,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                                                style="width: 60px" @input="${this.onSampleTableChange}">
                                     </td>
                                 </tr>
-                             `) : "BOBO"}
+                             `) : ""}
                            
                            
                         </tbody>
@@ -531,7 +531,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                     <label>Other options</label>
                 </div>
                 <div style="padding: 5px 30px">
-                    <input id="${this._prefix}MissingCheckbox" type="checkbox" @click="${this.notify}"><span style="padding-left: 5px">Include parent missing (non-ref) allele calls</span>
+                    <input id="${this._prefix}MissingCheckbox" type="checkbox" @click="${this.sampleFiltersChange}"><span style="padding-left: 5px">Include parent missing (non-ref) allele calls</span>
                 </div>
             </div>
         </div>

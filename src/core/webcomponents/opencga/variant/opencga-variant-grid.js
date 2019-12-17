@@ -91,7 +91,7 @@ export default class OpencgaVariantGrid extends LitElement {
 
         // this._updateTableColumns();
         // this._columns = this._createDefaultColumns();
-        this.renderVariantTable();
+        //this.renderVariantTable();
     }
 
     _init() {
@@ -175,8 +175,12 @@ export default class OpencgaVariantGrid extends LitElement {
 
         let _table = $("#" + this._prefix + "VariantBrowserGrid");
 
-        if (typeof this.opencgaSession !== "undefined" && typeof this.opencgaSession.project !== "undefined"
-            && typeof this.opencgaSession.study !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
+        //TODO quickfix. The check on query is required because the study is in the query object. A request without the study returns the error "Multiple projects found"
+        if (this.query &&
+            typeof this.opencgaSession !== "undefined" &&
+            typeof this.opencgaSession.project !== "undefined" &&
+            typeof this.opencgaSession.study !== "undefined" &&
+            typeof this.opencgaSession.study.alias !== "undefined") {
             this._columns = this._createDefaultColumns();
 
             let urlQueryParams = this._getUrlQueryParams();
@@ -294,6 +298,7 @@ export default class OpencgaVariantGrid extends LitElement {
                     }
                 },
                 onLoadError: function(status, res) {
+                    console.trace()
                     debugger
                 },
                 onPageChange: function(page, size) {

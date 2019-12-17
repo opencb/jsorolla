@@ -116,6 +116,7 @@ export default class OpencgaVariantFacet extends LitElement {
 
     firstUpdated(_changedProperties) {
         $(".bootstrap-select", this).selectpicker();
+        //console.log("this.query from BROWSER", this.query)
     }
 
     updated(changedProperties) {
@@ -129,7 +130,8 @@ export default class OpencgaVariantFacet extends LitElement {
             this.fetchVariants();
         }
         if (changedProperties.has("query")) {
-            this.queryObserver();
+            console.warn("queryObserver is commented")
+            //this.queryObserver();
         }
         if (changedProperties.has("selectedFacet")) {
             this.selectedFacetObserver();
@@ -1149,7 +1151,7 @@ export default class OpencgaVariantFacet extends LitElement {
         //TODO FIXME! study prop have to be wiped off. use studies instead
         this.preparedQuery = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias, ...e.detail};
         this.query = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias, ...e.detail};
-        this.requestUpdate();
+        //this.requestUpdate();
     }
 
     onActiveFilterClear() {
