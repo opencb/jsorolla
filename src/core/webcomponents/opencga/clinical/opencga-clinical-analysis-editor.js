@@ -98,7 +98,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         };
         this.mode = "create";
         this._clinicalAnalysis = {}; // FIXME quick fix needs a proper check
-
+        //console.log("this._config",this._config)
     }
 
     updated(changedProperties) {
@@ -152,6 +152,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     propertyObserver() {
         this._config = Object.assign(this.getDefaultConfig(), this.config);
 
+        //console.log("this._config",this._config)
         // Set a private variable with all the users in this study: owner + @members group.
         // By default, the user creating the Case is selected as default
         if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study) &&
@@ -221,12 +222,14 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         }
     }
 
+    //TODO move in template
     _updateCreateButtonStatus() {
         if (UtilsNew.isNotEmpty(this._clinicalAnalysis.id) && UtilsNew.isNotUndefinedOrNull(this._clinicalAnalysis.proband)) {
             PolymerUtils.getElementById(`${this._prefix}Ok`).disabled = false;
         } else {
             PolymerUtils.getElementById(`${this._prefix}Ok`).disabled = true;
         }
+        this.requestUpdate();
     }
 
     fillForm(clinicalAnalysis) {
@@ -386,6 +389,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                 this._clinicalAnalysis.files = files;
 
                 this.fillForm(this._clinicalAnalysis);
+                this.requestUpdate();
                 this.notifyClinicalAnalysis();
             });
         } else {
@@ -535,6 +539,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     renderTable() {
         const columns = this._initTableColumns();
 
+        console.log("columns",columns)
         const _this = this;
 
         console.log("_this._individuals",_this._individuals)
@@ -555,6 +560,12 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
 
             onPostBody: function(data) {
                 $(".selectpicker").selectpicker("refresh");
+
+                /**
+                 *  returning a lit-html element in a formatter cause the print of [object Object].
+                 *  the flowwing listerners are necessary as temp solution.
+                 *  TODO find a better way to make bootstrap-table formatters and lit-html works together.
+                 */
 
                 const removeIndividualButtons = PolymerUtils.querySelectorAll(".removeIndividualButton");
                 for (let i = 0; i < removeIndividualButtons.length; i++) {
@@ -628,13 +639,13 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                     }
                 }
             }
-            return html`<div>
+            return `<div>
                             <span data-toggle="tooltip" data-placement="bottom" style="${sampleIdStyle}" title="" >
                             ${value} <i class='fa ${sampleIcon} fa-lg' style='padding-left: 5px'></i>
                             </span>
                         </div>`;
         } else {
-            return html`-`;
+            return `-`;
         }
     }
 
@@ -644,19 +655,19 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
             // for (let sample of row.samples) {
             //     samples += `<div>${sample.id}</div>`;
             // }
-            return html`<span>${row.samples[0].id}</span>`
+            return `<span>${row.samples[0].id}</span>`
         } else {
-            return html`-`;
+            return `-`;
         }
     }
 
     probandFormatter(value, row) {
-        return html`<input type="radio" name="${this._prefix}-optradio" class="probandRadio" data-individual-id="${row.id}">`;
+        return `<input type="radio" name="${this._prefix}-optradio" class="probandRadio" data-individual-id="${row.id}" @click="${this.aaa}">`;
     }
 
     //TODO change name
     aaa(e) {
-        console.warn("change name function!")
+        console.warn("change function name")
         const individualId = e.currentTarget.dataset.individualId;
         if (UtilsNew.isNotUndefinedOrNull(this._clinicalAnalysis.family) &&
             UtilsNew.isNotEmptyArray(this._clinicalAnalysis.family.members)) {
@@ -736,7 +747,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     }*/
 
     removeButtonFormatter(value, row) {
-        return `<button data-id=${row.id} class='btn btn-sm btn-danger removeIndividualButton'>
+        return `<button data-id=${row.id} class='btn btn-sm btn-danger removeIndividualButton' @click="${this.removeIndividualButtonClicked}">
                         <i class="fa fa-trash" aria-hidden="true"></i> Remove</button>`;
     }
 
@@ -752,7 +763,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                 {
                     title: "Sample",
                     field: "samples",
-                    formatter: this.samplesFormatter,
+                    formatter: this.samplesFormatter.bind(this),
                     halign: this._config.grid.header.horizontalAlign
                 },
                 {
@@ -849,6 +860,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
             }
         </style>
 
+<div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
 
@@ -1071,7 +1083,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                 </div>
             </div>
         </div>
-
+</div>
 
         <!--<table id="${this._prefix}IndividualBrowserGrid">-->
         <!--<thead style="background-color: #eee"></thead>-->

@@ -106,6 +106,7 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+        console.log("this.interpretation in variant-interpretation-editor", this.interpretation)
         this._interpretation = this.interpretation;
     }
 
@@ -617,7 +618,7 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
                                                                      .consequenceTypes="${this.consequenceTypes}"
                                                                      .populationFrequencies="${this.populationFrequencies}"
                                                                      .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                                     .config="${this._config.grid}}"
+                                                                     .config="${this._config.grid}"
                                                                      @selected="${this.selectedGene}"
                                                                      @selectvariant2="${this.onSelectVariant2}"
                                                                      @checkvariant="${this.onCheckVariant}"
@@ -649,7 +650,7 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
                 </div>
 
                 <div class="col-md-12">
-                    <template is="dom-if" if="${this.interpretationView}}">
+                    ${this.interpretationView ? html`
                         <clinical-interpretation-view id="id"
                                                       interpretation="${this.interpretationView}"
                                                       .opencgaSession="${this.opencgaSession}"
@@ -659,7 +660,7 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
                                                       .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                                       style="font-size: 12px">
                         </clinical-interpretation-view>
-                    </template>
+                    ` : null}
                 </div>
             </div>
         </div>

@@ -1272,6 +1272,10 @@ export default class OpencgaVariantFacet extends LitElement {
             .panel-title p{
                 margin: 0;
             }
+            
+            .facetResultsDiv {
+                padding-top: 20px;
+            }
         </style>
 
         ${this.checkProjects ? html`
@@ -1343,7 +1347,7 @@ export default class OpencgaVariantFacet extends LitElement {
                                                                 <input type="text" class="form-control subsection-content" id="${facet[0]}_text" data-id="${facet[0]}" @input="${this.onFacetTextChange}" .value="${facet[1].value || ""}" placeholder="Include values or set range" />
                                                             </div>
                                                             <div class="col-md-6">
-                                                                <select-field-filter .data="${["Range", "Avg", "Percentile"]}" .value="${"Range"}" @filterChange="${e => this.onFacetFnChange(facet[0], e.detail.value)}"></select-field-filter>
+                                                                <select-field-filter .data="${["Range", "Avg", "Percentile"]}" .value="${"Range"}" @filterChange="${e => this.onFacetFnChange(facet[0], e.detail.value[0])}"></select-field-filter>
                                                             </div>
                                                         </div>
                                                         
@@ -1445,10 +1449,9 @@ export default class OpencgaVariantFacet extends LitElement {
                         ` : null}
 
                         ${this.facetResults && this.facetResults.length ? this.facetResults.map(item => html`
-                            <div id="facetResultsDiv">
-                                <div style="padding: 20px">
+                            <div class="facetResultsDiv">
+                                <div>
                                     <h3>${item.name}</h3>
-                                    <h4>${item.name}</h4>
                                     <opencga-facet-result-view .facetResult="${item}" .config="${this.facetConfig}" .active="${this.facetActive}"></opencga-facet-result-view>
                                 </div>
                             </div>

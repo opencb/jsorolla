@@ -295,9 +295,8 @@ export default class OpencgaProjects extends LitElement {
             timeout: 60000,
             facet: "studies"
         }, {}));
-        Promise.all([...results,sleep]).then( response => {
-
-            response.pop() //TODO remove with sleep
+        Promise.all([...results]).then( response => {
+            //response.pop() //TODO remove with sleep
 
             console.log("res", JSON.stringify(response));
             const data = response.map( (projectFacet, i) => ({
@@ -306,7 +305,7 @@ export default class OpencgaProjects extends LitElement {
             }));
             // format data for highchart
             let dataset = [];
-            //TODO for (var [i, project] of response.entries()) { // build project infos }
+            //TODO for (var [i, project] of Object.entries()) { // build project infos }
             for (const project of response) {
                 dataset.push(
                     ...project.response[0].result[0].results[0].buckets.map( datapoint => ({name: datapoint.value, data: [datapoint.count], type: "column"})),
@@ -328,21 +327,24 @@ export default class OpencgaProjects extends LitElement {
             chart: {
                 type: "column"
             },
-            // legend: false,
+            legend: false,
             title: {
                 text: "Projects overview"
             },
             subtitle: {
-                text: "subtitle?"
+                text: ""
             },
             xAxis: {
-                crosshair: true
             },
             yAxis: {
                 min: 0,
-                title: {
-                    text: "Rainfall (mm)"
-                },
+                plotLines: [{
+                    color: 'green',
+                    //TODO temp solution. It shows the total count for the first project only
+                    value: facetData.find( point => point.name === "count").data[0],
+                    width: 1,
+                    zIndex: 2
+                }]
             },
             tooltip: {
                 headerFormat: "<span style=\"font-size:10px\">{point.key}</span><table>",
@@ -384,7 +386,7 @@ export default class OpencgaProjects extends LitElement {
         <div id="containerChart"></div>
         <div>
             <!--<br>-->
-            <table class="table">
+            <table class="table" style="display: none">
                 <thead class="thead-inverse">
                 <tr>
                     <th colspan="5">Project</th>

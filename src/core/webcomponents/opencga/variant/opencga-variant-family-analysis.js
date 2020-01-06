@@ -178,8 +178,8 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
         if (this.query) {
             this.preparedQuery = this._prepareQuery(this.query);
             this.executedQuery = {...this.preparedQuery};
-            this.requestUpdate();
         }
+        this.requestUpdate();
     }
 
     activeObserver() {

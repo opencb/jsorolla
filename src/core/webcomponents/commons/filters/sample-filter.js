@@ -57,7 +57,8 @@ export default class SampleFilter extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        this.renderClinicalQuerySummary();
+        //this.renderClinicalQuerySummary();
+        this.updateClinicalQueryTable();
     }
 
     filterChange(e) {
@@ -72,8 +73,10 @@ export default class SampleFilter extends LitElement {
     }
 
     queryObserver(){
+        this.updateClinicalQueryTable();
         this.clinicalFilterQuery = {...this.query} //updates the table opencga-variant-filter-clinical (in the modal)
-        this.renderClinicalQuerySummary();
+        //console.error("renderClinicalQuerySummary is the problem for the not updating sample-filter table after active-filter change")
+        //console.log("clinicalFilterQuery", this.clinicalFilterQuery)
         //this.requestUpdate();
     }
 
@@ -160,8 +163,9 @@ export default class SampleFilter extends LitElement {
         //Only update query if really needed, this avoids unneeded web refresh
 
         this.query = {...this.query, ..._query};
-        this.renderClinicalQuerySummary();
-        this.requestUpdate();
+        //this.renderClinicalQuerySummary();
+        this.updateClinicalQueryTable()
+        //this.requestUpdate();
         this.sampleFilterChange(_query);
     }
 
@@ -175,9 +179,9 @@ export default class SampleFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
-    // TODO this method has been refactored, the render block has been moved in template.
-    //  The whole body of this method can be moved in onClinicalFilterChange()
-    renderClinicalQuerySummary() {
+    // TODO this method has been refactored, the render block has been moved in template. Move the block in more convenient method.
+    //renderClinicalQuerySummary() {
+    updateClinicalQueryTable() {
         if (this.clinicalAnalysis) {
             // Get Individuals (and samples) from Clinical Analysis
             this.individuals = [];
@@ -186,7 +190,6 @@ export default class SampleFilter extends LitElement {
             } else if (this.clinicalAnalysis.proband) {
                 this.individuals = this.clinicalAnalysis.proband;
             }
-
 
             // First, render Genotype table
             this.sampleGenotypeMap = {};
@@ -202,6 +205,7 @@ export default class SampleFilter extends LitElement {
                     }
                 }
             }
+            this.requestUpdate();
 
             /*return;
             //TODO moved in template
@@ -266,15 +270,15 @@ export default class SampleFilter extends LitElement {
                             ${this.individuals ? this.individuals.map(individual => {
                                 if (UtilsNew.isNotEmptyArray(individual.samples)) {
                                     const color = this.clinicalAnalysis.proband && individual.id === this.clinicalAnalysis.proband.id ? "darkred" : "black";
+                                    
                                     console.log("sampleGenotypeMap", this.sampleGenotypeMap[individual.samples[0].id])
-                                    const genotype = this.sampleGenotypeMap[individual.samples[0].id] ? this.sampleGenotypeMap[individual.samples[0].id].join(", ") : "any";
+                                    //const genotype = this.sampleGenotypeMap[individual.samples[0].id] ? this.sampleGenotypeMap[individual.samples[0].id].join(", ") : "any";
                                     return html`
                                                 <tr data-sample="${individual.samples[0].id}">
                                                     <td>
                                                         <span style="color: ${color}">${individual.samples[0].id}</span>
                                                     </td>
                                                     <td>
-                                                        
                                                         ${this.sampleGenotypeMap[individual.samples[0].id] ? this.sampleGenotypeMap[individual.samples[0].id].map(gt => html`<span class="badge">${gt}</span>`) : "any"}
                                                     </td>
                                                 </tr>

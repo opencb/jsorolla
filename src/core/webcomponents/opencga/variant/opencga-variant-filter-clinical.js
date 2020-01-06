@@ -390,6 +390,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
             PolymerUtils.hide(this._prefix + "Warning");
         }
 
+        this.requestUpdate();
         this.sampleFiltersChange();
     }
 

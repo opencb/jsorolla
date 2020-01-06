@@ -841,7 +841,7 @@ class OpencgaVariantInterpretation extends LitElement {
                         <opencga-panel-transcript-view .opencgaSession="${this.opencgaSession}"
                                                        .cellbaseClient="${this.cellbaseClient}"
                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                       .geneIds="${this.geneIds}}"
+                                                       .geneIds="${this.geneIds}"
                                                        .panelIds="${this.diseasePanelIds}">
                         </opencga-panel-transcript-view>
                     </div>

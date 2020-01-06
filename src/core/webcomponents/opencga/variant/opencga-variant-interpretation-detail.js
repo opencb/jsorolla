@@ -183,7 +183,7 @@ export default class OpencgaVariantInterpretationDetail extends LitElement {
                     <div id="${this._prefix}samples" role="tabpanel" class="tab-pane">
                         <div style="width: 75%;padding-top: 8px">
                             <opencga-variant-samples .opencgaSession="${this.opencgaSession}"
-                                                     .variant="${this.variant.id}}"
+                                                     .variant="${this.variant.id}"
                                                      .active="${this.detailActiveTabs.samples}">
                             </opencga-variant-samples>
                         </div>
