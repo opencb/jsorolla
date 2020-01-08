@@ -1218,7 +1218,6 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
                              @sharelink="${this.onShare}">
         </opencb-grid-toolbar>
 
-        <!--{{clinicalAnalysis.description}}-->
         <div id="${this._prefix}GridTableDiv" style="margin-top: 10px">
             <table id="${this._prefix}VariantBrowserGrid">
                 <thead style="background-color: #eee"></thead>
@@ -1226,7 +1225,7 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
         </div>
 
         <div class="modal fade" id="${this._prefix}ReviewSampleModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
-             role="dialog" aria-hidden="true" style="padding-top: 0%; overflow-y: visible">
+             role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
             <div class="modal-dialog" style="width: 1280px">
                 <div class="modal-content">
                     <div class="modal-header" style="padding: 5px 15px">

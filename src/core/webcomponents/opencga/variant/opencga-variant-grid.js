@@ -362,7 +362,7 @@ export default class OpencgaVariantGrid extends LitElement {
                 timeout: 20000
             };
 
-            Object.assign(queryParams, _this.query); // Important : Adding the query object contents to queryParams
+            Object.assign(queryParams, this.query); // Important : Adding the query object contents to queryParams
 
             url = url + "/webservices/rest/v4/" + this.cellbaseClient._config.species + "/feature/variation/search";
             let _this = this;

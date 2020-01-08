@@ -179,7 +179,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
 
         // this.renderSampleTable();
         this.sampleFilters = [...this.sampleFilters];
-        this.requestUpdate();
+        //this.requestUpdate();
         this.sampleFiltersChange();
     }
 

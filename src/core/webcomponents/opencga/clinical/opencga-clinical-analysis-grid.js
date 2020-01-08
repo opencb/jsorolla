@@ -59,14 +59,14 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession") ||
-            changedProperties.has("search") ||
+            changedProperties.has("query") ||
             changedProperties.has("active")) {
             this.propertyObserver();
         }
     }
 
     firstUpdated(_changedProperties) {
-        //this.renderTable(this.active);
+        // this.renderTable(this.active);
     }
 
     /* connectedCallback() {
@@ -258,8 +258,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                     }
 
                     // we add analyses to selected analyses
-                    //_this.push("_analyses", row);
-                    //_this.set("analyses", _this._analyses.slice());
+                    // _this.push("_analyses", row);
+                    // _this.set("analyses", _this._analyses.slice());
                     _this._analyses.push(row);
                     _this._analyses = _this._analyses.slice();
 
@@ -290,9 +290,9 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                         return;
                     }
 
-                    //_this.splice("_analyses", analysisToDeleteIdx, 1);
-                    //_this.set("analyses", _this._analyses.slice());
-                    _this._analyses.splice(analysisToDeleteIdx,1);
+                    // _this.splice("_analyses", analysisToDeleteIdx, 1);
+                    // _this.set("analyses", _this._analyses.slice());
+                    _this._analyses.splice(analysisToDeleteIdx, 1);
                     _this.analyses = _this._analyses.slice();
 
                     // We detail view is active we expand the row automatically
@@ -325,7 +325,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
                     // we add analyses to selected analyses
                     _this._analyses = newClinicalAnalyses;
-                    //_this.set("analyses", newClinicalAnalyses.slice());
+                    // _this.set("analyses", newClinicalAnalyses.slice());
                     _this.analyses = newClinicalAnalyses.slice();
 
                     // We must uncheck nested checked samples
@@ -348,7 +348,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
                     // we add analyses to selected analyses
                     //                            _this.push("_analyses", row);
-                    //_this.set("analyses", _this._analyses.slice());
+                    // _this.set("analyses", _this._analyses.slice());
                     _this.analyses = _this._analyses.slice();
 
                     // We must uncheck nested checked samples
@@ -573,7 +573,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     // }
 
     interpretationFormatter(value, row) {
-        //console.log("interpretationFormatter",value,row)
+        // console.log("interpretationFormatter",value,row)
         const tooltipText = `
                                    <div style='padding: 5px 15px; color: darkgray; font-weight: bolder'>Rare Disease (Not Available yet)</div>
                                    <div>
@@ -735,74 +735,83 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         return this._columns;
     }
 
-    //TODO copied from variant-grid adapt to this component
+    _getUrlQueryParams() {
+        // TODO
+    }
+
     onDownload(e) {
-        let urlQueryParams = this._getUrlQueryParams();
-        let params = urlQueryParams.queryParams;
-        params.limit = 1000; // Default limit is 1000 for now
-
-        this.downloadRefreshIcon.css("display", "inline-block");
-        this.downloadIcon.css("display", "none");
-
-        let _this = this;
-        this.opencgaSession.opencgaClient.variants().query(params)
-            .then(function(response) {
-                let result = response.response[0].result;
+        // let urlQueryParams = this._getUrlQueryParams();
+        // let params = urlQueryParams.queryParams;
+        console.log(this.opencgaSession);
+        const params = {
+            exclude: "files",
+            limit: 100,
+            order: "asc",
+            sid: this.opencgaSession.opencgaClient._config.sessionId,
+            skip: 0,
+            skipCount: true,
+            study: this.opencgaSession.study.fqn
+        };
+        this.opencgaSession.opencgaClient.clinical().search(params)
+            .then(response => {
+                console.log("response", response);
+                const result = response.response[0].result;
                 let dataString = [];
                 let mimeType = "";
                 let extension = "";
 
-                // Check if user clicked in Tab or JSON format
-                if (e.detail.option.toLowerCase() === "tab") {
-                    dataString = VariantUtils.jsonToTabConvert(result, _this.populationFrequencies.studies, _this.samples, _this._config.nucleotideGenotype);
-                    mimeType = "text/plain";
-                    extension = ".txt";
-                } else {
-                    for (let res of result) {
-                        dataString.push(JSON.stringify(res));
+                //TODO evaluate webworker with Transferable Objects (it shares objects, not copy like classical WebWorker)
+                if (result) {
+                    // Check if user clicked in Tab or JSON format
+                    if (e.detail.option.toLowerCase() === "tab") {
+                        dataString = [
+                            ["Analysis ID", "Proband ID", "Family (#members)", "Disorder", "Type", "Interpretations", "Status", "Priority", "Assigned To", "Creation Date"].join("\t"),
+                            ...result.map( _ => [
+                                _.id,
+                                _.proband.id,
+                                _.family.id + "" + _.family.members.length,
+                                _.disorder.id,
+                                _.type,
+                                _.interpretations.join(","),
+                                _.status.name,
+                                _.priority,
+                                _.analyst.assignee,
+                                _.creationDate
+                            ].join("\t"))];
+                        console.log(dataString);
+                        mimeType = "text/plain";
+                        extension = ".txt";
+                    } else {
+                        for (const res of result) {
+                            dataString.push(JSON.stringify(res, null, "\t"));
+                        }
+                        mimeType = "application/json";
+                        extension = ".json";
                     }
-                    mimeType = "application/json";
-                    extension = ".json";
-                }
 
-                // Build file and anchor link
-                let data = new Blob([dataString.join("\n")], {type: mimeType});
-                let file = window.URL.createObjectURL(data);
-                let a = document.createElement("a");
-                a.href = file;
-                a.download = _this.opencgaSession.study.alias + extension;
-                document.body.appendChild(a);
-                a.click();
-                setTimeout(function() {
-                    document.body.removeChild(a);
-                }, 0);
+                    // Build file and anchor link
+                    const data = new Blob([dataString.join("\n")], {type: mimeType});
+                    const file = window.URL.createObjectURL(data);
+                    const a = document.createElement("a");
+                    a.href = file;
+                    a.download = this.opencgaSession.study.alias + extension;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(function() {
+                        document.body.removeChild(a);
+                    }, 0);
+                } else {
+                    console.error("Error in result format");
+                }
             })
             .then(function() {
-                _this.downloadRefreshIcon.css("display", "none");
-                _this.downloadIcon.css("display", "inline-block");
+                //this.downloadRefreshIcon.css("display", "none");
+                //this.downloadIcon.css("display", "inline-block");
             });
     }
 
-    //TODO copied from variant-grid adapt to this component
     onShare() {
-        let _this = this;
-        $("[data-toggle=popover]").popover({
-            content: function() {
-                let getUrlQueryParams = _this._getUrlQueryParams();
-                let query = ["limit=1000"];
-                for (let key in getUrlQueryParams.queryParams) {
-                    // Check sid has a proper value. For public projects sid is undefined. In that case, sid must be removed from the url
-                    if (key === "sid" && getUrlQueryParams.queryParams[key] === undefined) {
-                        delete getUrlQueryParams.queryParams["sid"];
-                    } else {
-                        query.push(key + "=" + getUrlQueryParams.queryParams[key]);
-                    }
-                }
-                return getUrlQueryParams.host + "?" + query.join("&");
-            }
-        }).on("show.bs.popover", function() {
-            $(this).data("bs.popover").tip().css("max-width", "none");
-        });
+        //TODO
     }
 
     getDefaultConfig() {

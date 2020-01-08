@@ -262,10 +262,10 @@ export default class OpencgaActiveFilters extends LitElement {
         let value = e.target.dataset.filterValue;
         console.log("onQueryFilterDelete", name, value);
 
-
         if (UtilsNew.isEmpty(value)) {
             delete _queryList[name];
             //TODO check the reason of this condition
+            //FIXME this.modeInheritance is never defined
             if (UtilsNew.isEqual(name, "genotype")) {
                 if (this.modeInheritance === "xLinked" || this.modeInheritance === "yLinked") {
                     delete _queryList["region"];
@@ -283,8 +283,7 @@ export default class OpencgaActiveFilters extends LitElement {
             let indexOfValue = filterFields.indexOf(value);
             filterFields.splice(indexOfValue, 1);
 
-            if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1)
-                || this._config.complexFields.indexOf(name) !== -1) {
+            if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(name) !== -1) {
                 _queryList[name] = filterFields.join(";");
             } else {
                 if (_queryList[name].indexOf(",") !== -1) {
@@ -306,13 +305,12 @@ export default class OpencgaActiveFilters extends LitElement {
             bubbles: true,
             composed: true
         }));
-
     }
 
     onQueryFacetDelete(e) {
-        console.log("deleting",e.target.dataset.filterName)
+        console.log("deleting",e.target.dataset.filterName);
         delete this.facetQuery[e.target.dataset.filterName];
-        this.facetQuery = {...this.facetQuery}
+        this.facetQuery = {...this.facetQuery};
         this.dispatchEvent(new CustomEvent("activeFacetChange", {
             detail: this.facetQuery,
             bubbles: true,

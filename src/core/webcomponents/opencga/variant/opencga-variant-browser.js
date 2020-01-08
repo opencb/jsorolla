@@ -427,7 +427,9 @@ export default class OpencgaVariantBrowser extends LitElement {
          if (e.target.dataset.view === "Summary") {
              //TODO temp fix
              this.SummaryActive = true;
-             this.requestUpdate()
+             this.requestUpdate();
+         } else {
+             this.SummaryActive = false;
          }
 
         if (e.target.dataset.view === "GenomeBrowser") {

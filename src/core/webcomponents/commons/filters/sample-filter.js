@@ -164,7 +164,7 @@ export default class SampleFilter extends LitElement {
 
         this.query = {...this.query, ..._query};
         //this.renderClinicalQuerySummary();
-        this.updateClinicalQueryTable()
+        this.updateClinicalQueryTable();
         //this.requestUpdate();
         this.sampleFilterChange(_query);
     }
@@ -205,34 +205,9 @@ export default class SampleFilter extends LitElement {
                     }
                 }
             }
-            this.requestUpdate();
-
-            /*return;
-            //TODO moved in template
-            // Render Genotype table
-            return individuals.map(individual => {
-                if (UtilsNew.isNotEmptyArray(individual.samples)) {
-                    const color = this.clinicalAnalysis.proband && individual.id === this.clinicalAnalysis.proband.id ? "darkred" : "black";
-                    const genotype = sampleGenotypeMap[individual.samples[0].id] ? sampleGenotypeMap[individual.samples[0].id] : "any";
-                    return html`
-                            <tr data-sample="${individual.samples[0].id}">
-                                <td>
-                                    <span style="color: ${color}">${individual.samples[0].id}</span>
-                                </td>
-                                <td>
-                                    ${genotype}
-                                </td>
-                            </tr>
-                    `;
-                }
-            });
-        } else {
-            return html`
-                <tr>
-                    <td>No samples selected</td>
-                    <td></td>
-                </tr>`;
-        }*/
+            
+            //TODO this cause a bug (variant-filter-clinical table is not updated correctly changing GT), but commenting this line the table in sample-filter is not updated on its end (changing active-filters)
+            //this.requestUpdate();
         }
     }
 

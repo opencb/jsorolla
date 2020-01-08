@@ -859,7 +859,7 @@ export default class OpencgaVariantFilter extends LitElement {
             this.preparedQuery = {...this.preparedQuery};
         }
         this.notifyQuery(this.preparedQuery);
-        this.requestUpdate()
+        this.requestUpdate();
     }
 
     onSampleFilterChange(sampleFields) {
@@ -877,7 +877,7 @@ export default class OpencgaVariantFilter extends LitElement {
         }
         this.preparedQuery = {...this.preparedQuery};
         this.notifyQuery(this.preparedQuery);
-        this.requestUpdate()
+        this.requestUpdate();
 
     }
 
@@ -1299,8 +1299,6 @@ export default class OpencgaVariantFilter extends LitElement {
     // This method is only executed one time from connectedCallback function
     // TODO recheck if it really needs to be executed in opencgaSessionObserver()
     _renderFilterMenu() {
-
-
         // Add events and tooltips to the filter menu
         // TODO move listeners in template
         // TODO move tooltips init somewhere after template has been rendered

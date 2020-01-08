@@ -51,7 +51,6 @@ export default class ConsequenceTypeFilter extends LitElement {
     updated(_changedProperties) {
         if (_changedProperties.has("ct")) {
             if (this.ct) {
-                // console.log("this.query.ct",this.query.ct)
                 this.selectedCt = this.ct.split(",");
             } else {
                 $("input[type=checkbox]", this).prop("checked", false);
