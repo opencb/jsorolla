@@ -678,8 +678,80 @@ export default class OpencgaIndividualGrid extends LitElement {
         return this._columns;
     }
 
-    onDownload(){
-        console.warn("TODO download")
+    _getUrlQueryParams() {
+        // TODO
+    }
+
+    onDownload(e) {
+        // let urlQueryParams = this._getUrlQueryParams();
+        // let params = urlQueryParams.queryParams;
+        //console.log(this.opencgaSession);
+        const params = {
+            ...this.query,
+            study: this.opencgaSession.study.fqn,
+            sid: this.opencgaSession.opencgaClient._config.sessionId,
+            limit: 1000,
+            skip: 0,
+            includeIndividual: true,
+            skipCount: true,
+
+        };
+
+        this.opencgaSession.opencgaClient.individuals().search(params)
+            .then(response => {
+                const result = response.response[0].result;
+                console.log(result)
+                let dataString = [];
+                let mimeType = "";
+                let extension = "";
+                if (result) {
+                    // Check if user clicked in Tab or JSON format
+                    if (e.detail.option.toLowerCase() === "tab") {
+                        dataString = [
+                            ["Individual", "Samples", "Sex", "Father", "Mother", "Disorders", "Phenotypes", "Life Status", "Date of Birth", "Creation Date", "Status"].join("\t"),
+                            ...result.map( _ => [
+                                _.id,
+                                _.samples ? _.samples.map( _ => _.id).join(",") : "",
+                                _.sex,
+                                _.father.id,
+                                _.mother.id,
+                                _.disorders ? _.disorders.map( _ => _.id).join(",") : "",
+                                _.phenotypes ? _.phenotypes.map( _ => _.id).join(",") : "",
+                                _.lifeStatus,
+                                _.dateOfBirth,
+                                _.creationDate,
+                                _.status.name
+                            ].join("\t"))];
+                        //console.log(dataString);
+                        mimeType = "text/plain";
+                        extension = ".txt";
+                    } else {
+                        for (const res of result) {
+                            dataString.push(JSON.stringify(res, null, "\t"));
+                        }
+                        mimeType = "application/json";
+                        extension = ".json";
+                    }
+
+                    // Build file and anchor link
+                    const data = new Blob([dataString.join("\n")], {type: mimeType});
+                    const file = window.URL.createObjectURL(data);
+                    const a = document.createElement("a");
+                    a.href = file;
+                    a.download = this.opencgaSession.study.alias + extension;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(function() {
+                        document.body.removeChild(a);
+                    }, 0);
+                } else {
+                    console.error("Error in result format");
+                }
+            })
+            .then(function() {
+                //this.downloadRefreshIcon.css("display", "none");
+                //this.downloadIcon.css("display", "inline-block");
+            });
     }
 
     getDefaultConfig() {

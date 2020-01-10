@@ -604,52 +604,74 @@ export default class OpencgaFileGrid extends LitElement {
         return {host: host, queryParams: queryParams};
     }
 
-    //TODO continue
+
+    _getUrlQueryParams() {
+        // TODO
+    }
+
     onDownload(e) {
-        const urlQueryParams = this._getUrlQueryParams();
-        const params = urlQueryParams.queryParams;
-        params.limit = 1000; // Default limit is 1000 for now
-
-        // this.downloadRefreshIcon.css("display", "inline-block");
-        // this.downloadIcon.css("display", "none");
-
-        const _this = this;
+        // let urlQueryParams = this._getUrlQueryParams();
+        // let params = urlQueryParams.queryParams;
+        console.log(this.opencgaSession);
+        const params = {
+            ...this.query,
+            limit: 1000,
+            sid: this.opencgaSession.opencgaClient._config.sessionId,
+            skip: 0,
+            skipCount: true,
+            study: this.opencgaSession.study.fqn,
+            include: "name,path,format,bioformat,creationDate,modificationDate,status",
+            type: "FILE"
+        };
         this.opencgaSession.opencgaClient.files().search(params)
-            .then(function(response) {
+            .then(response => {
                 const result = response.response[0].result;
-                console.log("file result", result);
                 let dataString = [];
                 let mimeType = "";
                 let extension = "";
-
-                // Check if user clicked in Tab or JSON format
-                if (e.detail.option.toLowerCase() === "tab") {
-                    dataString = VariantUtils.jsonToTabConvert(result, _this.populationFrequencies.studies, _this.samples, _this._config.nucleotideGenotype);
-                    mimeType = "text/plain";
-                    extension = ".txt";
-                } else {
-                    for (let res of result) {
-                        dataString.push(JSON.stringify(res));
+                if (result) {
+                    // Check if user clicked in Tab or JSON format
+                    if (e.detail.option.toLowerCase() === "tab") {
+                        dataString = [
+                            ["Name", "Path", "Format", "Bioformat", "Creation date", "Modification date", "Status"].join("\t"),
+                            ...result.map( _ => [
+                                _.id,
+                                _.path,
+                                _.format,
+                                _.bioformat,
+                                _.creationDate,
+                                _.modificationDate,
+                                _.status.name
+                            ].join("\t"))];
+                        //console.log(dataString);
+                        mimeType = "text/plain";
+                        extension = ".txt";
+                    } else {
+                        for (const res of result) {
+                            dataString.push(JSON.stringify(res, null, "\t"));
+                        }
+                        mimeType = "application/json";
+                        extension = ".json";
                     }
-                    mimeType = "application/json";
-                    extension = ".json";
-                }
 
-                // Build file and anchor link
-                let data = new Blob([dataString.join("\n")], {type: mimeType});
-                let file = window.URL.createObjectURL(data);
-                let a = document.createElement("a");
-                a.href = file;
-                a.download = _this.opencgaSession.study.alias + extension;
-                document.body.appendChild(a);
-                a.click();
-                setTimeout(function() {
-                    document.body.removeChild(a);
-                }, 0);
+                    // Build file and anchor link
+                    const data = new Blob([dataString.join("\n")], {type: mimeType});
+                    const file = window.URL.createObjectURL(data);
+                    const a = document.createElement("a");
+                    a.href = file;
+                    a.download = this.opencgaSession.study.alias + extension;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(function() {
+                        document.body.removeChild(a);
+                    }, 0);
+                } else {
+                    console.error("Error in result format");
+                }
             })
             .then(function() {
-                // _this.downloadRefreshIcon.css("display", "none");
-                // _this.downloadIcon.css("display", "inline-block");
+                //this.downloadRefreshIcon.css("display", "none");
+                //this.downloadIcon.css("display", "inline-block");
             });
     }
 

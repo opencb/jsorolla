@@ -77,6 +77,10 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
         this.preparedQuery = {};
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+    }
+
     updated(changedProperties) {
         if (changedProperties.has("query")) {
             this.queryObserver();

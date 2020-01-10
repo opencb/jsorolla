@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 // import "./opencga-variant-filter.js"; TODO this will be translated in specific filter wrapper component with a switch
-import "../commons/opencga-facet-result-view.js";
+import "./opencga-facet-result-view.js";
 import "../../opencga/opencga-active-filters.js";
 import "../../commons/filters/select-field-filter.js";
 import "../../../loading-spinner.js";
@@ -214,7 +214,8 @@ export default class OpencgaFacet extends LitElement {
      * Apply the 'config' properties on the default
      */
     configObserver() {
-        this._config = Object.assign(this.getDefaultConfig("files"), this.config);
+        this._config = { ...this.getDefaultConfig("files"), ...this.config };
+        console.log("this._config",this._config)
     }
 
     selectedFacetObserver() {
@@ -542,6 +543,8 @@ export default class OpencgaFacet extends LitElement {
 
 
     render() {
+        console.log("config", this.config)
+
         return html`
  
         <style include="jso-styles">

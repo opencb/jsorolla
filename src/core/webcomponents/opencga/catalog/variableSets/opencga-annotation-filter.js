@@ -46,18 +46,19 @@ export default class OpencgaAnnotationFilter extends LitElement {
         this._config = this.getDefaultConfig();
 
         this.variableSets = [];
-        this.selectedVariable = {}
+        //this.selectedVariable = {}
     }
 
     //connectedCallback in Polyer 2
-    firstUpdated(changedProperties) {
+    connectedCallback() {
+        super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
 
         // Components are already set. We will override with the classes from the configuration file
         PolymerUtils.addClassById(`${this._prefix}-main-annotation-filter-div`, [this._config.class]);
 
     //TODO recheck it was renderDomRepeat()
-        // $('select.selectpicker').selectpicker('render');
+        $('select.selectpicker').selectpicker('render');
         $('select.selectpicker').selectpicker('refresh');
         $('select.selectpicker').selectpicker('deselectAll');
 
@@ -79,16 +80,28 @@ export default class OpencgaAnnotationFilter extends LitElement {
         annotationDiv.find(`.${this._prefix}AnnotationTextInput`).addClass(this._config.class);
     }
 
-    onChangeSelectedVariable(e) {
-        this.selectedVariable = e.detail.value[0];
-        this.lastAnnotationFilter = undefined;
+    firstUpdated(_changedProperties) {
+        $('select.selectpicker').selectpicker('render');
+        $('select.selectpicker').selectpicker('refresh');
+        $('select.selectpicker').selectpicker('deselectAll');
 
+    }
+
+    //TODO FIXME opencga-variable-selector can be configured to be a multiple choice select, but here just the first selection is used
+    async onChangeSelectedVariable(e) {
+        //this.selectedVariable = e.detail.value[0];
+        await this.requestUpdate();
+        this.selectedVariable = e.detail.value;
+        this.lastAnnotationFilter = undefined;
+        //console.log("this.selectedVariable",this.selectedVariable)
         // We do this manually here because the selectpicker class does not show/hide automatically
         if (this.selectedVariable.type === "CATEGORICAL") {
+            $(`#${this._prefix}-categorical-selector`).selectpicker('refresh');
             $(`#${this._prefix}-categorical-selector`).selectpicker("show");
         } else {
             $(`#${this._prefix}-categorical-selector`).selectpicker("hide");
         }
+        await this.requestUpdate()
     }
 
     onAddAnnotationClicked(e) {
@@ -186,7 +199,6 @@ export default class OpencgaAnnotationFilter extends LitElement {
         }
     }
 
-    //TODO check if variableSets need to be managed by litElement
     _updateVariableSets(study) {
         if (typeof study.variableSets === "undefined") {
             this.variableSets = [];
@@ -230,6 +242,9 @@ export default class OpencgaAnnotationFilter extends LitElement {
 
             this.dispatchEvent(new CustomEvent('variablesetselected', {detail: {id: null}}));
         }
+        this.requestUpdate().then( () => {
+            $('select.selectpicker', this).selectpicker('refresh');
+        })
     }
 
     renderVariableTemplate() {
@@ -315,7 +330,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
         <!--</select>-->
         
         <!-- Show different value selector based on the type of the selected variable -->
-        <div class="row" style="margin-top: 15px;">
+        ${this.selectedVariable ? html`<div class="row" style="margin-top: 15px;">
             <div class="col-md-10">
                 
                 ${this.selectedVariable.type === 'TEXT' ? html`
@@ -323,7 +338,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
                     <!-- http://stackoverflow.com/questions/14237686/disabling-controls-in-bootstrap-->
                     <input type="text" class="form-control ${this._prefix}AnnotationTextInput"
                            placeholder="${this.selectedVariable.id} name" data-variable-name="${this.selectedVariable.id}"
-                           pattern="${this.variable.attributes.pattern}"
+                           pattern="${this.selectedVariable.attributes && this.selectedVariable.attributes.pattern ? this.selectedVariable.attributes.pattern : null}"
                            aria-describedby="basic-addon1" @input="${this.addInputFilter}">
                 ` : this.selectedVariable.type === 'NUMERIC' || this.selectedVariable.type === 'INTEGER' || this.selectedVariable.type === 'DOUBLE' ? html`
                     <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
@@ -349,13 +364,14 @@ export default class OpencgaAnnotationFilter extends LitElement {
                     </div>
 
                 ` : null}
-                </div>
-            
-                <div class="col-md-2">
-                    <i class="fa fa-plus-circle fa-2x plus-button" aria-hidden="true" @click="${this.onAddAnnotationClicked}"></i>
-                </div>
             </div>
+            
+            <div class="col-md-2">
+                <button class="btn btn-default" @click="${this.onAddAnnotationClicked}"><i class="fa fa-plus-circle plus-button" aria-hidden="true"></i></button>
+            </div>
+        ` : null }
         </div>
+    </div>
         `}
         `;
     }

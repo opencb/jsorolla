@@ -102,6 +102,26 @@ export default class OpencgaVariantFilter extends LitElement {
         this.searchButton = true
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+
+        //Ctrl+Enter to fire the Search
+        //TODO FIXME since it relies on keyup/keydown events it will work on input fields only.
+        let isCtrl = false;
+        $(this).keyup(function(e) {
+            if (e.which === 17) {
+                isCtrl = false;
+            }
+        });
+        $(this).keydown(function(e) {
+            if (e.which === 17) {
+                isCtrl = true;
+            }
+            if (e.which === 13 && isCtrl) {
+                this.onSearch();
+            }
+        });
+    }
 
     //it was connectedCallback() in polymer 2
     firstUpdated() {

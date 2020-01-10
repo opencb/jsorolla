@@ -280,8 +280,8 @@ export default class OpencgaVariantGrid extends LitElement {
                 },
                 onLoadSuccess: function(data) {
                     // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
-                    if (UtilsNew.isNotUndefinedOrNull(_table)) {
-                        PolymerUtils.querySelector(_table.selector).rows[2].setAttribute("class", "success");
+                    if (_table) {
+                        _table[0].rows[2].setAttribute("class", "success");
                         _this._onSelectVariant(data.rows[0]);
 
                         let elementsByClassName = PolymerUtils.getElementsByClassName("genome-browser-option");

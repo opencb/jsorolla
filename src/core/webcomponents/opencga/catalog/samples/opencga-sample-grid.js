@@ -340,12 +340,13 @@ export default class OpencgaSampleGrid extends LitElement {
     // }
 
     individualFormatter(value, row) {
-        if (UtilsNew.isNotUndefined(row.attributes) && UtilsNew.isNotUndefined(row.attributes.individual) &&
-            UtilsNew.isNotUndefined(row.attributes.individual.id)) {
-            return row.attributes.individual.id;
-        } else {
-            return "-";
+
+        //TODO fix
+        let a = "-";
+        if (UtilsNew.isNotUndefined(row.attributes) && UtilsNew.isNotUndefined(row.attributes.OPENCGA_INDIVIDUAL)) {
+            a = row.attributes.OPENCGA_INDIVIDUAL.id || "-";
         }
+        return a;
     }
 
     dateFormatter(value, row) {
@@ -375,7 +376,6 @@ export default class OpencgaSampleGrid extends LitElement {
                 },
                 {
                     title: "Individual ID",
-                    field: "attributes.individual.id",
                     formatter: this.individualFormatter
                 },
                 {
@@ -431,6 +431,78 @@ export default class OpencgaSampleGrid extends LitElement {
         return this._columns;
     }
 
+    _getUrlQueryParams() {
+        // TODO
+    }
+
+    onDownload(e) {
+        // let urlQueryParams = this._getUrlQueryParams();
+        // let params = urlQueryParams.queryParams;
+        //console.log(this.opencgaSession);
+        const params = {
+            ...this.query,
+            sid: this.opencgaSession.opencgaClient._config.sessionId,
+            limit: 1000,
+            skip: 0,
+            includeIndividual: true,
+            skipCount: true,
+            include: "id,source,collection,processing,creationDate,status,type,version,release,individual.id"
+        };
+
+        this.opencgaSession.opencgaClient.samples().search(params)
+            .then(response => {
+                const result = response.response[0].result;
+                console.log(result)
+                let dataString = [];
+                let mimeType = "";
+                let extension = "";
+                if (result) {
+                    // Check if user clicked in Tab or JSON format
+                    if (e.detail.option.toLowerCase() === "tab") {
+                        dataString = [
+                            ["Sample ID", "Individual ID", "Source", "Collection Method", "Preparation Method", "Cell Line", "Creation Date", "Status"].join("\t"),
+                            ...result.map( _ => [
+                                _.id,
+                                _.attributes && _.attributes.OPENCGA_INDIVIDUAL ? _.attributes.OPENCGA_INDIVIDUAL .id : "",
+                                _.source,
+                                _.collection && _.collection.method ? _.collection.method : "",
+                                _.processing && _.processing.preparationMethod ? _.processing.preparationMethod : "",
+                                _.somatic ? "Somatic" : "Germline",
+                                _.creationDate,
+                                _.status.name
+                            ].join("\t"))];
+                        //console.log(dataString);
+                        mimeType = "text/plain";
+                        extension = ".txt";
+                    } else {
+                        for (const res of result) {
+                            dataString.push(JSON.stringify(res, null, "\t"));
+                        }
+                        mimeType = "application/json";
+                        extension = ".json";
+                    }
+
+                    // Build file and anchor link
+                    const data = new Blob([dataString.join("\n")], {type: mimeType});
+                    const file = window.URL.createObjectURL(data);
+                    const a = document.createElement("a");
+                    a.href = file;
+                    a.download = this.opencgaSession.study.alias + extension;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(function() {
+                        document.body.removeChild(a);
+                    }, 0);
+                } else {
+                    console.error("Error in result format");
+                }
+            })
+            .then(function() {
+                //this.downloadRefreshIcon.css("display", "none");
+                //this.downloadIcon.css("display", "inline-block");
+            });
+    }
+
     getDefaultConfig() {
         return {
             pagination: true,
@@ -450,7 +522,8 @@ export default class OpencgaSampleGrid extends LitElement {
                              .to="${this.to}"
                              .numTotalResultsText="${this.numTotalResultsText}"
                              .config="${this.toolbarConfig}"
-                             @columnchange="${this.onColumnChange}">
+                             @columnchange="${this.onColumnChange}"
+                             @download="${this.onDownload}">
         </opencb-grid-toolbar>
 
         <div id="${this._prefix}GridTableDiv" style="margin-top: 10px">

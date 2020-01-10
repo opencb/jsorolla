@@ -744,6 +744,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         // let params = urlQueryParams.queryParams;
         console.log(this.opencgaSession);
         const params = {
+            ...this.query,
             exclude: "files",
             limit: 100,
             order: "asc",
@@ -778,7 +779,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                                 _.analyst.assignee,
                                 _.creationDate
                             ].join("\t"))];
-                        console.log(dataString);
+                        //console.log(dataString);
                         mimeType = "text/plain";
                         extension = ".txt";
                     } else {
