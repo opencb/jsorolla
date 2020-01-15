@@ -83,6 +83,7 @@ export default class CellbaseVariantAnnotationView extends LitElement {
     updated(_changedProperties) {
         if(_changedProperties.has("data")) {
             this._variantChanged();
+
         }
     }
 
@@ -159,18 +160,21 @@ export default class CellbaseVariantAnnotationView extends LitElement {
                             ]
                         ]
                     });
+
+                    _this.requestUpdate();
                 });
         }
     }
 
     render() {
-        return html`
 
-        <style include="jso-styles"></style>
+        if (this.data === undefined || this.data == "") {
+            return html`
+                        <div><h3>Please click on a variant to view annotations</h3></div>
+            `;
+        } else {
 
-        ${this.checkData(this.data) ? html`
-            <div><h3>Please click on a variant to view annotations</h3></div>
-        ` : html`
+            return html`
             <div style="padding-top: 20px;padding-left: 20px">
         
             <!-- This renders a vertical menu, this is controlled by the mode property -->
@@ -320,8 +324,6 @@ export default class CellbaseVariantAnnotationView extends LitElement {
     </div>
 </div>
         `}
-        
-        `;
     }
 }
 

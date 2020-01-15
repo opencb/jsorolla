@@ -268,6 +268,7 @@ class OpencgaVariantInterpretation extends LitElement {
 
     // interactiveObserver() {
     //     if (!this.interactive) {
+
     //         this.collapseFilter();
     //     } else {
     //         this.unCollapseFilter();

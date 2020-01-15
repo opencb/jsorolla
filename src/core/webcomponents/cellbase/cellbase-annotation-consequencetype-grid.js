@@ -38,26 +38,24 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
             },
             hashFragmentCredentials: {
                 type: Object
-            },
-            prefix: {
-                type: String
             }
         }
     }
 
     _init() {
-        if (typeof this._prefix === "undefined" || this._prefix === "") {
-            this._prefix = "annotconsqgrid" + Utils.randomString(6);
-        }
+        this._prefix = "actg" + Utils.randomString(6);
         this.data = [];
     }
 
     update(changedProperties) {
-        if (_changedProperties.has("consequenceTypes")) {
+        if (changedProperties.has("data")) {
+            this.renderTable();
+            this.requestUpdate();
+        }
+        if (changedProperties.has("consequenceTypes")) {
             this.assignColors();
         }
     }
-
 
     assignColors() {
         if (typeof this.consequenceTypes !== "undefined") {
@@ -73,15 +71,15 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
                 }
             }
             this.consequenceTypeToColor = consequenceTypeToColor;
+
+            this.renderTable();
+            // this.requestUpdate();
         }
-
-
-        //this.render();
-        this.requestUpdate();
     }
 
     //it was render();
-    updated() {
+    renderTable() {
+        debugger
         $('#' + this._prefix + 'ConsequenceTypeTable').bootstrapTable('destroy');
         $('#' + this._prefix + 'ConsequenceTypeTable').bootstrapTable({
             data: this.data,
@@ -171,6 +169,7 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
                 ]
             ]
         });
+        // this.requestUpdate();
     }
 
     uniprotAccessionFormatter(value, row, index) {
@@ -207,7 +206,7 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
     }
 
     detailFormatter(index, row) {
-        if (row.biotype == "protein_coding") {
+        if (row.biotype === "protein_coding") {
             if (typeof row.proteinVariantAnnotation !== 'undefined') {
                 if (typeof row.proteinVariantAnnotation.uniprotVariantId !== 'undefined') {
                     var html = [];
@@ -294,6 +293,7 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
         }
         return {};
     }
+
     polyphenCellStyle(value, row, index) {
         if (typeof row.proteinVariantAnnotation !== 'undefined') {
             if (typeof row.proteinVariantAnnotation.substitutionScores !== 'undefined') {
@@ -333,14 +333,12 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles"></style>
-
-        <div style="padding: 10px; ">
-            <table id="${this._prefix}ConsequenceTypeTable" data-search="true" data-show-columns="true" data-pagination="true"
-                   data-page-list="[10, 25, 50]" data-show-pagination-switch="true" data-show-export="true" data-icons-prefix="fa" data-icons="icons">
-                <thead style="background-color: #eee"></thead>
-            </table>
-        </div>
+            <div style="padding: 10px; ">
+                <table id="${this._prefix}ConsequenceTypeTable" data-search="true" data-show-columns="true" data-pagination="true"
+                       data-page-list="[10, 25, 50]" data-show-pagination-switch="true" data-show-export="true" data-icons-prefix="fa" data-icons="icons">
+                    <thead style="background-color: #eee"></thead>
+                </table>
+            </div>
         `;
     }
 }

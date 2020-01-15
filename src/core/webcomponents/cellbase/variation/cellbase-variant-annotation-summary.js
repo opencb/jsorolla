@@ -30,22 +30,16 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
     static get properties() {
         return {
             data: {
-                type: Object,
-                observer: "variantAnnotationChanged"
+                type: Object
             },
             consequenceTypes: {
-                type: Object,
-                observer: "setColors"
+                type: Object
             },
             proteinSubstitutionScores: {
-                type: Object,
-                observer: "setColors"
+                type: Object
             },
             minimumFreq: {
                 type: Array
-            },
-            prefix: {
-                type: String
             }
         };
     }
@@ -64,13 +58,13 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
         }
     }
 
-    ready() {
-        super.ready();
-
-        if (typeof this.prefix === "undefined" || this.prefix === "") {
-            this.prefix = "annotation" + Utils.randomString(6);
-        }
-    }
+    // ready() {
+    //     super.ready();
+    //
+    //     if (typeof this._prefix === "undefined" || this._prefix === "") {
+    //         this._prefix = "annotation" + Utils.randomString(6);
+    //     }
+    // }
 
     isTranscriptAvailable(item) {
         return item !== "";
@@ -109,8 +103,8 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
 
     variantAnnotationChanged(neo, old) {
         let _this = this;
-
-        if (typeof _this.data !== "undefined") {
+debugger
+        if (typeof this.data !== "undefined") {
             if (UtilsNew.isEmpty(_this.data.reference)) {
                 _this.data.reference = "-";
             }
@@ -122,7 +116,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
             // Consequence type
             // Color the consequence type
             if (typeof _this.consequenceTypeToColor !== "undefined" && typeof _this.consequenceTypeToColor[_this.data.displayConsequenceType] !== "undefined") {
-                $("#" + _this.prefix + "CT").css("color", _this.consequenceTypeToColor[_this.data.displayConsequenceType]);
+                $("#" + _this._prefix + "CT").css("color", _this.consequenceTypeToColor[_this.data.displayConsequenceType]);
             }
 
             // Find the gene and transcript that exhibit the display consequence type
@@ -140,6 +134,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
 
             // PSS
             let proteinSubScore = {};
+            debugger
             if (typeof _this.data.consequenceTypes !== "undefined") {
                 let min = 10;
                 let max = 0;
@@ -148,20 +143,21 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                         let gene = _this.data.consequenceTypes[i].geneName;
                         let transcript = _this.data.consequenceTypes[i].ensemblTranscriptId;
                         let scores = _this.data.consequenceTypes[i].proteinVariantAnnotation.substitutionScores;
+
                         if (typeof scores !== "undefined") {
                             for (let j = 0; j < scores.length; j++) {
                                 if (scores[j].source === "sift" && scores[j].score <= min) {
                                     min = scores[j].score;
                                     proteinSubScore.sift = {score: scores[j].score, description: scores[j].description, gene: gene, transcript: transcript};
-                                    if (typeof _this.pssColor !== "undefined" && typeof _this.pssColor.get(scores[j].description) !== "undefined") {
-                                        $("#" + _this.prefix + "Sift").css("color", _this.pssColor.get(scores[j].description));
-                                    }
+                                    // if (typeof _this.pssColor !== "undefined" && typeof _this.pssColor.get(scores[j].description) !== "undefined") {
+                                    //     $("#" + _this._prefix + "Sift").css("color", _this.pssColor.get(scores[j].description));
+                                    // }
                                 } else if (scores[j].source === "polyphen" && scores[j].score >= max) {
                                     max = scores[j].score;
                                     proteinSubScore.polyphen = {score: scores[j].score, description: scores[j].description, gene: gene, transcript: transcript};
-                                    if (typeof _this.pssColor !== "undefined" && typeof _this.pssColor.get(scores[j].description) !== "undefined") {
-                                        $("#" + _this.prefix + "Polyphen").css("color", _this.pssColor.get(scores[j].description));
-                                    }
+                                    // if (typeof _this.pssColor !== "undefined" && typeof _this.pssColor.get(scores[j].description) !== "undefined") {
+                                    //     $("#" + _this._prefix + "Polyphen").css("color", _this.pssColor.get(scores[j].description));
+                                    // }
                                 }
                             }
                         }
@@ -171,34 +167,39 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
             if (Object.keys(proteinSubScore).length === 0 && proteinSubScore.constructor === Object) {
                 proteinSubScore.sift = {score: "NA", description: "NA", transcript: ""};
                 proteinSubScore.polyphen = {score: "NA", description: "NA", transcript: ""};
-                $("#" + _this.prefix + "Sift").css("color", "black");
-                $("#" + _this.prefix + "Polyphen").css("color", "black");
+                $("#" + _this._prefix + "Sift").css("color", "black");
+                $("#" + _this._prefix + "Polyphen").css("color", "black");
             }
             _this.proteinSubScore = proteinSubScore;
-
+            debugger
             // CADD
             if (typeof _this.data.functionalScore !== "undefined") {
                 for (let i in _this.data.functionalScore) {
                     let value = Number(_this.data.functionalScore[i].score).toFixed(2);
                     if (_this.data.functionalScore[i].source == "cadd_scaled") {
                         if (value > 15) {
-                            $("#" + _this.prefix + "Cadd").css("color", "red");
+                            $("#" + _this._prefix + "Cadd").css("color", "red");
                             _this.caddScaled = value;
                         } else {
-                            $("#" + _this.prefix + "Cadd").css("color", "black");
+                            $("#" + _this._prefix + "Cadd").css("color", "black");
                             _this.caddScaled = value;
                         }
                     }
                 }
             } else {
-                $("#" + _this.prefix + "Cadd").css("color", "black");
+                $("#" + _this._prefix + "Cadd").css("color", "black");
                 _this.caddScaled = "NA";
             }
 
+            this.requestUpdate();
         }
     }
 
     render() {
+        if (this.data === undefined || this.data === "" || this.proteinSubScore === undefined) {
+            return;
+        }
+        debugger
         return html`
             <div>
                 <style include="jso-styles">
@@ -279,7 +280,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                     ` : null }
                     <div class="block">
                         <label class="align-left">Most Severe Consequence Type</label>
-                        <div class="align-right"><span id="${this.prefix}CT">${this.data.displayConsequenceType}</span>
+                        <div class="align-right"><span id="${this._prefix}CT">${this.data.displayConsequenceType}</span>
                             ${this.isDataEmpty(this.ctGene) ? html`
                                     <span>(<b>Gene</b> : ${this.ctGene}, <b>Transcript</b> : ${this.ctTranscript})</span>
                                 ` : null }
@@ -292,7 +293,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                             <!-- Sift -->
                             <div class="row" style="padding-left: 12px">
                                 <label style="width:10%">Sift</label>
-                                <span id="${this.prefix}Sift"
+                                <span id="${this._prefix}Sift"
                                       title="${this.proteinSubScore.sift.score}">${this.proteinSubScore.sift.description}</span>
                                 ${this.isTranscriptAvailable(this.proteinSubScore.sift.transcript) ? html`
                                     (<b>Gene:</b>{{proteinSubScore.sift.gene}, <b>Transcript: </b>{{proteinSubScore.sift.transcript})
@@ -302,8 +303,8 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                             <!-- Polyphen -->
                             <div class="row" style="padding-left: 12px">
                                 <label style="width:10%">Polyphen</label>
-                                <span id="${this.prefix}Polyphen" title="${this.proteinSubScore.polyphen.score}">${this.proteinSubScore.polyphen.description}</span>
-                                ${this.isTranscriptAvailable(proteinSubScore.polyphen.transcript) ? html`
+                                <span id="${this._prefix}Polyphen" title="${this.proteinSubScore.polyphen.score}">${this.proteinSubScore.polyphen.description}</span>
+                                ${this.isTranscriptAvailable(this.proteinSubScore.polyphen.transcript) ? html`
                                     (<b>Gene:</b>${this.proteinSubScore.polyphen.gene}, <b>Transcript: </b>${this.proteinSubScore.polyphen.transcript})
                                 ` : null}
                                 <br>
@@ -311,7 +312,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                             <!--CADD-->
                             <div class="row" style="padding-left: 12px">
                                 <label style="width:10%">CADD Scaled</label>
-                                <span id="${this.prefix}Cadd">${this.caddScaled}</span>
+                                <span id="${this._prefix}Cadd">${this.caddScaled}</span>
                                 <br>
                             </div>
                         </div>
@@ -319,7 +320,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                     </div>
             
                 </div>
-                <div id="${this.prefix}Traits"></div>
+                <div id="${this._prefix}Traits"></div>
             </div>
         `;
     }
