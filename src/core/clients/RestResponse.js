@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-const fs = typeof window === 'undefined' ? require("fs") : null;
-
 /**
- *
  * This class models the response of a RESTful call in OpenCGA.
  */
-class RestResponse {
+export class RestResponse {
 
     /**
      * @param {Object} response The response object
@@ -33,6 +30,14 @@ class RestResponse {
             this.events = response.events;
             this.params = response.params;
             this.responses = response.responses || response.response;
+
+            // TODO This is a small hack that can be activated if backward compatibility is needed. This shuold be removed in next 2.1.
+            this.response = this.responses;
+            for (let response of this.responses) {
+                response.dbTime = response.time;
+                response.numTotalResults = response.numMatches;
+                response.result = response.results;
+            }
         } catch(e) {
             throw new Error("Unexpected response format");
         }
@@ -43,7 +48,7 @@ class RestResponse {
      * @param {Number} [responsePos=0] The index of the node to get the results from
      * @return {Array} The list of results
      **/
-    getResults = (responsePos= 0) => this.responses[responsePos].results;
+    getResults = (responsePos = 0) => this.responses[responsePos].results;
 
     /**
      * Return the result object of the specified node (default = 0) and the specified index.
@@ -51,7 +56,7 @@ class RestResponse {
      * @param {Number} [responsePos=0] The index of the result
      * @return {Object} The result
      **/
-    getResult = (resultPos, responsePos= 0) => this.responses[responsePos].results[resultPos];
+    getResult = (resultPos, responsePos = 0) => this.responses[responsePos].results[resultPos];
 
     /**
      * Return the list of responses
@@ -83,7 +88,7 @@ class RestResponse {
      *
      */
     *resultIterator(responsePos) {
-        if(responsePos) {
+        if (responsePos) {
             for(let result of this.responses[responsePos].results) {
                 yield result;
             }
@@ -111,15 +116,14 @@ class RestResponse {
      */
     transformResults(fields, responsePos = 0) {
         /**
-         *
          * @param {Object} result Single result Object
          * @param {String} field Field to retrieve in dot notation
          * @return {Array}
          */
         let getField = (result, field) => field.split('.').reduce((o, i) => o ? o[i]: o, result);
 
-        return this.responses[responsePos].result.map ( result => {
-            return Object.assign({},...fields.split(",").map( field => ({[field]: getField(result, field)})));
+        return this.responses[responsePos].result.map( result => {
+            return Object.assign({}, ...fields.split(",").map( field => ({[field]: getField(result, field)})));
        })
     }
 
@@ -129,7 +133,7 @@ class RestResponse {
      */
     getEvents(eventType) {
         const eventNames = ['INFO', 'WARNING', 'ERROR'];
-        if(!eventType || !this.events.length) {
+        if (!eventType || !this.events.length) {
             return this.events || [];
         } else if (eventNames.includes(eventType)) {
             return this.events.find( event => event.type === eventType);
@@ -162,10 +166,10 @@ class RestResponse {
      * @return {Number} The total number
      */
     count(attribute, responsePos) {
-        if(responsePos) {
+        if (responsePos) {
             return this.responses[responsePos][attribute];
         } else {
-            return this.responses.reduce( (acc, curr) => acc + curr[attribute]);
+            return this.responses.reduce((acc, curr) => acc + curr[attribute]);
         }
     }
 
@@ -199,7 +203,6 @@ class RestResponse {
      */
     getNumDeleted = (responsePos) => this.count("numDeleted", responsePos);
 
-
 }
 
-module.exports = exports = RestResponse;
+// module.exports = exports = RestResponse;

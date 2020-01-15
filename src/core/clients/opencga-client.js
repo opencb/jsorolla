@@ -32,24 +32,48 @@ class OpenCGAClientConfig {
         this.rpc = "rest";
     }
 
+    // to allow multiple sessions of IVA
     setPrefix(prefix) {
         this.cookieSessionId = `${prefix}_sid`;
         this.cookieUserId = `${prefix}_userId`;
         this.cookiePassword = `${prefix}_password`;
         this.cookieLoginResponse = `${prefix}_loginResponse`;
     }
-
 }
+
 
 class OpenCGAClient {
 
-    constructor(config) {
-        this._config = config;
+    constructor(config = {}, cookiePrefix = "opencga") {
+        this._config = new OpenCGAClientConfig(...config);
+        // this._config = {getDefaultClientConfiguration(), ...config);
+
+        this.clients = new Map();
     }
 
+    // TODO Think about this sooner than later.
+    // getDefaultClientConfiguration() {
+    //     return {
+    //         host: "",
+    //         version: "",
+    //         timeout: 0,
+    //     }
+    // }
+    //
+    // check() {
+    //     // TODO check OpeCGA URL and other variables.
+    // }
+
     /*
-     * Client factory functions
+     * Client factory singleton functions
      */
+
+    // users() {
+    //     if (this.clients.get("users") === "undefined") {
+    //         this.clients.set("users", new Users(this._config));
+    //     }
+    //     return this.clients.get("users");
+    // }
     users() {
         if (typeof this._users === "undefined") {
             this._users = new Users(this._config);
@@ -92,6 +116,13 @@ class OpenCGAClient {
         return this._samples;
     }
 
+    cohorts() {
+        if (typeof this._cohorts === "undefined") {
+            this._cohorts = new Cohorts(this._config);
+        }
+        return this._cohorts;
+    }
+
     individuals() {
         if (typeof this._individuals === "undefined") {
             this._individuals = new Individuals(this._config);
@@ -106,13 +137,6 @@ class OpenCGAClient {
         return this._families;
     }
 
-    cohorts() {
-        if (typeof this._cohorts === "undefined") {
-            this._cohorts = new Cohorts(this._config);
-        }
-        return this._cohorts;
-    }
-
     panels() {
         if (typeof this._panels === "undefined") {
             this._panels = new Panels(this._config);
@@ -120,26 +144,33 @@ class OpenCGAClient {
         return this._panels;
     }
 
-    clinical() {
-        if (typeof this._clinical === "undefined") {
-            this._clinical = new Clinical(this._config);
+    meta() {
+        if (typeof this._meta === "undefined") {
+            this._meta = new Meta(this._config);
         }
-        return this._clinical;
+        return this._meta;
     }
 
-    interpretations() {
-        if (typeof this._interpretations === "undefined") {
-            this._interpretations = new Interpretation(this._config);
+    admin() {
+        if (typeof this._admin === "undefined") {
+            this._admin = new Admin(this._config);
         }
-        return this._interpretations;
+        return this._admin;
     }
 
-    variables() {
-        if (typeof this._variables === "undefined") {
-            this._variables = new Variables(this._config);
-        }
-        return this._variables;
-    }
+    // interpretations() {
+    //     if (typeof this._interpretations === "undefined") {
+    //         this._interpretations = new Interpretation(this._config);
+    //     }
+    //     return this._interpretations;
+    // }
+
+    // variables() {
+    //     if (typeof this._variables === "undefined") {
+    //         this._variables = new Variables(this._config);
+    //     }
+    //     return this._variables;
+    // }
 
     // Analysis
     alignments() {
@@ -156,6 +187,20 @@ class OpenCGAClient {
         return this._variants;
     }
 
+    clinical() {
+        if (typeof this._clinical === "undefined") {
+            this._clinical = new Clinical(this._config);
+        }
+        return this._clinical;
+    }
+
+    variantOperations() {
+        if (typeof this.variantOperations === "undefined") {
+            this.variantOperations = new VariantOperations(this._config);
+        }
+        return this.variantOperations;
+    }
+
     // GA4GH
     ga4gh() {
         if (typeof this._ga4gh === "undefined") {
@@ -163,6 +208,74 @@ class OpenCGAClient {
         }
         return this._ga4gh;
     }
+
+    login(userId, password) {
+        // Encrypt password
+        let encryptedPass = CryptoJS.SHA256(password).toString();
+        if (this._config.useCookies) {
+            let cookieSession = Cookies.get(this._config.cookieSessionId);
+            let cookieUser = Cookies.get(this._config.cookieUserId);
+            let cookiePass = Cookies.get(this._config.cookiePassword);
+            let loginResponse = Cookies.get(this._config.cookieLoginResponse);
+
+            if (cookieUser !== undefined && cookieUser === userId && cookiePass !== undefined && cookiePass === encryptedPass
+                && cookieSession !== undefined && loginResponse !== undefined) {
+                console.log("Credentials taken from cookies");
+                return Promise.resolve(JSON.parse(loginResponse));
+            }
+        }
+        return this.users.login(userId, password).then(function(response) {
+            this._login(response);
+        }.bind(this));
+    }
+
+    // refresh only works if cookies are enabled
+    refresh() {
+        let userId = this.getUserId();
+
+        return this.users.login(userId, null, {}).then(function(response) {
+            this._login(response);
+        }.bind(this));
+    }
+
+    _login() {
+        // 1. check response
+        // 2. set cookies
+        if (response.error === "") {
+            this._config.userId = userId;
+            this._config.sessionId = response.response[0].result[0].id;
+
+            // Cookies being used
+            if (this._config.useCookies) {
+                Cookies.set(this._config.cookieSessionId, response.response[0].result[0].id);
+                Cookies.set(this._config.cookieUserId, userId);
+                Cookies.set(this._config.cookiePassword, encryptedPass);
+                Cookies.set(this._config.cookieLoginResponse, JSON.stringify(response));
+            }
+
+            // this.clients.forEach(value => value.setToken)
+            // OpenCGAParentClass.token("asasasas");
+            return response;
+        }
+    }
+
+    logout() {
+        this._config.userId = "";
+        this._config.sessionId = "";
+
+        // Remove cookies
+        if (this._config.hasOwnProperty("cookieUserId")) {
+            Cookies.expire(this._config.cookieSessionId);
+            Cookies.expire(this._config.cookieUserId);
+            Cookies.expire(this._config.cookiePassword);
+            Cookies.expire(this._config.cookieLoginResponse);
+        }
+
+        return Promise.resolve();
+    }
+
+
+
 
     /**
      * Creates and return an anonymous session object, it is a sync function.
@@ -193,7 +306,7 @@ class OpenCGAClient {
         let _this = this;
         return new Promise(function(resolve, reject) {
             // check that a session exists
-            // TODO sould we check the session has not expired?
+            // TODO should we check the session has not expired?
             if (UtilsNew.isNotUndefined(_this._config.sessionId)) {
                 _this.users().info()
                     .then(function(response) {
@@ -275,16 +388,6 @@ class OpenCGAClient {
         });
     }
 
-    /*
-     * Getter and setters
-     */
-    getConfig() {
-        return this._config;
-    }
-
-    setConfig(config) {
-        this._config = config;
-    }
 
     getUserId() {
         if (this._config.hasOwnProperty("cookieUserId")) { // The app is using cookies
@@ -313,11 +416,8 @@ class OpenCGAClient {
 class OpenCGAParentClass {
 
     constructor(config) {
-        if (typeof config === "undefined") {
-            this._config = new OpenCGAClientConfig();
-        } else {
-            this._config = config;
-        }
+        this._config = config;
+        this.token = undefined;
     }
 
     post(category, ids, action, params, body, options) {
@@ -584,7 +684,7 @@ class Users extends OpenCGAParentClass {
     }
 
     info(params, options) {
-        return this.get("users", this._getUserId(), "info", params, options);
+        return new RestResponse(this.get("users", this._getUserId(), "info", params, options));
     }
 
     getProjects(userId, params, options) {
