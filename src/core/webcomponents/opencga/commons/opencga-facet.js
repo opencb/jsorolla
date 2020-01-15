@@ -19,9 +19,13 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import "./opencga-facet-result-view.js";
 import "../../opencga/opencga-active-filters.js";
 import "../../commons/filters/select-field-filter.js";
+import "../../commons/opencb-facet-results.js";
 import "../../../loading-spinner.js";
 
+
 // TODO spring-cleaning the old code
+// TODO maybe remove this._config, this.config is enough here
+// TODO fix props in EACH opencga-x-filter
 
 export default class OpencgaFacet extends LitElement {
 
@@ -75,6 +79,12 @@ export default class OpencgaFacet extends LitElement {
                 type: String
             }
         };
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.config};
+        console.log("connectedCallback _config", this._config)
     }
 
     _init() {
@@ -147,6 +157,20 @@ export default class OpencgaFacet extends LitElement {
                 //this._annotations = this.opencgaSession.opencgaClient.studies().variableSets();
                 //this._config.fields.push(variableOptions);
                 break;
+            case "samples":
+                this._client = this.opencgaSession.opencgaClient.samples();
+                break;
+            case "individuals":
+                this._client = this.opencgaSession.opencgaClient.individuals();
+                break;
+            case "family":
+                this._client = this.opencgaSession.opencgaClient.families();
+                break;
+            case "cohort":
+                this._client = this.opencgaSession.opencgaClient.cohorts();
+                break;
+            default:
+                throw new Error("No resource found.");
         }
     }
 
@@ -191,6 +215,7 @@ export default class OpencgaFacet extends LitElement {
         // debugger
         if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
             // Update cohorts from config, this updates the Cohort filter MAF
+            console.warn("this._config.filter.menu",this._config.filter.menu)
             for (let section of this._config.filter.menu.sections) {
                 for (let subsection of section.subsections) {
                     if (subsection.id === "cohort") {
@@ -214,7 +239,7 @@ export default class OpencgaFacet extends LitElement {
      * Apply the 'config' properties on the default
      */
     configObserver() {
-        this._config = { ...this.getDefaultConfig("files"), ...this.config };
+        //this._config = {...this.config};
         console.log("this._config",this._config)
     }
 
@@ -259,7 +284,7 @@ export default class OpencgaFacet extends LitElement {
             .then(queryResponse => {
                 console.log("queryResponse", queryResponse);
                 this.errorState = false;
-                //this.facetResults = queryResponse.response[0].result[0].results;
+                this.facetResults = queryResponse.response[0].result[0].results;
                 this.requestUpdate();
             })
             .catch(e => {
@@ -495,53 +520,6 @@ export default class OpencgaFacet extends LitElement {
         this.preparedQuery = {...this.query};
     }
 
-    getDefaultConfig(type) {
-
-        return {
-            files: {
-                title: "Aggregation Stats for Files",
-                name: "Agregation for Files",
-                active: false,
-                icon: `fas fa-chart-bar`,
-                fields: [
-                    {id: "gerp", name: "Gerp", type: "integer", defaultValue: "0:1:01"},
-                    //{name: "Pop Freqs_", category: true},
-                    {
-                        name: "Pop Freqs", fields: [
-                            {id: "Pop Freqs name", name: "PopFreqsName", type: "string"},
-                            {id: "Pop Freqs format", name: "PopFreqsFormat", type: "string"}
-                        ]
-                    },
-                    {id: "gerp1", name: "Gerp1", type: "categorical", defaultValue: "0:1:01"},
-                    {id: "gerp2", name: "Gerp2", type: "range", defaultValue: "0:1:01"},
-                    {id: "creationMonth", name: "Month", type: "string", defaultValue: ["JAN", "FEB"]},
-                    {id: "study", name: "Study", type: "string", defaultValue: "defStudy"},
-                    {id: "name", name: "Name", type: "string"},
-                    {id: "type", name: "Type", type: "string"},
-                    {id: "format", name: "Format", type: "string"},
-                    {id: "bioformat", name: "Bioformat", type: "string"},
-                    {id: "creationYear", name: "CreationYear", type: "string"},
-                    {id: "creationMonth", name: "CreationMonth", type: "string"},
-                    {id: "creationDay", name: "CreationDay", type: "string"},
-                    {id: "creationDayOfWeek", name: "CreationDayOfWeek", type: "string"},
-                    {id: "status", name: "Status", type: "string"},
-                    {id: "release", name: "Release", type: "string"},
-                    {id: "external", name: "External", type: "string"},
-                    {id: "size", name: "Size", type: "string"},
-                    {id: "software", name: "Software", type: "string"},
-                    {id: "experiment", name: "Experiment", type: "string"},
-                    {id: "numSamples", name: "NumSamples", type: "string"},
-                    {id: "numRelatedFiles", name: "NumRelatedFiles", type: "string"},
-                    {id: "annotation", name: "Annotation", type: "string"},
-                    {id: "default", name: "Default", type: "string"},
-                    {id: "field", name: "Field", type: "string"}
-                ],
-                annotations: {},
-                }
-            }[type];
-    }
-
-
     render() {
         console.log("config", this.config)
 
@@ -692,13 +670,12 @@ export default class OpencgaFacet extends LitElement {
                         <div role="tabpanel" class="tab-pane" id="filters_tab">
                         
                                             
-                                       <!-- _filterComp ${this._filterComp} -->
-                                       
+                            <!-- dynamic render doesn't work well with active-filter events  _filterComp ${this._filterComp} -->
                             ${this.resource === "files" ? html`
                             <opencga-file-filter
                                 discriminator="hardcoded"  
                                 .opencgaSession="${this.opencgaSession}"
-                                .config="${ 1 /*this._config.filter*/}"
+                                .config="${ 1 /*TODO FIXME this._config.filter*/}"
                                 .files="${this.files}"
                                 .query="${this.query}"
                                 .search="${this.search}"
@@ -707,7 +684,97 @@ export default class OpencgaFacet extends LitElement {
                                 @queryChange="${this.onQueryFilterChange}"
                                 @querySearch="${this.onQueryFilterSearch}">
                             </opencga-file-filter>
-` : "no resource"}
+                            ` : null}
+                            
+                            ${this.resource === "samples" ? html`
+                            <opencga-sample-filter
+                                discriminator="hardcoded"  
+                                .opencgaSession="${this.opencgaSession}"
+                                .config="${ 1 /*TODO FIXME this._config.filter*/}"
+                                .files="${this.files}"
+                                .query="${this.query}"
+                                .search="${this.search}"
+                                .variableSets="${this.variableSets}"
+                                .searchButton="${false}"
+                                @queryChange="${this.onQueryFilterChange}"
+                                @querySearch="${this.onQueryFilterSearch}">
+                            </opencga-sample-filter>
+                            ` : null}
+                            
+                            ${this.resource === "individuals" ? html`
+                            <opencga-individual-filter
+                                discriminator="hardcoded"  
+                                .opencgaSession="${this.opencgaSession}"
+                                .config="${ 1 /*TODO FIXME this._config.filter*/}"
+                                .files="${this.files}"
+                                .query="${this.query}"
+                                .search="${this.search}"
+                                .variableSets="${this.variableSets}"
+                                .searchButton="${false}"
+                                @queryChange="${this.onQueryFilterChange}"
+                                @querySearch="${this.onQueryFilterSearch}">
+                            </opencga-individual-filter>
+                            ` : null}                            
+                            
+                            ${this.resource === "family" ? html`
+                            <opencga-family-filter
+                                discriminator="hardcoded"  
+                                .opencgaSession="${this.opencgaSession}"
+                                .config="${ 1 /*TODO FIXME this._config.filter*/}"
+                                .files="${this.files}"
+                                .query="${this.query}"
+                                .search="${this.search}"
+                                .variableSets="${this.variableSets}"
+                                .searchButton="${false}"
+                                @queryChange="${this.onQueryFilterChange}"
+                                @querySearch="${this.onQueryFilterSearch}">
+                            </opencga-family-filter>
+                            ` : null}
+                            
+                            ${this.resource === "cohort" ? html`
+                            <opencga-cohort-filter
+                                discriminator="hardcoded"  
+                                .opencgaSession="${this.opencgaSession}"
+                                .config="${ 1 /*TODO FIXME this._config.filter*/}"
+                                .files="${this.files}"
+                                .query="${this.query}"
+                                .search="${this.search}"
+                                .variableSets="${this.variableSets}"
+                                .searchButton="${false}"
+                                @queryChange="${this.onQueryFilterChange}"
+                                @querySearch="${this.onQueryFilterSearch}">
+                            </opencga-cohort-filter>
+                            ` : null}
+                            
+                            ${this.resource === "files" ? html`
+                            <opencga-file-filter
+                                discriminator="hardcoded"  
+                                .opencgaSession="${this.opencgaSession}"
+                                .config="${ 1 /*TODO FIXME this._config.filter*/}"
+                                .files="${this.files}"
+                                .query="${this.query}"
+                                .search="${this.search}"
+                                .variableSets="${this.variableSets}"
+                                .searchButton="${false}"
+                                @queryChange="${this.onQueryFilterChange}"
+                                @querySearch="${this.onQueryFilterSearch}">
+                            </opencga-file-filter>
+                            ` : null}
+                            
+                            ${this.resource === "files" ? html`
+                            <opencga-file-filter
+                                discriminator="hardcoded"  
+                                .opencgaSession="${this.opencgaSession}"
+                                .config="${ 1 /*TODO FIXME this._config.filter*/}"
+                                .files="${this.files}"
+                                .query="${this.query}"
+                                .search="${this.search}"
+                                .variableSets="${this.variableSets}"
+                                .searchButton="${false}"
+                                @queryChange="${this.onQueryFilterChange}"
+                                @querySearch="${this.onQueryFilterSearch}">
+                            </opencga-file-filter>
+                            ` : null}
                         </div>
                     </div>
                 </div>
@@ -728,6 +795,15 @@ export default class OpencgaFacet extends LitElement {
                                                 @activeFilterClear="${this.onActiveFilterClear}">
                         </opencga-active-filters>
 
+
+
+
+                        <opencb-facet-results .data="${this.facetResults}"
+                                                .error="${this.errorState}">
+                        </opencb-facet-results>
+                        
+                        
+                        
                         <!-- RESULTS - Facet Plots -->
                         <div id="loading" style="display: none">
                             <loading-spinner></loading-spinner>
@@ -749,105 +825,9 @@ export default class OpencgaFacet extends LitElement {
                                 </div>
                             </div>
                         `) : null}
-
-
-                        <!--<h4>Total Number of Variants : {{totalVariants}}</h4>-->
-                        <!--<template is="dom-repeat" items="{{results}}" id="resultsDiv">-->
-                            <!--<h3>{{item.title}}</h3>-->
-                            <!--<div class="btn-group" style="float: right">-->
-                                <!--<span class="btn btn-primary plots active" on-click="onHistogramChart">-->
-                                    <!--<i class="fa fa-bar-chart" style="padding-right: 5px" title="Bar Chart" data-id="{{item.name}}"></i>-->
-                                <!--</span>-->
-                                <!--<template is="dom-if" if="{{item.renderPieChart}}">-->
-                                    <!--<span class="btn btn-primary plots" on-click="onPieChart">-->
-                                        <!--<i class="fa fa-pie-chart" style="padding-right: 5px" title="Pie Chart" data-id="{{item.name}}"></i>-->
-                                    <!--</span>-->
-                                <!--</template>-->
-                                <!--<span class="btn btn-primary plots" on-click="onTabularView">-->
-                                    <!--<i class="fa fa-table" style="padding-right: 5px" title="Tabular View" data-id="{{item.name}}"></i>-->
-                                <!--</span>-->
-                            <!--</div>-->
-                            <!--<div id="${this._prefix}{{item.name}}Plot"></div>-->
-
-                            <!--&lt;!&ndash;Table&ndash;&gt;-->
-                            <!--<br>-->
-                            <!--<table class="table table-bordered" id="${this._prefix}{{item.name}}Table" style="display: none;">-->
-
-                                <!--&lt;!&ndash; Facet Field Table &ndash;&gt;-->
-                                <!--<template is="dom-if" if="{{checkField(item.category)}}">-->
-                                    <!--<thead class="table-header bg-primary">-->
-                                    <!--<tr>-->
-                                        <!--<th>{{item.title}}</th>-->
-                                        <!--<template is="dom-if" if="{{subFieldExists(item.subField)}}">-->
-                                            <!--<th>{{item.subField}}</th>-->
-                                        <!--</template>-->
-                                        <!--<th>Number of Variants</th>-->
-                                    <!--</tr>-->
-                                    <!--</thead>-->
-                                    <!--<tbody>-->
-                                    <!--<template is="dom-repeat" items="{{item.counts}}" as="count">-->
-                                        <!--<template is="dom-if" if="{{fieldExists(count)}}">-->
-                                            <!--<tr>-->
-                                                <!--<td rowspan$="{{countSubFields(count)}}">{{count.value}}</td>-->
-                                            <!--</tr>-->
-
-                                            <!--<template is="dom-repeat" items="{{count.field.counts}}" as="subFieldCount">-->
-                                                <!--<tr>-->
-                                                    <!--<td>{{subFieldCount.value}}</td>-->
-                                                    <!--<td>{{subFieldCount.count}}</td>-->
-                                                <!--</tr>-->
-                                            <!--</template>-->
-                                        <!--</template>-->
-
-                                        <!--<template is="dom-if" if="{{!fieldExists(count)}}">-->
-                                            <!--<tr>-->
-                                                <!--<td>{{count.value}}</td>-->
-                                                <!--<td>{{count.count}}</td>-->
-                                            <!--</tr>-->
-                                        <!--</template>-->
-                                    <!--</template>-->
-                                    <!--</tbody>-->
-                                <!--</template>-->
-
-                                <!--&lt;!&ndash; Facet Range Table &ndash;&gt;-->
-                                <!--<template is="dom-if" if="{{!checkField(item.category)}}">-->
-                                    <!--<thead class="table-header bg-primary">-->
-                                    <!--<tr>-->
-                                        <!--<th>Range</th>-->
-                                        <!--<th>Number of Variants</th>-->
-                                    <!--</tr>-->
-                                    <!--</thead>-->
-                                    <!--<tbody>-->
-                                    <!--<template is="dom-repeat" items="{{item.data}}" as="data">-->
-                                        <!--<tr>-->
-                                            <!--<td>{{data.range}}</td>-->
-                                            <!--<td>{{data.count}}</td>-->
-                                        <!--</tr>-->
-                                    <!--</template>-->
-                                    <!--</tbody>-->
-                                <!--</template>-->
-                            <!--</table>-->
-                            <!--<br>-->
-                        <!--</template>-->
                     </div>
                 </div>
             </div>
-
-        <div class="modal fade" id="${this._prefix}LoadingModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
-             role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>Loading ...</h3>
-                    </div>
-                    <div class="modal-body">
-                        <div class="progress progress-striped active">
-                            <div class="progress-bar progress-bar-success" style="width: 100%"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
         ` : html`
             <span style="text-align: center"><h3>No public projects available to browse. Please login to continue</h3></span>
         `}

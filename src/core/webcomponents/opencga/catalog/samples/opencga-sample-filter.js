@@ -391,12 +391,13 @@ export default class OpencgaSampleFilter extends LitElement {
                 }
             </style>
             
-            <div class="search-button-wrapper">
-                <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
-                    <i class="fa fa-search" aria-hidden="true"></i> Search
-                </button>
-            </div>
-            <!--<br>-->
+            ${this.searchButton ? html`
+                <div class="search-button-wrapper">
+                    <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
+                        <i class="fa fa-search" aria-hidden="true"></i> Search
+                    </button>
+                </div>
+                ` : null}
             
             <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true"
                  style="padding-top: 20px">

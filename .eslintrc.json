@@ -10,7 +10,7 @@
   },
   "rules": {
     "indent": ["error", 4],
-    "max-len": ["error", 160],
+    "max-len": ["error", 200],
     "no-console": ["error", { "allow": ["log", "warn", "error", "time", "timeEnd"] }],
     "no-param-reassign": ["warn", { "props": true }],
     "no-undef": ["warn"],

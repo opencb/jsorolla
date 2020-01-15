@@ -228,6 +228,26 @@ export default class ConservationFilter extends LitElement {
                     </form>
                 -->
    
+                <fieldset>
+                    <label style="font-weight: normal;">Logical Operator</label>
+                    <div class="switch-toggle text-white alert alert-light">
+                        <input id="${this._prefix}conservationOrRadio" name="conservation" type="radio" value="or"
+                                   class="radio-or ${this._prefix}FilterRadio" checked disabled
+                                   @change="${this.filterChange}">
+                            <label for="${this._prefix}conservationOrRadio"
+                                   class="rating-label rating-label-or">OR</label>
+                    
+                        <input id="${this._prefix}conservationAndRadio" name="conservation" type="radio" value="and"
+                                   class="radio-and ${this._prefix}FilterRadio" disabled @change="${this.filterChange}">
+                            <label for="${this._prefix}conservationAndRadio"
+                                   class="rating-label rating-label-and">AND</label>
+                    
+                        
+                        <a class="btn btn-primary ripple btn-small"></a>
+                    </div>
+                </fieldset>
+            
+            
                 <div class="switch-container">
                     <div class="rating-toggle-container">
                         <label style="font-weight: normal;">Logical Operator</label>

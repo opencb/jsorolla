@@ -321,9 +321,17 @@ export default class OpencgaFileBrowser extends LitElement {
                     </div>
 
                     <div id="${this._prefix}AggregationStats" class="file-browser-view-content" style="display: none">
+                        
+                        <opencb-facet-query .opencgaSession="${this.opencgaSession}"
+                                            .cellbaseClient="${this.cellbaseClient}"  
+                                            .query="${this.executedQuery}"
+                                            .active="${this.SummaryActive}"
+                                             >
+                        </opencb-facet-query>
+                        <!-- @deprecated                        
                         <opencga-facet-view .opencgaClient="${this.opencgaSession.opencgaClient}"
                                             .opencgaSession="${this.opencgaSession}" entity="FILE"
-                                            .variableSets="${this.variableSets}"></opencga-facet-view>
+                                            .variableSets="${this.variableSets}"></opencga-facet-view> -->
                     </div>
 
                     <div id="${this._prefix}FileComparator" class="file-browser-view-content" style="display: none">

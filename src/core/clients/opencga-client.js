@@ -336,6 +336,7 @@ class OpenCGAParentClass {
             _params = {};
         }
         _params.body = body;
+        //TODO why extendedPost returns a method called extendedGet..
         return this.extendedGet(category1, ids1, category2, ids2, action, _params, _options);
     }
 

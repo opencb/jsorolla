@@ -72,11 +72,6 @@ export default class OpencgaFileFacet extends LitElement {
         };
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        console.log("connectedCallback config", this.config)
-    }
-
     _init() {
         this._prefix = "facet" + Utils.randomString(6);
 
@@ -118,14 +113,18 @@ export default class OpencgaFileFacet extends LitElement {
 
     }
 
-    firstUpdated(_changedProperties) {
-        console.log("config", this.config)
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        console.log("connectedCallback _config", this._config)
     }
 
-    getDefaultConfig(type) {
+    firstUpdated(_changedProperties) {
+    }
+
+    getDefaultConfig() {
 
         return {
-            files: {
                 title: "Aggregation Stats for Files",
                 name: "Agregation for Files",
                 active: false,
@@ -163,19 +162,18 @@ export default class OpencgaFileFacet extends LitElement {
                     {id: "default", name: "Default", type: "string"},
                     {id: "field", name: "Field", type: "string"}
                 ],
-                annotations: {},
-                }
-            }[type];
+                annotations: {}
+            };
     }
 
 
     render() {
-        return this.config ? html`
+        return this._config ? html`
             <opencga-facet  resource="files"
                             .opencgaSession="${this.opencgaSession}"
                             .opencgaClient="${this.opencgaSession.opencgaClient}"
                             .query="${this.browserSearchQuery}"
-                            .config="${this.config}"
+                            .config="${this._config}"
                             .cellbaseClient="${this.cellbaseClient}"
                             .populationFrequencies="${this.populationFrequencies}"
                             .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
