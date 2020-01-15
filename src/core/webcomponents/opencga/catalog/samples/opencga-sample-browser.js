@@ -163,6 +163,7 @@ export default class OpencgaSampleBrowser extends LitElement {
         if (e.target.dataset.view === "AggregationStats") {
             this.executeFacet();
         }
+        this.requestUpdate();
     }
 
     filterAvailableVariableSets() {
@@ -290,13 +291,13 @@ export default class OpencgaSampleBrowser extends LitElement {
                 <div class="col-md-12" style="padding: 5px 0px 5px 0px">
                     <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px;margin-left: 0px">
                         <div class="btn-group" role="group" style="margin-left: 0px">
-                            <button type="button" class="btn btn-success sample-browser-view-buttons active" data-view="TableResult" @click="${this._changeView}"  data-id="table">
+                            <button type="button" class="btn btn-success sample-browser-view-buttons active ripple" data-view="TableResult" @click="${this._changeView}"  data-id="table">
                                 <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" @click="${this._changeView}"></i> Table Result
                             </button>
-                            <button type="button" class="btn btn-success sample-browser-view-buttons" data-view="AggregationStats" @click="${this._changeView}">
+                            <button type="button" class="btn btn-success sample-browser-view-buttons ripple" data-view="AggregationStats" @click="${this._changeView}">
                                 <i class="fa fa-line-chart icon-padding" aria-hidden="true" data-view="AggregationStats" @click="${this._changeView}"></i> Aggregation Stats
                             </button>
-                            <button type="button" class="btn btn-success sample-browser-view-buttons" data-view="SampleComparator" @click="${this._changeView}"  data-id="comparator">
+                            <button type="button" class="btn btn-success sample-browser-view-buttons ripple" data-view="SampleComparator" @click="${this._changeView}"  data-id="comparator">
                                 <i class="fa fa-users icon-padding" aria-hidden="true" data-view="SampleComparator" @click="${this._changeView}"></i> Sample Comparator
                             </button>
                         </div>

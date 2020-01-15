@@ -63,6 +63,7 @@ export default class OpencgaVariantInterpretationDetail extends LitElement {
 
         // Initially we set the default config, this will be overridden if 'config' is passed
         this._config = this.getDefaultConfig();
+        this.detailActiveTabs = {};
     }
 
     updated(changedProperties) {
@@ -75,10 +76,10 @@ export default class OpencgaVariantInterpretationDetail extends LitElement {
 
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
-        this._config = Object.assign(this.getDefaultConfig(), config);
+        this._config = Object.assign(this.getDefaultConfig(), this.config);
 
-        if (UtilsNew.isNotEmpty(variant)) {
-            this._variantId = `${variant.chromosome}:${variant.start}:${variant.reference}:${variant.alternate}`;
+        if (UtilsNew.isNotEmpty(this.variant)) {
+            this._variantId = `${this.variant.chromosome}:${this.variant.start}:${this.variant.reference}:${this.variant.alternate}`;
         }
     }
 
@@ -95,7 +96,7 @@ export default class OpencgaVariantInterpretationDetail extends LitElement {
         for (const detail of this.config) {
             _activeTabs[detail.id] = (detail.id === e.currentTarget.dataset.id);
         }
-        this.set("detailActiveTabs", _activeTabs);
+        this.detailActiveTabs = _activeTabs;
     }
 
     getDefaultConfig() {
@@ -182,7 +183,7 @@ export default class OpencgaVariantInterpretationDetail extends LitElement {
                     <div id="${this._prefix}samples" role="tabpanel" class="tab-pane">
                         <div style="width: 75%;padding-top: 8px">
                             <opencga-variant-samples .opencgaSession="${this.opencgaSession}"
-                                                     .variant="${this.variant.id}}"
+                                                     .variant="${this.variant.id}"
                                                      .active="${this.detailActiveTabs.samples}">
                             </opencga-variant-samples>
                         </div>

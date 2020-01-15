@@ -91,7 +91,7 @@ export default class OpencgaVariantGrid extends LitElement {
 
         // this._updateTableColumns();
         // this._columns = this._createDefaultColumns();
-        this.renderVariantTable();
+        //this.renderVariantTable();
     }
 
     _init() {
@@ -175,8 +175,12 @@ export default class OpencgaVariantGrid extends LitElement {
 
         let _table = $("#" + this._prefix + "VariantBrowserGrid");
 
-        if (typeof this.opencgaSession !== "undefined" && typeof this.opencgaSession.project !== "undefined"
-            && typeof this.opencgaSession.study !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
+        //TODO quickfix. The check on query is required because the study is in the query object. A request without the study returns the error "Multiple projects found"
+        if (this.query &&
+            typeof this.opencgaSession !== "undefined" &&
+            typeof this.opencgaSession.project !== "undefined" &&
+            typeof this.opencgaSession.study !== "undefined" &&
+            typeof this.opencgaSession.study.alias !== "undefined") {
             this._columns = this._createDefaultColumns();
 
             let urlQueryParams = this._getUrlQueryParams();
@@ -276,8 +280,8 @@ export default class OpencgaVariantGrid extends LitElement {
                 },
                 onLoadSuccess: function(data) {
                     // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
-                    if (UtilsNew.isNotUndefinedOrNull(_table)) {
-                        PolymerUtils.querySelector(_table.selector).rows[2].setAttribute("class", "success");
+                    if (_table) {
+                        _table[0].rows[2].setAttribute("class", "success");
                         _this._onSelectVariant(data.rows[0]);
 
                         let elementsByClassName = PolymerUtils.getElementsByClassName("genome-browser-option");
@@ -294,6 +298,7 @@ export default class OpencgaVariantGrid extends LitElement {
                     }
                 },
                 onLoadError: function(status, res) {
+                    console.trace()
                     debugger
                 },
                 onPageChange: function(page, size) {
@@ -357,7 +362,7 @@ export default class OpencgaVariantGrid extends LitElement {
                 timeout: 20000
             };
 
-            Object.assign(queryParams, _this.query); // Important : Adding the query object contents to queryParams
+            Object.assign(queryParams, this.query); // Important : Adding the query object contents to queryParams
 
             url = url + "/webservices/rest/v4/" + this.cellbaseClient._config.species + "/feature/variation/search";
             let _this = this;

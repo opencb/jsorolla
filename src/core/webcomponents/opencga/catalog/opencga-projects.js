@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 
-//http://bioinfo.hpc.cam.ac.uk/opencga-demo/webservices/rest/v1/analysis/variant/facet?study=exomes_grch37%3Acorpasome&timeout=60000&facet=studies&sid=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkZW1vIiwiYXVkIjoiT3BlbkNHQSB1c2VycyIsImlhdCI6MTU3NTk4OTc1MCwiZXhwIjoxNTc1OTkzMzUwfQ.pm4dX-4FLWOPH9gnbkwAc3c4lEUNXnDyzEi-zG0ZJUQ
+// http://bioinfo.hpc.cam.ac.uk/opencga-demo/webservices/rest/v1/analysis/variant/facet?study=exomes_grch37%3Acorpasome&timeout=60000&facet=studies&sid=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkZW1vIiwiYXVkIjoiT3BlbkNHQSB1c2VycyIsImlhdCI6MTU3NTk4OTc1MCwiZXhwIjoxNTc1OTkzMzUwfQ.pm4dX-4FLWOPH9gnbkwAc3c4lEUNXnDyzEi-zG0ZJUQ
 
 export default class OpencgaProjects extends LitElement {
 
@@ -34,11 +34,14 @@ export default class OpencgaProjects extends LitElement {
             opencgaClient: {
                 type: Object
             },
+            opencgaSession: {
+                type: Object
+            },
             projects: {
-                type: Array,
+                type: Array
             },
             studySummaries: {
-                type: Array,
+                type: Array
             }
         };
     }
@@ -46,11 +49,12 @@ export default class OpencgaProjects extends LitElement {
     _init() {
         this._prefix = "sf-" + Utils.randomString(6) + "_";
         this._studies = [];
+        this.requestDone = false;
     }
 
     updated(changedProperties) {
         if (changedProperties.has("projects")) {
-            this.projectsChanged();
+            //this.projectsChanged();
         }
         if (changedProperties.has("studySummaries")) {
             this.summariesChanged();
@@ -58,7 +62,12 @@ export default class OpencgaProjects extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        this.loadHighcharts();
+        // this.loadHighcharts();
+        //firstUpdated() like every other props related methods is executed once for each prop
+        if(!this.requestDone) {
+            this.facetQuery();
+            this.requestDone = true;
+        }
     }
 
     _isFirstRow(indexStudy) {
@@ -171,8 +180,6 @@ export default class OpencgaProjects extends LitElement {
                     if (UtilsNew.isNotUndefinedOrNull(this.point.creationDate)) {
                         s += "<br/>" + moment(this.point.creationDate, "YYYYMMDDHHmmss").format("HH:mm:ss MMM/D/YY");
                     }
-
-
                     return s;
                 },
                 footerFormat: true
@@ -225,7 +232,6 @@ export default class OpencgaProjects extends LitElement {
             UtilsNew.isNotUndefined(this.projects) && this.projects.length > 0) {
             const _this = this;
 
-            //TODO ??
             if (true) {
                 const projectPromises = [];
                 this.projects.forEach(function(project) {
@@ -272,6 +278,95 @@ export default class OpencgaProjects extends LitElement {
         }
     }
 
+    facetQuery() {
+        // this.clearPlots();
+        console.log("projects", this.projects);
+        console.log("this.opencgaSession", this.opencgaSession);
+        // console.log("study",this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias)
+
+        this.querySelector("#loading").style.display = "block";
+
+        const sleep = new Promise(resolve => setTimeout(()=> resolve(), 5000))
+
+        const results = this.projects.map(project => this.opencgaClient.variants().facet({
+            // sid: this.opencgaClient._config.sessionId,
+            study: this.opencgaSession.study.fqn,
+            project: project.fqn,
+            timeout: 60000,
+            facet: "studies"
+        }, {}));
+        Promise.all([...results]).then( response => {
+            //response.pop() //TODO remove with sleep
+
+            console.log("res", JSON.stringify(response));
+            const data = response.map( (projectFacet, i) => ({
+                project: this.projects[i].name,
+                data: projectFacet.response[0].result[0].results[0]
+            }));
+            // format data for highchart
+            let dataset = [];
+            //TODO for (var [i, project] of Object.entries()) { // build project infos }
+            for (const project of response) {
+                dataset.push(
+                    ...project.response[0].result[0].results[0].buckets.map( datapoint => ({name: datapoint.value, data: [datapoint.count], type: "column"})),
+                    {name: "count", data: [project.response[0].result[0].results[0].count], type: "spline"});
+            }
+            this.facetChart(dataset);
+        }).catch(e => {
+            this.errorState = "Error from server";
+            this.requestUpdate();
+        }).finally(() => {
+            this.querySelector("#loading").style.display = "none";
+        });
+
+    }
+
+    facetChart(facetData) {
+        console.log("facetResults", facetData);
+        Highcharts.chart("facetChart", {
+            chart: {
+                type: "column"
+            },
+            legend: false,
+            title: {
+                text: "Projects overview"
+            },
+            subtitle: {
+                text: ""
+            },
+            xAxis: {
+            },
+            yAxis: {
+                min: 0,
+                plotLines: [{
+                    color: 'green',
+                    //TODO temp solution. It shows the total count for the first project only
+                    value: facetData.find( point => point.name === "count").data[0],
+                    width: 1,
+                    zIndex: 2
+                }]
+            },
+            tooltip: {
+                headerFormat: "<span style=\"font-size:10px\">{point.key}</span><table>",
+                pointFormat: "<tr><td style=\"color:{series.color};padding:0\">{series.name}: </td>" +
+                    "<td style=\"padding:0\"><b>{point.y} </b></td></tr>",
+                footerFormat: "</table>",
+                shared: true,
+                useHTML: true
+            },
+            plotOptions: {
+                column: {
+                    borderWidth: 0
+                }
+            },
+            series: facetData,
+            showInLegend: false,
+            dataLabels: {
+                enabled: false
+            }
+
+        });
+    }
     renderTable(studySummaries) {
         this._studies = studySummaries;
     }
@@ -284,10 +379,14 @@ export default class OpencgaProjects extends LitElement {
                 text-align: justify;
             }
         </style>
+        <div id="loading" style="">
+            <loading-spinner></loading-spinner>
+        </div>    
+        <div id="facetChart"></div>    
         <div id="containerChart"></div>
         <div>
             <!--<br>-->
-            <table class="table">
+            <table class="table" style="display: none">
                 <thead class="thead-inverse">
                 <tr>
                     <th colspan="5">Project</th>

@@ -93,7 +93,7 @@ export default class OpencgaVariantInterpreterGenomeBrowser extends LitElement {
             this.regionObserver();
         }
         if(changedProperties.has("active")) {
-            this._setActive();
+            //this._setActive();
         }
         if(changedProperties.has("opencgaSession") ||
             changedProperties.has("clinicalAnalysis") ||

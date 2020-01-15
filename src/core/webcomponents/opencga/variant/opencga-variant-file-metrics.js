@@ -121,7 +121,7 @@ export default class OpencgaVariantFileMetrics extends LitElement {
                     <tr>
                         <th>VCF Attributes</th>
                         ${this.variant.studies[0].files && this.variant.studies[0].files.length ? this.variant.studies[0].files.map( member => html`
-                            <th>{{member.fileId}}</th>
+                            <th>${member.fileId}</th>
                         `) : null}
                     </tr>
                     </thead>
@@ -130,7 +130,7 @@ export default class OpencgaVariantFileMetrics extends LitElement {
                         <tr id="${attribute.name}" class="file-metrics-table-${attribute.name}">
                             <td><span style="font-weight: bold">${attribute.name}</span></td>
                             ${attribute.values && attribute.values.length ? attribute.values.map(attr => html`
-                                <td>{{attr}}</td>
+                                <td>${attr}</td>
                             `) : null}                            
                         </tr>
                     `) : null}

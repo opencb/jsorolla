@@ -41,7 +41,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
             config: {
                 type: Object
             }
-        }
+        };
     }
 
     _init() {
@@ -58,34 +58,30 @@ export default class OpencgaVariantFilterClinical extends LitElement {
     }
 
     updated(changedProperties) {
-        //console.log("changing:: ", changedProperties)
         if (changedProperties.has("clinicalAnalysis")) {
-            this.clinicalAnalysisObserver()
+            this.clinicalAnalysisObserver();
         }
         if (changedProperties.has("query")) {
-            this.queryObserver()
+            this.queryObserver();
         }
         if (changedProperties.has("config")) {
-            this.configObserver()
+            this.configObserver();
         }
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-
+    firstUpdated(_changedProperties) {
         // Render the first time after preparing the DOM
-        this.clinicalAnalysisObserver(this.clinicalAnalysis);
-
-        $("select.selectpicker").selectpicker("render");
+        this.clinicalAnalysisObserver();
+        $("select.selectpicker", this).selectpicker("render");
     }
 
-    configObserver(config) {
-        this._config = {...this.getDefaultConfig(), ...config};
+    configObserver() {
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    clinicalAnalysisObserver(clinicalAnalysis) {
-        if (UtilsNew.isUndefinedOrNull(clinicalAnalysis)) {
-            console.log("clinicalAnalysis is undefined or null: ", clinicalAnalysis);
+    clinicalAnalysisObserver() {
+        if (UtilsNew.isUndefinedOrNull(this.clinicalAnalysis)) {
+            console.log("clinicalAnalysis is undefined or null: ", this.clinicalAnalysis);
             return;
         }
 
@@ -96,12 +92,12 @@ export default class OpencgaVariantFilterClinical extends LitElement {
 
         // We read Individuals from Clinical Analysis
         let individuals = [];
-        if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.family) && UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.family.members)) {
-            individuals = clinicalAnalysis.family.members;
+        if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family.members)) {
+            individuals = this.clinicalAnalysis.family.members;
             this.showModeOfInheritance = true;
         } else {
             if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.proband)) {
-                individuals = [clinicalAnalysis.proband];
+                individuals = [this.clinicalAnalysis.proband];
             }
             this.showModeOfInheritance = false;
         }
@@ -110,22 +106,22 @@ export default class OpencgaVariantFilterClinical extends LitElement {
         if (UtilsNew.isNotEmptyArray(individuals)) {
 
             // Prepare data to be easier to query
-            let _sampleFiltersMap = {};
+            const _sampleFiltersMap = {};
             if (UtilsNew.isNotEmptyArray(this.sampleFilters)) {
-                for (let sampleFilter of this.sampleFilters) {
+                for (const sampleFilter of this.sampleFilters) {
                     _sampleFiltersMap[sampleFilter.id] = sampleFilter;
                 }
             }
 
             // We iterate the individuals copying the previous values
-            let _sampleFilters = [];
-            for (let individual of individuals) {
+            const _sampleFilters = [];
+            for (const individual of individuals) {
                 if (UtilsNew.isNotEmptyArray(individual.samples)) {
                     let fatherId = "-";
                     // If possible we use sample ID
                     if (individual.father !== undefined && individual.father.id !== undefined) {
                         fatherId = individual.father.id;
-                        for (let ind of individuals) {
+                        for (const ind of individuals) {
                             if (individual.father.id === ind.id) {
                                 fatherId = UtilsNew.isNotEmptyArray(ind.samples) ? ind.samples[0].id : ind.id;
                                 break;
@@ -137,7 +133,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                     // If possible we use sample ID
                     if (individual.mother !== undefined && individual.mother.id !== undefined) {
                         motherId = individual.mother.id;
-                        for (let ind of individuals) {
+                        for (const ind of individuals) {
                             if (individual.mother.id === ind.id) {
                                 motherId = UtilsNew.isNotEmptyArray(ind.samples) ? ind.samples[0].id : ind.id;
                                 break;
@@ -146,8 +142,8 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                     }
 
                     // There should be just one sample per individual in the Clinical Analysis
-                    let sample = individual.samples[0];
-                    let _sampleFilter = {
+                    const sample = individual.samples[0];
+                    const _sampleFilter = {
                         id: sample.id,
                         proband: false,
                         affected: false,
@@ -157,16 +153,16 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                         father: fatherId,
                         mother: motherId,
                         genotypes: (UtilsNew.isNotUndefinedOrNull(_sampleFiltersMap[sample.id])) ? _sampleFiltersMap[sample.id].genotypes : this._config.defaultGenotypes,
-                        dp: (UtilsNew.isNotUndefinedOrNull(_sampleFiltersMap[sample.id])) ? _sampleFiltersMap[sample.id].dp : "",
+                        dp: (UtilsNew.isNotUndefinedOrNull(_sampleFiltersMap[sample.id])) ? _sampleFiltersMap[sample.id].dp : ""
                     };
 
-                    if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.proband) && individual.id === clinicalAnalysis.proband.id) {
+                    if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.proband) && individual.id === this.clinicalAnalysis.proband.id) {
                         _sampleFilter.proband = true;
                     }
 
-                    if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.disorder) && UtilsNew.isNotEmptyArray(individual.disorders)) {
-                        for (let disorder of individual.disorders) {
-                            if (disorder.id === clinicalAnalysis.disorder.id) {
+                    if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.disorder) && UtilsNew.isNotEmptyArray(individual.disorders)) {
+                        for (const disorder of individual.disorders) {
+                            if (disorder.id === this.clinicalAnalysis.disorder.id) {
                                 _sampleFilter.affected = true;
                             }
                         }
@@ -181,10 +177,10 @@ export default class OpencgaVariantFilterClinical extends LitElement {
             this.sampleFilters = [];
         }
 
-        this.renderSampleTable();
-        // this.renderFileTable();
-
-        this.notify();
+        // this.renderSampleTable();
+        this.sampleFilters = [...this.sampleFilters];
+        //this.requestUpdate();
+        this.sampleFiltersChange();
     }
 
     /**
@@ -193,21 +189,22 @@ export default class OpencgaVariantFilterClinical extends LitElement {
      */
     queryObserver(query) {
         if (UtilsNew.isEmptyArray(this.sampleFilters) && UtilsNew.isEmptyArray(this.fileFilters)) {
+            console.error("this.sampleFilters or this.fileFilters is empty");
             return;
         }
 
-        if (UtilsNew.isNotUndefinedOrNull(query)) {
+        if (UtilsNew.isNotUndefinedOrNull(this.query)) {
             // Reset all genotypes
-            for (let sampleFilter of this.sampleFilters) {
+            for (const sampleFilter of this.sampleFilters) {
                 sampleFilter.genotypes = [];
             }
 
-            if (UtilsNew.isNotUndefinedOrNull(query.genotype)) {
+            if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
                 // Assign new passed genotypes to EXISTING samples
-                let genotypes = query.genotype.split(";");
-                for (let genotype of genotypes) {
-                    let sampleAndGenotype = genotype.split(":");
-                    for (let sampleFilter of this.sampleFilters) {
+                const genotypes = this.query.genotype.split(";");
+                for (const genotype of genotypes) {
+                    const sampleAndGenotype = genotype.split(":");
+                    for (const sampleFilter of this.sampleFilters) {
                         if (sampleFilter.id === sampleAndGenotype[0]) {
                             sampleFilter.genotypes = sampleAndGenotype[1].split(",");
                             break;
@@ -224,16 +221,15 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                 // this._query.sample = _sampleIds.join(",");
                 // debugger
             }
-            this.renderSampleTable();
+            this.sampleFilters = [...this.sampleFilters];
+            //console.error("queryObserver in modal", this.sampleFilters)
+            this.requestUpdate();
         }
     }
 
-    notify() {
+    sampleFiltersChange() {
         // let compHet = false;
-        let missing = false;
-        if (PolymerUtils.getElementById(this._prefix + "MissingCheckbox") !== null) {
-            missing = PolymerUtils.getElementById(this._prefix + "MissingCheckbox").checked;
-        }
+        let missing = this.querySelector("#" + this._prefix + "MissingCheckbox").checked;
 
         // File Filters
         // let _qual = undefined;
@@ -253,7 +249,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                 sampleFilters: this.sampleFilters,
                 modeOfInheritance: this.modeOfInheritance,
                 // compoundHeterozygous: compHet,
-                missing: missing,
+                missing: missing
                 // fileFilters: this.fileFilters,
                 // qual: _qual,
                 // filter: _filter
@@ -265,47 +261,50 @@ export default class OpencgaVariantFilterClinical extends LitElement {
 
     onModeOfInheritance(e) {
         this.modeOfInheritance = e.target.value;
-        let _this = this;
+        const _this = this;
         this.opencgaSession.opencgaClient.variants().familyGenotypes({
             study: this.opencgaSession.study.fqn,
             family: this.clinicalAnalysis.family.id,
             disorder: this.clinicalAnalysis.disorder.id,
             modeOfInheritance: this.modeOfInheritance,
             completePenetrance: true
-        }).then(function (response) {
-            let genotypeResults = response.response[0].result[0];
+        }).then(function(response) {
+            const genotypeResults = response.response[0].result[0];
             if (UtilsNew.isNotUndefinedOrNull(genotypeResults)) {
-                let individualToSampleMap = {};
-                for (let member of _this.clinicalAnalysis.family.members) {
+                const individualToSampleMap = {};
+                for (const member of _this.clinicalAnalysis.family.members) {
                     if (UtilsNew.isNotEmptyArray(member.samples)) {
                         individualToSampleMap[member.samples[0].id] = member.id;
                     }
                 }
 
                 let countGenoypes = 0;
-                for (let sampleFilter of _this.sampleFilters) {
+                for (const sampleFilter of _this.sampleFilters) {
                     // sampleFilter.genotypes = genotypeResults[sampleFilter.id];
                     sampleFilter.genotypes = genotypeResults[individualToSampleMap[sampleFilter.id]];
+                    console.log("genotypes", sampleFilter.genotypes)
                     countGenoypes += sampleFilter.genotypes.length;
                 }
-                _this.renderSampleTable()
+                // _this.renderSampleTable()
+                _this.sampleFilters = [..._this.sampleFilters];
+                _this.requestUpdate();
 
                 if (countGenoypes > 0) {
-                    PolymerUtils.hide(_this._prefix + "Warning")
+                    PolymerUtils.hide(_this._prefix + "Warning");
                 } else {
-                    PolymerUtils.show(_this._prefix + "Warning")
+                    PolymerUtils.show(_this._prefix + "Warning");
                 }
 
-                _this.notify();
+                _this.sampleFiltersChange();
             }
-        }).catch(function (response) {
+        }).catch(function(response) {
             console.error(response);
         });
     }
 
     renderSampleTable() {
         return html`
-            ${this.sampleFilters && this.sampleFilters.length && this.sampleFilters.map(sampleFilter => html`<tr data-sample="${sampleFilter.id}">
+            ${this.sampleFilters && this.sampleFilters.length ? this.sampleFilters.map(sampleFilter => html`<tr data-sample="${sampleFilter.id}">
                 <td style="vertical-align: middle">
                     <div>
                         <span data-toggle="tooltip" data-placement="bottom" title=""
@@ -353,21 +352,23 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                            style="width: 60px" @input="${this.onSampleTableChange}">
                 </td>
             </tr>
-            `)}
+            `) : ""}
         `;
     }
 
     onSampleTableChange(e) {
-        let table = PolymerUtils.getElementById(this._prefix + "BasicTable");
+        const table = PolymerUtils.getElementById(this._prefix + "BasicTable");
         let counter = 0;
 
-        for (let row of table.rows) {
+        for (const row of table.rows) {
             if (row.dataset.sample !== undefined) {
                 // Set GT values reading columns 5, 6 and 7
                 this.sampleFilters[counter].genotypes = [];
                 for (let i = 5; i <= 7; i++) {
                     if (row.children[i].children[0].checked) {
-                        this.sampleFilters[counter].genotypes.push(row.children[i].children[0].dataset.gt)
+                        this.sampleFilters[counter].genotypes.push(row.children[i].children[0].dataset.gt);
+                    } else {
+                        //console.log("Check", row.children[i].children[0].checked)
                     }
 
                 }
@@ -378,15 +379,19 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                 counter++;
             }
         }
+        this.sampleFilters = [...this.sampleFilters];
+        //console.log("this.sampleFilters", this.sampleFilters);
+        //this.requestUpdate();
 
         // Set MoI select to 'none' when clicked in GT
         if (UtilsNew.isNotUndefinedOrNull(e.currentTarget.dataset.gt)) {
             this.modeOfInheritance = "none";
             $("#" + this._prefix + "ModeOfInheritance").selectpicker("val", "none");
-            PolymerUtils.hide(this._prefix + "Warning")
+            PolymerUtils.hide(this._prefix + "Warning");
         }
 
-        this.notify();
+        this.requestUpdate();
+        this.sampleFiltersChange();
     }
 
     getDefaultConfig() {
@@ -398,7 +403,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                 FEMALE: "fa-venus",
                 UNKNOWN: "fa-genderless"
             }
-        }
+        };
     }
 
     render() {
@@ -434,7 +439,63 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                             <th scope="col" rowspan="2">HOM_ALT</th>
                         </tr>
                         </thead>
-                        <tbody id="${this._prefix}BasicTBody"></tbody>
+                        <tbody id="${this._prefix}BasicTBody">
+                           <!-- renderSampleTable() -->
+                            ${this.sampleFilters && this.sampleFilters.length ? this.sampleFilters.map(sampleFilter => html`
+                                <tr data-sample="${sampleFilter.id}">
+                                    <td style="vertical-align: middle">
+                                        <div>
+                                            <span   style="${(sampleFilter.affected ? "color: darkred;" : "font-weight: normal;")}${sampleFilter.proband ? "font-weight: bold" : ""}"
+                                                    data-toggle="tooltip"
+                                                    data-placement="bottom"
+                                                    title="">
+                                                        ${sampleFilter.id}
+                                                        <i class='fa ${this._config.sexIConMap[sampleFilter.sex]} fa-lg' style='padding-left: 5px'></i>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td style="padding-left: 20px">
+                                        ${sampleFilter.proband ? html`
+                                            <span data-toggle="tooltip" data-placement="bottom" title="Proband">
+                                                <i class='fa fa-check' style='color: green'></i>
+                                            </span>` : html`
+                                            <span><i class='fa fa-times' style='color: red'></i></span>
+                                        `}
+                                    </td>
+                                    <td style="padding-left: 20px">
+                                        ${sampleFilter.affected ? html`
+                                            <span data-toggle="tooltip" data-placement="bottom" title="Affected"><i class='fa fa-check' style='color: green'></i></span>` : html`
+                                            <span><i class='fa fa-times' style='color: red'></i></span>`
+}
+                                    </td>
+                                    <td style="padding-left: 20px">
+                                        <span>${sampleFilter.father}</span>
+                                    </td>
+                                    <td style="padding-left: 20px">
+                                        <span>${sampleFilter.mother}</span>
+                                    </td>
+                                    <td style="padding-left: 20px">
+                                        <input id="${this._prefix}${sampleFilter.id}00" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/0"
+                                               .checked="${sampleFilter.genotypes.includes("0/0")}" @click="${this.onSampleTableChange}">
+                                    </td>
+                                    <td style="padding-left: 20px">
+                                        <input id="${this._prefix}${sampleFilter.id}01" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/1"
+                                               .checked="${sampleFilter.genotypes.includes("0/1")}" @click="${this.onSampleTableChange}">
+                                    </td>
+                                    <td style="padding-left: 20px">
+                                        <input id="${this._prefix}${sampleFilter.id}11" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="1/1"
+                                               .checked="${sampleFilter.genotypes.includes("1/1")}" @click="${this.onSampleTableChange}">
+                                    </td>
+                                    <td style="padding-left: 10px">
+                                        <input id="${this._prefix}${sampleFilter.id}DP" type="text" value="${sampleFilter.dp !== undefined && sampleFilter.dp > 0 ? sampleFilter.dp : ""}"
+                                               class="form-control input-sm sample-dp-textbox" aria-label="..." placeholder="e.g. 15"
+                                               style="width: 60px" @input="${this.onSampleTableChange}">
+                                    </td>
+                                </tr>
+                             `) : ""}
+                           
+                           
+                        </tbody>
                     </table>
                 </div>
                 <div id="${this._prefix}BasicTableMessage" style="text-align: center"><span style="font-weight: bold">No Samples selected</span></div>
@@ -471,12 +532,13 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                     <label>Other options</label>
                 </div>
                 <div style="padding: 5px 30px">
-                    <input id="${this._prefix}MissingCheckbox" type="checkbox" @click="${this.notify}"><span style="padding-left: 5px">Include parent missing (non-ref) allele calls</span>
+                    <input id="${this._prefix}MissingCheckbox" type="checkbox" @click="${this.sampleFiltersChange}"><span style="padding-left: 5px">Include parent missing (non-ref) allele calls</span>
                 </div>
             </div>
         </div>
         `;
     }
+
 }
 
 customElements.define("opencga-variant-filter-clinical", OpencgaVariantFilterClinical);

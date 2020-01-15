@@ -98,7 +98,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         };
         this.mode = "create";
         this._clinicalAnalysis = {}; // FIXME quick fix needs a proper check
-
+        //console.log("this._config",this._config)
     }
 
     updated(changedProperties) {
@@ -152,6 +152,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     propertyObserver() {
         this._config = Object.assign(this.getDefaultConfig(), this.config);
 
+        //console.log("this._config",this._config)
         // Set a private variable with all the users in this study: owner + @members group.
         // By default, the user creating the Case is selected as default
         if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study) &&
@@ -179,7 +180,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         }
 
         //this.renderTable();
-        this.requestUpdate();
+        //this.requestUpdate();
     }
 
     onSelectChange(e) {
@@ -221,12 +222,14 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         }
     }
 
+    //TODO move in template
     _updateCreateButtonStatus() {
         if (UtilsNew.isNotEmpty(this._clinicalAnalysis.id) && UtilsNew.isNotUndefinedOrNull(this._clinicalAnalysis.proband)) {
             PolymerUtils.getElementById(`${this._prefix}Ok`).disabled = false;
         } else {
             PolymerUtils.getElementById(`${this._prefix}Ok`).disabled = true;
         }
+        this.requestUpdate();
     }
 
     fillForm(clinicalAnalysis) {
@@ -336,7 +339,10 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         // this._individuals = individuals;
 
         // Set the proband when there is just one individual
-        this._clinicalAnalysis.proband = undefined;
+        console.warn("commented line for proband undefined (the case of one individual)")
+        //this._clinicalAnalysis.proband = undefined;
+
+
         // FIXME add this comparison
         // && individuals.length === 1
         // if (UtilsNew.isNotEmptyArray(individuals) ) {
@@ -383,6 +389,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                 this._clinicalAnalysis.files = files;
 
                 this.fillForm(this._clinicalAnalysis);
+                this.requestUpdate();
                 this.notifyClinicalAnalysis();
             });
         } else {
@@ -532,6 +539,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     renderTable() {
         const columns = this._initTableColumns();
 
+        console.log("columns",columns)
         const _this = this;
 
         console.log("_this._individuals",_this._individuals)
@@ -552,6 +560,12 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
 
             onPostBody: function(data) {
                 $(".selectpicker").selectpicker("refresh");
+
+                /**
+                 *  returning a lit-html element in a formatter cause the print of [object Object].
+                 *  the flowwing listerners are necessary as temp solution.
+                 *  TODO find a better way to make bootstrap-table formatters and lit-html works together.
+                 */
 
                 const removeIndividualButtons = PolymerUtils.querySelectorAll(".removeIndividualButton");
                 for (let i = 0; i < removeIndividualButtons.length; i++) {
@@ -625,13 +639,13 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                     }
                 }
             }
-            return html`<div>
+            return `<div>
                             <span data-toggle="tooltip" data-placement="bottom" style="${sampleIdStyle}" title="" >
                             ${value} <i class='fa ${sampleIcon} fa-lg' style='padding-left: 5px'></i>
                             </span>
                         </div>`;
         } else {
-            return html`-`;
+            return `-`;
         }
     }
 
@@ -641,19 +655,19 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
             // for (let sample of row.samples) {
             //     samples += `<div>${sample.id}</div>`;
             // }
-            return html`<span>${row.samples[0].id}</span>`
+            return `<span>${row.samples[0].id}</span>`
         } else {
-            return html`-`;
+            return `-`;
         }
     }
 
     probandFormatter(value, row) {
-        return html`<input type="radio" name="${this._prefix}-optradio" class="probandRadio" data-individual-id="${row.id}">`;
+        return `<input type="radio" name="${this._prefix}-optradio" class="probandRadio" data-individual-id="${row.id}" @click="${this.aaa}">`;
     }
 
     //TODO change name
     aaa(e) {
-        console.warn("change name function!")
+        console.warn("change function name")
         const individualId = e.currentTarget.dataset.individualId;
         if (UtilsNew.isNotUndefinedOrNull(this._clinicalAnalysis.family) &&
             UtilsNew.isNotEmptyArray(this._clinicalAnalysis.family.members)) {
@@ -733,7 +747,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     }*/
 
     removeButtonFormatter(value, row) {
-        return `<button data-id=${row.id} class='btn btn-sm btn-danger removeIndividualButton'>
+        return `<button data-id=${row.id} class='btn btn-sm btn-danger removeIndividualButton' @click="${this.removeIndividualButtonClicked}">
                         <i class="fa fa-trash" aria-hidden="true"></i> Remove</button>`;
     }
 
@@ -749,7 +763,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                 {
                     title: "Sample",
                     field: "samples",
-                    formatter: this.samplesFormatter,
+                    formatter: this.samplesFormatter.bind(this),
                     halign: this._config.grid.header.horizontalAlign
                 },
                 {
@@ -846,229 +860,230 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
             }
         </style>
 
-        <div class="row">
-            <div class="col-md-12">
-
-                <!--<div>-->
-                    <!--<h2 style="margin-top: 10px"></i> {{_config.title}}</h2>-->
-                <!--</div>-->
-
-                <div style="padding: 10px 10px;">
-                    <div>
-                        <h4 class="form-section-title">Case Information</h4>
-                    </div>
-
-                    <div class="form-horizontal" style="padding: 5px 10px">
-
-                        <div class="form-group" style="padding-top: 10px">
-                            <label class="control-label col-md-1 jso-label-title">Analysis ID</label>
-                            <div class="col-md-3">
-                                ${this.isCreate ? html`
-                                    <input type="text" id="${this._prefix}Id" class="${this._prefix}Input form-control"
-                                           placeholder="ID of the case" data-field="id" @input="${this.onInputChange}" value="${this._clinicalAnalysis.id}">
+        <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+        
+                        <!--<div>-->
+                            <!--<h2 style="margin-top: 10px"></i> {{_config.title}}</h2>-->
+                        <!--</div>-->
+        
+                        <div style="padding: 10px 10px;">
+                            <div>
+                                <h4 class="form-section-title">Case Information</h4>
+                            </div>
+        
+                            <div class="form-horizontal" style="padding: 5px 10px">
+        
+                                <div class="form-group" style="padding-top: 10px">
+                                    <label class="control-label col-md-1 jso-label-title">Analysis ID</label>
+                                    <div class="col-md-3">
+                                        ${this.isCreate ? html`
+                                            <input type="text" id="${this._prefix}Id" class="${this._prefix}Input form-control"
+                                                   placeholder="ID of the case" data-field="id" @input="${this.onInputChange}" value="${this._clinicalAnalysis.id}">
+                                        ` : html`
+                                            <div class="input-group">
+                                                <input type="text" id="${this._prefix}Id" class="${this._prefix}Input form-control"
+                                                       placeholder="ID of the case" data-field="id" @input="${this.onInputChange}">
+                                                <span class="input-group-btn">
+                                                <button class="btn btn-default" type="button">
+                                                    <i class="fa fa-search" aria-hidden="true"></i>
+                                                </button>
+                                            </span>
+                                            </div>
+                                        `}
+                                    </div>
+                                </div>
+        
+                                <div class="form-group">
+                                    <label class="control-label col-md-1 jso-label-title">Analysis Type</label>
+                                    <div class="col-md-3">
+                                        <select class="selectpicker" data-width="100%" id="${this._prefix}Type" data-field="type" data-field-type="string"
+                                                @change="${this.onSelectChange}">
+                                            <option value="SINGLE">Single</option>
+                                            <option value="FAMILY">Family</option>
+                                            <option value="CANCER">Cancer</option>
+                                            <option value="COHORT">Cohort</option>
+                                            <option value="AUTOCOMPARATIVE">Autocomparative</option>
+                                        </select>
+                                    </div>
+                                </div>
+        
+                                <div class="form-group">
+                                    <label class="control-label col-md-1 jso-label-title">Interpretation Flags</label>
+                                    <div class="col-md-3">
+                                        <!-- TODO CHECK on-dom-change="renderDomRepeat"-->
+                                        <select class="selectpicker" data-width="100%" id="${this._prefix}Flags" data-field="flags" data-field-type="array"
+                                                @change="${this.onSelectChange}" on-dom-change="renderDomRepeat" multiple data-selected-text-format="count > 2">
+                                            ${this._config.flags && this._config.flags.length ? this._config.flags.map( item => html`
+                                                <option value="${item}">${item}</option>
+                                            `) : null }
+                                        </select>
+                                    </div>
+                                </div>
+        
+                                <div class="form-group">
+                                    <label class="control-label col-md-1 jso-label-title">Priority</label>
+                                    <div class="col-md-3">
+                                        <select class="selectpicker" data-width="100%" id="${this._prefix}Priority" data-field="priority" data-field-type="string"
+                                                @change="${this.onSelectChange}">
+                                            <option style="color: red" value="URGENT">Urgent</option>
+                                            <option style="color: orange" value="HIGH">High</option>
+                                            <option style="color: blue" value="MEDIUM" selected>Medium</option>
+                                            <option style="color: green" value="LOW">Low</option>
+                                        </select>
+                                    </div>
+                                </div>
+        
+                                <div class="form-group">
+                                    <label class="control-label col-md-1 jso-label-title">Assigned To</label>
+                                    <div class="col-md-3">
+                                        <!-- TODO CHECK on-dom-change="renderDomRepeat"-->
+                                        <select class="selectpicker" data-width="100%" id="${this._prefix}Assigned" data-field="assigned" data-field-type="object"
+                                                @change="${this.onSelectChange}" on-dom-change="renderDomRepeat">
+                                            ${this._studyUsers && this._studyUsers.length ? this._studyUsers.map( item => html`
+                                                <option value="${item}" data-value="${item}">${item}</option>
+                                            `) : null}
+                                        </select>
+                                    </div>
+                                </div>
+        
+                                <div class="form-group">
+                                    <label class="control-label col-md-1 jso-label-title">Due Date</label>
+                                    <div class="date col-md-3">
+                                        <div class='input-group date' id="${this._prefix}DuePickerDate">
+                                            <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" data-field="dueDate" @input="${this.onInputChange}" />
+                                            <span class="input-group-addon">
+                                            <span class="fa fa-calendar"></span>
+                                        </span>
+                                        </div>
+                                    </div>
+                                </div>
+        
+                                <div class="form-group">
+                                    <label class="control-label col-md-1 jso-label-title">Description</label>
+                                    <div class="col-md-3">
+                                        <textarea id="${this._prefix}Description" class="${this._prefix}Input form-control"
+                                                  placeholder="Description of the case" data-field="description" @input="${this.onInputChange}"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+        
+        
+                            <div>
+                                <h4 class="form-section-title">Proband and Disease</h4>
+                            </div>
+        
+                            <div class="form-horizontal" style="padding: 10px 10px">
+                                ${this.isFamilyAnalysis(this._clinicalAnalysis.type) ? html`
+                                    <div class="form-group" style="padding-top: 10px">
+                                        <label class="control-label col-md-1 jso-label-title">Search Family</label>
+                                        <div class="col-md-1">
+                                            <!--Search family-->
+                                            <button id="${this._prefix}-browseFamily2" class="btn btn-sm btn-primary"
+                                                    data-toggle="modal" data-placement="bottom" @click="${this.showFamilySelector}"
+                                                    style="display: inline">Browse...</button>
+                                        </div>
+                                        <div>
+                                            <a @click="${this.showFamilyCreator}" class="col-md-2" style="cursor:pointer;">
+                                                Don't have a family?
+                                            </a>
+                                        </div>
+                                    </div>
                                 ` : html`
-                                    <div class="input-group">
-                                        <input type="text" id="${this._prefix}Id" class="${this._prefix}Input form-control"
-                                               placeholder="ID of the case" data-field="id" @input="${this.onInputChange}">
-                                        <span class="input-group-btn">
-                                        <button class="btn btn-default" type="button">
-                                            <i class="fa fa-search" aria-hidden="true"></i>
-                                        </button>
-                                    </span>
+                                    <div class="form-group" style="padding-top: 10px">
+                                        <label class="control-label col-md-1 jso-label-title">Search Proband</label>
+                                        <div class="col-md-1">
+                                            <button id="${this._prefix}-browseIndividual2" class="btn btn-sm btn-primary"
+                                                    data-toggle="modal" data-placement="bottom" @click="${this.showIndividualSelector}"
+                                                    style="display: inline">Browse...</button>
+                                        </div>
                                     </div>
                                 `}
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="control-label col-md-1 jso-label-title">Analysis Type</label>
-                            <div class="col-md-3">
-                                <select class="selectpicker" data-width="100%" id="${this._prefix}Type" data-field="type" data-field-type="string"
-                                        @change="${this.onSelectChange}">
-                                    <option value="SINGLE">Single</option>
-                                    <option value="FAMILY">Family</option>
-                                    <option value="CANCER">Cancer</option>
-                                    <option value="COHORT">Cohort</option>
-                                    <option value="AUTOCOMPARATIVE">Autocomparative</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="control-label col-md-1 jso-label-title">Interpretation Flags</label>
-                            <div class="col-md-3">
-                                <!-- TODO CHECK on-dom-change="renderDomRepeat"-->
-                                <select class="selectpicker" data-width="100%" id="${this._prefix}Flags" data-field="flags" data-field-type="array"
-                                        @change="${this.onSelectChange}" on-dom-change="renderDomRepeat" multiple data-selected-text-format="count > 2">
-                                    ${this._config.flags && this._config.flags.length ? this._config.flags.map( item => html`
-                                        <option value="${item}">${item}</option>
-                                    `) : null }
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="control-label col-md-1 jso-label-title">Priority</label>
-                            <div class="col-md-3">
-                                <select class="selectpicker" data-width="100%" id="${this._prefix}Priority" data-field="priority" data-field-type="string"
-                                        @change="${this.onSelectChange}">
-                                    <option style="color: red" value="URGENT">Urgent</option>
-                                    <option style="color: orange" value="HIGH">High</option>
-                                    <option style="color: blue" value="MEDIUM" selected>Medium</option>
-                                    <option style="color: green" value="LOW">Low</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="control-label col-md-1 jso-label-title">Assigned To</label>
-                            <div class="col-md-3">
-                                <!-- TODO CHECK on-dom-change="renderDomRepeat"-->
-                                <select class="selectpicker" data-width="100%" id="${this._prefix}Assigned" data-field="assigned" data-field-type="object"
-                                        @change="${this.onSelectChange}" on-dom-change="renderDomRepeat">
-                                    ${this._studyUsers && this._studyUsers.length ? this._studyUsers.map( item => html`
-                                        <option value="${item}" data-value="${item}">${item}</option>
-                                    `) : null}
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="control-label col-md-1 jso-label-title">Due Date</label>
-                            <div class="date col-md-3">
-                                <div class='input-group date' id="${this._prefix}DuePickerDate">
-                                    <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" data-field="dueDate" @input="${this.onInputChange}" />
-                                    <span class="input-group-addon">
-                                    <span class="fa fa-calendar"></span>
-                                </span>
+                                
+                                <div class="form-group">
+                                    <label class="control-label col-md-1 jso-label-title">Disorder</label>
+                                    <div class="col-md-3">
+                                        <!-- TODO CHECK on-dom-change="renderDomRepeat"-->
+                                        <select class="selectpicker" data-width="100%" id="${this._prefix}Disorder" data-field="disorder" data-field-type="object"
+                                                @change="${this.onSelectChange}" on-dom-change="renderDomRepeat">
+                                            ${this._disorders && this._disorders.length ? this._disorders.map( item => html`
+                                                <option value="${item.id}" data-value="${item}">${item.id}</option>
+                                            `) : null }
+                                        </select>
+                                    </div>
+                                </div>
+        
+                                <div class="form-group">
+                                    <label class="control-label col-md-1 jso-label-title">Sample Configuration:</label>
+                                    <div id="${this._prefix}GridTableDiv" class="col-md-11 col-md-offset-1" style="padding: 10px 20px">
+                                        <table id="${this._prefix}IndividualBrowserGrid">
+                                            <thead style="background-color: #eee"></thead>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="control-label col-md-1 jso-label-title">Description</label>
-                            <div class="col-md-3">
-                                <textarea id="${this._prefix}Description" class="${this._prefix}Input form-control"
-                                          placeholder="Description of the case" data-field="description" @input="${this.onInputChange}"></textarea>
-                            </div>
+        
+        
                         </div>
                     </div>
-
-
-                    <div>
-                        <h4 class="form-section-title">Proband and Disease</h4>
-                    </div>
-
-                    <div class="form-horizontal" style="padding: 10px 10px">
-                        ${this.isFamilyAnalysis(this._clinicalAnalysis.type) ? html`
-                            <div class="form-group" style="padding-top: 10px">
-                                <label class="control-label col-md-1 jso-label-title">Search Family</label>
-                                <div class="col-md-1">
-                                    <!--Search family-->
-                                    <button id="${this._prefix}-browseFamily2" class="btn btn-sm btn-primary"
-                                            data-toggle="modal" data-placement="bottom" @click="${this.showFamilySelector}"
-                                            style="display: inline">Browse...</button>
-                                </div>
-                                <div>
-                                    <a @click="${this.showFamilyCreator}" class="col-md-2" style="cursor:pointer;">
-                                        Don't have a family?
-                                    </a>
-                                </div>
-                            </div>
-                        ` : html`
-                            <div class="form-group" style="padding-top: 10px">
-                                <label class="control-label col-md-1 jso-label-title">Search Proband</label>
-                                <div class="col-md-1">
-                                    <button id="${this._prefix}-browseIndividual2" class="btn btn-sm btn-primary"
-                                            data-toggle="modal" data-placement="bottom" @click="${this.showIndividualSelector}"
-                                            style="display: inline">Browse...</button>
-                                </div>
-                            </div>
-                        `}
-                        
-                        <div class="form-group">
-                            <label class="control-label col-md-1 jso-label-title">Disorder</label>
-                            <div class="col-md-3">
-                                <!-- TODO CHECK on-dom-change="renderDomRepeat"-->
-                                <select class="selectpicker" data-width="100%" id="${this._prefix}Disorder" data-field="disorder" data-field-type="object"
-                                        @change="${this.onSelectChange}" on-dom-change="renderDomRepeat">
-                                    ${this._disorders && this._disorders.length ? this._disorders.map( item => html`
-                                        <option value="${item.id}" data-value="${item}">${item.id}</option>
-                                    `) : null }
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="control-label col-md-1 jso-label-title">Sample Configuration:</label>
-                            <div id="${this._prefix}GridTableDiv" class="col-md-11 col-md-offset-1" style="padding: 10px 20px">
-                                <table id="${this._prefix}IndividualBrowserGrid">
-                                    <thead style="background-color: #eee"></thead>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-
-                </div>
-            </div>
-
-            <div class="col-md-2 col-md-offset-2">
-                <!--<div class="form-group">-->
-                <!--<div class="col-md-2" style="float: right">-->
-                <button id="${this._prefix}Clear" class="btn btn-primary" @click="${this.onClear}">Clear</button>
-                <button id="${this._prefix}Ok" class="btn btn-primary" @click="${this.onCreate}">Create</button>
-                <!--</div>-->
-                <!--</div>-->
-            </div>
-        </div>
-
-        <!-- Modal: Individual browser -->
-        <div class="modal fade" id="${this._prefix}IndividualBrowser" tabindex="-1" role="dialog" aria-labelledby="individualBrowserLabel">
-            <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="${this._prefix}IndividualBrowserLabel">Individual Selector</h4>
-                    </div>
-                    <div class="modal-body" style="height: 780px">
-                        <opencga-individual-browser .opencgaSession="${this.opencgaSession}"
-                                                    .config="${this.individualBrowserConfig}"
-                                                    @selectindividual="${this.onIndividualSelect}">
-                        </opencga-individual-browser>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal">
-                            OK
-                        </button>
+        
+                    <div class="col-md-2 col-md-offset-2">
+                        <!--<div class="form-group">-->
+                        <!--<div class="col-md-2" style="float: right">-->
+                        <button id="${this._prefix}Clear" class="btn btn-primary" @click="${this.onClear}">Clear</button>
+                        <button id="${this._prefix}Ok" class="btn btn-primary" @click="${this.onCreate}">Create</button>
+                        <!--</div>-->
+                        <!--</div>-->
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Modal: Family browser -->
-        <div class="modal fade" id="${this._prefix}FamilyBrowser" tabindex="-1" role="dialog" aria-labelledby="familyBrowserLabel">
-            <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="${this._prefix}FamilyBrowserLabel">Family Selector</h4>
-                    </div>
-                    <div class="modal-body" style="height: 780px">
-                        <opencga-family-browser .opencgaSession="${this.opencgaSession}"
-                                                .config="${this.familyBrowserConfig}"
-                                                @selectfamily="${this.onFamilySelect}">
-                        </opencga-family-browser>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal">
-                            OK
-                        </button>
+        
+                <!-- Modal: Individual browser -->
+                <div class="modal fade" id="${this._prefix}IndividualBrowser" tabindex="-1" role="dialog" aria-labelledby="individualBrowserLabel">
+                    <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="${this._prefix}IndividualBrowserLabel">Individual Selector</h4>
+                            </div>
+                            <div class="modal-body" style="height: 780px">
+                                <opencga-individual-browser .opencgaSession="${this.opencgaSession}"
+                                                            .config="${this.individualBrowserConfig}"
+                                                            @selectindividual="${this.onIndividualSelect}">
+                                </opencga-individual-browser>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-dismiss="modal">
+                                    OK
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+        
+                <!-- Modal: Family browser -->
+                <div class="modal fade" id="${this._prefix}FamilyBrowser" tabindex="-1" role="dialog" aria-labelledby="familyBrowserLabel">
+                    <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="${this._prefix}FamilyBrowserLabel">Family Selector</h4>
+                            </div>
+                            <div class="modal-body" style="height: 780px">
+                                <opencga-family-browser .opencgaSession="${this.opencgaSession}"
+                                                        .config="${this.familyBrowserConfig}"
+                                                        @selectfamily="${this.onFamilySelect}">
+                                </opencga-family-browser>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-dismiss="modal">
+                                    OK
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
         </div>
-
 
         <!--<table id="${this._prefix}IndividualBrowserGrid">-->
         <!--<thead style="background-color: #eee"></thead>-->

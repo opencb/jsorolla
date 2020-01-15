@@ -15,13 +15,16 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "./../commons/opencga-facet-result-view.js";
-import "./../../../loading-spinner.js";
+import "./opencb-facet-results.js";
+import "./../../loading-spinner.js";
+
+// NOTE this is a clone of opencga-variant-facet-query
+
 
 //TODO avg(popFreq__1kG_phase3__AFR)[0..1]:0.1>>avg(popFreq__GNOMAD_GENOMES__EAS[0..1]):0.1
 //TODO this components needs cleaning from the old code
 
-class OpencgaVariantFacetQuery extends LitElement {
+class OpencbFacetQuery extends LitElement {
 
     constructor() {
         super();
@@ -36,6 +39,9 @@ class OpencgaVariantFacetQuery extends LitElement {
 
     static get properties() {
         return {
+            resource: {
+                type: Object
+            },
             opencgaSession: {
                 type: Object
             },
@@ -77,8 +83,11 @@ class OpencgaVariantFacetQuery extends LitElement {
 
         this.facetConfig = {a: 1};
         this.facetActive = true;
+    }
 
-        this._config = this.getDefaultConfig();
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = this.getDefaultConfig(this.resource);
     }
 
     firstUpdated(_changedProperties) {
@@ -145,10 +154,10 @@ class OpencgaVariantFacetQuery extends LitElement {
 
         // Join 'query' from left menu and facet filters
         let queryParams = {...this.query,
-                study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
-                sid: this.opencgaSession.opencgaClient._config.sessionId,
-                fields: this.facetFilters.join(";"),
-                timeout: 60000};
+            study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
+            sid: this.opencgaSession.opencgaClient._config.sessionId,
+            fields: this.facetFilters.join(";"),
+            timeout: 60000};
 
         console.warn("queryParams", queryParams);
         this.opencgaSession.opencgaClient.variants().aggregationStats(queryParams, {})
@@ -160,6 +169,7 @@ class OpencgaVariantFacetQuery extends LitElement {
             .catch(function(e) {
                 console.log(e);
                 this.querySelector("#loading").style.display = "none";
+                this.errorState = "Error from server: " + e.error;
                 this._showInitMessage = false;
             })
             .finally(() => this.requestUpdate());
@@ -202,8 +212,30 @@ class OpencgaVariantFacetQuery extends LitElement {
         }));
     }
 
-    //TODO add default configuration for file, sample, individual, family, cohort, clinical analysis
-    getDefaultConfig() {
+    getDefaultConfig(type) {
+        return {
+            variants:{
+                facetEndpoint: this.opencgaSession.opencgaClient.variants().aggregationStats
+            },
+            files: {
+                facetEndpoint: this.opencgaSession.opencgaClient.files().stats
+            },
+            samples: {
+                facetEndpoint: this.opencgaSession.opencgaClient.samples().stats
+            },
+            individuals: {
+                facetEndpoint: this.opencgaSession.opencgaClient.individuals().stats
+            },
+            family: {
+                facetEndpoint: this.opencgaSession.opencgaClient.family().stats
+            },
+            cohort: {
+                facetEndpoint: this.opencgaSession.opencgaClient.cohorts().stats
+            }
+        }[type]
+    }
+
+    getDefaultConfig__Variant() {
         return {
             // title: "Aggregation Stats",
             active: false,
@@ -280,6 +312,7 @@ class OpencgaVariantFacetQuery extends LitElement {
             }
         </style>
 
+        <h1>opencb facet query</h1>
         <div class="row">
             <!-- RESULTS - Facet Plots -->
             ${this.active ? html` 
@@ -290,22 +323,8 @@ class OpencgaVariantFacetQuery extends LitElement {
                 <div >
                     <h2>Results</h2>
                     
-                    <div id="loading" style="display: none">
-                        <loading-spinner></loading-spinner>
-                    </div>
-                    ${this._showInitMessage ? html`
-                        <!--<h4>No facet filters selected</h4>-->
-                    ` : html`
-                        ${this.facetResults.map(item => html`
-                            <div>
-                                <h3>${item.name}</h3>
-                                <opencga-facet-result-view .facetResult="${item}"
-                                                           .config="${this.facetConfig}"
-                                                           ?active="${this.facetActive}">
-                                </opencga-facet-result-view>
-                            </div>
-                        `)}
-                    `}
+                    <opencb-facet-results .data="${this.facetResults}"></opencb-facet-results>
+                    
                 </div>
             </div>` : null}
         </div>
@@ -313,4 +332,4 @@ class OpencgaVariantFacetQuery extends LitElement {
     }
 }
 
-customElements.define("opencga-variant-facet-query", OpencgaVariantFacetQuery);
+customElements.define("opencb-facet-query", OpencbFacetQuery);

@@ -76,7 +76,7 @@ export default class OpencgaFileGrid extends LitElement {
         }
     }
 
-    //todo recheck! it was connectedCallback() and ready()
+    // todo recheck! it was connectedCallback() and ready()
     firstUpdated(_changedProperties) {
         this._initTableColumns();
         this.dispatchEvent(new CustomEvent("clear", {detail: {}, bubbles: true, composed: true}));
@@ -211,8 +211,8 @@ export default class OpencgaFileGrid extends LitElement {
                     }
 
                     // we add files to selected files
-                    //_this.push("_files", row);
-                    //_this.set("files", _this._files.slice());
+                    // _this.push("_files", row);
+                    // _this.set("files", _this._files.slice());
                     _this._files.push(row);
                     _this.files = _this._files.slice();
 
@@ -230,8 +230,8 @@ export default class OpencgaFileGrid extends LitElement {
                         return;
                     }
 
-                    //_this.splice("_files", fileToDeleteIdx, 1);
-                    //_this.set("files", _this._files.slice());
+                    // _this.splice("_files", fileToDeleteIdx, 1);
+                    // _this.set("files", _this._files.slice());
                     _this._files.splice(fileToDeleteIdx, 1);
                     _this.files = _this._files.slice();
                 },
@@ -567,6 +567,114 @@ export default class OpencgaFileGrid extends LitElement {
         return this._columns;
     }
 
+    _getUrlQueryParams() {
+        // Check the opencgaClient exists
+        if (UtilsNew.isUndefinedOrNull(this.opencgaSession.opencgaClient)) {
+            return {host: "", queryParams: {}};
+        }
+
+        let host = this.opencgaSession.opencgaClient.getConfig().host;
+        // By default we assume https protocol instead of http
+        if (!host.startsWith("https://") && !host.startsWith("http://")) {
+            host = "https://" + this.opencgaSession.opencgaClient.getConfig().host;
+        }
+
+        console.log("this.opencgaSession", this.opencgaSession);
+        if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
+            if (typeof this.query === "undefined") {
+                this.query = {};
+            }
+            if (UtilsNew.isEmpty(this.query.studies) || this.query.studies.split(new RegExp("[,;]")).length === 1) {
+                this.query.study = this.opencgaSession.study.fqn;
+            }
+            host += "/webservices/rest/v1/files/search";
+        } else {
+            return {host: host, queryParams: {}};
+        }
+
+        // Init queryParams with default and config values plus query object
+        const queryParams = Object.assign(
+            {
+                sid: this.opencgaSession.opencgaClient._config.sessionId,
+                include: "id,name,format",
+                skipCount: false
+            }, this.query);
+
+        console.log("QUERYPARAM", queryParams);
+        return {host: host, queryParams: queryParams};
+    }
+
+
+    _getUrlQueryParams() {
+        // TODO
+    }
+
+    onDownload(e) {
+        // let urlQueryParams = this._getUrlQueryParams();
+        // let params = urlQueryParams.queryParams;
+        console.log(this.opencgaSession);
+        const params = {
+            ...this.query,
+            limit: 1000,
+            sid: this.opencgaSession.opencgaClient._config.sessionId,
+            skip: 0,
+            skipCount: true,
+            study: this.opencgaSession.study.fqn,
+            include: "name,path,format,bioformat,creationDate,modificationDate,status",
+            type: "FILE"
+        };
+        this.opencgaSession.opencgaClient.files().search(params)
+            .then(response => {
+                const result = response.response[0].result;
+                let dataString = [];
+                let mimeType = "";
+                let extension = "";
+                if (result) {
+                    // Check if user clicked in Tab or JSON format
+                    if (e.detail.option.toLowerCase() === "tab") {
+                        dataString = [
+                            ["Name", "Path", "Format", "Bioformat", "Creation date", "Modification date", "Status"].join("\t"),
+                            ...result.map( _ => [
+                                _.id,
+                                _.path,
+                                _.format,
+                                _.bioformat,
+                                _.creationDate,
+                                _.modificationDate,
+                                _.status.name
+                            ].join("\t"))];
+                        //console.log(dataString);
+                        mimeType = "text/plain";
+                        extension = ".txt";
+                    } else {
+                        for (const res of result) {
+                            dataString.push(JSON.stringify(res, null, "\t"));
+                        }
+                        mimeType = "application/json";
+                        extension = ".json";
+                    }
+
+                    // Build file and anchor link
+                    const data = new Blob([dataString.join("\n")], {type: mimeType});
+                    const file = window.URL.createObjectURL(data);
+                    const a = document.createElement("a");
+                    a.href = file;
+                    a.download = this.opencgaSession.study.alias + extension;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(function() {
+                        document.body.removeChild(a);
+                    }, 0);
+                } else {
+                    console.error("Error in result format");
+                }
+            })
+            .then(function() {
+                //this.downloadRefreshIcon.css("display", "none");
+                //this.downloadIcon.css("display", "inline-block");
+            });
+    }
+
     getDefaultConfig() {
         return {
             pagination: true,
@@ -584,7 +692,11 @@ export default class OpencgaFileGrid extends LitElement {
         return html`
         <style include="jso-styles"></style>
 
-        <opencb-grid-toolbar .from="${this.from}" .to="${this.to}" .numTotalResultsText="${this.numTotalResultsText}"></opencb-grid-toolbar>
+        <opencb-grid-toolbar .from="${this.from}"
+                            .to="${this.to}"
+                            .numTotalResultsText="${this.numTotalResultsText}"
+                            @download="${this.onDownload}">
+        </opencb-grid-toolbar>
 
         <div id="${this._prefix}GridTableDiv" style="margin-top: 10px">
             <table id="${this._prefix}FileBrowserGrid" style="cursor: pointer">

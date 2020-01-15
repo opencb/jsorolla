@@ -63,7 +63,6 @@ export default class TextFieldFilter extends LitElement {
         }
     }
 
-
     filterChange(e) {
         console.log("filterChange", e.target.value);
         const event = new CustomEvent("filterChange", {

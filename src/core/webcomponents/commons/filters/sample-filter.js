@@ -38,27 +38,32 @@ export default class SampleFilter extends LitElement {
             },
             clinicalAnalysis: {
                 type: Object
+            },
+            query: {
+                type: Object
             }
         };
     }
 
     _init() {
         this._prefix = "saf-" + Utils.randomString(6) + "_";
+        this._query = {}; //this refer and it is used just for the 3 fields of sample-filter (sample, genotype, format)
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("property")) {
-            this.propertyObserver();
+        if (changedProperties.has("query")) {
+            this.queryObserver();
         }
     }
 
     firstUpdated(_changedProperties) {
-        this.renderClinicalQuerySummary();
+        //this.renderClinicalQuerySummary();
+        this.updateClinicalQueryTable();
     }
 
     filterChange(e) {
         console.log("filterChange", e.target);
-        let event = new CustomEvent("filterChange", {
+        const event = new CustomEvent("filterChange", {
             detail: {
                 sample: e.target.value
 
@@ -67,79 +72,158 @@ export default class SampleFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
+    queryObserver(){
+        this.updateClinicalQueryTable();
+        this.clinicalFilterQuery = {...this.query} //updates the table opencga-variant-filter-clinical (in the modal)
+        //console.error("renderClinicalQuerySummary is the problem for the not updating sample-filter table after active-filter change")
+        //console.log("clinicalFilterQuery", this.clinicalFilterQuery)
+        //this.requestUpdate();
+    }
+
     showModal() {
         $("#" + this._prefix + "SampleFilterModal").modal("show");
     }
 
-    //TODO this method has been refactored, check functionality
-    renderClinicalQuerySummary() {
+    //TODO needs refactor. it comes from variant-filter
+    onClinicalFilterChange(e) {
+
+        //console.warn("onClinicalFilterChange is commented")
+        //return;
+
+        // Process Sample filters
+        let _genotypeFilters = [];
+        let _sampleIds = [];
+        let _dpFormatFilter = [];
+        for (let sampleFilter of e.detail.sampleFilters) {
+            // let color = (sampleFilter.affected) ? "red" : "black";
+            let genotypes = (sampleFilter.genotypes.length > 0) ? sampleFilter.genotypes.join(",") : "none";
+
+            console.log("genotypes",genotypes)
+            let dp = (UtilsNew.isNotEmpty(sampleFilter.dp)) ? Number(sampleFilter.dp) : -1;
+
+            //TODO this keeps adding missing gt, if you keep clicking
+            if (genotypes !== "none") {
+                if (e.detail.missing && !sampleFilter.proband) {
+                    genotypes += ",./0,./1,./.";
+                }
+                _genotypeFilters.push(sampleFilter.id + ":" + genotypes);
+            }
+            if (dp !== -1) {
+                _dpFormatFilter.push(sampleFilter.id + ":DP>=" + dp);
+            }
+            _sampleIds.push(sampleFilter.id)
+        }
+
+        // Process File filters
+        // let _files = [];
+        // let _qual = e.detail.qual;
+        // let _filter = e.detail.filter;
+        // for (let fileFilter of e.detail.fileFilters) {
+        //     if (fileFilter.selected) {
+        //         // _files.push(fileFilter.name);
+        //         _files.push(fileFilter.id);
+        //     }
+        // }
+
+        // Add sample filters to query
+        let _query = {...this.query};
+        if (_genotypeFilters !== undefined && _genotypeFilters.length > 0) {
+            _query.genotype = _genotypeFilters.join(";");
+            delete _query.sample;
+        } else {
+            // debugger
+            _query.sample = _sampleIds.join(",");
+            delete _query.genotype;
+        }
+        if (_dpFormatFilter !== undefined && _dpFormatFilter.length > 0) {
+            _query.format = _dpFormatFilter.join(";");
+        } else {
+            if (UtilsNew.isNotUndefinedOrNull(_query.format)) {
+                delete _query.format;
+            }
+        }
+
+        // Add file filters to query
+        // if (_files.length > 0) {
+        //     _query.file = _files.join(";");
+        //     if (UtilsNew.isNotEmpty(_qual)) {
+        //         _query.qual = ">=" + _qual;
+        //     }
+        //     if (UtilsNew.isNotEmpty(_filter)) {
+        //         _query.filter = _filter;
+        //     }
+        //     needUpdateQuery = true;
+        // } else {
+        //     // If no files are selected we remove all files-related filters
+        //     delete _query.file;
+        //     delete _query.qual;
+        //     delete _query.filter;
+        // }
+
+        //Only update query if really needed, this avoids unneeded web refresh
+
+        this.query = {...this.query, ..._query};
+        //this.renderClinicalQuerySummary();
+        this.updateClinicalQueryTable();
+        //this.requestUpdate();
+        this.sampleFilterChange(_query);
+    }
+
+    sampleFilterChange(_query) {
+        console.log("sampleFilterChange", _query);
+        const event = new CustomEvent("sampleFilterChange", {
+            detail: {
+                value: _query
+            }
+        });
+        this.dispatchEvent(event);
+    }
+
+    // TODO this method has been refactored, the render block has been moved in template. Move the block in more convenient method.
+    //renderClinicalQuerySummary() {
+    updateClinicalQueryTable() {
         if (this.clinicalAnalysis) {
             // Get Individuals (and samples) from Clinical Analysis
-            let individuals = [];
+            this.individuals = [];
             if (this.clinicalAnalysis.family && this.clinicalAnalysis.family.members) {
-                individuals = this.clinicalAnalysis.family.members;
+                this.individuals = this.clinicalAnalysis.family.members;
             } else if (this.clinicalAnalysis.proband) {
-                individuals = this.clinicalAnalysis.proband;
+                this.individuals = this.clinicalAnalysis.proband;
             }
 
-
             // First, render Genotype table
-            let sampleGenotypeMap = {};
+            this.sampleGenotypeMap = {};
             if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
-                for (let genotype of this.query.genotype.split(";")) {
-                    let sampleGt = genotype.split(":");
-                    sampleGenotypeMap[sampleGt[0]] = sampleGt[1].split(",");
+                for (const genotype of this.query.genotype.split(";")) {
+                    const sampleGt = genotype.split(":");
+                    this.sampleGenotypeMap[sampleGt[0]] = sampleGt[1].split(",");
                 }
             } else {
                 if (UtilsNew.isNotUndefinedOrNull(this.query.sample)) {
-                    for (let sample of this.query.sample.split(",")) {
-                        sampleGenotypeMap[sample] = ["0/1", "1/1"];
+                    for (const sample of this.query.sample.split(",")) {
+                        this.sampleGenotypeMap[sample] = ["0/1", "1/1"];
                     }
                 }
             }
-
-            // Render Genotype table
-            let sampleTableTr = "";
-            let table = individuals.map(individual => {
-                if (UtilsNew.isNotEmptyArray(individual.samples)) {
-                    let color = (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.proband)
-                        && individual.id === this.clinicalAnalysis.proband.id)
-                        ? "darkred"
-                        : "black";
-                    let genotype = (UtilsNew.isNotUndefinedOrNull(sampleGenotypeMap[individual.samples[0].id]))
-                        ? sampleGenotypeMap[individual.samples[0].id]
-                        : "any";
-
-                    return html`
-                            <tr data-sample="${individual.samples[0].id}">
-                                <td>
-                                    <span style="color: ${color}">${individual.samples[0].id}</span>
-                                </td>
-                                <td>
-                                    ${genotype}
-                                </td>
-                            </tr>
-                    `;
-                }
-            });
-            return html`${table}`;
-        } else {
-            return html`
-                <tr>
-                    <td>No samples selected</td>
-                    <td></td>
-                </tr>`;
+            
+            //TODO this cause a bug (variant-filter-clinical table is not updated correctly changing GT), but commenting this line the table in sample-filter is not updated on its end (changing active-filters)
+            //this.requestUpdate();
         }
     }
 
     render() {
         return this.enabled ? html`
+            <style>
+                .sample-genotype-table .badge {
+                    background-color: #b9b9b9;
+                    margin: 0 4px 0 0;
+                }
+            </style>
             <div>
                 <div style="padding: 10px 0px">Select Genotype Filter:</div>
                 <div style="padding-left: 20px">
-                    <button id="${this._prefix}SampleFilterModalButton" type="button" class="btn btn-default" style="width: 80%"
-                            @click="${this.showModal}">
-                        Sample Filters ...
+                    <button id="${this._prefix}SampleFilterModalButton" type="button" class="btn btn-default" @click="${this.showModal}">
+                        Sample Filters...
                     </button>
                 </div>
             </div>
@@ -147,7 +231,7 @@ export default class SampleFilter extends LitElement {
                 <div style="padding: 15px 0px;">
                     <span>Sample Genotype Summary</span>
                 </div>
-                <table class="table" style="margin-bottom: 10px">
+                <table class="table sample-genotype-table" style="margin-bottom: 10px">
                     <thead>
                     <tr>
                         <th scope="col">Sample ID</th>
@@ -155,7 +239,33 @@ export default class SampleFilter extends LitElement {
                     </tr>
                     </thead>
                     <tbody>
-                        ${this.renderClinicalQuerySummary()}
+                        
+                        
+                        ${this.clinicalAnalysis ? html`
+                            ${this.individuals ? this.individuals.map(individual => {
+                                if (UtilsNew.isNotEmptyArray(individual.samples)) {
+                                    const color = this.clinicalAnalysis.proband && individual.id === this.clinicalAnalysis.proband.id ? "darkred" : "black";
+                                    
+                                    console.log("sampleGenotypeMap", this.sampleGenotypeMap[individual.samples[0].id])
+                                    //const genotype = this.sampleGenotypeMap[individual.samples[0].id] ? this.sampleGenotypeMap[individual.samples[0].id].join(", ") : "any";
+                                    return html`
+                                                <tr data-sample="${individual.samples[0].id}">
+                                                    <td>
+                                                        <span style="color: ${color}">${individual.samples[0].id}</span>
+                                                    </td>
+                                                    <td>
+                                                        ${this.sampleGenotypeMap[individual.samples[0].id] ? this.sampleGenotypeMap[individual.samples[0].id].map(gt => html`<span class="badge">${gt}</span>`) : "any"}
+                                                    </td>
+                                                </tr>
+                                        `;
+                                }
+                            }) : null}
+                        ` : html`
+                            <tr>
+                                <td>No samples selected</td>
+                                <td></td>
+                            </tr>
+                        `}
                     </tbody>
                 </table>
             </div>
@@ -169,7 +279,7 @@ export default class SampleFilter extends LitElement {
                             <h3>Sample and File Filters</h3>
                         </div>
                         <div class="modal-body">
-                            <opencga-variant-filter-clinical .opencgaSession=${this.opencgaSession}
+                            <opencga-variant-filter-clinical .opencgaSession="${this.opencgaSession}"
                                                              .clinicalAnalysis="${this.clinicalAnalysis}"
                                                              .query="${this.clinicalFilterQuery}"
                                                              @sampleFiltersChange="${this.onClinicalFilterChange}"
@@ -182,8 +292,9 @@ export default class SampleFilter extends LitElement {
                     </div>
                 </div>
             </div>
-        ` : ``;
+        ` : "";
     }
+
 }
 
 customElements.define("sample-filter", SampleFilter);

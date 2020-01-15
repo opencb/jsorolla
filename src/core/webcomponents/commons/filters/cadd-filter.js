@@ -31,10 +31,10 @@ export default class CaddFilter extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            "opencgaSession": {
                 type: Object
             },
-            query: {
+            "annot-functional-score": {
                 type: Object
             }
         };
@@ -45,9 +45,9 @@ export default class CaddFilter extends LitElement {
     }
 
     updated(_changedProperties) {
-        if (_changedProperties.has("query")) {
-            if (this.query["annot-functional-score"]) {
-                const fields = this.query["annot-functional-score"].split(new RegExp("[,;]"));
+        if (_changedProperties.has("annot-functional-score")) {
+            if (this["annot-functional-score"]) {
+                const fields = this["annot-functional-score"].split(new RegExp("[,;]"));
                 const cadd_raw = fields.find(el => el.startsWith("cadd_raw"));
                 if (cadd_raw) {
                     this.querySelector("#" + this._prefix + "CaddRawInput").value = cadd_raw.split(/[<=>]+/)[1];

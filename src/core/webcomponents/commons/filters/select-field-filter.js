@@ -37,6 +37,7 @@ export default class SelectFieldFilter extends LitElement {
             placeholder: {
                 type: String
             },
+            //NOTE value is either a single string or a comma separated list
             value: {
                 type: String
             },
@@ -54,6 +55,9 @@ export default class SelectFieldFilter extends LitElement {
 
     _init() {
         this._prefix = "sff-" + Utils.randomString(6) + "_";
+
+        //NOTE: in case of single option select, in order to show the placeholder and NOT adding a dummy option as void selection,
+        // the single selection is implemented still with the multiple flag, but forcing 1 selection with data-max-options=1
         this.multiple = false;
         this.data = [];
     }
@@ -70,18 +74,32 @@ export default class SelectFieldFilter extends LitElement {
 
     updated(_changedProperties) {
         if (_changedProperties.has("data")) {
-            // TODO check why lit-element execute this for all existing select-field-filter instance..wtf
+            // TODO check why lit-element execute this for all existing select-field-filter instances..wtf
             // console.log("data",this.data)
+            $(".selectpicker", this).selectpicker("refresh");
         }
         if (_changedProperties.has("value")) {
-            $(".selectpicker", this).selectpicker("val", this.value ? this.value.split(",") : []);
+            $(".selectpicker", this).selectpicker("val", this.value ? (this.multiple ? this.value.split(",") : this.value) : "");
+        }
+        if (_changedProperties.has("disabled")) {
+            $(".selectpicker", this).selectpicker("refresh");
         }
     }
 
     filterChange(e) {
         const selection = $(".selectpicker", this).selectpicker("val");
-        const val = this.multiple ? selection.join(",") : selection; // remember [] is truthy
-        console.log("select filterChange", val)
+        let val;
+        //TODO refactor and simplify
+        if(this.multiple) {
+            if(selection && selection.length) {
+                val = selection.join(",")
+            } else val = [];
+        } else {
+            if(selection && selection.length) {
+                val = selection;
+            } else val = [];
+        }
+        console.log("select filterChange", val);
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: val.length ? val : null
@@ -90,12 +108,28 @@ export default class SelectFieldFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
+    //safe check if the field is an object (NOTE null is an object, so the constructor check is not enough)
+    // TODO add safe check if is a plain string
+    isObject(obj) {
+        return obj != null && obj.constructor.name === "Object";
+    }
+
     render() {
         return html`
             <div id="${this._prefix}-wrapper" class="subsection-content form-group">
-                <select id="${this._prefix}-select" class="selectpicker" ?multiple = ${this.multiple} .disabled = ${this.disabled}
+                <select id="${this._prefix}-select" class="selectpicker"
+                                        multiple
+                                        .disabled=${this.disabled}
+                                        title="${this.placeholder ? this.placeholder : "Select an option"}"
+                                        data-max-options="${!this.multiple ? 1 : false}"  
                                         @change="${this.filterChange}" data-width="100%">
-                    ${this.data.map( opt => html`<option>${opt}</option>`) }
+                    ${this.data.map( opt => html`
+                        ${opt.fields ? html`
+                            <optgroup label="${opt.name}">${opt.fields.map( subopt => html`<option>${this.isObject(subopt) ? subopt.name : subopt}</option>`) }</optgroup>
+                            ` : html`
+                            <option>${this.isObject(opt) ? opt.name : opt}</option>
+                        `}
+                    `) }
                 </select>
             </div>
         `;

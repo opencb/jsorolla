@@ -471,6 +471,74 @@ export default class OpencgaCohortGrid extends LitElement {
         return this._columns;
     }
 
+    _getUrlQueryParams() {
+        // TODO
+    }
+
+    onDownload(e) {
+        // let urlQueryParams = this._getUrlQueryParams();
+        // let params = urlQueryParams.queryParams;
+        //console.log(this.opencgaSession);
+        const params = {
+            ...this.query,
+            study: this.opencgaSession.study.fqn,
+            sid: this.opencgaSession.opencgaClient._config.sessionId,
+            limit: 1000,
+            includeIndividual: true,
+            skipCount: true,
+            include: "id,creationDate,status,type,samples"
+        };
+        this.opencgaSession.opencgaClient.cohorts().search(params)
+            .then( response => {
+                const result = response.response[0].result;
+                console.log(result)
+                let dataString = [];
+                let mimeType = "";
+                let extension = "";
+                if (result) {
+                    // Check if user clicked in Tab or JSON format
+                    if (e.detail.option.toLowerCase() === "tab") {
+                        dataString = [
+                            ["Cohort", "#Samples", "Date", "Status", "Type"].join("\t"),
+                            ...result.map( _ => [
+                                _.id,
+                                _.samples ? _.samples.map( _ => `${_.id}`).join(",") : "",
+                                _.creationDate,
+                                _.status.name,
+                                _.type
+                            ].join("\t"))];
+                        //console.log(dataString);
+                        mimeType = "text/plain";
+                        extension = ".txt";
+                    } else {
+                        for (const res of result) {
+                            dataString.push(JSON.stringify(res, null, "\t"));
+                        }
+                        mimeType = "application/json";
+                        extension = ".json";
+                    }
+
+                    // Build file and anchor link
+                    const data = new Blob([dataString.join("\n")], {type: mimeType});
+                    const file = window.URL.createObjectURL(data);
+                    const a = document.createElement("a");
+                    a.href = file;
+                    a.download = this.opencgaSession.study.alias + extension;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(function() {
+                        document.body.removeChild(a);
+                    }, 0);
+                } else {
+                    console.error("Error in result format");
+                }
+            })
+            .then(function() {
+                //this.downloadRefreshIcon.css("display", "none");
+                //this.downloadIcon.css("display", "inline-block");
+            });
+    }
+
     getDefaultConfig() {
         return {
             pagination: true,
@@ -497,7 +565,8 @@ export default class OpencgaCohortGrid extends LitElement {
 
         <opencb-grid-toolbar .from="${this.from}"
                              .to="${this.to}"
-                             numTotalResultsText="${this.numTotalResultsText}">
+                             numTotalResultsText="${this.numTotalResultsText}"
+                             @download="${this.onDownload}">
         </opencb-grid-toolbar>
 
         <div id="${this._prefix}GridTableDiv" style="margin-top: 10px">

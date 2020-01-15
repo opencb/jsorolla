@@ -65,6 +65,9 @@ export default class OpencgaFileFilter extends LitElement {
             },
             config: {
                 type: Object
+            },
+            discriminator: {
+                type: String
             }
         };
     }
@@ -85,6 +88,8 @@ export default class OpencgaFileFilter extends LitElement {
         this.minYear = 1920;
         this.query = {};
         this.preparedQuery = {};
+        this.searchButton = true
+
     }
 
     updated(changedProperties) {
@@ -137,7 +142,7 @@ export default class OpencgaFileFilter extends LitElement {
 
     queryObserver() {
         if (this._reset) {
-            console.log("queryObserver: calling to 'renderQueryFilters()'", this.query);
+            console.log("queryObserver: calling to 'renderQueryFilters()'", this.query, "discriminator",this.discriminator);
             this.preparedQuery = this.query;
             //this.renderQueryFilters();
             this.requestUpdate()
@@ -368,12 +373,13 @@ export default class OpencgaFileFilter extends LitElement {
             }
         </style>
 
-        <div class="search-button-wrapper">
+        ${this.searchButton ? html`
+            <div class="search-button-wrapper">
                 <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
                     <i class="fa fa-search" aria-hidden="true"></i> Search
                 </button>
-        </div>
-        <!--<br>-->
+            </div>
+            ` : null}
 
         <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true" style="padding-top: 20px">
 

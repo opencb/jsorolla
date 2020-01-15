@@ -166,7 +166,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                     study: this.opencgaSession.study.fqn
                 };
             } else {
-                this.query = Object.assign({}, this.query);
+                this.query = {...this.query};
             }
 
 
@@ -188,12 +188,12 @@ export default class OpencgaVariantBrowser extends LitElement {
                 study: this.opencgaSession.study.fqn
             };
         }
-
         if (UtilsNew.isNotUndefinedOrNull(this.query)) {
             this.preparedQuery = Object.assign({}, _query, this.query);
             this.executedQuery = Object.assign({}, _query, this.query);
         }
         // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
+        this.dispatchEvent(new CustomEvent("queryChange", {detail: this.preparedQuery}));
         this.requestUpdate();
     }
 
@@ -429,7 +429,9 @@ export default class OpencgaVariantBrowser extends LitElement {
          if (e.target.dataset.view === "Summary") {
              //TODO temp fix
              this.SummaryActive = true;
-             this.requestUpdate()
+             this.requestUpdate();
+         } else {
+             this.SummaryActive = false;
          }
 
         if (e.target.dataset.view === "GenomeBrowser") {
@@ -601,10 +603,10 @@ export default class OpencgaVariantBrowser extends LitElement {
                                       .active="${this.active}" 
                                       .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                       .consequenceTypes="${this.consequenceTypes}"
+                                      .config="${this.config}"
                                       @selected="${this.selectedGene}"
                                       @selectvariant="${this.onSelectVariant}"
-                                      @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}"
-                                      .config="${this.config}">
+                                      @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
                 </opencga-variant-grid>
 
 

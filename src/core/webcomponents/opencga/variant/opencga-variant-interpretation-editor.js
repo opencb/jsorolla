@@ -68,6 +68,8 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
     _init() {
         this._prefix = "ovi-" + Utils.randomString(6);
 
+        //TODO recheck this variant-interpretation-editor doesn't have a "mode" prop in opencga-variant-interpretation
+        this.mode = "create";
         this.isCreate = this.mode.toLowerCase() === "create";
 
         this.interpretationCollapsed = false;
@@ -89,7 +91,6 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
 
         this._config = this.getDefaultConfig();
 
-        this.mode = "create";
     }
 
     updated(changedProperties) {
@@ -103,7 +104,12 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
         }
     }
 
-    // TODO check functionality. it was connectedCallback()
+    connectedCallback() {
+        super.connectedCallback();
+        console.log("this.interpretation in variant-interpretation-editor", this.interpretation)
+        this._interpretation = this.interpretation;
+    }
+
     firstUpdated(_changedProperties) {
 
         // if (!this.interactive) {
@@ -148,9 +154,9 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
         // }
     }
 
-    interpretationObserver(interpretation) {
+    interpretationObserver() {
         // TODO We need to respect all the changes made in the reported variants
-        this._interpretation = interpretation;
+        this._interpretation = this.interpretation;
 
         if (UtilsNew.isNotUndefinedOrNull(this._interpretation)) {
             if (UtilsNew.isNotEmptyArray(this._interpretation.primaryFindings)) {
@@ -612,7 +618,7 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
                                                                      .consequenceTypes="${this.consequenceTypes}"
                                                                      .populationFrequencies="${this.populationFrequencies}"
                                                                      .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                                     .config="${this._config.grid}}"
+                                                                     .config="${this._config.grid}"
                                                                      @selected="${this.selectedGene}"
                                                                      @selectvariant2="${this.onSelectVariant2}"
                                                                      @checkvariant="${this.onCheckVariant}"
@@ -644,7 +650,7 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
                 </div>
 
                 <div class="col-md-12">
-                    <template is="dom-if" if="${this.interpretationView}}">
+                    ${this.interpretationView ? html`
                         <clinical-interpretation-view id="id"
                                                       interpretation="${this.interpretationView}"
                                                       .opencgaSession="${this.opencgaSession}"
@@ -654,7 +660,7 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
                                                       .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                                       style="font-size: 12px">
                         </clinical-interpretation-view>
-                    </template>
+                    ` : null}
                 </div>
             </div>
         </div>

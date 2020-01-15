@@ -62,6 +62,9 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
             },
             config: {
                 type: Object
+            },
+            preparedQuery: {
+                type: Object
             }
         };
     }
@@ -78,10 +81,25 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
         // Initially we set the default config, this will be overridden if 'config' is passed
         // this._config = this.getDefaultConfig();
 
-        this.mode = "interactive";
+        //this.mode = "interactive";
         this.active = true;
-
         this._config = this.getDefaultConfig();
+    }
+
+    //TODO RECHECK
+    // ADD FLAG to avoid repeated calls
+    connectedCallback() {
+        super.connectedCallback();
+        //since _config.filter.menu.skipSubsections in doing to be edited, a deep copy of this.config is required
+        const _config = $.extend( true, this.getDefaultConfig(), this.config, {
+            title: this.getDefaultConfig().title,
+            tooltip: this.getDefaultConfig().tooltip
+        } );
+        if (this.mode !== "interactive") {
+            _config.filter.menu.skipSubsections.push("sample");
+        }
+        this._config = _config;
+        this._addTooltip();
     }
 
     updated(changedProperties) {
@@ -97,20 +115,13 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        const _config = {...this.getDefaultConfig(), ...this.config,
-            title: this.getDefaultConfig().title,
-            tooltip: this.getDefaultConfig().tooltip
-        };
-        if (this.mode !== "interactive") {
-            _config.filter.menu.skipSubsections.push("sample");
-        }
-        console.log("this._config", _config)
-        this._config = _config;
-        this._addTooltip();
+
     }
 
-
     clinicalAnalysisObserver() {
+
+        console.log("clinicalAnalysisObserver",this.clinicalAnalysis)
+
         if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
             this._calculateSamples();
 
@@ -142,6 +153,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
             switch (this.mode) {
             case "interactive":
                 const _genotypes = [];
+                console.error("this.clinicalAnalysis",this.clinicalAnalysis)
                 for (const sampleId of this._sampleIds) {
                     if (this.clinicalAnalysis.proband.samples[0].id === sampleId) {
                         _genotypes.push(sampleId + ":0/1,1/1");
@@ -163,10 +175,11 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
     }
 
     queryObserver() {
-        if (UtilsNew.isNotUndefinedOrNull(this.query)) {
+        if (this.query) {
             this.preparedQuery = this._prepareQuery(this.query);
-            this.executedQuery = this.preparedQuery;
+            this.executedQuery = {...this.preparedQuery};
         }
+        this.requestUpdate();
     }
 
     activeObserver() {
@@ -178,21 +191,28 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
 
     onVariantFilterChange(e) {
         this.preparedQuery = this._prepareQuery(e.detail.query);
+        //console.log("onVariantFilterChange preparedQuery", this.preparedQuery)
+        this.preparedQuery = {...this.preparedQuery};
+        this.requestUpdate();
     }
 
     onVariantFilterSearch(e) {
         this.preparedQuery = this._prepareQuery(e.detail.query);
-        this.executedQuery = this.preparedQuery;
+        this.executedQuery = {...this.preparedQuery};
+        this.requestUpdate();
     }
 
     onActiveFilterChange(e) {
-        this.query = e.detail;
+        //console.log("onActiveFilterChange", e.detail)
+        this.query = {...e.detail};
+        this.preparedQuery = {...e.detail};
+        this.requestUpdate();
     }
 
     onActiveFilterClear() {
-        this.query = Object.assign({}, {
-            study: this.opencgaSession.study.fqn
-        });
+        this.query = { study: this.opencgaSession.study.fqn };
+        this.preparedQuery = {...this.query};
+        this.requestUpdate();
     }
 
     onSelectVariant(e) {
@@ -358,7 +378,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
     }
 
     render() {
-        return html`
+        return  html`
         <style>
             .qtip-family-class {
                 max-width: 480px;
@@ -386,8 +406,8 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
                                                 .populationFrequencies="${this.populationFrequencies}"
                                                 .consequenceTypes="${this.consequenceTypes}"
                                                 .config="${this._config.filter}"
-                                                @querychange="${this.onVariantFilterChange}"
-                                                @querysearch="${this.onVariantFilterSearch}"
+                                                @queryChange="${this.onVariantFilterChange}"
+                                                @querySearch="${this.onVariantFilterSearch}"
                                                 @samplechange="${this.onSampleChange}"
                                                 @inheritancemode="${this._onInheritanceMode}">
                         </opencga-variant-filter>
@@ -405,21 +425,22 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
                                                 .modeInheritance="${this.modeInheritance}"
                                                 .config="${this._config.activeFilters}"
                                                 @activeFilterChange="${this.onActiveFilterChange}"
-                                                @clear="${this.onActiveFilterClear}">
+                                                @activeFilterClear="${this.onActiveFilterClear}">
+
                         </opencga-active-filters>
 
                         <div style="padding-top: 5px">
                             <opencga-variant-interpretation-grid .opencgaSession="${this.opencgaSession}"
-                                                                .query="${this.executedQuery}"
-                                                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                .consequenceTypes="${this.consequenceTypes}"
-                                                                .populationFrequencies="${this.populationFrequencies}"
-                                                                .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                                .config="${this.config.grid}"
-                                                                @selected="${this.selectedGene}"
-                                                                @selectvariant="${this.onSelectVariant}"
-                                                                @checkvariant="${this.onCheckVariant}"
-                                                                @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
+                                                                 .query="${this.executedQuery}"
+                                                                 .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                 .consequenceTypes="${this.consequenceTypes}"
+                                                                 .populationFrequencies="${this.populationFrequencies}"
+                                                                 .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                                 .config="${this.config.grid}"
+                                                                 @selected="${this.selectedGene}"
+                                                                 @selectvariant="${this.onSelectVariant}"
+                                                                 @checkvariant="${this.onCheckVariant}"
+                                                                 @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
                             </opencga-variant-interpretation-grid>
 
                             <!-- Bottom tabs with detailed variant information -->
@@ -437,8 +458,8 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
             ` : html`
                 <div class="col-md-8 col-md-offset-2" style="padding: 20px">
                     <div class="alert alert-warning" role="alert" id="${this._prefix}Warning" style="font-size: 14px;margin-bottom: 10px">
-                        <span style="font-style: italic; font-weight: bold">${this._config.title}} </span> require at least one parent,
-                        no parents found for proband <span style="font-weight: bold; margin-left: 5px">${this.clinicalAnalysis.proband.id}</span>.
+                        <span style="font-style: italic; font-weight: bold">${this._config.title} </span> require at least one parent,
+                        no parents found for proband <b>${this.clinicalAnalysis.proband.id}</b>.
                     </div>
                 </div>
             `}

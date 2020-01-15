@@ -19,6 +19,9 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import "../commons/opencga-facet-result-view.js";
 import "../commons/opencga-facet-view-selector.js";
 
+/**
+ * @deprecated
+ * */
 export default class OpencgaFacetView extends LitElement {
 
     constructor() {

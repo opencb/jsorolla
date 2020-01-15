@@ -48,13 +48,10 @@ export default class FeatureFilter extends LitElement {
         this._prefix = "feaf-" + Utils.randomString(6) + "_";
         this.featureDatalist = [];
         // TODO check why there are 2 fields in query object..
-
         // this.featureIds = this.query && this.query.ids || [];
         this.featureIds = [];
         this.separator = ",";
         this.featureTextArea = "";
-
-
     }
 
     updated(_changedProperties) {

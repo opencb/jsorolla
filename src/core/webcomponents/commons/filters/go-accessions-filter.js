@@ -34,7 +34,7 @@ export default class GoAccessionsFilter extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            query: {
+            go: {
                 type: Object
             }
         };
@@ -42,13 +42,14 @@ export default class GoAccessionsFilter extends LitElement {
 
     _init() {
         this._prefix = "gaf-" + Utils.randomString(6) + "_";
+        this.selectedTerms = [];
     }
 
     updated(_changedProperties) {
-        if (_changedProperties.has("query")) {
-            if (this.query["go"]) {
-                this.querySelector("#" + this._prefix + "GeneOntologyTextarea").value = this.query["go"];
-                const q = this.query["go"].replace(/\r?\n/g, ",").replace(/\s/g, "");
+        if (_changedProperties.has("go")) {
+            if (this.go) {
+                this.querySelector("#" + this._prefix + "GeneOntologyTextarea").value = this.go;
+                const q = this.go.replace(/\r?\n/g, ",").replace(/\s/g, "");
                 this.selectedTerms = q.split(",");
             } else {
                 this.selectedTerms = [];
@@ -67,8 +68,8 @@ export default class GoAccessionsFilter extends LitElement {
                 .replace(/\s/g, "")
                 .split(",")
                 .filter(_ => _);
-            console.log("_go", _go)
-            console.log("LENGTH", _go.length)
+            //console.log("_go", _go)
+            //console.log("length", _go.length)
             if (_go.length < 100) {
                 go_message.innerHTML = "";
                 go_message.style.display = "none";

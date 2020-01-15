@@ -104,10 +104,11 @@ export default class OpencgaLogin extends LitElement {
                     }));
                 })
                 .catch(function(response) {
-                    const _message = this.errorMessage = response.error;
+                    const _message = this.errorMessage = response.error || "Login error. Please check your credentials.";
                     this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
                         detail: {
-                            message: _message, type: UtilsNew.MESSAGE_ERROR
+                            message: _message,
+                            type: UtilsNew.MESSAGE_ERROR
                         },
                         bubbles: true,
                         composed: true

@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-// TODO check functionality
+/** @deprecated
+ * use file-pass-filter and file-qual-filter instead
+* */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 

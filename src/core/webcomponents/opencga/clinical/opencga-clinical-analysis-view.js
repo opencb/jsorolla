@@ -287,250 +287,253 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
         </style>
 
         <!--<template is="dom-if" if="{{showSummary}}">-->
-
-        <div class="row">
-            ${this._config.showTitle ? html`
-                <div style="margin: 10px">
-                        <span>
-                            <!--<i id="${this._prefix}SummaryCollapseIcon" class="fa fa-minus-square-o" aria-hidden="true" on-click="_summaryOnClick" style="cursor: pointer"></i>-->
-                            <h4 style="display: inline">&nbsp;${this.title}</h4>
-                        </span>
-                </div>
-            ` : null }
-
-            ${this.clinicalAnalysis ? html`
-            <div id="${this._prefix}Summary" class="col-md-12 section-padding">
-                <!--<h3><span style="color: #8a6d3b;">{{clinicalAnalysis.id}}</span> - Analysis Summary</h3>-->
-                <!--<hr class="hr-underline">-->
-
-                <div>
-                    <h4 class="form-section-title">Case Summary</h4>
-                </div>
-
-                <form class="form-horizontal" style="padding: 5px 10px">
-
-                    <div class="form-group" style="margin-bottom: 5px">
-                        <label class="control-label col-md-1 jso-label-title">Analysis ID</label>
-                        <div class="col-md-3 pad-top-5">
-                            <span>${this.clinicalAnalysis.id}</span>
-                        </div>
+        <div class="container-fluid">
+            <div class="row">
+                ${this._config.showTitle ? html`
+                    <div style="margin: 10px">
+                            <span>
+                                <!--<i id="${this._prefix}SummaryCollapseIcon" class="fa fa-minus-square-o" aria-hidden="true" on-click="_summaryOnClick" style="cursor: pointer"></i>-->
+                                <h4 style="display: inline">&nbsp;${this.title}</h4>
+                            </span>
                     </div>
-
-                    <div class="form-group" style="margin-bottom: 5px">
-                        <label class="control-label col-md-1 jso-label-title pad-top-5">Proband</label>
-                        <div class="col-md-3 pad-top-5">
-                            <span>${this.clinicalAnalysis.proband.id}</span>
+                ` : null }
+    
+                ${this.clinicalAnalysis ? html`
+                <div class="container">
+                    <div id="${this._prefix}Summary" class="col-md-12 section-padding">
+                        <!--<h3><span style="color: #8a6d3b;">{{clinicalAnalysis.id}}</span> - Analysis Summary</h3>-->
+                        <!--<hr class="hr-underline">-->
+        
+                        <div>
+                            <h4 class="form-section-title">Case Summary</h4>
                         </div>
-                    </div>
-
-                    ${this.clinicalAnalysis.disorder ? html`
-                        <div class="form-group" style="margin-bottom: 5px">
-                            <label class="control-label col-md-1 jso-label-title pad-top-5">Disorder</label>
-                            <div class="col-md-3 pad-top-5">
-                                <span>${this.clinicalAnalysis.disorder.name} (${this.clinicalAnalysis.disorder.id})</span>
-                            </div>
-                        </div>` : null }
-
-                    <div class="form-group" style="margin-bottom: 5px">
-                        <label class="control-label col-md-1 jso-label-title pad-top-5">Analysis Type</label>
-                        <div class="col-md-3 pad-top-5">
-                            <span>${this.clinicalAnalysis.type}</span>
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 5px">
-                        <label class="control-label col-md-1 jso-label-title pad-top-5">Flags</label>
-                        <div class="col-md-3 pad-top-5">
-                            <span>${this._flags}</span>
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 5px">
-                        <label class="control-label col-md-1 jso-label-title pad-top-5">Status</label>
-                        <div class="col-md-3 pad-top-5">
-                            <span>${this.clinicalAnalysis.status.name}</span>
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 5px">
-                        <label class="control-label col-md-1 jso-label-title pad-top-5">Priority</label>
-                        <div class="col-md-3 pad-top-5">
-                            <span class="${this.clinicalAnalysis.priority}-priority">${this.clinicalAnalysis.priority}</span>
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 5px">
-                        <label class="control-label col-md-1 jso-label-title pad-top-5">Assigned To</label>
-                        <div class="col-md-3 pad-top-5">
-                            <span>${this._assignee}</span>
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 5px">
-                        <label class="control-label col-md-1 jso-label-title pad-top-5">Creation Date</label>
-                        <div class="col-md-3 pad-top-5">
-                            <span>${this._creationDate}</span>
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 5px">
-                        <label class="control-label col-md-1 jso-label-title pad-top-5">Due Date</label>
-                        <div class="col-md-3 pad-top-5">
-                            <span>${this._dueDate}</span>
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 5px">
-                        <label class="control-label col-md-1 jso-label-title pad-top-5">Description</label>
-                        <div class="col-md-3 pad-top-5">
-                            <span>${this._description}</span>
-                        </div>
-                    </div>
-                </form>
-            </div>
-
-            <div id="${this._prefix}Proband" class="col-md-12 section-padding">
-                <div>
-                    <h4 class="form-section-title">Proband</h4>
-                </div>
-
-                <form class="form-horizontal" style="padding: 10px 0px 0px 0px;">
-                    <div class="form-group" style="margin-bottom: 5px">
-                        <label class="control-label col-md-1 jso-label-title pad-top-5">Proband</label>
-                        <div class="col-md-3 pad-top-5">
-                            <span>${this.clinicalAnalysis.proband.id}</span>
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 5px">
-                        <label class="control-label col-md-1 jso-label-title pad-top-5">Sex (karyotype)</label>
-                        <div class="col-md-3 pad-top-5">
-                            <span>${this.clinicalAnalysis.proband.sex} &nbsp;&nbsp; (${this.clinicalAnalysis.proband.karyotypicSex})</span>
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 5px">
-                        <label class="control-label col-md-1 jso-label-title pad-top-5">Date of Birth</label>
-                        <div class="col-md-3 pad-top-5">
-                            <span>${this.clinicalAnalysis.proband.dateOfBirth} &nbsp;&nbsp; (${this.clinicalAnalysis.proband.lifeStatus})</span>
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 5px">
-                        <label class="control-label col-md-1 jso-label-title pad-top-5">Disorders</label>
-                        <div class="col-md-3 pad-top-5">
-                            <span>${this._probandDisorders}</span>
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 5px">
-                        <label class="control-label col-md-1 jso-label-title pad-top-5">Phenotypes</label>
-                        <div class="col-md-3 pad-top-5">
-                            <span>${this._probandPhenotypes}</span>
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="padding-left: 25px; margin-bottom: 5px">
-                        <!--<label class="col-md-12">Sample:</label>-->
-                        <h4>Sample</h4>
-                        <!--<label class="control-label col-md-1 jso-label-title pad-top-5">Sample</label>-->
-                        <div class="col-md-12">
-                            <div style="width: 90%;padding-left: 10px">
-                                <table class="table">
-                                    <thead>
-                                    <tr class="table-header">
-                                        <th>ID</th>
-                                        <th>Files</th>
-                                        <th>Collection Method</th>
-                                        <th>Preparation Method</th>
-                                        <th>Somatic</th>
-                                        <th>Creation Date</th>
-                                        <th>Status</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <td>${this.clinicalAnalysis.proband.samples[0].id}</td>
-                                        <!--<td>{{clinicalAnalysis.proband.samples.0.source}}</td>-->
-                                        <td>${this._probandFiles}</td>
-                                        <td>${this.clinicalAnalysis.proband.samples[0].collection ? this.clinicalAnalysis.proband.samples[0].collection.method : ""}</td>
-                                        <td>${this.clinicalAnalysis.proband.samples[0].processing ? this.clinicalAnalysis.proband.samples[0].processing.preparationMethod : ""}</td>
-                                        <td>${this.clinicalAnalysis.proband.samples[0].somatic}</td>
-                                        <td>${this.clinicalAnalysis.proband.samples[0].creationDate}</td>
-                                        <td>${this.clinicalAnalysis.proband.samples[0].status.name}</td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-
-            <div id="${this._prefix}Family" class="col-md-12 section-padding">
-                <div>
-                    <h4 class="form-section-title">Family</h4>
-                </div>
-
-                ${this.clinicalAnalysis.family.members ? html`
-                <form class="form-horizontal" style="padding: 10px 0px 0px 0px;">
-
-                        <div class="form-group" style="margin-bottom: 5px">
-                            <label class="control-label col-md-1 jso-label-title pad-top-5">Family</label>
-                            <div class="col-md-3 pad-top-5">
-                                <span>${this.clinicalAnalysis.family.id}</span>
-                            </div>
-                        </div>
-
-                        <div class="form-group" style="padding-left: 25px; margin-bottom: 5px">
-                            <!--<label class="col-md-12">Members:</label>-->
-                            <h4>Members</h4>
-                            <div class="col-md-12">
-                                <div style="width: 90%;padding-left: 10px">
-                                    <table class="table">
-                                        <thead>
-                                        <tr class="table-header">
-                                            <th>Individual ID</th>
-                                            <th>Sex</th>
-                                            <th>Father</th>
-                                            <th>Mother</th>
-                                            <th>Disorders</th>
-                                            <th>Phenotypes</th>
-                                            <th>Life Status</th>
-                                            <th>Year of Birth</th>
-                                            <th>Creation Date</th>
-                                            <th>Status</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        ${this.clinicalAnalysis.family && this.clinicalAnalysis.family.members ? this.clinicalAnalysis.family.members.map( member => html`
-                                            <tr>
-                                                <td>${member.id}</td>
-                                                <td>${member.sex}</td>
-                                                <td>${member.father.id}</td>
-                                                <td>${member.mother.id}</td>
-                                                <td>${member.disorders && member.disorders.length ? member.disorders[0].name : null }</td>
-                                                <td>${member.phenotypes && member.phenotypes.length ? member.phenotypes[0].name : null }</td>
-                                                <td>${member.lifeStatus}</td>
-                                                <td>${member.dateOfBirth}</td>
-                                                <td>${member.creationDate}</td>
-                                                <td>${member.status.name}</td>
-                                            </tr>
-                                        `) : null }
-                                        </tbody>
-                                    </table>
+        
+                        <form class="form-horizontal" style="padding: 5px 10px">
+        
+                            <div class="form-group" style="margin-bottom: 5px">
+                                <label class="control-label col-md-1 jso-label-title">Analysis ID</label>
+                                <div class="col-md-3 pad-top-5">
+                                    <span>${this.clinicalAnalysis.id}</span>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="form-group" style="margin: 0px 2px">
-                            <label class="col-md-12">Pedigree:</label>
-                            <div class="col-md-11 col-md-offset-1">
-                                <div id="${this._prefix}PedigreeView"></div>
+        
+                            <div class="form-group" style="margin-bottom: 5px">
+                                <label class="control-label col-md-1 jso-label-title pad-top-5">Proband</label>
+                                <div class="col-md-3 pad-top-5">
+                                    <span>${this.clinicalAnalysis.proband.id}</span>
+                                </div>
                             </div>
+        
+                            ${this.clinicalAnalysis.disorder ? html`
+                                <div class="form-group" style="margin-bottom: 5px">
+                                    <label class="control-label col-md-1 jso-label-title pad-top-5">Disorder</label>
+                                    <div class="col-md-3 pad-top-5">
+                                        <span>${this.clinicalAnalysis.disorder.name} (${this.clinicalAnalysis.disorder.id})</span>
+                                    </div>
+                                </div>` : null }
+        
+                            <div class="form-group" style="margin-bottom: 5px">
+                                <label class="control-label col-md-1 jso-label-title pad-top-5">Analysis Type</label>
+                                <div class="col-md-3 pad-top-5">
+                                    <span>${this.clinicalAnalysis.type}</span>
+                                </div>
+                            </div>
+        
+                            <div class="form-group" style="margin-bottom: 5px">
+                                <label class="control-label col-md-1 jso-label-title pad-top-5">Flags</label>
+                                <div class="col-md-3 pad-top-5">
+                                    <span>${this._flags}</span>
+                                </div>
+                            </div>
+        
+                            <div class="form-group" style="margin-bottom: 5px">
+                                <label class="control-label col-md-1 jso-label-title pad-top-5">Status</label>
+                                <div class="col-md-3 pad-top-5">
+                                    <span>${this.clinicalAnalysis.status.name}</span>
+                                </div>
+                            </div>
+        
+                            <div class="form-group" style="margin-bottom: 5px">
+                                <label class="control-label col-md-1 jso-label-title pad-top-5">Priority</label>
+                                <div class="col-md-3 pad-top-5">
+                                    <span class="${this.clinicalAnalysis.priority}-priority">${this.clinicalAnalysis.priority}</span>
+                                </div>
+                            </div>
+        
+                            <div class="form-group" style="margin-bottom: 5px">
+                                <label class="control-label col-md-1 jso-label-title pad-top-5">Assigned To</label>
+                                <div class="col-md-3 pad-top-5">
+                                    <span>${this._assignee}</span>
+                                </div>
+                            </div>
+        
+                            <div class="form-group" style="margin-bottom: 5px">
+                                <label class="control-label col-md-1 jso-label-title pad-top-5">Creation Date</label>
+                                <div class="col-md-3 pad-top-5">
+                                    <span>${this._creationDate}</span>
+                                </div>
+                            </div>
+        
+                            <div class="form-group" style="margin-bottom: 5px">
+                                <label class="control-label col-md-1 jso-label-title pad-top-5">Due Date</label>
+                                <div class="col-md-3 pad-top-5">
+                                    <span>${this._dueDate}</span>
+                                </div>
+                            </div>
+        
+                            <div class="form-group" style="margin-bottom: 5px">
+                                <label class="control-label col-md-1 jso-label-title pad-top-5">Description</label>
+                                <div class="col-md-3 pad-top-5">
+                                    <span>${this._description}</span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+    
+                    <div id="${this._prefix}Proband" class="col-md-12 section-padding">
+                        <div>
+                            <h4 class="form-section-title">Proband</h4>
                         </div>
-                    </form>
-                ` : null}
+        
+                        <form class="form-horizontal" style="padding: 10px 0px 0px 0px;">
+                            <div class="form-group" style="margin-bottom: 5px">
+                                <label class="control-label col-md-1 jso-label-title pad-top-5">Proband</label>
+                                <div class="col-md-3 pad-top-5">
+                                    <span>${this.clinicalAnalysis.proband.id}</span>
+                                </div>
+                            </div>
+        
+                            <div class="form-group" style="margin-bottom: 5px">
+                                <label class="control-label col-md-1 jso-label-title pad-top-5">Sex (karyotype)</label>
+                                <div class="col-md-3 pad-top-5">
+                                    <span>${this.clinicalAnalysis.proband.sex} &nbsp;&nbsp; (${this.clinicalAnalysis.proband.karyotypicSex})</span>
+                                </div>
+                            </div>
+        
+                            <div class="form-group" style="margin-bottom: 5px">
+                                <label class="control-label col-md-1 jso-label-title pad-top-5">Date of Birth</label>
+                                <div class="col-md-3 pad-top-5">
+                                    <span>${this.clinicalAnalysis.proband.dateOfBirth} &nbsp;&nbsp; (${this.clinicalAnalysis.proband.lifeStatus})</span>
+                                </div>
+                            </div>
+        
+                            <div class="form-group" style="margin-bottom: 5px">
+                                <label class="control-label col-md-1 jso-label-title pad-top-5">Disorders</label>
+                                <div class="col-md-3 pad-top-5">
+                                    <span>${this._probandDisorders}</span>
+                                </div>
+                            </div>
+        
+                            <div class="form-group" style="margin-bottom: 5px">
+                                <label class="control-label col-md-1 jso-label-title pad-top-5">Phenotypes</label>
+                                <div class="col-md-3 pad-top-5">
+                                    <span>${this._probandPhenotypes}</span>
+                                </div>
+                            </div>
+        
+                            <div class="form-group" style="padding-left: 25px; margin-bottom: 5px">
+                                <!--<label class="col-md-12">Sample:</label>-->
+                                <h4>Sample</h4>
+                                <!--<label class="control-label col-md-1 jso-label-title pad-top-5">Sample</label>-->
+                                <div class="col-md-12">
+                                    <div style="width: 90%;padding-left: 10px">
+                                        <table class="table">
+                                            <thead>
+                                            <tr class="table-header">
+                                                <th>ID</th>
+                                                <th>Files</th>
+                                                <th>Collection Method</th>
+                                                <th>Preparation Method</th>
+                                                <th>Somatic</th>
+                                                <th>Creation Date</th>
+                                                <th>Status</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td>${this.clinicalAnalysis.proband.samples[0].id}</td>
+                                                <!--<td>{{clinicalAnalysis.proband.samples.0.source}}</td>-->
+                                                <td>${this._probandFiles}</td>
+                                                <td>${this.clinicalAnalysis.proband.samples[0].collection ? this.clinicalAnalysis.proband.samples[0].collection.method : ""}</td>
+                                                <td>${this.clinicalAnalysis.proband.samples[0].processing ? this.clinicalAnalysis.proband.samples[0].processing.preparationMethod : ""}</td>
+                                                <td>${this.clinicalAnalysis.proband.samples[0].somatic}</td>
+                                                <td>${this.clinicalAnalysis.proband.samples[0].creationDate}</td>
+                                                <td>${this.clinicalAnalysis.proband.samples[0].status.name}</td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+    
+                    <div id="${this._prefix}Family" class="col-md-12 section-padding">
+                        <div>
+                            <h4 class="form-section-title">Family</h4>
+                        </div>
+        
+                        ${this.clinicalAnalysis.family.members ? html`
+                        <form class="form-horizontal" style="padding: 10px 0px 0px 0px;">
+        
+                                <div class="form-group" style="margin-bottom: 5px">
+                                    <label class="control-label col-md-1 jso-label-title pad-top-5">Family</label>
+                                    <div class="col-md-3 pad-top-5">
+                                        <span>${this.clinicalAnalysis.family.id}</span>
+                                    </div>
+                                </div>
+        
+                                <div class="form-group" style="padding-left: 25px; margin-bottom: 5px">
+                                    <!--<label class="col-md-12">Members:</label>-->
+                                    <h4>Members</h4>
+                                    <div class="col-md-12">
+                                        <div style="width: 90%;padding-left: 10px">
+                                            <table class="table">
+                                                <thead>
+                                                <tr class="table-header">
+                                                    <th>Individual ID</th>
+                                                    <th>Sex</th>
+                                                    <th>Father</th>
+                                                    <th>Mother</th>
+                                                    <th>Disorders</th>
+                                                    <th>Phenotypes</th>
+                                                    <th>Life Status</th>
+                                                    <th>Year of Birth</th>
+                                                    <th>Creation Date</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                ${this.clinicalAnalysis.family && this.clinicalAnalysis.family.members ? this.clinicalAnalysis.family.members.map( member => html`
+                                                    <tr>
+                                                        <td>${member.id}</td>
+                                                        <td>${member.sex}</td>
+                                                        <td>${member.father.id}</td>
+                                                        <td>${member.mother.id}</td>
+                                                        <td>${member.disorders && member.disorders.length ? member.disorders[0].name : null }</td>
+                                                        <td>${member.phenotypes && member.phenotypes.length ? member.phenotypes[0].name : null }</td>
+                                                        <td>${member.lifeStatus}</td>
+                                                        <td>${member.dateOfBirth}</td>
+                                                        <td>${member.creationDate}</td>
+                                                        <td>${member.status.name}</td>
+                                                    </tr>
+                                                `) : null }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+        
+                                <div class="form-group" style="margin: 0px 2px">
+                                    <label class="col-md-12">Pedigree:</label>
+                                    <div class="col-md-11 col-md-offset-1">
+                                        <div id="${this._prefix}PedigreeView"></div>
+                                    </div>
+                                </div>
+                            </form>
+                        ` : null}
+                    </div>
+                </div>
             </div>
         </div>
         ` : null }

@@ -54,6 +54,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
             this.propertyObserver();
         }
     }
+
     firstUpdated(_changedProperties) {
         this.case = "All";
         this.proband = "All";
@@ -90,19 +91,21 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     onClearQuery(e) {
+        //FIXME monkey patch to reset button (text) fields. TODO complete refactor.
+        this.case = "All";
+        this.querySelector(`#${this._prefix}caseInput`).value = "";
+        this.proband = "All";
+        this.querySelector(`#${this._prefix}probandInput`).value = "";
+        this.family = "All";
+        this.querySelector(`#${this._prefix}familyInput`).value = "";
+        this.disorder = "All";
+        this.querySelector(`#${this._prefix}disorderInput`).value = "";
+        $(".filter-button").css("color","rgb(153, 153, 153)");
+
         $(`#${this._prefix}-type`).selectpicker("val", "");
         $(`#${this._prefix}-priority`).selectpicker("val", "");
         $(`#${this._prefix}-status`).selectpicker("val", "");
         $(`#${this._prefix}-assigned`).selectpicker("val", "");
-
-        // We create a dummy event so the input listeners are called and everything is automatically cleaned up
-        const event = new CustomEvent("keyup", {});
-        const inputElements = PolymerUtils.querySelectorAll(`.${this._prefix}-input`);
-        for (let i = 0; i < inputElements.length; i++) {
-            inputElements[i].value = "";
-            inputElements[i].dispatchEvent(event);
-        }
-
         this.updateQuery();
     }
 
@@ -130,6 +133,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
     updateInputTextMenuItem(filterId, value) {
         const buttonElem = PolymerUtils.getElementById(this._prefix + filterId + "Menu");
+        console.log(buttonElem);
+        console.log(filterId, value, this[filterId]);
         if (UtilsNew.isNotEmpty(value)) {
             this[filterId] = value;
             buttonElem.style.color = "#333";
@@ -137,6 +142,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
             this[filterId] = "All";
             buttonElem.style.color = "rgb(153, 153, 153)";
         }
+        this.requestUpdate();
     }
 
     updateQuery() {
@@ -273,6 +279,26 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                 font-size: 115%;
                 font-weight: bold;
             }
+            .horizontal-flex{
+                display: flex;
+            }
+            .horizontal-flex > div {
+                padding:5px;
+                flex:1;
+                box-sizing: border-box;
+            }
+            .horizontal-flex > div label {
+                display:block
+            }
+            .active-filter-label{
+                display: inline-block;
+                font-size: 15px;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                height: 34px;
+                line-height: 34px;
+                margin: 0;
+            }
         </style>
 
         <div class="row">
@@ -282,7 +308,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                     <!--<h2 style="margin-top: 10px">{{_config.title}}</h2>-->
                 <!--</div>-->
 
-                <div style="padding: 10px 10px;">
+                <div style="">
 
                     <div class="panel panel-default" style="margin-bottom: 10px">
                         <!--<div class="panel-heading">Case Filters</div>-->
@@ -294,10 +320,10 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
                             <!-- Case ID -->
                             <div class="btn-group">
-                                <button type="button" class="dropdown-toggle btn btn-default" style="width:125px; color: rgb(153, 153, 153);"
-                                        id="${this._prefix}caseMenu" title="${this.case}"
+                                <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
+                                        id="${this._prefix}caseMenu"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                    <span class="ocap-text-button">Case: ${this.case}</span>&nbsp;<span class="caret"></span>
+                                    <span class="ocap-text-button">Case: <span>${this.case}</span></span>&nbsp;<span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="${this._prefix}caseMenu">
                                     <li style="padding: 5px;">
@@ -311,9 +337,9 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
                             <!-- Proband -->
                             <div class="btn-group">
-                                <button type="button" class="btn btn-default dropdown-toggle" style="width:125px; color: rgb(153, 153, 153);"
+                                <button type="button" class="btn btn-default dropdown-toggle filter-button" style="width:125px; color: rgb(153, 153, 153);"
                                         id="${this._prefix}probandMenu" title="${this.proband}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                    <span class="ocap-text-button">Proband: ${this.proband}</span>&nbsp; <span class="caret"></span>
+                                    <span class="ocap-text-button">Proband: <span>${this.proband}</span></span>&nbsp; <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="${this._prefix}probandMenu">
                                     <li style="padding: 5px;">
@@ -327,9 +353,9 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
                             <!-- Family -->
                             <div class="btn-group">
-                                <button type="button" class="dropdown-toggle btn btn-default" style="width:125px; color: rgb(153, 153, 153);"
+                                <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
                                         id="${this._prefix}familyMenu" title="${this.family}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                    <span class="ocap-text-button">Family: ${this.family}</span>&nbsp; <span class="caret"></span>
+                                    <span class="ocap-text-button">Family: <span>${this.family}</span></span>&nbsp; <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="${this._prefix}FamilyMenu">
                                     <li style="padding: 5px;">
@@ -343,9 +369,9 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
                             <!-- Disorder -->
                             <div class="btn-group">
-                                <button type="button" class="dropdown-toggle btn btn-default" style="width:125px; color: rgb(153, 153, 153);"
+                                <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
                                         id="${this._prefix}disorderMenu" title="${this.disorder}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                    <span class="ocap-text-button">Disorder: ${this.disorder}</span>&nbsp; <span class="caret"></span>
+                                    <span class="ocap-text-button">Disorder: <span>${this.disorder}</span></span>&nbsp; <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="${this._prefix}DisorderMenu">
                                     <li style="padding: 5px;">
@@ -427,7 +453,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
                             <!--<template is="dom-if" if="{{showSelectFilters(opencgaClient._config)}}">-->
                             <div class="btn-group" style="float: right">
-                                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <button type="button" class="btn btn-primary ripple dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i> Filters <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right">
@@ -455,7 +481,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
                     <div>
                         <opencga-clinical-analysis-grid .opencgaSession="${this.opencgaSession}"
-                                                        .search="${this._query}" style="font-size: 12px"
+                                                        .query="${this._query}" style="font-size: 12px"
                                                         .active="${this.active}"
                                                         .config="${this._config.grid}"
                                                         @selectanalysis="${this.onSelectClinicalAnalysis}">

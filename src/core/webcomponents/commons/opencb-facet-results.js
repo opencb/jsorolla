@@ -15,13 +15,10 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "./../commons/opencga-facet-result-view.js";
-import "./../../../loading-spinner.js";
+import "./../../loading-spinner.js";
 
-//TODO avg(popFreq__1kG_phase3__AFR)[0..1]:0.1>>avg(popFreq__GNOMAD_GENOMES__EAS[0..1]):0.1
-//TODO this components needs cleaning from the old code
 
-class OpencgaVariantFacetQuery extends LitElement {
+class OpencbFacetResults extends LitElement {
 
     constructor() {
         super();
@@ -53,12 +50,15 @@ class OpencgaVariantFacetQuery extends LitElement {
             },
             active: {
                 type: Boolean
+            },
+            data: {
+                type: Object
             }
         };
     }
 
     _init() {
-        this._prefix = "facet" + Utils.randomString(6);
+        this._prefix = "facet-results" + Utils.randomString(6);
 
         // this.checkProjects = true;
 
@@ -79,6 +79,8 @@ class OpencgaVariantFacetQuery extends LitElement {
         this.facetActive = true;
 
         this._config = this.getDefaultConfig();
+
+        this.data = [];
     }
 
     firstUpdated(_changedProperties) {
@@ -145,10 +147,10 @@ class OpencgaVariantFacetQuery extends LitElement {
 
         // Join 'query' from left menu and facet filters
         let queryParams = {...this.query,
-                study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
-                sid: this.opencgaSession.opencgaClient._config.sessionId,
-                fields: this.facetFilters.join(";"),
-                timeout: 60000};
+            study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
+            sid: this.opencgaSession.opencgaClient._config.sessionId,
+            fields: this.facetFilters.join(";"),
+            timeout: 60000};
 
         console.warn("queryParams", queryParams);
         this.opencgaSession.opencgaClient.variants().aggregationStats(queryParams, {})
@@ -205,58 +207,6 @@ class OpencgaVariantFacetQuery extends LitElement {
     //TODO add default configuration for file, sample, individual, family, cohort, clinical analysis
     getDefaultConfig() {
         return {
-            // title: "Aggregation Stats",
-            active: false,
-            populationFrequencies: true,
-            defaultStats: {
-                visible: true,
-                fields: ["chromosome", "biotypes", "type"]
-            },
-            fields: {
-                terms: [
-                    {
-                        name: "Chromosome", value: "chromosome"
-                    },
-                    {
-                        name: "Studies", value: "studies"
-                    },
-                    {
-                        name: "Variant Type", value: "type"
-                    },
-                    {
-                        name: "Genes", value: "genes"
-                    },
-                    {
-                        name: "Biotypes", value: "biotypes"
-                    },
-                    {
-                        name: "Consequence Type", value: "soAcc"
-                    }
-                ],
-                ranges: [
-                    {
-                        name: "PhastCons", value: "phastCons", default: "[0..1]:0.1"
-                    },
-                    {
-                        name: "PhyloP", value: "phylop", default: ""
-                    },
-                    {
-                        name: "Gerp", value: "gerp", default: "[-12.3..6.17]:2"
-                    },
-                    {
-                        name: "CADD Raw", value: "caddRaw"
-                    },
-                    {
-                        name: "CADD Scaled", value: "caddScaled"
-                    },
-                    {
-                        name: "Sift", value: "sift", default: "[0..1]:0.1"
-                    },
-                    {
-                        name: "Polyphen", value: "polyphen", default: "[0..1]:0.1"
-                    }
-                ]
-            }
         };
     }
 
@@ -281,22 +231,14 @@ class OpencgaVariantFacetQuery extends LitElement {
         </style>
 
         <div class="row">
-            <!-- RESULTS - Facet Plots -->
-            ${this.active ? html` 
-            <div class="col-md-12">
-                <div>
-                    <button type="button" class="btn btn-primary ripple pull-right" disabled @click="${this.facetSearch}">Run Advanced facet query</button>
-                </div>
-                <div >
-                    <h2>Results</h2>
-                    
+            
                     <div id="loading" style="display: none">
                         <loading-spinner></loading-spinner>
                     </div>
                     ${this._showInitMessage ? html`
                         <!--<h4>No facet filters selected</h4>-->
                     ` : html`
-                        ${this.facetResults.map(item => html`
+                        ${this.data.map(item => html`
                             <div>
                                 <h3>${item.name}</h3>
                                 <opencga-facet-result-view .facetResult="${item}"
@@ -307,10 +249,10 @@ class OpencgaVariantFacetQuery extends LitElement {
                         `)}
                     `}
                 </div>
-            </div>` : null}
+            </div>
         </div>
     `;
     }
 }
 
-customElements.define("opencga-variant-facet-query", OpencgaVariantFacetQuery);
+customElements.define("opencb-facet-results", OpencbFacetResults);

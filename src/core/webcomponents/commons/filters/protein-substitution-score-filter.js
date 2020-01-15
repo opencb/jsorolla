@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import {switchWidget} from "/src/styles/styles.js";
 
 export default class ProteinSubstitutionScoreFilter extends LitElement {
 
@@ -34,7 +35,7 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            query: {
+            protein_substitution: {
                 type: Object
             }
         };
@@ -46,9 +47,9 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
 
     //TODO proper refactor
     updated(_changedProperties) {
-        if (_changedProperties.has("query")) {
-            if (this.query["protein_substitution"]) {
-                let pss = this.query["protein_substitution"].split(new RegExp("[,;]"));
+        if (_changedProperties.has("protein_substitution")) {
+            if (this.protein_substitution) {
+                let pss = this.protein_substitution.split(new RegExp("[,;]"));
                 console.log("PSS", pss);
                 if (pss.length > 0) {
                     let sift = pss.find(el => el.startsWith("sift"));
@@ -110,7 +111,7 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                 }
                 if (pss.length === 2) {
                     $("input:radio[name=pss]").attr("disabled", false);
-                    if (this.query["protein_substitution"].includes(";")) {
+                    if (this.protein_substitution.includes(";")) {
                         $("input:radio[name=pss][value=and]").prop("checked", true);
                     }
                 } else {
@@ -184,6 +185,9 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
 
     render() {
         return html`
+            <style>
+                ${switchWidget}
+            </style>
             <div style="padding-top: 10px">
                 <span style="padding-left: 0px;">SIFT</span>
                 <div class="row">
@@ -241,15 +245,26 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                                id="${this._prefix}PolyphenInput" name="Polyphen" @input="${this.filterChange}">
                     </div>
                 </div>
-            
-                <form style="padding-top: 15px">
-                    <label style="font-weight: normal;">Logical Operator</label>
-                    <input type="radio" name="pss" id="${this._prefix}pssOrRadio" value="or" class="${this._prefix}FilterRadio"
-                           checked disabled style="margin-left: 10px" @change="${this.filterChange}"> OR<br>
-                    <input type="radio" name="pss" id="${this._prefix}pssAndRadio" value="and"
-                           class="${this._prefix}FilterRadio" disabled style="margin-left: 102px" @change="${this.filterChange}"> AND
-                    <br>
-                </form>
+                
+                <div class="switch-container">
+                    <div class="rating-toggle-container">
+                        <label style="font-weight: normal;">Logical Operator</label>
+                        <form class="flex-center">
+                            <input id="${this._prefix}pssOrRadio" name="pss" type="radio" value="or"
+                                   class="radio-or ${this._prefix}FilterRadio" checked disabled
+                                   @change="${this.filterChange}"/>
+                            <input id="${this._prefix}pssAndRadio" name="pss" type="radio" value="and"
+                                   class="radio-and ${this._prefix}FilterRadio" disabled @change="${this.filterChange}"/>
+                            <label for="${this._prefix}pssOrRadio"
+                                   class="rating-label rating-label-or">OR</label>
+                            <div class="rating-toggle"></div>
+                            <div class="toggle-rating-pill"></div>
+                            <label for="${this._prefix}pssAndRadio"
+                                   class="rating-label rating-label-and">AND</label>
+                        </form>
+                    </div>
+                </div>
+                
                 <br>
             </div>
             `;
