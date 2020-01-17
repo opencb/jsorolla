@@ -2,17 +2,17 @@ class NotificationUtils {
 
     // Notify api: http://bootstrap-notify.remabledesigns.com/
     static showNotify(message = "", type = "INFO", options = {}, settings = {}, opencgaClient = null, notifyInstance = null) {
-        let types = {
-            'ERROR': 'danger',
-            'SUCCESS': 'success',
-            'WARNING': 'warning',
-            'INFO': 'info'
+        const types = {
+            "ERROR": "danger",
+            "SUCCESS": "success",
+            "WARNING": "warning",
+            "INFO": "info"
         };
-        let defaultIcons = {
-            'ERROR': 'fa fa-times-circle',
-            'SUCCESS': 'fa fa-check-circle',
-            'WARNING': 'fa fa-exclamation-triangle',
-            'INFO': 'fa fa-info-circle'
+        const defaultIcons = {
+            "ERROR": "fa fa-times-circle",
+            "SUCCESS": "fa fa-check-circle",
+            "WARNING": "fa fa-exclamation-triangle",
+            "INFO": "fa fa-info-circle"
         };
 
         let settingsDefault = {
@@ -20,10 +20,10 @@ class NotificationUtils {
                 from: "top",
                 align: "center"
             },
-            type: types[type] || types['INFO']
+            type: types[type] || types["INFO"]
         };
 
-        let icon = defaultIcons[type];
+        const icon = defaultIcons[type];
         let optionsDefault = {
             message: message,
             icon: icon
@@ -33,7 +33,7 @@ class NotificationUtils {
         optionsDefault = Object.assign({}, optionsDefault, options);
 
         if (UtilsNew.isNotUndefinedOrNull(notifyInstance)) {
-            notifyInstance.update('message', message);
+            notifyInstance.update("message", message);
             return notifyInstance;
         }
 
@@ -50,13 +50,13 @@ class NotificationUtils {
     }
 
     static refreshToken(event) {
-        let _this = this;
-        this.opencgaClient.users().refresh().then((response) => {
-            let sessionId =  response.response[0].result[0].id;
-            let decoded = jwt_decode(sessionId);
-            let dateExpired = new Date(decoded.exp * 1000);
-            let validTimeSessionId =  moment(dateExpired, "YYYYMMDDHHmmss").format('D MMM YY HH:mm:ss');
-            let _message = "Your session is now valid until " + validTimeSessionId;
+        const _this = this;
+        this.opencgaClient.refresh().then(response => {
+            const sessionId = response.getResult(0).token;
+            const decoded = jwt_decode(sessionId);
+            const dateExpired = new Date(decoded.exp * 1000);
+            const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss");
+            const _message = "Your session is now valid until " + validTimeSessionId;
             $.notifyClose();
             _this.showNotify(_message);
         });

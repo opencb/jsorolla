@@ -172,7 +172,7 @@ export default class OpencgaFileFacet extends LitElement {
             <opencga-facet  resource="files"
                             .opencgaSession="${this.opencgaSession}"
                             .opencgaClient="${this.opencgaSession.opencgaClient}"
-                            .query="${this.browserSearchQuery}"
+                            .query="${this.query}"
                             .config="${this._config}"
                             .cellbaseClient="${this.cellbaseClient}"
                             .populationFrequencies="${this.populationFrequencies}"

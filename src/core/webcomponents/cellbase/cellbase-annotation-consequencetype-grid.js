@@ -79,7 +79,7 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
 
     //it was render();
     renderTable() {
-        debugger
+        //debugger
         $('#' + this._prefix + 'ConsequenceTypeTable').bootstrapTable('destroy');
         $('#' + this._prefix + 'ConsequenceTypeTable').bootstrapTable({
             data: this.data,

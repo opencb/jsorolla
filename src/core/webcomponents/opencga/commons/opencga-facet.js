@@ -150,6 +150,7 @@ export default class OpencgaFacet extends LitElement {
             console.log('There has been a problem with fetch operation: ' + error.message);
         });*/
 
+        //TODO remove, each config comes from the wrapper component now (still need resource prop, the template needs it for filters component)
         switch(this.resource) {
             case "files":
                 this._client = this.opencgaSession.opencgaClient.files();
@@ -181,9 +182,9 @@ export default class OpencgaFacet extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-        if (changedProperties.has("executedQuery")) {
+        /*if (changedProperties.has("executedQuery")) {
             this.fetchVariants();
-        }
+        }*/
         if (changedProperties.has("query")) {
             //console.warn("queryObserver is commented")
             this.queryObserver();
@@ -268,6 +269,16 @@ export default class OpencgaFacet extends LitElement {
         this.requestUpdate();
     }
 
+    notifySearch(query) {
+        this.dispatchEvent(new CustomEvent("querySearch", {
+            detail: {
+                query: query,
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
     async onRun() {
         this.clearPlots();
         let queryParams = {
@@ -277,7 +288,10 @@ export default class OpencgaFacet extends LitElement {
             timeout: 60000,
             field: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
         };
-        console.log("queryParams",queryParams)
+        //this event keeps in sync the query object with the one in iva-app
+        //TODO do not use this.preparedQuery, use this.query (change this component accordingly)
+        this.notifySearch(this.preparedQuery);
+
         this.querySelector("#loading").style.display = "block";
 
         this._client.stats(queryParams, {})
@@ -294,6 +308,7 @@ export default class OpencgaFacet extends LitElement {
             .finally(() => {
                 this.querySelector("#loading").style.display = "none";
             });
+
     }
 
     async onFacetFieldChange(e) {
@@ -691,7 +706,6 @@ export default class OpencgaFacet extends LitElement {
                                 discriminator="hardcoded"  
                                 .opencgaSession="${this.opencgaSession}"
                                 .config="${ 1 /*TODO FIXME this._config.filter*/}"
-                                .files="${this.files}"
                                 .query="${this.query}"
                                 .search="${this.search}"
                                 .variableSets="${this.variableSets}"
@@ -706,7 +720,6 @@ export default class OpencgaFacet extends LitElement {
                                 discriminator="hardcoded"  
                                 .opencgaSession="${this.opencgaSession}"
                                 .config="${ 1 /*TODO FIXME this._config.filter*/}"
-                                .files="${this.files}"
                                 .query="${this.query}"
                                 .search="${this.search}"
                                 .variableSets="${this.variableSets}"
@@ -721,7 +734,6 @@ export default class OpencgaFacet extends LitElement {
                                 discriminator="hardcoded"  
                                 .opencgaSession="${this.opencgaSession}"
                                 .config="${ 1 /*TODO FIXME this._config.filter*/}"
-                                .files="${this.files}"
                                 .query="${this.query}"
                                 .search="${this.search}"
                                 .variableSets="${this.variableSets}"
@@ -736,7 +748,6 @@ export default class OpencgaFacet extends LitElement {
                                 discriminator="hardcoded"  
                                 .opencgaSession="${this.opencgaSession}"
                                 .config="${ 1 /*TODO FIXME this._config.filter*/}"
-                                .files="${this.files}"
                                 .query="${this.query}"
                                 .search="${this.search}"
                                 .variableSets="${this.variableSets}"
@@ -746,35 +757,6 @@ export default class OpencgaFacet extends LitElement {
                             </opencga-cohort-filter>
                             ` : null}
                             
-                            ${this.resource === "files" ? html`
-                            <opencga-file-filter
-                                discriminator="hardcoded"  
-                                .opencgaSession="${this.opencgaSession}"
-                                .config="${ 1 /*TODO FIXME this._config.filter*/}"
-                                .files="${this.files}"
-                                .query="${this.query}"
-                                .search="${this.search}"
-                                .variableSets="${this.variableSets}"
-                                .searchButton="${false}"
-                                @queryChange="${this.onQueryFilterChange}"
-                                @querySearch="${this.onQueryFilterSearch}">
-                            </opencga-file-filter>
-                            ` : null}
-                            
-                            ${this.resource === "files" ? html`
-                            <opencga-file-filter
-                                discriminator="hardcoded"  
-                                .opencgaSession="${this.opencgaSession}"
-                                .config="${ 1 /*TODO FIXME this._config.filter*/}"
-                                .files="${this.files}"
-                                .query="${this.query}"
-                                .search="${this.search}"
-                                .variableSets="${this.variableSets}"
-                                .searchButton="${false}"
-                                @queryChange="${this.onQueryFilterChange}"
-                                @querySearch="${this.onQueryFilterSearch}">
-                            </opencga-file-filter>
-                            ` : null}
                         </div>
                     </div>
                 </div>
@@ -795,14 +777,9 @@ export default class OpencgaFacet extends LitElement {
                                                 @activeFilterClear="${this.onActiveFilterClear}">
                         </opencga-active-filters>
 
-
-
-
                         <opencb-facet-results .data="${this.facetResults}"
-                                                .error="${this.errorState}">
+                                              .error="${this.errorState}">
                         </opencb-facet-results>
-                        
-                        
                         
                         <!-- RESULTS - Facet Plots -->
                         <div id="loading" style="display: none">

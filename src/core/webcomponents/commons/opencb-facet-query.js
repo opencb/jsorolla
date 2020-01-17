@@ -18,11 +18,9 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import "./opencb-facet-results.js";
 import "./../../loading-spinner.js";
 
-// NOTE this is a clone of opencga-variant-facet-query
-
-
-//TODO avg(popFreq__1kG_phase3__AFR)[0..1]:0.1>>avg(popFreq__GNOMAD_GENOMES__EAS[0..1]):0.1
+//TODO delete opencga-variant-facet-query and use this for variant too
 //TODO this components needs cleaning from the old code
+//TODO avg(popFreq__1kG_phase3__AFR)[0..1]:0.1>>avg(popFreq__GNOMAD_GENOMES__EAS[0..1]):0.1
 
 class OpencbFacetQuery extends LitElement {
 
@@ -40,7 +38,7 @@ class OpencbFacetQuery extends LitElement {
     static get properties() {
         return {
             resource: {
-                type: Object
+                type: String
             },
             opencgaSession: {
                 type: Object
@@ -83,11 +81,20 @@ class OpencbFacetQuery extends LitElement {
 
         this.facetConfig = {a: 1};
         this.facetActive = true;
+        this.facetResults = [];
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = this.getDefaultConfig(this.resource);
+        this._config = {...this.getDefaultConfig(this.resource), ...this.config};
+        if(this._config.defaultStats && this._config.defaultStats.fields){
+            this._config.defaultStats.fields.map(defaultStat => this.facets.add(defaultStat));
+        } else {
+            throw new Error("DefaultStats fields has not been configured");
+        }
+        this.facetFilters = Array.from(this.facets);
+
+
     }
 
     firstUpdated(_changedProperties) {
@@ -122,21 +129,23 @@ class OpencbFacetQuery extends LitElement {
     }
 
     configObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
+
     }
 
+    /**
+     * @deprecated
+     * moved in connectedCallback()
+     */
     addDefaultStats(e) {
-        for (let i = 0; i < this._config.defaultStats.fields.length; i++) {
-            this.facets.add(this._config.defaultStats.fields[i]);
-        }
+        this._config.defaultStats.map(defaultStat => this.facets.add(defaultStat));
         this.facetFilters = Array.from(this.facets);
         this.requestUpdate();
     }
 
     fetchDefaultData() {
         //this.facetResults is reset in queryObserver
-        if(this.active && !this.facetResults.length) {
-            this.addDefaultStats();
+        if(this.active && this.config && !this.facetResults.length) {
+            //this.addDefaultStats();
             this.fetchData();
         }
     }
@@ -150,7 +159,8 @@ class OpencbFacetQuery extends LitElement {
         PolymerUtils.hide(this._prefix + "Warning");
 
         this.clearPlots();
-        this.querySelector("#loading").style.display = "block";
+        this.loading = true;
+        //this.querySelector("#loading").style.display = "block";
 
         // Join 'query' from left menu and facet filters
         let queryParams = {...this.query,
@@ -160,15 +170,20 @@ class OpencbFacetQuery extends LitElement {
             timeout: 60000};
 
         console.warn("queryParams", queryParams);
-        this.opencgaSession.opencgaClient.variants().aggregationStats(queryParams, {})
+        //TODO debug facetEndpoint in config
+        // the context changes in case of this._config.facetEndpoint(), the context is the config object
+        let fn = this._config.facetEndpoint;
+        this.opencgaSession.opencgaClient[this.resource]().stats(queryParams, {})
             .then(queryResponse => {
                 this.facetResults = queryResponse.response[0].result[0].results;
-                this.querySelector("#loading").style.display = "none";
+                this.loading = false;
+                //this.querySelector("#loading").style.display = "none";
                 this._showInitMessage = false;
             })
-            .catch(function(e) {
+            .catch( e => {
                 console.log(e);
-                this.querySelector("#loading").style.display = "none";
+                //this.querySelector("#loading").style.display = "none";
+                this.loading = false;
                 this.errorState = "Error from server: " + e.error;
                 this._showInitMessage = false;
             })
@@ -199,7 +214,6 @@ class OpencbFacetQuery extends LitElement {
         this.facetFieldsName = [];
         this.facetRangeFields = [];
         this._showInitMessage = true;
-
         this.requestUpdate();
     }
 
@@ -215,22 +229,47 @@ class OpencbFacetQuery extends LitElement {
     getDefaultConfig(type) {
         return {
             variants:{
-                facetEndpoint: this.opencgaSession.opencgaClient.variants().aggregationStats
+                facetEndpoint: this.opencgaSession.opencgaClient.variants().aggregationStats,
+                defaultStats: {
+                    fields: ["chromosome", "biotypes", "type"]
+                }
             },
             files: {
-                facetEndpoint: this.opencgaSession.opencgaClient.files().stats
+                facetEndpoint: this.opencgaSession.opencgaClient.files().stats,
+                def:"ssss",
+                defaultStats: {
+                    fields: ["name"]
+                }
             },
             samples: {
-                facetEndpoint: this.opencgaSession.opencgaClient.samples().stats
+                facetEndpoint: this.opencgaSession.opencgaClient.samples().stats,
+                defaultStats: {
+                    fields: ["name"]
+                }
             },
             individuals: {
-                facetEndpoint: this.opencgaSession.opencgaClient.individuals().stats
+                facetEndpoint: this.opencgaSession.opencgaClient.individuals().stats,
+                defaultStats: {
+                    fields: ["name"]
+                }
             },
-            family: {
-                facetEndpoint: this.opencgaSession.opencgaClient.family().stats
+            families: {
+                facetEndpoint: this.opencgaSession.opencgaClient.families().stats,
+                defaultStats: {
+                    fields: ["name"]
+                }
             },
-            cohort: {
-                facetEndpoint: this.opencgaSession.opencgaClient.cohorts().stats
+            cohorts: {
+                facetEndpoint: this.opencgaSession.opencgaClient.cohorts().stats,
+                defaultStats: {
+                    fields: ["name"]
+                }
+            },
+            clinical: {
+                facetEndpoint: this.opencgaSession.opencgaClient.clinical().stats,
+                defaultStats: {
+                    fields: ["name"]
+                }
             }
         }[type]
     }
@@ -312,7 +351,6 @@ class OpencbFacetQuery extends LitElement {
             }
         </style>
 
-        <h1>opencb facet query</h1>
         <div class="row">
             <!-- RESULTS - Facet Plots -->
             ${this.active ? html` 
@@ -322,9 +360,7 @@ class OpencbFacetQuery extends LitElement {
                 </div>
                 <div >
                     <h2>Results</h2>
-                    
-                    <opencb-facet-results .data="${this.facetResults}"></opencb-facet-results>
-                    
+                    <opencb-facet-results .data="${this.facetResults}" .errorState="${this.errorState}" ?loading="${this.loading}"></opencb-facet-results>
                 </div>
             </div>` : null}
         </div>

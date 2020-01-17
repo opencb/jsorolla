@@ -188,8 +188,11 @@ export default class OpencgaFamilyBrowser extends LitElement {
         $(".family-browser-view-buttons").removeClass("active");
         $(e.target).addClass("active");
 
-        if (e.target.dataset.view === "AggregationStats") {
-            this.executeFacet();
+        if (e.target.dataset.view === "Summary") {
+            this.SummaryActive = true;
+            this.requestUpdate();
+        } else {
+            this.SummaryActive = false;
         }
         this.requestUpdate();
     }
@@ -317,13 +320,13 @@ export default class OpencgaFamilyBrowser extends LitElement {
                 <div class="col-md-12" style="padding: 5px 0px 5px 0px">
                     <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px;margin-left: 0px">
                         <div class="btn-group" role="group" style="margin-left: 0px">
-                            <button type="button" class="btn btn-success family-browser-view-buttons active" data-view="TableResult" @click="${this._changeView}" data-id="table">
+                            <button type="button" class="btn btn-success family-browser-view-buttons ripple active" data-view="TableResult" @click="${this._changeView}" data-id="table">
                                 <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" @click="${this._changeView}" data-id="table"></i> Table Result
                             </button>
-                            <button type="button" class="btn btn-success family-browser-view-buttons" data-view="AggregationStats" @click="${this._changeView}" .disabled="${!this._config.showAggregationStats}">
-                                <i class="fa fa-line-chart icon-padding" aria-hidden="true" data-view="AggregationStats" @click="${this._changeView}"></i> Aggregation Stats
+                            <button type="button" class="btn btn-success family-browser-view-buttons ripple " data-view="Summary" @click="${this._changeView}" .disabled="${!this._config.showAggregationStats}">
+                                <i class="fas fa-chart-bar icon-padding" aria-hidden="true" data-view="Summary" @click="${this._changeView}"></i> Summary Stats
                             </button>
-                            <button type="button" class="btn btn-success family-browser-view-buttons" data-view="FamilyComparator" @click="${this._changeView}" data-id="comparator" .disabled="${!this._config.showComparator}">
+                            <button type="button" class="btn btn-success family-browser-view-buttons ripple " data-view="FamilyComparator" @click="${this._changeView}" data-id="comparator" .disabled="${!this._config.showComparator}">
                                 <i class="fa fa-users icon-padding" aria-hidden="true" data-view="FamilyComparator" @click="${this._changeView}" data-id="comparator"></i> Family Comparator
                             </button>
                         </div>
@@ -379,11 +382,14 @@ export default class OpencgaFamilyBrowser extends LitElement {
                         <!--</div>-->
                     </div>
 
-                    <div id="${this._prefix}AggregationStats" class="family-browser-view-content" style="display: none">
-                        <opencga-facet-view .opencgaSession="${this.opencgaSession}"
-                                            entity="FAMILY"
-                                            .variableSets="${this.variableSets}">
-                        </opencga-facet-view>
+                    <div id="${this._prefix}Summary" class="family-browser-view-content" style="display: none">
+                        <opencb-facet-query resource="families"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .cellbaseClient="${this.cellbaseClient}"  
+                                            .config="${this._config}"
+                                            .query="${this.executedQuery}"
+                                            .active="${this.SummaryActive}">
+                        </opencb-facet-query>
                     </div>
 
                     <div id="${this._prefix}FamilyComparator" class="family-browser-view-content" style="display: none">

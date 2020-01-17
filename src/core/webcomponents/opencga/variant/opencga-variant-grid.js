@@ -17,6 +17,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "./../../commons/opencb-grid-toolbar.js";
+import {RestResponse} from "../../../clients/RestResponse.js";
 
 export default class OpencgaVariantGrid extends LitElement {
 
@@ -193,7 +194,7 @@ export default class OpencgaVariantGrid extends LitElement {
                 columns: _this._columns,
                 method: "get",
                 sidePagination: "server",
-
+                ciao: "ola dea",
                 // Set table properties, these are read from config property
                 uniqueId: "id",
                 pagination: _this._config.pagination,
@@ -211,19 +212,20 @@ export default class OpencgaVariantGrid extends LitElement {
                     queryParams.skip = params.offset;
                     return queryParams;
                 },
-                responseHandler: function(resp) {
+                responseHandler: function(response) {
+                    const rr = new RestResponse(response);
                     if (_numTotal === -1) {
-                        _numTotal = resp.response[0].numTotalResults;
+                        _numTotal = rr.getResponse().numTotalResults;
                     }
                     // Format the number string with commas
-                    _this.to = Math.min(resp.response[0].numResults, this.pageSize);
+                    _this.to = Math.min(rr.getResponse(0).numResults, this.pageSize);
                     _this.numTotalResultsText = _numTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                    _this.approximateCountResult = resp.response[0].approximateCount;
+                    _this.approximateCountResult = rr.getResult(0).approximateCount;
 
                     //updates numTotalResultsText
                     _this.requestUpdate();
 
-                    return {total: _numTotal, rows: resp.response[0].result};
+                    return {total: _numTotal, rows: rr.getResults()};
                 },
                 onClickRow: function(row, $element, field) {
                     $("#" + _this._prefix + "VariantBrowserGrid tr").removeClass("success");

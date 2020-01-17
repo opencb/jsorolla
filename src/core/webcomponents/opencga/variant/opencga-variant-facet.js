@@ -131,7 +131,7 @@ export default class OpencgaVariantFacet extends LitElement {
         }
         if (changedProperties.has("query")) {
             console.warn("queryObserver is commented")
-            //this.queryObserver();
+            this.queryObserver();
         }
         if (changedProperties.has("selectedFacet")) {
             this.selectedFacetObserver();

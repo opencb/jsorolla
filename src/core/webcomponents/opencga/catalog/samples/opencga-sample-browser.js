@@ -160,9 +160,13 @@ export default class OpencgaSampleBrowser extends LitElement {
         $('.sample-browser-view-buttons').removeClass("active");
         $(e.target).addClass("active");
 
-        if (e.target.dataset.view === "AggregationStats") {
-            this.executeFacet();
+        if (e.target.dataset.view === "Summary") {
+            this.SummaryActive = true;
+            this.requestUpdate();
+        } else {
+            this.SummaryActive = false;
         }
+
         this.requestUpdate();
     }
 
@@ -294,8 +298,8 @@ export default class OpencgaSampleBrowser extends LitElement {
                             <button type="button" class="btn btn-success sample-browser-view-buttons active ripple" data-view="TableResult" @click="${this._changeView}"  data-id="table">
                                 <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" @click="${this._changeView}"></i> Table Result
                             </button>
-                            <button type="button" class="btn btn-success sample-browser-view-buttons ripple" data-view="AggregationStats" @click="${this._changeView}">
-                                <i class="fa fa-line-chart icon-padding" aria-hidden="true" data-view="AggregationStats" @click="${this._changeView}"></i> Aggregation Stats
+                            <button type="button" class="btn btn-success sample-browser-view-buttons ripple" data-view="Summary" @click="${this._changeView}">
+                                <i class="fas fa-chart-bar icon-padding" aria-hidden="true" data-view="Summary" @click="${this._changeView}"></i> Summary Stats
                             </button>
                             <button type="button" class="btn btn-success sample-browser-view-buttons ripple" data-view="SampleComparator" @click="${this._changeView}"  data-id="comparator">
                                 <i class="fa fa-users icon-padding" aria-hidden="true" data-view="SampleComparator" @click="${this._changeView}"></i> Sample Comparator
@@ -342,9 +346,14 @@ export default class OpencgaSampleBrowser extends LitElement {
                     </div>
 
                     <!--TODO refactor is missing here -->
-                    <div id="${this._prefix}AggregationStats" class="sample-browser-view-content" style="display: none">
-                        <opencga-facet-view .opencgaSession="${this.opencgaSession}" entity="SAMPLE"
-                                            .variableSets="${this.variableSets}"></opencga-facet-view>
+                    <div id="${this._prefix}Summary" class="sample-browser-view-content" style="display: none">
+                         <opencb-facet-query resource="samples"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .cellbaseClient="${this.cellbaseClient}"  
+                                            .config="${this._config}"
+                                            .query="${this.executedQuery}"
+                                            .active="${this.SummaryActive}">
+                        </opencb-facet-query>
                     </div>
 
                     <div id="${this._prefix}SampleComparator" class="sample-browser-view-content" style="display: none">

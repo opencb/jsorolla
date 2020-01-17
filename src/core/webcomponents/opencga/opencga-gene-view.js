@@ -32,8 +32,7 @@ export default class OpencgaGeneView extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
-                type: Object,
-                observer: "geneChanged"
+                type: Object
             },
             cellbaseClient: {
                 type: Object
@@ -42,8 +41,7 @@ export default class OpencgaGeneView extends LitElement {
                 type: Object
             },
             gene: {
-                type: String,
-                observer: "geneChanged"
+                type: String
             },
             populationFrequencies: {
                 type: Array
@@ -55,20 +53,26 @@ export default class OpencgaGeneView extends LitElement {
                 type: Object
             },
             variant: {
-                type: String,
-                value: ""
+                type: String
             },
             config: {
                 type: Object
             },
             summary: {
                 type: Boolean
+            },
+            project: {
+                type: Object
+            },
+            study: {
+                type: Object
             }
         };
     }
 
     _init() {
         this._prefix = "geneView" + Utils.randomString(6) + "_";
+        this.variant = "";
     }
 
     updated(changedProperties) {
@@ -100,6 +104,7 @@ export default class OpencgaGeneView extends LitElement {
             this.cellbaseClient.getGeneClient(this.gene, "info", {exclude: "annotation"}, {})
                 .then(function(response) {
                     _this.geneObj = response.response[0].result[0];
+                    _this.requestUpdate();
                 });
         }
     }
@@ -139,7 +144,7 @@ export default class OpencgaGeneView extends LitElement {
     }
 
     render() {
-        return html`
+        return this.geneObj ? html`
         <style include="jso-styles">
             .gene-variant-tab-title {
                 font-size: 150%;
@@ -212,7 +217,7 @@ export default class OpencgaGeneView extends LitElement {
                             <tr>
                                 <td>${transcript.name}</td>
                                 <td>
-                                    <a href="#transcript/${this.project.alias}/${this.study.alias}/${this.transcript.id}">${this.transcript.id}</a>
+                                    <a href="#transcript/${this.project.alias}/${this.study.alias}/${transcript.id}">${transcript.id}</a>
                                 </td>
                                 <td>${transcript.biotype}</td>
                                 <td>
@@ -312,7 +317,7 @@ export default class OpencgaGeneView extends LitElement {
                 </variant-protein-view>
             </div>
         </div>
-        `;
+        ` : null;
     }
 
 }

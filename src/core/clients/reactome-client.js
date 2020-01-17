@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-class ReactomeClient {
+import {RestClient} from "./rest-client.js";
+
+export class ReactomeClient {
 
     constructor() {
         this.host = "https://reactome.org";
@@ -31,7 +33,7 @@ class ReactomeClient {
     }
 }
 
-class ContentService {
+export class ContentService {
 
     constructor(host) {
         this.host = host;
@@ -50,7 +52,7 @@ class ContentService {
 }
 
 // parent class
-class ReactomeParentClass {
+export class ReactomeParentClass {
 
     constructor(host) {
         this.host = host;
@@ -105,7 +107,7 @@ class ReactomeParentClass {
             if (method === "POST") {
                 _options.data = _params.body;
             }
-            return RestClient.callPromise(url, _options);
+            return RestClient.call(url, _options);
         }
     }
 
@@ -160,7 +162,7 @@ class ReactomeParentClass {
 
 }
 
-class MappingClient extends ReactomeParentClass {
+export class MappingClient extends ReactomeParentClass {
 
     constructor(host) {
         super(host);

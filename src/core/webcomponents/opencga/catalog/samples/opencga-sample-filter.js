@@ -89,6 +89,11 @@ export default class OpencgaSampleFilter extends LitElement {
         this.preparedQuery = {};
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+        this.preparedQuery = {...this.query} // propagates here the iva-app query object
+    }
+
     updated(changedProperties) {
         if(changedProperties.has("query")) {
             this.queryObserver()

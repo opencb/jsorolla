@@ -32,13 +32,20 @@ export class RestResponse {
             this.responses = response.responses || response.response;
 
             // TODO This is a small hack that can be activated if backward compatibility is needed. This shuold be removed in next 2.1.
-            this.response = this.responses;
-            for (let response of this.responses) {
-                response.dbTime = response.time;
-                response.numTotalResults = response.numMatches;
-                response.result = response.results;
-            }
+            this.params = this.queryOptions = response.params || response.queryOptions;
+            this.response = [];
+            this.responses.forEach( (response,i) => {
+                this.response[i] = response;
+                if(response.results) {
+                    this.response[i].result = response.results;
+                    if(response.time !== undefined) this.response[i].dbTime = response.time;
+                    if(response.numMatches !== undefined) this.response[i].numTotalResults = response.numMatches;
+                } else {
+                    this.response[i].results = response.result;
+                }
+            });
         } catch(e) {
+            console.error(e);
             throw new Error("Unexpected response format");
         }
     }
@@ -69,10 +76,10 @@ export class RestResponse {
      * @param {Number} responsePos The index of the response
      * @return {Object} The result
      */
-    getResponse = (responsePos = 0) => this.responses;
+    getResponse = (responsePos = 0) => this.responses[responsePos];
 
     /**
-     *  Return all results out of all responses in form of iterator
+     *  Return all results out of all responses (or a single node in case 'responsePos' is defined) in form of Iterator
      *  Consumer-side usage examples:
      *  <pre><code>
      *      for (let a of responseInstance.resultIterator()) {
@@ -118,7 +125,7 @@ export class RestResponse {
         /**
          * @param {Object} result Single result Object
          * @param {String} field Field to retrieve in dot notation
-         * @return {Array}
+         * @return {Object}
          */
         let getField = (result, field) => field.split('.').reduce((o, i) => o ? o[i]: o, result);
 

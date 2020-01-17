@@ -296,9 +296,9 @@ export default class OpencgaProjects extends LitElement {
             facet: "studies"
         }, {}));
         Promise.all([...results]).then( response => {
-            //response.pop() //TODO remove with sleep
+            //response.pop() //remove along with sleep
 
-            console.log("res", JSON.stringify(response));
+            //console.log("res", JSON.stringify(response));
             const data = response.map( (projectFacet, i) => ({
                 project: this.projects[i].name,
                 data: projectFacet.response[0].result[0].results[0]
@@ -340,7 +340,7 @@ export default class OpencgaProjects extends LitElement {
                 min: 0,
                 plotLines: [{
                     color: 'green',
-                    //TODO temp solution. It shows the total count for the first project only
+                    //TODO temp solution. It shows the total count for the first project only (replace this point with a line (no splined))
                     value: facetData.find( point => point.name === "count").data[0],
                     width: 1,
                     zIndex: 2

@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import  {LitElement, html} from "/web_modules/lit-element.js";
 import "./opencga-file-filter.js";
 import "./opencga-file-grid.js";
 import "../../opencga-active-filters.js";
 import "../variableSets/opencga-annotation-comparator.js";
+import "../../../commons/opencb-facet-query.js";
 import "../../commons/opencga-facet-view.js";
 
 //TODO check functionality (notify usage)
@@ -40,11 +41,11 @@ export default class OpencgaFileBrowser extends LitElement {
             },
             filters: {
                 type: Object,
-                notify: true
+                //notify: true
             },
             search: {
                 type: Object,
-                notify: true
+                //notify: true
             },
             config: {
                 type: Object
@@ -76,7 +77,7 @@ export default class OpencgaFileBrowser extends LitElement {
             this.configObserver();
         }
         if(changedProperties.has("opencgaSession") || changedProperties.has("config")) {
-            this.filterAvailableVariableSets(this.opencgaSession, this.config);
+            this.filterAvailableVariableSets();
         }
         if (changedProperties.has("query")) {
             this.queryObserver();
@@ -88,6 +89,7 @@ export default class OpencgaFileBrowser extends LitElement {
     }
 
     queryObserver() {
+        console.log(this.query)
         if (UtilsNew.isNotUndefinedOrNull(this.query)) {
             this.preparedQuery = {...this.query};
             this.executedQuery ={...this.query};
@@ -126,12 +128,15 @@ export default class OpencgaFileBrowser extends LitElement {
         $('.file-browser-view-buttons').removeClass("active");
         $(e.target).addClass("active");
 
-        // if (e.target.dataset.view === "AggregationStats") {
-        //     this.executeFacet();
-        // }
+        if (e.target.dataset.view === "Summary") {
+            this.SummaryActive = true;
+            this.requestUpdate();
+        } else {
+            this.SummaryActive = false;
+        }
     }
 
-    filterAvailableVariableSets(opencgaSession, config) {
+    filterAvailableVariableSets() {
         this._config = Object.assign(this.getDefaultConfig(), this.config);
 
         if (this._config.disableVariableSets) {
@@ -140,16 +145,17 @@ export default class OpencgaFileBrowser extends LitElement {
         }
 
         if (this._config.variableSetIds.length === 0) {
-            this.variableSets = opencgaSession.study.variableSets;
+            this.variableSets = this.opencgaSession.study.variableSets;
         } else {
             let variableSets = [];
-            for (let i = 0; i < opencgaSession.study.variableSets.length; i++) {
-                if (this._config.variableSetIds.indexOf(opencgaSession.study.variableSets[i].id) !== -1) {
-                    variableSets.push(opencgaSession.study.variableSets[i]);
+            for (let i = 0; i < this.opencgaSession.study.variableSets.length; i++) {
+                if (this._config.variableSetIds.indexOf(this.opencgaSession.study.variableSets[i].id) !== -1) {
+                    variableSets.push(this.opencgaSession.study.variableSets[i]);
                 }
             }
             this.variableSets = variableSets;
         }
+        this.requestUpdate();
     }
 
     isNotEmpty(myArray) {
@@ -157,7 +163,6 @@ export default class OpencgaFileBrowser extends LitElement {
     }
 
     onQueryFilterChange(e) {
-        console.log("onQueryFilterChange on sample browser", e.detail.query);
         this.preparedQuery = e.detail.query;
         this.requestUpdate();
     }
@@ -180,10 +185,6 @@ export default class OpencgaFileBrowser extends LitElement {
         //this.search = {};
         this.preparedQuery = {};
         this.requestUpdate();
-    }
-
-    onDownload() {
-        console.log("handle download")
     }
 
     getDefaultConfig() {
@@ -257,14 +258,15 @@ export default class OpencgaFileBrowser extends LitElement {
                 <div class="col-md-12" style="padding: 5px 0px 5px 0px">
                     <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px;margin-left: 0px">
                         <div class="btn-group" role="group" style="margin-left: 0px">
-                            <button type="button" class="btn btn-success file-browser-view-buttons active" data-view="TableResult" @click="${this._changeView}">
+                            <button type="button" class="btn btn-success file-browser-view-buttons active ripple" data-view="TableResult" @click="${this._changeView}">
                                 <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" @click="${this._changeView}"></i> Table Result
                             </button>
-                            <button type="button" class="btn btn-success file-browser-view-buttons" data-view="AggregationStats" @click="${this._changeView}">
-                                <i class="fa fa-line-chart icon-padding" aria-hidden="true" data-view="AggregationStats" @click="${this._changeView}"></i> Aggregation Stats
+                            <button type="button" class="btn btn-success file-browser-view-button ripple" data-view="Summary"
+                                @click="${this._changeView}">
+                                <i class="fas fa-chart-bar icon-padding" aria-hidden="true" data-view="Summary" @click="${this._changeView}"></i> Summary Stats
                             </button>
                             ${this.isNotEmpty(this.variableSets) ? html`
-                                <button type="button" class="btn btn-success file-browser-view-buttons" data-view="FileComparator" @click="${this._changeView}">
+                                <button type="button" class="btn btn-success file-browser-view-buttons ripple" data-view="FileComparator" @click="${this._changeView}">
                                     <i class="fa fa-users icon-padding" aria-hidden="true" data-view="FileComparator" @click="${this._changeView}"></i> File Comparator
                                 </button>
                             ` : null}
@@ -320,13 +322,13 @@ export default class OpencgaFileBrowser extends LitElement {
 
                     </div>
 
-                    <div id="${this._prefix}AggregationStats" class="file-browser-view-content" style="display: none">
-                        
-                        <opencb-facet-query .opencgaSession="${this.opencgaSession}"
+                    <div id="${this._prefix}Summary" class="file-browser-view-content" style="display: none">
+                        <opencb-facet-query resource="files"
+                                            .opencgaSession="${this.opencgaSession}"
                                             .cellbaseClient="${this.cellbaseClient}"  
+                                            .config="${this._config}"
                                             .query="${this.executedQuery}"
-                                            .active="${this.SummaryActive}"
-                                             >
+                                            .active="${this.SummaryActive}">
                         </opencb-facet-query>
                         <!-- @deprecated                        
                         <opencga-facet-view .opencgaClient="${this.opencgaSession.opencgaClient}"

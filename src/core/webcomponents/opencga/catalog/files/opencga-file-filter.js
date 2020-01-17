@@ -92,6 +92,11 @@ export default class OpencgaFileFilter extends LitElement {
 
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+        this.preparedQuery = {...this.query} // propagates here the iva-app query object
+    }
+
     updated(changedProperties) {
         if (changedProperties.has("query")) {
             this.queryObserver();
@@ -156,6 +161,7 @@ export default class OpencgaFileFilter extends LitElement {
         // Empty everything before rendering
         this._clearHtmlDom();
 
+        console.log(this.querySelector(`${this._prefix}-name-input`))
         // File name
         if (UtilsNew.isNotUndefined(this.query.name)) {
             PolymerUtils.setValue(`${this._prefix}-name-input`, this.query.name);

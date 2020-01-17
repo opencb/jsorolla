@@ -17,6 +17,7 @@
 // TODO check functionality (this.set and this.push has been replaced)
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "../../../commons/opencb-grid-toolbar.js";
+import {RestResponse} from "../../../../clients/RestResponse.js";
 
 export default class OpencgaSampleGrid extends LitElement {
 
@@ -168,19 +169,21 @@ export default class OpencgaSampleGrid extends LitElement {
                     return Object.assign(filters, auxParams);
                 },
                 responseHandler: function(response) {
+                    let rr = new RestResponse(response);
+                    console.log(rr)
                     if (!skipCount) {
                         if (!_this.hasOwnProperty("numTotalResults")) {
                             _this.numTotalResults = 0;
                         }
-                        if (_this.numTotalResults !== response.response[0].numTotalResults &&
+                        if (_this.numTotalResults !== rr.getResponse().numTotalResults &&
                             response.queryOptions.skip === 0) {
-                            _this.numTotalResults = response.response[0].numTotalResults;
+                            _this.numTotalResults = rr.getResponse().numTotalResults;
                         }
                     }
 
                     _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-                    if (response.queryOptions.skip === 0 && _this.numTotalResults < response.queryOptions.limit) {
+                    if (rr.queryOptions.skip === 0 && _this.numTotalResults < rr.queryOptions.limit) {
                         _this.from = 1;
                         _this.to = _this.numTotalResults;
                     }
@@ -189,7 +192,7 @@ export default class OpencgaSampleGrid extends LitElement {
 
                     return {
                         total: _this.numTotalResults,
-                        rows: response.response[0].result
+                        rows: rr.getResult(0)
                     };
                 },
                 onClickRow: function(row, element, field) {

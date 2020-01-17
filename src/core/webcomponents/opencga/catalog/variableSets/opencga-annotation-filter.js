@@ -49,7 +49,6 @@ export default class OpencgaAnnotationFilter extends LitElement {
         //this.selectedVariable = {}
     }
 
-    //connectedCallback in Polyer 2
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
@@ -57,7 +56,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
         // Components are already set. We will override with the classes from the configuration file
         PolymerUtils.addClassById(`${this._prefix}-main-annotation-filter-div`, [this._config.class]);
 
-    //TODO recheck it was renderDomRepeat()
+        //TODO recheck it was renderDomRepeat()
         $('select.selectpicker').selectpicker('render');
         $('select.selectpicker').selectpicker('refresh');
         $('select.selectpicker').selectpicker('deselectAll');

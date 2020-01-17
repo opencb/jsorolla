@@ -121,6 +121,8 @@ export default class OpencgaVariantFilter extends LitElement {
                 this.onSearch();
             }
         });
+
+        this.preparedQuery = {...this.query} // propagates here the iva-app query object
     }
 
     //it was connectedCallback() in polymer 2

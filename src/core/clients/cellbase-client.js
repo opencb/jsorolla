@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-/**
- * Created by imedina on 18/03/16.
- */
+import {RestClient} from "./rest-client.js";
 
-class CellBaseClientConfig {
+export class CellBaseClientConfig {
 
     constructor(hosts = ["bioinfo.hpc.cam.ac.uk/cellbase", "www.ebi.ac.uk/cellbase"], version = "v3", species = "hsapiens") {
         this.setHosts(hosts);
@@ -46,7 +44,7 @@ class CellBaseClientConfig {
 
 }
 
-class CellBaseClient {
+export class CellBaseClient {
 
     constructor(config) {
         if (typeof config === "undefined") {
@@ -107,7 +105,7 @@ class CellBaseClient {
         //     }
         // };
         // response = RestClient.call(url, options);
-        return RestClient.callPromise(url, options);
+        return RestClient.call(url, options);
     }
 
     getFiles(folderId, resource, params, options) {
@@ -131,7 +129,7 @@ class CellBaseClient {
         if (typeof queryParamsUrl !== "undefined" && queryParamsUrl !== null && queryParamsUrl !== "") {
             url += `?${queryParamsUrl}`;
         }
-        return RestClient.callPromise(url, options);
+        return RestClient.call(url, options);
     }
 
     getGeneClient(id, resource, params, options) {
@@ -323,7 +321,7 @@ class CellBaseClient {
         };
 
         // response = RestClient.call(url, options);
-        response = RestClient.callPromise(url, options);
+        response = RestClient.call(url, options);
         return response;
     }
 

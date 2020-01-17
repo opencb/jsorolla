@@ -16,6 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "../../../commons/opencb-grid-toolbar.js";
+import "../../../../loading-spinner.js";
+
 
 // todo check functionality and notify usage
 
@@ -124,12 +126,29 @@ export default class OpencgaFileGrid extends LitElement {
             const _this = this;
             $("#" + this._prefix + "FileBrowserGrid").bootstrapTable("destroy");
             $("#" + this._prefix + "FileBrowserGrid").bootstrapTable({
-                url: opencgaHostUrl,
+                //url: opencgaHostUrl,
                 columns: _this._columns,
                 method: "get",
                 sidePagination: "server",
                 uniqueId: "id",
-
+                formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+                ajax: (params) => {
+                    if (this.pageNumber > 1) {
+                        skipCount = true;
+                    }
+                    let filters = {
+                        study: this.opencgaSession.study.fqn,
+                        sid: Cookies.get(this.opencgaSession.opencgaClient.getConfig().cookieSessionId),
+                        type: "FILE",
+                        order: params.data.order,
+                        limit: params.data.limit,
+                        skip: params.data.offset || 0,
+                        skipCount: this.pageNumber > 1,
+                        include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
+                        ...this.search
+                    };
+                    this.opencgaSession.opencgaClient.files().search(filters).then( res => params.success(res));
+                },
                 // Table properties
                 pagination: _this._config.pagination,
                 pageSize: _this._config.pageSize,
@@ -138,14 +157,13 @@ export default class OpencgaFileGrid extends LitElement {
                 detailView: _this._config.detailView,
                 detailFormatter: _this._config.detailFormatter,
 
-                queryParams: function(params) {
+                //it is not used anymore
+                /*queryParams: function(params) {
                     if (this.pageNumber > 1) {
                         skipCount = true;
                     }
-
                     const auxParams = {
                         study: _this.opencgaSession.study.fqn,
-                        //                                lazy: "false",
                         sid: Cookies.get(_this.opencgaSession.opencgaClient.getConfig().cookieSessionId),
                         order: params.order,
                         sort: params.sort,
@@ -159,7 +177,7 @@ export default class OpencgaFileGrid extends LitElement {
                         filters = {};
                     }
                     return Object.assign(filters, auxParams);
-                },
+                },*/
                 responseHandler: function(response) {
                     if (!skipCount) {
                         if (!_this.hasOwnProperty("numTotalResults")) {

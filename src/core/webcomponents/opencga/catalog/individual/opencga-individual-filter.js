@@ -93,6 +93,11 @@ export default class OpencgaIndividualFilter extends LitElement {
 
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+        this.preparedQuery = {...this.query} // propagates here the iva-app query object
+    }
+
     updated(changedProperties) {
         if(changedProperties.has("query")) {
             this.queryObserver();

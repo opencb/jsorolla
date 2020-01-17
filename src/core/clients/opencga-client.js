@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-class OpenCGAClientConfig {
+import {RestClient} from "./rest-client.js";
+import {RestResponse} from "./RestResponse.js";
+
+export class OpenCGAClientConfig {
 
     constructor(host = "172.24.193.208:8080/opencga", version = "v1", useCookies = true, cookiePrefix = "catalog") {
         this.host = host;
@@ -42,120 +45,104 @@ class OpenCGAClientConfig {
 }
 
 
-class OpenCGAClient {
+export class OpenCGAClient {
 
-    constructor(config = {}, cookiePrefix = "opencga") {
-        this._config = new OpenCGAClientConfig(...config);
-        // this._config = {getDefaultClientConfiguration(), ...config);
-
+    constructor(config = {}) {
+        this._config = {...this.getDefaultConfig(), ...config};
         this.clients = new Map();
     }
 
-    // TODO Think about this sooner than later.
-    // getDefaultClientConfiguration() {
-    //     return {
-    //         host: "",
-    //         version: "",
-    //         timeout: 0,
-    //     }
-    // }
-    //
-    // check() {
-    //     // TODO check OpeCGA URL and other variables.
-    // }
+    //TODO remove OpenCGAClientConfig
+    getDefaultConfig() {
+        return {
+            cookiePrefix: "opencga"
+        };
+    }
+
+    check() {
+        // TODO check OpeCGA URL and other variables.
+    }
 
     /*
-     * Client factory singleton functions
+     * Client singleton functions
      */
-
-    // users() {
-    //     if (this.clients.get("users") === "undefined") {
-    //         this.clients.set("users", new Users(this._config));
-    //     }
-    //     return this.clients.get("users");
-    // }
     users() {
+        if (!this.clients.has("users"))
+            this.clients.set("users", new Users(this._config));
+        return this.clients.get("users");
+    }
+    /*users() {
         if (typeof this._users === "undefined") {
+            console.log("user client config",this._config)
             this._users = new Users(this._config);
         }
         return this._users;
-    }
+    }*/
 
     projects() {
-        if (typeof this._projects === "undefined") {
-            this._projects = new Projects(this._config);
-        }
-        return this._projects;
+        if (!this.clients.has("projects"))
+            this.clients.set("projects", new Projects(this._config));
+        return this.clients.get("projects");
     }
 
     studies() {
-        if (typeof this._studies === "undefined") {
-            this._studies = new Studies(this._config);
-        }
-        return this._studies;
+        if (!this.clients.has("studies"))
+            this.clients.set("studies", new Studies(this._config));
+        return this.clients.get("studies");
     }
 
     files() {
-        if (typeof this._files === "undefined") {
-            this._files = new Files(this._config);
-        }
-        return this._files;
+        if (!this.clients.has("files"))
+            this.clients.set("files", new Files(this._config));
+        return this.clients.get("files");
     }
 
     jobs() {
-        if (typeof this._jobs === "undefined") {
-            this._jobs = new Jobs(this._config);
-        }
-        return this._jobs;
+        if (!this.clients.has("jobs"))
+            this.clients.set("jobs", new Jobs(this._config));
+        return this.clients.get("jobs");
     }
 
     samples() {
-        if (typeof this._samples === "undefined") {
-            this._samples = new Samples(this._config);
-        }
-        return this._samples;
+        if (!this.clients.has("samples"))
+            this.clients.set("samples", new Samples(this._config));
+        return this.clients.get("samples");
     }
 
     cohorts() {
-        if (typeof this._cohorts === "undefined") {
-            this._cohorts = new Cohorts(this._config);
-        }
-        return this._cohorts;
+        if (!this.clients.has("cohorts"))
+            this.clients.set("cohorts", new Cohorts(this._config));
+        return this.clients.get("cohorts");
     }
 
     individuals() {
-        if (typeof this._individuals === "undefined") {
-            this._individuals = new Individuals(this._config);
-        }
-        return this._individuals;
+        if (!this.clients.has("individuals"))
+            this.clients.set("individuals", new Individuals(this._config));
+        return this.clients.get("individuals");
     }
 
     families() {
-        if (typeof this._families === "undefined") {
-            this._families = new Families(this._config);
-        }
-        return this._families;
+        if (!this.clients.has("families"))
+            this.clients.set("families", new Families(this._config));
+        return this.clients.get("families");
     }
 
     panels() {
-        if (typeof this._panels === "undefined") {
-            this._panels = new Panels(this._config);
-        }
-        return this._panels;
+        if (!this.clients.has("panels"))
+            this.clients.set("panels", new Panels(this._config));
+        return this.clients.get("panels");
     }
 
     meta() {
-        if (typeof this._meta === "undefined") {
-            this._meta = new Meta(this._config);
-        }
-        return this._meta;
+        if (!this.clients.has("meta"))
+            this.clients.set("meta", new Meta(this._config));
+        return this.clients.get("meta");
     }
 
     admin() {
-        if (typeof this._admin === "undefined") {
-            this._admin = new Admin(this._config);
-        }
-        return this._admin;
+        if (!this.clients.has("admin"))
+            this.clients.set("admin", new Admin(this._config));
+        return this.clients.get("admin");
     }
 
     // interpretations() {
@@ -173,90 +160,94 @@ class OpenCGAClient {
     // }
 
     // Analysis
+    //TODO change class to plural
     alignments() {
-        if (typeof this._alignments === "undefined") {
-            this._alignments = new Alignment(this._config);
-        }
-        return this._alignments;
+        if (!this.clients.has("alignments"))
+            this.clients.set("alignments", new Alignment(this._config));
+        return this.clients.get("alignments");
     }
 
     variants() {
-        if (typeof this._variants === "undefined") {
-            this._variants = new Variant(this._config);
-        }
-        return this._variants;
+        if (!this.clients.has("variants"))
+            this.clients.set("variants", new Variant(this._config));
+        return this.clients.get("variants");
     }
 
     clinical() {
-        if (typeof this._clinical === "undefined") {
-            this._clinical = new Clinical(this._config);
-        }
-        return this._clinical;
+        if (!this.clients.has("clinical"))
+            this.clients.set("clinical", new Clinical(this._config));
+        return this.clients.get("clinical");
     }
 
     variantOperations() {
-        if (typeof this.variantOperations === "undefined") {
-            this.variantOperations = new VariantOperations(this._config);
-        }
-        return this.variantOperations;
+        if (!this.clients.has("variantOperations"))
+            this.clients.set("variantOperations", new VariantOperations(this._config));
+        return this.clients.get("variantOperations");
     }
 
     // GA4GH
     ga4gh() {
-        if (typeof this._ga4gh === "undefined") {
-            this._ga4gh = new Ga4gh(this._config);
-        }
-        return this._ga4gh;
+        if (!this.clients.has("ga4gh"))
+            this.clients.set("ga4gh", new Ga4gh(this._config));
+        return this.clients.get("ga4gh");
     }
 
-    login(userId, password) {
-        // Encrypt password
-        let encryptedPass = CryptoJS.SHA256(password).toString();
-        if (this._config.useCookies) {
-            let cookieSession = Cookies.get(this._config.cookieSessionId);
-            let cookieUser = Cookies.get(this._config.cookieUserId);
-            let cookiePass = Cookies.get(this._config.cookiePassword);
-            let loginResponse = Cookies.get(this._config.cookieLoginResponse);
+    async login(userId, password) {
 
-            if (cookieUser !== undefined && cookieUser === userId && cookiePass !== undefined && cookiePass === encryptedPass
-                && cookieSession !== undefined && loginResponse !== undefined) {
-                console.log("Credentials taken from cookies");
-                return Promise.resolve(JSON.parse(loginResponse));
-            }
-        }
-        return this.users.login(userId, password).then(function(response) {
-            this._login(response);
-        }.bind(this));
-    }
+        try {
+            /*if (this._config.useCookies) {
+                let cookieSession = Cookies.get(this._config.cookieSessionId);
+                let cookieUser = Cookies.get(this._config.cookieUserId);
+                let cookiePass = Cookies.get(this._config.cookiePassword);
+                let loginResponse = Cookies.get(this._config.cookieLoginResponse);
 
-    // refresh only works if cookies are enabled
-    refresh() {
-        let userId = this.getUserId();
+                if (cookieUser !== undefined && cookieUser === userId && cookiePass !== undefined && cookiePass === encryptedPass
+                    && cookieSession !== undefined && loginResponse !== undefined) {
+                    console.log("Credentials taken from cookies");
+                    return Promise.resolve(JSON.parse(loginResponse));
+                }
+            }*/
+            const response = await this.users().login(userId, password);
+            const restResponse = new RestResponse(response);
+            const encryptedPass = CryptoJS.SHA256(password).toString();
 
-        return this.users.login(userId, null, {}).then(function(response) {
-            this._login(response);
-        }.bind(this));
-    }
-
-    _login() {
-        // 1. check response
-        // 2. set cookies
-        if (response.error === "") {
+            //TODO search for Errors in restResponse.events
+            //TODO if password is not defined use token?
             this._config.userId = userId;
-            this._config.sessionId = response.response[0].result[0].id;
+            this._config.sessionId = restResponse.getResult(0).token;
 
             // Cookies being used
             if (this._config.useCookies) {
-                Cookies.set(this._config.cookieSessionId, response.response[0].result[0].id);
+                console.log("Cookies being used");
+                Cookies.set(this._config.cookieSessionId, this._config.sessionId);
                 Cookies.set(this._config.cookieUserId, userId);
-                Cookies.set(this._config.cookiePassword, encryptedPass);
-                Cookies.set(this._config.cookieLoginResponse, JSON.stringify(response));
+                //Cookies.set(this._config.cookiePassword, encryptedPass);
+                //Cookies.set(this._config.cookieLoginResponse, JSON.stringify(response));
             }
 
-            // this.clients.forEach(value => value.setToken)
-            // OpenCGAParentClass.token("asasasas");
-            return response;
+            this.clients.forEach(client => client.setToken(this._config.sessionId));
+            return restResponse;
+
+        } catch (e) {
+            console.error(e);
+
         }
+    }
+
+    // refresh only works if cookies are enabled
+    async refresh() {
+        let userId = this.getUserId();
+        const response = await this.users().login(userId);
+        const restResponse = new RestResponse(response);
+        if (this._config.useCookies) {
+            this._config.sessionId = restResponse.getResult(0).token;
+            Cookies.set(this._config.cookieSessionId, this._config.sessionId);
+            Cookies.set(this._config.cookieUserId, userId);
+            //Cookies.set(this._config.cookiePassword, encryptedPass);
+            //Cookies.set(this._config.cookieLoginResponse, JSON.stringify(response));
+        }
+        this.clients.forEach(client => client.setToken(this._config.sessionId));
+        return restResponse;
     }
 
     logout() {
@@ -264,18 +255,17 @@ class OpenCGAClient {
         this._config.sessionId = "";
 
         // Remove cookies
-        if (this._config.hasOwnProperty("cookieUserId")) {
+        if (this._config.cookieUserId) {
+            delete this._config.userId;
+            delete  this._config.sessionId;
+
             Cookies.expire(this._config.cookieSessionId);
             Cookies.expire(this._config.cookieUserId);
             Cookies.expire(this._config.cookiePassword);
             Cookies.expire(this._config.cookieLoginResponse);
         }
-
         return Promise.resolve();
     }
-
-
-
 
     /**
      * Creates and return an anonymous session object, it is a sync function.
@@ -296,12 +286,13 @@ class OpenCGAClient {
         return opencgaSession;
     }
 
-
     /**
      * Creates an authenticated session for the user and token of the current OpenCGAClient. The token is taken from the
      * opencgaClient object itself.
      * @returns {Promise<any>}
      */
+
+    //TODO refactor
     createSession() {
         let _this = this;
         return new Promise(function(resolve, reject) {
@@ -311,6 +302,7 @@ class OpenCGAClient {
                 _this.users().info()
                     .then(function(response) {
                         let session = {};
+                        console.log("response",response)
                         session.user = response.response[0].result[0];
                         session.token = _this._config.sessionId;
                         session.date = new Date().toISOString();
@@ -323,7 +315,9 @@ class OpenCGAClient {
 
                         // Fetch authorised Projects and Studies
                         _this.projects().search({})
-                            .then(function (response) {
+                            .then(function(response) {
+                                console.log("response",response)
+                                let res = new RestResponse(response);
                                 session.projects = response.response[0].result;
                                 if (UtilsNew.isNotEmptyArray(session.projects) && UtilsNew.isNotEmptyArray(session.projects[0].studies)) {
                                     let studies = [];
@@ -356,8 +350,8 @@ class OpenCGAClient {
                                         let promise = _this.panels().search({
                                             study: study,
                                             include: "id,name,stats,source,genes.id,genes.name,regions.id"
-                                        }).then(function (response) {
-                                            return response.response[0].result;
+                                        }).then(function(response) {
+                                            return new RestResponse(response).getResult(0);
                                         });
                                         panelPromises.push(promise);
                                     }
@@ -378,7 +372,7 @@ class OpenCGAClient {
                                 }
                                 resolve(session);
                             })
-                            .catch(function (response) {
+                            .catch(function(response) {
                                 reject({message: "An error when getting projects", value: response});
                             });
                     });
@@ -388,6 +382,18 @@ class OpenCGAClient {
         });
     }
 
+    checkCookie() {
+
+    }
+
+    //TODO remove setter
+    getConfig() {
+        return this._config;
+    }
+
+    setConfig(config) {
+        this._config = config;
+    }
 
     getUserId() {
         if (this._config.hasOwnProperty("cookieUserId")) { // The app is using cookies
@@ -416,28 +422,40 @@ class OpenCGAClient {
 class OpenCGAParentClass {
 
     constructor(config) {
-        this._config = config;
-        this.token = undefined;
+        if (config === "undefined") {
+            this._config = new OpenCGAClientConfig();
+        } else {
+            this._config = config;
+        }
+        this.token = null;
     }
 
     post(category, ids, action, params, body, options) {
         return this.extendedPost(category, ids, null, null, action, params, body, options);
     }
 
-    extendedPost(category1, ids1, category2, ids2, action, params, body, options) {
-        let _options = options;
-        if (typeof _options === "undefined") {
-            _options = {};
+    extendedPost(category1, ids1, category2, ids2, action, params = {}, body, options = {}) {
+        const host = this._config.host;
+        const version = this._config.version;
+        const rpc = this._config.rpc;
+        let _options = {...options, method: "POST"};
+        if(this._config.sessionId) {
+            _options.sid = this._config.sessionId;
         }
-        _options.method = "POST";
-        let _params = params;
-
-        if (typeof _params === "undefined") {
-            _params = {};
+        let _params = {...params, body: body};
+        if (rpc.toLowerCase() === "rest") {
+            let url = this._createRestUrl(host, version, category1, ids1, category2, ids2, action);
+            url = this._addQueryParams(url, _params);
+            _options.data = _params.body;
+            if (action === "upload") {
+                _options["post-method"] = "form";
+            }
+            // console.log(`OpenCGA client calling to ${url}`);
+            // if the URL query fails we try with next host
+            return RestClient.call(url, _options);
+        } else {
+            console.error("rpc NON-REST")
         }
-        _params.body = body;
-        //TODO why extendedPost returns a method called extendedGet..
-        return this.extendedGet(category1, ids1, category2, ids2, action, _params, _options);
     }
 
     get(category, ids, action, params, options) {
@@ -490,7 +508,7 @@ class OpenCGAParentClass {
             }
             // console.log(`OpenCGA client calling to ${url}`);
             // if the URL query fails we try with next host
-            return RestClient.callPromise(url, _options);
+            return RestClient.call(url, _options);
         }
     }
 
@@ -562,23 +580,31 @@ class OpenCGAParentClass {
         return undefined;
     }
 
+    setToken(token) {
+        this.token = token;
+    }
+
+    getToken() {
+        return this.token;
+    }
+
 }
 
-class Acls extends OpenCGAParentClass {
+/*class Acls extends OpenCGAParentClass {
 
     constructor(config) {
         super(config);
     }
 
     getAcl(category, id, params) {
-        return this.get(category, id, "acl", params);
+        return this.extendedGet(category, id, null,null, "acl", params);
     }
 
     updateAcl(category, members, params, body) {
         return this.extendedPost(category, null, "acl", members, "update", params, body);
     }
 
-}
+}*/
 
 class Users extends OpenCGAParentClass {
 
@@ -591,6 +617,10 @@ class Users extends OpenCGAParentClass {
     }
 
     login(userId, password) {
+        return this.extendedPost("users", userId, null, null, "login", {}, password ? {password: password} : {});
+    }
+
+    /*login(userId, password) {
         let params = {
             body: {
                 password: password
@@ -630,9 +660,9 @@ class Users extends OpenCGAParentClass {
                 return response;
             }
         }.bind(this));
-    }
+    }*/
 
-    // refresh only works if cookies are enabled
+    /*// refresh only works if cookies are enabled
     refresh() {
         let userId = this._getUserId();
 
@@ -651,14 +681,14 @@ class Users extends OpenCGAParentClass {
                 return response;
             }
         }.bind(this));
-    }
+    }*/
 
-    logout() {
+    /*logout() {
         this._config.userId = "";
         this._config.sessionId = "";
 
         // Remove cookies
-        if (this._config.hasOwnProperty("cookieUserId")) {
+        if (this._config.cookieUserId) {
             Cookies.expire(this._config.cookieSessionId);
             Cookies.expire(this._config.cookieUserId);
             Cookies.expire(this._config.cookiePassword);
@@ -666,33 +696,33 @@ class Users extends OpenCGAParentClass {
         }
 
         return Promise.resolve();
-    }
+    }*/
 
     changeEmail(newMail) {
         let params = {
             nemail: newMail
         };
-        return this.get("users", this._getUserId(), "change-email", params);
+        return this.extendedGet("users", this._getUserId(), null, null, "change-email", params);
     }
 
     update(params, body, options) {
-        return this.post("users", this._getUserId(), "update", params, body, options);
+        return this.extendedPost("users", this._getUserId(), null, null, "update", params, body, options);
     }
 
     resetPassword() {
-        return this.get("users", this._getUserId(), "reset-password");
+        return this.extendedGet("users", this._getUserId(), null, null, "reset-password");
     }
 
-    info(params, options) {
-        return new RestResponse(this.get("users", this._getUserId(), "info", params, options));
+    async info(params, options) {
+        return new RestResponse(await this.extendedGet("users", this._getUserId(), null, null, "info", params, options));
     }
 
     getProjects(userId, params, options) {
-        return this.get("users", userId, "projects", params, options);
+        return this.extendedGet("users", userId, null, null, "projects", params, options);
     }
 
     remove(userId, params, options) {
-        return this.get("users", userId, "delete", params, options);
+        return this.extendedGet("users", userId, null, null, "delete", params, options);
     }
 
     // Filters
@@ -797,8 +827,8 @@ class Projects extends OpenCGAParentClass {
         return this.get("projects", ids, "stats", params, options);
     }
 
-    search(params, options) {
-        return this.get("projects", undefined, "search", params, options);
+    async search(params, options) {
+        return new RestResponse(await this.get("projects", undefined, "search", params, options));
     }
 
     getStudies(id, params, options) {
@@ -815,7 +845,7 @@ class Projects extends OpenCGAParentClass {
 
 }
 
-class Studies extends Acls {
+class Studies extends OpenCGAParentClass {
 
     constructor(config) {
         super(config);
@@ -901,6 +931,14 @@ class Studies extends Acls {
         return this.post("studies", id, "update", params, body, options);
     }
 
+    getAcl(category, id, params) {
+        return this.extendedGet(category, id, null,null, "acl", params);
+    }
+
+    updateAcl(category, members, params, body) {
+        return this.extendedPost(category, null, "acl", members, "update", params, body);
+    }
+
     /*
     * @deprecated since version 1.4.0. Use variants().query() instead.
     * */
@@ -917,26 +955,26 @@ class Studies extends Acls {
 
 }
 
-class Files extends Acls {
+class Files extends OpenCGAParentClass {
 
     constructor(config) {
         super(config);
     }
 
-    search(params, options) {
-        return this.get("files", undefined, "search", params, options);
+    async search(params, options) {
+        return new RestResponse(await this.extendedGet("files", undefined, null, null, "search", params, options));
     }
 
-    stats(params, options) {
-        return this.get("files", undefined, "stats", params, options);
+    async stats(params, options) {
+        return new RestResponse(await this.extendedGet("files", undefined, null, null,"stats", params, options));
     }
 
     link(params, options) {
         return this.get("files", undefined, "link", params, options);
     }
 
-    info(id, params, options) {
-        return this.get("files", id, "info", params, options);
+    async info(id, params, options) {
+        return new RestResponse(await this.get("files", id, "info", params, options));
     }
 
     groupBy(params, options) {
@@ -1011,9 +1049,17 @@ class Files extends Acls {
         return this.extendedPost("files", id, "annotationSets", annotationSet, "annotations/update", params, body, {});
     }
 
+    getAcl(category, id, params) {
+        return this.extendedGet(category, id, null,null, "acl", params);
+    }
+
+    updateAcl(category, members, params, body) {
+        return this.extendedPost(category, null, "acl", members, "update", params, body);
+    }
+
 }
 
-class Jobs extends Acls {
+class Jobs extends OpenCGAParentClass {
 
     constructor(config) {
         super(config);
@@ -1043,9 +1089,17 @@ class Jobs extends Acls {
         return this.get("jobs", undefined, "search", params, options);
     }
 
+    getAcl(category, id, params) {
+        return this.extendedGet(category, id, null,null, "acl", params);
+    }
+
+    updateAcl(category, members, params, body) {
+        return this.extendedPost(category, null, "acl", members, "update", params, body);
+    }
+
 }
 
-class Individuals extends Acls {
+class Individuals extends OpenCGAParentClass {
 
     constructor(config) {
         super(config);
@@ -1075,6 +1129,14 @@ class Individuals extends Acls {
         return this.get("individuals", id, "delete", params, options);
     }
 
+    getAcl(category, id, params) {
+        return this.extendedGet(category, id, null,null, "acl", params);
+    }
+
+    updateAcl(category, members, params, body) {
+        return this.extendedPost(category, null, "acl", members, "update", params, body);
+    }
+
     /*
     * @deprecated since version 1.4.0. Use update() instead.
     * */
@@ -1095,7 +1157,7 @@ class Individuals extends Acls {
 
 }
 
-class Families extends Acls {
+class Families extends OpenCGAParentClass {
 
     constructor(config) {
         super(config);
@@ -1121,6 +1183,18 @@ class Families extends Acls {
         return this.post("families", id, "update", params, body, options);
     }
 
+    getAcl(category, id, params) {
+        return this.extendedGet(category, id, null,null, "acl", params);
+    }
+
+    updateAcl(category, members, params, body) {
+        return this.extendedPost(category, null, "acl", members, "update", params, body);
+    }
+
+    updateAnnotationSetAnnotations(id, annotationSet, params, body) {
+        return this.extendedPost("families", id, "annotationSets", annotationSet, "annotations/update", params, body, {});
+    }
+
     /*
     * @deprecated since version 1.4.0. Use update() instead.
     * */
@@ -1135,13 +1209,10 @@ class Families extends Acls {
         return this.extendedPost("families", id, "annotationsets", name, "update", params, body, options);
     }
 
-    updateAnnotationSetAnnotations(id, annotationSet, params, body) {
-        return this.extendedPost("families", id, "annotationSets", annotationSet, "annotations/update", params, body, {});
-    }
 
 }
 
-class Samples extends Acls {
+class Samples extends OpenCGAParentClass {
 
     constructor(config) {
         super(config);
@@ -1179,6 +1250,18 @@ class Samples extends Acls {
         return this.get("samples", id, "delete", params, options);
     }
 
+    getAcl(category, id, params) {
+        return this.extendedGet(category, id, null,null, "acl", params);
+    }
+
+    updateAcl(category, members, params, body) {
+        return this.extendedPost(category, null, "acl", members, "update", params, body);
+    }
+
+    updateAnnotationSetAnnotations(id, annotationSet, params, body) {
+        return this.extendedPost("samples", id, "annotationSets", annotationSet, "annotations/update", params, body, {});
+    }
+
     /*
     * @deprecated since version 1.4.0. Use update() instead.
     * */
@@ -1193,9 +1276,7 @@ class Samples extends Acls {
         return this.extendedPost("samples", id, "annotationsets", name, "update", params, body, options);
     }
 
-    updateAnnotationSetAnnotations(id, annotationSet, params, body) {
-        return this.extendedPost("samples", id, "annotationSets", annotationSet, "annotations/update", params, body, {});
-    }
+
 
 }
 
@@ -1234,7 +1315,7 @@ class Variables extends OpenCGAParentClass {
 
 }
 
-class Cohorts extends Acls {
+class Cohorts extends OpenCGAParentClass {
 
     constructor(config) {
         super(config);
@@ -1276,9 +1357,16 @@ class Cohorts extends Acls {
         return this.extendedPost("cohorts", id, "annotationsets", name, "update", params, body, options);
     }
 
+    getAcl(category, id, params) {
+        return this.extendedGet(category, id, null,null, "acl", params);
+    }
+
+    updateAcl(category, members, params, body) {
+        return this.extendedPost(category, null, "acl", members, "update", params, body);
+    }
 }
 
-class Panels extends Acls {
+class Panels extends OpenCGAParentClass {
 
     constructor(config) {
         super(config);
@@ -1296,9 +1384,17 @@ class Panels extends Acls {
         return this.get("panels", id, "info", params, options);
     }
 
+    getAcl(category, id, params) {
+        return this.extendedGet(category, id, null,null, "acl", params);
+    }
+
+    updateAcl(category, members, params, body) {
+        return this.extendedPost(category, null, "acl", members, "update", params, body);
+    }
+
 }
 
-class Clinical extends Acls {
+class Clinical extends OpenCGAParentClass {
 
     constructor(config) {
         super(config);
@@ -1320,6 +1416,14 @@ class Clinical extends Acls {
         return this.get("analysis/clinical", undefined, "search", params, options);
     }
 
+    getAcl(category, id, params) {
+        return this.extendedGet(category, id, null,null, "acl", params);
+    }
+
+    updateAcl(category, members, params, body) {
+        return this.extendedPost(category, null, "acl", members, "update", params, body);
+    }
+
 }
 
 class Interpretation extends OpenCGAParentClass {
@@ -1333,7 +1437,6 @@ class Interpretation extends OpenCGAParentClass {
         _params["action"] = "ADD";
         return this.extendedPost("analysis/clinical", clinicalAnalysis, "interpretations", undefined, "update", _params, body, options);
     }
-
 }
 
 class Alignment extends OpenCGAParentClass {

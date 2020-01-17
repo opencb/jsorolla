@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import {RestResponse} from "../../../clients/RestResponse.js";
 
 export default class OpencgaLogin extends LitElement {
 
@@ -71,37 +72,42 @@ export default class OpencgaLogin extends LitElement {
             const user = document.getElementById("opencgaUser").value;
             const pass = document.getElementById("opencgaPassword").value;
             const _this = this;
-            this.opencgaClient.users().login(user, pass)
+            this.opencgaClient.login(user, pass)
                 .then(function(response) {
 
-                    document.getElementById("opencgaUser").value = "";
-                    document.getElementById("opencgaPassword").value = "";
-                    const sessionId = response.response[0].result[0].id;
-                    const decoded = jwt_decode(sessionId); // TODO expose as module
-                    const dateExpired = new Date(decoded.exp * 1000);
-                    const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss"); // TODO expose as module
+                    try {
+                        document.getElementById("opencgaUser").value = "";
+                        document.getElementById("opencgaPassword").value = "";
+                        console.log("response", response)
+                        const sessionId = new RestResponse(response).getResult(0).token;
+                        const decoded = jwt_decode(sessionId); // TODO expose as module
+                        const dateExpired = new Date(decoded.exp * 1000);
+                        const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss"); // TODO expose as module
 
 
-                    _this.dispatchEvent(new CustomEvent("login", {
-                        detail: {
-                            userId: user,
-                            sessionId: sessionId
-                        },
-                        bubbles: true,
-                        composed: true
-                    }));
-
-                    _this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
-                        detail: {
-                            message: "Welcome " + user +". Your session is valid until " + validTimeSessionId,
-                            options: {
-                                icon: "fa fa-user"
+                        _this.dispatchEvent(new CustomEvent("login", {
+                            detail: {
+                                userId: user,
+                                sessionId: sessionId
                             },
-                            type: UtilsNew.MESSAGE_SUCCESS
-                        },
-                        bubbles: true,
-                        composed: true
-                    }));
+                            bubbles: true,
+                            composed: true
+                        }));
+
+                        _this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
+                            detail: {
+                                message: "Welcome " + user + ". Your session is valid until " + validTimeSessionId,
+                                options: {
+                                    icon: "fa fa-user"
+                                },
+                                type: UtilsNew.MESSAGE_SUCCESS
+                            },
+                            bubbles: true,
+                            composed: true
+                        }));
+                    } catch (e) {
+                        console.error(e);
+                    }
                 })
                 .catch(function(response) {
                     const _message = this.errorMessage = response.error || "Login error. Please check your credentials.";
@@ -132,11 +138,15 @@ export default class OpencgaLogin extends LitElement {
             }
 
             .input-login {
-                /*min-width: 200px;*/
+                border-left: 0;
             }
 
-            .label-login {
-                /*color: rgb(142, 128, 125);*/
+            #formLogin .input-group-addon{
+                background: none;
+            }
+            
+            .has-error .form-control:focus {
+            
             }
         </style>
         <div class="container-fluid">
@@ -158,7 +168,7 @@ export default class OpencgaLogin extends LitElement {
                         <div class="form-group">
                             <label for="opencgaPassword" class="control-label label-login">Password</label>
                             <div class="input-group">
-                                <span class="input-group-addon" id="password">
+                                <span class="input-group-addon " id="password">
                                     <i class="fa fa-key"></i>
                                 </span>
                                 <input id="opencgaPassword" value="${this.password}" type="password" maxlength="20" class="form-control input-login"
@@ -167,7 +177,7 @@ export default class OpencgaLogin extends LitElement {
                         </div>
 
                         <div class="form-group">
-                            <button type="submit" class="btn btn-lg btn-default btn-block ripple">${this.buttonText}</button>
+                            <button type="submit" class="btn btn-lg btn-primary btn-block ripple">${this.buttonText}</button>
                         </div>
 
                     </form>

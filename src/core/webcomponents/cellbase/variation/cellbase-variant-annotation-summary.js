@@ -103,7 +103,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
 
     variantAnnotationChanged(neo, old) {
         let _this = this;
-debugger
+        //debugger
         if (typeof this.data !== "undefined") {
             if (UtilsNew.isEmpty(_this.data.reference)) {
                 _this.data.reference = "-";
@@ -134,7 +134,7 @@ debugger
 
             // PSS
             let proteinSubScore = {};
-            debugger
+            //debugger
             if (typeof _this.data.consequenceTypes !== "undefined") {
                 let min = 10;
                 let max = 0;
@@ -171,7 +171,7 @@ debugger
                 $("#" + _this._prefix + "Polyphen").css("color", "black");
             }
             _this.proteinSubScore = proteinSubScore;
-            debugger
+            //debugger
             // CADD
             if (typeof _this.data.functionalScore !== "undefined") {
                 for (let i in _this.data.functionalScore) {
@@ -199,7 +199,7 @@ debugger
         if (this.data === undefined || this.data === "" || this.proteinSubScore === undefined) {
             return;
         }
-        debugger
+        //debugger
         return html`
             <div>
                 <style include="jso-styles">

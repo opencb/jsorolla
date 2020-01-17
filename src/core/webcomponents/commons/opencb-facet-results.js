@@ -53,6 +53,12 @@ class OpencbFacetResults extends LitElement {
             },
             data: {
                 type: Object
+            },
+            loading: {
+                type: Boolean
+            },
+            errorState: {
+                type: String
             }
         };
     }
@@ -60,22 +66,9 @@ class OpencbFacetResults extends LitElement {
     _init() {
         this._prefix = "facet-results" + Utils.randomString(6);
 
-        // this.checkProjects = true;
-
-        // These are for making the queries to server
-        this.facetFields = [];
-        this.facetRanges = [];
-
-        this.facetFieldsName = [];
-        this.facetRangeFields = [];
-
-        this.results = [];
         this._showInitMessage = true;
 
         this.facets = new Set();
-        this.facetFilters = [];
-
-        this.facetConfig = {a: 1};
         this.facetActive = true;
 
         this._config = this.getDefaultConfig();
@@ -118,56 +111,6 @@ class OpencbFacetResults extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    addDefaultStats(e) {
-        for (let i = 0; i < this._config.defaultStats.fields.length; i++) {
-            this.facets.add(this._config.defaultStats.fields[i]);
-        }
-        this.facetFilters = Array.from(this.facets);
-        this.requestUpdate();
-    }
-
-    fetchDefaultData() {
-        //this.facetResults is reset in queryObserver
-        if(this.active && !this.facetResults.length) {
-            this.addDefaultStats();
-            this.fetchData();
-        }
-    }
-
-    fetchData() {
-        if (UtilsNew.isUndefinedOrNull(this.opencgaSession.opencgaClient)) {
-            console.log("opencgaClient is null or undefined");
-            return;
-        }
-
-        PolymerUtils.hide(this._prefix + "Warning");
-
-        this.clearPlots();
-        this.querySelector("#loading").style.display = "block";
-
-        // Join 'query' from left menu and facet filters
-        let queryParams = {...this.query,
-            study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
-            sid: this.opencgaSession.opencgaClient._config.sessionId,
-            fields: this.facetFilters.join(";"),
-            timeout: 60000};
-
-        console.warn("queryParams", queryParams);
-        this.opencgaSession.opencgaClient.variants().aggregationStats(queryParams, {})
-            .then(queryResponse => {
-                this.facetResults = queryResponse.response[0].result[0].results;
-                this.querySelector("#loading").style.display = "none";
-                this._showInitMessage = false;
-            })
-            .catch(function(e) {
-                console.log(e);
-                this.querySelector("#loading").style.display = "none";
-                this._showInitMessage = false;
-            })
-            .finally(() => this.requestUpdate());
-
-    }
-
     clearPlots() {
         if (UtilsNew.isNotUndefined(this.results) && this.results.length > 0) {
             for (let result of this.results) {
@@ -193,15 +136,6 @@ class OpencbFacetResults extends LitElement {
         this._showInitMessage = true;
 
         this.requestUpdate();
-    }
-
-    facetSearch() {
-        //query.study = this.opencgaSession.study.fqn;
-        this.dispatchEvent(new CustomEvent("facetSearch", {
-            detail: this.query,
-            bubbles: true,
-            composed: true
-        }));
     }
 
     //TODO add default configuration for file, sample, individual, family, cohort, clinical analysis
@@ -231,25 +165,25 @@ class OpencbFacetResults extends LitElement {
         </style>
 
         <div class="row">
-            
-                    <div id="loading" style="display: none">
-                        <loading-spinner></loading-spinner>
-                    </div>
-                    ${this._showInitMessage ? html`
-                        <!--<h4>No facet filters selected</h4>-->
-                    ` : html`
-                        ${this.data.map(item => html`
-                            <div>
-                                <h3>${item.name}</h3>
-                                <opencga-facet-result-view .facetResult="${item}"
-                                                           .config="${this.facetConfig}"
-                                                           ?active="${this.facetActive}">
-                                </opencga-facet-result-view>
-                            </div>
-                        `)}
-                    `}
+            ${this.loading ? html`
+                <div id="loading">
+                    <loading-spinner></loading-spinner>
                 </div>
-            </div>
+            ` : null }
+            ${this.errorState ? html`
+                <div id="error" class="alert alert-danger" role="alert">
+                    ${this.errorState}
+                </div>
+            ` : null}
+            ${this.data && this.data.length ? this.data.map(item => html`
+                <div>
+                    <h3>${item.name}</h3>
+                    <opencga-facet-result-view .facetResult="${item}"
+                            .config="${this.facetConfig}"
+                            ?active="${this.facetActive}">
+                    </opencga-facet-result-view>
+                </div>
+            `) : html``}
         </div>
     `;
     }
