@@ -45,11 +45,11 @@ export default class OpencgaSampleFilter extends LitElement {
             },
             samples: {
                 type: Array,
-                notify: true //todo check notify and replace with _didRender() https://github.com/Polymer/lit-element/issues/81
+                //notify: true //todo check notify and replace with _didRender() https://github.com/Polymer/lit-element/issues/81
             },
             query: {
                 type: Object,
-                notify: true, //todo check notify
+                //notify: true, //todo check notify
             },
             variableSets: {
                 type: Array
@@ -87,6 +87,7 @@ export default class OpencgaSampleFilter extends LitElement {
 
         this.query = {};
         this.preparedQuery = {};
+        this.searchButton = true
     }
 
     connectedCallback() {

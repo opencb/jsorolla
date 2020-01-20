@@ -261,7 +261,7 @@ export default class OpencgaFileBrowser extends LitElement {
                             <button type="button" class="btn btn-success file-browser-view-buttons active ripple" data-view="TableResult" @click="${this._changeView}">
                                 <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" @click="${this._changeView}"></i> Table Result
                             </button>
-                            <button type="button" class="btn btn-success file-browser-view-button ripple" data-view="Summary"
+                            <button type="button" class="btn btn-success file-browser-view-buttons ripple" data-view="Summary"
                                 @click="${this._changeView}">
                                 <i class="fas fa-chart-bar icon-padding" aria-hidden="true" data-view="Summary" @click="${this._changeView}"></i> Summary Stats
                             </button>

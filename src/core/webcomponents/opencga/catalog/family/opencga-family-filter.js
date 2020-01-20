@@ -319,7 +319,7 @@ export default class OpencgaFamilyFilter extends LitElement {
             </div>
             ` : null}
 
-        <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true" style="padding-top: 20px">
+        <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
 
             <!-- Family field attributes -->
             <div class="panel panel-default">

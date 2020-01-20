@@ -86,13 +86,12 @@ export default class OpencgaCohortGrid extends LitElement {
 
         // this.set('cohorts', []);
         this.cohorts = [];
-        let filters = Object.assign({}, this.search);
+        let filters = {...this.query};
 
         this.from = 1;
         this.to = 10;
 
-        if (UtilsNew.isNotUndefined(this.opencgaClient) && UtilsNew.isNotUndefined(this.opencgaSession.study) &&
-            UtilsNew.isNotUndefined(this.opencgaSession.study.fqn)) {
+        if (this.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
 
             filters.study = this.opencgaSession.study.fqn;
             if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
@@ -101,7 +100,7 @@ export default class OpencgaCohortGrid extends LitElement {
                 return;
             }
             // Store the current filters
-            this.lastFilters = Object.assign({}, filters);
+            this.lastFilters = {...filters};
 
             // Make a copy of the cohorts (if they exist), we will use this private copy until it is assigned to this.cohorts
             if (UtilsNew.isNotUndefined(this.cohorts)) {
@@ -111,11 +110,11 @@ export default class OpencgaCohortGrid extends LitElement {
             }
 
             // Check that HTTP protocol is present and complete the URL
-            let opencgaHostUrl = this.opencgaClient.getConfig().host;
+/*            let opencgaHostUrl = this.opencgaClient.getConfig().host;
             if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
                 opencgaHostUrl = "http://" + opencgaHostUrl;
             }
-            opencgaHostUrl += "/webservices/rest/v1/cohorts/search";
+            opencgaHostUrl += "/webservices/rest/v1/cohorts/search";*/
 
             let skipCount = false;
 
@@ -124,7 +123,7 @@ export default class OpencgaCohortGrid extends LitElement {
             const _this = this;
             $("#" + this._prefix + "CohortBrowserGrid").bootstrapTable("destroy");
             $("#" + this._prefix + "CohortBrowserGrid").bootstrapTable({
-                url: opencgaHostUrl,
+                //url: opencgaHostUrl,
                 columns: _this._columns,
                 method: "get",
                 sidePagination: "server",
@@ -137,7 +136,7 @@ export default class OpencgaCohortGrid extends LitElement {
                 showExport: _this._config.showExport,
                 detailView: _this._config.detailView,
                 detailFormatter: _this._config.detailFormatter,
-
+/*
                 queryParams: function(params) {
                     if (this.pageNumber > 1) {
                         skipCount = true;
@@ -157,21 +156,39 @@ export default class OpencgaCohortGrid extends LitElement {
                         filters = {};
                     }
                     return Object.assign(filters, auxParams);
+                },*/
+                formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+                ajax: (params) => {
+                    if (this.pageNumber > 1) {
+                        skipCount = true;
+                    }
+                    let _filters = {
+                        //study: this.opencgaSession.study.fqn,
+                        order: params.data.order,
+                        limit: params.data.limit,
+                        skip: params.data.offset || 0,
+                        skipCount: skipCount,
+                        include: "id,creationDate,status,type,samples",
+                        ...filters
+                    };
+                    this.opencgaSession.opencgaClient.cohorts().search(_filters)
+                        .then( res => params.success(res))
+                        .catch( e => console.error(e)) ;
                 },
                 responseHandler: function(response) {
                     if (!skipCount) {
                         if (!_this.hasOwnProperty("numTotalResults")) {
                             _this.numTotalResults = 0;
                         }
-                        if (_this.numTotalResults !== response.response[0].numTotalResults &&
+                        if (_this.numTotalResults !== response.getResponse().numTotalResults &&
                             response.queryOptions.skip === 0) {
-                            _this.numTotalResults = response.response[0].numTotalResults;
+                            _this.numTotalResults = response.getResponse().numTotalResults;
                         }
                     }
 
                     _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-                    if (response.queryOptions.skip === 0 && _this.numTotalResults < response.queryOptions.limit) {
+                    if (response.getParams().skip === 0 && _this.numTotalResults < response.getParams().limit) {
                         _this.from = 1;
                         _this.to = _this.numTotalResults;
                     }
@@ -180,7 +197,7 @@ export default class OpencgaCohortGrid extends LitElement {
 
                     return {
                         total: _this.numTotalResults,
-                        rows: response.response[0].result
+                        rows: response.getResults()
                     };
                 },
                 onClickRow: function(row, element, field) {

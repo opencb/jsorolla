@@ -313,17 +313,22 @@ export default class OpencgaFacet extends LitElement {
 
     async onFacetFieldChange(e) {
         let currentSelectionNames = e.detail.value ? e.detail.value.split(",") : [];
-        //compute the symmetric difference between this.selectedFacet and currentSelection
+        //compute the symmetric difference between this.selectedFacet and currentSelectionNames
         let differences = Object.keys(this.selectedFacet)
             .filter(a => !currentSelectionNames.includes(a))
             .concat(currentSelectionNames.filter(name => !Object.keys(this.selectedFacet).includes(name)));
+
+        //the difference involves one item a time
         if (differences.length > 1) console.error("Difference error!", this.selectedFacet, currentSelectionNames);
+
         let difference = differences[0];
         //addition
         if (currentSelectionNames.length > Object.keys(this.selectedFacet).length) {
             console.log("addition of", difference);
+
             //Array.find() cannot be nested..
             //let newField = this._config.fields.find(field => field.fields ? field.fields.find(nested => nested === difference) : field.name === difference);
+
             //console.log(this._config.fields, difference)
             let newField = this._recursiveFind(this._config.fields, difference);
             console.log("newField", newField)

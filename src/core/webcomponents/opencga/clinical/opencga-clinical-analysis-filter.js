@@ -290,7 +290,7 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
                 </button>
         </div>
 
-        <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true" style="padding-top: 20px">
+        <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
 
             <!-- ClinicalAnalysis field attributes -->
             <div class="panel panel-default">

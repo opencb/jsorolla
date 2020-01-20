@@ -138,12 +138,12 @@ export default class OpencgaFileGrid extends LitElement {
                     }
                     let filters = {
                         study: this.opencgaSession.study.fqn,
-                        sid: Cookies.get(this.opencgaSession.opencgaClient.getConfig().cookieSessionId),
+                        //sid: Cookies.get(this.opencgaSession.opencgaClient.getConfig().cookieSessionId),
                         type: "FILE",
                         order: params.data.order,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
-                        skipCount: this.pageNumber > 1,
+                        skipCount: skipCount,
                         include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
                         ...this.search
                     };

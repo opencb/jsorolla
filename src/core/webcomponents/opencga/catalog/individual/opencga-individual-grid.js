@@ -99,17 +99,16 @@ export default class OpencgaIndividualGrid extends LitElement {
         this.from = 1;
         this.to = this._config.pageSize;
 
-        if (UtilsNew.isNotUndefined(this.opencgaClient) && UtilsNew.isNotUndefined(this.opencgaSession.study)
-            && UtilsNew.isNotUndefined(this.opencgaSession.study.fqn)) {
+        if (this.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
 
             filters.study = this.opencgaSession.study.fqn;
-            if (UtilsNew.isNotUndefinedOrNull(this.lastFilters)
-                && JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
+            if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
+                JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
                 // Abort destroying and creating again the grid. The filters have not changed
                 return;
             }
             // Store the current filters
-            this.lastFilters = Object.assign({}, filters);
+            this.lastFilters = {...filters};
 
             // Make a copy of the individuals (if they exist), we will use this private copy until it is assigned to this.individuals
             if (UtilsNew.isNotUndefined(this.individuals)) {
@@ -119,11 +118,12 @@ export default class OpencgaIndividualGrid extends LitElement {
             }
 
             // Check that HTTP protocol is present and complete the URL
-            let opencgaHostUrl = this.opencgaClient.getConfig().host;
+            /*let opencgaHostUrl = this.opencgaClient.getConfig().host;
             if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
                 opencgaHostUrl = "http://" + opencgaHostUrl;
             }
             opencgaHostUrl += "/webservices/rest/v1/individuals/search";
+            */
 
             let skipCount = false;
 
@@ -132,7 +132,7 @@ export default class OpencgaIndividualGrid extends LitElement {
             let _this = this;
             $("#" + this._prefix + "IndividualBrowserGrid").bootstrapTable("destroy");
             $("#" + this._prefix + "IndividualBrowserGrid").bootstrapTable({
-                url: opencgaHostUrl,
+                //url: opencgaHostUrl,
                 columns: _this._columns,
                 method: "get",
                 sidePagination: "server",
@@ -148,8 +148,7 @@ export default class OpencgaIndividualGrid extends LitElement {
 
                 // Make Polymer components avalaible to table formatters
                 gridContext: _this,
-
-                queryParams: function(params) {
+                /*queryParams: function(params) {
                     if (this.pageNumber > 1) {
                         skipCount = true;
                     }
@@ -170,22 +169,38 @@ export default class OpencgaIndividualGrid extends LitElement {
                         filters = {};
                     }
                     return Object.assign({}, filters, auxParams);
+                },*/
+                formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+                ajax: (params) => {
+                    if (this.pageNumber > 1) {
+                        skipCount = true;
+                    }
+                    let _filters = {
+                        //study: this.opencgaSession.study.fqn,
+                        order: params.data.order,
+                        limit: params.data.limit,
+                        skip: params.data.offset || 0,
+                        skipCount: skipCount,
+                        ...filters
+                    };
+                    this.opencgaSession.opencgaClient.individuals().search(_filters)
+                        .then( res => params.success(res))
+                        .catch( e => console.error(e)) ;
                 },
                 responseHandler: function(response) {
                     if (!skipCount) {
                         if (!_this.hasOwnProperty("numTotalResults")) {
                             _this.numTotalResults = 0;
                         }
-                        if (_this.numTotalResults !== response.response[0].numTotalResults
-                            && response.queryOptions.skip === 0) {
-                            _this.numTotalResults = response.response[0].numTotalResults;
+                        if (_this.numTotalResults !== response.getResponse().numTotalResults &&
+                            response.queryOptions.skip === 0) {
+                            _this.numTotalResults = response.getResponse().numTotalResults;
                         }
                     }
 
-                    // Set the num total rows in a human readable format
                     _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-                    if (response.queryOptions.skip === 0 && _this.numTotalResults < response.queryOptions.limit) {
+                    if (response.getParams().skip === 0 && _this.numTotalResults < response.getParams().limit) {
                         _this.from = 1;
                         _this.to = _this.numTotalResults;
                     }
@@ -194,7 +209,7 @@ export default class OpencgaIndividualGrid extends LitElement {
 
                     return {
                         total: _this.numTotalResults,
-                        rows: response.response[0].result
+                        rows: response.getResults()
                     };
                 },
                 onClickRow: function(row, element, field) {
@@ -386,6 +401,7 @@ export default class OpencgaIndividualGrid extends LitElement {
     }
 
     _onSelectIndividual(row, event) {
+        console.log("row, event", row, event)
         if (UtilsNew.isNotUndefinedOrNull(row)) {
             if (UtilsNew.isUndefinedOrNull(event) || event !== "onLoad") {
                 this.dispatchEvent(new CustomEvent("selectindividual", {

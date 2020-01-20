@@ -33,11 +33,12 @@ export class RestClientAxios {
     static async call(url, options = {}) {
         try {
 
+            //console.log("URL", url, "OPTIONS", options)
             //in case of authentication header
             let auth = options && options.sid ? { Authorization: `Bearer ${options.sid}` } : null;
 
             //in case of formData
-            let reqContentType = {};
+            let reqContentType = { 'Content-Type': 'application/json',};
             if(options && options["post-method"] === "form") {
                 const formData = new URLSearchParams();
                 for (let [k, v] in Object.entries(options.data)) {
@@ -46,10 +47,17 @@ export class RestClientAxios {
                 reqContentType = {'content-type': 'application/x-www-form-urlencoded'};
             }
             //in case of GET request with params
-            //console.log(options.method)
+            console.log(options)
             let queryString = options && options.data && (!options.method || options.method === "GET") ? `?${this.encodeObject(options.data)}` : "";
 
             console.time(`REST call to ${url}`);
+
+
+            console.log("PARAMS", {url: url + queryString,
+                //method: "GET",
+                headers: {...auth, ...reqContentType},
+                auth,
+                ...options});
 
             const response = await axios.request({
                 url: url + queryString,

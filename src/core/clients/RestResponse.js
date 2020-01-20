@@ -25,6 +25,7 @@ export class RestResponse {
      */
     constructor(response) {
         try {
+            //console.log("REST response", response)
             this.apiVersion = response.apiVersion;
             this.time = response.time;
             this.events = response.events;
@@ -58,7 +59,7 @@ export class RestResponse {
     getResults = (responsePos = 0) => this.responses[responsePos].results;
 
     /**
-     * Return the result object of the specified node (default = 0) and the specified index.
+     * Return the result object of the node specified by responsePos (default = 0) and the index specified by resultPos.
      * @param {Number} resultPos The index of the node to get the results from
      * @param {Number} [responsePos=0] The index of the result
      * @return {Object} The result
@@ -79,7 +80,13 @@ export class RestResponse {
     getResponse = (responsePos = 0) => this.responses[responsePos];
 
     /**
-     *  Return all results out of all responses (or a single node in case 'responsePos' is defined) in form of Iterator
+     * Return the params of the request
+     * @return {Object} The params
+     */
+    getParams = () => this.params;
+
+    /**
+     *  Return all results out of all responses (or from a single node in case 'responsePos' is defined) in form of Iterator
      *  Consumer-side usage examples:
      *  <pre><code>
      *      for (let a of responseInstance.resultIterator()) {
@@ -87,9 +94,9 @@ export class RestResponse {
      *      }
      * </code></pre>
      *      let a, it = responseInstance.resultIterator();
-     *          while(!(a = it.next()).done) {
-     *              console.log(a)
-     *          }
+     *      while(!(a = it.next()).done) {
+     *          console.log(a)
+     *      }
      *
      * console.log(...responseInstance.resultIterator())
      *
@@ -127,7 +134,7 @@ export class RestResponse {
          * @param {String} field Field to retrieve in dot notation
          * @return {Object}
          */
-        let getField = (result, field) => field.split('.').reduce((o, i) => o ? o[i]: o, result);
+        const getField = (result, field) => field.split('.').reduce((o, i) => o ? o[i]: o, result);
 
         return this.responses[responsePos].result.map( result => {
             return Object.assign({}, ...fields.split(",").map( field => ({[field]: getField(result, field)})));
@@ -136,7 +143,7 @@ export class RestResponse {
 
     /**
      * @param {string} [eventType] The type of the event to be retrieved
-     * @return {Object | Array} The retrieved event object or the list of event in case of no eventType defined.
+     * @return {Object | Array} The retrieved event object or the list of events in case of no eventType defined.
      */
     getEvents(eventType) {
         const eventNames = ['INFO', 'WARNING', 'ERROR'];
@@ -184,31 +191,31 @@ export class RestResponse {
      * @param {Number} [responsePos] The node index
      * @return {Number} The total number of matches
      */
-    getNumMatches = (responsePos) => this.count("numMatches", responsePos);
+    getNumMatches = responsePos => this.count("numMatches", responsePos);
 
     /**
      * @param {Number} [responsePos] The node index
      * @return {Number} The total number of results
      */
-    getNumResults = (responsePos) => this.count("numResults", responsePos);
+    getNumResults = responsePos => this.count("numResults", responsePos);
 
     /**
      * @param {Number} [responsePos] The node index
      * @return {Number} The total number of item inserted
      */
-    getNumInserted = (responsePos) => this.count("numInserted", responsePos);
+    getNumInserted = responsePos => this.count("numInserted", responsePos);
 
     /**
      * @param {Number} [responsePos] The node index
      * @return {Number} The total number of item updated
      */
-    getNumUpdated = (responsePos) => this.count("numUpdated", responsePos);
+    getNumUpdated = responsePos => this.count("numUpdated", responsePos);
 
     /**
      * @param {Number} [responsePos] The node index
      * @return {Number} The total number of item deleted
      */
-    getNumDeleted = (responsePos) => this.count("numDeleted", responsePos);
+    getNumDeleted = responsePos => this.count("numDeleted", responsePos);
 
 }
 

@@ -356,7 +356,7 @@ class OpencbFacetQuery extends LitElement {
             ${this.active ? html` 
             <div class="col-md-12">
                 <div>
-                    <button type="button" class="btn btn-primary ripple pull-right" disabled @click="${this.facetSearch}">Run Advanced facet query</button>
+                    <button type="button" class="btn btn-primary ripple pull-right" @click="${this.facetSearch}">Run Advanced facet query</button>
                 </div>
                 <div >
                     <h2>Results</h2>

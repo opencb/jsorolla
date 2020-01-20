@@ -1,3 +1,4 @@
+import {RestResponse} from "./RestResponse.js";
 
 export class RestClientXmlhttp {
 
@@ -86,7 +87,7 @@ export class RestClientXmlhttp {
                             options.success(dataResponse);
                         }
                         console.timeEnd(`REST call to ${url}`);
-                        resolve(dataResponse);
+                        resolve( new RestResponse(dataResponse));
                     } else if (contentType.startsWith("text/plain")) {
                         resolve(this.response);
 

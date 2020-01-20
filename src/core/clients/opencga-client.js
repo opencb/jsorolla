@@ -582,6 +582,7 @@ class OpenCGAParentClass {
 
     setToken(token) {
         this.token = token;
+        this._config.sessionId = token;
     }
 
     getToken() {
@@ -713,8 +714,8 @@ class Users extends OpenCGAParentClass {
         return this.extendedGet("users", this._getUserId(), null, null, "reset-password");
     }
 
-    async info(params, options) {
-        return new RestResponse(await this.extendedGet("users", this._getUserId(), null, null, "info", params, options));
+    info(params, options) {
+        return this.extendedGet("users", this._getUserId(), null, null, "info", params, options);
     }
 
     getProjects(userId, params, options) {
@@ -827,8 +828,8 @@ class Projects extends OpenCGAParentClass {
         return this.get("projects", ids, "stats", params, options);
     }
 
-    async search(params, options) {
-        return new RestResponse(await this.get("projects", undefined, "search", params, options));
+    search(params, options) {
+        return this.get("projects", undefined, "search", params, options);
     }
 
     getStudies(id, params, options) {
@@ -961,20 +962,20 @@ class Files extends OpenCGAParentClass {
         super(config);
     }
 
-    async search(params, options) {
-        return new RestResponse(await this.extendedGet("files", undefined, null, null, "search", params, options));
+    search(params, options) {
+        return this.extendedGet("files", undefined, null, null, "search", params, options);
     }
 
-    async stats(params, options) {
-        return new RestResponse(await this.extendedGet("files", undefined, null, null,"stats", params, options));
+    stats(params, options) {
+        return this.extendedGet("files", undefined, null, null,"stats", params, options);
     }
 
     link(params, options) {
         return this.get("files", undefined, "link", params, options);
     }
 
-    async info(id, params, options) {
-        return new RestResponse(await this.get("files", id, "info", params, options));
+    info(id, params, options) {
+        return this.get("files", id, "info", params, options);
     }
 
     groupBy(params, options) {

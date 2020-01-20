@@ -17,7 +17,6 @@
 // TODO check functionality (this.set and this.push has been replaced)
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "../../../commons/opencb-grid-toolbar.js";
-import {RestResponse} from "../../../../clients/RestResponse.js";
 
 export default class OpencgaSampleGrid extends LitElement {
 
@@ -95,13 +94,12 @@ export default class OpencgaSampleGrid extends LitElement {
 
         this.samples = [];
 
-        let filters = Object.assign({}, this.query);
+        let filters = {...this.query};
 
         this.from = 1;
         this.to = 10;
 
-        if (UtilsNew.isNotUndefined(this.opencgaClient) && UtilsNew.isNotUndefined(this.opencgaSession.study) &&
-            UtilsNew.isNotUndefined(this.opencgaSession.study.fqn)) {
+        if (this.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
 
             filters["study"] = this.opencgaSession.study.fqn;
             if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
@@ -110,7 +108,7 @@ export default class OpencgaSampleGrid extends LitElement {
                 return;
             }
             // Store the current filters
-            this.lastFilters = Object.assign({}, filters);
+            this.lastFilters = {...filters};
 
             // Make a copy of the samples (if they exist), we will use this private copy until it is assigned to this.samples
             if (UtilsNew.isNotUndefined(this.samples)) {
@@ -120,11 +118,11 @@ export default class OpencgaSampleGrid extends LitElement {
             }
 
             // Check that HTTP protocol is present and complete the URL
-            let opencgaHostUrl = this.opencgaClient.getConfig().host;
+            /*let opencgaHostUrl = this.opencgaClient.getConfig().host;
             if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
                 opencgaHostUrl = "http://" + opencgaHostUrl;
             }
-            opencgaHostUrl += "/webservices/rest/v1/samples/search";
+            opencgaHostUrl += "/webservices/rest/v1/samples/search";*/
 
             let skipCount = false;
 
@@ -133,7 +131,7 @@ export default class OpencgaSampleGrid extends LitElement {
             const _this = this;
             $("#" + this._prefix + "SampleBrowserGrid").bootstrapTable("destroy");
             $("#" + this._prefix + "SampleBrowserGrid").bootstrapTable({
-                url: opencgaHostUrl,
+                //url: opencgaHostUrl,
                 columns: _this._columns,
                 method: "get",
                 sidePagination: "server",
@@ -146,8 +144,7 @@ export default class OpencgaSampleGrid extends LitElement {
                 showExport: _this._config.showExport,
                 detailView: _this._config.detailView,
                 detailFormatter: _this._config.detailFormatter,
-
-                queryParams: function(params) {
+                /*queryParams: function(params) {
                     if (this.pageNumber > 1) {
                         skipCount = true;
                     }
@@ -167,23 +164,38 @@ export default class OpencgaSampleGrid extends LitElement {
                         filters = {};
                     }
                     return Object.assign(filters, auxParams);
+                },*/
+                formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+                ajax: (params) => {
+                    if (this.pageNumber > 1) {
+                        skipCount = true;
+                    }
+                    let _filters = {
+                        //study: this.opencgaSession.study.fqn,
+                        order: params.data.order,
+                        limit: params.data.limit,
+                        skip: params.data.offset || 0,
+                        skipCount: this.pageNumber > 1,
+                        ...filters
+                    };
+                    this.opencgaSession.opencgaClient.samples().search(_filters)
+                        .then( res => params.success(res))
+                        .catch( e => console.error(e)) ;
                 },
                 responseHandler: function(response) {
-                    let rr = new RestResponse(response);
-                    console.log(rr)
                     if (!skipCount) {
                         if (!_this.hasOwnProperty("numTotalResults")) {
                             _this.numTotalResults = 0;
                         }
-                        if (_this.numTotalResults !== rr.getResponse().numTotalResults &&
+                        if (_this.numTotalResults !== response.getResponse().numTotalResults &&
                             response.queryOptions.skip === 0) {
-                            _this.numTotalResults = rr.getResponse().numTotalResults;
+                            _this.numTotalResults = response.getResponse().numTotalResults;
                         }
                     }
 
                     _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-                    if (rr.queryOptions.skip === 0 && _this.numTotalResults < rr.queryOptions.limit) {
+                    if (response.getParams().skip === 0 && _this.numTotalResults < response.getParams().limit) {
                         _this.from = 1;
                         _this.to = _this.numTotalResults;
                     }
@@ -192,7 +204,7 @@ export default class OpencgaSampleGrid extends LitElement {
 
                     return {
                         total: _this.numTotalResults,
-                        rows: rr.getResult(0)
+                        rows: response.getResults()
                     };
                 },
                 onClickRow: function(row, element, field) {

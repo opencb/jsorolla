@@ -194,7 +194,6 @@ export default class OpencgaVariantGrid extends LitElement {
                 columns: _this._columns,
                 method: "get",
                 sidePagination: "server",
-                ciao: "ola dea",
                 // Set table properties, these are read from config property
                 uniqueId: "id",
                 pagination: _this._config.pagination,
@@ -207,25 +206,28 @@ export default class OpencgaVariantGrid extends LitElement {
                 // this makes the opencga-variant-grid properties available in the bootstrap-table formatters
                 variantGrid: _this,
 
+                //TODO replace with ajax
                 queryParams: function(params) {
                     queryParams.limit = params.limit;
                     queryParams.skip = params.offset;
                     return queryParams;
                 },
-                responseHandler: function(response) {
-                    const rr = new RestResponse(response);
+                responseHandler: function(_response) {
+                    //TODO remove
+                    let response = new RestResponse(_response);
                     if (_numTotal === -1) {
-                        _numTotal = rr.getResponse().numTotalResults;
+                        _numTotal = response.getResponse().numTotalResults;
                     }
                     // Format the number string with commas
-                    _this.to = Math.min(rr.getResponse(0).numResults, this.pageSize);
+                    _this.to = Math.min(response.getResponse(0).numResults, this.pageSize);
                     _this.numTotalResultsText = _numTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                    _this.approximateCountResult = rr.getResult(0).approximateCount;
+
+                    _this.approximateCountResult = response.getResponse().approximateCount;
 
                     //updates numTotalResultsText
                     _this.requestUpdate();
 
-                    return {total: _numTotal, rows: rr.getResults()};
+                    return {total: _numTotal, rows: response.getResults()};
                 },
                 onClickRow: function(row, $element, field) {
                     $("#" + _this._prefix + "VariantBrowserGrid tr").removeClass("success");

@@ -98,7 +98,7 @@ export default class OpencgaLogin extends LitElement {
                             detail: {
                                 message: "Welcome " + user + ". Your session is valid until " + validTimeSessionId,
                                 options: {
-                                    icon: "fa fa-user"
+                                    icon: "fa fa-user-circle"
                                 },
                                 type: UtilsNew.MESSAGE_SUCCESS
                             },
