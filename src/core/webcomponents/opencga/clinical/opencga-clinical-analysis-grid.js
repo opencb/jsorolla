@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 
 import "../../commons/opencb-grid-toolbar.js";
+import {RestResponse} from "../../../clients/RestResponse.js";
 
 export default class OpencgaClinicalAnalysisGrid extends LitElement {
 

@@ -92,7 +92,7 @@ export default class SelectFieldFilter extends LitElement {
         //TODO refactor and simplify
         if(this.multiple) {
             if(selection && selection.length) {
-                val = selection.join(",")
+                val = selection.join(",");
             } else val = [];
         } else {
             if(selection && selection.length) {
@@ -117,12 +117,14 @@ export default class SelectFieldFilter extends LitElement {
     render() {
         return html`
             <div id="${this._prefix}-wrapper" class="subsection-content form-group">
-                <select id="${this._prefix}-select" class="selectpicker"
-                                        multiple
-                                        .disabled=${this.disabled}
-                                        title="${this.placeholder ? this.placeholder : "Select an option"}"
-                                        data-max-options="${!this.multiple ? 1 : false}"  
-                                        @change="${this.filterChange}" data-width="100%">
+                <select
+                        id="${this._prefix}-select"
+                        class="selectpicker"
+                        multiple
+                        .disabled=${this.disabled}
+                        title="${this.placeholder ? this.placeholder : "Select an option"}"
+                        data-max-options="${!this.multiple ? 1 : false}"  
+                        @change="${this.filterChange}" data-width="100%">
                     ${this.data.map( opt => html`
                         ${opt.fields ? html`
                             <optgroup label="${opt.name}">${opt.fields.map( subopt => html`

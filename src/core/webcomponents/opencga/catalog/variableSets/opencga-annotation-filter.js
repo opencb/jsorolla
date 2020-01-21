@@ -1,4 +1,4 @@
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html, css} from '/web_modules/lit-element.js';
 
 import "./opencga-variable-selector.js";
 
@@ -56,10 +56,9 @@ export default class OpencgaAnnotationFilter extends LitElement {
         // Components are already set. We will override with the classes from the configuration file
         PolymerUtils.addClassById(`${this._prefix}-main-annotation-filter-div`, [this._config.class]);
 
-        //TODO recheck it was renderDomRepeat()
-        $('select.selectpicker').selectpicker('render');
-        $('select.selectpicker').selectpicker('refresh');
-        $('select.selectpicker').selectpicker('deselectAll');
+        $('select.selectpicker', this).selectpicker('render');
+        $('select.selectpicker', this).selectpicker('refresh');
+        $('select.selectpicker', this).selectpicker('deselectAll');
 
         // Get selected variable
         let variableSetSelector = $(`button[data-id=${this._prefix}-annotation-picker]`)[0];
@@ -89,18 +88,20 @@ export default class OpencgaAnnotationFilter extends LitElement {
     //TODO FIXME opencga-variable-selector can be configured to be a multiple choice select, but here just the first selection is used
     async onChangeSelectedVariable(e) {
         //this.selectedVariable = e.detail.value[0];
-        await this.requestUpdate();
         this.selectedVariable = e.detail.value;
+        await this.requestUpdate();
         this.lastAnnotationFilter = undefined;
-        //console.log("this.selectedVariable",this.selectedVariable)
         // We do this manually here because the selectpicker class does not show/hide automatically
         if (this.selectedVariable.type === "CATEGORICAL") {
-            $(`#${this._prefix}-categorical-selector`).selectpicker('refresh');
+            //$(`#${this._prefix}-variableSetSelect`).selectpicker('hide')
             $(`#${this._prefix}-categorical-selector`).selectpicker("show");
+            $(`#${this._prefix}-categorical-selector`).selectpicker('refresh');
+            $(`#${this._prefix}-categorical-selector`).selectpicker('deselectAll');
         } else {
             $(`#${this._prefix}-categorical-selector`).selectpicker("hide");
+            //$(`#${this._prefix}-variableSetSelect`).selectpicker('show');
+            //$(`#${this._prefix}-variableSetSelect`).selectpicker('refresh');
         }
-        await this.requestUpdate()
     }
 
     onAddAnnotationClicked(e) {
@@ -122,34 +123,23 @@ export default class OpencgaAnnotationFilter extends LitElement {
 
     addCategoricalFilter(e) {
         this.lastAnnotationFilter = undefined;
-
-        let values = $(`#${this._prefix}-categorical-selector`).selectpicker('val');
+        let values = $(e.target).selectpicker('val');
         if (values === null) {
             return;
         }
-
         let variableSetId = $(`#${this._prefix}-variableSetSelect`).selectpicker('val');
         let variable = this.selectedVariable.tags;
-
         this.lastAnnotationFilter = `${variableSetId}:${variable}=${values.join(",")}`;
     }
 
     addInputFilter(e) {
         this.lastAnnotationFilter = undefined;
-
-        let annotationTextInputElements = PolymerUtils.getElementsByClassName(this._prefix + "AnnotationTextInput");
-        if (annotationTextInputElements.length === 0) {
+        const value = e.target.value.trim();
+        if (!value) {
             return;
         }
-        let value = annotationTextInputElements[0].value;
         let variableSetId = $(`#${this._prefix}-variableSetSelect`).selectpicker('val');
         let variable = this.selectedVariable.tags;
-
-        if (value === "") {
-            this.lastAnnotationFilter = undefined;
-            return;
-        }
-
         this.lastAnnotationFilter = `${variableSetId}:${variable}=${value}`;
     }
 
@@ -157,7 +147,6 @@ export default class OpencgaAnnotationFilter extends LitElement {
         let value = e.currentTarget.dataset.value;
         let variableSetId = $(`#${this._prefix}-variableSetSelect`).selectpicker('val');
         let variable = this.selectedVariable.tags;
-
         this.lastAnnotationFilter = `${variableSetId}:${variable}=${value}`;
     }
 
@@ -198,7 +187,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
         }
     }
 
-    _updateVariableSets(study) {
+    async  _updateVariableSets(study) {
         if (typeof study.variableSets === "undefined") {
             this.variableSets = [];
         } else {
@@ -228,7 +217,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
             }
 
             this.multipleVariableSets = this.variableSets.length > 1;
-            this.requestUpdate()
+            await this.requestUpdate();
             this.dispatchEvent(new CustomEvent('variablesetselected', {detail: {id: this.variableSets[0].id}}));
 
         } else {
@@ -254,17 +243,15 @@ export default class OpencgaAnnotationFilter extends LitElement {
     }
 
     onSelectedVariableSetChange(e) {
+        //console.log("onSelectedVariableSetChange", e )
         let selectedVariableSet = e.currentTarget.value;
-
-        for (let i in this.variableSets) {
-            let variableSet = this.variableSets[i];
+        this.variableSets.forEach( variableSet => {
             if (variableSet.name === selectedVariableSet) {
                 this.selectedVariableSet = variableSet;
-                console.log("onSelectedVariableSetChange",variableSet)
-                this.requestUpdate()
-                return;
+                //console.log("selectedVariableSet",this.selectedVariableSet)
+                this.requestUpdate();
             }
-        }
+        })
     }
 
     checkVarType(myVar, type) {
@@ -283,7 +270,6 @@ export default class OpencgaAnnotationFilter extends LitElement {
         }
     }
 
-
     render() {
         return html`
         <style include="jso-styles">
@@ -295,21 +281,24 @@ export default class OpencgaAnnotationFilter extends LitElement {
             .plus-button:hover {
                 color: #009c2c;
             }
+            
+            .annotation-filter-div label{
+                font-weight: normal;
+                font-size: .9em;
+            }
+            
+            
         </style>
-        <div id="${this._prefix}-main-annotation-filter-div">
+        <div id="${this._prefix}-main-annotation-filter-div" class="annotation-filter-div">
         ${!this.variableSets.length ? html`
-            No variableSets defined in the study
+            <label>No variableSets defined in the study<label>
         ` : html`
             <!-- Annotations -->
             ${this.multipleVariableSets ? html`
                             <label for="${this._prefix}-variableSetSelect">Select Variable Set</label>
-                            <select class="selectpicker" id="${this._prefix}-variableSetSelect" @change="${this.onSelectedVariableSetChange}"
-                                    on-dom-change="renderDomRepeat" data-width="100%">
-                                <!--<select class="form-control" id="variableSetSelect" style="width: 100%"-->
-                                <!--on-change="onSelectedVariableSetChange">-->
-                                ${this.variableSets.map(item => html`
-                                    <option data-variable="${item}">${item.name}</option>
-                                `)}
+                            <!-- TODO use this <select-field-filter .data="${this.variableSets.map( _ => _.name)}" @filterChange="${this.onSelectedVariableSetChange}"></select-field-filter> -->
+                            <select class="selectpicker" id="${this._prefix}-variableSetSelect" @change="${this.onSelectedVariableSetChange}" data-width="100%">
+                                ${this.variableSets.map(item => html`<option>${item.name}</option>`)}
                             </select>`
             : null}
         
@@ -329,7 +318,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
         <!--</select>-->
         
         <!-- Show different value selector based on the type of the selected variable -->
-        ${this.selectedVariable ? html`<div class="row" style="margin-top: 15px;">
+        ${this.selectedVariable ? html`<div class="row" style="margin-top: 15px; margin-right: 20px;">
             <div class="col-md-10">
                 
                 ${this.selectedVariable.type === 'TEXT' ? html`
@@ -345,10 +334,10 @@ export default class OpencgaAnnotationFilter extends LitElement {
                            placeholder="${this.selectedVariable.id} number" data-variable-name="${this.selectedVariable.id}"
                            pattern="^[0-9]+$" @input="${this.addInputFilter}">
                 ` : this.selectedVariable.type === 'CATEGORICAL' ? html`
-                    <select id="${this._prefix}-categorical-selector" class="selectpicker" multiple @input="${this.addCategoricalFilter}"
+                    <select id="${this._prefix}-categorical-selector" class="selectpicker" multiple @change="${this.addCategoricalFilter}"
                             data-width="100%">
                         ${this.selectedVariable.allowedValues && this.selectedVariable.allowedValues.length && this.selectedVariable.allowedValues.map(item => html`
-                                    <option value="${item}" on-dom-change="renderDomRepeat">${item}</option>
+                                    <option value="${item}" on-dom-change="renderDomRepeat">${item}</option>F
                                 `)}
                     </select>
                 ` : this.selectedVariable.type === 'BOOLEAN' ? html`

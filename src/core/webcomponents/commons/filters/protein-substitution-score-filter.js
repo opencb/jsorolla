@@ -186,7 +186,7 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
     render() {
         return html`
             <style>
-                ${switchWidget}
+                ${switchWidget}                
             </style>
             <div style="padding-top: 10px">
                 <span style="padding-left: 0px;">SIFT</span>
@@ -246,7 +246,7 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                     </div>
                 </div>
                 
-                <div class="switch-container">
+                <!-- <div class="switch-container">
                     <div class="rating-toggle-container">
                         <label style="font-weight: normal;">Logical Operator</label>
                         <form class="flex-center">
@@ -263,7 +263,23 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                                    class="rating-label rating-label-and">AND</label>
                         </form>
                     </div>
-                </div>
+                </div> -->
+                
+                <fieldset class="switch-toggle-wrapper">
+                    <label style="font-weight: normal;">Logical Operator</label>
+                    <div class="switch-toggle text-white alert alert-light">
+                        <input id="${this._prefix}pssOrRadio" name="pss" type="radio" value="or"
+                                   class="radio-or ${this._prefix}FilterRadio" checked disabled
+                                   @change="${this.filterChange}"/>
+                            <label for="${this._prefix}pssOrRadio"
+                                   class="rating-label rating-label-or">OR</label>
+                        <input id="${this._prefix}pssAndRadio" name="pss" type="radio" value="and"
+                                   class="radio-and ${this._prefix}FilterRadio" disabled @change="${this.filterChange}"/>
+                            <label for="${this._prefix}pssAndRadio"
+                                   class="rating-label rating-label-and">AND</label>
+                        <a class="btn btn-primary ripple btn-small"></a>
+                    </div>
+                </fieldset>
                 
                 <br>
             </div>

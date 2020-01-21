@@ -267,7 +267,11 @@ export default class OpencgaFamilyBrowser extends LitElement {
             variableSetIds: [],
             activeFilters: {
                 complexFields: ["annotation"]
+            },
+            summary: {
+                fields: ["name"]
             }
+
         };
     }
 

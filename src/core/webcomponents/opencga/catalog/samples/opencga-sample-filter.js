@@ -121,26 +121,6 @@ export default class OpencgaSampleFilter extends LitElement {
         this.notifySearch(this.preparedQuery);
     }
 
-    addAnnotation(e) {
-        if (typeof this._annotationFilter === "undefined") {
-            this._annotationFilter = {};
-        }
-        let split = e.detail.value.split("=");
-        this._annotationFilter[split[0]] = split[1];
-
-        let _query = {};
-        Object.assign(_query, this.query);
-        let annotations = [];
-        for (let key in this._annotationFilter) {
-            annotations.push(`${key}=${this._annotationFilter[key]}`)
-        }
-        _query['annotation'] = annotations.join(";");
-
-        this._reset = false;
-        this.query = _query;
-        this._reset = true;
-    }
-
     onDateChanged(e) {
         let query = {};
         Object.assign(query, this.query);
@@ -212,7 +192,28 @@ export default class OpencgaSampleFilter extends LitElement {
             this.preparedQuery = {...this.preparedQuery};
         }
         this.notifyQuery(this.preparedQuery);
-        this.requestUpdate()
+        this.requestUpdate();
+    }
+
+    addAnnotation(e) {
+        //console.log("addAnnotation", e)
+
+        if (typeof this._annotationFilter === "undefined") {
+            this._annotationFilter = {};
+        }
+        let split = e.detail.value.split("=");
+        this._annotationFilter[split[0]] = split[1];
+
+        let _query = {};
+        Object.assign(_query, this.query);
+        let annotations = [];
+        for (let key in this._annotationFilter) {
+            annotations.push(`${key}=${this._annotationFilter[key]}`)
+        }
+        this.preparedQuery.annotation = annotations.join(";");
+        this.preparedQuery = {...this.preparedQuery}
+        this.notifyQuery(this.preparedQuery);
+        this.requestUpdate();
     }
 
     notifyQuery(query) {

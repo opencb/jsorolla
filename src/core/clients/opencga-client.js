@@ -824,7 +824,7 @@ class Projects extends OpenCGAParentClass {
         return this.get("projects", ids, "info", params, options);
     }
 
-    stats(ids, params, options) {
+    aggregationStats(ids, params, options) {
         return this.get("projects", ids, "stats", params, options);
     }
 
@@ -864,7 +864,7 @@ class Studies extends OpenCGAParentClass {
         return this.get("studies", id, "info", params, options);
     }
 
-    stats(ids, params, options) {
+    aggregationStats(ids, params, options) {
         return this.get("studies", ids, "stats", params, options);
     }
 
@@ -966,8 +966,8 @@ class Files extends OpenCGAParentClass {
         return this.extendedGet("files", undefined, null, null, "search", params, options);
     }
 
-    stats(params, options) {
-        return this.extendedGet("files", undefined, null, null,"stats", params, options);
+    aggregationStats(params, options) {
+        return this.extendedGet("files", undefined, null, null,"aggregationStats", params, options);
     }
 
     link(params, options) {
@@ -1114,7 +1114,7 @@ class Individuals extends OpenCGAParentClass {
         return this.get("individuals", undefined, "search", params, options);
     }
 
-    stats(params, options) {
+    aggregationStats(params, options) {
         return this.get("individuals", undefined, "stats", params, options);
     }
 
@@ -1172,7 +1172,7 @@ class Families extends OpenCGAParentClass {
         return this.get("families", undefined, "search", params, options);
     }
 
-    stats(params, options) {
+    aggregationStats(params, options) {
         return this.get("families", undefined, "stats", params, options);
     }
 
@@ -1227,7 +1227,7 @@ class Samples extends OpenCGAParentClass {
         return this.get("samples", undefined, "search", params, options);
     }
 
-    stats(params, options) {
+    aggregationStats(params, options) {
         return this.get("samples", undefined, "stats", params, options);
     }
 
@@ -1326,7 +1326,7 @@ class Cohorts extends OpenCGAParentClass {
         return this.post("cohorts", undefined, "create", params, body, options);
     }
 
-    stats(params, options) {
+    aggregationStats(params, options) {
         return this.get("cohorts", undefined, "stats", params, options);
     }
 
@@ -1454,7 +1454,7 @@ class Alignment extends OpenCGAParentClass {
         return this.get("analysis/alignment", undefined, "query", params, options);
     }
 
-    stats(id, params, options) {
+    aggregationStats(id, params, options) {
         if (params === undefined) {
             params = {};
         }

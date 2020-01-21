@@ -242,7 +242,10 @@ export default class OpencgaSampleBrowser extends LitElement {
             sampleDetail: {
                 showTitle: false
             },
-            variableSetIds: []
+            variableSetIds: [],
+            summary: {
+                fields: ["name"]
+            }
         };
     }
 

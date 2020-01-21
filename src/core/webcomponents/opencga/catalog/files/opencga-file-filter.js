@@ -41,15 +41,15 @@ export default class OpencgaFileFilter extends LitElement {
             },
             files: {
                 type: Array,
-                notify: true
+                //notify: true
             },
             query: {
                 type: Object,
-                notify: true
+                //notify: true
             },
             search: {
                 type: Object,
-                notify: true
+                //notify: true
             },
             variableSets: {
                 type: Array

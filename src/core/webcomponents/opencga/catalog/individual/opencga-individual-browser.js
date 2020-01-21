@@ -262,7 +262,10 @@ export default class OpencgaIndividualBrowser extends LitElement {
             individualDetail: {
                 showTitle: false
             },
-            variableSetIds: []
+            variableSetIds: [],
+            summary: {
+                fields: ["type", "format", "bioformat"]
+            }
         };
     }
 

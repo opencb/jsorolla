@@ -261,7 +261,10 @@ export default class OpencgaCohortBrowser extends LitElement {
                 pageSize: 5,
                 pageList: [5, 10]
             },
-            variableSetIds: []
+            variableSetIds: [],
+            summary: {
+                fields: ["name"]
+            }
         };
     }
 

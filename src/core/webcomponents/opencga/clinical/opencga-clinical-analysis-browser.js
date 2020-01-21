@@ -192,6 +192,9 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                 pageList: [5, 10],
                 detailView: true,
                 multiSelection: true
+            },
+            summary: {
+                fields: ["name"]
             }
         };
     }
