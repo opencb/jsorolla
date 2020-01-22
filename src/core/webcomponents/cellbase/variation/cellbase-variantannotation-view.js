@@ -74,14 +74,15 @@ export default class CellbaseVariantAnnotationView extends LitElement {
         this.mode = "horizontal";
         this.assembly = "GRCh37";
 
-        //TODO does it needs a prefix from the parent or not?
+        // TODO does it needs a prefix from the parent or not?
         if (typeof this._prefix === "undefined" || this._prefix === "") {
             this._prefix = "view" + Utils.randomString(6);
         }
     }
 
     updated(_changedProperties) {
-        if(_changedProperties.has("data")) {
+        if (_changedProperties.has("data")) {
+            console.log("_variantChanged");
             this._variantChanged();
 
         }
@@ -118,7 +119,7 @@ export default class CellbaseVariantAnnotationView extends LitElement {
     }
 
     _variantChanged() {
-        let _this = this;
+        const _this = this;
         if (typeof this.cellbaseClient !== "undefined" && UtilsNew.isNotEmpty(this.data) && !this.data.includes(" ")) {
             this.cellbaseClient.get("genomic", "variant", this.data, "annotation", {assembly: this.assembly}, {})
                 .then(function(response) {
@@ -167,8 +168,7 @@ export default class CellbaseVariantAnnotationView extends LitElement {
     }
 
     render() {
-
-        if (this.data === undefined || this.data == "") {
+        if (this.data === undefined || this.data === "") {
             return html`
                         <div><h3>Please click on a variant to view annotations</h3></div>
             `;
@@ -212,119 +212,123 @@ export default class CellbaseVariantAnnotationView extends LitElement {
                 </ul>
                 ` : null}
 
-    <div id="${this._prefix}Div" class="col-xs-10">
-        <div class="tab-content">
-            <!--Summary Tab-->
-            <div role="tabpanel" class="tab-pane active" id="${this._prefix}VariantAnnotationSummary">
-                <br>
-                <cellbase-variant-annotation-summary .data="${this.variantAnnotation}"
-                                                     .consequenceTypes="${this.consequenceTypes}"
-                                                     .proteinSubstitutionScores="${this.proteinSubstitutionScores}">
-                </cellbase-variant-annotation-summary>
-            </div>
-            <!--Consequence types Tab-->
-            <div role="tabpanel" class="tab-pane" id="${this._prefix}VariantAnnotationConsequenceTypes">
-                <cellbase-annotation-consequencetype-grid .data="${this.variantAnnotation.consequenceTypes}"
-                                                          .prefix="${this._prefix}annotationView"
-                                                          .hashFragmentCredentials="${this.hashFragmentCredentials}"
-                                                          .consequenceTypes="${this.consequenceTypes}">
-                </cellbase-annotation-consequencetype-grid>
-            </div>
-            <!--Population frequency Tab-->
-            <div role="tabpanel" class="tab-pane" id="${this._prefix}VariantAnnotationPopulationFrequencies">
-                <cellbase-population-frequency-grid .data="${this.variantAnnotation.populationFrequencies}"
-                                                    .prefix="${this._prefix}annotationView">
-                </cellbase-population-frequency-grid>
-            </div>
-            <!--Gene Trait Association Tab-->
-            <div role="tabpanel" class="tab-pane" id="${this._prefix}VariantAnnotationGTA">
-                <table id="${this._prefix}GTATable" data-search="true" data-show-columns="true" data-pagination="true"
-                       data-page-list="[10, 25, 50]"
-                       data-show-pagination-switch="true" data-show-export="true" data-icons-prefix="fa"
-                       data-icons="icons">
-                    <thead style="background-color: #eee"></thead>
-                </table>
-            </div>
-            <!--Variant Trait Association-->
-            <div role="tabpanel" class="tab-pane" id="${this._prefix}VariantAnnotationVTA">
-                ${this.check(this.variantAnnotation) ? html`
-                    <h4>Clinvar</h4>
-                    ${this.checkClinvar(this.variantAnnotation.variantTraitAssociation.clinvar) ? html`
-                    <div>
-                        <table class="table table-hover table-bordered">
-                            <thead style="background-color: #eee">
-                            <tr>
-                                <th>Accession</th>
-                                <th>Clinical Significance</th>
-                                <th>Traits</th>
-                                <th>Gene Names</th>
-                                <th>Review Status</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            ${this.variantAnnotation.variantTraitAssociation.clinvar.map(item => html`
+    ${this.variantAnnotation ? html`
+        <div id="${this._prefix}Div" class="col-xs-10">
+            <div class="tab-content">
+                <!--Summary Tab-->
+                <div role="tabpanel" class="tab-pane active" id="${this._prefix}VariantAnnotationSummary">
+                    <br>
+                    <cellbase-variant-annotation-summary .data="${this.variantAnnotation}"
+                                                         .consequenceTypes="${this.consequenceTypes}"
+                                                         .proteinSubstitutionScores="${this.proteinSubstitutionScores}">
+                    </cellbase-variant-annotation-summary>
+                </div>
+                <!--Consequence types Tab-->
+                <div role="tabpanel" class="tab-pane" id="${this._prefix}VariantAnnotationConsequenceTypes">
+                    <cellbase-annotation-consequencetype-grid .data="${this.variantAnnotation.consequenceTypes}"
+                                                              _prefix="${this._prefix}annotationView"
+                                                              .hashFragmentCredentials="${this.hashFragmentCredentials}"
+                                                              .consequenceTypes="${this.consequenceTypes}">
+                    </cellbase-annotation-consequencetype-grid>
+                </div>
+                <!--Population frequency Tab-->
+                <div role="tabpanel" class="tab-pane" id="${this._prefix}VariantAnnotationPopulationFrequencies">
+                    <cellbase-population-frequency-grid .data="${this.variantAnnotation.populationFrequencies}"
+                                                        .prefix="${this._prefix}annotationView">
+                    </cellbase-population-frequency-grid>
+                </div>
+                <!--Gene Trait Association Tab-->
+                <div role="tabpanel" class="tab-pane" id="${this._prefix}VariantAnnotationGTA">
+                    <table id="${this._prefix}GTATable" data-search="true" data-show-columns="true" data-pagination="true"
+                           data-page-list="[10, 25, 50]"
+                           data-show-pagination-switch="true" data-show-export="true" data-icons-prefix="fa"
+                           data-icons="icons">
+                        <thead style="background-color: #eee"></thead>
+                    </table>
+                </div>
+                <!--Variant Trait Association-->
+                <div role="tabpanel" class="tab-pane" id="${this._prefix}VariantAnnotationVTA">
+                    ${this.check(this.variantAnnotation) ? html`
+                        <h4>Clinvar</h4>
+                        ${this.variantAnnotation.variantTraitAssociation && this.variantAnnotation.variantTraitAssociation.clinvar ? html`
+                        <div>
+                            <table class="table table-hover table-bordered">
+                                <thead style="background-color: #eee">
                                 <tr>
-                                    <td>${item.accession}</td>
-                                    <td>${item.clinicalSignificance}</td>
-                                    <td>
-                                        ${item.traits.map(trait => html`${trait}<br>`)}
-                                    </td>
-                                    <td>
-                                        ${item.geneNames.map(geneName => html`${geneName}<br>`)}
-                                    </td>
-                                    <td>${item.reviewStatus}</td>
+                                    <th>Accession</th>
+                                    <th>Clinical Significance</th>
+                                    <th>Traits</th>
+                                    <th>Gene Names</th>
+                                    <th>Review Status</th>
                                 </tr>
-                            `)}
-                            </tbody>
-                        </table>
-                    </div>` : html`
-                        <div>No ClinVar data available</div>
-                    `}
-                    
-                    
-                    <h4>Cosmic</h4>
-                    ${this.checkCosmic(this.variantAnnotation.variantTraitAssociation.cosmic) ? html`
-                        <table class="table table-hover table-bordered">
-                            <thead style="background-color: #eee">
-                            <tr>
-                                <th>Mutation Id</th>
-                                <th>Primary Site</th>
-                                <th>Site Subtype</th>
-                                <th>Primary Histology</th>
-                                <th>Histology Subtype</th>
-                                <th>Sample Source</th>
-                                <th>Tumour Origin</th>
-                                <th>Gene Name</th>
-                                <th>Mutation Somatic Status</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            ${this.variantAnnotation.variantTraitAssociation.cosmic.map( item => html`
+                                </thead>
+                                <tbody>
+                                ${this.variantAnnotation.variantTraitAssociation.clinvar.map(item => html`
+                                    <tr>
+                                        <td>${item.accession}</td>
+                                        <td>${item.clinicalSignificance}</td>
+                                        <td>
+                                            ${item.traits.map(trait => html`${trait}<br>`)}
+                                        </td>
+                                        <td>
+                                            ${item.geneNames.map(geneName => html`${geneName}<br>`)}
+                                        </td>
+                                        <td>${item.reviewStatus}</td>
+                                    </tr>
+                                `)}
+                                </tbody>
+                            </table>
+                        </div>` : html`
+                            <div>No ClinVar data available</div>
+                        `}
+                        
+                        
+                        <h4>Cosmic</h4>
+                        ${this.variantAnnotation.variantTraitAssociation && this.variantAnnotation.variantTraitAssociation.cosmic ? html`
+                            <table class="table table-hover table-bordered">
+                                <thead style="background-color: #eee">
                                 <tr>
-                                    <td>${item.mutationId}</td>
-                                    <td>${item.primarySite}</td>
-                                    <td>${item.siteSubtype}</td>
-                                    <td>${item.primaryHistology}</td>
-                                    <td>${item.histologySubtype}</td>
-                                    <td>${item.sampleSource}</td>
-                                    <td>${item.tumourOrigin}</td>
-                                    <td>${item.geneName}</td>
-                                    <td>${item.mutationSomaticStatus}</td>
+                                    <th>Mutation Id</th>
+                                    <th>Primary Site</th>
+                                    <th>Site Subtype</th>
+                                    <th>Primary Histology</th>
+                                    <th>Histology Subtype</th>
+                                    <th>Sample Source</th>
+                                    <th>Tumour Origin</th>
+                                    <th>Gene Name</th>
+                                    <th>Mutation Somatic Status</th>
                                 </tr>
-                            `)}
-                            </tbody>
-                        </table>
-                    ` : html`
-                        No Cosmic data available
-                    `}
-                ` : html`No ClinVar and Cosmic data available`}
-                
+                                </thead>
+                                <tbody>
+                                ${this.variantAnnotation.variantTraitAssociation.cosmic.map( item => html`
+                                    <tr>
+                                        <td>${item.mutationId}</td>
+                                        <td>${item.primarySite}</td>
+                                        <td>${item.siteSubtype}</td>
+                                        <td>${item.primaryHistology}</td>
+                                        <td>${item.histologySubtype}</td>
+                                        <td>${item.sampleSource}</td>
+                                        <td>${item.tumourOrigin}</td>
+                                        <td>${item.geneName}</td>
+                                        <td>${item.mutationSomaticStatus}</td>
+                                    </tr>
+                                `)}
+                                </tbody>
+                            </table>
+                        ` : html`
+                            No Cosmic data available
+                        `}
+                    ` : html`No ClinVar and Cosmic data available`}
+                    
+                </div>
             </div>
-        </div>
-    </div>
+            
+        </div>` : null }
 </div>
-        `}
+        `;
+        }
     }
+
 }
 
 customElements.define("cellbase-variantannotation-view", CellbaseVariantAnnotationView);

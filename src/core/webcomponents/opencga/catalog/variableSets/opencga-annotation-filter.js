@@ -127,7 +127,8 @@ export default class OpencgaAnnotationFilter extends LitElement {
         if (values === null) {
             return;
         }
-        let variableSetId = $(`#${this._prefix}-variableSetSelect`).selectpicker('val');
+        //Note: in case of single variable set the select #${this._prefix}-variableSetSelect is not actually present in DOM, this.singleVariableSet contains the value
+        let variableSetId = this.singleVariableSet ? this.singleVariableSet : $(`#${this._prefix}-variableSetSelect`).selectpicker('val');
         let variable = this.selectedVariable.tags;
         this.lastAnnotationFilter = `${variableSetId}:${variable}=${values.join(",")}`;
     }
@@ -138,14 +139,15 @@ export default class OpencgaAnnotationFilter extends LitElement {
         if (!value) {
             return;
         }
-        let variableSetId = $(`#${this._prefix}-variableSetSelect`).selectpicker('val');
+        let variableSetId = this.singleVariableSet ? this.singleVariableSet : $(`#${this._prefix}-variableSetSelect`).selectpicker('val');
         let variable = this.selectedVariable.tags;
+        console.log(variableSetId)
         this.lastAnnotationFilter = `${variableSetId}:${variable}=${value}`;
     }
 
     addSelectedFilter(e) {
         let value = e.currentTarget.dataset.value;
-        let variableSetId = $(`#${this._prefix}-variableSetSelect`).selectpicker('val');
+        let variableSetId = this.singleVariableSet ? this.singleVariableSet : $(`#${this._prefix}-variableSetSelect`).selectpicker('val');
         let variable = this.selectedVariable.tags;
         this.lastAnnotationFilter = `${variableSetId}:${variable}=${value}`;
     }
@@ -217,6 +219,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
             }
 
             this.multipleVariableSets = this.variableSets.length > 1;
+            this.singleVariableSet = !this.multipleVariableSets ? this.variableSets[0].id : null;
             await this.requestUpdate();
             this.dispatchEvent(new CustomEvent('variablesetselected', {detail: {id: this.variableSets[0].id}}));
 
@@ -295,28 +298,17 @@ export default class OpencgaAnnotationFilter extends LitElement {
         ` : html`
             <!-- Annotations -->
             ${this.multipleVariableSets ? html`
-                            <label for="${this._prefix}-variableSetSelect">Select Variable Set</label>
-                            <!-- TODO use this <select-field-filter .data="${this.variableSets.map( _ => _.name)}" @filterChange="${this.onSelectedVariableSetChange}"></select-field-filter> -->
-                            <select class="selectpicker" id="${this._prefix}-variableSetSelect" @change="${this.onSelectedVariableSetChange}" data-width="100%">
-                                ${this.variableSets.map(item => html`<option>${item.name}</option>`)}
-                            </select>`
+                <label for="${this._prefix}-variableSetSelect">Select Variable Set</label>
+                <!-- TODO use this <select-field-filter .data="${this.variableSets.map( _ => _.name)}" @filterChange="${this.onSelectedVariableSetChange}"></select-field-filter> -->
+                <select class="selectpicker" id="${this._prefix}-variableSetSelect" @change="${this.onSelectedVariableSetChange}" data-width="100%">
+                    ${this.variableSets.map(item => html`<option>${item.name}</option>`)}
+                </select>`
             : null}
         
         <opencga-variable-selector .variableSet="${this.selectedVariableSet}"
                                    @variablechange="${this.onChangeSelectedVariable}">
         </opencga-variable-selector>
-        <!--<label for="{{prefix}}-annotation-picker" style="margin-top: 15px;">Select variable and value(s)</label>-->
-        <!--<select id="{{prefix}}-annotation-picker" class="selectpicker" data-live-search="true" data-size="10"-->
-        <!--data-max-options="1" on-change="onChangeSelectedVariable" data-width="100%" data-class="btn-sm">-->
-        <!--<template is="dom-repeat" items="{{variables}}" as="variable" on-dom-change="renderDomRepeat" restamp="true">-->
-        <!--<option data-tokens="{{variable.tags}}" data-variable="{{variable}}"-->
-        <!--style$="padding-left: {{variable.margin}}px; cursor: {{variable.cursor}};"-->
-        <!--disabled$="{{variable.disabled}}">-->
-        <!--{{variable.name}}-->
-        <!--</option>-->
-        <!--</template>-->
-        <!--</select>-->
-        
+                
         <!-- Show different value selector based on the type of the selected variable -->
         ${this.selectedVariable ? html`<div class="row" style="margin-top: 15px; margin-right: 20px;">
             <div class="col-md-10">

@@ -130,6 +130,10 @@ export default class OpencgaFileFacet extends LitElement {
                 active: false,
                 icon: `fas fa-chart-bar`,
                 fields: [
+                    {id: "cattype", name: "category Type", type: "category", values: ["JAN", "FEB", "MAR"], defaultValue: "JAN,FEB" },
+                    {id: "stringtype", name: "string Type", type: "string", defaultValue: "deff"},
+                    {id: "numtype", name: "number Type", type: "number", defaultValue: 2},
+
                     {id: "gerp", name: "Gerp", type: "integer", defaultValue: "0:1:01"},
                     //{name: "Pop Freqs_", category: true},
                     {
@@ -140,16 +144,15 @@ export default class OpencgaFileFacet extends LitElement {
                     },
                     {id: "gerp1", name: "Gerp1", type: "categorical", defaultValue: "0:1:01"},
                     {id: "gerp2", name: "Gerp2", type: "range", defaultValue: "0:1:01"},
-                    {id: "creationMonth", name: "Month", type: "string", defaultValue: ["JAN", "FEB"]},
                     {id: "study", name: "Study", type: "string", defaultValue: "defStudy"},
                     {id: "name", name: "Name", type: "string"},
                     {id: "type", name: "Type", type: "string"},
                     {id: "format", name: "Format", type: "string"},
                     {id: "bioformat", name: "Bioformat", type: "string"},
                     {id: "creationYear", name: "CreationYear", type: "string"},
-                    {id: "creationMonth", name: "CreationMonth", type: "string"},
                     {id: "creationDay", name: "CreationDay", type: "string"},
                     {id: "creationDayOfWeek", name: "CreationDayOfWeek", type: "string"},
+                    {id: "creationMonth", name: "creationMonth", type: "category", values: ["JAN", "FEB", "MAR"], defaultValue: ["JAN", "FEB"]},
                     {id: "status", name: "Status", type: "string"},
                     {id: "release", name: "Release", type: "string"},
                     {id: "external", name: "External", type: "string"},

@@ -73,19 +73,19 @@ export default class OpencgaLogin extends LitElement {
             const pass = document.getElementById("opencgaPassword").value;
             const _this = this;
             this.opencgaClient.login(user, pass)
-                .then(function(response) {
+                .then( response => {
 
-                    try {
-                        document.getElementById("opencgaUser").value = "";
-                        document.getElementById("opencgaPassword").value = "";
+                    if(response) {
+                        this.querySelector("#opencgaUser").value = "";
+                        this.querySelector("#opencgaPassword").value = "";
                         console.log("response", response)
-                        const sessionId = new RestResponse(response).getResult(0).token;
+                        const sessionId = response.getResult(0).token;
                         const decoded = jwt_decode(sessionId); // TODO expose as module
                         const dateExpired = new Date(decoded.exp * 1000);
                         const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss"); // TODO expose as module
 
 
-                        _this.dispatchEvent(new CustomEvent("login", {
+                        this.dispatchEvent(new CustomEvent("login", {
                             detail: {
                                 userId: user,
                                 sessionId: sessionId
@@ -94,7 +94,7 @@ export default class OpencgaLogin extends LitElement {
                             composed: true
                         }));
 
-                        _this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
+                        this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
                             detail: {
                                 message: "Welcome " + user + ". Your session is valid until " + validTimeSessionId,
                                 options: {
@@ -105,12 +105,11 @@ export default class OpencgaLogin extends LitElement {
                             bubbles: true,
                             composed: true
                         }));
-                    } catch (e) {
-                        console.error(e);
                     }
                 })
                 .catch(function(response) {
                     const _message = this.errorMessage = response.error || "Login error. Please check your credentials.";
+                    console.log(response.getEvents())
                     this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
                         detail: {
                             message: _message,

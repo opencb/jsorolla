@@ -71,7 +71,7 @@ export default class VariantBeaconNetwork extends LitElement {
     }
 
     //TODO urgent refactor
-    searchBeaconNetwork() {
+    async searchBeaconNetwork() {
         if (this._config.hosts !== undefined && this.variant !== undefined && this.variant.split(':').length > 2) {
             let [chromosome, position, reference, alternate] = this.variant.split(':');
 
@@ -85,6 +85,14 @@ export default class VariantBeaconNetwork extends LitElement {
                 // Beacon network uses zero-based numbering hence (position-1) is used in the url.
                 let url = "https://beacon-network.org/api/responses?allele=" + alternate + "&beacon=[" + _this._config.hosts[i] + "]&chrom=" + chromosome
                     + "&pos=" + (position - 1) + "&ref=GRCh37";
+
+                //TODO continue
+                /*axios.get(url)
+                    .then( response => {
+                        console.log("rr", response)
+                    })
+                    .catch( e => console.error(e))
+                */
                 xhr.onload = function (event) {
                     if (xhr.readyState === xhr.DONE) {
                         if (xhr.status === 200) {
@@ -147,7 +155,7 @@ export default class VariantBeaconNetwork extends LitElement {
             transition: all .7s ease-in-out;
         }
         .beacon-square.False {
-            background: #dadada;
+            background: #cfffc7;
         }
         .beacon-square.True {
             background: red;
@@ -176,7 +184,7 @@ export default class VariantBeaconNetwork extends LitElement {
                 </tbody>
             </table>-->
             ${this._config.hosts && this._config.hosts.length && this._config.hosts.map( item => html`
-                <div class="beacon-square ${this._prefix}${item}">
+                <div class="beacon-square ${this._prefix}${item} shadow">
                     <p>${item}</p>
                     <p class="" id="${this._prefix}${item}" class="beaconResponse">&nbsp;</p>
                 </div> 

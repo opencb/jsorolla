@@ -172,7 +172,7 @@ export default class OpencgaVariableSelector extends LitElement {
                             ${this.variables.map( (variable, i) => {
                                 console.log("variable", variable);
                                 return html`
-                                    <option data-tokens="${variable.tags}" data-index="${i}" data-variable="${variable}"
+                                    <option data-tokens="${variable.tags}" data-index="${i}" 
                                             style="padding-left: ${variable.margin}px; cursor: ${variable.cursor};"
                                             ?disabled="${variable.disabled}">
                                         ${variable.id}

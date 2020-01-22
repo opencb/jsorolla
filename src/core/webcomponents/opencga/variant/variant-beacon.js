@@ -91,7 +91,7 @@ export default class VariantBeacon extends LitElement {
             beacon: this.opencgaSession.project.alias + ":" + this.querySelector("#datasetInput").value
         };
 
-        if (this.opencgaSession.opencgaClient instanceof OpenCGAClient) {
+        if (this.opencgaSession.opencgaClient !== undefined) {
             const _this = this;
             this.opencgaSession.opencgaClient.ga4gh().beacon(queryParams, {})
                 .then(function(response) {

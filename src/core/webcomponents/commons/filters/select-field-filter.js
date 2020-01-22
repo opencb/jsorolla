@@ -37,7 +37,7 @@ export default class SelectFieldFilter extends LitElement {
             placeholder: {
                 type: String
             },
-            //NOTE value is either a single string or a comma separated list
+            // NOTE value (default Values) is either a single value as string or a comma separated list (this decision is due to easily manage default values in case of array of objects)
             value: {
                 type: String
             },
@@ -47,6 +47,7 @@ export default class SelectFieldFilter extends LitElement {
             disabled: {
                 type: Boolean
             },
+            //the expected format is either an array of string or an array of objects {id, name}
             data: {
                 type: Object
             }
@@ -56,8 +57,8 @@ export default class SelectFieldFilter extends LitElement {
     _init() {
         this._prefix = "sff-" + Utils.randomString(6) + "_";
 
-        //NOTE: in case of single option select, in order to show the placeholder and NOT adding a dummy option as void selection,
-        // the single selection is implemented still with the multiple flag, but forcing 1 selection with data-max-options=1
+        // NOTE: in case of single option select, in order to show the placeholder and NOT adding a dummy option to allow null selection,
+        // the single selection is implemented still with the multiple flag in bootstrap-select, but forcing 1 selection with data-max-options=1
         this.multiple = false;
         this.data = [];
     }
@@ -89,15 +90,10 @@ export default class SelectFieldFilter extends LitElement {
     filterChange(e) {
         const selection = $(".selectpicker", this).selectpicker("val");
         let val;
-        //TODO refactor and simplify
-        if(this.multiple) {
-            if(selection && selection.length) {
-                val = selection.join(",");
-            } else val = [];
+        if (selection && selection.length) {
+            val = this.multiple ? selection.join(",") : selection;
         } else {
-            if(selection && selection.length) {
-                val = selection;
-            } else val = [];
+            val = [];
         }
         console.log("select filterChange", val);
         const event = new CustomEvent("filterChange", {
@@ -108,7 +104,7 @@ export default class SelectFieldFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
-    //safe check if the field is an object (NOTE null is an object, so the constructor check is not enough)
+    // safe check if the field is an object (NOTE null is an object, so the constructor check is not enough)
     // TODO add safe check if is a plain string
     isObject(obj) {
         return obj != null && obj.constructor.name === "Object";
@@ -116,7 +112,7 @@ export default class SelectFieldFilter extends LitElement {
 
     render() {
         return html`
-            <div id="${this._prefix}-wrapper" class="subsection-content form-group">
+            <div id="${this._prefix}-wrapper" class="form-group">
                 <select
                         id="${this._prefix}-select"
                         class="selectpicker"
@@ -125,15 +121,24 @@ export default class SelectFieldFilter extends LitElement {
                         title="${this.placeholder ? this.placeholder : "Select an option"}"
                         data-max-options="${!this.multiple ? 1 : false}"  
                         @change="${this.filterChange}" data-width="100%">
-                    ${this.data.map( opt => html`
+                    ${this.data.map(opt => html`
                         ${opt.fields ? html`
-                            <optgroup label="${opt.name}">${opt.fields.map( subopt => html`
-                                <option ?disabled="${subopt.disabled}">${this.isObject(subopt) ? subopt.name : subopt}</option>`) }
+                            <optgroup label="${opt.name}">${opt.fields.map(subopt => html`
+                                ${this.isObject(subopt) ? html`
+                                    <option ?disabled="${subopt.disabled}" .value="${subopt.id ? subopt.id : subopt.name}">${subopt.name}</option>    
+                                ` : html`
+                                    <option>${subopt}</option>
+                                `}
+                                `)}
                             </optgroup>
-                            ` : html`
-                            <option ?disabled="${opt.disabled}">${this.isObject(opt) ? opt.name : opt}</option>
+                            ` : html` 
+                                ${this.isObject(opt) ? html`
+                                    <option ?disabled="${opt.disabled}" .value="${opt.id ? opt.id : opt.name}">${opt.name}</option>
+                                ` : html`
+                                    <option>${opt}</option>
+                            `}
                         `}
-                    `) }
+                    `)}
                 </select>
             </div>
         `;
