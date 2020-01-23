@@ -138,8 +138,8 @@ export default class OpencgaFileFacet extends LitElement {
                     //{name: "Pop Freqs_", category: true},
                     {
                         name: "Pop Freqs", fields: [
-                            {id: "Pop Freqs name", name: "PopFreqsName", type: "string", disabled: true},
-                            {id: "Pop Freqs format", name: "PopFreqsFormat", type: "string"}
+                            {id: "PopFreqsname", name: "Pop Freqs Name", type: "string", disabled: true},
+                            {id: "PopFreqsformat", name: "Pop Freqs Format", type: "string"}
                         ]
                     },
                     {id: "gerp1", name: "Gerp1", type: "categorical", defaultValue: "0:1:01"},

@@ -31,7 +31,7 @@ export default class LoadingSpinner extends LitElement {
         <style>
             .loading-spinner-wrapper {
                 text-align: center;
-                height: 13vh;
+                height: 90px;
             }
             
             .DNA_cont {
@@ -49,14 +49,14 @@ export default class LoadingSpinner extends LitElement {
             }
         
             .nucleobase:not(:last-child) {
-                margin-right: 4.86vh;
+                margin-right: 35px;
             }
         
             .nucleobase:before, .nucleobase:after {
                 content: "";
                 display: inline-block;
-                width: 3vh;
-                height: 3vh;
+                width: 20px;
+                height: 20px;
                 border-radius: 50%;
                 position: absolute;
             }
@@ -438,15 +438,15 @@ export default class LoadingSpinner extends LitElement {
             }
         
             .loading-spinner-wrapper .loading-text {
-                font-size: 3vh;
+                font-size: 19px;
                 font-variant: all-small-caps;
                 letter-spacing: 5px;
-                margin: 3vh 0 0 3vh;
+                margin: 20px 0 0 20px;
                 text-align: left;
             }
             
             .loading-text-wrapper {
-                width: 21vh;
+                width: 140px;
                 margin: 0 auto;
             }
     

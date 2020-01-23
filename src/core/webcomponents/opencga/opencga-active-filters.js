@@ -300,6 +300,7 @@ export default class OpencgaActiveFilters extends LitElement {
             $("#filtersList option[value='none']").prop("selected", true);
         }
 
+
         this.dispatchEvent(new CustomEvent("activeFilterChange", {
             detail: _queryList,
             bubbles: true,

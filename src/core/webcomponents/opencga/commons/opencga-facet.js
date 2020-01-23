@@ -778,7 +778,7 @@ export default class OpencgaFacet extends LitElement {
                                                     <h4 class="panel-title">
                                                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
                                                             href="#${this._prefix}${facet[1].id}" aria-expanded="true" aria-controls="${this._prefix}">
-                                                            <p class="subsection-content">${facet[0]}</p>
+                                                            <p class="subsection-content">${facet[1].name}</p>
                                                         </a>
                                                     </h4>
                                                 </div>

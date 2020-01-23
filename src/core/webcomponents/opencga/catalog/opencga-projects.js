@@ -300,8 +300,7 @@ export default class OpencgaProjects extends LitElement {
         // console.log("study",this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias)
 
         this.querySelector("#loading").style.display = "block";
-
-        const sleep = new Promise(resolve => setTimeout(()=> resolve(), 5000));
+        const sleep = (s) => new Promise(resolve => setTimeout(() => resolve(), s*1000));
 
         this.projects.map(project => this.opencgaClient.variants().facet({
             // sid: this.opencgaClient._config.sessionId,
@@ -314,8 +313,7 @@ export default class OpencgaProjects extends LitElement {
                 //the first is opencga1.4, the second opencga 2
                 let r = response.getResult(0).results ? response.getResult(0).results[0] : response.getResult(0);
                 //console.log(r)
-                this.totalCount.variants += r.count;
-                this.variantCount.update(this.totalCount.variants);
+                this.variantCount.update(this.totalCount.variants += r.count);
                 this.data[project.id] = {
                     name: project.name,
                     dataset: [
@@ -326,7 +324,9 @@ export default class OpencgaProjects extends LitElement {
                 this.requestUpdate();
             })
 
-        );/*
+        );
+
+        /*
         Promise.all([...results]).then( responses => {
             // response.pop() //remove along with sleep
 
