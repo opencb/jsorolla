@@ -15,27 +15,27 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "./../../commons/variant-modal-ontology.js";
-import "./../../commons/filters/cadd-filter.js";
-import "../../commons/filters/biotype-filter.js";
-import "../../commons/filters/region-filter.js";
-import "./../../commons/filters/clinvar-accessions-filter.js";
-import "./../../commons/filters/cohort-filter.js";
-import "./../../commons/filters/consequence-type-filter.js";
-import "./../../commons/filters/conservation-filter.js";
-import "./../../commons/filters/disease-filter.js";
-import "./../../commons/filters/feature-filter.js";
-import "./../../commons/filters/file-filter.js";
-import "./../../commons/filters/file-pass-filter.js";
-import "./../../commons/filters/file-qual-filter.js";
-import "./../../commons/filters/fulltext-search-accessions-filter.js";
-import "./../../commons/filters/go-accessions-filter.js";
-import "./../../commons/filters/hpo-accessions-filter.js";
-import "./../../commons/filters/population-frequency-filter.js";
-import "./../../commons/filters/protein-substitution-score-filter.js";
-import "./../../commons/filters/sample-filter.js";
-import "./../../commons/filters/study-filter.js";
-import "./../../commons/filters/variant-type-filter.js";
+import "../commons/variant-modal-ontology.js";
+import "../commons/filters/cadd-filter.js";
+import "../commons/filters/biotype-filter.js";
+import "../commons/filters/region-filter.js";
+import "../commons/filters/clinvar-accessions-filter.js";
+import "../commons/filters/cohort-filter.js";
+import "../commons/filters/consequence-type-filter.js";
+import "../commons/filters/conservation-filter.js";
+import "../commons/filters/disease-filter.js";
+import "../commons/filters/feature-filter.js";
+import "../commons/filters/file-filter.js";
+import "../commons/filters/file-pass-filter.js";
+import "../commons/filters/file-qual-filter.js";
+import "../commons/filters/fulltext-search-accessions-filter.js";
+import "../commons/filters/go-accessions-filter.js";
+import "../commons/filters/hpo-accessions-filter.js";
+import "../commons/filters/population-frequency-filter.js";
+import "../commons/filters/protein-substitution-score-filter.js";
+import "../commons/filters/sample-filter.js";
+import "../commons/filters/study-filter.js";
+import "../commons/filters/variant-type-filter.js";
 
 //TODO complete lit-html refactor
 export default class OpencgaVariantFilter extends LitElement {

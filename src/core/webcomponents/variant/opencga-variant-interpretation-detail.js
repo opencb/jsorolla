@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "../../cellbase/variation/cellbase-variantannotation-view.js";
+import "./annotation/cellbase-variantannotation-view.js";
 import "./opencga-variant-file-metrics.js";
 import "./opencga-interpretation-variant-review.js";
 import "./variant-beacon-network.js";

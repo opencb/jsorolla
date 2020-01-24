@@ -15,8 +15,10 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "../../cellbase/variation/cellbase-variant-annotation-summary.js";
-import "../../cellbase/variation/cellbase-variantannotation-view.js";
+import "./annotation/cellbase-variant-annotation-summary.js";
+import "./annotation/cellbase-variantannotation-view.js";
+import "./annotation/cellbase-annotation-consequencetype-grid.js";
+import "./annotation/cellbase-population-frequency-grid.js";
 
 export default class OpenCGAVariantDetailView extends LitElement {
 
@@ -75,6 +77,12 @@ export default class OpenCGAVariantDetailView extends LitElement {
         if (_changedProperties.has("variantId")) {
             this._variantChanged();
         }
+
+        if (_changedProperties.has("variant")) {
+            // this.variant
+            // debugger
+            this.requestUpdate();
+        }
     }
 
     // filterChange(e) {
@@ -99,8 +107,8 @@ export default class OpenCGAVariantDetailView extends LitElement {
 
     _variantChanged() {
         let _this = this;
-        if (typeof this.cellbaseClient !== "undefined" && UtilsNew.isNotEmpty(this.variantId)) {
-            this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", {assembly: this.opencgaSession.project.organism.assembly}, {})
+        if (typeof this.cellbaseClient !== "undefined" && UtilsNew.isNotEmpty(this.variant.id)) {
+            this.cellbaseClient.get("genomic", "variant", this.variant.id, "annotation", {assembly: this.opencgaSession.project.organism.assembly}, {})
                 .then(function(response) {
                     _this.variantAnnotation = response.response[0].result[0];
                     _this.numberConsequenceTypes = 0;
@@ -156,12 +164,12 @@ export default class OpenCGAVariantDetailView extends LitElement {
     }
 
     render() {
-        if (this.variantAnnotation === undefined) {
+        if (this.variant === undefined || this.variant.annotation === undefined) {
             return;
         }
         return html`
                     <div style="padding-top: 20px">
-                                <h3>Variant: ${this.variantId}</h3>
+                                <h3>Variant: ${this.variant.id}</h3>
                                 <div style="padding-top: 20px">
                                     <!-- Dynamically create the Detail Tabs from Browser config -->
                                     <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
@@ -202,19 +210,20 @@ export default class OpenCGAVariantDetailView extends LitElement {
              -->
                                         
                                         
-                                        
-                                        <div id="${this._prefix}annotationSummary" role="tabpanel" class="tab-pane">
+                                         <!-- Annotation Tab -->
+                                        <div id="${this._prefix}annotationSummary" role="tabpanel" class="tab-pane active">
                                             <div style="width: 90%;padding-top: 8px">
-                                                <cellbase-variant-annotation-summary    .data="${this.variantAnnotation}"
+                                                <cellbase-variant-annotation-summary    .variantAnnotation="${this.variant.annotation}"
                                                                                         .consequenceTypes="${this.consequenceTypes}"
                                                                                         .proteinSubstitutionScores="${this.proteinSubstitutionScores}">
                                                 </cellbase-variant-annotation-summary>  
                                             </div>
                                         </div>
                                         
+                                        
                                         <div id="${this._prefix}annotationConsType" role="tabpanel" class="tab-pane">
                                             <div style="width: 90%;padding-top: 8px">
-                                                <cellbase-annotation-consequencetype-grid .data="${this.variantAnnotation.consequenceTypes}"
+                                                <cellbase-annotation-consequencetype-grid .data="${this.variant.annotation.consequenceTypes}"
                                                           .hashFragmentCredentials="${this.hashFragmentCredentials}"
                                                           .consequenceTypes="${this.consequenceTypes}">
                                                 </cellbase-annotation-consequencetype-grid>
@@ -223,47 +232,42 @@ export default class OpenCGAVariantDetailView extends LitElement {
                                         
                                         <div id="${this._prefix}annotationPropFreq" role="tabpanel" class="tab-pane">
                                             <div style="width: 90%;padding-top: 8px">
-                                                <cellbase-population-frequency-grid .data="${this.variantAnnotation.populationFrequencies}"
-                                                    .prefix="${this._prefix}annotationView">
+                                                <cellbase-population-frequency-grid .data="${this.variant.annotation.populationFrequencies}">
                                                 </cellbase-population-frequency-grid>
                                             </div>
                                         </div>
-                                        
-                                        
-                                        
-                                        
-                                        
-                                        
+
                                         <!-- Cohort Stats Tab -->
                                         <div id="${this._prefix}cohortStats" role="tabpanel" class="tab-pane">
                                             <div style="width: 75%;padding-top: 8px">
                                                 <opencga-variant-cohort-stats .opencgaSession="${this.opencgaSession}"
-                                                                              variant="${this.variantId}"
+                                                                              variant="${this.variant.id}"
                                                                               .active="${this.detailActiveTabs.cohortStats}"
                                                                               .config="${this._config.filter.menu}">
                                                 </opencga-variant-cohort-stats>
                                             </div>
                                         </div>
-            
+
                                         <!-- Samples Tab -->
                                         <div id="${this._prefix}samples" role="tabpanel" class="tab-pane">
                                             <div style="width: 75%;padding-top: 8px">
                                                 <opencga-variant-samples .opencgaSession="${this.opencgaSession}"
-                                                                         variant="${this.variantId}"
+                                                                         variant="${this.variant.id}"
                                                                          .active="${this.detailActiveTabs.samples}">
                                                 </opencga-variant-samples>
                                             </div>
                                         </div>
             
-                                        <!-- Beacon Network Tab-->
+                                        <!-- Beacon Network Tab -->
                                         <div id="${this._prefix}beacon" role="tabpanel" class="tab-pane">
                                             <div style="width: 75%;padding-top: 8px">
-                                                <variant-beacon-network variant="${this.variantId}" 
-                                                                        clear="${this.variantId}"
+                                                <variant-beacon-network variant="${this.variant.id}" 
+                                                                        clear="${this.variant.id}"
                                                                         .config="${this.beaconConfig}">
                                                 </variant-beacon-network>
                                             </div>
                                         </div>
+                                        
             
                                         <!-- Reactome network tab -->
                                         <div id="${this._prefix}network" role="tabpanel" class="tab-pane">
@@ -275,15 +279,18 @@ export default class OpenCGAVariantDetailView extends LitElement {
                                                 </reactome-variant-network>
                                             </div>
                                         </div>
+                                        
             
-                                        <!-- Example Template Tab-->
+                                        <!-- Example Template Tab
                                         <div id="${this._prefix}template" role="tabpanel" class="tab-pane">
                                             <div style="width: 75%;padding-top: 8px">
                                                 <opencga-variant-detail-template .opencgaSession="${this.opencgaSession}"
                                                                                  .variant="${this.variant}"
-                                                                                 .active="${this.detailActiveTabs.template}"></opencga-variant-detail-template>
+                                                                                 .active="${this.detailActiveTabs.template}">
+                                                </opencga-variant-detail-template>
                                             </div>
                                         </div>
+                                        -->
                                     </div>
                                 </div>
                             </div>
@@ -297,24 +304,25 @@ export default class OpenCGAVariantDetailView extends LitElement {
                 menu: []
             },
             detail: [
-                {
-                    id: "annotation",
-                    component: "cellbase-variantannotation-view",
-                    title: "Advanced Annotation",
-                    active: true
-                },
+                // {
+                //     id: "annotation",
+                //     component: "cellbase-variantannotation-view",
+                //     title: "Advanced Annotation",
+                //     active: true
+                // },
                 {
                     id: "annotationSummary",
                     // component: "opencga-variant-cohort-stats",
-                    title: "Summary"
+                    title: "Summary",
+                    active: true
                 },
                 {
                     id: "annotationConsType",
                     // component: "opencga-variant-cohort-stats",
-                    title: "Consequence Type"
+                    title: "Consequence Type",
                 },
                 {
-                    id: "annotationConsType",
+                    id: "annotationPropFreq",
                     // component: "opencga-variant-cohort-stats",
                     title: "Population Frequencies"
                 },

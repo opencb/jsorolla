@@ -16,10 +16,10 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "./opencga-variant-filter.js";
-import "../commons/opencga-facet-result-view.js";
-import "../../opencga/opencga-active-filters.js";
-import "../../commons/filters/select-field-filter.js";
-import "../../../loading-spinner.js";
+import "../opencga/commons/opencga-facet-result-view.js";
+import "../opencga/opencga-active-filters.js";
+import "../commons/filters/select-field-filter.js";
+import "../../loading-spinner.js";
 
 // TODO spring-cleaning the old code
 

@@ -1,5 +1,5 @@
-/**
- * Copyright 2015-2019 OpenCB
+/*
+ * Copyright 2015-2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
 
     static get properties() {
         return {
-            data: {
+            variantAnnotation: {
                 type: Object
             },
             consequenceTypes: {
@@ -46,11 +46,11 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
 
     _init() {
         this._prefix = "sf-" + Utils.randomString(6) + "_";
-        this.data = {};
+        this.variantAnnotation = {};
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("data")) {
+        if (changedProperties.has("variantAnnotation")) {
             this.variantAnnotationChanged();
         }
         if (changedProperties.has("consequenceTypes") || changedProperties.has("proteinSubstitutionScores")) {
@@ -101,31 +101,31 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
         }
     }
 
-    variantAnnotationChanged(neo, old) {
+    variantAnnotationChanged() {
         let _this = this;
         //debugger
-        if (typeof this.data !== "undefined") {
-            if (UtilsNew.isEmpty(_this.data.reference)) {
-                _this.data.reference = "-";
+        if (typeof this.variantAnnotation !== "undefined") {
+            if (UtilsNew.isEmpty(_this.variantAnnotation.reference)) {
+                _this.variantAnnotation.reference = "-";
             }
 
-            if (UtilsNew.isEmpty(_this.data.alternate)) {
-                _this.data.alternate = "-";
+            if (UtilsNew.isEmpty(_this.variantAnnotation.alternate)) {
+                _this.variantAnnotation.alternate = "-";
             }
 
             // Consequence type
             // Color the consequence type
-            if (typeof _this.consequenceTypeToColor !== "undefined" && typeof _this.consequenceTypeToColor[_this.data.displayConsequenceType] !== "undefined") {
-                $("#" + _this._prefix + "CT").css("color", _this.consequenceTypeToColor[_this.data.displayConsequenceType]);
+            if (typeof _this.consequenceTypeToColor !== "undefined" && typeof _this.consequenceTypeToColor[_this.variantAnnotation.displayConsequenceType] !== "undefined") {
+                $("#" + _this._prefix + "CT").css("color", _this.consequenceTypeToColor[_this.variantAnnotation.displayConsequenceType]);
             }
 
             // Find the gene and transcript that exhibit the display consequence type
-            if (typeof _this.data.consequenceTypes !== "undefined") {
-                for (let i = 0; i < _this.data.consequenceTypes.length; i++) {
-                    for (let j = 0; j < _this.data.consequenceTypes[i].sequenceOntologyTerms.length; j++) {
-                        if (_this.data.displayConsequenceType === _this.data.consequenceTypes[i].sequenceOntologyTerms[j].name) {
-                            _this.ctGene = _this.data.consequenceTypes[i].geneName;
-                            _this.ctTranscript = _this.data.consequenceTypes[i].ensemblTranscriptId;
+            if (typeof _this.variantAnnotation.consequenceTypes !== "undefined") {
+                for (let i = 0; i < _this.variantAnnotation.consequenceTypes.length; i++) {
+                    for (let j = 0; j < _this.variantAnnotation.consequenceTypes[i].sequenceOntologyTerms.length; j++) {
+                        if (_this.variantAnnotation.displayConsequenceType === _this.variantAnnotation.consequenceTypes[i].sequenceOntologyTerms[j].name) {
+                            _this.ctGene = _this.variantAnnotation.consequenceTypes[i].geneName;
+                            _this.ctTranscript = _this.variantAnnotation.consequenceTypes[i].ensemblTranscriptId;
                             break;
                         }
                     }
@@ -135,14 +135,14 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
             // PSS
             let proteinSubScore = {};
             //debugger
-            if (typeof _this.data.consequenceTypes !== "undefined") {
+            if (typeof _this.variantAnnotation.consequenceTypes !== "undefined") {
                 let min = 10;
                 let max = 0;
-                for (let i = 0; i < _this.data.consequenceTypes.length; i++) {
-                    if (typeof _this.data.consequenceTypes[i].proteinVariantAnnotation !== "undefined") {
-                        let gene = _this.data.consequenceTypes[i].geneName;
-                        let transcript = _this.data.consequenceTypes[i].ensemblTranscriptId;
-                        let scores = _this.data.consequenceTypes[i].proteinVariantAnnotation.substitutionScores;
+                for (let i = 0; i < _this.variantAnnotation.consequenceTypes.length; i++) {
+                    if (typeof _this.variantAnnotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined") {
+                        let gene = _this.variantAnnotation.consequenceTypes[i].geneName;
+                        let transcript = _this.variantAnnotation.consequenceTypes[i].ensemblTranscriptId;
+                        let scores = _this.variantAnnotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores;
 
                         if (typeof scores !== "undefined") {
                             for (let j = 0; j < scores.length; j++) {
@@ -173,10 +173,10 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
             _this.proteinSubScore = proteinSubScore;
             //debugger
             // CADD
-            if (typeof _this.data.functionalScore !== "undefined") {
-                for (let i in _this.data.functionalScore) {
-                    let value = Number(_this.data.functionalScore[i].score).toFixed(2);
-                    if (_this.data.functionalScore[i].source == "cadd_scaled") {
+            if (typeof _this.variantAnnotation.functionalScore !== "undefined") {
+                for (let i in _this.variantAnnotation.functionalScore) {
+                    let value = Number(_this.variantAnnotation.functionalScore[i].score).toFixed(2);
+                    if (_this.variantAnnotation.functionalScore[i].source === "cadd_scaled") {
                         if (value > 15) {
                             $("#" + _this._prefix + "Cadd").css("color", "red");
                             _this.caddScaled = value;
@@ -196,7 +196,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
     }
 
     render() {
-        if (this.data === undefined || this.data === "" || this.proteinSubScore === undefined) {
+        if (this.variantAnnotation === undefined || this.variantAnnotation === "" || this.proteinSubScore === undefined) {
             return;
         }
         //debugger
@@ -226,61 +226,61 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                     <div class="block">
                         <label class="align-left">ID</label>
                         <div class="align-right"><a target="_blank"
-                                                    href="http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${this.data.id}">${this.data.id}</a>
+                                                    href="http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${this.variantAnnotation.id}">${this.variantAnnotation.id}</a>
                         </div>
                         <br>
                     </div>
-                    ${this.data.hgvs && this.data.hgvs.length ? html`
+                    ${this.variantAnnotation.hgvs && this.variantAnnotation.hgvs.length ? html`
                             <div class="block">
                                 <label class="align-left">HGVS</label>
                                 <div class="align-right">
-                                    ${this.data.hgvs.map(item => html`
-                                        {item}<br>
+                                    ${this.variantAnnotation.hgvs.map(item => html`
+                                        ${item}<br>
                                     `)}
                                 </div> <br>
                             </div>
                         ` : null}
                     <div class="block">
                         <label class="align-left">Alleles</label>
-                        <div class="align-right">${this.data.reference}/${this.data.alternate}</div>
+                        <div class="align-right">${this.variantAnnotation.reference}/${this.variantAnnotation.alternate}</div>
                         <br>
                     </div>
                     <div class="block">
                         <label class="align-left">Location</label>
                         <div class="align-right">
-                            <a target="_blank" href="http://genomemaps.org/?region=${this.data.chromosome}:${this.data.start}">
-                                ${this.data.chromosome}:${this.data.start}
-                                ${this.data.end ? html`
-                                <div>-${this.data.end}</div>
+                            <a target="_blank" href="http://genomemaps.org/?region=${this.variantAnnotation.chromosome}:${this.variantAnnotation.start}">
+                                ${this.variantAnnotation.chromosome}:${this.variantAnnotation.start}
+                                ${this.variantAnnotation.end ? html`
+                                <div>-${this.variantAnnotation.end}</div>
                             ` : null}
                             </a>
                         </div>
                         <br>
                     </div>
-                    ${this.isDataEmpty(this.data.type) ? html`
+                    ${this.isDataEmpty(this.variantAnnotation.type) ? html`
                             <div class="block">
                                 <label class="align-left">Type</label>
-                                <div class="align-right">${this.data.type}</div>
+                                <div class="align-right">${this.variantAnnotation.type}</div>
                                 <br>
                             </div>
                     ` : null }
-                    ${this.isDataEmpty(this.data.ancestralAllele) ? html`
+                    ${this.isDataEmpty(this.variantAnnotation.ancestralAllele) ? html`
                         <div class="block">
                             <label class="align-left">Ancestral Allele</label>
-                            <div class="align-right">${this.data.ancestralAllele}</div>
+                            <div class="align-right">${this.variantAnnotation.ancestralAllele}</div>
                             <br>
                         </div>
                     ` : null }
-                    ${this.isDataEmpty(this.data.minorAlleleFreq) ? html`
+                    ${this.isDataEmpty(this.variantAnnotation.minorAlleleFreq) ? html`
                         <div class="block">
                             <label class="align-left">MAF</label>
-                            <div class="align-right">${this.data.minorAlleleFreq} (${this.data.minorAllele})</div>
+                            <div class="align-right">${this.variantAnnotation.minorAlleleFreq} (${this.variantAnnotation.minorAllele})</div>
                             <br>
                          </div>
                     ` : null }
                     <div class="block">
                         <label class="align-left">Most Severe Consequence Type</label>
-                        <div class="align-right"><span id="${this._prefix}CT">${this.data.displayConsequenceType}</span>
+                        <div class="align-right"><span id="${this._prefix}CT">${this.variantAnnotation.displayConsequenceType}</span>
                             ${this.isDataEmpty(this.ctGene) ? html`
                                     <span>(<b>Gene</b> : ${this.ctGene}, <b>Transcript</b> : ${this.ctTranscript})</span>
                                 ` : null }

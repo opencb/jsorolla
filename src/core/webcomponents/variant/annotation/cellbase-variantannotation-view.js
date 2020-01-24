@@ -1,5 +1,5 @@
-/**
- * Copyright 2015-2019 OpenCB
+/*
+ * Copyright 2015-2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "./cellbase-variant-annotation-summary.js";
-import "../cellbase-annotation-consequencetype-grid.js";
-import "../cellbase-population-frequency-grid.js";
+import "./cellbase-annotation-consequencetype-grid.js";
+import "./cellbase-population-frequency-grid.js";
 
 export default class CellbaseVariantAnnotationView extends LitElement {
 
@@ -56,14 +56,12 @@ export default class CellbaseVariantAnnotationView extends LitElement {
             },
             hashFragmentCredentials: {
                 type: Object
-            },
-            prefix: {
-                type: String
             }
         };
     }
 
     _init() {
+        this._prefix = "cbvav-" + Utils.randomString(6) + "_";
         window.icons = {
             refresh: "fa-refresh",
             columns: "fa-th",
@@ -73,11 +71,6 @@ export default class CellbaseVariantAnnotationView extends LitElement {
         this.data = "";
         this.mode = "horizontal";
         this.assembly = "GRCh37";
-
-        // TODO does it needs a prefix from the parent or not?
-        if (typeof this._prefix === "undefined" || this._prefix === "") {
-            this._prefix = "view" + Utils.randomString(6);
-        }
     }
 
     updated(_changedProperties) {
@@ -180,7 +173,7 @@ export default class CellbaseVariantAnnotationView extends LitElement {
             <!-- This renders a vertical menu, this is controlled by the mode property -->
             ${this.checkVertical(this.mode) ? html`
                 <div class="col-xs-2">
-                    <ul id="stackedPills" class="nav nav-pills nav-stacked" role="tablist">
+                    <ul id="${this._prefix}stackedPills" class="nav nav-pills nav-stacked" role="tablist">
                         <li role="presentation" class="active"><a href="#${this._prefix}VariantAnnotationSummary" role="tab"
                                                                   data-toggle="tab">Summary</a></li>
                         <li role="presentation"><a href="#${this._prefix}VariantAnnotationConsequenceTypes" role="tab"
@@ -197,7 +190,7 @@ export default class CellbaseVariantAnnotationView extends LitElement {
         
             <!-- This renders a horizontal menu, this is controlled by the mode property -->
             ${this.checkHorizontal(this.mode) ? html`
-                <ul id="myTabs" class="nav nav-tabs" role="tablist">
+                <ul id="${this._prefix}myTabs" class="nav nav-tabs" role="tablist">
                     <li role="presentation" class="active"><a href="#${this._prefix}VariantAnnotationSummary" role="tab"
                                                               data-toggle="tab">Summary</a></li>
                     <li role="presentation"><a href="#${this._prefix}VariantAnnotationConsequenceTypes" role="tab" data-toggle="tab">Consequence

@@ -19,10 +19,10 @@ import "./opencga-variant-samples.js";
 import "./opencga-variant-facet-query.js";
 import "./variant-beacon-network.js";
 import "./variant-genome-browser.js";
-import "./../opencga-active-filters.js";
-import "../opencga-genome-browser.js";
-import "../../reactome/reactome-variant-network.js";
-import "../../cellbase/variation/cellbase-variantannotation-view.js";
+import "../opencga/opencga-active-filters.js";
+import "../opencga/opencga-genome-browser.js";
+import "../reactome/reactome-variant-network.js";
+import "./annotation/cellbase-variantannotation-view.js";
 import "./opencga-variant-filter.js";
 import "./opencga-variant-grid.js";
 import "./opencga-variant-detail-template.js";
@@ -123,7 +123,7 @@ export default class OpencgaVariantBrowser extends LitElement {
             "1|1": "#FF0000",
             ".|.": "#000000",
         };
-        this.variant = "No variant selected";
+        this.variantId = "No variant selected";
 
         this._sessionInitialised = false;
         this._config = this.getDefaultConfig();
@@ -274,7 +274,8 @@ export default class OpencgaVariantBrowser extends LitElement {
     }
 
     onSelectVariant(e) {
-        this.variant = e.detail.id;
+        this.variantId = e.detail.id;
+        this.variant = e.detail.variant;
         let genes = [];
         for (let i = 0; i < e.detail.variant.annotation.consequenceTypes.length; i++) {
             let gene = e.detail.variant.annotation.consequenceTypes[i].geneName;
@@ -613,19 +614,9 @@ export default class OpencgaVariantBrowser extends LitElement {
                 <!-- Bottom tabs with specific variant information -->
                 <opencga-variant-detail-view    .opencgaSession="${this.opencgaSession}" 
                                                 .cellbaseClient="${this.cellbaseClient}"
-                                                variantid="${this.variant}">
+                                                .variant="${this.variant}">
                 </opencga-variant-detail-view>
                             
-                ${!this.checkVariant(this.variant) ? html`
-
-                            <opencga-variant-detail-view    .opencgaSession="${this.opencgaSession}" 
-                                                            .cellbaseClient="${this.cellbaseClient}"
-                                                            .variant-id="${this.variant}">
-                            </opencga-variant-detail-view>
-
-                            
-                            ` : null}
-
             </div>
 
             <!-- Second TAB -->
@@ -684,94 +675,3 @@ export default class OpencgaVariantBrowser extends LitElement {
 }
 
 customElements.define("opencga-variant-browser", OpencgaVariantBrowser);
-
-
-// <div style="padding-top: 20px">
-//     <h3>Variant: ${this.variant}</h3>
-// <div style="padding-top: 20px">
-//     <!-- Dynamically create the Detail Tabs from Browser config -->
-// <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
-//     ${this.config.detail.length && this.config.detail.map(item => html`
-//         ${item.active ? html`
-//              <li role="presentation" class="active">
-//                 <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab"
-// data-id="${item.id}"
-// class="browser-variant-tab-title"
-// @click="${this._changeBottomTab}">${item.title}</a>
-//     </li>
-//         ` : html`
-//     <li role="presentation" class="">
-//     <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab"
-// data-id="${item.id}"
-// class="browser-variant-tab-title"
-// @click="${this._changeBottomTab}">${item.title}</a>
-//     </li>
-//         `}
-//                                         `)}
-// </ul>
-//
-// <div class="tab-content" style="height: 680px">
-//     <!-- Annotation Tab -->
-// <div id="${this._prefix}annotation" role="tabpanel" class="tab-pane active">
-//     <div style="width: 90%;padding-top: 8px">
-// <cellbase-variantannotation-view .data="${this.variant}"
-//     .assembly=${this.opencgaSession.project.organism.assembly}
-//     _prefix="${this._prefix}"
-//         .cellbaseClient="${this.cellbaseClient}"
-// mode="vertical"
-//     .hashFragmentCredentials="${this.hashFragmentCredentials}"
-//     .consequenceTypes="${this.consequenceTypes}"
-//     .proteinSubstitutionScores="${this.proteinSubstitutionScores}">
-//     </cellbase-variantannotation-view>
-//     </div>
-//     </div>
-//
-//     <!-- Cohort Stats Tab -->
-//     <div id="${this._prefix}cohortStats" role="tabpanel" class="tab-pane">
-//     <div style="width: 75%;padding-top: 8px">
-// <opencga-variant-cohort-stats .opencgaSession="${this.opencgaSession}"
-// variant="${this.variant}"
-//     .active="${this.detailActiveTabs.cohortStats}"
-//     .config="${this.config.filter.menu}">
-//     </opencga-variant-cohort-stats>
-//     </div>
-//     </div>
-//
-//     <!-- Samples Tab -->
-//     <div id="${this._prefix}samples" role="tabpanel" class="tab-pane">
-//     <div style="width: 75%;padding-top: 8px">
-// <opencga-variant-samples .opencgaSession="${this.opencgaSession}"
-// variant="${this.variant}"
-//     .active="${this.detailActiveTabs.samples}">
-//     </opencga-variant-samples>
-//     </div>
-//     </div>
-//
-//     <!-- Beacon Network Tab-->
-//     <div id="${this._prefix}beacon" role="tabpanel" class="tab-pane">
-//     <div style="width: 75%;padding-top: 8px">
-//     <variant-beacon-network variant="${this.variant}" clear="${this.variant}"
-//     .config="${this.beaconConfig}"></variant-beacon-network>
-//     </div>
-//     </div>
-//
-//     <!-- Reactome network tab -->
-//     <div id="${this._prefix}network" role="tabpanel" class="tab-pane">
-//     <div style="width: 75%;padding-top: 8px">
-// <reactome-variant-network .opencgaSession="${this.opencgaSession}"
-//     .reactomeClient="${this.reactomeClient}" .genes="${this.genes}"
-//     ?active="${this.detailActiveTabs.network}"></reactome-variant-network>
-//         </div>
-//         </div>
-//
-//         <!-- Example Template Tab-->
-//         <div id="${this._prefix}template" role="tabpanel" class="tab-pane">
-//     <div style="width: 75%;padding-top: 8px">
-// <opencga-variant-detail-template .opencgaSession="${this.opencgaSession}"
-//     .variant="${this.variant}"
-//     .active="${this.detailActiveTabs.template}"></opencga-variant-detail-template>
-//     </div>
-//     </div>
-//     </div>
-//     </div>
-//     </div>

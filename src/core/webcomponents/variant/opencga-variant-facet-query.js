@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "./../commons/opencga-facet-result-view.js";
-import "./../../../loading-spinner.js";
+import "../opencga/commons/opencga-facet-result-view.js";
+import "./../../loading-spinner.js";
 
 //TODO avg(popFreq__1kG_phase3__AFR)[0..1]:0.1>>avg(popFreq__GNOMAD_GENOMES__EAS[0..1]):0.1
 //TODO this components needs cleaning from the old code

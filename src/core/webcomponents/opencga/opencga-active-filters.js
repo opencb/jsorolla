@@ -622,7 +622,7 @@ export default class OpencgaActiveFilters extends LitElement {
                         <div class="form-group row">
                             <label for="filterName" class="col-xs-2 col-form-label">Name</label>
                             <div class="col-xs-10">
-                                <input class="form-control" type="text" id="filterName">
+                                <input class="form-control" type="text" id="${this._prefix}filterName">
                             </div>
                         </div>
                         <div class="form-group row">

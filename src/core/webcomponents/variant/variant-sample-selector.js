@@ -18,7 +18,7 @@
 // TODO migrate to litelement import "../catalog/samples/opencga-family-editor-new.js";
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "../catalog/samples/opencga-sample-filter.js";
+import "../opencga/catalog/samples/opencga-sample-filter.js";
 
 export default class VariantSampleSelector extends LitElement {
 

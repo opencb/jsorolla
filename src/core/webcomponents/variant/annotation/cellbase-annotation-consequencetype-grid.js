@@ -1,5 +1,5 @@
-/**
- * Copyright 2015-2019 OpenCB
+/*
+ * Copyright 2015-2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 import {LitElement, html} from '/web_modules/lit-element.js';
 
-//TODO massive methods refactor
 export default class AnnotationConsequencetypeGrid extends LitElement {
 
     constructor() {
@@ -44,17 +43,17 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
 
     _init() {
         this._prefix = "actg" + Utils.randomString(6);
-        this.data = [];
+        // this.data = [];
     }
 
     update(changedProperties) {
         if (changedProperties.has("data")) {
             this.renderTable();
-            this.requestUpdate();
         }
         if (changedProperties.has("consequenceTypes")) {
             this.assignColors();
         }
+        this.requestUpdate();
     }
 
     assignColors() {
@@ -79,12 +78,13 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
 
     //it was render();
     renderTable() {
-        //debugger
+        // debugger
+        let _this = this;
         $('#' + this._prefix + 'ConsequenceTypeTable').bootstrapTable('destroy');
         $('#' + this._prefix + 'ConsequenceTypeTable').bootstrapTable({
-            data: this.data,
+            data: _this.data,
             detailView: true,
-            detailFormatter: this.detailFormatter,
+            detailFormatter: _this.detailFormatter,
             columns: [
                 [
                     {
@@ -92,7 +92,6 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
                         field: 'geneName',
                         colspan: 1,
                         rowspan: 2
-
                     },
                     {
                         title: 'Ensembl Gene',
@@ -114,8 +113,8 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
                     },
                     {
                         title: 'Sequence Ontology Term',
-                        field: {context : this},
-                        formatter: this.seqOntologyFormatter,
+                        field: {context : _this},
+                        formatter: _this.seqOntologyFormatter,
                         colspan: 1,
                         rowspan: 2
                     },
@@ -124,13 +123,12 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
                         colspan: 6,
                         rowspan: 1
                     }
-
                 ],
                 [
                     {
                         title: 'Uniprot Accession',
-                        field: {context: this},
-                        formatter: this.uniprotAccessionFormatter,
+                        field: {context: _this},
+                        formatter: _this.uniprotAccessionFormatter,
                         colspan: 1,
                         rowspan: 1
                     },
@@ -142,21 +140,21 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
                     },
                     {
                         title: 'Ref/Alt',
-                        formatter: this.proteinAlleleFormatter,
+                        formatter: _this.proteinAlleleFormatter,
                         colspan: 1,
                         rowspan: 1
                     },
                     {
                         title: 'Sift',
-                        formatter: this.siftScoreFormatter,
-                        cellStyle: this.siftCellStyle,
+                        formatter: _this.siftScoreFormatter,
+                        cellStyle: _this.siftCellStyle,
                         colspan: 1,
                         rowspan: 1
                     },
                     {
                         title: 'Polyphen',
-                        formatter: this.polyphenScoreFormatter,
-                        cellStyle: this.polyphenCellStyle,
+                        formatter: _this.polyphenScoreFormatter,
+                        cellStyle: _this.polyphenCellStyle,
                         colspan: 1,
                         rowspan: 1
                     },
@@ -247,7 +245,7 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
         if (typeof row.proteinVariantAnnotation !== 'undefined') {
             let sub = row.proteinVariantAnnotation.substitutionScores;
             for (let i in sub) {
-                if (sub[i].source == "sift") {
+                if (sub[i].source === "sift") {
                     return '<span title="' + sub[i].description + '">' + sub[i].score + '</span>';
                 }
             }
@@ -260,7 +258,7 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
         if (typeof row.proteinVariantAnnotation !== 'undefined') {
             let sub = row.proteinVariantAnnotation.substitutionScores;
             for (let i in sub) {
-                if (sub[i].source == "polyphen") {
+                if (sub[i].source === "polyphen") {
                     return '<span title="' + sub[i].description + '">' + sub[i].score + '</span>';
                 }
             }

@@ -1,5 +1,5 @@
-/**
- * Copyright 2015-2019 OpenCB
+/*
+ * Copyright 2015-2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,16 +31,13 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
         return {
             data: {
                 type: Array
-            },
-            prefix: {
-                type: String
             }
         }
     }
 
-    _init(){
+    _init() {
         this._prefix = "cpfg-" + Utils.randomString(6) + "_";
-        this.data = [];
+        // this.data = [];
     }
 
     //it was render();
@@ -54,7 +51,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
             }
         }
 
-        $('#' + this.prefix + 'Container').highcharts({
+        $('#' + this._prefix + 'Container').highcharts({
             chart: {
                 type: 'bar'
             },
@@ -109,9 +106,10 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
         });
 
         // Population grid definition
-        $('#' + this.prefix + 'populationFreqTable').bootstrapTable('destroy');
-        $('#' + this.prefix + 'populationFreqTable').bootstrapTable({
-            data: this.data,
+        let _this = this;
+        $('#' + this._prefix + 'populationFreqTable').bootstrapTable('destroy');
+        $('#' + this._prefix + 'populationFreqTable').bootstrapTable({
+            data: _this.data,
             pageSize: 5,
             columns: [
                 [
@@ -126,27 +124,31 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
                     },
                     {
                         title: 'Ref/Alt',
-                        formatter: this.alleleFormatter
+                        formatter: _this.alleleFormatter
                     },
                     {
                         title: 'RefAlleleFreq',
                         field: 'refAlleleFreq',
                         sortable: true,
-                        formatter: this.numFormatter
+                        formatter: _this.numFormatter
                     },
                     {
                         title: 'AltAlleleFreq',
                         field: 'altAlleleFreq',
                         sortable: true,
-                        formatter: this.numFormatter
+                        formatter: _this.numFormatter
                     }
                 ]
             ]
         });
+
+        $("#" + this._prefix + "populationFreqTable").bootstrapTable("showLoading");
+        this.requestUpdate();
     }
 
     alleleFormatter(value, row, index) {
-        return row.refAllele + "/" + row.altAllele;
+        // return row.refAllele + "/" + row.altAllele;
+        return "-";
     }
 
     numFormatter(value, row, index) {
@@ -158,18 +160,18 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
     }
 
     render() {
+        // <style include="jso-styles"></style>
         return html`
-        <style include="jso-styles"></style>
 
         <div style="padding: 10px; ">
-            <table id="${this.prefix}populationFreqTable" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[5, 15, 30]"
+            <table id="${this._prefix}populationFreqTable" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[5, 15, 30]"
                    data-show-pagination-switch="true" data-show-export="true" data-icons-prefix="fa" data-icons="icons">
                 <thead style="background-color: #eee"></thead>
             </table>
-            <div id="${this.prefix}Container"></div>
+            <div id="${this._prefix}Container"></div>
         </div>
         `;
     }
 }
 
-customElements.define('cellbase-population-frequency-grid',CellbasePopulationFrequencyGrid);
+customElements.define('cellbase-population-frequency-grid', CellbasePopulationFrequencyGrid);

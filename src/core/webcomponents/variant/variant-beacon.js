@@ -41,6 +41,7 @@ export default class VariantBeacon extends LitElement {
     }
 
     _init() {
+        this._prefix = "ovdv-" + Utils.randomString(6) + "_";
         this.checkProjects = false;
         this._config = this.getDefaultConfig();
     }
@@ -148,7 +149,7 @@ export default class VariantBeacon extends LitElement {
                                 <div class="form-group row">
                                     <label for="datasetInput" class="col-xs-2 col-form-label">Dataset</label>
                                     <div class="col-xs-6">
-                                        <select class="form-control" name="dataset" id="datasetInput">
+                                        <select class="form-control" name="dataset" id="${this._prefix}datasetInput">
                                             ${this.opencgaSession && this.opencgaSession.project.studies ? this.opencgaSession.project.studies.map(item => html`
                                                 <option value="${item.alias}">${item.name}</option>
                                             `) : null}
@@ -158,19 +159,19 @@ export default class VariantBeacon extends LitElement {
                                 <div class="form-group row">
                                     <label for="refNameInput" class="col-xs-2 col-form-label">Reference Name</label>
                                     <div class="col-xs-3">
-                                        <input class="form-control" type="text" value="" id="refNameInput" @input="${this.updateVariant}">
+                                        <input class="form-control" type="text" value="" id="${this._prefix}refNameInput" @input="${this.updateVariant}">
                                     </div>
                                 </div>
                                 <div class="form-group row">
                                     <label for="startInput" class="col-xs-2 col-form-label">Start</label>
                                     <div class="col-xs-3">
-                                        <input class="form-control" type="text" value="" id="startInput" @input="${this.updateVariant}">
+                                        <input class="form-control" type="text" value="" id="${this._prefix}startInput" @input="${this.updateVariant}">
                                     </div>
                                 </div>
                                 <div class="form-group row">
                                     <label for="alleleInput" class="col-xs-2 col-form-label">Allele</label>
                                     <div class="col-xs-3">
-                                        <input class="form-control" type="text" value="" id="alleleInput" @input="${this.updateVariant}">
+                                        <input class="form-control" type="text" value="" id="${this._prefix}alleleInput" @input="${this.updateVariant}">
                                     </div>
                                 </div>
                                 <!--<div class="form-group row">-->

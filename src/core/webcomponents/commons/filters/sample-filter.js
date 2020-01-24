@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "./../../opencga/variant/opencga-variant-filter-clinical.js";
+import "../../variant/opencga-variant-filter-clinical.js";
 
 export default class SampleFilter extends LitElement {
 

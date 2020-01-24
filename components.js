@@ -3,7 +3,7 @@
  */
 import OpencgaLogin from './src/core/webcomponents/opencga/catalog/opencga-login.js';
 import OpencbGridToolbar from './src/core/webcomponents/commons/opencb-grid-toolbar.js';
-import OpencgaVariantBrowser from "./src/core/webcomponents/opencga/variant/opencga-variant-browser.js";
-import OpencgaVariantFilterClinical from "./src/core/webcomponents/opencga/variant/opencga-variant-browser.js";
+import OpencgaVariantBrowser from "./src/core/webcomponents/variant/opencga-variant-browser.js";
+import OpencgaVariantFilterClinical from "./src/core/webcomponents/variant/opencga-variant-browser.js";
 
 export { OpencgaLogin, OpencbGridToolbar, OpencgaVariantBrowser }

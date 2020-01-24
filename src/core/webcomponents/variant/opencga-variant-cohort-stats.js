@@ -46,7 +46,8 @@ export default class OpencgaVariantCohortStats extends LitElement {
         }
     }
 
-    _init(){
+    _init() {
+        this._prefix = "ovcs-" + Utils.randomString(6) + "_";
         this.active = false;
     }
 

@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "./variant/opencga-variant-grid.js";
-import "./variant/variant-protein-view.js";
+import "../variant/opencga-variant-grid.js";
+import "../variant/variant-protein-view.js";
 
 export default class OpencgaTranscriptView extends LitElement {
 

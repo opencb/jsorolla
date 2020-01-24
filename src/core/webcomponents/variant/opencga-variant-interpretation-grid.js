@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "../../commons/opencb-grid-toolbar.js";
+import "../commons/opencb-grid-toolbar.js";
 import "./opencga-interpretation-variant-review.js";
 import "../../../loading-spinner.js";
 
