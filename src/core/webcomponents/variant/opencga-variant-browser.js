@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "./opencga-variant-cohort-stats.js";
-import "./opencga-variant-samples.js";
+// import "./opencga-variant-cohort-stats.js";
+// import "./opencga-variant-samples.js";
 import "./opencga-variant-facet-query.js";
-import "./variant-beacon-network.js";
+// import "./variant-beacon-network.js";
 import "./variant-genome-browser.js";
 import "../opencga/opencga-active-filters.js";
 import "../opencga/opencga-genome-browser.js";
-import "../reactome/reactome-variant-network.js";
-import "./annotation/cellbase-variantannotation-view.js";
+// import "../reactome/reactome-variant-network.js";
+// import "./annotation/cellbase-variantannotation-view.js";
 import "./opencga-variant-filter.js";
 import "./opencga-variant-grid.js";
-import "./opencga-variant-detail-template.js";
+// import "./opencga-variant-detail-template.js";
 import "./opencga-variant-detail-view.js";
 
 export default class OpencgaVariantBrowser extends LitElement {
@@ -614,7 +614,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                 <!-- Bottom tabs with specific variant information -->
                 <opencga-variant-detail-view    .opencgaSession="${this.opencgaSession}" 
                                                 .cellbaseClient="${this.cellbaseClient}"
-                                                .variant="${this.variant}">
+                                                .variantId="${this.variantId}">
                 </opencga-variant-detail-view>
                             
             </div>

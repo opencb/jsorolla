@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "./annotation/cellbase-variant-annotation-summary.js";
-import "./annotation/cellbase-variantannotation-view.js";
+// import "./annotation/cellbase-variantannotation-view.js";
 import "./annotation/cellbase-annotation-consequencetype-grid.js";
 import "./annotation/cellbase-population-frequency-grid.js";
 
@@ -81,7 +81,7 @@ export default class OpenCGAVariantDetailView extends LitElement {
         if (_changedProperties.has("variant")) {
             // this.variant
             // debugger
-            this.requestUpdate();
+            // this.requestUpdate();
         }
     }
 
@@ -107,9 +107,10 @@ export default class OpenCGAVariantDetailView extends LitElement {
 
     _variantChanged() {
         let _this = this;
-        if (typeof this.cellbaseClient !== "undefined" && UtilsNew.isNotEmpty(this.variant.id)) {
-            this.cellbaseClient.get("genomic", "variant", this.variant.id, "annotation", {assembly: this.opencgaSession.project.organism.assembly}, {})
+        if (typeof this.cellbaseClient !== "undefined" && UtilsNew.isNotEmpty(this.variantId)) {
+            this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", {assembly: this.opencgaSession.project.organism.assembly}, {})
                 .then(function(response) {
+                    _this.variant = {id: _this.variantId, annotation: response.response[0].result[0]};
                     _this.variantAnnotation = response.response[0].result[0];
                     _this.numberConsequenceTypes = 0;
                     _this.numberPopulationFrequencies = 0;
@@ -232,7 +233,7 @@ export default class OpenCGAVariantDetailView extends LitElement {
                                         
                                         <div id="${this._prefix}annotationPropFreq" role="tabpanel" class="tab-pane">
                                             <div style="width: 90%;padding-top: 8px">
-                                                <cellbase-population-frequency-grid .data="${this.variant.annotation.populationFrequencies}">
+                                                <cellbase-population-frequency-grid .populationFrequencies="${this.variant.annotation.populationFrequencies}">
                                                 </cellbase-population-frequency-grid>
                                             </div>
                                         </div>

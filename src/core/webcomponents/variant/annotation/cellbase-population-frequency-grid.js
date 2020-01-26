@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
 
 export default class CellbasePopulationFrequencyGrid extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -29,7 +30,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
 
     static get properties() {
         return {
-            data: {
+            populationFrequencies: {
                 type: Array
             }
         }
@@ -37,17 +38,23 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
 
     _init() {
         this._prefix = "cpfg-" + Utils.randomString(6) + "_";
-        // this.data = [];
+        // this.populationFrequencies = [];
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.has("populationFrequencies")) {
+            this.update2();
+        }
     }
 
     //it was render();
-    update() {
+    update2() {
         let popArray = [];
         let mafArray = [];
-        if (typeof this.data !== "undefined") {
-            for (let i = 0; i < this.data.length; i++) {
-                popArray.push(this.data[i].study + "-" + this.data[i].population);
-                mafArray.push(Math.min(Number(this.data[i].refAlleleFreq).toFixed(3), Number(this.data[i].altAlleleFreq).toFixed(3)));
+        if (typeof this.populationFrequencies !== "undefined") {
+            for (let i = 0; i < this.populationFrequencies.length; i++) {
+                popArray.push(this.populationFrequencies[i].study + "-" + this.populationFrequencies[i].population);
+                mafArray.push(Math.min(Number(this.populationFrequencies[i].refAlleleFreq).toFixed(4), Number(this.populationFrequencies[i].altAlleleFreq).toFixed(4)));
             }
         }
 
@@ -109,7 +116,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
         let _this = this;
         $('#' + this._prefix + 'populationFreqTable').bootstrapTable('destroy');
         $('#' + this._prefix + 'populationFreqTable').bootstrapTable({
-            data: _this.data,
+            data: _this.populationFrequencies,
             pageSize: 5,
             columns: [
                 [
@@ -142,34 +149,32 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
             ]
         });
 
-        $("#" + this._prefix + "populationFreqTable").bootstrapTable("showLoading");
-        this.requestUpdate();
     }
 
     alleleFormatter(value, row, index) {
-        // return row.refAllele + "/" + row.altAllele;
-        return "-";
+        return row.refAllele + "/" + row.altAllele;
     }
 
     numFormatter(value, row, index) {
         if (this.field === "refAlleleFreq") {
-            return Number(row.refAlleleFreq).toFixed(3);
+            return Number(row.refAlleleFreq).toFixed(4);
         } else if (this.field === "altAlleleFreq") {
-            return Number(row.altAlleleFreq).toFixed(3);
+            return Number(row.altAlleleFreq).toFixed(4);
         }
     }
 
     render() {
-        // <style include="jso-styles"></style>
+        if (this.populationFrequencies === undefined) {
+            return;
+        }
         return html`
-
-        <div style="padding: 10px; ">
-            <table id="${this._prefix}populationFreqTable" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[5, 15, 30]"
-                   data-show-pagination-switch="true" data-show-export="true" data-icons-prefix="fa" data-icons="icons">
-                <thead style="background-color: #eee"></thead>
-            </table>
-            <div id="${this._prefix}Container"></div>
-        </div>
+            <div style="padding: 10px;">
+                <table id="${this._prefix}populationFreqTable" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[5, 15, 30]"
+                       data-show-pagination-switch="true" data-show-export="true" data-icons-prefix="fa" data-icons="icons">
+                    <thead style="background-color: #eee"></thead>
+                </table>
+                <div id="${this._prefix}Container"></div>
+            </div>
         `;
     }
 }

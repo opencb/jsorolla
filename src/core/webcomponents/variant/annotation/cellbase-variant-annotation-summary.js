@@ -201,6 +201,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
         }
         //debugger
         return html`
+aaaaa
             <div>
                 <style include="jso-styles">
                     div.block {
