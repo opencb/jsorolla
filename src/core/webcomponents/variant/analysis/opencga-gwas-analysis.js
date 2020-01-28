@@ -56,44 +56,58 @@ export default class OpencgaGwasAnalysis extends LitElement {
     getDefaultConfig() {
         return {
             id: "test1",
-            title: "Test1",
+            title: "Test 1",
             icon: "",
-            about: {
-                description: "Test1 description",
-                links: [
-                    {
-                        title: "Wikipedia",
-                        url: "",
-                        icon: ""
-                    }
-                ]
-            },
+            requires: "2.0.0",
+            description: "Test1 description",
+            links: [
+                {
+                    title: "Wikipedia",
+                    url: "",
+                    icon: ""
+                }
+            ],
             form: {
-                input: [
+                sections: [
                     {
-                        title: "Select Parameters 1",
+                        title: "Input Parameters",
                         collapsed: false,
                         parameters: [
                             {
-                                id: "method",
-                                type: "number",
-                                defaultValue: "0",
+                                id: "sample",
+                                type: "SAMPLE_FILTER",
+                            },
+                            {
+                                id: "cohort",
+                                type: "COHORT_FILTER",
+                            }
+                        ]
+                    },
+                    {
+                        title: "Configuration Parameters",
+                        collapsed: false,
+                        parameters: [
+                            {
+                                id: "assoc",
+                                type: "categorical",
+                                defaultValue: "Fisher",
+                                allowedValues: ["Fisher", "Chi", "LR"],
+                                multiple: false,
+                                maxOptions: 1
+                            },
+                            {
+                                id: "fisher-test",
+                                type: "categorical",
+                                defaultValue: "GT",
+                                allowedValues: ["GT", "LT"],
+                                dependsOn: "assoc == Fisher"
+                            },
+                            {
+                                id: "freq",
+                                type: "numeric",
+                                defaultValue: "0.01",
                                 allowedValues: [0, 1],
                                 required: true
-                            },
-                            {
-                                id: "option",
-                                type: "categorical",
-                                defaultValue: "Option3",
-                                allowedValues: ["Option1", "Option2", "Option3"],
-                                multiple: true,
-                                maxOptions: 2
-                            },
-                            {
-                                id: "suboption3",
-                                type: "categorical",
-                                defaultValue: "SubOption3",
-                                dependsOn: "option == Option3"
                             }
                         ]
                     }
@@ -106,10 +120,10 @@ export default class OpencgaGwasAnalysis extends LitElement {
                         description: ""
                     },
                     execute: {
-                        text: "Run",
                         validation: function(params) {
                             alert("test:" + params);
                         },
+                        button: "Run",
                     }
                 }
             },
