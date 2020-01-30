@@ -51,10 +51,15 @@ export default class OpencgaProjects extends LitElement {
         this.requestDone = false;
 
         this.totalCount = {
-            variants: 0,
-            sample: 0
+            files: 0,
+            samples: 0,
+            jobs: 0,
+            individuals: 0,
+            cohorts:0,
+            variants: 0
         };
         this.data = {};
+
     }
 
     updated(changedProperties) {
@@ -67,12 +72,21 @@ export default class OpencgaProjects extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        const countUp = new CountUp("samples-count", 32309);
-        countUp.start();
-        this.variantCount = new CountUp("variants-count", 0);
+        this.filesCount = new CountUp("files-count", 0);
+        this.filesCount.start();
+        this.samplesCount = new CountUp("samples-count", 0);
+        this.samplesCount.start();
+        this.jobsCount = new CountUp("jobs-count", 0);
+        this.jobsCount.start();
+        this.individualsCount = new CountUp("individuals-count", 0);
+        this.individualsCount.start();
+        this.cohortsCount = new CountUp("cohorts-count", 0);
+        this.cohortsCount.start();
+        this.variantCount = new CountUp("variant-count", 0);
         this.variantCount.start();
-        const countUp3 = new CountUp("anto-count", 132);
+        const countUp3 = new CountUp("anto-count", 232);
         countUp3.start();
+
         // this.loadHighcharts();
         // firstUpdated() like every other props related methods is executed once for each prop
         if (!this.requestDone) {
@@ -302,7 +316,37 @@ export default class OpencgaProjects extends LitElement {
         this.querySelector("#loading").style.display = "block";
         const sleep = (s) => new Promise(resolve => setTimeout(() => resolve(), s*1000));
 
-        this.projects.map(project => this.opencgaClient.variants().facet({
+
+        const _this = this
+        this.projects.forEach( project => {
+            let studyPromises = [];
+            project.studies.forEach( study => {
+                let studyPromise = _this.opencgaClient.studies().summary(project.alias + ":" + study.alias)
+            .then( response => {
+                let r = response.getResult(0).results ? response.getResult(0).results[0] : response.getResult(0);
+                this.filesCount.update(this.totalCount.files += r.files);
+                this.samplesCount.update(this.totalCount.samples += r.samples);
+                this.jobsCount.update(this.totalCount.jobs += r.jobs);
+                this.individualsCount.update(this.totalCount.individuals += r.individuals);
+                this.samplesCount.update(this.totalCount.samples += r.samples);
+                //this.variantCount.update(this.totalCount.variants += r.variants);
+                this.cohortsCount.update(this.totalCount.cohorts += r.cohorts);
+
+                this.data[project.id] = {
+                    name: project.name,
+                    dataset: [
+                        //...r.buckets.map( datapoint => ({name: datapoint.value, data: [datapoint.count], type: "column"})),
+                        {name: "count", data: [r.count], type: "spline"}
+                    ]
+                };
+                this.requestUpdate();
+            });
+            studyPromises.push(studyPromise);
+            })
+        });
+
+        //TODO remove this??
+        /*this.projects.map(project => this.opencgaClient.variants().facet({
             // sid: this.opencgaClient._config.sessionId,
             study: this.opencgaSession.study.fqn,
             project: project.fqn,
@@ -321,10 +365,15 @@ export default class OpencgaProjects extends LitElement {
                         {name: "count", data: [r.count], type: "spline"}
                     ]
                 };
+
+                //this.facetChart("#" + project.name + "chart", this.data[project.id].dataset)
+                this.facetChart(project.alias + "-chart1", this.data[project.id].dataset);
+                this.facetChart(project.alias + "-chart2", this.data[project.id].dataset);
+                this.facetChart(project.alias + "-chart3", this.data[project.id].dataset);
                 this.requestUpdate();
             })
 
-        );
+        );*/
 
         /*
         Promise.all([...results]).then( responses => {
@@ -357,15 +406,15 @@ export default class OpencgaProjects extends LitElement {
 */
     }
 
-    facetChart(facetData) {
+    facetChart(selector, facetData) {
         console.log("facetResults", facetData);
-        Highcharts.chart("facetChart", {
+        Highcharts.chart(selector, {
             chart: {
                 type: "column"
             },
             legend: false,
             title: {
-                text: "Projects overview"
+                text: "Total variant"
             },
             subtitle: {
                 text: ""
@@ -443,30 +492,52 @@ export default class OpencgaProjects extends LitElement {
                     <i class="fa fa-search" aria-hidden="true"></i> Projects summary
                 </h3>
             </div>
-            
+
             <div class="panel-container">
                 <div class="panel panel-default shadow">
                     <div class="panel-body">
-                        <p class="counter" id="samples-count">10.250</p>
-                        <p class="counter-title">Samples</p>
+                        <p class="counter" id="files-count"></p>
+                        <p class="counter-title">Files</p>
                     </div>
                 </div>
             
                 <div class="panel panel-default shadow">
                     <div class="panel-body">
-                        <p class="counter" id="variants-count">2.250</p>
-                        <p class="counter-title">Variants</p>
+                        <p class="counter" id="samples-count"></p>
+                        <p class="counter-title">Samples</p>
                     </div>
                 </div>
                 
                 <div class="panel panel-default shadow">
                     <div class="panel-body">
-                        <p class="counter" id="anto-count">125</p>
-                        <p class="counter-title">Hours Antonio spent improving IVA UI</p>
+                        <p class="counter" id="jobs-count"></p>
+                        <p class="counter-title">Jobs</p>
+                    </div>
+                </div>
+                
+                <div class="panel panel-default shadow">
+                    <div class="panel-body">
+                        <p class="counter" id="individuals-count"></p>
+                        <p class="counter-title">Individuals</p>
+                    </div>
+                </div>
+                
+                <div class="panel panel-default shadow">
+                    <div class="panel-body">
+                        <p class="counter" id="cohorts-count"></p>
+                        <p class="counter-title">Cohorts</p>
+                    </div>
+                </div>
+                
+                <div class="panel panel-default shadow">
+                    <div class="panel-body">
+                        <p class="counter" id="variants-count">-</p>
+                        <p class="counter-title">Variants</p>
                     </div>
                 </div>
             </div>
             
+            <div style="margin:100px"></div>
             
             <ul class="nav nav-tabs aggregation-tabs" role="tablist">
                 <!--<li role="presentation" class="active"><a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">Aggregation</a></li>
@@ -478,6 +549,15 @@ export default class OpencgaProjects extends LitElement {
             </ul>
                         
             <div class="tab-content">
+                <div class="container">
+                    <div class="row">
+                ${this.projects.length ? this.projects.map( project => html`
+                    <div class="col-md-4" id="${project.alias}-chart1"></div>
+                    <div class="col-md-4" id="${project.alias}-chart2"></div>
+                    <div class="col-md-4" id="${project.alias}-chart3"></div>
+                `) : null}
+                    </div>
+                </div>
                 ${this.data ? Object.entries(this.data).map( (project, i) => html`
                     <div role="tabpanel" class="tab-pane ${ i===0 ? "active" : "" }" id="facet_tab">
                         ${project[0]} tab
@@ -515,6 +595,7 @@ export default class OpencgaProjects extends LitElement {
                         <tr>
                             <td rowspan="${summaries.rowspan}" colspan="5">
                                 ${summaries.name}
+                               
                             </td>
                         </tr>
                         ${summaries.studies && summaries.studies.length ? summaries.studies.map( item => html`

@@ -16,6 +16,10 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 
+/** NOTE: in case of single mode (this.multiple=false), in order to show the placeholder ("Select an option") and NOT adding a dummy option to allow null selection,
+ *  the single selection mode is implemented still with the multiple flag in bootstrap-select, but forcing 1 selection with data-max-options=1
+ */
+
 export default class SelectFieldFilter extends LitElement {
 
     constructor() {
@@ -47,6 +51,9 @@ export default class SelectFieldFilter extends LitElement {
             disabled: {
                 type: Boolean
             },
+            maxOptions: {
+                type: Number
+            },
             //the expected format is either an array of string or an array of objects {id, name}
             data: {
                 type: Object
@@ -56,9 +63,6 @@ export default class SelectFieldFilter extends LitElement {
 
     _init() {
         this._prefix = "sff-" + Utils.randomString(6) + "_";
-
-        // NOTE: in case of single option select, in order to show the placeholder and NOT adding a dummy option to allow null selection,
-        // the single selection is implemented still with the multiple flag in bootstrap-select, but forcing 1 selection with data-max-options=1
         this.multiple = false;
         this.data = [];
     }
@@ -91,14 +95,13 @@ export default class SelectFieldFilter extends LitElement {
         const selection = $(".selectpicker", this).selectpicker("val");
         let val;
         if (selection && selection.length) {
-            val = this.multiple ? selection.join(",") : selection;
-        } else {
-            val = [];
+            val = this.multiple ? selection.join(",") : selection[0];
         }
+        this.value = val ? val : null; // this allow users to get the selected values using DOMElement.value
         console.log("select filterChange", val);
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: val.length ? val : null
+                value: this.value
             }
         });
         this.dispatchEvent(event);
@@ -112,14 +115,13 @@ export default class SelectFieldFilter extends LitElement {
 
     render() {
         return html`
-            <div id="${this._prefix}-wrapper" class="form-group">
-                <select
-                        id="${this._prefix}-select"
+            <div id="${this._prefix}-select-field-filter-wrapper" class="form-group">
+                <select id="${this._prefix}-select"
                         class="selectpicker"
                         multiple
                         .disabled=${this.disabled}
                         title="${this.placeholder ? this.placeholder : "Select an option"}"
-                        data-max-options="${!this.multiple ? 1 : false}"  
+                        data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}"  
                         @change="${this.filterChange}" data-width="100%">
                     ${this.data.map(opt => html`
                         ${opt.fields ? html`

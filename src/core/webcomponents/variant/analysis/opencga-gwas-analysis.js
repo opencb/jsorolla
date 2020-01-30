@@ -34,23 +34,23 @@ export default class OpencgaGwasAnalysis extends LitElement {
             config: {
                 type: Object
             }
-        }
+        };
     }
 
     _init() {
         this._prefix = "oga-" + Utils.randomString(6);
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("config")) {
-            this._config = Object.assign(this.getDefaultConfig(), this.config);
-        }
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.fieldMap = {};
     }
 
-    render() {
-        return html`
-           <opencga-analysis-tool .config="${this._config}"></opencga-analysis-tool>
-        `;
+    updated(changedProperties) {
+        if (changedProperties.has("config")) {
+            //this._config = Object.assign(this.getDefaultConfig(), this.config);
+        }
     }
 
     getDefaultConfig() {
@@ -75,11 +75,11 @@ export default class OpencgaGwasAnalysis extends LitElement {
                         parameters: [
                             {
                                 id: "sample",
-                                type: "SAMPLE_FILTER",
+                                type: "SAMPLE_FILTER"
                             },
                             {
                                 id: "cohort",
-                                type: "COHORT_FILTER",
+                                type: "COHORT_FILTER"
                             }
                         ]
                     },
@@ -89,24 +89,32 @@ export default class OpencgaGwasAnalysis extends LitElement {
                         parameters: [
                             {
                                 id: "assoc",
-                                type: "categorical",
+                                type: "category",
                                 defaultValue: "Fisher",
                                 allowedValues: ["Fisher", "Chi", "LR"],
                                 multiple: false,
-                                maxOptions: 1
+                                //maxOptions: 1 //you don't need to define maxOptions if multiple=false
                             },
                             {
                                 id: "fisher-test",
-                                type: "categorical",
+                                type: "category",
                                 defaultValue: "GT",
                                 allowedValues: ["GT", "LT"],
+                                multiple: false,
                                 dependsOn: "assoc == Fisher"
                             },
                             {
                                 id: "freq",
-                                type: "numeric",
+                                type: "number",
                                 defaultValue: "0.01",
                                 allowedValues: [0, 1],
+                                required: true
+                            },
+                            {
+                                id: "String",
+                                type: "string",
+                                defaultValue: "default String",
+                                dependsOn: (config) => {console.warn("dependsOn Callback", config); return true},
                                 required: true
                             }
                         ]
@@ -123,16 +131,21 @@ export default class OpencgaGwasAnalysis extends LitElement {
                         validation: function(params) {
                             alert("test:" + params);
                         },
-                        button: "Run",
+                        button: "Run"
                     }
                 }
             },
             result: {
 
             }
-        }
+        };
     }
 
+    render() {
+        return html`
+           <opencga-analysis-tool .config="${this._config}"></opencga-analysis-tool>
+        `;
+    }
 }
 
-customElements.define('opencga-gwas-analysis', OpencgaGwasAnalysis);
+customElements.define("opencga-gwas-analysis", OpencgaGwasAnalysis);

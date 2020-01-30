@@ -15,6 +15,8 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+//import {LitElement, html} from "./test/lit-element.js";
+// import {Utils} from "./../../../utils.js"; //this cannot be a plain script and a module at the same time
 import "./opencga-analysis-tool-form.js";
 
 export default class OpencgaAnalysisTool extends LitElement {
@@ -34,11 +36,12 @@ export default class OpencgaAnalysisTool extends LitElement {
             config: {
                 type: Object
             }
-        }
+        };
     }
 
     _init() {
-        this._prefix = "oat-" + Utils.randomString(6);
+        // this._prefix = "oat-" + Utils.randomString(6);
+        this._prefix = "oat-";
     }
 
     updated(changedProperties) {
@@ -46,14 +49,15 @@ export default class OpencgaAnalysisTool extends LitElement {
     }
 
     render() {
-        return html`
-           <div>
-                <h1>${this.config.id}</h1>
-           </div>
-           
-           <opencga-analysis-tool-form .config="${this.config.form}"></opencga-analysis-tool-form>
-        `;
+        return this.config ? html`
+            <div class="container">
+                <h2>${this.config.title}</h2>
+                <opencga-analysis-tool-form .config="${this.config.form}"></opencga-analysis-tool-form>
+            </div>
+            
+        ` : null;
     }
+
 }
 
-customElements.define('opencga-analysis-tool', OpencgaAnalysisTool);
+customElements.define("opencga-analysis-tool", OpencgaAnalysisTool);

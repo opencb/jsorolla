@@ -21,6 +21,19 @@
     <title>Title</title>
 </head>
 <body>
-    <opencga-analysis-tool></opencga-analysis-tool>
+<script type="module" src="./../opencga-analysis-tool.js"></script>
+<script type="text/javascript" src="./test-configurations.js"></script>
+
+<script type="module">
+    import {LitElement, html} from "./lit-element.js"
+    class testApp extends LitElement {
+        render() {
+            return html`<opencga-analysis-tool .config="${test1}"></opencga-analysis-tool>`
+        }
+    }
+    customElements.define("test-app", testApp);
+</script>
+
+    <test-app></test-app>
 </body>
 </html>

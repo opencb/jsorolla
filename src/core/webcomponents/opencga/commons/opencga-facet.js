@@ -345,7 +345,7 @@ export default class OpencgaFacet extends LitElement {
     }
 
     onFacetValueChange(e) {
-        console.log("onFacetValueChange",e)
+        //console.log("onFacetValueChange",e);
         let id = e.target.dataset.id;
         //this.selectedFacet = {...this.selectedFacet, [id]: (e.target.value.trim() ? e.target.value : "")};
         this.selectedFacet[id].value = e.target.value.trim() ? e.target.value : "";
@@ -354,7 +354,7 @@ export default class OpencgaFacet extends LitElement {
     }
 
     onFacetSelectChange(e) {
-        console.log("onFacetSelectChange",e)
+        //console.log("onFacetSelectChange",e);
         let id = e.target.dataset.id;
         //this.selectedFacet = {...this.selectedFacet, [id]: (e.target.value.trim() ? e.target.value : "")};
         this.selectedFacet[id].value = e.detail.value ? e.detail.value : "";
@@ -365,8 +365,8 @@ export default class OpencgaFacet extends LitElement {
     onFacetFnChange(e) {
         const value = e.detail.value;
         const facet = e.target.dataset.facet;
-        if (value && (value[0] === "Avg" || value[0] === "Percentile")) {
-            this.selectedFacet[facet]["fn"] = value[0];
+        if (value && (value === "Avg" || value === "Percentile")) {
+            this.selectedFacet[facet]["fn"] = value;
             this.querySelector("#" + this._prefix + facet + "_text").disabled = true;
         } else {
             delete this.selectedFacet[facet]["fn"];
@@ -382,14 +382,15 @@ export default class OpencgaFacet extends LitElement {
         this.requestUpdate();
     }
 
+    /*
     onNestedFacetSelectChange(e) {
         this.selectedFacet[e.target.dataset.parentFacet].nested.value = e.detail.value;
         this.selectedFacet = {...this.selectedFacet};
         this.requestUpdate();
-    }
+    }*/
 
     onNestedFacetFieldChange(e, parent) {
-        let selected = e.detail.value && e.detail.value[0];
+        let selected = e.detail.value;
         if(selected) {
             let newField = this._recursiveFind(this._config.fields, selected);
             this.selectedFacet[parent].nested = {...newField, facet: selected, value: newField.defaultValue || ""};
@@ -404,9 +405,9 @@ export default class OpencgaFacet extends LitElement {
         const value = e.detail.value;
         const facet = e.target.dataset.parentFacet;
         console.log("nestedFacetFNCHANGE", "#" + this._prefix + facet + "_NestedValue")
-        if (value && (value[0] === "Avg" || value[0] === "Percentile")) {
+        if (value && (value === "Avg" || value === "Percentile")) {
             if (this.selectedFacet[facet].nested) {
-                this.selectedFacet[facet].nested.fn = value[0];
+                this.selectedFacet[facet].nested.fn = value;
                 this.querySelector("#" + this._prefix + facet + "_NestedValue").disabled = true;
             } else {
                 console.error("function selected before facet!");
@@ -654,7 +655,7 @@ export default class OpencgaFacet extends LitElement {
             case "category":
                 return html`
                     <div class="col-md-12">
-                        <select-field-filter multiple .data="${facet.values}" .value="${facet.defaultValue ? facet.defaultValue : ""}" id="${facet[0]}_NestedSelect" data-parent-facet="${parent}" @filterChange="${this.onNestedFacetSelectChange}"></select-field-filter>
+                        <select-field-filter multiple .data="${facet.values}" .value="${facet.defaultValue ? facet.defaultValue : ""}" id="${facet[0]}_NestedSelect" data-parent-facet="${parent}" @filterChange="${this.onNestedFacetValueChange}"></select-field-filter>
                     </div>
                 `;
             case "number":
@@ -669,7 +670,7 @@ export default class OpencgaFacet extends LitElement {
             case "string":
                 return html`
                     <div class="col-md-12">
-                        <input type="text" class="form-control" placeholder="Include values" data-parent-facet="${parent}" .disabled="${false && !(facet.nested && facet.nested.facet)}" id="${this._prefix}${facet[0]}_Nested_text" .value="${facet.value || ""}"  @input="${this.onNestedFacetValueChange}"  />
+                        <input type="text" class="form-control" placeholder="Include values" data-parent-facet="${parent}" id="${this._prefix}${facet[0]}_Nested_text" .value="${facet.value || ""}"  @input="${this.onNestedFacetValueChange}"  />
                     </div>`;
         default:
             return html`no type recognized`

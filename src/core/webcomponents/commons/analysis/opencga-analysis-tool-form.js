@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
+// import {LitElement, html} from "/test/lit-element.js";
+// import {Utils} from "./../../../utils.js"; //this cannot be a plain script and a module at the same time
+
 import {LitElement, html} from "/web_modules/lit-element.js";
+import "./opencga-analysis-tool-form-field.js";
+
 
 export default class OpencgaAnalysisToolForm extends LitElement {
 
@@ -33,24 +38,145 @@ export default class OpencgaAnalysisToolForm extends LitElement {
             config: {
                 type: Object
             }
-        }
+        };
     }
 
     _init() {
-        this._prefix = "oatf-" + Utils.randomString(6);
+        this._prefix = "oatf-";
+        this.dependencyMap = {f:4};
+        this._config = {};
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        // deep copy
+        this._config = $.extend( true, {}, this.config);
+
+        // this should be executed on change of each field (or better just on actuator param change)
+        if (this._config.sections && this._config.sections.length) {
+            this._config.sections.forEach( section => {
+                if (section.parameters && section.parameters.length) {
+                    section.parameters.forEach(param => {
+                        param.value = param.defaultValue; // TODO change defaultValue to value in config?
+                        if (param.dependsOn) {
+                            //since we use this._config as unique source of truth we can imagine to change any other prop here (like allowedValues)
+                            param.visible = this.checkDependency(param.dependsOn);
+                        } else {
+                            param.visible = true;
+                        }
+                    });
+                }
+            });
+        }
     }
 
     updated(changedProperties) {
 
     }
 
+    checkDependency(dependsOn) {
+        if(typeof dependsOn === "string") {
+            const [actuatorId, value] = dependsOn.split(/  *===?  */); // draft
+            const actuator = this.findParam(this._config, actuatorId);
+            return actuator.value === value;
+        } else if(typeof dependsOn === "function") {
+            return dependsOn(this._config);
+        } else {
+            console.error("Rule not found. Stop messing up with the configuration please.");
+        }
+    }
+
+    findParam(config, paramId) {
+        for (const section of config.sections) {
+            if (section.parameters && section.parameters.length) {
+                for (const param of section.parameters) {
+                    if(param.id === paramId) {
+                        return param;
+                    }
+                }
+            }
+        }
+        console.error(paramId, "not found");
+        return null;
+    }
+
+    checkDependency2(parent, field) {
+        console.log("parent, field", parent, field);
+        console.log("dependsOn", field.dependsOn);
+        if (field.dependsOn) {
+            const [fieldId, value] = field.dependsOn.split(/  *===?  */); // draft
+            console.log(fieldId, value);
+            if (!fieldId || !value) {
+                console.error("dependsOn parse failed");
+            } else {
+                console.log("selector", parent.querySelector("#" + fieldId));
+
+                if (parent.querySelector("#" + fieldId).value === value) {
+                    console.log("value OK", parent.querySelector("#" + fieldId).value);
+                }
+                this.visible = parent.querySelector("#" + fieldId).value === value;
+            }
+        }
+        this.requestUpdate();
+
+    }
+
+    //this method is in charge of update this._config with new value of "actuator" and update "target" visible prop
+    onFieldChange(e) {
+        console.log(e.detail);
+        if (e.detail) {
+            const [paramId, value] = Object.entries(e.detail)[0];
+            const param = this.findParam(this._config, paramId);
+            param.value = value;
+
+            if (this._config.sections && this._config.sections.length) {
+                this._config.sections.forEach(section => {
+                    if (section.parameters && section.parameters.length) {
+                        section.parameters.forEach(param => {
+                            if (param.dependsOn) {
+                                param.visible = this.checkDependency(param.dependsOn);
+                            }
+                        });
+                    }
+                });
+            }
+            this._config.sections = $.extend( true, [], this._config.sections); // god save the queen
+            this.requestUpdate();
+        }
+    }
+
     render() {
         return html`
-           <div>
-                <h1>${this.config.input[0].title}</h1>
+            <div>
+            <!-- <pre style="font-size: 8px">
+            ${JSON.stringify(this._config.sections, null, "\t")}
+            </pre> -->
+                <form id="analysis-form">
+                ${this._config.sections && this._config.sections.length ? this._config.sections.map( (section, i) => html`
+                     <div class="panel panel-default filter-section">
+                         <div class="panel-heading" role="tab" id="${this._prefix}Heading${i}">
+                             <h4 class="panel-title">
+                                 <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
+                                    href="#${this._prefix}section-${i}" aria-expanded="true" aria-controls="${this._prefix}-${i}">
+                                    ${section.title}
+                                 </a>
+                             </h4>
+                         </div>
+                         <div id="${this._prefix}section-${i}" class="panel-collapse ${!section.collapsed ? "in" : ""}" role="tabpanel" aria-labelledby="${this._prefix}${i}Heading">
+                             <div class="panel-body">
+                             ${section.parameters && section.parameters.length ? section.parameters.map( param => html`
+                                ${param.id}
+                                <opencga-analysis-tool-form-field .config="${param}" @fieldChange="${this.onFieldChange}"> </opencga-analysis-tool-form-field>
+                             `) : null }
+                             </div>
+                        </div>
+                    </div>
+                `) : null }
+                </form>
            </div>
         `;
     }
+
 }
 
-customElements.define('opencga-analysis-tool-form', OpencgaAnalysisToolForm);
+customElements.define("opencga-analysis-tool-form", OpencgaAnalysisToolForm);

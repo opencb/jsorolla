@@ -20,7 +20,12 @@ class NotificationUtils {
                 from: "top",
                 align: "center"
             },
-            type: types[type] || types["INFO"]
+            type: types[type] || types["INFO"],
+            animate: {
+                enter: 'zoomInDown',
+                exit: 'zoomInDown'
+            },
+            delay: 2000
         };
 
         const icon = defaultIcons[type];
