@@ -165,7 +165,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                          <div id="${this._prefix}section-${i}" class="panel-collapse ${!section.collapsed ? "in" : ""}" role="tabpanel" aria-labelledby="${this._prefix}${i}Heading">
                              <div class="panel-body">
                              ${section.parameters && section.parameters.length ? section.parameters.map( param => html`
-                                ${param.id}
+                                ${param.title || param.id}
                                 <opencga-analysis-tool-form-field .config="${param}" @fieldChange="${this.onFieldChange}"> </opencga-analysis-tool-form-field>
                              `) : null }
                              </div>

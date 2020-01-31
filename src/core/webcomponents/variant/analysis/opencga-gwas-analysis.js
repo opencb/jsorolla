@@ -75,10 +75,12 @@ export default class OpencgaGwasAnalysis extends LitElement {
                         parameters: [
                             {
                                 id: "sample",
+                                title: "Select samples",
                                 type: "SAMPLE_FILTER"
                             },
                             {
                                 id: "cohort",
+                                title: "Select cohort",
                                 type: "COHORT_FILTER"
                             }
                         ]
@@ -89,6 +91,7 @@ export default class OpencgaGwasAnalysis extends LitElement {
                         parameters: [
                             {
                                 id: "assoc",
+                                title: "Select association test",
                                 type: "category",
                                 defaultValue: "Fisher",
                                 allowedValues: ["Fisher", "Chi", "LR"],
@@ -97,6 +100,7 @@ export default class OpencgaGwasAnalysis extends LitElement {
                             },
                             {
                                 id: "fisher-test",
+                                title: "Select Fisher mode",
                                 type: "category",
                                 defaultValue: "GT",
                                 allowedValues: ["GT", "LT"],
@@ -105,13 +109,15 @@ export default class OpencgaGwasAnalysis extends LitElement {
                             },
                             {
                                 id: "freq",
+                                title: "Filter by frequency",
                                 type: "number",
                                 defaultValue: "0.01",
                                 allowedValues: [0, 1],
                                 required: true
                             },
                             {
-                                id: "String",
+                                id: "gene",
+                                title: "Filter by Genes",
                                 type: "string",
                                 defaultValue: "default String",
                                 dependsOn: (config) => {console.warn("dependsOn Callback", config); return true},

@@ -36,10 +36,12 @@ const test1 = {
                 parameters: [
                     {
                         id: "sample",
+                        title: "Select samples",
                         type: "SAMPLE_FILTER",
                     },
                     {
                         id: "cohort",
+                        title: "Select cohort",
                         type: "COHORT_FILTER",
                     }
                 ]
@@ -50,6 +52,7 @@ const test1 = {
                 parameters: [
                     {
                         id: "assoc",
+                        title: "Select one association test",
                         type: "categorical",
                         defaultValue: "Fisher",
                         allowedValues: ["Fisher", "Chi", "LR"],
@@ -58,6 +61,7 @@ const test1 = {
                     },
                     {
                         id: "fisher-test",
+                        title: "Choose Fisher mode",
                         type: "categorical",
                         defaultValue: "GT",
                         allowedValues: ["GT", "LT"],
@@ -65,6 +69,7 @@ const test1 = {
                     },
                     {
                         id: "freq",
+                        title: "Filter by frequency",
                         type: "numeric",
                         defaultValue: "0.01",
                         allowedValues: [0, 1],
@@ -72,6 +77,7 @@ const test1 = {
                     },
                     {
                         id: "genes",
+                        title: "Filter by genes",
                         type: "text",
                         rows: 3,
                         required: false
