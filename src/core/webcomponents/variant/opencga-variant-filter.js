@@ -881,7 +881,7 @@ export default class OpencgaVariantFilter extends LitElement {
             this.preparedQuery = {...this.preparedQuery};
         }
         this.notifyQuery(this.preparedQuery);
-        this.requestUpdate();
+        //this.requestUpdate(); //TODO recheck if this is necessary. it seems it cause a bug in the select in study-filter (on the first click on the option the option is not selected)
     }
 
     onSampleFilterChange(sampleFields) {

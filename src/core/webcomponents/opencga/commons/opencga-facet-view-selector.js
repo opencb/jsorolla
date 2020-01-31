@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-// TODO check functionality
 
+
+/**
+ * @deprecated
+ **/
 import {LitElement, html} from "/web_modules/lit-element.js";
 
 export default class OpencgaFacetViewSelector extends LitElement {

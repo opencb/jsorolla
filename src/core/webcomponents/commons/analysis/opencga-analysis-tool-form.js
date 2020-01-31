@@ -43,7 +43,6 @@ export default class OpencgaAnalysisToolForm extends LitElement {
 
     _init() {
         this._prefix = "oatf-";
-        this.dependencyMap = {f:4};
         this._config = {};
     }
 
@@ -100,6 +99,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
         return null;
     }
 
+    //DOM manipulation version
     checkDependency2(parent, field) {
         console.log("parent, field", parent, field);
         console.log("dependsOn", field.dependsOn);
@@ -165,7 +165,6 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                          <div id="${this._prefix}section-${i}" class="panel-collapse ${!section.collapsed ? "in" : ""}" role="tabpanel" aria-labelledby="${this._prefix}${i}Heading">
                              <div class="panel-body">
                              ${section.parameters && section.parameters.length ? section.parameters.map( param => html`
-                                ${param.title || param.id}
                                 <opencga-analysis-tool-form-field .config="${param}" @fieldChange="${this.onFieldChange}"> </opencga-analysis-tool-form-field>
                              `) : null }
                              </div>

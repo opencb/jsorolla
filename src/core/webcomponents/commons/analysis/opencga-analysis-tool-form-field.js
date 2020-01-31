@@ -73,7 +73,8 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
     }
     render() {
         return html`
-        <div style="display: ${this.config.visible ? "block": "none"}">
+        <div style="${!this.config.visible ? "display: none": ""}">
+            ${this.config.title || this.config.id}
             <div id="${this.config.id}-wrapper">
                 ${this.renderField(this.config)}
             </div>

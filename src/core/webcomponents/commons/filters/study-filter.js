@@ -38,6 +38,7 @@ export default class StudyFilter extends LitElement {
             differentStudies: {
                 type: Object
             },
+            //part of the query object
             studies: {
                 type: Object
             }
@@ -47,16 +48,16 @@ export default class StudyFilter extends LitElement {
     _init() {
         this._prefix = "sf-" + Utils.randomString(6) + "_";
         this.operator = ";";
-        this._selectStudies = [];
+        this.differentStudies = [];
+        //this._selectStudies = [];
         this._studies = [];
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this.primaryProject = this.opencgaSession.project.fqn + ":" + this.opencgaSession.study.alias;
-        console.log("DATA", [this.primaryProject, this.differentStudies]);
-        this._selectStudies = [this.primaryProject];
-
+        this.primaryProject = this.opencgaSession.study.fqn;
+        //this._selectStudies = [this.primaryProject];
+        this._studies = [this.primaryProject];
     }
 
     firstUpdated(_changedProperties) {
@@ -65,15 +66,14 @@ export default class StudyFilter extends LitElement {
 
     updated(_changedProperties) {
         if (_changedProperties.has("differentStudies")) {
-            console.log("this.opencgaSession",this.opencgaSession)
-            this._selectStudies = [{id: this.opencgaSession.study.fqn, name: this.opencgaSession.study.name}, ...this.differentStudies.map( _ => ({id: _.fqn, name: _.name}))];
-            this.requestUpdate();
+            //console.log("this.opencgaSession",this.opencgaSession)
+            //this._selectStudies = [{id: this.opencgaSession.study.fqn, name: this.opencgaSession.study.name}, ...this.differentStudies.map( _ => ({id: _.fqn, name: _.name}))];
+            //this.requestUpdate();
         }
 
         if (_changedProperties.has("studies")) {
-            // TODO recheck when "studies" happens to change and review code
             this._studies = this.studies ? this.studies.split(new RegExp("[,;]")) : [this.primaryProject];
-            $(".selectpicker", this).selectpicker("val", [this.primaryProject, this._studies]);
+            $(".selectpicker", this).selectpicker("val", this._studies);
             this.requestUpdate();
             // this shouldn't be necessary since this.studies is being updated..
             // this.requestUpdate();
@@ -87,7 +87,7 @@ export default class StudyFilter extends LitElement {
         if (this.operator !== "!") {
             querystring = [...this._studies.map(study => `${study}`)].join(this.operator);
         } else {
-            // NOT operator
+            // NOT operator (not visible/not implemented)
             querystring = [...this._studies.map(study => `${this.operator}${study}`)].join(";");
         }
         const event = new CustomEvent("filterChange", {
@@ -100,13 +100,7 @@ export default class StudyFilter extends LitElement {
     }
 
     onChangeOperator(e) {
-        if (e.target.value === "in") {
-            this.operator = ";";
-        } else if (e.target.value === "atleast") {
-            this.operator = ",";
-        } else if (e.target.value === "not in") {
-            this.operator = "!";
-        }
+        this.operator = e.target.value;
         this.filterChange();
     }
 
@@ -128,45 +122,20 @@ export default class StudyFilter extends LitElement {
         this.filterChange();
     }
 
-    onChangeSelectdStudy() {
+    onChangeSelectedStudy(e) {
         const selected = $(".selectpicker", this).selectpicker("val");
-        this._studies = selected;
+        this._studies = [this.primaryProject, ...selected];
+        this.requestUpdate();
         this.filterChange();
     }
 
     render() {
         return html`
-            <select class="form-control input-sm ${this._prefix}FilterSelect" id="${this._prefix}includeOtherStudy"
+           <!-- <select class="form-control input-sm ${this._prefix}FilterSelect" id="${this._prefix}includeOtherStudy"
                     @change="${this.onChangeOperator}">
-                <option value="in" selected>In all (AND)</option>
-                <option value="atleast">In any of (OR)</option>
-            </select>
-            <div id="${this._prefix}DifferentStudies" class="form-group">
-                <br>
-                
-                <select multiple class="form-control input-sm selectpicker" id="${this._prefix}includeOtherStudy"
-                    @change="${this.onChangeSelectdStudy}">
-                    <option value="${this.opencgaSession.study.fqn}" disabled>${this.opencgaSession.study.name}</option>
-                    ${this.differentStudies && this.differentStudies.length ? this.differentStudies.map(study => html`
-                        <option value="${study.fqn}">${study.alias}</option>
-                    `) : null }
+                    <option value="in" selected>In all (AND)</option>
+                    <option value="atleast">In any of (OR)</option>
                 </select>
-            
-                <!--<fieldset class="switch-toggle-wrapper">
-                    <label style="font-weight: normal;">Logical Operator</label>
-                    <div class="switch-toggle text-white alert alert-light">
-                        <input id="${this._prefix}conservationOrRadio" name="conservation" type="radio" value="or"
-                                   class="radio-or ${this._prefix}FilterRadio" checked 
-                                   @change="${this.onChangeOperator}">
-                            <label for="${this._prefix}conservationOrRadio"
-                                   class="rating-label rating-label-or">OR</label>
-                        <input id="${this._prefix}conservationAndRadio" name="conservation" type="radio" value="and"
-                                   class="radio-and ${this._prefix}FilterRadio"  @change="${this.onChangeOperator}">
-                            <label for="${this._prefix}conservationAndRadio"
-                                   class="rating-label rating-label-and">AND</label>
-                        <a class="btn btn-primary ripple btn-small"></a>
-                    </div>
-                </fieldset> -->
             
                 <input type="checkbox" value="${this.opencgaSession.study.alias}" data-id="${this.opencgaSession.study.id}" checked disabled>
                 <span style="font-weight: bold;font-style: italic;color: darkred">${this.opencgaSession.study.alias}</span>
@@ -174,7 +143,29 @@ export default class StudyFilter extends LitElement {
                     <br>
                     <input id="${this._prefix}${study.alias}Checkbox" type="checkbox" @change="${this.onChangeStudy}" value="${study.alias}" data-id="${study.fqn}" class="${this._prefix}FilterCheckBox" .checked="${~this._studies.indexOf(study.fqn)}" >
                      ${study.alias}
-                 `) : null} 
+                 `) : null}
+                
+           --> 
+                
+                
+            <div id="${this._prefix}DifferentStudies" class="form-group">
+                <br>
+                <select multiple class="form-control input-sm selectpicker" id="${this._prefix}includeOtherStudy"
+                    @change="${this.onChangeSelectedStudy}">
+                    <option value="${this.opencgaSession.study.fqn}" disabled>${this.opencgaSession.study.name}</option>
+                    ${this.differentStudies && this.differentStudies.length ? this.differentStudies.map(study => html`
+                        <option selected value="${study.fqn}">${study.alias}</option>
+                    `) : null }
+                </select>
+                <fieldset class="switch-toggle-wrapper">
+                    <div class="switch-toggle text-white alert alert-light">
+                        <input id="${this._prefix}orInput" name="pss" type="radio" value="," checked ?disabled="${this._studies.length < 2}" @change="${this.onChangeOperator}" />
+                        <label for="${this._prefix}orInput" class="rating-label rating-label-or">In any of (OR)</label>
+                        <input id="${this._prefix}andInput" name="pss" type="radio" value=";" ?disabled="${this._studies.length < 2}" @change="${this.onChangeOperator}"/>
+                        <label for="${this._prefix}andInput" class="rating-label rating-label-and">In all (AND)</label>
+                        <a class="btn btn-primary ripple btn-small"></a>
+                    </div>
+                </fieldset>
             </div>
         `;
     }
