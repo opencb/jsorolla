@@ -147,13 +147,13 @@ export default class OpencgaAnalysisToolForm extends LitElement {
 
     render() {
         return html`
-            <div>
+            <div class="panel-group">
             <!-- <pre style="font-size: 8px">
             ${JSON.stringify(this._config.sections, null, "\t")}
             </pre> -->
                 <form id="analysis-form">
                 ${this._config.sections && this._config.sections.length ? this._config.sections.map( (section, i) => html`
-                     <div class="panel panel-default filter-section">
+                     <div class="panel panel-default filter-section shadow-sm">
                          <div class="panel-heading" role="tab" id="${this._prefix}Heading${i}">
                              <h4 class="panel-title">
                                  <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
@@ -164,13 +164,16 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                          </div>
                          <div id="${this._prefix}section-${i}" class="panel-collapse ${!section.collapsed ? "in" : ""}" role="tabpanel" aria-labelledby="${this._prefix}${i}Heading">
                              <div class="panel-body">
-                             ${section.parameters && section.parameters.length ? section.parameters.map( param => html`
-                                <opencga-analysis-tool-form-field .config="${param}" @fieldChange="${this.onFieldChange}"> </opencga-analysis-tool-form-field>
-                             `) : null }
+                                <div class="row">
+                                    ${section.parameters && section.parameters.length ? section.parameters.map( param => html`
+                                        <opencga-analysis-tool-form-field .config="${param}" @fieldChange="${this.onFieldChange}"> </opencga-analysis-tool-form-field>
+                                    `) : null }
+                             </div>
                              </div>
                         </div>
                     </div>
                 `) : null }
+                <button type="button" class="ripple btn btn-primary btn-lg">Run</button>
                 </form>
            </div>
         `;

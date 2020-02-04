@@ -16,13 +16,13 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "./opencga-variant-filter.js";
-import "../opencga-active-filters.js";
+import "../opencga/opencga-active-filters.js";
 import "./opencga-variant-grid.js";
 import "./opencga-variant-interpretation-grid.js";
 import "./opencga-variant-interpretation-detail.js";
-import "../opencga-genome-browser.js";
-import "../clinical/opencga-clinical-analysis-view.js";
-import "../clinical/clinical-interpretation-view.js";
+import "../opencga/clinical/opencga-clinical-analysis-view.js";
+import "../opencga/opencga-genome-browser.js";
+import "../opencga/clinical/clinical-interpretation-view.js";
 
 
 export default class OpencgaVariantInterpretationEditor extends LitElement {

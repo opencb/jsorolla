@@ -74,7 +74,9 @@ export default class SampleFilter extends LitElement {
 
     queryObserver(){
         this.updateClinicalQueryTable();
-        this.clinicalFilterQuery = {...this.query} //updates the table opencga-variant-filter-clinical (in the modal)
+        this.clinicalFilterQuery = $.extend(true, {}, this.query);  //updates the table opencga-variant-filter-clinical (in the modal)
+
+        //console.warn("query changed", this.query)
         //console.error("renderClinicalQuerySummary is the problem for the not updating sample-filter table after active-filter change")
         //console.log("clinicalFilterQuery", this.clinicalFilterQuery)
         //this.requestUpdate();
@@ -205,7 +207,7 @@ export default class SampleFilter extends LitElement {
                     }
                 }
             }
-            
+
             //TODO this cause a bug (variant-filter-clinical table is not updated correctly changing GT), but commenting this line the table in sample-filter is not updated on its end (changing active-filters)
             //this.requestUpdate();
         }
@@ -281,7 +283,7 @@ export default class SampleFilter extends LitElement {
                         <div class="modal-body">
                             <opencga-variant-filter-clinical .opencgaSession="${this.opencgaSession}"
                                                              .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                             .query="${this.clinicalFilterQuery}"
+                                                             .query="${this.query}"
                                                              @sampleFiltersChange="${this.onClinicalFilterChange}"
                                                              style="font-size: 12px">
                             </opencga-variant-filter-clinical>

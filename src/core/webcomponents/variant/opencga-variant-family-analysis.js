@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import "./opencga-variant-filter.js";
 import "./opencga-variant-interpretation-grid.js";
 import "./opencga-variant-interpretation-detail.js";
-import "../opencga-active-filters.js";
+import "../opencga/opencga-active-filters.js";
 
 export default class OpencgaVariantFamilyAnalysis extends LitElement {
 

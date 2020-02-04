@@ -128,6 +128,7 @@ export default class OpencgaSamplesFacet extends LitElement {
             name: "Aggregation for Sample",
             active: false,
             icon: `fas fa-chart-bar`,
+            endpoint: this.opencgaSession.opencgaClient.samples(),
             fields: [
                 {id: "gerp", name: "Gerp", type: "integer", defaultValue: "0:1:01"},
                 //{name: "Pop Freqs_", category: true},

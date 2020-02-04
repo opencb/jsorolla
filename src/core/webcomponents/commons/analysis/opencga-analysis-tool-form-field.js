@@ -62,10 +62,8 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
             case "number":
                 const [min = "", max = ""] = field.allowedValues || [];
                 return html`<div id="${this._prefix}-wrapper" class="subsection-content form-group">
-                                <input type="number" min=${min} max=${max} step="0.01" value="${field.defaultValue || ""}" id="${this._prefix}-input-${field.id}" class="form-control input-sm ${this._prefix}FilterTextInput" placeholder="${field.placeholder || ""}" @input="${e => this.fieldChange(field.id, e.target.value)}">
-                        </div>`;
-            case "COHORT_FILTER":
-                return html`cohort-filter`;
+                                <input type="number" min=${min} max=${max} step="0.01" value="${field.defaultValue || ""}" id="${this._prefix}-input-${field.id}" class="input form-control input-sm ${this._prefix}FilterTextInput" placeholder="${field.placeholder || ""}" @input="${e => this.fieldChange(field.id, e.target.value)}">
+                            </div>`;
             default:
                 console.warn("field type "+field.type+" not implemented. String type fallback");
                 return html`<text-field-filter placeholder="${field.placeholder || ""}" .value="${field.defaultValue || ""}" @filterChange="${e => this.fieldChange(field.id, e.detail.value)}"></text-field-filter>`;
@@ -73,7 +71,7 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
     }
     render() {
         return html`
-        <div style="${!this.config.visible ? "display: none": ""}">
+        <div class="${this.config.colspan ? "col-md-"+this.config.colspan : "col-md-12"}" style="${!this.config.visible ? "display: none": ""}">
             ${this.config.title || this.config.id}
             <div id="${this.config.id}-wrapper">
                 ${this.renderField(this.config)}

@@ -226,8 +226,7 @@ export default class CellbaseVariantAnnotationView extends LitElement {
                 </div>
                 <!--Population frequency Tab-->
                 <div role="tabpanel" class="tab-pane" id="${this._prefix}VariantAnnotationPopulationFrequencies">
-                    <cellbase-population-frequency-grid .data="${this.variantAnnotation.populationFrequencies}"
-                                                        .prefix="${this._prefix}annotationView">
+                    <cellbase-population-frequency-grid .populationFrequencies="${this.variantAnnotation.populationFrequencies}">
                     </cellbase-population-frequency-grid>
                 </div>
                 <!--Gene Trait Association Tab-->

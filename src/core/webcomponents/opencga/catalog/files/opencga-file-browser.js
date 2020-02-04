@@ -59,7 +59,7 @@ export default class OpencgaFileBrowser extends LitElement {
     _init() {
         this._prefix = "ofb-" + Utils.randomString(6) + "_";
 
-        this.files = [];
+        this.files = []; // TODO recheck what's the point of this
 
         this._config = this.getDefaultConfig();
 

@@ -90,8 +90,9 @@ class OpencbFacetResults extends LitElement {
         if (changedProperties.has("config")) {
             this.configObserver();
         }
-        if (changedProperties.has("active")) {
-            this.fetchDefaultData();
+        if (changedProperties.has("active") && this.active) {
+            console.warn("fire http req") //TODO check if query has changed before (this.facetResults.length)
+            //this.fetchDefaultData();
         }
     }
 

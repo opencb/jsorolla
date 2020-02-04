@@ -76,12 +76,14 @@ export default class OpencgaGwasAnalysis extends LitElement {
                             {
                                 id: "sample",
                                 title: "Select samples",
-                                type: "SAMPLE_FILTER"
+                                type: "SAMPLE_FILTER",
+                                colspan: 6
                             },
                             {
                                 id: "cohort",
                                 title: "Select cohort",
-                                type: "COHORT_FILTER"
+                                type: "COHORT_FILTER",
+                                colspan: 6
                             }
                         ]
                     },
@@ -96,6 +98,7 @@ export default class OpencgaGwasAnalysis extends LitElement {
                                 defaultValue: "Fisher",
                                 allowedValues: ["Fisher", "Chi", "LR"],
                                 multiple: false,
+                                colspan: 6
                                 //maxOptions: 1 //you don't need to define maxOptions if multiple=false
                             },
                             {
@@ -105,23 +108,26 @@ export default class OpencgaGwasAnalysis extends LitElement {
                                 defaultValue: "GT",
                                 allowedValues: ["GT", "LT"],
                                 multiple: false,
+                                colspan: 6,
                                 dependsOn: "assoc == Fisher"
                             },
                             {
                                 id: "freq",
                                 title: "Filter by frequency",
                                 type: "number",
+                                required: true,
                                 defaultValue: "0.01",
                                 allowedValues: [0, 1],
-                                required: true
+                                colspan: 6
                             },
                             {
                                 id: "gene",
                                 title: "Filter by Genes",
                                 type: "string",
+                                required: true,
                                 defaultValue: "default String",
-                                dependsOn: (config) => {console.warn("dependsOn Callback", config); return true},
-                                required: true
+                                colspan: 6,
+                                dependsOn: (config) => {console.warn("dependsOn Callback", config); return true}
                             }
                         ]
                     }

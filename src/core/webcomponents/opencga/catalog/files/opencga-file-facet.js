@@ -122,13 +122,15 @@ export default class OpencgaFileFacet extends LitElement {
     firstUpdated(_changedProperties) {
     }
 
-    getDefaultConfig() {
 
+    //TODO this component will be the new opencga-file-browser and this configuration will be for browser and facet both
+    getDefaultConfig() {
         return {
                 title: "Aggregation Stats for Files",
                 name: "Agregation for Files",
                 active: false,
                 icon: `fas fa-chart-bar`,
+                endpoint: this.opencgaSession.opencgaClient.files(),
                 fields: [
                     {id: "cattype", name: "category Type", type: "category", values: ["JAN", "FEB", "MAR"], defaultValue: "JAN,FEB" },
                     {id: "stringtype", name: "string Type", type: "string", defaultValue: "deff"},

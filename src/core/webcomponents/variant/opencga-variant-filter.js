@@ -1334,7 +1334,7 @@ export default class OpencgaVariantFilter extends LitElement {
 
         //TODO check if the continue statement was necessary
         return html`
-                    <div class="panel panel-default filter-section">
+                    <div class="panel panel-default filter-section shadow-sm">
                         <div class="panel-heading" role="tab" id="${this._prefix}${id}Heading">
                             <h4 class="panel-title">
                                 <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"

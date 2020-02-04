@@ -586,18 +586,16 @@ export default class OpencgaActiveFilters extends LitElement {
                     ` : null}
                 </div>
                 <!-- aggregation stat section -->
-                ${this.facetActive ? html`
+                ${this.facetActive && Object.keys(this.facetQuery).length ? html`
                     <div class="facet-wrapper">
                         <p class="active-filter-label">Aggregation fields</p>
                             <div class="button-list">
-                                ${Object.keys(this.facetQuery).length ? Object.entries(this.facetQuery).map(facet => html`
-                                    <button type="button" class="btn btn-success btn-sm ${facet[0]}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${facet[0]}" data-filter-value=""
+                                ${Object.entries(this.facetQuery).map( ([name, facet]) => html`
+                                    <button type="button" class="btn btn-danger btn-sm ${name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${name}" data-filter-value=""
                                                  @click="${this.onQueryFacetDelete}">
-                                        ${facet[1].formatted}
+                                        ${facet.formatted}
                                     </button>
-                            `) : html`
-                                <label>No aggregation field selected</label>` 
-                            }
+                            `)}
                             </div>
                             <button type="button" class="btn btn-primary ripple pull-right" @click="${this.clearFacet}">
                                 <i class="fa fa-eraser" aria-hidden="true" style="padding-right: 5px"></i> Clear
