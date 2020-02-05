@@ -390,7 +390,9 @@ export default class OpencgaFileFilter extends LitElement {
         <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
 
             <!-- File field attributes -->
-            <div class="panel panel-default">
+            <div class="">
+                
+                <!-- panel title
                 <div class="panel-heading" role="tab" id="${this._prefix}FileSelectionHeading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
@@ -398,7 +400,7 @@ export default class OpencgaFileFilter extends LitElement {
                             File
                         </a>
                     </h4>
-                </div>
+                </div> -->
 
                 <div id="${this._prefix}FileSelection" class="panel-collapse collapse in" role="tabpanel"
                      aria-labelledby="${this._prefix}FileSelectionHeading">

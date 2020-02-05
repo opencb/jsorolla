@@ -53,15 +53,19 @@ export default class OpencgaAnalysisToolForm extends LitElement {
 
         // this should be executed on change of each field (or better just on actuator param change)
         if (this._config.sections && this._config.sections.length) {
+
+            // TODO continue use a flat list of params
+            this._config.flat = this._config.sections.reduce( (acc, curr) => curr.parameters, []);
+
             this._config.sections.forEach( section => {
                 if (section.parameters && section.parameters.length) {
                     section.parameters.forEach(param => {
                         param.value = param.defaultValue; // TODO change defaultValue to value in config?
                         if (param.dependsOn) {
-                            //since we use this._config as unique source of truth we can imagine to change any other prop here (like allowedValues)
-                            param.visible = this.checkDependency(param.dependsOn);
+                            // since we use this._config as unique source of truth we can imagine to change any other prop here (like allowedValues)
+                            param.disabled = !this.checkDependency(param.dependsOn);
                         } else {
-                            param.visible = true;
+                            param.disabled = false;
                         }
                     });
                 }
@@ -74,14 +78,24 @@ export default class OpencgaAnalysisToolForm extends LitElement {
     }
 
     checkDependency(dependsOn) {
-        if(typeof dependsOn === "string") {
-            const [actuatorId, value] = dependsOn.split(/  *===?  */); // draft
+        if (typeof dependsOn === "string") {
+            const [actuatorId, operator, value] = dependsOn.split(/  *(!*==?|===?)  */); // draft
             const actuator = this.findParam(this._config, actuatorId);
-            return actuator.value === value;
-        } else if(typeof dependsOn === "function") {
+            return this._operatorExec(actuator.value, value, operator);
+        } else if (typeof dependsOn === "function") {
             return dependsOn(this._config);
         } else {
             console.error("Rule not found. Stop messing up with the configuration please.");
+        }
+    }
+
+    _operatorExec(a, b, operator) {
+        if (operator === "==" || operator === "===") {
+            return a === b;
+        } else if (operator === "!=" || operator === "!==") {
+            return a !== b;
+        } else {
+            throw new Error("Operator not found");
         }
     }
 
@@ -89,7 +103,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
         for (const section of config.sections) {
             if (section.parameters && section.parameters.length) {
                 for (const param of section.parameters) {
-                    if(param.id === paramId) {
+                    if (param.id === paramId) {
                         return param;
                     }
                 }
@@ -99,12 +113,12 @@ export default class OpencgaAnalysisToolForm extends LitElement {
         return null;
     }
 
-    //DOM manipulation version
-    checkDependency2(parent, field) {
+    // DOM manipulation version
+    /*    checkDependency2(parent, field) {
         console.log("parent, field", parent, field);
         console.log("dependsOn", field.dependsOn);
         if (field.dependsOn) {
-            const [fieldId, value] = field.dependsOn.split(/  *===?  */); // draft
+            const [fieldId, value] = field.dependsOn.split(/  *===?  *!/); // draft
             console.log(fieldId, value);
             if (!fieldId || !value) {
                 console.error("dependsOn parse failed");
@@ -119,9 +133,9 @@ export default class OpencgaAnalysisToolForm extends LitElement {
         }
         this.requestUpdate();
 
-    }
+    }*/
 
-    //this method is in charge of update this._config with new value of "actuator" and update "target" visible prop
+    // this method is in charge of update this._config with new value of "actuator" and update "target" visible prop
     onFieldChange(e) {
         console.log(e.detail);
         if (e.detail) {
@@ -134,7 +148,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                     if (section.parameters && section.parameters.length) {
                         section.parameters.forEach(param => {
                             if (param.dependsOn) {
-                                param.visible = this.checkDependency(param.dependsOn);
+                                param.disabled = !this.checkDependency(param.dependsOn);
                             }
                         });
                     }

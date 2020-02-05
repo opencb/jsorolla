@@ -713,6 +713,10 @@ export default class OpencgaFacet extends LitElement {
             .facetResultsDiv {
                 padding-top: 20px;
             }
+            
+            .content-pills {
+                margin: 0 0 20px 0;
+            }
         </style>
 
         ${this.checkProjects ? html`
@@ -854,9 +858,9 @@ export default class OpencgaFacet extends LitElement {
 
                 <div class="col-md-10">
                 
-                    <!-- tabs -->
+                    <!-- tabs buttons -->
                     <div>
-                        <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px;margin-left: 0px">
+                        <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
                             <div class="btn-group" role="group" style="margin-left: 0px">
                                 <button type="button" class="btn btn-success active ripple content-pills" data-view="table-results" @click="${this._changeView}" data-id="table">
                                     <i class="fa fa-table icon-padding" aria-hidden="true"></i> Table Result

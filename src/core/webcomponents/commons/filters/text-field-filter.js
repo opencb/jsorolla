@@ -39,6 +39,9 @@ export default class TextFieldFilter extends LitElement {
             },
             value: {
                 type: String
+            },
+            disabled: {
+                type: Boolean
             }
         };
     }
@@ -75,7 +78,7 @@ export default class TextFieldFilter extends LitElement {
     render() {
         return html`
             <div id="${this._prefix}-wrapper" class="subsection-content form-group">
-                <input type="text" id="${this._prefix}-input" class="form-control input-sm ${this._prefix}FilterTextInput" placeholder="${this.placeholder}" @input="${this.filterChange}">
+                <input type="text" id="${this._prefix}-input" class="form-control input-sm ${this._prefix}FilterTextInput" ?disabled=${this.disabled} placeholder="${this.placeholder}" @input="${this.filterChange}">
             </div>
         `;
     }
