@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 
-/** NOTE: in case of single mode (this.multiple=false), in order to show the placeholder ("Select an option") and NOT adding a dummy option to allow null selection,
+/** NOTE - Design choice: in case of single mode (this.multiple=false), in order to show the placeholder ("Select an option") and NOT adding a dummy option to allow null selection,
  *  the single selection mode is implemented still with the multiple flag in bootstrap-select, but forcing 1 selection with data-max-options=1
  */
 
@@ -54,6 +54,9 @@ export default class SelectFieldFilter extends LitElement {
             maxOptions: {
                 type: Number
             },
+            required: {
+                type: Boolean
+            },
             //the expected format is either an array of string or an array of objects {id, name}
             data: {
                 type: Object
@@ -66,12 +69,6 @@ export default class SelectFieldFilter extends LitElement {
         this.multiple = false;
         this.data = [];
     }
-
-    /* set value(val) {
-        let oldVal = this._value;
-        this._value = val;
-        this.requestUpdate('value', oldVal);
-    }*/
 
     firstUpdated() {
         $(".selectpicker", this).selectpicker("val", "");
@@ -120,6 +117,7 @@ export default class SelectFieldFilter extends LitElement {
                         class="selectpicker"
                         multiple
                         .disabled=${this.disabled}
+                        .required=${this.required}
                         title="${this.placeholder ? this.placeholder : "Select an option"}"
                         data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}"  
                         @change="${this.filterChange}" data-width="100%">

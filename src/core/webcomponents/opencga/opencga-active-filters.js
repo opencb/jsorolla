@@ -53,7 +53,6 @@ export default class OpencgaActiveFilters extends LitElement {
             facetActive: {
                 type: Boolean
             },
-            //variant-facet-query usage only
             facetQuery: {
                 type: Object
             }
@@ -78,7 +77,8 @@ export default class OpencgaActiveFilters extends LitElement {
             this.checkFilters(this.config);
         }
         if (changedProperties.has("facetQuery")) {
-            //console.log("facetQuery changed");
+            //TODO review queryObserver and unify the behaviour of the Warning alert
+            this.facetQueryObserver();
         }
     }
 
@@ -95,6 +95,7 @@ export default class OpencgaActiveFilters extends LitElement {
         this.query = {};
         this.lockedFieldsMap = {};
         this.facetQuery = {};
+        this._facetQuery = {};
     }
 
     //TODO recheck connectedCallback
@@ -135,6 +136,16 @@ export default class OpencgaActiveFilters extends LitElement {
         }
     }
 
+    facetQueryObserver(){
+        if (JSON.stringify(this._facetQuery) !== JSON.stringify(this.facetQuery)) {
+            this.querySelector("#" + this._prefix + "Warning").style.display = "block";
+            this._facetQuery = this.facetQuery;
+        } else {
+            this.querySelector("#" + this._prefix + "Warning").style.display = "none";
+        }
+
+    }
+
     clear() {
         PolymerUtils.addStyleByClass("filtersLink", "color", "black");
 
@@ -144,6 +155,7 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     clearFacet() {
+        this.querySelector("#" + this._prefix + "Warning").style.display = "none";
         this.dispatchEvent(new CustomEvent("activeFacetClear", {detail: {}, bubbles: true, composed: true}));
     }
 
@@ -233,6 +245,8 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     onServerFilterChange(e) {
+        this.querySelector("#" + this._prefix + "Warning").style.display = "none";
+
         if (!UtilsNew.isUndefinedOrNull(this.filters)) {
             // We look for the filter name in the filters array
             for (let filter of this.filters) {
@@ -309,7 +323,9 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     onQueryFacetDelete(e) {
-        console.log("deleting",e.target.dataset.filterName);
+        this.querySelector("#" + this._prefix + "Warning").style.display = "none";
+
+        console.log("onQueryFacetDelete",e.target.dataset.filterName);
         delete this.facetQuery[e.target.dataset.filterName];
         this.facetQuery = {...this.facetQuery};
         this.dispatchEvent(new CustomEvent("activeFacetChange", {
@@ -492,13 +508,19 @@ export default class OpencgaActiveFilters extends LitElement {
             .rhs .dropdown {
                 display: inline-block;
             }
+            
+            .filter-warning {
+                padding: 10px;
+                margin-bottom: 10px;
+                display: none;                
+            }
         </style>
         ${ this.facetActive ? html`
-            <div class="alert alert-warning" role="alert" id="${this._prefix}Warning" style="display: none;padding: 12px;margin-bottom: 10px">
+            <div class="alert alert-warning filter-warning" role="alert" id="${this._prefix}Warning" style="">
                 <span style="font-weight: bold;font-size: 1.20em">Warning!</span>&nbsp;&nbsp;Filters or Facet has changed, please click on <button type="button" class="btn btn-primary ripple ripple-disabled">
                     <i class="fa arrow-circle-right" aria-hidden="true"></i> Run </button> to update the results.
             </div>` : html`
-            <div class="alert alert-warning" role="alert" id="${this._prefix}Warning" style="display: none;padding: 12px;margin-bottom: 10px">
+            <div class="alert alert-warning filter-warning" role="alert" id="${this._prefix}Warning" style="">
                 <span style="font-weight: bold;font-size: 1.20em">Warning!</span>&nbsp;&nbsp;Filters changed, please click on <button type="button" class="btn btn-primary ripple ripple-disabled">
                     <i class="fa fa-search" aria-hidden="true"></i> Search </button> to update the results.
             </div>

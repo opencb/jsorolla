@@ -35,6 +35,9 @@ export default class OpencgaAnalysisToolForm extends LitElement {
 
     static get properties() {
         return {
+            opencgaSession: {
+                type: Object
+            },
             config: {
                 type: Object
             }
@@ -53,10 +56,6 @@ export default class OpencgaAnalysisToolForm extends LitElement {
 
         // this should be executed on change of each field (or better just on actuator param change)
         if (this._config.sections && this._config.sections.length) {
-
-            // TODO continue use a flat list of params
-            this._config.flat = this._config.sections.reduce( (acc, curr) => curr.parameters, []);
-
             this._config.sections.forEach( section => {
                 if (section.parameters && section.parameters.length) {
                     section.parameters.forEach(param => {
@@ -159,13 +158,29 @@ export default class OpencgaAnalysisToolForm extends LitElement {
         }
     }
 
+    onRun() {
+        $('#analysis-form').validator().on('submit', e => {
+            if (e.isDefaultPrevented()) {
+                // handle the invalid form...
+            } else {
+                // everything looks good!
+
+                const params = this._config.sections.reduce( (acc, curr) => [...acc, ...curr.parameters], []);
+                console.log(params)
+
+
+            }
+        })
+
+    }
+
     render() {
         return html`
             <div class="panel-group">
             <!-- <pre style="font-size: 8px">
             ${JSON.stringify(this._config.sections, null, "\t")}
             </pre> -->
-                <form id="analysis-form">
+                <form id="analysis-form" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
                 ${this._config.sections && this._config.sections.length ? this._config.sections.map( (section, i) => html`
                      <div class="panel panel-default filter-section shadow-sm">
                          <div class="panel-heading" role="tab" id="${this._prefix}Heading${i}">
@@ -180,14 +195,14 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                              <div class="panel-body">
                                 <div class="row">
                                     ${section.parameters && section.parameters.length ? section.parameters.map( param => html`
-                                        <opencga-analysis-tool-form-field .config="${param}" @fieldChange="${this.onFieldChange}"> </opencga-analysis-tool-form-field>
+                                        <opencga-analysis-tool-form-field .opencgaSession="${this.opencgaSession}" .config="${param}" @fieldChange="${this.onFieldChange}"> </opencga-analysis-tool-form-field>
                                     `) : null }
                              </div>
                              </div>
                         </div>
                     </div>
                 `) : null }
-                <button type="button" class="ripple btn btn-primary btn-lg">Run</button>
+                <button type="submit" class="ripple btn btn-primary btn-lg" @click="${this.onRun}">Run</button>
                 </form>
            </div>
         `;

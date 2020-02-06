@@ -1177,6 +1177,10 @@ export default class OpencgaVariantGrid extends LitElement {
     render() {
         return html`
         <style include="jso-styles">
+            #opencga-variant-grid {
+                font-size: 12px;
+            }
+            
             span.redText, span.orangeText {
                 margin-left: 0;
             }
@@ -1205,21 +1209,23 @@ export default class OpencgaVariantGrid extends LitElement {
                 font-size: 12px;
             }
         </style>
-
-        <opencb-grid-toolbar from="${this.from}"
-                            to="${this.to}"
-                            numTotalResultsText="${this.numTotalResultsText}"
-                            .config="${this.toolbarConfig}"
-                            @columnchange="${this.onColumnChange}"
-                            @download="${this.onDownload}"
-                            @sharelink="${this.onShare}">
-        </opencb-grid-toolbar>
-
-
-        <div id="${this._prefix}GridTableDiv" style="margin-top: 10px">
-            <table id="${this._prefix}VariantBrowserGrid">
-                <thead style="background-color: #eee"></thead>
-            </table>
+        
+        <div id="opencga-variant-grid">
+            <opencb-grid-toolbar from="${this.from}"
+                                to="${this.to}"
+                                numTotalResultsText="${this.numTotalResultsText}"
+                                .config="${this.toolbarConfig}"
+                                @columnchange="${this.onColumnChange}"
+                                @download="${this.onDownload}"
+                                @sharelink="${this.onShare}">
+            </opencb-grid-toolbar>
+    
+    
+            <div id="${this._prefix}GridTableDiv" style="margin-top: 10px">
+                <table id="${this._prefix}VariantBrowserGrid">
+                    <thead style="background-color: #eee"></thead>
+                </table>
+            </div>
         </div>
         `;
     }

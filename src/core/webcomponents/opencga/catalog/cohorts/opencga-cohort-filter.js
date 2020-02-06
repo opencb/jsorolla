@@ -41,16 +41,13 @@ export default class OpencgaCohortFilter extends LitElement {
                 type: Object
             },
             cohorts: {
-                type: Array,
-                notify: true
+                type: Array
             },
             query: {
-                type: Object,
-                notify: true
+                type: Object
             },
             search: {
-                type: Object,
-                notify: true
+                type: Object
             },
             variableSets: {
                 type: Array

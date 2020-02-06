@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "../../commons/opencga-facet.js";
 
+//TODO this component will be the new opencga-file-browser and this configuration will be for browser and facet both
 
 export default class OpencgaFileFacet extends LitElement {
 
@@ -116,12 +117,7 @@ export default class OpencgaFileFacet extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
-        console.log("connectedCallback _config", this._config)
     }
-
-    firstUpdated(_changedProperties) {
-    }
-
 
     //TODO this component will be the new opencga-file-browser and this configuration will be for browser and facet both
     getDefaultConfig() {
@@ -137,7 +133,7 @@ export default class OpencgaFileFacet extends LitElement {
                     {id: "numtype", name: "number Type", type: "number", defaultValue: 2},
 
                     {id: "gerp", name: "Gerp", type: "integer", defaultValue: "0:1:01"},
-                    //{name: "Pop Freqs_", category: true},
+                    //this is a category
                     {
                         name: "Pop Freqs", fields: [
                             {id: "PopFreqsname", name: "Pop Freqs Name", type: "string", disabled: true},
@@ -154,7 +150,7 @@ export default class OpencgaFileFacet extends LitElement {
                     {id: "creationYear", name: "CreationYear", type: "string"},
                     {id: "creationDay", name: "CreationDay", type: "string"},
                     {id: "creationDayOfWeek", name: "CreationDayOfWeek", type: "string"},
-                    {id: "creationMonth", name: "creationMonth", type: "category", values: ["JAN", "FEB", "MAR"], defaultValue: ["JAN", "FEB"]},
+                    {id: "creationMonth", name: "creationMonth", type: "category", values: ["JAN", "FEB", "MAR"], defaultValue: "JAN,FEB"},
                     {id: "status", name: "Status", type: "string"},
                     {id: "release", name: "Release", type: "string"},
                     {id: "external", name: "External", type: "string"},

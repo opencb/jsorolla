@@ -31,6 +31,9 @@ export default class OpencgaGwasAnalysis extends LitElement {
 
     static get properties() {
         return {
+            opencgaSession: {
+                type: Object
+            },
             config: {
                 type: Object
             }
@@ -95,6 +98,7 @@ export default class OpencgaGwasAnalysis extends LitElement {
                                 id: "assoc",
                                 title: "Select association test",
                                 type: "category",
+                                required: true,
                                 defaultValue: "Fisher",
                                 allowedValues: ["Fisher", "Chi", "LR"],
                                 multiple: false,
@@ -155,7 +159,7 @@ export default class OpencgaGwasAnalysis extends LitElement {
 
     render() {
         return html`
-           <opencga-analysis-tool .config="${this._config}"></opencga-analysis-tool>
+           <opencga-analysis-tool .opencgaSession="${this.opencgaSession}" .config="${this._config}" ></opencga-analysis-tool>
         `;
     }
 }

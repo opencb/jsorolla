@@ -32,6 +32,9 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
 
     static get properties() {
         return {
+            opencgaSession: {
+                type: Object
+            },
             config: {
                 type: Object
             }
@@ -56,27 +59,29 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
         // console.log(field)
         switch (field.type) {
             case "category":
-                return html`<select-field-filter id="${field.id}" ?multiple="${field.multiple}" ?disabled=${this.config.disabled} .data="${field.allowedValues}" .value="${field.defaultValue}" maxOptions="2" @filterChange="${e => this.fieldChange(field.id, e.detail.value)}"></select-field-filter>`;
+                return html`<select-field-filter id="${field.id}" ?multiple="${field.multiple}" ?disabled=${this.config.disabled} ?required=${this.config.required} .data="${field.allowedValues}" .value="${field.defaultValue}" maxOptions="2" @filterChange="${e => this.fieldChange(field.id, e.detail.value)}"></select-field-filter>`;
             case "string":
-                return html`<text-field-filter placeholder="${field.placeholder || ""}" ?disabled=${this.config.disabled} .value="${field.defaultValue || ""}" @filterChange="${e => this.fieldChange(field.id, e.detail.value)}"></text-field-filter>`;
+                return html`<text-field-filter placeholder="${field.placeholder || ""}" ?disabled=${this.config.disabled} ?required=${this.config.required} .value="${field.defaultValue || ""}" @filterChange="${e => this.fieldChange(field.id, e.detail.value)}"></text-field-filter>`;
             case "number":
                 const [min = "", max = ""] = field.allowedValues || [];
                 return html`<div id="${this._prefix}-wrapper" class="subsection-content form-group">
-                                <input type="number" min=${min} max=${max} step="0.01" .disabled=${this.config.disabled} value="${field.defaultValue || ""}" id="${this._prefix}-input-${field.id}" class="input form-control input-sm ${this._prefix}FilterTextInput" placeholder="${field.placeholder || ""}" @input="${e => this.fieldChange(field.id, e.target.value)}">
+                                <input type="number" min=${min} max=${max} step="0.01" .disabled=${this.config.disabled} ?required=${this.config.required} value="${field.defaultValue || ""}" id="${this._prefix}-input-${field.id}" class="input form-control input-sm ${this._prefix}FilterTextInput" placeholder="${field.placeholder || ""}" @input="${e => this.fieldChange(field.id, e.target.value)}">
                             </div>`;
+            case "COHORT_FILTER":
+                return html`COHORT_FILTER`;
             default:
                 console.warn("field type "+field.type+" not implemented. String type fallback");
-                return html`<text-field-filter placeholder="${field.placeholder || ""}" ?disabled=${this.config.disabled} .value="${field.defaultValue || ""}" @filterChange="${e => this.fieldChange(field.id, e.detail.value)}"></text-field-filter>`;
+                return html`<text-field-filter placeholder="${field.placeholder || ""}" ?disabled=${this.config.disabled} ?required=${this.config.required} .value="${field.defaultValue || ""}" @filterChange="${e => this.fieldChange(field.id, e.detail.value)}"></text-field-filter>`;
         }
     }
     render() {
         return html`
-        <div class="${this.config.colspan ? "col-md-"+this.config.colspan : "col-md-12"}">
-            ${this.config.title || this.config.id}
-            <div id="${this.config.id}-wrapper">
-                ${this.renderField(this.config)}
+            <div class="${this.config.colspan ? "col-md-" + this.config.colspan : "col-md-12"}">
+                ${this.config.title || this.config.id}
+                <div id="${this.config.id}-wrapper">
+                    ${this.renderField(this.config)}
+                </div>
             </div>
-        </div>
         `;
     }
 

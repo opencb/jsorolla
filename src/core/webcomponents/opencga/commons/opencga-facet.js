@@ -21,12 +21,16 @@ import "../../opencga/opencga-active-filters.js";
 import "../../commons/filters/select-field-filter.js";
 import "../../commons/opencb-facet-results.js";
 import "../../../loading-spinner.js";
-
+import "../../variant/opencga-variant-detail-view.js";
 // this is the new opencga-browser
 
 // TODO spring-cleaning the old code
 // TODO maybe remove this._config, this.config is enough here
 // TODO fix props in EACH opencga-x-filter
+
+
+//TODO this component will be the new opencga-browser and the configuration will be for browser and facet both
+
 
 export default class OpencgaFacet extends LitElement {
 
@@ -278,15 +282,11 @@ export default class OpencgaFacet extends LitElement {
         //addition
         if (currentSelectionNames.length > Object.keys(this.selectedFacet).length) {
             console.log("addition of", difference);
-
-            //Array.find() cannot be nested..
-            //let newField = this._config.fields.find(field => field.fields ? field.fields.find(nested => nested === difference) : field.name === difference);
-
+            //Array.find() cannot be nested.. let newField = this._config.fields.find(field => field.fields ? field.fields.find(nested => nested === difference) : field.name === difference);
             //console.log(this._config.fields, difference)
             let newField = this._recFind(this._config.fields, difference);
             //console.log("newField", newField)
-            this.selectedFacet[difference] = {...newField, value: newField && newField.defaultValue ? newField.defaultValue : "aaa"};
-            //console.log("defaultValue", this._config.fields.find((field) => field.name === difference))
+            this.selectedFacet[difference] = {...newField, value: newField && newField.defaultValue ? newField.defaultValue : ""};
             await this.requestUpdate();
             $(".bootstrap-select", this).selectpicker();
         } else {
@@ -336,13 +336,6 @@ export default class OpencgaFacet extends LitElement {
         this.requestUpdate();
     }
 
-    /*
-    onNestedFacetSelectChange(e) {
-        this.selectedFacet[e.target.dataset.parentFacet].nested.value = e.detail.value;
-        this.selectedFacet = {...this.selectedFacet};
-        this.requestUpdate();
-    }*/
-
     onNestedFacetFieldChange(e, parent) {
         let selected = e.detail.value;
         if(selected) {
@@ -370,26 +363,6 @@ export default class OpencgaFacet extends LitElement {
             this.querySelector("#" + this._prefix + facet + "_NestedValue").disabled = false;
             delete this.selectedFacet[facet].nested.fn;
         }
-        this.selectedFacet = {...this.selectedFacet};
-        this.requestUpdate();
-    }
-
-    /**
-     * @deprecated
-     * */
-    onFacetTextChange(e) {
-        let id = e.target.dataset.id;
-        //this.selectedFacet = {...this.selectedFacet, [id]: (e.target.value.trim() ? e.target.value : "")};
-        this.selectedFacet[id].value = e.target.value.trim() ? e.target.value : "";
-        this.selectedFacet = {...this.selectedFacet};
-        this.requestUpdate();
-    }
-
-    /**
-     * @deprecated
-     * */
-    onNestedFacetTextChange(e) {
-        this.selectedFacet[e.target.dataset.parentFacet].nested.value = e.target.value;
         this.selectedFacet = {...this.selectedFacet};
         this.requestUpdate();
     }
@@ -643,6 +616,26 @@ export default class OpencgaFacet extends LitElement {
 
     renderGrid(entity) {
         switch(entity) {
+            //TODO handle specific events (onSelectVariant)
+        case "variants": return html`<opencga-variant-grid .opencgaSession="${this.opencgaSession}"
+                                      .query="${this.executedQuery}"
+                                      .cohorts="${this.cohorts}"
+                                      .cellbaseClient="${this.cellbaseClient}"
+                                      .populationFrequencies="${this.populationFrequencies}"
+                                      .active="${this.active}" 
+                                      .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                      .consequenceTypes="${this.consequenceTypes}"
+                                      .config="${this.config}"
+                                      @selected="${this.selectedGene}"
+                                      @selectvariant="${this.onSelectVariant}"
+                                      @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
+                                </opencga-variant-grid>
+                                <!-- opencga-variant-detail-view no render??| TODO Bottom tabs with specific variant information -->
+                                <opencga-variant-detail-view
+                                                .opencgaSession="${this.opencgaSession}" 
+                                                .cellbaseClient="${this.cellbaseClient}"
+                                                .variantId="${this.variantId}">
+                                </opencga-variant-detail-view>`;
             case "files": return html`<opencga-file-grid .opencgaSession="${this.opencgaSession}"
                                                .config="${this._config.grid}"
                                                .query="${this.executedQuery}"
@@ -652,7 +645,7 @@ export default class OpencgaFacet extends LitElement {
                                                style="font-size: 12px"
                                                @selectfile="${this.onSelectFile}">
                             </opencga-file-grid>`;
-        case "samples": return html`
+            case "samples": return html`
                                 <opencga-sample-grid .opencgaSession="${this.opencgaSession}"
                                              .query="${this.executedQuery}"
                                              .search="${this.executedQuery}"
@@ -671,9 +664,9 @@ export default class OpencgaFacet extends LitElement {
         return html`
  
         <style include="jso-styles">
-            option:disabled {
-                font-size: 0.85em;
-                font-weight: bold;
+            
+            .left-bar .nav-tabs {
+                margin-bottom: 20px;
             }
 
             .active-filter-button:hover {
@@ -717,6 +710,7 @@ export default class OpencgaFacet extends LitElement {
             .content-pills {
                 margin: 0 0 20px 0;
             }
+            
         </style>
 
         ${this.checkProjects ? html`
@@ -727,7 +721,7 @@ export default class OpencgaFacet extends LitElement {
             </div>
 
             <div class="row" style="padding: 0px 10px">
-                <div class="col-md-2">
+                <div class="col-md-2 left-bar">
                 
                     <div class="search-button-wrapper">
                         <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">
@@ -778,78 +772,92 @@ export default class OpencgaFacet extends LitElement {
                         </div>
                         
                         <div role="tabpanel" class="tab-pane" id="filters_tab">
-                        
-                                            
+                                     
                             <!-- dynamic render doesn't work well with active-filter events  _filterComp ${this._filterComp} -->
+                            
+                            ${this.resource === "variants" ? html`
+                                <opencga-variant-filter .opencgaSession=${this.opencgaSession}
+                                                            .opencgaClient="${this.opencgaClient}"
+                                                            .cellbaseClient="${this.cellbaseClient}"
+                                                            .populationFrequencies="${this.populationFrequencies}"
+                                                            .consequenceTypes="${this.consequenceTypes}"
+                                                            .query="${this.query}"
+                                                            .config="${this._config.filter}"
+                                                            .searchButton="${false}"
+                                                            @queryChange="${this.onQueryFilterChange}"
+                                                            @querySearch="${this.onQueryFilterSearch}">
+                                </opencga-variant-filter>
+                            ` : null}
+                            
                             ${this.resource === "files" ? html`
-                            <opencga-file-filter
-                                discriminator="hardcoded"  
-                                .opencgaSession="${this.opencgaSession}"
-                                .config="${ 1 /*TODO FIXME this._config.filter*/}"
-                                .files="${this.files}"
-                                .query="${this.query}"
-                                .search="${this.search}"
-                                .variableSets="${this.variableSets}"
-                                .searchButton="${false}"
-                                @queryChange="${this.onQueryFilterChange}"
-                                @querySearch="${this.onQueryFilterSearch}">
-                            </opencga-file-filter>
+                                <opencga-file-filter
+                                    discriminator="hardcoded"  
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${ 1 /*TODO FIXME this._config.filter*/}"
+                                    .files="${this.files}"
+                                    .query="${this.query}"
+                                    .search="${this.search}"
+                                    .variableSets="${this.variableSets}"
+                                    .searchButton="${false}"
+                                    @queryChange="${this.onQueryFilterChange}"
+                                    @querySearch="${this.onQueryFilterSearch}">
+                                </opencga-file-filter>
                             ` : null}
                             
                             ${this.resource === "samples" ? html`
-                            <opencga-sample-filter
-                                discriminator="hardcoded"  
-                                .opencgaSession="${this.opencgaSession}"
-                                .config="${ 1 /*TODO FIXME this._config.filter*/}"
-                                .query="${this.query}"
-                                .search="${this.search}"
-                                .variableSets="${this.variableSets}"
-                                .searchButton="${false}"
-                                @queryChange="${this.onQueryFilterChange}"
-                                @querySearch="${this.onQueryFilterSearch}">
-                            </opencga-sample-filter>
+                                <opencga-sample-filter
+                                    discriminator="hardcoded"  
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${ 1 /*TODO FIXME this._config.filter*/}"
+                                    .query="${this.query}"
+                                    .search="${this.search}"
+                                    .variableSets="${this.variableSets}"
+                                    .searchButton="${false}"
+                                    @queryChange="${this.onQueryFilterChange}"
+                                    @querySearch="${this.onQueryFilterSearch}">
+                                </opencga-sample-filter>
                             ` : null}
                             
                             ${this.resource === "individuals" ? html`
-                            <opencga-individual-filter
-                                discriminator="hardcoded"  
-                                .opencgaSession="${this.opencgaSession}"
-                                .config="${ 1 /*TODO FIXME this._config.filter*/}"
-                                .query="${this.query}"
-                                .search="${this.search}"
-                                .variableSets="${this.variableSets}"
-                                .searchButton="${false}"
-                                @queryChange="${this.onQueryFilterChange}"
-                                @querySearch="${this.onQueryFilterSearch}">
-                            </opencga-individual-filter>
+                                <opencga-individual-filter
+                                    discriminator="hardcoded"  
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${ 1 /*TODO FIXME this._config.filter*/}"
+                                    .query="${this.query}"
+                                    .search="${this.search}"
+                                    .variableSets="${this.variableSets}"
+                                    .searchButton="${false}"
+                                    @queryChange="${this.onQueryFilterChange}"
+                                    @querySearch="${this.onQueryFilterSearch}">
+                                </opencga-individual-filter>
                             ` : null}                            
                             
                             ${this.resource === "family" ? html`
-                            <opencga-family-filter
-                                discriminator="hardcoded"  
-                                .opencgaSession="${this.opencgaSession}"
-                                .config="${ 1 /*TODO FIXME this._config.filter*/}"
-                                .query="${this.query}"
-                                .search="${this.search}"
-                                .variableSets="${this.variableSets}"
-                                .searchButton="${false}"
-                                @queryChange="${this.onQueryFilterChange}"
-                                @querySearch="${this.onQueryFilterSearch}">
-                            </opencga-family-filter>
+                                <opencga-family-filter
+                                    discriminator="hardcoded"  
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${ 1 /*TODO FIXME this._config.filter*/}"
+                                    .query="${this.query}"
+                                    .search="${this.search}"
+                                    .variableSets="${this.variableSets}"
+                                    .searchButton="${false}"
+                                    @queryChange="${this.onQueryFilterChange}"
+                                    @querySearch="${this.onQueryFilterSearch}">
+                                </opencga-family-filter>
                             ` : null}
                             
                             ${this.resource === "cohort" ? html`
-                            <opencga-cohort-filter
-                                discriminator="hardcoded"  
-                                .opencgaSession="${this.opencgaSession}"
-                                .config="${ 1 /*TODO FIXME this._config.filter*/}"
-                                .query="${this.query}"
-                                .search="${this.search}"
-                                .variableSets="${this.variableSets}"
-                                .searchButton="${false}"
-                                @queryChange="${this.onQueryFilterChange}"
-                                @querySearch="${this.onQueryFilterSearch}">
-                            </opencga-cohort-filter>
+                                <opencga-cohort-filter
+                                    discriminator="hardcoded"  
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${ 1 /*TODO FIXME this._config.filter*/}"
+                                    .query="${this.query}"
+                                    .search="${this.search}"
+                                    .variableSets="${this.variableSets}"
+                                    .searchButton="${false}"
+                                    @queryChange="${this.onQueryFilterChange}"
+                                    @querySearch="${this.onQueryFilterSearch}">
+                                </opencga-cohort-filter>
                             ` : null}
                             
                         </div>

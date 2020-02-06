@@ -417,6 +417,8 @@ export class OpenCGAClient {
         return undefined;
     }
 }
+//TODO OpenCGAClient maybe should be a singleton exported module..
+//Object.freeze(OpenCGAClient);
 
 // parent class
 class OpenCGAParentClass {
