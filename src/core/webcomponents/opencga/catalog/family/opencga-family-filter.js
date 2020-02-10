@@ -297,18 +297,6 @@ export default class OpencgaFamilyFilter extends LitElement {
             select + input {
                 margin-left: 10px;
             }
-
-            .browser-subsection {
-                font-size: 1.35rem;
-                font-weight: bold;
-                padding: 5px 0px;
-                color: #444444;
-                border-bottom: 1px solid rgba(221, 221, 221, 0.8);
-            }
-
-            .subsection-content {
-                margin: 5px 5px;
-            }
         </style>
 
         ${this.searchButton ? html`
@@ -322,15 +310,15 @@ export default class OpencgaFamilyFilter extends LitElement {
         <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
 
             <!-- Family field attributes -->
-            <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="${this._prefix}FamilySelectionHeading">
+            <div class="">
+                <!-- <div class="panel-heading" role="tab" id="${this._prefix}FamilySelectionHeading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
                            href="#${this._prefix}FamilySelection" aria-expanded="true" aria-controls="${this._prefix}FamilySelection">
                             Family
                         </a>
                     </h4>
-                </div>
+                </div> -->
 
                 <div id="${this._prefix}FamilySelection" class="panel-collapse collapse in" role="tabpanel"
                      aria-labelledby="${this._prefix}FamilySelectionHeading">

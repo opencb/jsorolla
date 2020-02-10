@@ -109,14 +109,6 @@ export default class OpencgaClinicalPortal extends LitElement {
     render() {
         return html`
         <style include="jso-styles">
-            .browser-subsection {
-                font-size: 1.35rem;
-                font-weight: bold;
-                padding: 5px 0px;
-                color: #444444;
-                border-bottom: 1px solid rgba(221, 221, 221, 0.8);
-            }
-
             .myactive {
                 color: darkorange !important;
                 border-top-color: darkorange !important;

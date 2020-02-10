@@ -345,18 +345,6 @@ export default class OpencgaIndividualFilter extends LitElement {
             select + input {
                 margin-left: 10px;
             }
-
-            .browser-subsection {
-                font-size: 1.35rem;
-                font-weight: bold;
-                padding: 5px 0px;
-                color: #444444;
-                border-bottom: 1px solid rgba(221, 221, 221, 0.8);
-            }
-
-            .subsection-content {
-                margin: 5px 5px;
-            }
         </style>
 
         ${this.searchButton ? html`
@@ -370,15 +358,15 @@ export default class OpencgaIndividualFilter extends LitElement {
         <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true" style="padding-top: 20px">
 
             <!-- Individual field attributes -->
-            <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="${this._prefix}IndividualSelectionHeading">
+            <div class="">
+                <!--<div class="panel-heading" role="tab" id="${this._prefix}IndividualSelectionHeading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
                            href="#${this._prefix}IndividualSelection" aria-expanded="true" aria-controls="${this._prefix}IndividualSelection">
                             Individual
                         </a>
                     </h4>
-                </div>
+                </div> -->
 
                 <div id="${this._prefix}IndividualSelection" class="panel-collapse collapse in" role="tabpanel"
                      aria-labelledby="${this._prefix}IndividualSelectionHeading">

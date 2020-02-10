@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-//import {LitElement, html} from "./test/lit-element.js";
 // import {Utils} from "./../../../utils.js"; //this cannot be a plain script and a module at the same time
 import "./opencga-analysis-tool-form.js";
 
@@ -33,6 +32,9 @@ export default class OpencgaAnalysisTool extends LitElement {
 
     static get properties() {
         return {
+            opencgaSession: {
+                type: Object
+            },
             config: {
                 type: Object
             }
@@ -52,7 +54,7 @@ export default class OpencgaAnalysisTool extends LitElement {
         return this.config ? html`
             <div class="container">
                 <h2>${this.config.title}</h2>
-                <opencga-analysis-tool-form .config="${this.config.form}"></opencga-analysis-tool-form>
+                <opencga-analysis-tool-form .opencgaSession=${this.opencgaSession} .config="${this.config.form}"></opencga-analysis-tool-form>
             </div>
             
         ` : null;

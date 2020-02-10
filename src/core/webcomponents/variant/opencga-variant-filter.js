@@ -57,6 +57,7 @@ export default class OpencgaVariantFilter extends LitElement {
             query: {
                 type: Object
             },
+            // TODO variant-browser doesn't send this prop..
             clinicalAnalysis: {
                 type: Object
             },
@@ -169,18 +170,15 @@ export default class OpencgaVariantFilter extends LitElement {
     //     this.queryObserver();
     // }
 
-    //TODO refactor in map()
     opencgaSessionObserver() {
+
+        //TODO do not move in connectedCallback (it handle the switch between default studies)
         if (this.opencgaSession.study) {
             // Update the study list of studies and the selected one
             if (this.opencgaSession.project.studies) {
-                let _differentStudies = [];
-                for (let i = 0; i < this.opencgaSession.project.studies.length; i++) {
-                    if (this.opencgaSession.study.alias !== this.opencgaSession.project.studies[i].alias) {
-                        _differentStudies.push(this.opencgaSession.project.studies[i]);
-                    }
-                }
-                this.differentStudies = _differentStudies;
+
+                this.differentStudies = this.opencgaSession.project.studies.filter( study => this.opencgaSession.study.alias !== study.alias);
+
                 // Insert study checkboxes HTML, this only happens if the Study subsection has been added
 
                 /* NOTE listener moved in _getStudyHtml()
@@ -1332,7 +1330,6 @@ export default class OpencgaVariantFilter extends LitElement {
         let id = section.title.replace(/ /g, "");
         let collapsed = section.collapsed ? "" : "in";
 
-        //TODO check if the continue statement was necessary
         return html`
                     <div class="panel panel-default filter-section shadow-sm">
                         <div class="panel-heading" role="tab" id="${this._prefix}${id}Heading">
@@ -1347,12 +1344,7 @@ export default class OpencgaVariantFilter extends LitElement {
                             <div class="panel-body">
                                 <!--TODO verify if cadd condition works-->
                                 ${section.subsections && section.subsections.length && section.subsections.map(subsection => html`
-                                     
-                                                                   
-                                    <!--${subsection.id === "cadd" && this.opencgaSession.project.organism.assembly.toLowerCase() === "grch38" ? html`/continue_statement_missing/` : html``} -->
-                                    
                                     ${this.config.menu.skipSubsections && this.config.menu.skipSubsections.length && !!~this.config.menu.skipSubsections.indexOf(subsection.id) ? null : this._createSubSection(subsection)}
-                                    
                                 `)}
                             
                              </div>
@@ -2139,10 +2131,7 @@ export default class OpencgaVariantFilter extends LitElement {
     render() {
         return html`
             <style include="jso-styles">
-            .panel.filter-section {
-                margin-bottom: 10px
-            }
-            
+       
             span + span {
                 margin-left: 10px;
             }
@@ -2201,18 +2190,6 @@ export default class OpencgaVariantFilter extends LitElement {
                 margin-left: 10px;
             }
 
-            .browser-subsection {
-                font-size: 1.35rem;
-                font-weight: bold;
-                padding: 5px 0px;
-                color: #444444;
-                border-bottom: 1px solid rgba(221, 221, 221, 0.8);
-            }
-
-            .subsection-content {
-                margin: 5px 5px;
-            }
-            
             .bootstrap-select {
                 width: 100%!important;
             }            

@@ -555,14 +555,6 @@ export default class OpencgaCohortFilter extends LitElement {
                 margin-left: 10px;
             }
 
-            .browser-subsection {
-                font-size: 1.35rem;
-                font-weight: bold;
-                padding: 5px 0px;
-                color: #444444;
-                border-bottom: 1px solid rgba(221, 221, 221, 0.8);
-            }
-
             .subsection-content {
                 margin: 5px 5px;
             }
@@ -579,15 +571,15 @@ export default class OpencgaCohortFilter extends LitElement {
         <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
 
             <!-- Cohort field attributes -->
-            <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="${this._prefix}CohortSelectionHeading">
+            <div class="">
+                <!-- <div class="panel-heading" role="tab" id="${this._prefix}CohortSelectionHeading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
                            href="#${this._prefix}CohortSelection" aria-expanded="true" aria-controls="${this._prefix}CohortSelection">
                             Cohort
                         </a>
                     </h4>
-                </div>
+                </div> -->
 
                 <div id="${this._prefix}CohortSelection" class="panel-collapse collapse in" role="tabpanel"
                      aria-labelledby="${this._prefix}CohortSelectionHeading">
@@ -628,20 +620,6 @@ export default class OpencgaCohortFilter extends LitElement {
                         <div class="form-group" id="${this._prefix}-type-div">
                             <div class="browser-subsection">Type
                             </div>
-                            <!--<select class="selectpicker" id="${this._prefix}-type" @change="${this.calculateFilters}"
-                                    on-dom-change="renderDomRepeat" data-width="100%">
-                                <option data-value="All" selected>All</option>
-                                <option data-value="CASE_CONTROL">CASE_CONTROL</option>
-                                <option data-value="CASE_SET">CASE_SET</option>
-                                <option data-value="CONTROL_SET">CONTROL_SET</option>
-                                <option data-value="PAIRED">PAIRED</option>
-                                <option data-value="PAIRED_TUMOR">PAIRED_TUMOR</option>
-                                <option data-value="AGGREGATE">AGGREGATE</option>
-                                <option data-value="TIME_SERIES">TIME_SERIES</option>
-                                <option data-value="FAMILY">FAMILY</option>
-                                <option data-value="TRIO">TRIO</option>
-                            </select>
-                            -->
                             <select-field-filter multiple .data="${["All","CASE_CONTROL","CASE_SET","CONTROL_SET","PAIRED","PAIRED_TUMOR","AGGREGATE","TIME_SERIES","FAMILY","TRIO"]}" .value="${this.preparedQuery.type}" @filterChange="${e => this.onFilterChange("type", e.detail.value)}"></select-field-filter>
                         </div>
 

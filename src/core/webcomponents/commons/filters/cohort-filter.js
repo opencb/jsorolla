@@ -71,7 +71,7 @@ export default class CohortFilter extends LitElement {
             // reset fields
             $(`.${this._prefix}FilterTextInput`, this).val("");
             $(`.${this._prefix}FilterSelect`, this).val("<");
-            if (this.cohortStatsAlt) {
+            if (this.cohortStatsAlt && this.cohortStatsAlt.length) {
                 cohortArray = this.cohortStatsAlt.split(new RegExp("[,;]"));
                 for (let i = 0; i < cohortArray.length; i++) {
                     const [study, cohortFreq] = cohortArray[i].split(":");
