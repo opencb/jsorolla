@@ -29,9 +29,6 @@ import "../../variant/opencga-variant-detail-view.js";
 // TODO fix props in EACH opencga-x-filter
 
 
-//TODO this component will be the new meta-browser and the configuration will be for browser and facet both
-
-
 export default class OpencgaFacet extends LitElement {
 
     constructor() {
@@ -114,8 +111,6 @@ export default class OpencgaFacet extends LitElement {
         this.results = [];
         this._showInitMessage = true;
 
-        this.facets = new Set();
-        this.facetFilters = [];
 
         this.facetConfig = {a: 1};
         this.facetActive = true;
@@ -130,7 +125,7 @@ export default class OpencgaFacet extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        //TODO we don't need _config anymore
+        // TODO we don't need _config anymore
         this._config = {...this.config};
     }
 
@@ -140,16 +135,16 @@ export default class OpencgaFacet extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("config")) {
-            //this.configObserver();
+            // this.configObserver();
         }
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-        /*if (changedProperties.has("executedQuery")) {
+        /* if (changedProperties.has("executedQuery")) {
             this.fetchVariants();
         }*/
         if (changedProperties.has("query")) {
-            //console.warn("queryObserver is commented")
+            // console.warn("queryObserver is commented")
             this.queryObserver();
         }
         if (changedProperties.has("selectedFacet")) {
@@ -179,11 +174,11 @@ export default class OpencgaFacet extends LitElement {
         if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
             // Update cohorts from config, this updates the Cohort filter MAF
             console.warn("this._config.filter.menu", this._config.filter.menu);
-            for (let section of this._config.filter.menu.sections) {
-                for (let subsection of section.subsections) {
+            for (const section of this._config.filter.menu.sections) {
+                for (const subsection of section.subsections) {
                     if (subsection.id === "cohort") {
-                        let projectFields = this.opencgaSession.project.alias.split("@");
-                        let projectId = (projectFields.length > 1) ? projectFields[1] : projectFields[0];
+                        const projectFields = this.opencgaSession.project.alias.split("@");
+                        const projectId = (projectFields.length > 1) ? projectFields[1] : projectFields[0];
                         this.cohorts = subsection.cohorts[projectId];
                         // this.set('cohorts', subsection.cohorts[projectId]);
                         // debugger
@@ -202,7 +197,7 @@ export default class OpencgaFacet extends LitElement {
         /**
          * Helper for formatting the list of facets to show in opencga-active-filters
          */
-        let _valueFormatter = (k, v) => {
+        const _valueFormatter = (k, v) => {
             let str = "";
             if (v.fn && (v.fn === "Avg" || v.fn === "Percentile")) {
                 str = v.fn + "(" + k + ")";
@@ -215,7 +210,7 @@ export default class OpencgaFacet extends LitElement {
             return str;
         };
         if (Object.keys(this.selectedFacet).length) {
-            //Object property spreading cannot be used here as it creates an Object with numeric indexes in Chrome 78...
+            // Object property spreading cannot be used here as it creates an Object with numeric indexes in Chrome 78...
             this.selectedFacetFormatted = Object.assign({}, ...Object.keys(this.selectedFacet).map(k => ({
                 [k]: {
                     ...this.selectedFacet[k],
@@ -238,21 +233,21 @@ export default class OpencgaFacet extends LitElement {
         }));
     }
 
-    //TODO since this is the new opencga-browser, this have to be moved this in opencga-facet-results
+    // TODO since this is the new opencga-browser, this have to be moved this in opencga-facet-results
     async onRun() {
         this.clearPlots();
-        let queryParams = {
+        const queryParams = {
             ...this.preparedQuery,
             // sid: this.opencgaClient._config.sessionId,
             study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
             timeout: 60000,
             field: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
         };
-        //this event keeps in sync the query object with the one in iva-app
-        //TODO do not use this.preparedQuery, use this.query (change this component accordingly)
+        // this event keeps in sync the query object with the one in iva-app
+        // TODO do not use this.preparedQuery, use this.query (change this component accordingly)
         this.notifySearch(this.preparedQuery);
 
-        //this.querySelector("#loading").style.display = "block";
+        // this.querySelector("#loading").style.display = "block";
 
         this._config.endpoint.aggregationStats(queryParams, {})
             .then(queryResponse => {
@@ -271,30 +266,40 @@ export default class OpencgaFacet extends LitElement {
 
     }
 
+    addDefaultFacet() {
+        this._config.defaultFacetFields = ["cattype"];
+        for (const a of this._config.defaultFacetFields) {
+            const newField = this._recFind(this._config.fields, a);
+            this.selectedFacet[a] = {...newField, value: newField && newField.defaultValue ? newField.defaultValue : ""};
+            this.selectedFacet = {...this.selectedFacet};
+            this.requestUpdate();
+        }
+    }
+
     async onFacetFieldChange(e) {
-        let currentSelectionNames = e.detail.value ? e.detail.value.split(",") : [];
-        //compute the symmetric difference between this.selectedFacet and currentSelectionNames
-        let differences = Object.keys(this.selectedFacet)
+        const currentSelectionNames = e.detail.value ? e.detail.value.split(",") : [];
+        // compute the symmetric difference between this.selectedFacet and currentSelectionNames
+        const differences = Object.keys(this.selectedFacet)
             .filter(a => !currentSelectionNames.includes(a))
             .concat(currentSelectionNames.filter(name => !Object.keys(this.selectedFacet).includes(name)));
 
-        //the difference involves one item a time
+        // the difference involves one item a time
         if (differences.length > 1) console.error("Difference error!", this.selectedFacet, currentSelectionNames);
 
-        let difference = differences[0];
-        //addition
+        const difference = differences[0];
+        // addition
         if (currentSelectionNames.length > Object.keys(this.selectedFacet).length) {
             console.log("addition of", difference);
-            //Array.find() cannot be nested.. let newField = this._config.fields.find(field => field.fields ? field.fields.find(nested => nested === difference) : field.name === difference);
-            //console.log(this._config.fields, difference)
-            let newField = this._recFind(this._config.fields, difference);
-            //console.log("newField", newField)
+            // Array.find() cannot be nested.. let newField = this._config.fields.find(field => field.fields ? field.fields.find(nested => nested === difference) : field.name === difference);
+            // console.log(this._config.fields, difference)
+            const newField = this._recFind(this._config.fields, difference);
+            // console.log("newField", newField)
             this.selectedFacet[difference] = {...newField, value: newField && newField.defaultValue ? newField.defaultValue : ""};
             await this.requestUpdate();
             $(".bootstrap-select", this).selectpicker();
         } else {
             console.log("deletion of", difference);
-            //deletion
+            // deletion
             delete this.selectedFacet[difference];
         }
         this.selectedFacet = {...this.selectedFacet};
@@ -302,19 +307,19 @@ export default class OpencgaFacet extends LitElement {
     }
 
     onFacetValueChange(e) {
-        //console.log("onFacetValueChange",e);
-        let id = e.target.dataset.id;
-        //this.selectedFacet = {...this.selectedFacet, [id]: (e.target.value.trim() ? e.target.value : "")};
-        this.selectedFacet[id] = {...this.selectedFacet[id], value: e.target.value.trim() ? e.target.value : ""};
+        // console.log("onFacetValueChange",e);
+        const id = e.target.dataset.id;
+        // this.selectedFacet = {...this.selectedFacet, [id]: (e.target.value.trim() ? e.target.value : "")};
+        this.selectedFacet[id].value = e.target.value.trim() ? e.target.value : "";
         this.selectedFacet = {...this.selectedFacet};
         this.requestUpdate();
     }
 
     onFacetSelectChange(e) {
-        //console.log("onFacetSelectChange",e);
-        let id = e.target.dataset.id;
-        //this.selectedFacet = {...this.selectedFacet, [id]: (e.target.value.trim() ? e.target.value : "")};
-        this.selectedFacet[id] = {...this.selectedFacet[id], value: e.detail.value ? e.detail.value : ""};
+        // console.log("onFacetSelectChange",e);
+        const id = e.target.dataset.id;
+        // this.selectedFacet = {...this.selectedFacet, [id]: (e.target.value.trim() ? e.target.value : "")};
+        this.selectedFacet[id].value = e.detail.value ? e.detail.value : "";
         this.selectedFacet = {...this.selectedFacet};
         this.requestUpdate();
     }
@@ -333,6 +338,10 @@ export default class OpencgaFacet extends LitElement {
         this.requestUpdate();
     }
 
+    toggleCollapse(e) {
+        $(e.target.dataset.collapse).collapse("toggle");
+    }
+
     onNestedFacetValueChange(e) {
         this.selectedFacet[e.target.dataset.parentFacet].nested.value = e.target.value;
         this.selectedFacet = {...this.selectedFacet};
@@ -340,10 +349,10 @@ export default class OpencgaFacet extends LitElement {
     }
 
     onNestedFacetFieldChange(e, parent) {
-        let selected = e.detail.value;
+        const selected = e.detail.value;
         if (selected) {
-            let newField = this._recFind(this._config.fields, selected);
-            this.selectedFacet[parent] = {nested: {...newField, facet: selected, value: newField.defaultValue || ""}};
+            const newField = this._recFind(this._config.fields, selected);
+            this.selectedFacet[parent].nested = {...newField, facet: selected, value: newField.defaultValue || ""};
         } else {
             delete this.selectedFacet[parent].nested;
         }
@@ -372,7 +381,7 @@ export default class OpencgaFacet extends LitElement {
 
     onActiveFacetChange(e) {
         this.selectedFacet = {...e.detail};
-        //console.log("selectedFacet",Object.keys(this.selectedFacet))
+        // console.log("selectedFacet",Object.keys(this.selectedFacet))
         $("#" + this._prefix + "FacetField", this).selectpicker("val", Object.keys(this.selectedFacet));
         this.requestUpdate();
     }
@@ -385,13 +394,13 @@ export default class OpencgaFacet extends LitElement {
 
     onFilterChange(e) {
         this.query = e.detail;
-        //TODO remove search field everywhere. use query instead
+        // TODO remove search field everywhere. use query instead
         this.search = e.detail;
     }
 
     clearPlots() {
         if (UtilsNew.isNotUndefined(this.results) && this.results.length > 0) {
-            for (let result of this.results) {
+            for (const result of this.results) {
                 PolymerUtils.removeElement(this._prefix + result.name + "Plot");
             }
         }
@@ -417,8 +426,8 @@ export default class OpencgaFacet extends LitElement {
 
     onHistogramChart(e) {
         this.highlightActivePlot(e.target.parentElement);
-        let id = e.target.dataId;
-        //TODO Refactor
+        const id = e.target.dataId;
+        // TODO Refactor
         this.renderHistogramChart("#" + this._prefix + id + "Plot", id);
 
         PolymerUtils.hide(this._prefix + id + "Table");
@@ -426,14 +435,14 @@ export default class OpencgaFacet extends LitElement {
 
     onPieChart(e) {
         this.highlightActivePlot(e.target.parentElement);
-        let id = e.target.dataId;
+        const id = e.target.dataId;
         this.renderPieChart("#" + this._prefix + id + "Plot", id);
         PolymerUtils.hide(this._prefix + id + "Table");
     }
 
     onTabularView(e) {
         this.highlightActivePlot(e.target.parentElement);
-        let id = e.target.dataId;
+        const id = e.target.dataId;
         PolymerUtils.innerHTML(this._prefix + id + "Plot", "");
         PolymerUtils.show(this._prefix + id + "Table", "table");
     }
@@ -443,13 +452,10 @@ export default class OpencgaFacet extends LitElement {
         // PolymerUtils.addClass(button, "active");
     }
 
-    /**
-     *  TODO this is not used anymore
-     * */
-    fetchVariants() {
+/*    fetchVariants() {
         console.log("executedQuery changed!!");
         if (UtilsNew.isNotUndefined(this.opencgaClient)) {
-            let queryParams = {
+            const queryParams = {
                 sid: this.opencgaClient._config.sessionId,
                 timeout: 60000,
                 summary: true,
@@ -461,23 +467,23 @@ export default class OpencgaFacet extends LitElement {
                 queryParams.studies = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
             }
 
-            let _this = this;
+            const _this = this;
             this.opencgaClient.variants().query(queryParams, {})
                 .then(function(response) {
                     _this.totalVariants = response.response[0].numTotalResults;
                     console.log("_this.totalVariants", _this.totalVariants);
                 });
         }
-    }
+    }*/
 
     _recFind(array, value) {
         for (const f of array) {
             if (f.fields) {
-                let r = this._recFind(f.fields, value);
+                const r = this._recFind(f.fields, value);
                 if (r) return r;
             } else {
                 if (f.id === value) {
-                    //console.log("found", f);
+                    // console.log("found", f);
                     return f;
                 }
             }
@@ -492,7 +498,7 @@ export default class OpencgaFacet extends LitElement {
         $("#" + e.currentTarget.dataset.view).show();
         for (const tab in this.activeTab) this.activeTab[tab] = false;
         this.activeTab[e.currentTarget.dataset.view] = true;
-        /*if (e.target.dataset.view === "Summary") {
+        /* if (e.target.dataset.view === "Summary") {
             this.SummaryActive = true;
             this.requestUpdate();
         } else {
@@ -508,7 +514,7 @@ export default class OpencgaFacet extends LitElement {
 
     onActiveFilterChange(e) {
         console.log("onActiveFilterChange on variant facet", e.detail);
-        //TODO FIXME study prop have to be wiped off if possible. use studies instead
+        // TODO FIXME study prop have to be wiped off if possible. use studies instead
         this.preparedQuery = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias, ...e.detail};
         this.query = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias, ...e.detail};
     }
@@ -520,69 +526,57 @@ export default class OpencgaFacet extends LitElement {
     }
 
     renderField(facet) {
-        //console.log("renderField", facet);
+        const renderNestedFieldWrapper = faced => html`
+                    <!-- nested facet -->
+                    <div class="row facet-row nested">
+                        <div class="col-md-12 text-center">
+                            <a class="btn btn-small collapsed" role="button" data-collapse="#${facet.id}_nested" @click="${this.toggleCollapse}"> <i class="fas fa-arrow-alt-circle-down"></i> Nested Facet (optional) </a>
+                            <div class="collapse" id="${facet.id}_nested">
+                                <div class="">
+                                    <select-field-filter .data="${this._config.fields.map(field => field.id !== facet.id ? field : {...field, disabled: true})}" .value=${null} @filterChange="${e => this.onNestedFacetFieldChange(e, facet.id)}"></select-field-filter>
+                                    <div class="row facet-row nested">
+                                        ${this.renderNestedField(this.selectedFacet[facet.id].nested, facet.id)}
+                                    </div>                                
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /nested facet -->
+        `;
+
         switch (facet.type) {
-        case "category":
-            return html`
+            case "category":
+                return html`
                     <div class="row facet-row">
                         <div class="col-md-12">
-                            <select-field-filter multiple .data="${facet.values}" .value="${facet.defaultValue ? facet.defaultValue : ""}" id="${facet.name}_Select" data-id="${facet.name}" @filterChange="${this.onFacetSelectChange}"></select-field-filter>
+                            <select-field-filter multiple .data="${facet.values}" .value="${facet.defaultValue ? facet.defaultValue : ""}" id="${facet.id}_Select" data-id="${facet.id}" @filterChange="${this.onFacetSelectChange}"></select-field-filter>
                         </div>
                     </div>
-                    <!-- nested facet -->
-                    <div class="row facet-row nested">
-                        <div class="col-md-12">
-                            <label for="${facet.name}_text">Nested Facet (optional)</label>
-                            <select-field-filter .data="${this._config.fields}" .value=${null} @filterChange="${e => this.onNestedFacetFieldChange(e, facet.name)}"></select-field-filter>
-                        </div>
-                    </div>
-                    <div class="row facet-row nested">
-                        ${this.renderNestedField(this.selectedFacet[facet.name] ? this.selectedFacet[facet.name].nested : {}, facet.name)}
-                    </div>
-                    <!-- /nested facet -->
+                    ${renderNestedFieldWrapper(facet)}
                 `;
-        case "number":
-            return html`
+            case "number":
+                return html`
                     <div class="row facet-row">
                         <div class="col-md-6">
-                            <input type="text" class="form-control" placeholder="Include values or set range" id="${this._prefix}${facet.name}_text" data-id="${facet.name}" .value="${facet.value || ""}" @input="${this.onFacetValueChange}" />
+                            <input type="text" class="form-control" placeholder="Include values or set range" id="${this._prefix}${facet.id}_text" data-id="${facet.id}" .value="${facet.value || ""}" @input="${this.onFacetValueChange}" />
                         </div>
                         <div class="col-md-6">
-                            <select-field-filter .data="${["Range", "Avg", "Percentile"]}" .value="${"Range"}" id="${this._prefix}${facet.name}_FnSelect" data-facet="${facet.name}" @filterChange="${this.onFacetFnChange}"></select-field-filter>
+                            <select-field-filter .data="${["Range", "Avg", "Percentile"]}" .value="${"Range"}" id="${this._prefix}${facet.id}_FnSelect" data-facet="${facet.id}" @filterChange="${this.onFacetFnChange}"></select-field-filter>
                         </div>
                     </div>
-                    <!-- nested facet -->
-                    <div class="row facet-row nested">
-                        <div class="col-md-12">
-                            <label for="${facet.name}_text">Nested Facet (optional)</label>
-                            <select-field-filter .data="${this._config.fields}" .value=${null} @filterChange="${e => this.onNestedFacetFieldChange(e, facet.name)}"></select-field-filter>
-                        </div>
-                    </div>
-                    <div class="row facet-row nested">
-                        ${this.renderNestedField(this.selectedFacet[facet.name] ? this.selectedFacet[facet.name].nested : {}, facet.name)}
-                    </div>
-                    <!-- /nested facet -->
+                    ${renderNestedFieldWrapper(facet)}
                 `;
-        case "string":
-            return html`
+            case "string":
+                return html`
                     <div class="row facet-row">
                         <div class="col-md-12">
-                            <input type="text" class="form-control" placeholder="Include values" @input="${this.onFacetValueChange}" data-id="${facet.name}" type="text" .value="${facet.defaultValue ? facet.defaultValue : ""}" id="${facet.name}_NestedFnSelect"  />
+                            <input type="text" class="form-control" placeholder="Include values" @input="${this.onFacetValueChange}" data-id="${facet.id}" type="text" .value="${facet.defaultValue ? facet.defaultValue : ""}" id="${facet.id}_NestedFnSelect"  />
                         </div>
                     </div>
-                    <!-- nested facet -->
-                    <div class="row facet-row nested">
-                        <div class="col-md-12">
-                            <label for="${facet.name}_text">Nested Facet (optional)</label>
-                            <select-field-filter .data="${this._config.fields}" .value=${null} @filterChange="${e => this.onNestedFacetFieldChange(e, facet.name)}"></select-field-filter>
-                        </div>
-                    </div>
-                    <div class="row facet-row nested">
-                        ${this.renderNestedField(this.selectedFacet[facet.name] ? this.selectedFacet[facet.name].nested : {}, facet.name)}
-                    </div>
-                    <!-- /nested facet -->`;
-        default:
-            return html`no type recognized`;
+                    ${renderNestedFieldWrapper(facet)}
+                `;
+            default:
+                return html`no type recognized`;
         }
     }
 
@@ -590,14 +584,14 @@ export default class OpencgaFacet extends LitElement {
         if (!facet || !facet.type) return null;
         console.log("renderNestedField", facet);
         switch (facet.type) {
-        case "category":
-            return html`
+            case "category":
+                return html`
                     <div class="col-md-12">
-                        <select-field-filter multiple .data="${facet.values}" .value="${facet.defaultValue ? facet.defaultValue : ""}" id="${facet.name}_NestedSelect" data-parent-facet="${parent}" @filterChange="${this.onNestedFacetValueChange}"></select-field-filter>
+                        <select-field-filter multiple .data="${facet.values}" .value="${facet.defaultValue ? facet.defaultValue : ""}" id="${facet.id}_NestedSelect" data-parent-facet="${parent}" @filterChange="${this.onNestedFacetValueChange}"></select-field-filter>
                     </div>
                 `;
-        case "number":
-            return html`
+            case "number":
+                return html`
                     <div class="col-md-6">
                         <input type="text" class="form-control" placeholder="Include values or set range" data-parent-facet="${parent}" .disabled="${!(facet.facet)}" id="${this._prefix}${parent}_NestedValue" .value="${facet.value || ""}"  @input="${this.onNestedFacetValueChange}"  />
                     </div>
@@ -605,19 +599,19 @@ export default class OpencgaFacet extends LitElement {
                         <select-field-filter .disabled="${false}" .data="${["Range", "Avg", "Percentile"]}" .value="${"Range"}" id="${parent}_NestedFnSelect" data-parent-facet="${parent}" @filterChange="${this.onNestedFacetFnChange}"></select-field-filter>
                     </div>
                 `;
-        case "string":
-            return html`
+            case "string":
+                return html`
                     <div class="col-md-12">
-                        <input type="text" class="form-control" placeholder="Include values" data-parent-facet="${parent}" id="${this._prefix}${facet.name}_Nested_text" .value="${facet.value || ""}"  @input="${this.onNestedFacetValueChange}"  />
+                        <input type="text" class="form-control" placeholder="Include values" data-parent-facet="${parent}" id="${this._prefix}${facet.id}_Nested_text" .value="${facet.value || ""}"  @input="${this.onNestedFacetValueChange}"  />
                     </div>`;
-        default:
-            return html`no type recognized`;
+            default:
+                return html`no type recognized`;
         }
     }
 
     renderGrid(entity) {
         switch (entity) {
-            //TODO handle specific events
+            // TODO handle specific events
             case "files":
                 return html`<opencga-file-grid .opencgaSession="${this.opencgaSession}"
                                                        .config="${this._config.grid}"
@@ -737,9 +731,8 @@ export default class OpencgaFacet extends LitElement {
                 margin-top: 15px;
             }
             
-            .facet-row-container{
-                padding: 0 5px;
-                margin: 10px;
+            .facet-box:not(:first-child){
+                border-top: 1px solid rgba(221, 221, 221, 0.8);
             }
             
             .facet-row {
@@ -767,6 +760,14 @@ export default class OpencgaFacet extends LitElement {
                 margin: 0 0 20px 0;
             }
             
+            .or-text {
+                text-align: center;
+            }
+            
+            .facet-list .alert-info small {
+                display: block;
+            }
+            
         </style>
 
         ${this.checkProjects ? html`
@@ -791,46 +792,10 @@ export default class OpencgaFacet extends LitElement {
                     </ul>
                     
                     <div class="tab-content">
-                        <div role="tabpanel" class="tab-pane" id="facet_tab" aria-expanded="true">
-                
-                            <div>
-                                <label>Select a Term or Range Facet</label>
-                                    <select-field-filter multiple .data="${this._config.fields}" .value=${Object.keys(this.selectedFacet).join(",")} @filterChange="${this.onFacetFieldChange}"></select-field-filter>
-                            </div>
-                            
-                            <div class="facet-list-container panel-group">
-                                <!-- this.selectedFacet <pre>${JSON.stringify(this.selectedFacet, null, "  ")}</pre> --> 
-                                ${this._config.fields.map(facet => html`
-                                    <div class="container-fluid facet-row-container">
-                                        <div class="row ">
-                                            <div class="panel panel-default filter-section">
-                                                <div class="panel-heading" role="tab" id="${this._prefix}Heading">
-                                                    <h4 class="panel-title">
-                                                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
-                                                            href="#${this._prefix}${facet.id}" aria-expanded="true" aria-controls="${this._prefix}">
-                                                            <p class="subsection-content">${facet.name}</p>
-                                                        </a>
-                                                    </h4>
-                                                </div>
-                                                <div id="${this._prefix}${facet.id}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="${this._prefix}Heading">
-                                                    <div class="panel-body">
-                                                        ${this.renderField(facet)}
-                                                     </div>
-                                                </div>
-                                            </div>
-                    
-                                        </div>
-                                    </div>
-                                    
-                                `)}
-                            </div>
-
-                        </div>
-
                         <div role="tabpanel" class="tab-pane active" id="filters_tab">
-
+                                     
                             <!-- dynamic render doesn't work well with active-filter events  _filterComp ${this._filterComp} -->
-
+                            
                             ${this.resource === "variants" ? html`
                                 <opencga-variant-filter .opencgaSession=${this.opencgaSession}
                                                             .opencgaClient="${this.opencgaClient}"
@@ -844,12 +809,12 @@ export default class OpencgaFacet extends LitElement {
                                                             @querySearch="${this.onQueryFilterSearch}">
                                 </opencga-variant-filter>
                             ` : null}
-
+                            
                             ${this.resource === "files" ? html`
                                 <opencga-file-filter
                                     discriminator="hardcoded"  
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${1 /*TODO FIXME this._config.filter*/}"
+                                    .config="${1 /* TODO FIXME this._config.filter*/}"
                                     .files="${this.files}"
                                     .query="${this.query}"
                                     .search="${this.search}"
@@ -859,12 +824,12 @@ export default class OpencgaFacet extends LitElement {
                                     @querySearch="${this.onQueryFilterSearch}">
                                 </opencga-file-filter>
                             ` : null}
-
+                            
                             ${this.resource === "samples" ? html`
                                 <opencga-sample-filter
                                     discriminator="hardcoded"  
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${1 /*TODO FIXME this._config.filter*/}"
+                                    .config="${1 /* TODO FIXME this._config.filter*/}"
                                     .query="${this.query}"
                                     .search="${this.search}"
                                     .variableSets="${this.variableSets}"
@@ -873,12 +838,12 @@ export default class OpencgaFacet extends LitElement {
                                     @querySearch="${this.onQueryFilterSearch}">
                                 </opencga-sample-filter>
                             ` : null}
-
+                            
                             ${this.resource === "individuals" ? html`
                                 <opencga-individual-filter
                                     discriminator="hardcoded"  
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${1 /*TODO FIXME this._config.filter*/}"
+                                    .config="${1 /* TODO FIXME this._config.filter*/}"
                                     .query="${this.query}"
                                     .search="${this.search}"
                                     .variableSets="${this.variableSets}"
@@ -886,13 +851,13 @@ export default class OpencgaFacet extends LitElement {
                                     @queryChange="${this.onQueryFilterChange}"
                                     @querySearch="${this.onQueryFilterSearch}">
                                 </opencga-individual-filter>
-                            ` : null}
-
+                            ` : null}                            
+                            
                             ${this.resource === "family" ? html`
                                 <opencga-family-filter
                                     discriminator="hardcoded"  
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${1 /*TODO FIXME this._config.filter*/}"
+                                    .config="${1 /* TODO FIXME this._config.filter*/}"
                                     .query="${this.query}"
                                     .search="${this.search}"
                                     .variableSets="${this.variableSets}"
@@ -901,12 +866,12 @@ export default class OpencgaFacet extends LitElement {
                                     @querySearch="${this.onQueryFilterSearch}">
                                 </opencga-family-filter>
                             ` : null}
-
+                            
                             ${this.resource === "cohort" ? html`
                                 <opencga-cohort-filter
                                     discriminator="hardcoded"  
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${1 /*TODO FIXME this._config.filter*/}"
+                                    .config="${1 /* TODO FIXME this._config.filter*/}"
                                     .query="${this.query}"
                                     .search="${this.search}"
                                     .variableSets="${this.variableSets}"
@@ -915,10 +880,10 @@ export default class OpencgaFacet extends LitElement {
                                     @querySearch="${this.onQueryFilterSearch}">
                                 </opencga-cohort-filter>
                             ` : null}
-
+                            
                             ${this.resource === "clinical-analysis" ? html`
                                 <opencga-clinical-analysis-filter   .opencgaSession="${this.opencgaSession}"
-                                                                    .config="${1 /*TODO FIXME this._config.filter*/}"
+                                                                    .config="${1 /* TODO FIXME this._config.filter*/}"
                                                                     .analyses="${this.analyses}"
                                                                     .search="${this.search}"
                                                                     .query="${this.query}"
@@ -926,13 +891,48 @@ export default class OpencgaFacet extends LitElement {
                                                                     @querySearch="${this.onQueryFilterSearch}">
                                 </opencga-clinical-analysis-filter>
                             ` : null}
-
+                            
                         </div>
+                        
+                        <div role="tabpanel" class="tab-pane" id="facet_tab" aria-expanded="true">
+                            <div>
+                                <label>Select a Term or Range Facet</label>
+                                    <select-field-filter multiple .data="${this._config.fields}" .value=${Object.keys(this.selectedFacet).join(",")} @filterChange="${this.onFacetFieldChange}"></select-field-filter>
+                                    <div class="text-center">
+                                        <p class="or-text">- or -</p>
+                                        <button class="btn btn-default btn-small ripple" @click="${this.addDefaultFacet}">Add default fields</button>
+                                    </div> 
+                            </div>
+                            
+                            <!-- <label>Selected fields</label> -->
+                            <div class="facet-list-container panel-group">
+                                <!-- this.selectedFacet <pre>${JSON.stringify(this.selectedFacet, null, "  ")}</pre> --> 
+                                ${Object.keys(this.selectedFacet).length>0 ? Object.entries(this.selectedFacet).map( ([, facet]) => html`
+                                    <div class="facet-box" id="${this._prefix}Heading">
+                                        <div class="subsection-content form-group">
+                                            <div class="browser-subsection">${facet.name}
+                                                <div class="tooltip-div pull-right">
+                                                    <a><i class="fa fa-info-circle" aria-hidden="true" id="${this._prefix}${facet.id}Tooltip"></i></a>
+                                                </div>
+                                            </div>
+                                            <div id="${this._prefix}${facet.id}" class="panel-collapse" role="tabpanel" aria-labelledby="${this._prefix}Heading">
+                                                <div class="panel-body">
+                                                    ${this.renderField(facet)}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>                                    
+                                `) : html`
+                                    <div class="alert alert-info text-center" role="alert"><i class="fas fa-3x fa-info-circle"></i><br><small>No aggregation field has been selected yet.</small></div>
+                                `}
+                            </div>
+                        </div>
+                        
                     </div>
                 </div>
 
                 <div class="col-md-10">
-
+                
                     <!-- tabs buttons -->
                     <div>
                         <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
@@ -949,9 +949,9 @@ export default class OpencgaFacet extends LitElement {
                             </div>
                         </div>
                     </div>
-
+                    
                     <div>
-                        <opencga-active-filters facetActive
+                        <opencga-active-filters facetActive 
                                                 .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                 .defaultStudy="${this.opencgaSession.study.alias}"
                                                 .query="${this.preparedQuery}"
@@ -965,20 +965,20 @@ export default class OpencgaFacet extends LitElement {
                                                 @activeFilterClear="${this.onActiveFilterClear}">
                         </opencga-active-filters>
 
-
+                    
                         <div id="table-results" class="content-tab">
                         <!-- TODO continue integrating browser grids -->
                             ${this.renderGrid(this.resource)}
                         </div>
-
+                        
                         <div id="facet-results" class="content-tab">
                             <opencb-facet-results .active="${this.activeTab["facet-results"]}"
                                                   .data="${this.facetResults}"
                                                   .error="${this.errorState}">
                             </opencb-facet-results>
                         </div>
-
-                        <!-- RESULTS - Facet Plots
+                                                
+                        <!-- RESULTS - Facet Plots 
                         <div id="loading" style="display: none">
                             <loading-spinner></loading-spinner>
                         </div>

@@ -101,12 +101,9 @@ export default class VariantBeaconNetwork extends LitElement {
                             for (const r of response) {
                                 console.log(r)
                                 const host = this.querySelector("." + this._prefix + this._config.hosts[i]);
-                                console.log(host)
                                 host.classList.add(r.response || "false");
-                                let resText = "";
                                 if(r.response === null) {
                                     // null from server
-                                    console.log("no boolean response from server", r.response)
                                     host.querySelector(".beaconResponse").innerHTML = `false (${r.response})`;
                                 } else {
                                     host.querySelector(".beaconResponse").innerHTML = r.response;
