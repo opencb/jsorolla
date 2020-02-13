@@ -74,11 +74,12 @@ export default class OpencgaVariantFilterClinical extends LitElement {
 
     firstUpdated(_changedProperties) {
         // Render the first time after preparing the DOM
-        this.clinicalAnalysisObserver();
+        //this.clinicalAnalysisObserver();
         $("select.selectpicker", this).selectpicker("render");
     }
 
     clinicalAnalysisObserver() {
+        console.log("clinicalAnalysisObserver ", this.sampleFilters)
         if (UtilsNew.isUndefinedOrNull(this.clinicalAnalysis)) {
             console.log("clinicalAnalysis is undefined or null: ", this.clinicalAnalysis);
             return;
@@ -354,10 +355,13 @@ export default class OpencgaVariantFilterClinical extends LitElement {
 
     render() {
         return html`
-       <style include="jso-styles">
+        <style include="jso-styles">
+            #opencga-variant-filter-clinical {
+                font-size: 12px;
+            }
         </style>
 
-        <div class="row">
+        <div id="opencga-variant-filter-clinical" class="row">
 
             <div class="col-md-12" style="padding: 0px 20px">
                 <h4>Select Sample Filters</h4>

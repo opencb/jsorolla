@@ -270,18 +270,6 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
             select + input {
                 margin-left: 10px;
             }
-
-            .browser-subsection {
-                font-size: 1.35rem;
-                font-weight: bold;
-                padding: 5px 0px;
-                color: #444444;
-                border-bottom: 1px solid rgba(221, 221, 221, 0.8);
-            }
-
-            .subsection-content {
-                margin: 5px 5px;
-            }
         </style>
 
         <div class="search-button-wrapper">

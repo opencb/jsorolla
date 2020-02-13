@@ -66,9 +66,8 @@ export default class StudyFilter extends LitElement {
 
     updated(_changedProperties) {
         if (_changedProperties.has("differentStudies")) {
-            //console.log("this.opencgaSession",this.opencgaSession)
             //this._selectStudies = [{id: this.opencgaSession.study.fqn, name: this.opencgaSession.study.name}, ...this.differentStudies.map( _ => ({id: _.fqn, name: _.name}))];
-            //this.requestUpdate();
+            this.requestUpdate().then( () => $(".selectpicker", this).selectpicker("refresh"));
         }
 
         if (_changedProperties.has("studies")) {
@@ -154,7 +153,7 @@ export default class StudyFilter extends LitElement {
                     @change="${this.onChangeSelectedStudy}">
                     <option value="${this.opencgaSession.study.fqn}" disabled>${this.opencgaSession.study.name}</option>
                     ${this.differentStudies && this.differentStudies.length ? this.differentStudies.map(study => html`
-                        <option selected value="${study.fqn}">${study.alias}</option>
+                        <option value="${study.fqn}">${study.alias}</option>
                     `) : null }
                 </select>
                 <fieldset class="switch-toggle-wrapper">

@@ -292,6 +292,9 @@ export default class OpencgaVariantBrowser extends LitElement {
         this.dispatchEvent(new CustomEvent("propagate", {gene: e.detail.gene}));
     }
 
+    /**
+     * @deprecated
+     */
     fetchFacets() {
         let queryParams = {
             sid: this.opencgaSession.opencgaClient._config.sessionId,
@@ -371,6 +374,9 @@ export default class OpencgaVariantBrowser extends LitElement {
         }, 250);
     }
 
+    /**
+     * @deprecated
+     */
     // This observer is needed when pie charts are rendered instead of table. This is where the data needed for high charts is prepared
     variantStudiesChanged() {
         this.$.variantStudies.render();
@@ -443,47 +449,6 @@ export default class OpencgaVariantBrowser extends LitElement {
         }
     }
 
-    // This is the old Pie Chart implementation, not used right now
-    _updatePieChart(_id, params) {
-        // params = { title, data}
-        $(_id).highcharts({
-            credits: {enabled: false},
-            chart: {
-                plotBackgroundColor: null,
-                plotBorderWidth: null,
-                plotShadow: false,
-                type: "pie",
-                width: 220
-            },
-            title: {
-                text: params.title
-            },
-            tooltip: {
-                pointFormat: "{series.name}: <b>{point.percentage:.2f}%</b>"
-            },
-            plotOptions: {
-                pie: {
-                    allowPointSelect: true,
-                    cursor: "pointer",
-                    minSize: 75,
-                    dataLabels: {
-                        padding: 4,
-                        connectorPadding: 4,
-                        enabled: true,
-                        format: "{point.name}: {point.percentage:.2f}%",
-                        style: {
-                            color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || "black"
-                        }
-                    }
-                }
-            },
-            series: [{
-                name: "Genotype Count",
-                data: params.data
-            }]
-        });
-    }
-
     getDefaultConfig() {
         return {
             activeFilters: {
@@ -528,143 +493,142 @@ export default class OpencgaVariantBrowser extends LitElement {
         </style>
         
         ${this.checkProjects ? html`
-<div class="panel" style="margin-bottom: 15px">
-    <h3 style="margin: 10px 10px 10px 15px">
-                            <span @click="${this.onCollapse}" style="cursor: pointer;margin: 0px 30px 0px 0px">
-                                <i class="fa fa-bars" aria-hidden="true"></i>
-                            </span>
-        <i class="fa fa-search" aria-hidden="true"></i> ${this.config.title}
-    </h3>
-</div>
+            <div class="panel" style="margin-bottom: 15px">
+                <h3 style="margin: 10px 10px 10px 15px">
+                                        <span @click="${this.onCollapse}" style="cursor: pointer;margin: 0px 30px 0px 0px">
+                                            <i class="fa fa-bars" aria-hidden="true"></i>
+                                        </span>
+                    <i class="fa fa-search" aria-hidden="true"></i> ${this.config.title}
+                </h3>
+            </div>
 
-<div class="row">
-    <div id="${this._prefix}FilterMenu" class="col-md-2">
-        <opencga-variant-filter .opencgaSession="${this.opencgaSession}"
-                                .query="${this.query}"
-                                .cohorts="${this.cohorts}"
-                                .cellbaseClient="${this.cellbaseClient}"
-                                .populationFrequencies="${this.populationFrequencies}"
-                                .consequenceTypes="${this.consequenceTypes}"
-                                .config="${this._config.filter}"
-                                @queryChange="${this.onQueryFilterChange}"
-                                @querySearch="${this.onQueryFilterSearch}"
-                                @samplechange="${this.onSampleChange}">
-        </opencga-variant-filter>
-    </div>
-
-    
-    <div id="${this._prefix}MainWindow" class="col-md-10">
-       
-        <opencga-active-filters .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                .defaultStudy="${this.opencgaSession.study.alias}"
-                                .query="${this.preparedQuery}"
-                                .refresh="${this.executedQuery}"
-                                .filters="${this._config.filter.examples}"
-                                .alias="${this._config.activeFilterAlias}"
-                                .config="${this._config.activeFilters}"
-                                filterBioformat="VARIANT"
-                                @activeFilterChange="${this.onActiveFilterChange}"
-                                @activeFilterClear="${this.onActiveFilterClear}">
-        </opencga-active-filters>
-        
-        <div class="col-md-12" style="padding: 5px 0px 5px 0px">
-            <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px;margin-left: 0px">
-                <div id="${this._prefix}LeftToolbar" style="padding-bottom: 0px">
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-success variant-browser-view-buttons active ripple"
-                                data-view="TableResult" @click="${this._changeView}">
-                            <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult"
-                               @click="${this._changeView}"></i> Table Result
-                        </button>
-                        <button type="button" class="btn btn-success variant-browser-view-buttons ripple" data-view="Summary"
-                                @click="${this._changeView}">
-                            <i class="fas fa-chart-bar icon-padding" aria-hidden="true" data-view="Summary"
-                               @click="${this._changeView}"></i> Summary Stats
-                        </button>
-                        <!--<template is="dom-if" if="{{config.showGenomeBrowser}}">-->
-                        <!--<button id="{{prefix}}GenomeBrowserButton" type="button" class="btn btn-success variant-browser-view-buttons" data-view="GenomeBrowser" on-click="_changeView">-->
-                        <!--<i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i> Genome Browser (Beta)-->
-                        <!--</button>-->
-                        <!--</template>-->
-                    </div>
+            <div class="row">
+                <div id="${this._prefix}FilterMenu" class="col-md-2">
+                    <opencga-variant-filter .opencgaSession="${this.opencgaSession}"
+                                            .query="${this.query}"
+                                            .cohorts="${this.cohorts}"
+                                            .cellbaseClient="${this.cellbaseClient}"
+                                            .populationFrequencies="${this.populationFrequencies}"
+                                            .consequenceTypes="${this.consequenceTypes}"
+                                            .config="${this._config.filter}"
+                                            @queryChange="${this.onQueryFilterChange}"
+                                            @querySearch="${this.onQueryFilterSearch}"
+                                            @samplechange="${this.onSampleChange}">
+                    </opencga-variant-filter>
                 </div>
-            </div>
-        </div>
-
-        <div>
-            <!-- First TAB -->
-            <div id="${this._prefix}TableResult" class="variant-browser-content">
-                <!-- Variant Browser Grid -->
-
-                <opencga-variant-grid .opencgaSession="${this.opencgaSession}"
-                                      .query="${this.executedQuery}"
-                                      .cohorts="${this.cohorts}"
-                                      .cellbaseClient="${this.cellbaseClient}"
-                                      .populationFrequencies="${this.populationFrequencies}"
-                                      .active="${this.active}" 
-                                      .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                      .consequenceTypes="${this.consequenceTypes}"
-                                      .config="${this.config}"
-                                      @selected="${this.selectedGene}"
-                                      @selectvariant="${this.onSelectVariant}"
-                                      @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
-                </opencga-variant-grid>
-
-
-                <!-- Bottom tabs with specific variant information -->
-                <opencga-variant-detail-view    .opencgaSession="${this.opencgaSession}" 
-                                                .cellbaseClient="${this.cellbaseClient}"
-                                                .variantId="${this.variantId}">
-                </opencga-variant-detail-view>
-                            
-            </div>
-
-            <!-- Second TAB -->
-            <div id="${this._prefix}Summary" class="variant-browser-content" style="display: none; padding: 0px 15px">
-                <opencga-variant-facet-query .opencgaSession="${this.opencgaSession}"
-                                             .cellbaseClient="${this.cellbaseClient}"
-                                             .populationFrequencies="${this.populationFrequencies}"
-                                             .query="${this.executedQuery}"
-                                             .active="${this.SummaryActive}">
-                </opencga-variant-facet-query>
-            </div>
-
-            <!-- Third TAB -->
-            <div id="${this._prefix}GenomeBrowser" class="variant-browser-content" style="display: none">
-                <br>
-                <br>
-                <opencga-genome-browser .opencgaSession="${this.opencgaSession}"
-                                        .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                        .cellbaseClient="${this.cellbaseClient}"
-                                        .query=${this.preparedQuery}
-                                        .search=${this.executedQuery}
-                                        .species=${this.config.species}
-                                        .region="${this.region}"
-                                        .active="${this._genomeBrowserActive}"
-                                        .fullScreen="${this.fullScreen}"
-                                        .config="${this._config.genomeBrowser}">
-                </opencga-genome-browser>
-            </div>
-        </div>
-
-        <div class="modal fade" id="${this._prefix}LoadingModal" data-backdrop="static" data-keyboard="false"
-             tabindex="-1"
-             role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>Loading...</h3>
-                    </div>
-                    <div class="modal-body">
-                        <div class="progress progress-striped active">
-                            <div class="progress-bar progress-bar-success" style="width: 100%"></div>
+                
+                <div id="${this._prefix}MainWindow" class="col-md-10">
+                   
+                    <opencga-active-filters .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                            .defaultStudy="${this.opencgaSession.study.alias}"
+                                            .query="${this.preparedQuery}"
+                                            .refresh="${this.executedQuery}"
+                                            .filters="${this._config.filter.examples}"
+                                            .alias="${this._config.activeFilterAlias}"
+                                            .config="${this._config.activeFilters}"
+                                            filterBioformat="VARIANT"
+                                            @activeFilterChange="${this.onActiveFilterChange}"
+                                            @activeFilterClear="${this.onActiveFilterClear}">
+                    </opencga-active-filters>
+                    
+                    <div class="col-md-12" style="padding: 5px 0px 5px 0px">
+                        <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px;margin-left: 0px">
+                            <div id="${this._prefix}LeftToolbar" style="padding-bottom: 0px">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-success variant-browser-view-buttons active ripple"
+                                            data-view="TableResult" @click="${this._changeView}">
+                                        <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult"
+                                           @click="${this._changeView}"></i> Table Result
+                                    </button>
+                                    <button type="button" class="btn btn-success variant-browser-view-buttons ripple" data-view="Summary"
+                                            @click="${this._changeView}">
+                                        <i class="fas fa-chart-bar icon-padding" aria-hidden="true" data-view="Summary"
+                                           @click="${this._changeView}"></i> Summary Stats
+                                    </button>
+                                    <!--<template is="dom-if" if="{{config.showGenomeBrowser}}">-->
+                                    <!--<button id="{{prefix}}GenomeBrowserButton" type="button" class="btn btn-success variant-browser-view-buttons" data-view="GenomeBrowser" on-click="_changeView">-->
+                                    <!--<i class="fa fa-list-alt icon-padding" aria-hidden="true" data-view="GenomeBrowser" on-click="_changeView"></i> Genome Browser (Beta)-->
+                                    <!--</button>-->
+                                    <!--</template>-->
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
+            
+                    <div>
+                        <!-- First TAB -->
+                        <div id="${this._prefix}TableResult" class="variant-browser-content">
+                            <!-- Variant Browser Grid -->
+            
+                            <opencga-variant-grid .opencgaSession="${this.opencgaSession}"
+                                                  .query="${this.executedQuery}"
+                                                  .cohorts="${this.cohorts}"
+                                                  .cellbaseClient="${this.cellbaseClient}"
+                                                  .populationFrequencies="${this.populationFrequencies}"
+                                                  .active="${this.active}" 
+                                                  .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                  .consequenceTypes="${this.consequenceTypes}"
+                                                  .config="${this.config}"
+                                                  @selected="${this.selectedGene}"
+                                                  @selectvariant="${this.onSelectVariant}"
+                                                  @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
+                            </opencga-variant-grid>
+            
+            
+                            <!-- Bottom tabs with specific variant information -->
+                            <opencga-variant-detail-view    .opencgaSession="${this.opencgaSession}" 
+                                                            .cellbaseClient="${this.cellbaseClient}"
+                                                            .variantId="${this.variantId}">
+                            </opencga-variant-detail-view>
+                                        
+                        </div>
+            
+                        <!-- Second TAB -->
+                        <div id="${this._prefix}Summary" class="variant-browser-content" style="display: none; padding: 0px 15px">
+                            <opencga-variant-facet-query .opencgaSession="${this.opencgaSession}"
+                                                         .cellbaseClient="${this.cellbaseClient}"
+                                                         .populationFrequencies="${this.populationFrequencies}"
+                                                         .query="${this.executedQuery}"
+                                                         .active="${this.SummaryActive}">
+                            </opencga-variant-facet-query>
+                        </div>
+            
+                        <!-- Third TAB -->
+                        <div id="${this._prefix}GenomeBrowser" class="variant-browser-content" style="display: none">
+                            <br>
+                            <br>
+                            <opencga-genome-browser .opencgaSession="${this.opencgaSession}"
+                                                    .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                                    .cellbaseClient="${this.cellbaseClient}"
+                                                    .query=${this.preparedQuery}
+                                                    .search=${this.executedQuery}
+                                                    .species=${this.config.species}
+                                                    .region="${this.region}"
+                                                    .active="${this._genomeBrowserActive}"
+                                                    .fullScreen="${this.fullScreen}"
+                                                    .config="${this._config.genomeBrowser}">
+                            </opencga-genome-browser>
+                        </div>
+                    </div>
+            
+                    <div class="modal fade" id="${this._prefix}LoadingModal" data-backdrop="static" data-keyboard="false"
+                         tabindex="-1"
+                         role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h3>Loading...</h3>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="progress progress-striped active">
+                                        <div class="progress-bar progress-bar-success" style="width: 100%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> 
             </div>
-        </div>
-    </div> 
-</div>
         ` : html`
                 <h3 class="text-center">No public projects available to browse. Please login to continue</h3>
         `}

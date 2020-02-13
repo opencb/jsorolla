@@ -475,7 +475,9 @@ export default class OpencgaVariantGrid extends LitElement {
                 detail: {
                     id: _variant,
                     variant: row
-                }
+                },
+                bubbles: true,
+                composed: true
             }));
         }
     }

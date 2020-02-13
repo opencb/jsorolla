@@ -707,13 +707,13 @@ class OpencgaVariantInterpretation extends LitElement {
                 <div class="btn-toolbar " role="toolbar" aria-label="..." >
                     <!-- Left buttons -->
                     <div class="btn-group" role="group" aria-label="..." >
-                        <button id="${this._prefix}InteractiveButton" type="button" class="btn btn-primary variant-interpretation-view-buttons active ripple" data-view="Interactive" @click="${this.onChangeView}">
+                        <button id="${this._prefix}InteractiveButton" type="button" class="btn btn-success variant-interpretation-view-buttons active ripple" data-view="Interactive" @click="${this.onChangeView}">
                             <i class="fa fa-filter icon-padding" aria-hidden="true" data-view="Interactive" @click="${this.onChangeView}"></i>Interactive Analysis ${this.counterTitles.rv}
                         </button>
-                        <button id="${this._prefix}CompoundHeterozygousButton" type="button" class="btn btn-primary variant-interpretation-view-buttons ripple" data-view="CompoundHeterozygous" @click="${this.onChangeView}">
+                        <button id="${this._prefix}CompoundHeterozygousButton" type="button" class="btn btn-success variant-interpretation-view-buttons ripple" data-view="CompoundHeterozygous" @click="${this.onChangeView}">
                             <i class="fas fa-random icon-padding" aria-hidden="true" data-view="CompoundHeterozygous" @click="${this.onChangeView}"></i>Compound Heterozygous ${this.counterTitles.ch}
                         </button>
-                        <button id="${this._prefix}DeNovoButton" type="button" class="btn btn-primary variant-interpretation-view-buttons ripple" data-view="DeNovo" @click="${this.onChangeView}">
+                        <button id="${this._prefix}DeNovoButton" type="button" class="btn btn-success variant-interpretation-view-buttons ripple" data-view="DeNovo" @click="${this.onChangeView}">
                             <i class="fa fa-divide icon-padding" aria-hidden="true" data-view="DeNovo" @click="${this.onChangeView}"></i>de Novo ${this.counterTitles.dn}
                         </button>
                     </div>
@@ -726,7 +726,7 @@ class OpencgaVariantInterpretation extends LitElement {
 
                     ${this._config.showOtherTools ? html`
                         <div class="btn-group">
-                            <button type="button" class="btn btn-primary dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <button type="button" class="btn btn-success dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fa fa-wrench" aria-hidden="true" style="padding-right: 5px"></i> Other Tools <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-right">

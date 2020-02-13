@@ -280,13 +280,6 @@ export default class OpencgaFamilyEditor extends LitElement {
     render() {
         return html`
         <style>
-            .browser-subsection {
-                font-size: 1.35rem;
-                font-weight: bold;
-                padding: 5px 0px;
-                color: #444444;
-                border-bottom: 1px solid rgba(221, 221, 221, 0.8);
-            }
         </style>
 
         <div class="row">

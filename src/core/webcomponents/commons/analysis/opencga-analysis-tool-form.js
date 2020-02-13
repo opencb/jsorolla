@@ -177,7 +177,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
     render() {
         return html`
             <div class="panel-group">
-            <!-- <pre style="font-size: 8px">
+            <!--<pre style="font-size: 10px;height: 25vh;">
             ${JSON.stringify(this._config.sections, null, "\t")}
             </pre> -->
                 <form id="analysis-form" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">

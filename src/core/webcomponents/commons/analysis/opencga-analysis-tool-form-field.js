@@ -45,7 +45,12 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
         this._prefix = "oatff-" + Utils.randomString(6) + "_";
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+    }
+
     fieldChange(fieldId, value) {
+        //console.log("fieldId, value", fieldId, value)
         this.dispatchEvent(new CustomEvent("fieldChange", {
             detail: {
                 [fieldId]: value
@@ -68,7 +73,9 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
                                 <input type="number" min=${min} max=${max} step="0.01" .disabled=${this.config.disabled} ?required=${this.config.required} value="${field.defaultValue || ""}" id="${this._prefix}-input-${field.id}" class="input form-control input-sm ${this._prefix}FilterTextInput" placeholder="${field.placeholder || ""}" @input="${e => this.fieldChange(field.id, e.target.value)}">
                             </div>`;
             case "COHORT_FILTER":
-                return html`COHORT_FILTER`;
+                return html`<cohort-filter .opencgaSession="${this.opencgaSession}" .cohorts="${{"reference_grch37":{"1kG_phase3":[{"id":"ALL","name":"All"},{"id":"MXL","name":"Mexican"}],"EXAC":[{"id":"ALL","name":"All"}]},"GRCH37":{"platinum":[{"id":"ALL","name":"ALL"}]},"exomes_grch37":{"corpasome":[{"id":"ALL","name":"ALL"}]}}}" ._cohorts="${ {"corpasome":[{"id":"ALL","name":"ALL"}]} }" .cohortStatsAlt="${[]}" @filterChange="${e => this.fieldChange("cohort", e.detail.value)}"> </cohort-filter>`;
+            case "SAMPLE-FILTER":
+                return html`<sample-filter ?enabled="${true}" .opencgaSession="${this.opencgaSession}" .clinicalAnalysis="${this.clinicalAnalysis}" .query="${this.query}" @sampleFilterChange="${e => this.fieldChange(e.detail.value)}"></sample-filter>`
             default:
                 console.warn("field type "+field.type+" not implemented. String type fallback");
                 return html`<text-field-filter placeholder="${field.placeholder || ""}" ?disabled=${this.config.disabled} ?required=${this.config.required} .value="${field.defaultValue || ""}" @filterChange="${e => this.fieldChange(field.id, e.detail.value)}"></text-field-filter>`;

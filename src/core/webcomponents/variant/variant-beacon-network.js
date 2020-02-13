@@ -93,7 +93,33 @@ export default class VariantBeaconNetwork extends LitElement {
                     })
                     .catch( e => console.error(e))
                 */
-                xhr.onload = function (event) {
+                fetch(url)
+                    .then( async res => {
+                        if(res.ok) {
+                            const response = await res.json();
+                            console.log(response)
+                            for (const r of response) {
+                                console.log(r)
+                                const host = this.querySelector("." + this._prefix + this._config.hosts[i]);
+                                console.log(host)
+                                host.classList.add(r.response || "false");
+                                let resText = "";
+                                if(r.response === null) {
+                                    // null from server
+                                    console.log("no boolean response from server", r.response)
+                                    host.querySelector(".beaconResponse").innerHTML = `false (${r.response})`;
+                                } else {
+                                    host.querySelector(".beaconResponse").innerHTML = r.response;
+                                }
+
+                            }
+                        } else {
+                            console.error("Server Error", res);
+                        }
+                    })
+                    .catch( e => console.error(e));
+
+                /*xhr.onload = function (event) {
                     if (xhr.readyState === xhr.DONE) {
                         if (xhr.status === 200) {
                             let contentType = xhr.getResponseHeader('Content-Type');
@@ -103,7 +129,7 @@ export default class VariantBeaconNetwork extends LitElement {
                                     if (beaconResponse[j].response != null) {
                                         let response = beaconResponse[j].response.toString();
                                         PolymerUtils.innerHTML(_this._prefix + _this._config.hosts[i], "" + response.charAt(0).toUpperCase() + response.slice(1));
-                                        _this.querySelector("." + _this._prefix + _this._config.hosts[i]).classList.add(response.charAt(0).toUpperCase() + response.slice(1))
+                                        //_this.querySelector("." + _this._prefix + _this._config.hosts[i]).classList.add(response.charAt(0).toUpperCase() + response.slice(1))
                                         if (response === "true") {
                                             //PolymerUtils.addStyle(_this._prefix + _this._config.hosts[i], "color", "red"); // Highlighting the true response in the table
 
@@ -125,7 +151,7 @@ export default class VariantBeaconNetwork extends LitElement {
                     }
                 };
                 xhr.open("GET", url, true);
-                xhr.send(null);
+                xhr.send(null);*/
             }
         }
     }
@@ -154,10 +180,10 @@ export default class VariantBeaconNetwork extends LitElement {
             flex-flow: column;
             transition: all .7s ease-in-out;
         }
-        .beacon-square.False {
+        .beacon-square.false {
             background: #cfffc7;
         }
-        .beacon-square.True {
+        .beacon-square.true {
             background: red;
         }
         </style>
@@ -166,27 +192,17 @@ export default class VariantBeaconNetwork extends LitElement {
             <div style="padding: 0px 0px 10px 0px">
                 <button class="btn btn-primary ripple" type="button" @click="${this.searchBeaconNetwork}">Search Beacon Network</button>
                 <a data-toggle="tooltip"
-                   title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/"><i
-                        class="fa fa-info-circle" aria-hidden="true"></i></a>
+                   title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/">
+                   <i class="fa fa-info-circle" aria-hidden="true"></i>
+                </a>
                         
                 <i class="fa fa-spinner fa-spin" aria-hidden="true" id="${this._prefix}spinGif" style="display:none"></i>
             </div>
 
-            <!--<table class="table table-bordered" style="width: 50%">
-                <thead style="background-color: #eee">
-                <tr>
-                    <th>Host</th>
-                    <th>Response</th>
-                </tr>
-                </thead>
-                <tbody>
-                
-                </tbody>
-            </table>-->
             ${this._config.hosts && this._config.hosts.length && this._config.hosts.map( item => html`
                 <div class="beacon-square ${this._prefix}${item} shadow">
                     <p>${item}</p>
-                    <p class="" id="${this._prefix}${item}" class="beaconResponse">&nbsp;</p>
+                    <p id="${this._prefix}${item}" class="beaconResponse">&nbsp;</p>
                 </div> 
             `)}
         </div>

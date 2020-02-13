@@ -292,7 +292,6 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                                                             style="font-size: 12px;">
                                     </clinical-analysis-view>
                                 </div>
-
                             </div>
                         </div>
                     </div>

@@ -82,10 +82,8 @@ export default class OpencgaProjects extends LitElement {
         this.individualsCount.start();
         this.cohortsCount = new CountUp("cohorts-count", 0);
         this.cohortsCount.start();
-        this.variantCount = new CountUp("variant-count", 0);
-        this.variantCount.start();
-        const countUp3 = new CountUp("anto-count", 232);
-        countUp3.start();
+        this.variantsCount = new CountUp("variants-count", 0);
+        this.variantsCount.start();
 
         // this.loadHighcharts();
         // firstUpdated() like every other props related methods is executed once for each prop
@@ -319,29 +317,35 @@ export default class OpencgaProjects extends LitElement {
 
         const _this = this
         this.projects.forEach( project => {
-            let studyPromises = [];
+            //let studyPromises = [];
             project.studies.forEach( study => {
-                let studyPromise = _this.opencgaClient.studies().summary(project.alias + ":" + study.alias)
-            .then( response => {
-                let r = response.getResult(0).results ? response.getResult(0).results[0] : response.getResult(0);
-                this.filesCount.update(this.totalCount.files += r.files);
-                this.samplesCount.update(this.totalCount.samples += r.samples);
-                this.jobsCount.update(this.totalCount.jobs += r.jobs);
-                this.individualsCount.update(this.totalCount.individuals += r.individuals);
-                this.samplesCount.update(this.totalCount.samples += r.samples);
-                //this.variantCount.update(this.totalCount.variants += r.variants);
-                this.cohortsCount.update(this.totalCount.cohorts += r.cohorts);
+                let catalogStats = _this.opencgaClient.studies().aggregationStats(study.fqn).then( response => {
+                    //handle opencga 1.4 and 2
+                    let r = response.getResult(0).results ? response.getResult(0).results[0] : response.getResult(0);
+                    console.log(r)
+                    this.filesCount.update(this.totalCount.files += r.files);
+                    this.samplesCount.update(this.totalCount.samples += r.samples);
+                    this.jobsCount.update(this.totalCount.jobs += r.jobs);
+                    this.individualsCount.update(this.totalCount.individuals += r.individuals);
+                    this.samplesCount.update(this.totalCount.samples += r.samples);
+                    //this.variantCount.update(this.totalCount.variants += r.variants);
+                    this.cohortsCount.update(this.totalCount.cohorts += r.cohorts);
 
-                this.data[project.id] = {
-                    name: project.name,
-                    dataset: [
-                        //...r.buckets.map( datapoint => ({name: datapoint.value, data: [datapoint.count], type: "column"})),
-                        {name: "count", data: [r.count], type: "spline"}
-                    ]
-                };
-                this.requestUpdate();
-            });
-            studyPromises.push(studyPromise);
+                    this.data[project.id] = {
+                        name: project.name,
+                        dataset: [
+                            //...r.buckets.map( datapoint => ({name: datapoint.value, data: [datapoint.count], type: "column"})),
+                            {name: "count", data: [r.count], type: "spline"}
+                        ]
+                    };
+                    this.requestUpdate();
+                });
+                _this.opencgaClient.variants().aggregationStats({fields:"studies"}).then(response => {
+                    let r = response.getResult(0).results ? response.getResult(0).results[0] : response.getResult(0);
+                    console.log("variants", r);
+                    _this.variantsCount.update(this.totalCount.variants += r.count);
+                })
+            //studyPromises.push(studyPromise);
             })
         });
 

@@ -64,10 +64,10 @@ export default class VariantBeacon extends LitElement {
     }
 
     clearFields(e) {
-        this.querySelector("#datasetInput").value = "";
-        this.querySelector("#refNameInput").value = "";
-        this.querySelector("#startInput").value = "";
-        this.querySelector("#alleleInput").value = "";
+        this.querySelector("#" + this._prefix + "datasetInput").value = "";
+        this.querySelector("#" + this._prefix + "refNameInput").value = "";
+        this.querySelector("#" + this._prefix + "startInput").value = "";
+        this.querySelector("#" + this._prefix + "alleleInput").value = "";
         this.result = "";
         this.clear = Utils.randomString(4); // Clear beacon network response
         this.variant = ""; // reset variant to empty
@@ -76,26 +76,28 @@ export default class VariantBeacon extends LitElement {
     }
 
     loadExample() {
-        this.querySelector("#datasetInput").value = this.opencgaSession.project.studies[0].alias;
-        this.querySelector("#refNameInput").value = "21";
-        this.querySelector("#startInput").value = "46047686";
-        this.querySelector("#alleleInput").value = "T";
+        console.log(this.opencgaSession.project.studies)
+        this.querySelector("#" + this._prefix + "datasetInput").value = this.opencgaSession.project.studies[0].alias;
+        this.querySelector("#" + this._prefix + "refNameInput").value = "21";
+        this.querySelector("#" + this._prefix + "startInput").value = "46047686";
+        this.querySelector("#" + this._prefix + "alleleInput").value = "T";
         this.updateVariant();
     }
 
     execute(e) {
         this.clear = Utils.randomString(4); // Clear beacon network response
         const queryParams = {
-            chrom: this.querySelector("#refNameInput").value,
-            pos: Number(this.querySelector("#startInput").value) - 1,
-            allele: this.querySelector("#alleleInput").value,
-            beacon: this.opencgaSession.project.alias + ":" + this.querySelector("#datasetInput").value
+            chrom: this.querySelector("#" + this._prefix + "refNameInput").value,
+            pos: Number(this.querySelector("#" + this._prefix + "startInput").value) - 1,
+            allele: this.querySelector("#" + this._prefix + "alleleInput").value,
+            beacon: this.opencgaSession.project.alias + ":" + this.querySelector("#" + this._prefix + "datasetInput").value
         };
 
         if (this.opencgaSession.opencgaClient !== undefined) {
             const _this = this;
             this.opencgaSession.opencgaClient.ga4gh().beacon(queryParams, {})
                 .then(function(response) {
+                    console.log(response)
                     const exists = response[0].response.toString();
                     _this.result = exists.charAt(0).toUpperCase() + exists.slice(1);
                     _this.requestUpdate();
@@ -104,9 +106,9 @@ export default class VariantBeacon extends LitElement {
     }
 
     updateVariant() {
-        const ref = this.querySelector("#refNameInput").value;
-        const start = this.querySelector("#startInput").value;
-        const allele = this.querySelector("#alleleInput").value;
+        const ref = this.querySelector("#" + this._prefix + "refNameInput").value;
+        const start = this.querySelector("#" + this._prefix + "startInput").value;
+        const allele = this.querySelector("#" + this._prefix + "alleleInput").value;
         this.resetEnabled = ref || start || allele;
         this.variant = ref && start && allele ? ref + ":" + start + "::" + allele : "";
         this.requestUpdate();

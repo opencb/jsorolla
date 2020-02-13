@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import {switchWidget} from "/src/styles/styles.js";
+//import {switchWidget} from "/src/styles/styles.js";
 
 export default class ConservationFilter extends LitElement {
 
@@ -156,9 +156,6 @@ export default class ConservationFilter extends LitElement {
 
     render() {
         return html`
-            <style>
-                ${switchWidget}
-            </style>  
             <div style="padding-top: 10px">
                 <div class="row">
                     <span class="col-md-5 control-label" style="padding-right: 5px"> PhyloP</span>

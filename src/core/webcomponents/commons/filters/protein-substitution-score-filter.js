@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import {switchWidget} from "/src/styles/styles.js";
 
 export default class ProteinSubstitutionScoreFilter extends LitElement {
 
@@ -185,9 +184,6 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
 
     render() {
         return html`
-            <style>
-                ${switchWidget}                
-            </style>
             <div style="padding-top: 10px">
                 <span style="padding-left: 0px;">SIFT</span>
                 <div class="row">

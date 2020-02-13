@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+//node.js env
 if (typeof window === 'undefined') {
     axios = require("axios");
 }
@@ -89,22 +90,3 @@ export class RestClientAxios {
     }
 
 }
-
-/*
-RestClient.call("https://httpbin.org/get", null, {timeout: 1000})
-    .then( r => console.log(r))
-    .catch( e => console.log(e));
-*/
-/*
-RestClient.call("http://bioinfo.hpc.cam.ac.uk/opencga-demo/webservices/rest/v1/users/demo/login", {
-    method: "POST",
-    data: { password: "demo" }
-}).then( r => console.log(r))
-.catch( e => console.log(e));*/
-
-/*
-
-RestClient.call("http://bioinfo.hpc.cam.ac.uk/opencga-demo/webservices/rest/v1/users/demo/info", {
-    headers: { Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkZW1vIiwiYXVkIjoiT3BlbkNHQSB1c2VycyIsImlhdCI6MTU3ODY2Njk2NywiZXhwIjoxNTc4NjcwNTY3fQ.Ybil4STvpoERQ_F3nx0WsxRN4uZKj3oTHuIN_ieDZg0' }
-}).then( r => console.log(r));
-*/

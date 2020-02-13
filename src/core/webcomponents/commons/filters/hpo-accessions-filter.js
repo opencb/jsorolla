@@ -16,6 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 
+//TODO FIX in textarea is always used a comma as separator, but in case of loading a saved filter this component could receive a text with semicolon as separator.
+
 export default class HpoAccessionsFilter extends LitElement {
 
     constructor() {
@@ -129,14 +131,23 @@ export default class HpoAccessionsFilter extends LitElement {
                 <i class="fa fa-search searchingButton" aria-hidden="true"></i>
                 Add HPO Term
             </button>
-            <form style="padding-top: 15px">
-                <label style="font-weight: normal;">Logical Operator</label>
-                <input type="radio" name="hpoRadio" id="${this._prefix}hpoOrRadio" value="or" class="${this._prefix}FilterRadio"
-                       checked style="margin-left: 10px" @change="${this.filterChange}"> OR<br>
-                <input type="radio" name="hpoRadio" id="${this._prefix}hpoAndRadio" value="and"
-                       class="${this._prefix}FilterRadio" style="margin-left: 102px" @change="${this.filterChange}"> AND <br>
-            </form>
             
+            <fieldset class="switch-toggle-wrapper">
+                    <label style="font-weight: normal;">Logical Operator</label>
+                    <div class="switch-toggle text-white alert alert-light">
+                        <input id="${this._prefix}hpoOrRadio" name="hpoRadio" type="radio" value="or"
+                                   class="radio-or ${this._prefix}FilterRadio" checked disabled
+                                   @change="${this.filterChange}">
+                            <label for="${this._prefix}hpoOrRadio"
+                                   class="rating-label rating-label-or">OR</label>
+                        <input id="${this._prefix}hpoAndRadio" name="hpoRadio" type="radio" value="and"
+                                   class="radio-and ${this._prefix}FilterRadio" disabled @change="${this.filterChange}">
+                            <label for="${this._prefix}hpoAndRadio"
+                                   class="rating-label rating-label-and">AND</label>
+                        <a class="btn btn-primary ripple btn-small"></a>
+                    </div>
+            </fieldset>
+                
             <variant-modal-ontology _prefix=${this._prefix}
                                 ontologyFilter="${this.ontologyFilter}"
                                 term="${this.ontologyTerm}"
