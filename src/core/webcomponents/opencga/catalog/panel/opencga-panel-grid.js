@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "opencga-panel-summary.js";
+import "./opencga-panel-summary.js";
 
 export default class OpencgaPanelGrid extends LitElement {
 

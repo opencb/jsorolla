@@ -764,6 +764,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
                 //TODO evaluate webworker with Transferable Objects (it shares objects, not copy like classical WebWorker)
                 if (result) {
+                    console.log("result",result)
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toLowerCase() === "tab") {
                         dataString = [
@@ -772,7 +773,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                                 _.id,
                                 _.proband.id,
                                 _.family.id + "" + _.family.members.length,
-                                _.disorder.id,
+                                _.disorder ? _.disorder.id : "",
                                 _.type,
                                 _.interpretations.join(","),
                                 _.status.name,

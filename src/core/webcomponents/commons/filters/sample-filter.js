@@ -61,6 +61,7 @@ export default class SampleFilter extends LitElement {
         this.updateClinicalQueryTable();
     }
 
+/*
     filterChange(e) {
         console.log("filterChange", e.target);
         const event = new CustomEvent("filterChange", {
@@ -71,6 +72,7 @@ export default class SampleFilter extends LitElement {
         });
         this.dispatchEvent(event);
     }
+*/
 
     queryObserver(){
         this.updateClinicalQueryTable();
@@ -89,6 +91,7 @@ export default class SampleFilter extends LitElement {
     //TODO needs refactor. it comes from variant-filter
     onClinicalFilterChange(e) {
 
+        console.log("sample-filter onClinicalFilterChange", e)
         //console.warn("onClinicalFilterChange is commented")
         //return;
 
@@ -241,19 +244,15 @@ export default class SampleFilter extends LitElement {
                     </tr>
                     </thead>
                     <tbody>
-                        
-                        
                         ${this.clinicalAnalysis ? html`
                             ${this.individuals ? this.individuals.map(individual => {
                                 if (UtilsNew.isNotEmptyArray(individual.samples)) {
-                                    const color = this.clinicalAnalysis.proband && individual.id === this.clinicalAnalysis.proband.id ? "darkred" : "black";
-                                    
                                     console.log("sampleGenotypeMap", this.sampleGenotypeMap[individual.samples[0].id])
                                     //const genotype = this.sampleGenotypeMap[individual.samples[0].id] ? this.sampleGenotypeMap[individual.samples[0].id].join(", ") : "any";
                                     return html`
                                                 <tr data-sample="${individual.samples[0].id}">
                                                     <td>
-                                                        <span style="color: ${color}">${individual.samples[0].id}</span>
+                                                        <span style="color: ${this.clinicalAnalysis.proband && individual.id === this.clinicalAnalysis.proband.id ? "darkred" : "black"}">${individual.samples[0].id}</span>
                                                     </td>
                                                     <td>
                                                         ${this.sampleGenotypeMap[individual.samples[0].id] ? this.sampleGenotypeMap[individual.samples[0].id].map(gt => html`<span class="badge">${gt}</span>`) : "any"}
@@ -284,8 +283,7 @@ export default class SampleFilter extends LitElement {
                             <opencga-variant-filter-clinical .opencgaSession="${this.opencgaSession}"
                                                              .clinicalAnalysis="${this.clinicalAnalysis}"
                                                              .query="${this.query}"
-                                                             @sampleFiltersChange="${this.onClinicalFilterChange}"
-                                                             style="font-size: 12px">
+                                                             @sampleFiltersChange="${this.onClinicalFilterChange}">
                             </opencga-variant-filter-clinical>
                         </div>
                         <div class="modal-footer">

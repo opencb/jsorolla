@@ -865,12 +865,12 @@ export default class OpencgaVariantFacet extends LitElement {
                         </button>
                     </div>
                     <ul class="nav nav-tabs aggregation-tabs" role="tablist">
-                        <li role="presentation" class="active"><a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">Aggregation</a></li>
-                        <li role="presentation"><a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab">Filters</a></li>
+                        <li role="presentation" class="active"><a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab">Filters</a></li>
+                        <li role="presentation"><a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">Aggregation</a></li>
                     </ul>
                     
                     <div class="tab-content">
-                        <div role="tabpanel" class="tab-pane active" id="facet_tab">
+                        <div role="tabpanel" class="tab-pane" id="facet_tab">
                 
                             <div class="">
                                 <label>Select a Term or Range Facet</label>
@@ -974,7 +974,7 @@ export default class OpencgaVariantFacet extends LitElement {
                             </div>
                 
                         </div>
-                        <div role="tabpanel" class="tab-pane" id="filters_tab">
+                        <div role="tabpanel" class="tab-pane active" id="filters_tab">
                             <opencga-variant-filter .opencgaSession=${this.opencgaSession}
                                                         .opencgaClient="${this.opencgaClient}"
                                                         .cellbaseClient="${this.cellbaseClient}"

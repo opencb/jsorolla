@@ -16,7 +16,6 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import {checkBoxWidget} from "/src/styles/styles.js";
 
 export default class VariantTypeFilter extends LitElement {
 
@@ -90,27 +89,13 @@ export default class VariantTypeFilter extends LitElement {
         this.filterChange();
     }
 
-    handleCollapseAction(e) {
-        const id = e.target.dataset.id;
-        const elem = $("#" + id)[0];
-        elem.hidden = !elem.hidden;
-        if (elem.hidden) {
-            e.target.className = "fa fa-plus";
-        } else {
-            e.target.className = "fa fa-minus";
-        }
-    }
-
     render() {
         return html`
-            <style>
-                ${checkBoxWidget}
-            </style>
             <div id="${this._prefix}Type">
              <ul class="checkbox-container">
                 ${this._config.types && this._config.types.length && this._config.types.map( type => html`
                     <li>
-                        <a @click="${ _ => this.toggle(type) }" style="cursor: pointer;">
+                        <a @click="${ _ => this.toggle(type) }">
                             <!--<input type="checkbox" value="${type}"  ?checked="${~this.selectedVariantTypes.indexOf(type)}" @change="${this.onChange}" @click="${this.checkboxToggle}"
                             ?checked="${1}" class="${this._prefix}FilterCheckBox"/> -->
                             <input type="checkbox" value="${type}" .checked="${~this.selectedVariantTypes.indexOf(type)}" class="${this._prefix}FilterCheckBox"/>

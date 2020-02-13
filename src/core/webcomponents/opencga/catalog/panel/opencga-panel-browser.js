@@ -15,10 +15,12 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "opencga-panel-editor.html";
-import "opencga-panel-grid.html";
-import "opencga-panel-summary.html";
-import "opencga-panel-filter.html";
+import "./opencga-panel-editor.js";
+import "./opencga-panel-grid.js";
+import "./opencga-panel-summary.js";
+import "./opencga-panel-filter.js";
+
+//TODO check functionalities!
 
 export default class OpencgaPanelBrowser extends LitElement {
 

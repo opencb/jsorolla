@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from '/web_modules/lit-element.js';
-import {checkBoxWidget} from "/src/styles/styles.js";
 
 export default class OpencbGridToolbar extends LitElement {
 
@@ -118,9 +117,6 @@ export default class OpencbGridToolbar extends LitElement {
 
     render(){
         return html`
-            <style>
-            ${checkBoxWidget}
-            </style>
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-12" style="padding: 5px 0px 0px 0px">

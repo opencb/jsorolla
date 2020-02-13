@@ -885,17 +885,17 @@ export default class OpencgaVariantFilter extends LitElement {
     onSampleFilterChange(sampleFields) {
         console.log("onSampleFilterChange in variant-filter", sampleFields)
         //TODO refactor with proper optional spreading
-        this.preparedQuery = {...this.preparedQuery, ...sampleFields};
+
         if(!sampleFields.genotype) {
-            delete this.preparedQuery.genotype
+            delete this.preparedQuery.genotype;
         }
         if(!sampleFields.sample) {
-            delete this.preparedQuery.sample
+            delete this.preparedQuery.sample;
         }
         if(!sampleFields.format) {
-            delete this.preparedQuery.format
+            delete this.preparedQuery.format;
         }
-        this.preparedQuery = {...this.preparedQuery};
+        this.preparedQuery = {...this.preparedQuery, ...sampleFields};
         this.notifyQuery(this.preparedQuery);
         this.requestUpdate();
 
