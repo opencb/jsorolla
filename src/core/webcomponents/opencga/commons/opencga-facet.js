@@ -632,6 +632,24 @@ export default class OpencgaFacet extends LitElement {
                                                      style="font-size: 12px"
                                                      @selectsample="${this.onSelectSample}">
                                  </opencga-sample-grid>`;
+            case "individuals":
+                return html`<opencga-individual-grid .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                                 .opencgaSession="${this.opencgaSession}"
+                                                 .config="${this._config.gridComparator}"
+                                                 .eventNotifyName="${this.eventNotifyName}"
+                                                 .individuals="${this.individuals}"
+                                                 .search="${this.search}"
+                                                 .active="${true}">
+                            </opencga-individual-grid>
+
+                            
+                            <h3> Annotation comparator</h3>
+                            <opencga-annotation-viewer .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                                       .opencgaSession="${this.opencgaSession}"
+                                                       .config="${this._config}"
+                                                       .entryIds="${this.individuals}"
+                                                       entity="INDIVIDUAL">
+                            </opencga-annotation-viewer>`;
             case "cohort":
                 return html`<opencga-cohort-grid .opencgaSession="${this.opencgaSession}"
                                                      .opencgaClient="${this.opencgaSession.opencgaClient}"
@@ -699,8 +717,7 @@ export default class OpencgaFacet extends LitElement {
                                             <clinical-analysis-view .opencgaSession="${this.opencgaSession}"
                                                                 .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                                 .clinicalAnalysisId="${this.analysis.id}"
-                                                                .config="${this._config.sampleDetail}"
-                                                                style="font-size: 12px;">
+                                                                .config="${this._config.sampleDetail}">
                                             </clinical-analysis-view>
                                         </div>
                                     </div>
