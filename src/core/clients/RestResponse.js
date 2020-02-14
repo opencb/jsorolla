@@ -25,28 +25,29 @@ export class RestResponse {
      */
     constructor(response) {
         try {
-            //console.log("REST response", response)
+            // console.log("REST response", response)
             this.apiVersion = response.apiVersion;
             this.time = response.time;
             this.events = response.events;
             this.params = response.params;
             this.responses = response.responses || response.response;
 
-            // TODO This is a small hack that can be activated if backward compatibility is needed. This shuold be removed in next 2.1.
+            // TODO This is a small hack that can be activated if backward compatibility is needed. This should be removed in next 2.1.
             this.params = this.queryOptions = response.params || response.queryOptions;
             this.response = [];
-            this.responses.forEach( (response,i) => {
+            this.responses.forEach( (response, i) => {
                 this.response[i] = response;
-                if(response.results) {
+                if (response.results) {
                     this.response[i].result = response.results;
-                    if(response.time !== undefined) this.response[i].dbTime = response.time;
-                    if(response.numMatches !== undefined) this.response[i].numTotalResults = response.numMatches;
+                    if (response.time !== undefined) this.response[i].dbTime = response.time;
+                    if (response.numMatches !== undefined) this.response[i].numTotalResults = response.numMatches;
                 } else {
                     this.response[i].results = response.result;
                 }
             });
-        } catch(e) {
+        } catch (e) {
             console.error(e);
+            console.log("Response", response);
             throw new Error("Unexpected response format");
         }
     }
@@ -87,6 +88,7 @@ export class RestResponse {
 
     /**
      *  Return all results out of all responses (or from a single node in case 'responsePos' is defined) in form of Iterator
+     * @param {Number} responsePos The index of the response
      *  Consumer-side usage examples:
      *  <pre><code>
      *      for (let a of responseInstance.resultIterator()) {
@@ -101,14 +103,14 @@ export class RestResponse {
      * console.log(...responseInstance.resultIterator())
      *
      */
-    *resultIterator(responsePos) {
+    * resultIterator(responsePos) {
         if (responsePos) {
-            for(let result of this.responses[responsePos].results) {
+            for (const result of this.responses[responsePos].results) {
                 yield result;
             }
         } else {
-            for(let response of this.responses) {
-                for(let result of response.results) {
+            for (const response of this.responses) {
+                for (const result of response.results) {
                     yield result;
                 }
             }
@@ -134,11 +136,11 @@ export class RestResponse {
          * @param {String} field Field to retrieve in dot notation
          * @return {Object}
          */
-        const getField = (result, field) => field.split('.').reduce((o, i) => o ? o[i]: o, result);
+        const getField = (result, field) => field.split(".").reduce((o, i) => o ? o[i]: o, result);
 
         return this.responses[responsePos].result.map( result => {
             return Object.assign({}, ...fields.split(",").map( field => ({[field]: getField(result, field)})));
-       })
+        });
     }
 
     /**
@@ -146,13 +148,13 @@ export class RestResponse {
      * @return {Object | Array} The retrieved event object or the list of events in case of no eventType defined.
      */
     getEvents(eventType) {
-        const eventNames = ['INFO', 'WARNING', 'ERROR'];
+        const eventNames = ["INFO", "WARNING", "ERROR"];
         if (!eventType || !this.events.length) {
             return this.events || [];
         } else if (eventNames.includes(eventType)) {
             return this.events.find( event => event.type === eventType);
         } else {
-            throw new Error(`Argument "eventType" must be one of the following values: "${eventNames.join(", ")}"`)
+            throw new Error(`Argument "eventType" must be one of the following values: "${eventNames.join(", ")}"`);
         }
     }
 
@@ -163,8 +165,8 @@ export class RestResponse {
      * @throw {Error} in case of the param "eventType" is not a valid value
      */
     getResultEvents(eventType, responsePos = 0) {
-        const eventNames = ['INFO', 'WARNING', 'ERROR'];
-        if(!eventType) {
+        const eventNames = ["INFO", "WARNING", "ERROR"];
+        if (!eventType) {
             return this.responses[responsePos].events || [];
         } else if (eventNames.includes(eventType)) {
             return this.responses[responsePos].events ? this.responses[responsePos].events.filter( event => event.type === eventType) : [];

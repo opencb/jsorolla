@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "../../commons/opencga-facet.js";
 
-//TODO this component will be the new opencga-file-browser and this configuration will be for browser and facet both
+// TODO this component will be the new opencga-file-browser and this configuration will be for browser and facet both
 
 export default class OpencgaFileFacet extends LitElement {
 
@@ -119,52 +119,52 @@ export default class OpencgaFileFacet extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    //TODO this component will be the new opencga-file-browser and this configuration will be for browser and facet both
+    // TODO this component will be the new opencga-file-browser and this configuration will be for browser and facet both
     getDefaultConfig() {
         return {
-                title: "Aggregation Stats for Files",
-                name: "Agregation for Files",
-                active: false,
-                icon: `fas fa-chart-bar`,
-                endpoint: this.opencgaSession.opencgaClient.files(),
-                fields: [
-                    {id: "cattype", name: "category Type", type: "category", values: ["JAN", "FEB", "MAR"], defaultValue: "JAN,FEB" },
-                    {id: "stringtype", name: "string Type", type: "string", defaultValue: "deff"},
-                    {id: "numtype", name: "number Type", type: "number", defaultValue: 2},
+            title: "Aggregation Stats for Files",
+            name: "Agregation for Files",
+            active: false,
+            icon: "fas fa-chart-bar",
+            endpoint: this.opencgaSession.opencgaClient.files(),
+            fields: [
+                {id: "cattype", name: "category Type", type: "category", values: ["JAN", "FEB", "MAR"], defaultValue: "JAN,FEB"},
+                {id: "stringtype", name: "string Type", type: "string", defaultValue: "deff"},
+                {id: "numtype", name: "number Type", type: "number", defaultValue: 2},
 
-                    {id: "gerp", name: "Gerp", type: "integer", defaultValue: "0:1:01"},
-                    //this is a category
-                    {
-                        name: "Pop Freqs", fields: [
-                            {id: "PopFreqsname", name: "Pop Freqs Name", type: "string", disabled: true},
-                            {id: "PopFreqsformat", name: "Pop Freqs Format", type: "string"}
-                        ]
-                    },
-                    {id: "gerp1", name: "Gerp1", type: "categorical", defaultValue: "0:1:01"},
-                    {id: "gerp2", name: "Gerp2", type: "range", defaultValue: "0:1:01"},
-                    {id: "study", name: "Study", type: "string", defaultValue: "defStudy"},
-                    {id: "name", name: "Name", type: "string"},
-                    {id: "type", name: "Type", type: "string"},
-                    {id: "format", name: "Format", type: "string"},
-                    {id: "bioformat", name: "Bioformat", type: "string"},
-                    {id: "creationYear", name: "CreationYear", type: "string"},
-                    {id: "creationDay", name: "CreationDay", type: "string"},
-                    {id: "creationDayOfWeek", name: "CreationDayOfWeek", type: "string"},
-                    {id: "creationMonth", name: "creationMonth", type: "category", values: ["JAN", "FEB", "MAR"], defaultValue: "JAN,FEB"},
-                    {id: "status", name: "Status", type: "string"},
-                    {id: "release", name: "Release", type: "string"},
-                    {id: "external", name: "External", type: "string"},
-                    {id: "size", name: "Size", type: "string"},
-                    {id: "software", name: "Software", type: "string"},
-                    {id: "experiment", name: "Experiment", type: "string"},
-                    {id: "numSamples", name: "NumSamples", type: "string"},
-                    {id: "numRelatedFiles", name: "NumRelatedFiles", type: "string"},
-                    {id: "annotation", name: "Annotation", type: "string"},
-                    {id: "default", name: "Default", type: "string"},
-                    {id: "field", name: "Field", type: "string"}
-                ],
-                annotations: {}
-            };
+                {id: "gerp", name: "Gerp", type: "integer", defaultValue: "0:1:01"},
+                // this is a category
+                {
+                    name: "Pop Freqs", fields: [
+                        {id: "PopFreqsname", name: "Pop Freqs Name", type: "string", disabled: true},
+                        {id: "PopFreqsformat", name: "Pop Freqs Format", type: "string"}
+                    ]
+                },
+                {id: "gerp1", name: "Gerp1", type: "categorical", defaultValue: "0:1:01"},
+                {id: "gerp2", name: "Gerp2", type: "range", defaultValue: "0:1:01"},
+                {id: "study", name: "Study", type: "string", defaultValue: "defStudy"},
+                {id: "name", name: "Name", type: "string"},
+                {id: "type", name: "Type", type: "string"},
+                {id: "format", name: "Format", type: "string"},
+                {id: "bioformat", name: "Bioformat", type: "string"},
+                {id: "creationYear", name: "CreationYear", type: "string"},
+                {id: "creationDay", name: "CreationDay", type: "string"},
+                {id: "creationDayOfWeek", name: "CreationDayOfWeek", type: "string"},
+                {id: "creationMonth", name: "creationMonth", type: "category", values: ["JAN", "FEB", "MAR"], defaultValue: "JAN,FEB"},
+                {id: "status", name: "Status", type: "string"},
+                {id: "release", name: "Release", type: "string"},
+                {id: "external", name: "External", type: "string"},
+                {id: "size", name: "Size", type: "string"},
+                {id: "software", name: "Software", type: "string"},
+                {id: "experiment", name: "Experiment", type: "string"},
+                {id: "numSamples", name: "NumSamples", type: "string"},
+                {id: "numRelatedFiles", name: "NumRelatedFiles", type: "string"},
+                {id: "annotation", name: "Annotation", type: "string"},
+                {id: "default", name: "Default", type: "string"},
+                {id: "field", name: "Field", type: "string"}
+            ],
+            annotations: {}
+        };
     }
 
 

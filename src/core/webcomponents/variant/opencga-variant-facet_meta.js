@@ -21,7 +21,7 @@ import "../opencga/opencga-active-filters.js";
 import "../commons/filters/select-field-filter.js";
 import "../../loading-spinner.js";
 
-// TODO this is the variant container for the meta-browser. It'is going to be deleted.
+// TODO this is the variant container for the meta-browser. It's going to be deleted.
 
 export default class OpencgaVariantFacet_meta extends LitElement {
 

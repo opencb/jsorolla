@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
 
 // TODO: Assembly is hardcoded for now. It has to be taken care in the future
 
@@ -37,26 +37,24 @@ export default class VariantBeaconNetwork extends LitElement {
                 type: String
             },
             clear: {
-                type: String,
-                //observer: 'clearResponse'
+                type: String
             },
             config: {
-                type: Object,
-                //observer: "configObserver"
+                type: Object
             }
-        }
+        };
     }
 
     _init() {
-        this._prefix = "bn-" + Utils.randomString(6);
+        this._prefix = "bn-" + Utils.randomString(6) + "_";
         this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
-        if(changedProperties.has("clear")) {
+        if (changedProperties.has("clear")) {
             this.clearResponse();
         }
-        if(changedProperties.has("config")) {
+        if (changedProperties.has("config")) {
             this.configObserver();
         }
     }
@@ -70,24 +68,23 @@ export default class VariantBeaconNetwork extends LitElement {
         PolymerUtils.innerHtmlByClass("beaconResponse", "");
     }
 
-    //TODO urgent refactor
     async searchBeaconNetwork() {
-        if (this._config.hosts !== undefined && this.variant !== undefined && this.variant.split(':').length > 2) {
-            let [chromosome, position, reference, alternate] = this.variant.split(':');
+        if (this._config.hosts !== undefined && this.variant !== undefined && this.variant.split(":").length > 2) {
+            const [chromosome, position, reference, alternate] = this.variant.split(":");
 
-            $('#' + this._prefix + 'spinGif').show();
+            $("#" + this._prefix + "spinGif").show();
             // url to search : https://beacon-network.org/api/responses?allele=C&beacon=[cosmic]&chrom=1&pos=99999&ref=GRCh37
             // TODO: Assembly is hardcoded for now. It has to be taken care in the future
 
-            let _this = this;
+            const _this = this;
             for (let i = 0; i < this._config.hosts.length; i++) {
-                let xhr = new XMLHttpRequest();
+                const xhr = new XMLHttpRequest();
                 // Beacon network uses zero-based numbering hence (position-1) is used in the url.
-                let url = "https://beacon-network.org/api/responses?allele=" + alternate + "&beacon=[" + _this._config.hosts[i] + "]&chrom=" + chromosome
-                    + "&pos=" + (position - 1) + "&ref=GRCh37";
+                const url = "https://beacon-network.org/api/responses?allele=" + alternate + "&beacon=[" + _this._config.hosts[i] + "]&chrom=" + chromosome +
+                    "&pos=" + (position - 1) + "&ref=GRCh37";
 
-                //TODO continue
-                /*axios.get(url)
+                // TODO continue
+                /* axios.get(url)
                     .then( response => {
                         console.log("rr", response)
                     })
@@ -95,18 +92,15 @@ export default class VariantBeaconNetwork extends LitElement {
                 */
                 fetch(url)
                     .then( async res => {
-                        if(res.ok) {
+                        if (res.ok) {
                             const response = await res.json();
-                            console.log(response)
+                            console.log(response);
                             for (const r of response) {
-                                console.log(r)
+                                console.log(r);
                                 const host = this.querySelector("." + this._prefix + this._config.hosts[i]);
-                                console.log(host)
                                 host.classList.add(r.response || "false");
-                                let resText = "";
-                                if(r.response === null) {
+                                if (r.response === null) {
                                     // null from server
-                                    console.log("no boolean response from server", r.response)
                                     host.querySelector(".beaconResponse").innerHTML = `false (${r.response})`;
                                 } else {
                                     host.querySelector(".beaconResponse").innerHTML = r.response;
@@ -119,7 +113,7 @@ export default class VariantBeaconNetwork extends LitElement {
                     })
                     .catch( e => console.error(e));
 
-                /*xhr.onload = function (event) {
+                /* xhr.onload = function (event) {
                     if (xhr.readyState === xhr.DONE) {
                         if (xhr.status === 200) {
                             let contentType = xhr.getResponseHeader('Content-Type');
@@ -162,7 +156,7 @@ export default class VariantBeaconNetwork extends LitElement {
                 "brca-exchange", "cell_lines", "cosmic", "wtsi", "wgs", "ncbi", "ebi", "ega", "broad", "gigascience",
                 "ucsc", "lovd", "hgmd", "icgc", "sahgp"
             ]
-        }
+        };
     }
 
     render() {
@@ -201,13 +195,14 @@ export default class VariantBeaconNetwork extends LitElement {
 
             ${this._config.hosts && this._config.hosts.length && this._config.hosts.map( item => html`
                 <div class="beacon-square ${this._prefix}${item} shadow">
-                    <p>${item}</p>
-                    <p id="${this._prefix}${item}" class="beaconResponse">&nbsp;</p>
+                    <span>${item}</span>
+                    <span id="${this._prefix}${item}" class="beaconResponse">&nbsp;</span>
                 </div> 
             `)}
         </div>
         `;
     }
+
 }
 
-customElements.define('variant-beacon-network', VariantBeaconNetwork);
+customElements.define("variant-beacon-network", VariantBeaconNetwork);

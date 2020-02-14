@@ -38,8 +38,7 @@ export default class OpencgaFileGrid extends LitElement {
                 type: Object
             },
             files: {
-                type: Array,
-                notify: true
+                type: Array
             },
             filters: {
                 type: Object

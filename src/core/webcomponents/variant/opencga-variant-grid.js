@@ -33,7 +33,7 @@ export default class OpencgaVariantGrid extends LitElement {
 
     static get properties() {
         return {
-            prefix: {
+            _prefix: {
                 type: Object
             },
             opencgaSession: {
@@ -64,9 +64,14 @@ export default class OpencgaVariantGrid extends LitElement {
                 type: Boolean
             },
             config: {
-                type: String
+                type: Object
             }
         };
+    }
+
+    firstUpdated(_changedProperties) {
+        this._createDefaultColumns();
+        this.query = {}
     }
 
     updated(changedProperties) {
@@ -74,6 +79,7 @@ export default class OpencgaVariantGrid extends LitElement {
             changedProperties.has("consequenceTypes") ||
             changedProperties.has("populationFrequencies") ||
             changedProperties.has("proteinSubstitutionScores")) {
+            //console.log("propertyObserver")
             this.propertyObserver();
         }
         if (changedProperties.has("data")) {
@@ -123,7 +129,7 @@ export default class OpencgaVariantGrid extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    propertyObserver(query, consequenceTypes, populationFrequencies, proteinSubstitutionScores) {
+    propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = Object.assign(this.getDefaultConfig(), this.config);
         // this._columns = this._createDefaultColumns();
@@ -403,6 +409,7 @@ export default class OpencgaVariantGrid extends LitElement {
 
     }
 
+    //TODO refactor using bootstrap table ajax
     _getUrlQueryParams() {
         // Check the opencgaClient exists
         if (UtilsNew.isUndefinedOrNull(this.opencgaSession.opencgaClient)) {
@@ -1090,7 +1097,7 @@ export default class OpencgaVariantGrid extends LitElement {
     onDownload(e) {
         let urlQueryParams = this._getUrlQueryParams();
         let params = urlQueryParams.queryParams;
-        params.limit = 1000; // Default limit is 1000 for now
+        params.limit = 1; // Default limit is 1000 for now
 
         this.downloadRefreshIcon.css("display", "inline-block");
         this.downloadIcon.css("display", "none");
