@@ -1,9 +1,23 @@
 const path = require("path");
 const glob_entries = require("webpack-glob-entries");
+ const regeneratorRuntime = require("regenerator-runtime"); //TODO fix generators and AsyncFunction in babel
+
+/*
+var fs = require('fs');
+fs.writeFile("dir.txt", Object.values(glob_entries("./src/core/!**!/!*.js")).map(entry => `import "${entry}";`).join("\n"), function(err) {
+    if(err) {
+        return console.log(err);
+    }
+
+    console.log("The file was saved!");
+});
+console.log(Object.values(glob_entries("./src/core/!**!/!*.js")).map(entry => `import "${entry}";`).join("\n"))*/
 
 
 module.exports = {
-    entry: glob_entries("./src/core/**/*.js"),
+    // entry: glob_entries("./src/core/**/*.js"),
+    entry: "./src/index.js",
+    devtool: "source-map",
     output: {
         filename: "[name].js",
         path: path.resolve(__dirname, "dist")
@@ -14,7 +28,7 @@ module.exports = {
     },
     module: {
         rules: [
-            {
+             {
                 test: /\.m?js$/,
                 exclude: /(node_modules|bower_components)/,
                 use: {
@@ -22,6 +36,7 @@ module.exports = {
                     options: {
                         presets: ["@babel/preset-env"],
                         plugins: [
+                            "@babel/transform-runtime",
                             ["@babel/plugin-proposal-class-properties", {"loose": true}]
                         ]
                     }

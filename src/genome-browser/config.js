@@ -37,7 +37,7 @@ const CODON_CONFIG = {
     "*": {text: " * ", color: "#DDDDDD"}
 };
 
-const GENE_BIOTYPE_COLORS = {
+var GENE_BIOTYPE_COLORS = {
     "3prime_overlapping_ncrna": "Orange",
     "ambiguous_orf": "SlateBlue",
     "antisense": "SteelBlue",

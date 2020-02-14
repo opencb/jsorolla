@@ -1,9 +1,9 @@
-GV_CELLBASE_HOST = "http://ws.bioinfo.cipf.es/cellbase/rest";
+var GV_CELLBASE_HOST = "http://ws.bioinfo.cipf.es/cellbase/rest";
 
-CELLBASE_HOST = "http://ws-beta.bioinfo.cipf.es/cellbase-server-3.0.0/rest";
-CELLBASE_VERSION = "v3";
+var CELLBASE_HOST = "http://ws-beta.bioinfo.cipf.es/cellbase-server-3.0.0/rest";
+var CELLBASE_VERSION = "v3";
 
-FEATURE_CONFIG = {
+var FEATURE_CONFIG = {
     gene: {
         filters: [
             {
@@ -63,7 +63,7 @@ FEATURE_CONFIG = {
     }
 
 };
-FEATURE_OPTIONS = {
+var FEATURE_OPTIONS = {
     gene: [
         {
             name: "biotype",
@@ -90,7 +90,7 @@ FEATURE_OPTIONS = {
     ]
 };
 
-GENE_BIOTYPE_COLORS = {
+var GENE_BIOTYPE_COLORS = {
     "3prime_overlapping_ncrna": "Orange",
     "ambiguous_orf": "SlateBlue",
     "antisense": "SteelBlue",
@@ -129,7 +129,7 @@ GENE_BIOTYPE_COLORS = {
 };
 
 
-SNP_BIOTYPE_COLORS = {
+var SNP_BIOTYPE_COLORS = {
     "2KB_upstream_variant": "#a2b5cd",
     "5KB_upstream_variant": "#a2b5cd",
     "500B_downstream_variant": "#a2b5cd",
@@ -159,9 +159,9 @@ SNP_BIOTYPE_COLORS = {
 };
 
 
-SEQUENCE_COLORS = {A: "#009900", C: "#0000FF", G: "#857A00", T: "#aa0000", N: "#555555"};
+var SEQUENCE_COLORS = {A: "#009900", C: "#0000FF", G: "#857A00", T: "#aa0000", N: "#555555"};
 
-SAM_FLAGS = [
+var SAM_FLAGS = [
     ["read paired", 0x1],
     ["read mapped in proper pair", 0x2],
     ["read unmapped", 0x4],
@@ -176,7 +176,7 @@ SAM_FLAGS = [
 ];
 
 
-FEATURE_TYPES = {
+var FEATURE_TYPES = {
 
     //methods
     formatTitle: function (str) {

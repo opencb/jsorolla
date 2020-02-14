@@ -543,7 +543,7 @@ export default class OpencgaProjects extends LitElement {
             
             <div style="margin:100px"></div>
             
-            <ul class="nav nav-tabs aggregation-tabs" role="tablist">
+            <ul class="nav nav-tabs left-menu-tabs" role="tablist">
                 <!--<li role="presentation" class="active"><a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">Aggregation</a></li>
                 <li role="presentation"><a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab">Filters</a></li> -->
                 

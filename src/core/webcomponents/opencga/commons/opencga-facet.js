@@ -714,60 +714,6 @@ export default class OpencgaFacet extends LitElement {
         return html`
  
         <style include="jso-styles">
-            
-            .left-bar .nav-tabs {
-                margin-bottom: 20px;
-            }
-
-            .active-filter-button:hover {
-                text-decoration: line-through;
-            }
-            
-            .aggregation-tabs li {
-                width: 50%;
-            }
-            
-            .facet-list-container {
-                margin-top: 15px;
-            }
-            
-            .facet-box:not(:first-child){
-                border-top: 1px solid rgba(221, 221, 221, 0.8);
-            }
-            
-            .facet-row {
-                margin: 0;
-            }
-            
-            .facet-row > div {
-                padding: 3px;
-                margin: 0;
-            }
-            
-            .facet-row .nested {
-                /*padding: 15px;*/
-            }
-            
-            .panel-title p{
-                margin: 0;
-            }
-            
-            .facetResultsDiv {
-                padding-top: 20px;
-            }
-            
-            .content-pills {
-                margin: 0 0 20px 0;
-            }
-            
-            .or-text {
-                text-align: center;
-            }
-            
-            .facet-list .alert-info small {
-                display: block;
-            }
-            
         </style>
 
         ${this.checkProjects ? html`
@@ -778,7 +724,7 @@ export default class OpencgaFacet extends LitElement {
             </div>
 
             <div class="row" style="padding: 0px 10px">
-                <div class="col-md-2 left-bar">
+                <div class="col-md-2 left-menu">
                 
                     <div class="search-button-wrapper">
                         <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">
@@ -786,7 +732,7 @@ export default class OpencgaFacet extends LitElement {
                         </button>
                     </div>
 
-                    <ul class="nav nav-tabs aggregation-tabs" role="tablist">
+                    <ul class="nav nav-tabs left-menu-tabs" role="tablist">
                         <li role="presentation" class="active"><a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab">Filters</a></li>
                         <li role="presentation"><a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">Aggregation</a></li>
                     </ul>
@@ -895,7 +841,7 @@ export default class OpencgaFacet extends LitElement {
                         </div>
                         
                         <div role="tabpanel" class="tab-pane" id="facet_tab" aria-expanded="true">
-                            <div>
+                            <div class="facet-selector">
                                 <label>Select a Term or Range Facet</label>
                                     <select-field-filter multiple .data="${this._config.fields}" .value=${Object.keys(this.selectedFacet).join(",")} @filterChange="${this.onFacetFieldChange}"></select-field-filter>
                                     <div class="text-center">
@@ -904,27 +850,30 @@ export default class OpencgaFacet extends LitElement {
                                     </div> 
                             </div>
                             
-                            <!-- <label>Selected fields</label> -->
-                            <div class="facet-list-container panel-group">
-                                <!-- this.selectedFacet <pre>${JSON.stringify(this.selectedFacet, null, "  ")}</pre> --> 
-                                ${Object.keys(this.selectedFacet).length>0 ? Object.entries(this.selectedFacet).map( ([, facet]) => html`
-                                    <div class="facet-box" id="${this._prefix}Heading">
-                                        <div class="subsection-content form-group">
-                                            <div class="browser-subsection">${facet.name}
-                                                <div class="tooltip-div pull-right">
-                                                    <a><i class="fa fa-info-circle" aria-hidden="true" id="${this._prefix}${facet.id}Tooltip"></i></a>
+                            <div class="facet-list-container">
+                                <label>Selected facets</label>
+                                <div class="facet-list panel-group panel-body">
+                                    <!-- this.selectedFacet <pre>${JSON.stringify(this.selectedFacet, null, "  ")}</pre> --> 
+                                    
+                                    ${Object.keys(this.selectedFacet).length>0 ? Object.entries(this.selectedFacet).map( ([, facet]) => html`
+                                        <div class="facet-box" id="${this._prefix}Heading">
+                                            <div class="subsection-content form-group">
+                                                <div class="browser-subsection">${facet.name}
+                                                    <div class="tooltip-div pull-right">
+                                                        <a><i class="fa fa-info-circle" aria-hidden="true" id="${this._prefix}${facet.id}Tooltip"></i></a>
+                                                    </div>
+                                                </div>
+                                                <div id="${this._prefix}${facet.id}" class="" role="tabpanel" aria-labelledby="${this._prefix}Heading">
+                                                    <div class="">
+                                                        ${this.renderField(facet)}
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div id="${this._prefix}${facet.id}" class="panel-collapse" role="tabpanel" aria-labelledby="${this._prefix}Heading">
-                                                <div class="panel-body">
-                                                    ${this.renderField(facet)}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>                                    
-                                `) : html`
-                                    <div class="alert alert-info text-center" role="alert"><i class="fas fa-3x fa-info-circle"></i><br><small>No aggregation field has been selected yet.</small></div>
-                                `}
+                                        </div>                                    
+                                    `) : html`
+                                        <div class="alert alert-info text-center" role="alert"><i class="fas fa-3x fa-info-circle"></i><br><small>No aggregation field has been selected yet.</small></div>
+                                    `}
+                                </div>
                             </div>
                         </div>
                         

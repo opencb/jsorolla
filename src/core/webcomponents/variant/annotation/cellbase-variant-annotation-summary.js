@@ -199,9 +199,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
         if (this.variantAnnotation === undefined || this.variantAnnotation === "" || this.proteinSubScore === undefined) {
             return;
         }
-        //debugger
         return html`
-aaaaa
             <div>
                 <style include="jso-styles">
                     div.block {
