@@ -123,47 +123,119 @@ export default class OpencgaFileFacet extends LitElement {
     getDefaultConfig() {
         return {
             title: "Aggregation Stats for Files",
-            name: "Agregation for Files",
             active: false,
             icon: "fas fa-chart-bar",
-            endpoint: this.opencgaSession.opencgaClient.files(),
-            fields: [
-                {id: "cattype", name: "category Type", type: "category", values: ["JAN", "FEB", "MAR"], defaultValue: "JAN,FEB"},
-                {id: "stringtype", name: "string Type", type: "string", defaultValue: "deff"},
-                {id: "numtype", name: "number Type", type: "number", defaultValue: 2},
-
-                {id: "gerp", name: "Gerp", type: "integer", defaultValue: "0:1:01"},
-                // this is a category
-                {
-                    name: "Pop Freqs", fields: [
-                        {id: "PopFreqsname", name: "Pop Freqs Name", type: "string", disabled: true},
-                        {id: "PopFreqsformat", name: "Pop Freqs Format", type: "string"}
-                    ]
+            description: "",
+            searchButtonText: "Run",
+            filter: {
+                sections: [ // sections and subsections, structure and order is respected
+                    {
+                        title: "Study and Cohorts",
+                        collapsed: false,
+                        fields: [
+                            {
+                                id: "study",
+                                name: "Studies Filter",
+                                description: "Only considers variants from the selected studies"
+                            },
+                            {
+                                id: "region",
+                                name: "Region Filter",
+                                description: "Only considers variants from the selected studies"
+                            }
+                        ]
+                    }
+                ],
+                examples: [
+                    {
+                        name: "Example BRCA2",
+                        active: false,
+                        query: {
+                            gene: "BRCA2",
+                            conservation: "phylop<0.001"
+                        }
+                    }
+                ],
+                result: {
+                    grid: {}
                 },
-                {id: "gerp1", name: "Gerp1", type: "categorical", defaultValue: "0:1:01"},
-                {id: "gerp2", name: "Gerp2", type: "range", defaultValue: "0:1:01"},
-                {id: "study", name: "Study", type: "string", defaultValue: "defStudy"},
-                {id: "name", name: "Name", type: "string"},
-                {id: "type", name: "Type", type: "string"},
-                {id: "format", name: "Format", type: "string"},
-                {id: "bioformat", name: "Bioformat", type: "string"},
-                {id: "creationYear", name: "CreationYear", type: "string"},
-                {id: "creationDay", name: "CreationDay", type: "string"},
-                {id: "creationDayOfWeek", name: "CreationDayOfWeek", type: "string"},
-                {id: "creationMonth", name: "creationMonth", type: "category", values: ["JAN", "FEB", "MAR"], defaultValue: "JAN,FEB"},
-                {id: "status", name: "Status", type: "string"},
-                {id: "release", name: "Release", type: "string"},
-                {id: "external", name: "External", type: "string"},
-                {id: "size", name: "Size", type: "string"},
-                {id: "software", name: "Software", type: "string"},
-                {id: "experiment", name: "Experiment", type: "string"},
-                {id: "numSamples", name: "NumSamples", type: "string"},
-                {id: "numRelatedFiles", name: "NumRelatedFiles", type: "string"},
-                {id: "annotation", name: "Annotation", type: "string"},
-                {id: "default", name: "Default", type: "string"},
-                {id: "field", name: "Field", type: "string"}
-            ],
-            annotations: {}
+                detail: [
+
+                ],
+            },
+            aggregation: {
+                default: ["gerp", "study>>bioformat"],
+                result: {
+                    numColumns: 2
+                },
+                sections: [
+                    {
+                        title: "Section Title",
+                        // collapsed: false,
+                        fields: [
+                            {
+                                id: "cattype",
+                                name: "category Type",
+                                description: "",
+                                type: "category",
+                                allowedValues: ["JAN", "FEB", "MAR"],
+                                defaultValue: "JAN,FEB"
+                            },
+                            {id: "stringtype", name: "string Type", type: "string", defaultValue: "deff"},
+                            {id: "numtype", name: "number Type", type: "integer", defaultValue: 2},
+                        ]
+                    },
+                ],
+                // fields: {
+                //
+                //
+                //     sections: [
+                //         {
+                //             title: "Section Title",
+                //             collapsed: false,
+                //             fields: [
+                //                 {id: "cattype", name: "category Type", type: "category", allowedValues: ["JAN", "FEB", "MAR"], defaultValue: "JAN,FEB"},
+                //                 {id: "stringtype", name: "string Type", type: "string", defaultValue: "deff"},
+                //                 {id: "numtype", name: "number Type", type: "integer", defaultValue: 2},
+                //             ]
+                //         },
+                //         {id: "cattype", name: "category Type", type: "category", allowedValues: ["JAN", "FEB", "MAR"], defaultValue: "JAN,FEB"},
+                //         {id: "stringtype", name: "string Type", type: "string", defaultValue: "deff"},
+                //         {id: "numtype", name: "number Type", type: "integer", defaultValue: 2},
+                //
+                //         {id: "gerp", name: "Gerp", type: "double", defaultValue: "0:1:0.1"},
+                //         // this is a category
+                //         {
+                //             name: "Pop Freqs", fields: [
+                //                 {id: "PopFreqsname", name: "Pop Freqs Name", type: "string", disabled: true},
+                //                 {id: "PopFreqsformat", name: "Pop Freqs Format", type: "string"}
+                //             ]
+                //         },
+                //         {id: "gerp1", name: "Gerp1", type: "categorical", defaultValue: "0:1:01"},
+                //         {id: "gerp2", name: "Gerp2", type: "range", defaultValue: "0:1:01"},
+                //         {id: "study", name: "Study", type: "string", defaultValue: "defStudy"},
+                //         {id: "name", name: "Name", type: "string"},
+                //         {id: "type", name: "Type", type: "string"},
+                //         {id: "format", name: "Format", type: "string"},
+                //         {id: "bioformat", name: "Bioformat", type: "string"},
+                //         {id: "creationYear", name: "CreationYear", type: "category", allowedValues: ["2020", "2019"]},
+                //         {id: "creationDay", name: "CreationDay", type: "string"},
+                //         {id: "creationDayOfWeek", name: "CreationDayOfWeek", type: "string"},
+                //         {id: "creationMonth", name: "creationMonth", type: "category", values: ["JAN", "FEB", "MAR"], defaultValue: "JAN,FEB"},
+                //         {id: "status", name: "Status", type: "string"},
+                //         {id: "release", name: "Release", type: "string"},
+                //         {id: "external", name: "External", type: "string"},
+                //         {id: "size", name: "Size", type: "string"},
+                //         {id: "software", name: "Software", type: "string"},
+                //         {id: "experiment", name: "Experiment", type: "string"},
+                //         {id: "numSamples", name: "NumSamples", type: "string"},
+                //         {id: "numRelatedFiles", name: "NumRelatedFiles", type: "string"},
+                //         {id: "annotation", name: "Annotation", type: "string"},
+                //         {id: "default", name: "Default", type: "string"},
+                //         {id: "field", name: "Field", type: "string"}
+                //     ],
+                // },
+            },
         };
     }
 
@@ -172,17 +244,11 @@ export default class OpencgaFileFacet extends LitElement {
         return this._config ? html`
             <opencga-facet  resource="files"
                             .opencgaSession="${this.opencgaSession}"
-                            .opencgaClient="${this.opencgaSession.opencgaClient}"
                             .query="${this.query}"
-                            .config="${this._config}"
-                            .cellbaseClient="${this.cellbaseClient}"
-                            .populationFrequencies="${this.populationFrequencies}"
-                            .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                            .consequenceTypes="${this.consequenceTypes}">
+                            .config="${this._config}">
             </opencga-facet>` : null;
     }
 
 }
-
 
 customElements.define("opencga-file-facet", OpencgaFileFacet);

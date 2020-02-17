@@ -44,22 +44,10 @@ export default class OpencgaFacet extends LitElement {
 
     static get properties() {
         return {
+            resource: {
+                type: String
+            },
             opencgaSession: {
-                type: Object
-            },
-            opencgaClient: {
-                type: Object
-            },
-            cellbaseClient: {
-                type: Object
-            },
-            populationFrequencies: {
-                type: Object
-            },
-            consequenceTypes: {
-                type: Object
-            },
-            proteinSubstitutionScores: {
                 type: Object
             },
             query: {
@@ -76,9 +64,6 @@ export default class OpencgaFacet extends LitElement {
             },
             selectedFacet: {
                 type: Object
-            },
-            resource: {
-                type: String
             }
         };
     }
@@ -613,6 +598,7 @@ export default class OpencgaFacet extends LitElement {
         switch (entity) {
             // TODO handle specific events
             case "files":
+                this.endpoint = this.opencgaSession.opencgaClient.getFileClient();
                 return html`<opencga-file-grid .opencgaSession="${this.opencgaSession}"
                                                        .config="${this._config.grid}"
                                                        .query="${this.executedQuery}"
@@ -744,7 +730,7 @@ export default class OpencgaFacet extends LitElement {
                             
                             ${this.resource === "variants" ? html`
                                 <opencga-variant-filter .opencgaSession=${this.opencgaSession}
-                                                            .opencgaClient="${this.opencgaClient}"
+                                                            .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                             .cellbaseClient="${this.cellbaseClient}"
                                                             .populationFrequencies="${this.populationFrequencies}"
                                                             .consequenceTypes="${this.consequenceTypes}"
