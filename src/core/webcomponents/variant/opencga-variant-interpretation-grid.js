@@ -1218,9 +1218,8 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
                              @sharelink="${this.onShare}">
         </opencb-grid-toolbar>
 
-        <div id="${this._prefix}GridTableDiv" style="margin-top: 10px">
+        <div id="${this._prefix}GridTableDiv">
             <table id="${this._prefix}VariantBrowserGrid">
-                <thead style="background-color: #eee"></thead>
             </table>
         </div>
 

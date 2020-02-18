@@ -171,7 +171,6 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
             <div style="padding: 10px;">
                 <table id="${this._prefix}populationFreqTable" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[5, 15, 30]"
                        data-show-pagination-switch="true" data-show-export="true" data-icons-prefix="fa" data-icons="icons">
-                    <thead style="background-color: #eee"></thead>
                 </table>
                 <div id="${this._prefix}Container"></div>
             </div>

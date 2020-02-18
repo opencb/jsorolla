@@ -876,9 +876,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                              @sharelink="${this.onShare}">
         </opencb-grid-toolbar>
 
-        <div id="${this._prefix}GridTableDiv" style="margin-top: 10px">
+        <div id="${this._prefix}GridTableDiv">
             <table id="${this._prefix}ClinicalAnalysisBrowserGrid">
-                <thead style="background-color: #eee"></thead>
             </table>
         </div>
         `;

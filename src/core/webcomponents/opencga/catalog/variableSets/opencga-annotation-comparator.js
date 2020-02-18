@@ -385,8 +385,8 @@ export default class OpencgaAnnotationComparator extends LitElement {
     }
 
     renderDomRepeat(e) {
-        $("select.selectpicker").selectpicker("refresh");
-        $("select.selectpicker").selectpicker("deselectAll");
+        $("select.selectpicker", this).selectpicker("refresh");
+        $("select.selectpicker", this).selectpicker("deselectAll");
     }
 
     getDefaultConfig() {
@@ -430,7 +430,6 @@ export default class OpencgaAnnotationComparator extends LitElement {
                 ` : null}
                 <table id="${this._prefix}-ac-table" data-test-id="variant-sample-grid-sample-selector" data-show-columns="true" data-show-export="true"
                        data-page-size="100">
-                    <thead style="background-color: #eee"></thead>
                 </table>
             ` : html`
                 <p>No variableSets defined in the study</p>

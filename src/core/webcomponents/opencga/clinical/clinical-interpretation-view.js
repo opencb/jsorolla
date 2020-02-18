@@ -962,10 +962,9 @@ export default class ClinicalInterpretationView extends LitElement {
                         </div>
                     </div>
 
-                    <div id="${this._prefix}GridTableDiv" style="margin-top: 5px">
+                    <div id="${this._prefix}GridTableDiv">
                         <table id="${this._prefix}mainTable" data-pagination="true" data-page-list="[5, 10, 25]"
                                data-show-export="true" data-detail-view="true" data-detail-formatter="detailFormatter">
-                            <thead style="background-color: #eee"></thead>
                         </table>
                     </div>
                 </div>

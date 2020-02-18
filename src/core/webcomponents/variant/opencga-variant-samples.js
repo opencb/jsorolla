@@ -388,7 +388,7 @@ export default class OpencgaVariantSamples extends LitElement {
             <div id="${this._prefix}Het">
                 <div style="padding: 5px 20px">
                     <table class="table table-bordered">
-                        <thead style="background-color: #eee;">
+                        <thead>
                         <tr>
                             <th scope="col" rowspan="2">Sample ID</th>
                             <th scope="col" rowspan="2">Individual ID</th>
@@ -419,7 +419,7 @@ export default class OpencgaVariantSamples extends LitElement {
             <div id="${this._prefix}HomAlt">
                 <div style="padding: 5px 20px">
                     <table class="table table-bordered">
-                        <thead style="background-color: #eee;">
+                        <thead>
                         <tr>
                             <th scope="col" rowspan="2">Sample ID</th>
                             <th scope="col" rowspan="2">Individual ID</th>
@@ -450,7 +450,7 @@ export default class OpencgaVariantSamples extends LitElement {
             <div id="${this._prefix}NA">
                 <div style="padding: 5px 20px">
                     <table class="table table-bordered">
-                        <thead style="background-color: #eee;">
+                        <thead>
                         <tr>
                             <th scope="col" rowspan="2">Sample ID</th>
                             <th scope="col" rowspan="2">Individual ID</th>

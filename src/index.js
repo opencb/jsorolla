@@ -6,15 +6,15 @@ import "./threed-viewer/js/chr.js";
 import "./threed-viewer/js/torus.js";
 import "./threed-viewer/threed-viewer.js";
 import "./threed-viewer/threedv-config.js";
-import "./core/utils.js";
+import Utils from "./core/utils.js";
 import "./core/clients/opencga-client.js";
 import "./core/clients/rest-client-axios.js";
 import "./core/clients/RestResponse.js";
 import "./core/clients/cellbase-client.js";
 import "./core/clients/rest-client-xmlhttp.js";
 import "./core/clients/rest-client.js";
-//import "./core/clients/test/tests.js";
-import "./core/clients/reactome-client.js";
+// import "./core/clients/test/tests.js";
+/*import "./core/clients/reactome-client.js";
 import "./core/region.js";
 import "./core/data-adapter/cellbase-adapter.js";
 import "./core/data-adapter/opencga-adapter.js";
@@ -264,10 +264,10 @@ import "./circular-genome-viewer/circular-navigation-bar.js";
 import "./circular-genome-viewer/lib/gv-config.js";
 import "./circular-genome-viewer/lib/genome-viewer.js";
 import "./circular-genome-viewer/genome.js";
-import "./circular-genome-viewer/circular-chromosome-widget.js";
+import "./circular-genome-viewer/circular-chromosome-widget.js";*/
 
 // depends on genome-viewer
-import "./core/data-adapter/feature/ensembl-adapter.js";
+/*import "./core/data-adapter/feature/ensembl-adapter.js";
 import "./core/data-adapter/feature/gtf-data-adapter.js";
 import "./core/data-adapter/feature/obsolete/cellbase-adapter.js";
 import "./core/data-adapter/feature/obsolete/das-adapter.js";
@@ -283,4 +283,6 @@ import "./core/data-source/string-data-source.js";
 import "./core/data-source/data-source.js";
 import "./core/data-source/tabular-data-adapter.js";
 import "./core/data-source/url-data-source.js";
-import "./core/data-source/file-data-source.js";
+import "./core/data-source/file-data-source.js";*/
+
+export {Utils} from "./core/utils.js";

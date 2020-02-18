@@ -65,7 +65,7 @@ export default class OpencgaPanelEditor extends LitElement {
         this.renderPanelTableDiseases();
         this.renderPanelTableGenes();
         this.renderPanelTableMutations();
-        $("select.selectpicker").selectpicker("render");
+        $("select.selectpicker", this).selectpicker("render");
 
     }
 

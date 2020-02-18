@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-// todo check functionality (and notify usage)
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "../variableSets/opencga-annotation-filter.js";
 import "../opencga-date-filter.js";
@@ -40,16 +39,13 @@ export default class OpencgaFileFilter extends LitElement {
                 type: Object
             },
             files: {
-                type: Array,
-                //notify: true
+                type: Array
             },
             query: {
-                type: Object,
-                //notify: true
+                type: Object
             },
             search: {
-                type: Object,
-                //notify: true
+                type: Object
             },
             variableSets: {
                 type: Array
@@ -231,7 +227,7 @@ export default class OpencgaFileFilter extends LitElement {
         }));
     }
 
-    calculateFilters(e) {
+    /*calculateFilters(e) {
         const _query = {};
 
         const name = PolymerUtils.getValue(`${this._prefix}-name-input`);
@@ -274,7 +270,7 @@ export default class OpencgaFileFilter extends LitElement {
         this.query = _query;
         console.log("this.query", this.query);
         this._reset = true;
-    }
+    }*/
 
     /**
      * Use custom CSS class to easily reset all controls.
@@ -429,9 +425,7 @@ export default class OpencgaFileFilter extends LitElement {
                             <div class="browser-subsection">Format
                             </div>
                             <div id="${this._prefix}-format" class="subsection-content form-group">
-                                <!-- <input type="text" id="${this._prefix}-format-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="BAM,VCF..." name="format" @input="${this.calculateFilters}"> -->
-                                <text-field-filter placeholder="BAM,VCF.." .value="${this.preparedQuery.format}" @filterChange="${e => this.onFilterChange("format", e.detail.value)}"></text-field-filter>
+                                <select-field-filter multiple .value="${this.preparedQuery.format}" .data="${["VCF", "BCF", "GVCF", "TBI", "BIGWIG", "SAM", "BAM", "BAI", "CRAM", "CRAI", "FASTQ", "FASTA", "PED", "TAB_SEPARATED_VALUES", "COMMA_SEPARATED_VALUES", "XML", "PROTOCOL_BUFFER", "JSON", "AVRO", "PARQUET", "IMAGE", "PLAIN", "BINARY", "EXECUTABLE", "GZIP", "NONE", "UNKNOWN"]}" @filterChange="${e => this.onFilterChange("format", e.detail.value)}"></select-field-filter>
                             </div>
                         </div>
 

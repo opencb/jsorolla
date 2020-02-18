@@ -95,13 +95,9 @@ export default class VariantTypeFilter extends LitElement {
              <ul class="checkbox-container">
                 ${this._config.types && this._config.types.length && this._config.types.map( type => html`
                     <li>
-                        <a @click="${ _ => this.toggle(type) }">
-                            <!--<input type="checkbox" value="${type}"  ?checked="${~this.selectedVariantTypes.indexOf(type)}" @change="${this.onChange}" @click="${this.checkboxToggle}"
-                            ?checked="${1}" class="${this._prefix}FilterCheckBox"/> -->
                             <input type="checkbox" value="${type}" .checked="${~this.selectedVariantTypes.indexOf(type)}" class="${this._prefix}FilterCheckBox"/>
-                            <span class="checkmark-label">${type}</span>
-                            <span class="checkmark"></span>
-                        </a>
+                            <label class="checkmark-label" @click="${ _ => this.toggle(type) }">${type}</label>
+                            
                     </li>
                 `)}
              </ul>

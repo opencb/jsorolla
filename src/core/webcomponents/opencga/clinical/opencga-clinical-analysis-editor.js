@@ -118,7 +118,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
             // date: moment().add(1, "months")
         });
 
-        $("select.selectpicker").selectpicker("render");
+        $("select.selectpicker". this).selectpicker("render");
 
         // Render default values when clinicalAnalysis property is not set
         if (UtilsNew.isUndefinedOrNull(this.clinicalAnalysis)) {
@@ -456,7 +456,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     }
 
     renderDomRepeat(e) {
-        $("select.selectpicker").selectpicker("refresh");
+        $("select.selectpicker", this).selectpicker("refresh");
     }
 
     onClear() {
@@ -559,7 +559,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
             gridContext: _this,
 
             onPostBody: function(data) {
-                $(".selectpicker").selectpicker("refresh");
+                $(".selectpicker", this).selectpicker("refresh");
 
                 /**
                  *  returning a lit-html element in a formatter cause the print of [object Object].
@@ -1018,7 +1018,6 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                     <label class="control-label col-md-1 jso-label-title">Sample Configuration:</label>
                                     <div id="${this._prefix}GridTableDiv" class="col-md-11 col-md-offset-1" style="padding: 10px 20px">
                                         <table id="${this._prefix}IndividualBrowserGrid">
-                                            <thead style="background-color: #eee"></thead>
                                         </table>
                                     </div>
                                 </div>

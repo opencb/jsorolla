@@ -715,9 +715,8 @@ export default class OpencgaFileGrid extends LitElement {
                             @download="${this.onDownload}">
         </opencb-grid-toolbar>
 
-        <div id="${this._prefix}GridTableDiv" style="margin-top: 10px">
-            <table id="${this._prefix}FileBrowserGrid" style="cursor: pointer">
-                <thead style="background-color: #eee"></thead>
+        <div id="${this._prefix}GridTableDiv">
+            <table id="${this._prefix}FileBrowserGrid">
             </table>
         </div>
         `;

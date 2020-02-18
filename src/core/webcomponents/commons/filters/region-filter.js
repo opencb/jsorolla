@@ -58,9 +58,14 @@ export default class RegionFilter extends LitElement {
     }
 
     updated(_changedProperties) {
-        if (_changedProperties.has("region") && this.region) {
-            this.querySelector("#" + this._prefix + "LocationTextarea").value = this.region;
-        }
+        // "this.region" are automatically reflected on the template, we don't needto watch it
+        /*if (_changedProperties.has("region")) {
+            if (this.region) {
+                this.querySelector("#" + this._prefix + "LocationTextarea").value = this.region;
+            } else {
+                this.querySelector("#" + this._prefix + "LocationTextarea").value = "";
+            }
+        }*/
     }
 
     filterChange(e) {
@@ -94,6 +99,7 @@ export default class RegionFilter extends LitElement {
                     <textarea id="${this._prefix}LocationTextarea" name="location" 
                         class="form-control clearable ${this._prefix}FilterTextInput"
                         rows="${this._config.rows}" placeholder="${this._config.placeholder}"
+                        .value="${this.region || ""}"
                         @input="${e => this.filterChange(e)}"></textarea>
                 `;
     }

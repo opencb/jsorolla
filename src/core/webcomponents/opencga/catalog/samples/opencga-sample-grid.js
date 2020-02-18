@@ -541,9 +541,8 @@ export default class OpencgaSampleGrid extends LitElement {
                              @download="${this.onDownload}">
         </opencb-grid-toolbar>
 
-        <div id="${this._prefix}GridTableDiv" style="margin-top: 10px">
+        <div id="${this._prefix}GridTableDiv">
             <table id="${this._prefix}SampleBrowserGrid">
-                <thead style="background-color: #eee"></thead>
             </table>
         </div>
         `;

@@ -1,6 +1,6 @@
 const path = require("path");
 const glob_entries = require("webpack-glob-entries");
- const regeneratorRuntime = require("regenerator-runtime"); //TODO fix generators and AsyncFunction in babel
+const regeneratorRuntime = require("regenerator-runtime"); // TODO fix generators and AsyncFunction in babel
 
 /*
 var fs = require('fs');
@@ -16,11 +16,13 @@ console.log(Object.values(glob_entries("./src/core/!**!/!*.js")).map(entry => `i
 
 module.exports = {
     // entry: glob_entries("./src/core/**/*.js"),
-    entry: "./src/index.js",
+    entry: "./index.js",
     devtool: "source-map",
     output: {
         filename: "[name].js",
-        path: path.resolve(__dirname, "dist")
+        path: path.resolve(__dirname, "dist"),
+        library: "jsorolla",
+        libraryTarget: "var"
     },
     plugins: [],
     optimization: {
@@ -28,7 +30,7 @@ module.exports = {
     },
     module: {
         rules: [
-             {
+            {
                 test: /\.m?js$/,
                 exclude: /(node_modules|bower_components)/,
                 use: {

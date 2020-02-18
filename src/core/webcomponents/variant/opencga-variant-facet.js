@@ -124,7 +124,7 @@ export default class OpencgaVariantFacet extends LitElement {
             "0|1": "#FFA500",
             "1|0": "#FFA500",
             "1|1": "#FF0000",
-            ".|.": "#000000",
+            ".|.": "#000000"
         };
         this.variantId = "No variant selected";
 
@@ -155,7 +155,6 @@ export default class OpencgaVariantFacet extends LitElement {
             this.fetchVariants();
         }
         if (changedProperties.has("query")) {
-            //console.warn("queryObserver is commented");
             this.queryObserver();
         }
         if (changedProperties.has("selectedFacet")) {
@@ -164,7 +163,6 @@ export default class OpencgaVariantFacet extends LitElement {
     }
 
     queryObserver() {
-        console.error("queryobserver")
         // Query passed is executed and set to variant-filter, active-filters and variant-grid components
         let _query = {};
         if (UtilsNew.isEmpty(this.query) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study)) {
@@ -221,7 +219,7 @@ export default class OpencgaVariantFacet extends LitElement {
      * Apply the 'config' properties on the default
      */
     configObserver() {
-        this._config = Object.assign(this.getDefaultConfig(), this.config);
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     selectedFacetObserver() {
@@ -254,14 +252,68 @@ export default class OpencgaVariantFacet extends LitElement {
         this.requestUpdate();
     }
 
-    aaddDefaultFacet() {
-        this._config.defaultFacetFields = ["cattype"];
-        for (const a of this._config.defaultFacetFields) {
-            const newField = this._recFind(this._config.fields, a);
-            this.selectedFacet[a] = {...newField, value: newField && newField.defaultValue ? newField.defaultValue : ""};
-            this.selectedFacet = {...this.selectedFacet};
-            this.requestUpdate();
+    addDefaultFacet() {
+        for (const defaultFacetId of this._config.aggregation.default) {
+            const facet = defaultFacetId.split(">>");
+            console.log(facet);
+            // in case of nested facets
+            if (facet.length > 1) {
+                const mainFacet = this._recFind(this._config.aggregation.sections, facet[0]);
+                const nestedFacet = this._recFind(this._config.aggregation.sections, facet[1]);
+                console.log("nestedFacet", nestedFacet);
+                this.selectedFacet[facet[0]] = {
+                    ...mainFacet,
+                    value: mainFacet && mainFacet.defaultValue ? mainFacet.defaultValue : "",
+                    nested: {...nestedFacet, facet: facet[1], value: nestedFacet.defaultValue || ""}
+                };
+            } else {
+                this.selectedFacet[defaultFacetId] = {...facet, value: facet && facet.defaultValue ? facet.defaultValue : ""};
+            }
         }
+        this.selectedFacet = {...this.selectedFacet};
+    }
+
+    notifySearch(query) {
+        this.dispatchEvent(new CustomEvent("querySearch", {
+            detail: {
+                query: query
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    // TODO since this is the new opencga-browser, this have to be moved this in opencga-facet-results
+    async onRun() {
+        this.clearPlots();
+        const queryParams = {
+            ...this.preparedQuery,
+            // sid: this.opencgaClient._config.sessionId,
+            study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
+            timeout: 60000,
+            field: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
+        };
+        // this event keeps in sync the query object with the one in iva-app
+        // TODO do not use this.preparedQuery, use this.query (change this component accordingly)
+        this.notifySearch(this.preparedQuery);
+
+        // this.querySelector("#loading").style.display = "block";
+
+        this.endpoint.aggregationStats(queryParams, {})
+            .then(queryResponse => {
+                console.log("queryResponse", queryResponse);
+                this.errorState = false;
+                this.facetResults = queryResponse.response[0].result[0].results;
+                this.requestUpdate();
+            })
+            .catch(e => {
+                this.errorState = "Error from server: " + e.error;
+                this.requestUpdate();
+            })
+            .finally(() => {
+                this.querySelector("#loading").style.display = "none";
+            });
+
     }
 
     async onFacetFieldChange(e) {
@@ -278,9 +330,9 @@ export default class OpencgaVariantFacet extends LitElement {
         // addition
         if (currentSelectionNames.length > Object.keys(this.selectedFacet).length) {
             console.log("addition of", difference);
-            // Array.find() cannot be nested.. let newField = this._config.fields.find(field => field.fields ? field.fields.find(nested => nested === difference) : field.name === difference);
-            // console.log(this._config.fields, difference)
-            const newField = this._recFind(this._config.fields, difference);
+            // Array.find() cannot be nested.. let newField = this._config.aggregation.sections.find(field => field.fields ? field.fields.find(nested => nested === difference) : field.name === difference);
+            // console.log(this._config.aggregation.sections, difference)
+            const newField = this._recFind(this._config.aggregation.sections, difference);
             // console.log("newField", newField)
             this.selectedFacet[difference] = {...newField, value: newField && newField.defaultValue ? newField.defaultValue : ""};
             await this.requestUpdate();
@@ -339,7 +391,7 @@ export default class OpencgaVariantFacet extends LitElement {
     onNestedFacetFieldChange(e, parent) {
         const selected = e.detail.value;
         if (selected) {
-            const newField = this._recFind(this._config.fields, selected);
+            const newField = this._recFind(this._config.aggregation.sections, selected);
             this.selectedFacet[parent].nested = {...newField, facet: selected, value: newField.defaultValue || ""};
         } else {
             delete this.selectedFacet[parent].nested;
@@ -435,57 +487,58 @@ export default class OpencgaVariantFacet extends LitElement {
             });
 
     }
-/*
 
-    /!**
-     * @deprecated
-     * *!/
-    fetchData() {
-        if (UtilsNew.isUndefinedOrNull(this.opencgaClient)) {
-            console.log("opencgaClient is null or undefined");
-            return;
-        }
+    /*
 
-        if (this.facets.size === 0) {
-            alert("No facets selected.");
-            return;
-        }
+        /!**
+         * @deprecated
+         * *!/
+        fetchData() {
+            if (UtilsNew.isUndefinedOrNull(this.opencgaClient)) {
+                console.log("opencgaClient is null or undefined");
+                return;
+            }
 
-        this.clearPlots();
-        // Shows loading modal
-        $(PolymerUtils.getElementById(this._prefix + "LoadingModal")).modal("show");
+            if (this.facets.size === 0) {
+                alert("No facets selected.");
+                return;
+            }
 
-        // Join 'query' from left menu and facet filters
-        const queryParams = Object.assign({}, this.executedQuery,
-            {
-                // sid: this.opencgaClient._config.sessionId,
-                study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
-                timeout: 60000,
-                facet: this.facetFilters.join(";")
-            });
+            this.clearPlots();
+            // Shows loading modal
+            $(PolymerUtils.getElementById(this._prefix + "LoadingModal")).modal("show");
 
-        const _this = this;
-        setTimeout(() => {
-            this.opencgaClient.variants().facet(queryParams, {})
-                .then(function(queryResponse) {
-                    // let response = queryResponse.response[0].result[0].result;
-                    _this.facetResults = queryResponse.response[0].result[0].results;
-
-                    console.log("facetResults", _this.facetResults);
-                    // Remove loading modal
-                    $(PolymerUtils.getElementById(_this._prefix + "LoadingModal")).modal("hide");
-                    _this._showInitMessage = false;
-                })
-                .catch(function(e) {
-                    console.log(e);
-                    // Remove loading modal
-                    $(PolymerUtils.getElementById(_this._prefix + "LoadingModal")).modal("hide");
-                    _this._showInitMessage = false;
+            // Join 'query' from left menu and facet filters
+            const queryParams = Object.assign({}, this.executedQuery,
+                {
+                    // sid: this.opencgaClient._config.sessionId,
+                    study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
+                    timeout: 60000,
+                    facet: this.facetFilters.join(";")
                 });
+
+            const _this = this;
+            setTimeout(() => {
+                this.opencgaClient.variants().facet(queryParams, {})
+                    .then(function(queryResponse) {
+                        // let response = queryResponse.response[0].result[0].result;
+                        _this.facetResults = queryResponse.response[0].result[0].results;
+
+                        console.log("facetResults", _this.facetResults);
+                        // Remove loading modal
+                        $(PolymerUtils.getElementById(_this._prefix + "LoadingModal")).modal("hide");
+                        _this._showInitMessage = false;
+                    })
+                    .catch(function(e) {
+                        console.log(e);
+                        // Remove loading modal
+                        $(PolymerUtils.getElementById(_this._prefix + "LoadingModal")).modal("hide");
+                        _this._showInitMessage = false;
+                    });
+            }
+            , 250);
         }
-        , 250);
-    }
-*/
+    */
 
     clearPlots() {
         if (UtilsNew.isNotUndefined(this.results) && this.results.length > 0) {
@@ -655,14 +708,17 @@ export default class OpencgaVariantFacet extends LitElement {
     }
 
     renderField(facet) {
-        const renderNestedFieldWrapper = faced => html`
+        const renderNestedFieldWrapper = facet => html`
                     <!-- nested facet -->
                     <div class="row facet-row nested">
                         <div class="col-md-12 text-center">
                             <a class="btn btn-small collapsed" role="button" data-collapse="#${facet.id}_nested" @click="${this.toggleCollapse}"> <i class="fas fa-arrow-alt-circle-down"></i> Nested Facet (optional) </a>
-                            <div class="collapse" id="${facet.id}_nested">
+                            <div class="collapse ${this.selectedFacet[facet.id].nested ? "in" : ""}" id="${facet.id}_nested"> 
                                 <div class="">
-                                    <select-field-filter .data="${this._config.fields.map(field => field.id !== facet.id ? field : {...field, disabled: true})}" .value=${null} @filterChange="${e => this.onNestedFacetFieldChange(e, facet.id)}"></select-field-filter>
+                                    <select-field-filter .data="${this._config.aggregation.sections.map(section => ({
+        ...section,
+        fields: section.fields.map(item => ({...item, disabled: item.id === facet.id}))
+    }))}" .value=${this.selectedFacet[facet.id].nested ? this.selectedFacet[facet.id].nested.id : null} @filterChange="${e => this.onNestedFacetFieldChange(e, facet.id)}"></select-field-filter>
                                     <div class="row facet-row nested">
                                         ${this.renderNestedField(this.selectedFacet[facet.id].nested, facet.id)}
                                     </div>                                
@@ -674,17 +730,19 @@ export default class OpencgaVariantFacet extends LitElement {
         `;
 
         switch (facet.type) {
-        case "category":
-            return html`
+            case "category":
+                return html`
                     <div class="row facet-row">
                         <div class="col-md-12">
-                            <select-field-filter multiple .data="${facet.values}" .value="${facet.defaultValue ? facet.defaultValue : ""}" id="${facet.id}_Select" data-id="${facet.id}" @filterChange="${this.onFacetSelectChange}"></select-field-filter>
+                            <select-field-filter multiple .data="${facet.allowedValues}" .value="${facet.defaultValue ? facet.defaultValue : ""}" id="${facet.id}_Select" data-id="${facet.id}" @filterChange="${this.onFacetSelectChange}"></select-field-filter>
                         </div>
                     </div>
                     ${renderNestedFieldWrapper(facet)}
-                `;
-        case "number":
-            return html`
+                    `;
+            case "number":
+            case "integer":
+            case "float":
+                return html`
                     <div class="row facet-row">
                         <div class="col-md-6">
                             <input type="text" class="form-control" placeholder="Include values or set range" id="${this._prefix}${facet.id}_text" data-id="${facet.id}" .value="${facet.value || ""}" @input="${this.onFacetValueChange}" />
@@ -695,8 +753,8 @@ export default class OpencgaVariantFacet extends LitElement {
                     </div>
                     ${renderNestedFieldWrapper(facet)}
                 `;
-        case "string":
-            return html`
+            case "string":
+                return html`
                     <div class="row facet-row">
                         <div class="col-md-12">
                             <input type="text" class="form-control" placeholder="Include values" @input="${this.onFacetValueChange}" data-id="${facet.id}" type="text" .value="${facet.defaultValue ? facet.defaultValue : ""}" id="${facet.id}_NestedFnSelect"  />
@@ -704,8 +762,8 @@ export default class OpencgaVariantFacet extends LitElement {
                     </div>
                     ${renderNestedFieldWrapper(facet)}
                 `;
-        default:
-            return html`no type recognized`;
+            default:
+                return html`no type recognized`;
         }
     }
 
@@ -713,14 +771,16 @@ export default class OpencgaVariantFacet extends LitElement {
         if (!facet || !facet.type) return null;
         console.log("renderNestedField", facet);
         switch (facet.type) {
-        case "category":
-            return html`
+            case "category":
+                return html`
                     <div class="col-md-12">
                         <select-field-filter multiple .data="${facet.values}" .value="${facet.defaultValue ? facet.defaultValue : ""}" id="${facet.id}_NestedSelect" data-parent-facet="${parent}" @filterChange="${this.onNestedFacetValueChange}"></select-field-filter>
                     </div>
                 `;
-        case "number":
-            return html`
+            case "number":
+            case "integer":
+            case "float":
+                return html`
                     <div class="col-md-6">
                         <input type="text" class="form-control" placeholder="Include values or set range" data-parent-facet="${parent}" .disabled="${!(facet.facet)}" id="${this._prefix}${parent}_NestedValue" .value="${facet.value || ""}"  @input="${this.onNestedFacetValueChange}"  />
                     </div>
@@ -728,13 +788,13 @@ export default class OpencgaVariantFacet extends LitElement {
                         <select-field-filter .disabled="${false}" .data="${["Range", "Avg", "Percentile"]}" .value="${"Range"}" id="${parent}_NestedFnSelect" data-parent-facet="${parent}" @filterChange="${this.onNestedFacetFnChange}"></select-field-filter>
                     </div>
                 `;
-        case "string":
-            return html`
+            case "string":
+                return html`
                     <div class="col-md-12">
                         <input type="text" class="form-control" placeholder="Include values" data-parent-facet="${parent}" id="${this._prefix}${facet.id}_Nested_text" .value="${facet.value || ""}"  @input="${this.onNestedFacetValueChange}"  />
                     </div>`;
-        default:
-            return html`no type recognized`;
+            default:
+                return html`no type recognized`;
         }
     }
 
@@ -744,8 +804,8 @@ export default class OpencgaVariantFacet extends LitElement {
     }
 
     _changeBottomTab(e) {
-        let _activeTabs = {};
-        for (let detail of this.config.detail) {
+        const _activeTabs = {};
+        for (const detail of this.config.detail) {
             _activeTabs[detail.id] = (detail.id === e.currentTarget.dataset.id);
         }
         this.detailActiveTabs = _activeTabs;
@@ -773,9 +833,9 @@ export default class OpencgaVariantFacet extends LitElement {
     onSelectVariant(e) {
         this.variantId = e.detail.id;
         this.variant = e.detail.variant;
-        let genes = [];
+        const genes = [];
         for (let i = 0; i < e.detail.variant.annotation.consequenceTypes.length; i++) {
-            let gene = e.detail.variant.annotation.consequenceTypes[i].geneName;
+            const gene = e.detail.variant.annotation.consequenceTypes[i].geneName;
             if (UtilsNew.isNotEmpty(gene) && genes.indexOf(gene) === -1) {
                 genes.push(gene);
             }
@@ -791,83 +851,293 @@ export default class OpencgaVariantFacet extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Aggregation Stats",
+            title: "Variant Browser",
             active: false,
             populationFrequencies: true,
-            fields: [
-                {id: "cattype", name: "category Type", type: "category", values: ["JAN", "FEB", "MAR"], defaultValue: "JAN,FEB"},
-                {id: "stringtype", name: "string Type", type: "string", defaultValue: "deff"},
-                {id: "numtype", name: "number Type", type: "number", defaultValue: 2},
-                {
-                    name: "terms", fields: [
-                        {
-                            name: "Chromosome", id: "chromosome"
-                        },
-                        {
-                            name: "Studies", id: "studies"
-                        },
-                        {
-                            name: "Variant Type", id: "type"
-                        },
-                        {
-                            name: "Genes", id: "genes"
-                        },
-                        {
-                            name: "Biotypes", id: "biotypes"
-                        },
-                        {
-                            name: "Consequence Type", id: "soAcc"
-                        }
-                    ]
+            filters: {
+
+                // from OLD variant-browser
+                activeFilters: {
+                    alias: {
+                        // Example:
+                        // "region": "Region",
+                        // "gene": "Gene",
+                        // "genotype": "Sample Genotypes",
+                    },
+                    complexFields: ["genotype"],
+                    hiddenFields: ["study"]
                 },
-                {
-                    name: "Conservation & Deleteriousness Ranges",
-                    fields: [
-/*                        {
-                            name: "CONSERVATION & DELETERIOUSNESS", id: "-", disabled: true
-                        },*/
-                        {
-                            name: "PhastCons", id: "phastCons", defaultValue: "[0..1]:0.1"
-                        },
-                        {
-                            name: "PhyloP", id: "phylop", defaultValue: ""
-                        },
-                        {
-                            name: "Gerp", id: "gerp", defaultValue: "[-12.3..6.17]:2"
-                        },
-                        {
-                            name: "CADD Raw", id: "caddRaw", defaultValue: ""
-                        },
-                        {
-                            name: "CADD Scaled", id: "caddScaled", defaultValue: ""
-                        },
-                        {
-                            name: "Sift", id: "sift", defaultValue: "[0..1]:0.1"
-                        },
-                        {
-                            name: "Polyphen", id: "polyphen", defaultValue: "[0..1]:0.1"
-                        }
-                    ]
+                genomeBrowser: {
+                    showTitle: false
                 },
-                {
-                    name: "Population frequency Ranges",
-                    fields: [
-                        /*{
-                            name: "POPULATION FREQUENCIES", id: "-", disabled: true
-                        },*/
-                        ...this.populationFrequencies.studies.map( study =>
-                        study.populations.map( population => (
+
+
+                // from tools.js
+                title: "Variant Browser",
+                active: false,
+                showSummary: true,
+                showGenomeBrowser: false,
+                sections: [
+                    // sections and subsections, structure and order is respected
+                    {
+                        title: "Study and Cohorts",
+                        collapsed: false,
+                        subsections: [
                             {
-                                id: `popFreq__${study.id}__${population.id}`,
-                                value: `popFreq__${study.id}__${population.id}`,
-                                name: `popFreq__${study.id}__${population.id}`
+                                id: "study",
+                                title: "Studies Filter",
+                                tooltip: "Only considers variants from the selected studies"
                             }
-                        )
-                        )
-                    ).flat()
-                    ]
-                }
-            ]
+                            // cohortFileMenu // TODO expose common data
+                        ]
+                    },
+                    {
+                        title: "Genomic",
+                        collapsed: true,
+                        subsections: [
+                            {
+                                id: "location",
+                                title: "Chromosomal Location",
+                                tooltip: "Filter out variants falling outside the genomic interval(s) defined"
+                            },
+                            {
+                                id: "feature",
+                                title: "Feature IDs (gene, SNPs, ...)",
+                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                            },
+                            {
+                                id: "diseasePanels",
+                                title: "Disease Panels",
+                                tooltip: "Filter out variants falling outside the genomic intervals (typically genes) defined by the panel(s) chosen"
+                            },
+                            {
+                                id: "biotype",
+                                title: "Gene Biotype",
+                                biotypes: [
+                                    "3prime_overlapping_ncrna", "IG_C_gene", "IG_C_pseudogene", "IG_D_gene", "IG_J_gene", "IG_J_pseudogene",
+                                    "IG_V_gene", "IG_V_pseudogene", "Mt_rRNA", "Mt_tRNA", "TR_C_gene", "TR_D_gene", "TR_J_gene", "TR_J_pseudogene",
+                                    "TR_V_gene", "TR_V_pseudogene", "antisense", "lincRNA", "miRNA", "misc_RNA", "non_stop_decay",
+                                    "nonsense_mediated_decay", "polymorphic_pseudogene", "processed_pseudogene", "processed_transcript",
+                                    "protein_coding", "pseudogene", "rRNA", "retained_intron", "sense_intronic", "sense_overlapping", "snRNA",
+                                    "snoRNA", "transcribed_processed_pseudogene", "transcribed_unprocessed_pseudogene",
+                                    "translated_processed_pseudogene", "unitary_pseudogene", "unprocessed_pseudogene"
+                                ],
+                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                            },
+                            {
+                                id: "type",
+                                title: "Variant Type",
+                                types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION", "MNV"],
+                                tooltip: "Only considers variants of the selected type"
+                            }
+                        ]
+                    },
+                    {
+                        title: "Population Frequency",
+                        collapsed: true,
+                        subsections: [
+                            {
+                                id: "populationFrequency",
+                                title: "Select Population Frequency",
+                                // tooltip: populationFrequencies.tooltip, // TODO expose common data
+                                showSetAll: true
+                            }
+                        ]
+                    },
+                    {
+                        title: "Consequence Type",
+                        collapsed: true,
+                        subsections: [
+                            {
+                                id: "consequenceType",
+                                title: "Select SO terms",
+                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                            }
+                        ]
+                    },
+                    {
+                        title: "Deleteriousness",
+                        collapsed: true,
+                        subsections: [
+                            {
+                                id: "proteinSubstitutionScore",
+                                title: "Protein Substitution Score",
+                                tooltip: "<strong>SIFT score:</strong> Choose either a Tolerated/Deleterious qualitative score or provide below a " +
+                                        "quantitative impact value. SIFT scores <0.05 are considered deleterious. " +
+                                        "<strong>Polyphen:</strong> Choose, either a Benign/probably damaging qualitative score or provide below a " +
+                                        "quantitative impact value. Polyphen scores can be Benign (<0.15), Possibly damaging (0.15-0.85) or Damaging (>0.85)"
+                            },
+                            {
+                                id: "cadd",
+                                title: "CADD",
+                                tooltip: "Raw values have relative meaning, with higher values indicating that a variant is more likely to be " +
+                                        "simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants " +
+                                        "within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended"
+                            }
+                        ]
+                    },
+                    {
+                        title: "Conservation",
+                        collapsed: true,
+                        subsections: [
+                            {
+                                id: "conservation",
+                                title: "Conservation Score",
+                                tooltip: "<strong>PhyloP</strong> scores measure evolutionary conservation at individual alignment sites. The scores " +
+                                        "are interpreted as follows compared to the evolution expected under neutral drift: positive scores (max 3.0) mean " +
+                                        "conserved positions and negative scores (min -14.0) indicate positive selection. PhyloP scores are useful to " +
+                                        "evaluate signatures of selection at particular nucleotides or classes of nucleotides (e.g., third codon positions, " +
+                                        "or first positions of miRNA target sites).<br>" +
+                                        "<strong>PhastCons</strong> estimates the probability that each nucleotide belongs to a conserved element, based on " +
+                                        "the multiple alignment. The phastCons scores represent probabilities of negative selection and range between 0 " +
+                                        "(non-conserved) and 1 (highly conserved).<br>" +
+                                        "<strong>Genomic Evolutionary Rate Profiling (GERP)</strong> score estimate the level of conservation of positions." +
+                                        " Scores ≥ 2 indicate evolutionary constraint to and ≥ 3 indicate purifying selection."
+                            }
+                        ]
+                    },
+                    {
+                        title: "Gene Ontology",
+                        collapsed: true,
+                        subsections: [
+                            {
+                                id: "go",
+                                title: "GO Accessions (max. 100 terms)",
+                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                            }
+                        ]
+                    },
+                    {
+                        title: "Phenotype-Disease",
+                        collapsed: true,
+                        subsections: [
+                            {
+                                id: "hpo",
+                                title: "HPO Accessions",
+                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                            },
+                            {
+                                id: "clinvar",
+                                title: "ClinVar Accessions",
+                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                            },
+                            {
+                                id: "fullTextSearch",
+                                title: "Full-text search on HPO, ClinVar, protein domains or keywords. Some OMIM and Orphanet IDs are also supported",
+                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                            }
+                        ]
+                    }
+
+                ],
+                examples: [
+                    {
+                        name: "Example BRCA2",
+                        active: false,
+                        query: {
+                            gene: "BRCA2",
+                            conservation: "phylop<0.001"
+                        }
+                    },
+                    {
+                        name: "Example OR11",
+                        query: {
+                            gene: "OR11H1",
+                            conservation: "phylop<=0.001"
+                        }
+                    },
+                    {
+                        name: "Full Example",
+                        query: {
+                            "studies": "exomes_grch37:corpasome;opencga@exomes_grch37:ceph_trio",
+                            "region": "3:444-555",
+                            "xref": "BRCA1,DDEF",
+                            "panel": "Albinism_or_congenital_nystagmus-PanelAppId-511,Amyloidosis-PanelAppId-502",
+                            "biotype": "IG_C_gene,IG_C_pseudogene",
+                            "type": "INDEL",
+                            "ct": "frameshift_variant,incomplete_terminal_codon_variant,inframe_deletion,inframe_insertion,3_prime_UTR_variant,5_prime_UTR_variant,intron_variant,non_coding_transcript_exon_variant,non_coding_transcript_variant",
+                            "populationFrequencyAlt": "1kG_phase3:ALL<1;1kG_phase3:AFR<1;1kG_phase3:AMR<1;1kG_phase3:EAS<1;1kG_phase3:EUR<1;1kG_phase3:SAS<1;GNOMAD_GENOMES:ALL<1;GNOMAD_GENOMES:AFR<1;GNOMAD_GENOMES:AMR<1;GNOMAD_GENOMES:EAS<1;GNOMAD_GENOMES:FIN<1;GNOMAD_GENOMES:NFE<1;GNOMAD_GENOMES:SAS<1",
+                            "protein_substitution": "sift>5,polyphen>4",
+                            "annot-functional-score": "cadd_raw>2,cadd_scaled<4",
+                            "conservation": "phylop>1;phastCons>2;gerp<=3"
+                        }
+                    }
+                ],
+                result: {
+                    grid: {}
+                },
+                detail: []
+            },
+            aggregation: {
+                sections: [
+                    {
+                        name: "terms",
+                        fields: [
+                            {
+                                name: "Chromosome", id: "chromosome", type: "string"
+                            },
+                            {
+                                name: "Studies", id: "studies", type: "string"
+                            },
+                            {
+                                name: "Variant Type", id: "type", type: "string"
+                            },
+                            {
+                                name: "Genes", id: "genes", type: "string"
+                            },
+                            {
+                                name: "Biotypes", id: "biotypes", type: "string"
+                            },
+                            {
+                                name: "Consequence Type", id: "soAcc", type: "string"
+                            }
+                        ]
+                    },
+                    {
+                        name: "Conservation & Deleteriousness Ranges",
+                        fields: [
+                            {
+                                name: "PhastCons", id: "phastCons", defaultValue: "[0..1]:0.1", type: "string"
+                            },
+                            {
+                                name: "PhyloP", id: "phylop", defaultValue: "", type: "string"
+                            },
+                            {
+                                name: "Gerp", id: "gerp", defaultValue: "[-12.3..6.17]:2", type: "string"
+                            },
+                            {
+                                name: "CADD Raw", id: "caddRaw", defaultValue: "", type: "string"
+                            },
+                            {
+                                name: "CADD Scaled", id: "caddScaled", defaultValue: "", type: "string"
+                            },
+                            {
+                                name: "Sift", id: "sift", defaultValue: "[0..1]:0.1", type: "string"
+                            },
+                            {
+                                name: "Polyphen", id: "polyphen", defaultValue: "[0..1]:0.1", type: "string"
+                            }
+                        ]
+                    },
+                    {
+                        name: "Population frequency Ranges",
+                        fields: [
+                            ...this.populationFrequencies.studies.map(study =>
+                                study.populations.map(population => (
+                                    {
+                                        id: `popFreq__${study.id}__${population.id}`,
+                                        value: `popFreq__${study.id}__${population.id}`,
+                                        name: `pop Freq | ${study.id} | ${population.id}`,
+                                        type: "string"
+                                    }
+                                )
+                                )
+                            ).flat()
+                        ]
+                    }
+                ]
+            }
+
         };
     }
 
@@ -879,12 +1149,13 @@ export default class OpencgaVariantFacet extends LitElement {
         ${this.checkProjects ? html`
             <div class="panel" style="margin-bottom: 15px">
                 <h3 style="margin: 10px 10px 10px 15px">
-                    <i class="fas fa-chart-bar" aria-hidden="true"></i>&nbsp;${this._config.title}
+                    <i class="${this._config.icon}" aria-hidden="true"></i>&nbsp;${this._config.title}
                 </h3>
             </div>
 
             <div class="row" style="padding: 0px 10px">
-                <div class="col-md-2">
+                <div class="col-md-2 left-menu">
+                
                     <div class="search-button-wrapper">
                         <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">
                             <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> Run
@@ -899,7 +1170,7 @@ export default class OpencgaVariantFacet extends LitElement {
                         <div role="tabpanel" class="tab-pane" id="facet_tab">
                             <div class="facet-selector">
                                 <label>Select a Term or Range Facet</label>
-                                    <select-field-filter multiple .data="${this._config.fields}" .value=${Object.keys(this.selectedFacet).join(",")} @filterChange="${this.onFacetFieldChange}"></select-field-filter>
+                                    <select-field-filter multiple .data="${this._config.aggregation.sections}" .value=${Object.keys(this.selectedFacet).join(",")} @filterChange="${this.onFacetFieldChange}"></select-field-filter>
                                     <div class="text-center">
                                         <p class="or-text">- or -</p>
                                         <button class="btn btn-default btn-small ripple" @click="${this.addDefaultFacet}">Add default fields</button>
@@ -911,7 +1182,7 @@ export default class OpencgaVariantFacet extends LitElement {
                                 <div class="facet-list panel-group panel-body">
                                     <!-- this.selectedFacet <pre>${JSON.stringify(this.selectedFacet, null, "  ")}</pre> --> 
                                     
-                                    ${Object.keys(this.selectedFacet).length>0 ? Object.entries(this.selectedFacet).map( ([, facet]) => html`
+                                    ${Object.keys(this.selectedFacet).length > 0 ? Object.entries(this.selectedFacet).map(([, facet]) => html`
                                         <div class="facet-box" id="${this._prefix}Heading">
                                             <div class="subsection-content form-group">
                                                 <div class="browser-subsection">${facet.name}
@@ -971,17 +1242,17 @@ export default class OpencgaVariantFacet extends LitElement {
                     
                     <div>
                         <opencga-active-filters facetActive 
-                                                    .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                    .defaultStudy="${this.opencgaSession.study.alias}"
-                                                    .query="${this.preparedQuery}"
-                                                    .refresh="${this.executedQuery}"
-                                                    .facetQuery="${this.selectedFacetFormatted}"
-                                                    .alias="${this.activeFilterAlias}"
-                                                    .config="${this._config.activeFilters}"
-                                                    @activeFacetChange="${this.onActiveFacetChange}"
-                                                    @activeFacetClear="${this.onActiveFacetClear}"
-                                                    @activeFilterChange="${this.onActiveFilterChange}"
-                                                    @activeFilterClear="${this.onActiveFilterClear}">
+                                                .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                                .defaultStudy="${this.opencgaSession.study.alias}"
+                                                .query="${this.preparedQuery}"
+                                                .refresh="${this.executedQuery}"
+                                                .facetQuery="${this.selectedFacetFormatted}"
+                                                .alias="${this.activeFilterAlias}"
+                                                .config="${this._config.activeFilters}"
+                                                @activeFacetChange="${this.onActiveFacetChange}"
+                                                @activeFacetClear="${this.onActiveFacetClear}"
+                                                @activeFilterChange="${this.onActiveFilterChange}"
+                                                @activeFilterClear="${this.onActiveFilterClear}">
                         </opencga-active-filters>
     
                         
@@ -1022,12 +1293,12 @@ export default class OpencgaVariantFacet extends LitElement {
                             <loading-spinner></loading-spinner>
                         </div>
                         ${this.errorState ? html`
-                            <div id="error" style="">
-                                 ${this.errorState}
+                            <div id="error" class="alert alert-danger" role="alert">
+                                ${this.errorState}
                             </div>
                         ` : null}
                         ${this._showInitMessage ? html`` : null}
-    
+
                         ${this.facetResults && this.facetResults.length ? this.facetResults.map(item => html`
                             <div class="facetResultsDiv">
                                 <div>
@@ -1035,26 +1306,10 @@ export default class OpencgaVariantFacet extends LitElement {
                                     <opencga-facet-result-view .facetResult="${item}" .config="${this.facetConfig}" .active="${this.facetActive}"></opencga-facet-result-view>
                                 </div>
                             </div>
-                        `) : null }
+                        `) : null}
                     </div>
                 </div>
             </div>
-
-        <div class="modal fade" id="${this._prefix}LoadingModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
-             role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>Loading ...</h3>
-                    </div>
-                    <div class="modal-body">
-                        <div class="progress progress-striped active">
-                            <div class="progress-bar progress-bar-success" style="width: 100%"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
         ` : html`
             <span style="text-align: center"><h3>No public projects available to browse. Please login to continue</h3></span>
         `}

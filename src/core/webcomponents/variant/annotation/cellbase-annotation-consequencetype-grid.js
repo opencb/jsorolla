@@ -331,10 +331,9 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
 
     render() {
         return html`
-            <div style="padding: 10px; ">
+            <div style="padding: 10px;">
                 <table id="${this._prefix}ConsequenceTypeTable" data-search="true" data-show-columns="true" data-pagination="true"
                        data-page-list="[10, 25, 50]" data-show-pagination-switch="true" data-show-export="true" data-icons-prefix="fa" data-icons="icons">
-                    <thead style="background-color: #eee"></thead>
                 </table>
             </div>
         `;

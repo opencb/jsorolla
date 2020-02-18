@@ -38,7 +38,7 @@ export default class ConsequenceTypeFilter extends LitElement {
                 type: Object
             },
             ct: {
-                type: Object
+                type: String
             }
         };
     }
@@ -46,6 +46,11 @@ export default class ConsequenceTypeFilter extends LitElement {
     _init() {
         this._prefix = "ctf-" + Utils.randomString(6) + "_";
         this.selectedCt = [];
+        $("select.selectpicker", this).selectpicker("render");
+        $('.select.selectpicker', this).on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+            console.log(e,clickedIndex,isSelected,previousValue)
+        });
+
     }
 
     updated(_changedProperties) {
@@ -60,7 +65,7 @@ export default class ConsequenceTypeFilter extends LitElement {
     }
 
     filterChange(e) {
-        const ct = this.ct ? this.ct.join(",") : null;
+        const ct = this.ct ? this.ct : null;
         console.log("filterChange", ct);
         const event = new CustomEvent("filterChange", {
             detail: {
@@ -72,13 +77,14 @@ export default class ConsequenceTypeFilter extends LitElement {
 
     clearSelection() {
         $("input[type=checkbox]", this).prop("checked", false);
-        this.ct = [];
+        this.ct = "";
         this.filterChange();
     }
 
     onChange(e) {
         // TODO refactor!
         const lofCheckBox = this.querySelector("#" + this._prefix + "LossOfFunctionCheckBox");
+        console.log("e.currentTarget", e.currentTarget.id)
         if (e.currentTarget.id === this._prefix + "LossOfFunctionCheckBox") {
             for (const ct of this.consequenceTypes.lof) {
                 const checkbox = this.querySelector("#" + this._prefix + ct + "Checkbox");
@@ -87,9 +93,11 @@ export default class ConsequenceTypeFilter extends LitElement {
                 }
             }
         }
+
+        console.log("currentTarget.dataset.category",e.currentTarget.dataset.category)
         // Select/Unselect the items from one category
-        if (e.target.parentNode.parentNode.id !== "") {
-            $("#" + e.target.parentNode.parentNode.id + " ul li input").each(function() {
+        if (e.currentTarget.dataset.category) {
+            $("#" + e.currentTarget.dataset.category + " ul li input").each(function() {
                 $(this).prop("checked", e.target.checked);
             });
         }
@@ -107,7 +115,8 @@ export default class ConsequenceTypeFilter extends LitElement {
             }
         });
 
-        this.ct = soTerms;
+        this.ct = soTerms.join(",");
+        this.selectedCt = soTerms;
         this.filterChange();
 
         // TODO onSelect an item, this refers to the whole category and to the the title of the category
@@ -121,37 +130,37 @@ export default class ConsequenceTypeFilter extends LitElement {
         return html`
             <style>
                 .browser-ct-tree-view ul > li > ul label {
-                font-weight: normal;
+                    font-weight: normal;
+                }
+                consequence-type-filter label:not(.category){
+                    text-decoration: underline;
                 }
             </style>
-            <button class="btn" @click="${this.clearSelection}">clear</button> 
+            <button class="btn btn-sm" @click="${this.clearSelection}">clear</button>
             <div style="padding-top: 15px">Loss-of-Function (LoF) terms:</div>
             <div class="form-check" style="margin-top: 5px;">
-                <div class="form-check-label">
-                    <label id="${this._prefix}LossOfFunctionCheckBoxLabel" class="notbold">
-                        <input id="${this._prefix}LossOfFunctionCheckBox" type="checkbox" class="${this._prefix}FilterCheckBox"
+                <div class="form-check-label checkbox-container">
+                    <input id="${this._prefix}LossOfFunctionCheckBox" type="checkbox" class="${this._prefix}FilterCheckBox"
                                style="cursor: pointer" @change="${this.onChange}"/>
-                        LoF terms
-                    </label>
+                    <label for="${this._prefix}LossOfFunctionCheckBox" class="">LoF terms</label>
                 </div>
             </div>
             <div style="padding-top: 15px">Consequence Type terms:</div>
             <div class="browser-ct-tree-view browser-ct-item">
-                <ul id="${this._prefix}consequenceTypeFilter">
+                <ul id="${this._prefix}consequenceTypeFilter" class="checkbox-container">
                     ${this.consequenceTypes.categories && this.consequenceTypes.categories.length && this.consequenceTypes.categories.map(category => html`
                         <li id="${category.title ? category.title : category.name}" class="form-check" style="margin-top: 10px;">
                             ${category.terms && category.terms.length ? html`
-                                <label class="form-check-label notbold">
-                                    <input id="${this._prefix}${category.title}Input" type="checkbox" class="${this._prefix}FilterCheckBox" @change="${this.onChange}"> ${category.title}
-                                </label>
+                                <input id="${this._prefix}${category.title}Input" type="checkbox" class="${this._prefix}FilterCheckBox" data-category="${category.title}" @change="${this.onChange}">
+                                <label for="${this._prefix}${category.title}Input" class="form-check-label category">${category.title}</label>
                                 <ul>
                                     ${category.terms.map(item => html`
                                     <li class="form-check">
-                                        <label class="form-check-label notbold">
-                                            <input id="${this._prefix}${item.name}Checkbox" type="checkbox" data-id="${item.name}"
-                                                   class="soTermCheckBox ${this._prefix}FilterCheckBox" @change="${this.onChange}" .checked="${~this.selectedCt.indexOf(item.name)}">
+                                        <input id="${this._prefix}${item.name}Checkbox" type="checkbox" data-id="${item.name}"
+                                                   class="soTermCheckBox ${this._prefix}FilterCheckBox" @change="${this.onChange}">
+                                        <label for="${this._prefix}${item.name}Checkbox" class="form-check-label notbold" style="text-decoration-color: ${this.consequenceTypes.color[item.impact]}">
                                             <span title="${item.description}">
-                                            ${item.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${item.id}" target="_blank">${item.id}</a>)
+                                                ${item.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${item.id}" target="_blank">${item.id}</a>)
                                             </span>
                                         </label>
                                     </li>
@@ -160,10 +169,12 @@ export default class ConsequenceTypeFilter extends LitElement {
                                 ` : html`
                                     <input id="${this._prefix}${category.name}Checkbox" type="checkbox"
                                         data-id="${category.name}" class="soTermCheckBox ${this._prefix}FilterCheckBox" @change="${this.onChange}">
-                                    <span title="${category.description}">
-                                        ${category.name}
-                                        (<a href="http://www.sequenceontology.org/browser/current_svn/term/${category.id}" target="_blank">${category.id}</a>)
-                                    </span>
+                                    <label for="${this._prefix}${category.name}Checkbox" style="text-decoration-color: ${this.consequenceTypes.color[category.impact]}">
+                                        <span title="${category.description}">
+                                            ${category.name}
+                                            (<a href="http://www.sequenceontology.org/browser/current_svn/term/${category.id}" target="_blank">${category.id}</a>)
+                                        </span>
+                                    </label>
                                 `}
                             </li>
                     `)}

@@ -128,152 +128,160 @@ export default class OpencgaSamplesFacet extends LitElement {
             name: "Aggregation for Sample",
             active: false,
             icon: `fas fa-chart-bar`,
-            endpoint: this.opencgaSession.opencgaClient.samples(),
-            fields: [
-                {id: "gerp", name: "Gerp", type: "integer", defaultValue: "0:1:01"},
-                //{name: "Pop Freqs_", category: true},
-                {
-                    name: "Pop Freqs", fields: [
-                        {id: "Pop Freqs name", name: "PopFreqsName", type: "string"},
-                        {id: "Pop Freqs format", name: "PopFreqsFormat", type: "string"}
-                    ]
+            aggregation: {
+                default: [],
+                result: {
+                    numColumns: 2
                 },
-                {
-                    "name": "study",
-                    "param": "query",
-                    "type": "string",
-                    "allowedValues": "",
-                    "required": false,
-                    "defaultValue": "ssss",
-                    "description": "Study [[user@]project:]study where study and project can be either the ID or UUID"
-                },
-                {
-                    "name": "source",
-                    "param": "query",
-                    "type": "string",
-                    "allowedValues": "",
-                    "required": false,
-                    "defaultValue": "",
-                    "description": "Source"
-                },
-                {
-                    "name": "creationYear",
-                    "param": "query",
-                    "type": "string",
-                    "allowedValues": "",
-                    "required": false,
-                    "defaultValue": "",
-                    "description": "Creation year"
-                },
-                {
-                    "name": "creationMonth",
-                    "param": "query",
-                    "type": "string",
-                    "allowedValues": "",
-                    "required": false,
-                    "defaultValue": "",
-                    "description": "Creation month (JANUARY, FEBRUARY...)"
-                },
-                {
-                    "name": "creationDay",
-                    "param": "query",
-                    "type": "string",
-                    "allowedValues": "",
-                    "required": false,
-                    "defaultValue": "",
-                    "description": "Creation day"
-                },
-                {
-                    "name": "creationDayOfWeek",
-                    "param": "query",
-                    "type": "string",
-                    "allowedValues": "",
-                    "required": false,
-                    "defaultValue": "",
-                    "description": "Creation day of week (MONDAY, TUESDAY...)"
-                },
-                {
-                    "name": "status",
-                    "param": "query",
-                    "type": "string",
-                    "allowedValues": "",
-                    "required": false,
-                    "defaultValue": "",
-                    "description": "Status"
-                },
-                {
-                    "name": "type",
-                    "param": "query",
-                    "type": "string",
-                    "allowedValues": "",
-                    "required": false,
-                    "defaultValue": "",
-                    "description": "Type"
-                },
-                {
-                    "name": "phenotypes",
-                    "param": "query",
-                    "type": "string",
-                    "allowedValues": "",
-                    "required": false,
-                    "defaultValue": "",
-                    "description": "Phenotypes"
-                },
-                {
-                    "name": "release",
-                    "param": "query",
-                    "type": "string",
-                    "allowedValues": "",
-                    "required": false,
-                    "defaultValue": "",
-                    "description": "Release"
-                },
-                {
-                    "name": "version",
-                    "param": "query",
-                    "type": "string",
-                    "allowedValues": "",
-                    "required": false,
-                    "defaultValue": "",
-                    "description": "Version"
-                },
-                {
-                    "name": "somatic",
-                    "param": "query",
-                    "type": "boolean",
-                    "allowedValues": "",
-                    "required": false,
-                    "defaultValue": "",
-                    "description": "Somatic"
-                },
-                {
-                    "name": "annotation",
-                    "param": "query",
-                    "type": "string",
-                    "allowedValues": "",
-                    "required": false,
-                    "defaultValue": "",
-                    "description": "Annotation, e.g: key1=value(,key2=value)"
-                },
-                {
-                    "name": "default",
-                    "param": "query",
-                    "type": "boolean",
-                    "allowedValues": "",
-                    "required": false,
-                    "defaultValue": "false",
-                    "description": "Calculate default stats"
-                },
-                {
-                    "name": "field",
-                    "param": "query",
-                    "type": "string",
-                    "allowedValues": "",
-                    "required": false,
-                    "defaultValue": "",
-                    "description": "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
-                }
-            ],
+                sections: [
+                    {
+                        name: "Section Title",
+                        // collapsed: false,
+                        fields: [
+                            {
+                                id: "study",
+                                name: "study",
+                                param: "query",
+                                type: "string",
+                                allowedValues: "",
+                                required: false,
+                                defaultValue: "ssss",
+                                description: "Study [[user@]project:]study where study and project can be either the ID or UUID"
+                            },
+                            {
+                                id: "source",
+                                name: "source",
+                                param: "query",
+                                type: "string",
+                                allowedValues: "",
+                                required: false,
+                                defaultValue: "",
+                                description: "Source"
+                            },
+                            {
+                                id: "creationYear",
+                                name: "creationYear",
+                                param: "query",
+                                type: "string",
+                                allowedValues: "",
+                                required: false,
+                                defaultValue: "",
+                                description: "Creation year"
+                            },
+                            {
+                                id: "creationMonth",
+                                name: "creationMonth",
+                                param: "query",
+                                type: "string",
+                                allowedValues: "",
+                                required: false,
+                                defaultValue: "",
+                                description: "Creation month (JANUARY, FEBRUARY...)"
+                            },
+                            {
+                                id: "creationDay",
+                                name: "creationDay",
+                                param: "query",
+                                type: "string",
+                                allowedValues: "",
+                                required: false,
+                                defaultValue: "",
+                                description: "Creation day"
+                            },
+                            {
+                                id: "creationDayOfWeek",
+                                name: "creationDayOfWeek",
+                                param: "query",
+                                type: "string",
+                                allowedValues: "",
+                                required: false,
+                                defaultValue: "",
+                                description: "Creation day of week (MONDAY, TUESDAY...)"
+                            },
+                            {
+                                id: "status",
+                                name: "status",
+                                param: "query",
+                                type: "string",
+                                allowedValues: "",
+                                required: false,
+                                defaultValue: "",
+                                description: "Status"
+                            },
+                            {
+                                id: "type",
+                                name: "type",
+                                param: "query",
+                                type: "string",
+                                allowedValues: "",
+                                required: false,
+                                defaultValue: "",
+                                description: "type"
+                            },
+                            {
+                                id: "phenotypes",
+                                name: "phenotypes",
+                                param: "query",
+                                type: "string",
+                                allowedValues: "",
+                                required: false,
+                                defaultValue: "",
+                                description: "Phenotypes"
+                            },
+                            {
+                                id: "release",
+                                name: "release",
+                                param: "query",
+                                type: "string",
+                                allowedValues: "",
+                                required: false,
+                                defaultValue: "",
+                                description: "Release"
+                            },
+                            {
+                                id: "version",
+                                name: "version",
+                                param: "query",
+                                type: "string",
+                                allowedValues: "",
+                                required: false,
+                                defaultValue: "",
+                                description: "Version"
+                            },
+                            {
+                                id: "somatic",
+                                name: "somatic",
+                                param: "query",
+                                type: "boolean",
+                                allowedValues: "",
+                                required: false,
+                                defaultValue: "",
+                                description: "Somatic"
+                            },
+                            {
+                                id: "annotation",
+                                name: "annotation",
+                                param: "query",
+                                type: "string",
+                                allowedValues: "",
+                                required: false,
+                                defaultValue: "",
+                                description: "Annotation, e.g: key1=value(,key2=value)"
+                            },
+                            {
+                                id: "field",
+                                name: "field",
+                                param: "query",
+                                type: "string",
+                                allowedValues: "",
+                                required: false,
+                                defaultValue: "",
+                                description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
+                            }
+                        ]
+                    }
+                ]
+            },
             annotations: {}
         };
     }

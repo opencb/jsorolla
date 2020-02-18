@@ -87,8 +87,8 @@ export default class OpencgaPanelTranscriptView extends LitElement {
         // We add this listener to receive any future change over the selected genes
         $(`#${this._prefix}-geneSelect`).on("changed.bs.select", this.onGeneChange.bind(this));
 
-        $("select.selectpicker").selectpicker("render");
-        $("select.selectpicker").selectpicker({
+        $("select.selectpicker", this).selectpicker("render");
+        $("select.selectpicker", this).selectpicker({
             iconBase: "fa",
             tickIcon: "fa-check"
         });

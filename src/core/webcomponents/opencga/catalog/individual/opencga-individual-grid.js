@@ -820,9 +820,8 @@ export default class OpencgaIndividualGrid extends LitElement {
                              @columnchange="${this.onColumnChange}">
         </opencb-grid-toolbar>
 
-        <div id="${this._prefix}GridTableDiv" style="margin-top: 10px">
+        <div id="${this._prefix}GridTableDiv">
             <table id="${this._prefix}IndividualBrowserGrid">
-                <thead style="background-color: #eee"></thead>
             </table>
         </div>
         `;

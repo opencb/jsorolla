@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+//TODO urgent review of the whole class
+
 class VariantGridFormatter {
 
     constructor(opencgaSession, config) {
@@ -292,7 +294,7 @@ class VariantGridFormatter {
 
     consequenceTypeDetailFormatter(value, row, variantGrid) {
         if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
-            let ctHtml = `<table id="{{prefix}}ConsqTypeTable" class="table table-hover table-no-bordered">
+            let ctHtml = `<table id="ConsqTypeTable" class="table table-hover table-no-bordered">
                                 <thead>
                                     <tr>
                                         <th rowspan="2">Gene Name</th>
@@ -661,7 +663,7 @@ class VariantGridFormatter {
                 selectColumnHtml = "<th rowspan=\"2\">Select</th>";
             }
 
-            let ctHtml = `<table id="{{prefix}}ConsqTypeTable" class="table table-hover table-no-bordered">
+            let ctHtml = `<table id="ConsqTypeTable" class="table table-hover table-no-bordered">
                                 <thead>
                                     <tr>
                                         <th rowspan="2">Gene</th>
@@ -743,7 +745,7 @@ class VariantGridFormatter {
                 }
 
 
-                
+
                 let transcriptId = "NA";
                 if (UtilsNew.isNotEmpty(re.genomicFeature.transcriptId)) {
                     let biotype = "NA";
@@ -783,7 +785,7 @@ class VariantGridFormatter {
                         }
                     }
                 }
-                
+
 
                 let soArray = [];
                 if (UtilsNew.isNotEmptyArray(re.consequenceTypes)) {

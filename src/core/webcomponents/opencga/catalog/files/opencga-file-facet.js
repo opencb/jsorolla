@@ -159,9 +159,7 @@ export default class OpencgaFileFacet extends LitElement {
                 result: {
                     grid: {}
                 },
-                detail: [
-
-                ],
+                detail: []
             },
             aggregation: {
                 default: ["gerp", "study>>bioformat"],
@@ -170,72 +168,32 @@ export default class OpencgaFileFacet extends LitElement {
                 },
                 sections: [
                     {
-                        title: "Section Title",
+                        name: "Section Title",
                         // collapsed: false,
                         fields: [
-                            {
-                                id: "cattype",
-                                name: "category Type",
-                                description: "",
-                                type: "category",
-                                allowedValues: ["JAN", "FEB", "MAR"],
-                                defaultValue: "JAN,FEB"
-                            },
-                            {id: "stringtype", name: "string Type", type: "string", defaultValue: "deff"},
-                            {id: "numtype", name: "number Type", type: "integer", defaultValue: 2},
+                            {id: "study", name: "Study", type: "string"},
+                            {id: "name", name: "Name", type: "string"},
+                            {id: "type", name: "Type", type: "string"},
+                            {id: "format", name: "Format", type: "string"},
+                            {id: "bioformat", name: "Bioformat", type: "string"},
+                            {id: "creationYear", name: "CreationYear", type: "category", allowedValues: ["2020", "2019"]},
+                            {id: "creationDay", name: "CreationDay", type: "string"},
+                            {id: "creationDayOfWeek", name: "CreationDayOfWeek", type: "string"},
+                            {id: "creationMonth", name: "creationMonth", type: "category", values: ["JAN", "FEB", "MAR"]},
+                            {id: "status", name: "Status", type: "string"},
+                            {id: "release", name: "Release", type: "string"},
+                            {id: "external", name: "External", type: "string"},
+                            {id: "size", name: "Size", type: "float"},
+                            {id: "software", name: "Software", type: "string"},
+                            {id: "experiment", name: "Experiment", type: "string"},
+                            {id: "numSamples", name: "NumSamples", type: "string"},
+                            {id: "numRelatedFiles", name: "NumRelatedFiles", type: "string"},
+                            {id: "annotation", name: "Annotation", type: "string"},
+                            {id: "field", name: "Field", type: "string"}
                         ]
-                    },
-                ],
-                // fields: {
-                //
-                //
-                //     sections: [
-                //         {
-                //             title: "Section Title",
-                //             collapsed: false,
-                //             fields: [
-                //                 {id: "cattype", name: "category Type", type: "category", allowedValues: ["JAN", "FEB", "MAR"], defaultValue: "JAN,FEB"},
-                //                 {id: "stringtype", name: "string Type", type: "string", defaultValue: "deff"},
-                //                 {id: "numtype", name: "number Type", type: "integer", defaultValue: 2},
-                //             ]
-                //         },
-                //         {id: "cattype", name: "category Type", type: "category", allowedValues: ["JAN", "FEB", "MAR"], defaultValue: "JAN,FEB"},
-                //         {id: "stringtype", name: "string Type", type: "string", defaultValue: "deff"},
-                //         {id: "numtype", name: "number Type", type: "integer", defaultValue: 2},
-                //
-                //         {id: "gerp", name: "Gerp", type: "double", defaultValue: "0:1:0.1"},
-                //         // this is a category
-                //         {
-                //             name: "Pop Freqs", fields: [
-                //                 {id: "PopFreqsname", name: "Pop Freqs Name", type: "string", disabled: true},
-                //                 {id: "PopFreqsformat", name: "Pop Freqs Format", type: "string"}
-                //             ]
-                //         },
-                //         {id: "gerp1", name: "Gerp1", type: "categorical", defaultValue: "0:1:01"},
-                //         {id: "gerp2", name: "Gerp2", type: "range", defaultValue: "0:1:01"},
-                //         {id: "study", name: "Study", type: "string", defaultValue: "defStudy"},
-                //         {id: "name", name: "Name", type: "string"},
-                //         {id: "type", name: "Type", type: "string"},
-                //         {id: "format", name: "Format", type: "string"},
-                //         {id: "bioformat", name: "Bioformat", type: "string"},
-                //         {id: "creationYear", name: "CreationYear", type: "category", allowedValues: ["2020", "2019"]},
-                //         {id: "creationDay", name: "CreationDay", type: "string"},
-                //         {id: "creationDayOfWeek", name: "CreationDayOfWeek", type: "string"},
-                //         {id: "creationMonth", name: "creationMonth", type: "category", values: ["JAN", "FEB", "MAR"], defaultValue: "JAN,FEB"},
-                //         {id: "status", name: "Status", type: "string"},
-                //         {id: "release", name: "Release", type: "string"},
-                //         {id: "external", name: "External", type: "string"},
-                //         {id: "size", name: "Size", type: "string"},
-                //         {id: "software", name: "Software", type: "string"},
-                //         {id: "experiment", name: "Experiment", type: "string"},
-                //         {id: "numSamples", name: "NumSamples", type: "string"},
-                //         {id: "numRelatedFiles", name: "NumRelatedFiles", type: "string"},
-                //         {id: "annotation", name: "Annotation", type: "string"},
-                //         {id: "default", name: "Default", type: "string"},
-                //         {id: "field", name: "Field", type: "string"}
-                //     ],
-                // },
-            },
+                    }
+                ]
+            }
         };
     }
 
