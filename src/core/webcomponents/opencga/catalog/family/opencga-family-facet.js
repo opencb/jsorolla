@@ -122,14 +122,66 @@ export default class OpencgaFamilyFacet extends LitElement {
     }
 
     getDefaultConfig() {
-
         return {
-            title: "Aggregation Stats for Family",
-            name: "Aggregation for Family",
-            active: false,
-            icon: `fas fa-chart-bar`,
+            title: "Family Browser",
+            icon: "fas fa-chart-bar",
+            showTitle: true,
+            showAggregationStats: true,
+            showComparator: true,
+            filter: {
+                sections: [
+                    {
+                        title: "Section title",
+                        collapsed: false,
+                        fields: [
+                            {
+                                id: "id",
+                                name: "Family ID",
+                                type: "string",
+                                placeholder: "LP-1234,LP-2345...",
+                                description: ""
+                            },
+                            {
+                                id: "members",
+                                name: "Members",
+                                type: "string",
+                                placeholder: "HG01879, HG01880, HG01881...",
+                                description: ""
+                            },
+                            {
+                                id: "phenotypes",
+                                name: "Phenotypes",
+                                placeholder: "Full-text search, e.g. *melanoma*",
+                                description: ""
+                            },
+                            {
+                                id: "annotations",
+                                name: "Family Annotations",
+                                description: ""
+                            },
+                            {
+                                id: "date",
+                                name: "Date",
+                                description: ""
+                            }
+                        ]
+                    }
+                ],
+                activeFilters: {
+                    complexFields: ["annotation"]
+                },
+                grid: {
+                    pageSize: 10,
+                    pageList: [10, 25, 50],
+                    detailView: true,
+                    multiSelection: false
+                },
+                familyDetail: {
+                    showTitle: false
+                }
+            },
             aggregation: {
-                default: [],
+                default: ["study"],
                 result: {
                     numColumns: 2
                 },
@@ -138,127 +190,97 @@ export default class OpencgaFamilyFacet extends LitElement {
                         name: "section title",
                         fields: [
                             {
+                                id: "study",
                                 name: "study",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "Study [[user@]project:]study where study and project can be either the ID or UUID"
                             },
                             {
+                                id: "creationYear",
                                 name: "creationYear",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "Creation year"
                             },
                             {
+                                id: "creationMonth",
                                 name: "creationMonth",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "Creation month (JANUARY, FEBRUARY...)"
                             },
                             {
+                                id: "creationDay",
                                 name: "creationDay",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "Creation day"
                             },
                             {
+                                id: "creationDayOfWeek",
                                 name: "creationDayOfWeek",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "Creation day of week (MONDAY, TUESDAY...)"
                             },
                             {
+                                id: "status",
                                 name: "status",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "Status"
                             },
                             {
+                                id: "phenotypes",
                                 name: "phenotypes",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "Phenotypes"
                             },
                             {
+                                id: "release",
                                 name: "release",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "Release"
                             },
                             {
+                                id: "version",
                                 name: "version",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "Version"
                             },
                             {
+                                id: "numMembers",
                                 name: "numMembers",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "Number of members"
                             },
                             {
+                                id: "expectedSize",
                                 name: "expectedSize",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "Expected size"
                             },
                             {
+                                id: "annotation",
                                 name: "annotation",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "Annotation, e.g: key1=value(,key2=value)"
                             },
                             {
+                                id: "field",
                                 name: "field",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
                             }
                         ]
                     }
                 ]
             },
-            annotations: {}
+            annotations: {},
+
+            // TODO recheck
+            variableSetIds: [],
+            gridComparator: {
+                pageSize: 5,
+                pageList: [5, 10],
+                detailView: true,
+                multiSelection: true
+            }
         };
     }
 

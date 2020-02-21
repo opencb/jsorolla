@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "../variableSets/opencga-annotation-filter.js";
 import "../opencga-date-filter.js";
-//import "../../../commons/filters/text-field-filter.js";
+// import "../../../commons/filters/text-field-filter.js";
 
 export default class OpencgaFileFilter extends LitElement {
 
@@ -78,19 +78,20 @@ export default class OpencgaFileFilter extends LitElement {
             inputClass: "input-sm"
         };
 
+        //remove this, move into date-filter
         this.dateFilterConfig = {
             recentDays: 10
         };
         this.minYear = 1920;
         this.query = {};
         this.preparedQuery = {};
-        this.searchButton = true
+        this.searchButton = true;
 
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this.preparedQuery = {...this.query} // propagates here the iva-app query object
+        this.preparedQuery = {...this.query}; // propagates here the iva-app query object
     }
 
     updated(changedProperties) {
@@ -103,7 +104,7 @@ export default class OpencgaFileFilter extends LitElement {
     }
 
     onSearch() {
-        //this.search = {...this.query};
+        // this.search = {...this.query};
         this.notifySearch(this.preparedQuery);
     }
 
@@ -143,21 +144,21 @@ export default class OpencgaFileFilter extends LitElement {
 
     queryObserver() {
         if (this._reset) {
-            console.log("queryObserver: calling to 'renderQueryFilters()'", this.query, "discriminator",this.discriminator);
+            console.log("queryObserver: calling to 'renderQueryFilters()'", this.query, "discriminator", this.discriminator);
             this.preparedQuery = this.query;
-            //this.renderQueryFilters();
-            this.requestUpdate()
+            // this.renderQueryFilters();
+            this.requestUpdate();
         } else {
             this._reset = true;
         }
     }
-
-    //TODO refactor!
+    /*
+    // TODO refactor!
     renderQueryFilters() {
         // Empty everything before rendering
         this._clearHtmlDom();
 
-        console.log(this.querySelector(`${this._prefix}-name-input`))
+        console.log(this.querySelector(`${this._prefix}-name-input`));
         // File name
         if (UtilsNew.isNotUndefined(this.query.name)) {
             PolymerUtils.setValue(`${this._prefix}-name-input`, this.query.name);
@@ -183,9 +184,9 @@ export default class OpencgaFileFilter extends LitElement {
             PolymerUtils.setValue(`${this._prefix}-bioformat-input`, this.query.bioformat);
         }
         this.requestUpdate();
-    }
+    }*/
 
-/*    filterChanged(e) {
+    /*    filterChanged(e) {
         console.log(e.target.name, e.target.value.trim());
         if (e.target.value.trim()) {
             this.query[e.target.name] = e.target.value.trim();
@@ -195,22 +196,22 @@ export default class OpencgaFileFilter extends LitElement {
         console.log(this.query)
     }*/
     onFilterChange(key, value) {
-        console.log("filterChange", {[key]:value});
+        console.log("filterChange", {[key]: value});
         if (value && value !== "") {
             this.preparedQuery = {...this.preparedQuery, ...{[key]: value}};
         } else {
-            console.log("deleting", key, "from preparedQuery")
+            console.log("deleting", key, "from preparedQuery");
             delete this.preparedQuery[key];
             this.preparedQuery = {...this.preparedQuery};
         }
         this.notifyQuery(this.preparedQuery);
-        this.requestUpdate()
+        this.requestUpdate();
     }
 
     notifyQuery(query) {
         this.dispatchEvent(new CustomEvent("queryChange", {
             detail: {
-                query: query,
+                query: query
             },
             bubbles: true,
             composed: true
@@ -220,57 +221,60 @@ export default class OpencgaFileFilter extends LitElement {
     notifySearch(query) {
         this.dispatchEvent(new CustomEvent("querySearch", {
             detail: {
-                query: query,
+                query: query
             },
             bubbles: true,
             composed: true
         }));
     }
 
-    /*calculateFilters(e) {
-        const _query = {};
+    _createSection(section) {
+        const htmlFields = section.fields && section.fields.length && section.fields.map(subsection => this._createSubSection(subsection));
+        return this.config.sections.length > 1 ? html`<section-filter .config="${section}" .filters="${htmlFields}">` : htmlFields;
+    }
 
-        const name = PolymerUtils.getValue(`${this._prefix}-name-input`);
-        if (UtilsNew.isNotEmpty(name)) {
-            _query.name = name;
+    _createSubSection(subsection) {
+        let content = "";
+        switch (subsection.id) {
+            case "name":
+            case "path":
+            case "sample":
+            case "bioformat":
+                content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
+                break;
+            case "format":
+                content = html`<select-field-filter multiple .value="${this.preparedQuery.format}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange("format", e.detail.value)}"></select-field-filter>`;
+                break;
+            case "annotations":
+                if (!this.variableSet || !this.variableSet.length) return;
+                content = html`<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
+                                                          .config="${this.annotationFilterConfig}"
+                                                          entity="FILE"
+                                                          @filterannotation="${this.addAnnotation}">
+                                    </opencga-annotation-filter>`;
+                break;
+            case "date":
+                content = html`<opencga-date-filter .config="${this.dateFilterConfig}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>`;
+                break;
+            default:
+                console.error("Filter component not found");
         }
 
-        const path = PolymerUtils.getValue(`${this._prefix}-path-input`);
-        if (UtilsNew.isNotEmpty(path)) {
-            _query.path = path;
-        }
+        return html`
+                    <div class="form-group">
+                        <div class="browser-subsection" id="${subsection.id}">${subsection.name}
+                            ${subsection.description ? html`
+                                <div class="tooltip-div pull-right">
+                                    <a><i class="fa fa-info-circle" aria-hidden="true" id="${this._prefix}${subsection.id}Tooltip"></i></a>
+                                </div>` : null }
+                        </div>
+                        <div id="${this._prefix}${subsection.id}" class="subsection-content">
+                            ${content}
+                         </div>
+                    </div>
+                `;
+    }
 
-        const sample = PolymerUtils.getValue(`${this._prefix}-sample-input`);
-        if (UtilsNew.isNotEmpty(sample)) {
-            _query.samples = sample;
-        }
-
-        const format = PolymerUtils.getValue(`${this._prefix}-format-input`);
-        if (UtilsNew.isNotEmpty(format)) {
-            _query.format = format;
-        }
-
-        const bioformat = PolymerUtils.getValue(`${this._prefix}-bioformat-input`);
-        if (UtilsNew.isNotEmpty(bioformat)) {
-            _query.bioformat = bioformat;
-        }
-
-        // keep annotation filter
-        if (UtilsNew.isNotEmpty(this.query.annotation)) {
-            _query.annotation = this.query.annotation;
-        }
-
-        // keep date filters
-        if (UtilsNew.isNotEmpty(this.query.creationDate)) {
-            _query.creationDate = this.query.creationDate;
-        }
-
-        // To prevent to call renderQueryFilters we set this to false
-        this._reset = false;
-        this.query = _query;
-        console.log("this.query", this.query);
-        this._reset = true;
-    }*/
 
     /**
      * Use custom CSS class to easily reset all controls.
@@ -359,7 +363,7 @@ export default class OpencgaFileFilter extends LitElement {
                 font-weight: normal;
             }
             .bootstrap-select {
-                width: 100%!important;
+                width: 100% !important;
             }
         </style>
 
@@ -375,103 +379,8 @@ export default class OpencgaFileFilter extends LitElement {
 
             <!-- File field attributes -->
             <div class="">
-                
-                <!-- panel title
-                <div class="panel-heading" role="tab" id="${this._prefix}FileSelectionHeading">
-                    <h4 class="panel-title">
-                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
-                           href="#${this._prefix}FileSelection" aria-expanded="true" aria-controls="${this._prefix}FileSelection">
-                            File
-                        </a>
-                    </h4>
-                </div> -->
-
-                <div id="${this._prefix}FileSelection" class="panel-collapse collapse in" role="tabpanel"
-                     aria-labelledby="${this._prefix}FileSelectionHeading">
-                    <div class="panel-body">
-
-                        <div class="form-group">
-                            <div class="browser-subsection">Name
-                            </div>
-                            <div id="${this._prefix}-name" class="subsection-content form-group">
-                               <!-- <input type="text" id="${this._prefix}-name-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="accepted_hits.bam, phenotypes.vcf..." name="name" @input="${this.filterChanged}"> -->
-                                <text-field-filter placeholder="accepted_hits.bam, phenotypes.vcf..." .value="${this.preparedQuery.name}" @filterChange="${e => this.onFilterChange("name", e.detail.value)}"></text-field-filter>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="browser-subsection">Path
-                            </div>
-                            <div id="${this._prefix}-path" class="subsection-content form-group">
-                                <!--<input type="text" id="${this._prefix}-path-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="genomes/resources/files/..." name="path" @input="${this.filterChanged}"> -->
-                                <text-field-filter placeholder="genomes/resources/files/..." .value="${this.preparedQuery.path}" @filterChange="${e => this.onFilterChange("path", e.detail.value)}"></text-field-filter>
-
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="browser-subsection">Sample
-                            </div>
-                            <div id="${this._prefix}-sample" class="subsection-content form-group">
-                                <!--<input type="text" id="${this._prefix}-sample-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="HG01879, HG01880, HG01881..." name="sample" @input="${this.calculateFilters}"> -->
-                                <text-field-filter placeholder="HG01879, HG01880, HG01881..." .value="${this.preparedQuery.sample}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></text-field-filter>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="browser-subsection">Format
-                            </div>
-                            <div id="${this._prefix}-format" class="subsection-content form-group">
-                                <select-field-filter multiple .value="${this.preparedQuery.format}" .data="${["VCF", "BCF", "GVCF", "TBI", "BIGWIG", "SAM", "BAM", "BAI", "CRAM", "CRAI", "FASTQ", "FASTA", "PED", "TAB_SEPARATED_VALUES", "COMMA_SEPARATED_VALUES", "XML", "PROTOCOL_BUFFER", "JSON", "AVRO", "PARQUET", "IMAGE", "PLAIN", "BINARY", "EXECUTABLE", "GZIP", "NONE", "UNKNOWN"]}" @filterChange="${e => this.onFilterChange("format", e.detail.value)}"></select-field-filter>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="browser-subsection">Bioformat
-                            </div>
-                            <div id="${this._prefix}-bioformat" class="subsection-content form-group">
-                                <!--<input type="text" id="${this._prefix}-bioformat-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="ALIGNMENT,VARIANT..." name="bioformat" @input="${this.calculateFilters}"> -->
-                                <text-field-filter placeholder="ALIGNMENT,VARIANT..." .value="${this.preparedQuery.bioformat}" @filterChange="${e => this.onFilterChange("bioformat", e.detail.value)}"></text-field-filter>
-
-                            </div>
-                        </div>
-
-                        ${this.isNotEmpty(this.variableSets) ? html`
-                            <div class="form-group">
-                                <div class="browser-subsection" id="${this._prefix}-annotationss">File annotations
-                                    <div style="float: right" class="tooltip-div">
-                                        <a><i class="fa fa-info-circle" aria-hidden="true" id="${this._prefix}-annotations-tooltip"></i></a>
-                                    </div>
-                                </div>
-                                <div id="${this._prefix}-annotations" class="subsection-content">
-                                    <opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
-                                                               .config="${this.annotationFilterConfig}"
-                                                               entity="FILE"
-                                                               @filterannotation="${this.addAnnotation}">
-                                    </opencga-annotation-filter>
-                                </div>
-                            </div>
-                        ` : null}
-                        
-                        <div class="form-group">
-                            <div class="browser-subsection" id="${this._prefix}-date">Date
-                                <div style="float: right" class="tooltip-div">
-                                    <a><i class="fa fa-info-circle" aria-hidden="true" id="${this._prefix}-date-tooltip"></i></a>
-                                </div>
-                            </div>
-                            <div id="${this._prefix}-date-content" class="subsection-content">
-                                <opencga-date-filter .config="${this.dateFilterConfig}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
+                ${this.config.sections && this.config.sections.length ? this.config.sections.map( section => this._createSection(section)) : html`No filter has been configured.`}
             </div>
-
         </div>
         `;
     }

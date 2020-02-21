@@ -110,16 +110,16 @@ export default class OpencgaCohortFilter extends LitElement {
         this.minYear = 1920;
         this.query = {};
         this.preparedQuery = {};
-        this.searchButton = true
+        this.searchButton = true;
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this.preparedQuery = {...this.query} // propagates here the iva-app query object
+        this.preparedQuery = {...this.query}; // propagates here the iva-app query object
     }
 
     updated(changedProperties) {
-        if(changedProperties.has("query")) {
+        if (changedProperties.has("query")) {
             this.queryObserver();
         }
         if (changedProperties.has("variables")) {
@@ -129,11 +129,11 @@ export default class OpencgaCohortFilter extends LitElement {
 
     firstUpdated(_changedProperties) {
         // Decrease the button and font size of the selectpicker component
-        //const annotationDiv = $(`#${this._prefix}-type-div`);
+        // const annotationDiv = $(`#${this._prefix}-type-div`);
         // Add the class to the select picker buttons
-        //annotationDiv.find(".selectpicker").selectpicker("setStyle", "btn-sm", "add");
+        // annotationDiv.find(".selectpicker").selectpicker("setStyle", "btn-sm", "add");
         // Add the class to the lists
-        //annotationDiv.find("ul > li").addClass("small");
+        // annotationDiv.find("ul > li").addClass("small");
     }
 
     onSearch() {
@@ -181,9 +181,9 @@ export default class OpencgaCohortFilter extends LitElement {
         if (this._reset) {
             console.log("queryObserver: calling to 'renderQueryFilters()'", this.query);
             this.preparedQuery = this.query;
-            //renderQueryFilters shouldn't be necessary anymore
-            //this.renderQueryFilters();
-            this.requestUpdate()
+            // renderQueryFilters shouldn't be necessary anymore
+            // this.renderQueryFilters();
+            this.requestUpdate();
         } else {
             this._reset = true;
         }
@@ -202,22 +202,22 @@ export default class OpencgaCohortFilter extends LitElement {
     }
 
     onFilterChange(key, value) {
-        console.log("filterChange", {[key]:value});
+        console.log("filterChange", {[key]: value});
         if (value && value !== "") {
             this.preparedQuery = {...this.preparedQuery, ...{[key]: value}};
         } else {
-            console.log("deleting", key, "from preparedQuery")
+            console.log("deleting", key, "from preparedQuery");
             delete this.preparedQuery[key];
             this.preparedQuery = {...this.preparedQuery};
         }
         this.notifyQuery(this.preparedQuery);
-        this.requestUpdate()
+        this.requestUpdate();
     }
 
     notifyQuery(query) {
         this.dispatchEvent(new CustomEvent("queryChange", {
             detail: {
-                query: query,
+                query: query
             },
             bubbles: true,
             composed: true
@@ -227,48 +227,56 @@ export default class OpencgaCohortFilter extends LitElement {
     notifySearch(query) {
         this.dispatchEvent(new CustomEvent("querySearch", {
             detail: {
-                query: query,
+                query: query
             },
             bubbles: true,
             composed: true
         }));
     }
 
-    /** @deprecated
-     * */
-    calculateFilters(e) {
-        const _query = {};
+    _createSection(section) {
+        const htmlFields = section.fields && section.fields.length && section.fields.map(subsection => this._createSubSection(subsection));
+        return this.config.sections.length > 1 ? html`<section-filter .config="${section}" .filters="${htmlFields}">` : htmlFields;
+    }
 
-        const name = PolymerUtils.getValue(`${this._prefix}-cohort-input`);
-        if (UtilsNew.isNotEmpty(name)) {
-            _query.id = name;
+    _createSubSection(subsection) {
+        let content = "";
+        switch (subsection.id) {
+            case "id":
+            case "samples":
+                content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
+                break;
+            case "annotations":
+                if (!this.variableSet || !this.variableSet.length) return;
+                content = html`<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
+                                                      .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                                      entity="COHORT"
+                                                      .config="${this.annotationFilterConfig}"
+                                                      @filterannotation="${this.addAnnotation}">
+                           </opencga-annotation-filter>`;
+                break;
+            case "type":
+                content = html`<select-field-filter ?multiple="${subsection.multiple}" .data="${subsection.allowedValues}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
+                break;
+            case "date":
+                content = html`<opencga-date-filter .config="${this.dateFilterConfig}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>`;
+                break;
+            default:
+                console.error("Filter component not found");
         }
-
-        const sample = PolymerUtils.getValue(`${this._prefix}-sample-input`);
-        if (UtilsNew.isNotEmpty(sample)) {
-            _query.samples = sample;
-        }
-
-        // keep annotation filter
-        if (UtilsNew.isNotEmpty(this.query.annotation)) {
-            _query.annotation = this.query.annotation;
-        }
-
-        // keep date filters
-        if (UtilsNew.isNotEmpty(this.query.creationDate)) {
-            _query.creationDate = this.query.creationDate;
-        }
-
-        const type = $(`#${this._prefix}-type`).selectpicker("val");
-        if (type !== "All") {
-            _query.type = type;
-        }
-
-        // To prevent to call renderQueryFilters we set this to false
-        this._reset = false;
-        // this.set("query", _query);
-        this.query = _query;
-        this._reset = true;
+        return html`
+                    <div class="form-group">
+                        <div class="browser-subsection" id="${subsection.id}">${subsection.name}
+                            ${subsection.description ? html`
+                                <div class="tooltip-div pull-right">
+                                    <a><i class="fa fa-info-circle" aria-hidden="true" id="${this._prefix}${subsection.id}Tooltip"></i></a>
+                                </div>` : null }
+                        </div>
+                        <div id="${this._prefix}${subsection.id}" class="subsection-content">
+                            ${content}
+                         </div>
+                    </div>
+                `;
     }
 
     addAnnotationFilter(e) {
@@ -569,130 +577,9 @@ export default class OpencgaCohortFilter extends LitElement {
             ` : null}
 
         <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
-
-            <!-- Cohort field attributes -->
             <div class="">
-                <!-- <div class="panel-heading" role="tab" id="${this._prefix}CohortSelectionHeading">
-                    <h4 class="panel-title">
-                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
-                           href="#${this._prefix}CohortSelection" aria-expanded="true" aria-controls="${this._prefix}CohortSelection">
-                            Cohort
-                        </a>
-                    </h4>
-                </div> -->
-
-                <div id="${this._prefix}CohortSelection" class="panel-collapse collapse in" role="tabpanel"
-                     aria-labelledby="${this._prefix}CohortSelectionHeading">
-                    <div class="panel-body">
-
-                        <div class="form-group">
-                            <div class="browser-subsection">Id
-                            </div>
-                            <div id="${this._prefix}-name" class="subsection-content form-group">
-                                <text-field-filter placeholder="healthy, cancer..." .value="${this.preparedQuery.id}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></text-field-filter>                                
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="browser-subsection">Samples
-                            </div>
-                            <div id="${this._prefix}-sample" class="subsection-content form-group">
-                                <text-field-filter placeholder="HG01879, HG01880, HG01881..." .value="${this.preparedQuery.samples}" @filterChange="${e => this.onFilterChange("samples", e.detail.value)}"></text-field-filter>                                                                       
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="browser-subsection" id="${this._prefix}-annotationss">Cohort annotations
-                                <div style="float: right" class="tooltip-div">
-                                    <a><i class="fa fa-info-circle" aria-hidden="true" id="${this._prefix}-annotations-tooltip"></i></a>
-                                </div>
-                            </div>
-                            <div id="${this._prefix}-annotations" class="subsection-content">
-                                <opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
-                                                           .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                           .config="${this.annotationFilterConfig}"
-                                                           entity="COHORT"
-                                                           @filterannotation="${this.addAnnotation}">
-                                </opencga-annotation-filter>
-                            </div>
-                        </div>
-
-                        <div class="form-group" id="${this._prefix}-type-div">
-                            <div class="browser-subsection">Type
-                            </div>
-                            <select-field-filter multiple .data="${["All","CASE_CONTROL","CASE_SET","CONTROL_SET","PAIRED","PAIRED_TUMOR","AGGREGATE","TIME_SERIES","FAMILY","TRIO"]}" .value="${this.preparedQuery.type}" @filterChange="${e => this.onFilterChange("type", e.detail.value)}"></select-field-filter>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="browser-subsection" id="${this._prefix}-date">Date
-                                <div style="float: right" class="tooltip-div">
-                                    <a><i class="fa fa-info-circle" aria-hidden="true" id="${this._prefix}-date-tooltip"></i></a>
-                                </div>
-                            </div>
-                            <div id="${this._prefix}-date-content" class="subsection-content">
-                                <opencga-date-filter .config="${this.dateFilterConfig}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>
-                            </div>
-                        </div>
-
-                        <!--&lt;!&ndash;<div class="form-group">&ndash;&gt;-->
-                            <!--&lt;!&ndash;<label class="label-opencga-cohort-filter">Cohort name</label>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<input type="text" id="${this._prefix}CohortName" class="form-control ${this._prefix}FilterTextInput"&ndash;&gt;-->
-                                   <!--&lt;!&ndash;placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">&ndash;&gt;-->
-                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
-
-                        <!--<div class="form-group">-->
-
-                            <!--&lt;!&ndash;<opencga-date-filter></opencga-date-filter>&ndash;&gt;-->
-
-                            <!--<label class="label-opencga-cohort-filter">Patient Filters</label>-->
-                            <!--<br>-->
-                            <!--&lt;!&ndash;<input type="checkbox" name="selectionButtons" id="controls" value="controls"&ndash;&gt;-->
-                            <!--&lt;!&ndash;class="${this._prefix}FilterRadio" on-change="calculateFilters"&ndash;&gt;-->
-                            <!--&lt;!&ndash;style="padding-left: 20px"> Controls&ndash;&gt;-->
-                            <!--<span style="padding-top: 10px">Individual ID</span>-->
-                            <!--<input type="text" id="${this._prefix}PatientName" class="form-control ${this._prefix}FilterTextInput"-->
-                                   <!--placeholder="Smith, Grant ..." on-keyup="calculateFilters">-->
-
-                            <!--<span style="padding-top: 10px">HPO</span>-->
-                            <!--<input type="text" id="${this._prefix}PatientHpo" class="form-control ${this._prefix}FilterTextInput"-->
-                                   <!--placeholder="HP:000145" on-keyup="calculateFilters">-->
-
-                            <!--<span style="padding-top: 10px">Diagnosis</span>-->
-                            <!--<input type="text" id="${this._prefix}PatientDiagnosis" class="form-control ${this._prefix}FilterTextInput"-->
-                                   <!--placeholder="Smith, Grant ..." on-keyup="calculateFilters">-->
-                        <!--</div>-->
-                    </div>
-                </div>
+                ${this.config.sections && this.config.sections.length ? this.config.sections.map( section => this._createSection(section)) : html`No filter has been configured.`}
             </div>
-
-            <!--&lt;!&ndash; Cohort characteristics &ndash;&gt;-->
-            <!--<div class="panel panel-default">-->
-                <!--<div class="panel-heading" role="tab" id="${this._prefix}CohortGeneralFilterHeading">-->
-                    <!--<h4 class="panel-title">-->
-                        <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"-->
-                           <!--href="#${this._prefix}CohortGeneralFilter" aria-expanded="true"-->
-                           <!--aria-controls="${this._prefix}CohortGeneralFilter">-->
-                            <!--Cohort Characteristics-->
-                            <!--<div style="float: right" class="tooltip-div">-->
-                                <!--<a data-toggle="tooltip" title="Generic cohort filters">-->
-                                    <!--<i class="fa fa-info-circle" aria-hidden="true"></i>-->
-                                <!--</a>-->
-                            <!--</div>-->
-                        <!--</a>-->
-                    <!--</h4>-->
-                <!--</div>-->
-                <!--<div id="${this._prefix}CohortGeneralFilter" class="panel-collapse collapse in" role="tabpanel"-->
-                     <!--aria-labelledby="${this._prefix}CohortGeneralFilterHeading">-->
-
-                    <!--<div class="panel-body">-->
-                        <!--<opencga-annotation-filter opencga-session="${this.opencgaSession}"-->
-                                                   <!--opencga-client="${this.opencgaClient}"-->
-                                                   <!--on-filterannotation="addAnnotation">-->
-                        <!--</opencga-annotation-filter>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
-
         </div>
         `;
     }

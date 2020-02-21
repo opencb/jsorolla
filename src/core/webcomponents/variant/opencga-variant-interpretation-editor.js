@@ -516,18 +516,6 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
             }
         </style>
 
-        <!--<template is="dom-if" if="{{checkProjects}}">-->
-        <!--<div class="panel" style="margin-bottom: 15px">-->
-        <!--<h3 style="margin: 10px 10px 10px 15px">-->
-        <!--<template is="dom-if" if="{{interactive}}">-->
-        <!--<span on-click="onCollapse" style="cursor: pointer;margin: 0px 30px 0px 0px">-->
-        <!--<i class="fa fa-bars" aria-hidden="true"></i>-->
-        <!--</span>-->
-        <!--</template>-->
-        <!--<i class="fa fa-filter" aria-hidden="true"></i>&nbsp;{{config.title}}-->
-        <!--</h3>-->
-        <!--</div>-->
-
         <div class="row" style="padding: 0px 10px">
             <div id="${this._prefix}SaveInterpretation">
                 <div class="col-md-12">

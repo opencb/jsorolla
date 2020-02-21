@@ -34,16 +34,13 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
                 type: Object
             },
             analyses: {
-                type: Array,
-                notify: true
+                type: Array
             },
             query: {
-                type: Object,
-                notify: true
+                type: Object
             },
             search: {
-                type: Object,
-                notify: true
+                type: Object
             },
             minYear: {
                 type: Number
@@ -88,7 +85,7 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
     }
 
     onSearch() {
-        //this.search = {...this.query};
+        // this.search = {...this.query};
         this.notifySearch(this.preparedQuery);
     }
 
@@ -102,7 +99,7 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
         }
 
         this._reset = false;
-        //this.set("query", query);
+        // this.set("query", query);
         this.query = query;
         this._reset = true;
     }
@@ -111,15 +108,15 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
         if (this._reset) {
             console.log("queryObserver: calling to 'renderQueryFilters()'", this.query);
             this.preparedQuery = this.query;
-            //renderQueryFilters shouldn't be necessary anymore
-            //this.renderQueryFilters();
-            this.requestUpdate()
+            // renderQueryFilters shouldn't be necessary anymore
+            // this.renderQueryFilters();
+            this.requestUpdate();
         } else {
             this._reset = true;
         }
     }
 
-    renderQueryFilters() {
+    /*    renderQueryFilters() {
         // Empty everything before rendering
         this._clearHtmlDom();
 
@@ -194,28 +191,28 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
 
         // To prevent to call renderQueryFilters we set this to false
         this._reset = false;
-        //this.set("query", _query);
+        // this.set("query", _query);
         this.query = _query;
         this._reset = true;
-    }
+    }*/
 
     onFilterChange(key, value) {
-        console.log("filterChange", {[key]:value});
+        console.log("filterChange", {[key]: value});
         if (value && value !== "") {
             this.preparedQuery = {...this.preparedQuery, ...{[key]: value}};
         } else {
-            console.log("deleting", key, "from preparedQuery")
+            console.log("deleting", key, "from preparedQuery");
             delete this.preparedQuery[key];
             this.preparedQuery = {...this.preparedQuery};
         }
         this.notifyQuery(this.preparedQuery);
-        this.requestUpdate()
+        this.requestUpdate();
     }
 
     notifyQuery(query) {
         this.dispatchEvent(new CustomEvent("queryChange", {
             detail: {
-                query: query,
+                query: query
             },
             bubbles: true,
             composed: true
@@ -225,13 +222,51 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
     notifySearch(query) {
         this.dispatchEvent(new CustomEvent("querySearch", {
             detail: {
-                query: query,
+                query: query
             },
             bubbles: true,
             composed: true
         }));
     }
 
+    _createSection(section) {
+        const htmlFields = section.fields && section.fields.length && section.fields.map(subsection => this._createSubSection(subsection));
+        return this.config.sections.length > 1 ? html`<section-filter .config="${section}" .filters="${htmlFields}">` : htmlFields;
+    }
+
+    _createSubSection(subsection) {
+        let content = "";
+        switch (subsection.id) {
+            case "id":
+            case "family":
+            case "proband":
+            case "samples":
+                content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
+                break;
+            case "priority":
+            case "type":
+                content = html`<select-field-filter ?multiple="${subsection.multiple}" .data="${subsection.allowedValues}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
+                break;
+            case "date":
+                content = html`<opencga-date-filter .config="${this.dateFilterConfig}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>`;
+                break;
+            default:
+                console.error("Filter component not found");
+        }
+        return html`
+                    <div class="form-group">
+                        <div class="browser-subsection" id="${subsection.id}">${subsection.name}
+                            ${subsection.description ? html`
+                                <div class="tooltip-div pull-right">
+                                    <a><i class="fa fa-info-circle" aria-hidden="true" id="${this._prefix}${subsection.id}Tooltip"></i></a>
+                                </div>` : null }
+                        </div>
+                        <div id="${this._prefix}${subsection.id}" class="subsection-content">
+                            ${content}
+                         </div>
+                    </div>
+                `;
+    }
     /**
      * Use custom CSS class to easily reset all controls.
      */
@@ -272,89 +307,17 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
             }
         </style>
 
-        <div class="search-button-wrapper">
+        ${this.searchButton ? html`
+            <div class="search-button-wrapper">
                 <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
                     <i class="fa fa-search" aria-hidden="true"></i> Search
                 </button>
-        </div>
+            </div>
+            ` : null}
 
         <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
-
-            <!-- ClinicalAnalysis field attributes -->
-            <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="${this._prefix}ClinicalAnalysisSelectionHeading">
-                    <h4 class="panel-title">
-                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
-                           href="#${this._prefix}ClinicalAnalysisSelection" aria-expanded="true" aria-controls="${this._prefix}ClinicalAnalysisSelection">
-                            Clinical Analysis
-                        </a>
-                    </h4>
-                </div>
-
-                <div id="${this._prefix}ClinicalAnalysisSelection" class="panel-collapse collapse in" role="tabpanel"
-                     aria-labelledby="${this._prefix}ClinicalAnalysisSelectionHeading">
-                    <div class="panel-body">
-
-                        <div class="form-group">
-                            <div class="browser-subsection">Clinical Analysis ID
-                            </div>
-                            <div id="${this._prefix}-name" class="subsection-content form-group">
-                                <text-field-filter placeholder="CA-1234,CA-2345..." .value="${this.preparedQuery.id}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></text-field-filter>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="browser-subsection">Family ID
-                            </div>
-                            <div id="${this._prefix}-family" class="subsection-content form-group">
-                                <text-field-filter placeholder="FAM123, FAM124..." .value="${this.preparedQuery.family}" @filterChange="${e => this.onFilterChange("family", e.detail.value)}"></text-field-filter>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="browser-subsection">Proband ID
-                            </div>
-                            <div id="${this._prefix}-proband" class="subsection-content form-group">
-                                <text-field-filter placeholder="LP-1234, LP-2345..." .value="${this.preparedQuery.proband}" @filterChange="${e => this.onFilterChange("proband", e.detail.value)}"></text-field-filter>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="browser-subsection">Sample ID
-                            </div>
-                            <div id="${this._prefix}-sample" class="subsection-content form-group">
-                                <text-field-filter placeholder="HG01879, HG01880, HG01881..." .value="${this.preparedQuery.sample}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></text-field-filter>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="browser-subsection">Priority
-                            </div>
-                            <div id="${this._prefix}-analysis-priority" class="subsection-content form-group">
-                                <select-field-filter multiple .data="${['URGENT','HIGH','MEDIUM','LOW']}" .value="${this.preparedQuery.priority}" @filterChange="${e => this.onFilterChange("priority", e.detail.value)}"></select-field-filter>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="browser-subsection">Analysis type
-                            </div>
-                            <div id="${this._prefix}-analysis-type" class="subsection-content form-group">
-                                <select-field-filter multiple .data="${['SINGLE','DUO','TRIO','FAMILY','AUTO','MULTISAMPLE']}" .value="${this.preparedQuery.type}" @filterChange="${e => this.onFilterChange("type", e.detail.value)}"></select-field-filter>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="browser-subsection" id="${this._prefix}-date">Date
-                                <div style="float: right" class="tooltip-div">
-                                    <a><i class="fa fa-info-circle" aria-hidden="true" id="${this._prefix}-date-tooltip"></i></a>
-                                </div>
-                            </div>
-                            <div id="${this._prefix}-date-content" class="subsection-content">
-                                <opencga-date-filter .config="${this.dateFilterConfig}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="">
+                ${this.config.sections && this.config.sections.length ? this.config.sections.map( section => this._createSection(section)) : html`No filter has been configured.`}
             </div>
         </div>
         `;

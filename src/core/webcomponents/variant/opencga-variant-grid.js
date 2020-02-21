@@ -69,37 +69,6 @@ export default class OpencgaVariantGrid extends LitElement {
         };
     }
 
-    firstUpdated(_changedProperties) {
-        this._createDefaultColumns();
-        this.query = {}
-    }
-
-    updated(changedProperties) {
-        if (changedProperties.has("query") ||
-            changedProperties.has("consequenceTypes") ||
-            changedProperties.has("populationFrequencies") ||
-            changedProperties.has("proteinSubstitutionScores")) {
-            //console.log("propertyObserver")
-            this.propertyObserver();
-        }
-        if (changedProperties.has("data")) {
-            this.renderFromLocal();
-        }
-    }
-
-    //TODO check why it can't be converted in firstUpdated
-    connectedCallback() {
-        super.connectedCallback();
-
-        // TODO Refactor
-        this.table = $("#" + this._prefix + "VariantBrowserGrid");
-        this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
-        this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
-
-        // this._updateTableColumns();
-        // this._columns = this._createDefaultColumns();
-        //this.renderVariantTable();
-    }
 
     _init() {
         this._prefix = "VarBrowserGrid-" + Utils.randomString(6) + "_";
@@ -125,8 +94,40 @@ export default class OpencgaVariantGrid extends LitElement {
                 }
             ]
         };
-        this.config = this.getDefaultConfig();
-        this._config = this.getDefaultConfig();
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+
+        // TODO Refactor
+        this.table = $("#" + this._prefix + "VariantBrowserGrid");
+        this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
+        this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
+
+        // this._updateTableColumns();
+        // this._columns = this._createDefaultColumns();
+        //this.renderVariantTable();
+        //this.config = this.getDefaultConfig();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+
+    }
+
+    firstUpdated(_changedProperties) {
+        this._createDefaultColumns();
+        this.query = {}
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.has("query") ||
+            changedProperties.has("consequenceTypes") ||
+            changedProperties.has("populationFrequencies") ||
+            changedProperties.has("proteinSubstitutionScores")) {
+            //console.log("propertyObserver")
+            this.propertyObserver();
+        }
+        if (changedProperties.has("data")) {
+            this.renderFromLocal();
+        }
     }
 
     propertyObserver() {

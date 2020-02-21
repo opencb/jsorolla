@@ -194,9 +194,9 @@ export default class OpencgaVariantFilter extends LitElement {
 
             //TODO should it be moved in cohort-filter?
             // Update cohorts from config, this updates the Cohort filter ALT
-            if (typeof this.config !== "undefined" && typeof this.config.menu.sections !== "undefined") {
+            if (typeof this.config !== "undefined" && typeof this.config.sections !== "undefined") {
                 this._cohorts = [];
-                for (let section of this.config.menu.sections) {
+                for (let section of this.config.sections) {
                     for (let subsection of section.subsections) {
                         if (subsection.id === "cohort") {
                             let projectId = this.opencgaSession.project.id;
@@ -1320,10 +1320,9 @@ export default class OpencgaVariantFilter extends LitElement {
     // TODO recheck if it really needs to be executed in opencgaSessionObserver()
     _renderFilterMenu() {
         // Add events and tooltips to the filter menu
-        // TODO move listeners in template
         // TODO move tooltips init somewhere after template has been rendered
         //this._addEventListeners();
-        return this.config.menu.sections && this.config.menu.sections.length && this.config.menu.sections.map(section => this._createSection(section));
+        return this.config.sections && this.config.sections.length && this.config.sections.map(section => this._createSection(section));
     }
 
     _createSection(section) {
@@ -1343,8 +1342,9 @@ export default class OpencgaVariantFilter extends LitElement {
                         <div id="${this._prefix}${id}" class="panel-collapse collapse ${collapsed}" role="tabpanel" aria-labelledby="${this._prefix}${id}Heading">
                             <div class="panel-body">
                                 <!--TODO verify if cadd condition works-->
+                                
                                 ${section.subsections && section.subsections.length && section.subsections.map(subsection => html`
-                                    ${this.config.menu.skipSubsections && this.config.menu.skipSubsections.length && !!~this.config.menu.skipSubsections.indexOf(subsection.id) ? null : this._createSubSection(subsection)}
+                                    ${this.config.skipSubsections && this.config.skipSubsections.length && !!~this.config.skipSubsections.indexOf(subsection.id) ? null : this._createSubSection(subsection)}
                                 `)}
                             
                              </div>
@@ -1365,7 +1365,7 @@ export default class OpencgaVariantFilter extends LitElement {
             if (this.opencgaSession.project.studies.length < 2) {
                 return "";
             }
-            content = html`<study-filter .opencgaSession="${this.opencgaSession}" .differentStudies="${this.differentStudies}" .studies="${this.preparedQuery.studies}" @filterChange="${e => this.onFilterChange("studies", e.detail.value)}"></study-filter>`;
+            content = html`<study-filter .opencgaSession="${this.opencgaSession}" .differentStudies="${this.differentStudies}" .studies="${this.preparedQuery.studies}" @filterChange="${e => this.onFilterChange("studies", e.detail.value)}">BLABLA</study-filter>`;
             break;
         case "cohort":
             content = html`<cohort-filter .opencgaSession="${this.opencgaSession}" .cohorts="${subsection.cohorts}" ._cohorts="${this._cohorts}" .cohortStatsAlt="${this.preparedQuery.cohortStatsAlt}" @filterChange="${e => this.onFilterChange("cohortStatsAlt", e.detail.value)}"> </cohort-filter>`;
@@ -2089,7 +2089,7 @@ export default class OpencgaVariantFilter extends LitElement {
     */
 
     _addAllTooltips() {
-        for (let section of this.config.menu.sections) {
+        for (let section of this.config.sections) {
             for (let subsection of section.subsections) {
                 if (UtilsNew.isNotEmpty(subsection.tooltip)) {
                     let tooltipIcon = $("#" + this._prefix + subsection.id + "Tooltip");
@@ -2116,7 +2116,7 @@ export default class OpencgaVariantFilter extends LitElement {
             },
             style: {
                 width: true,
-                classes: this.config.menu.tooltip.classes
+                //classes: this.config.tooltip.classes
             },
             show: {
                 delay: 200
@@ -2199,7 +2199,7 @@ export default class OpencgaVariantFilter extends LitElement {
             ${this.searchButton ? html`
             <div class="search-button-wrapper">
                 <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
-                    <i class="fa fa-search" aria-hidden="true"></i> ${this.config.menu.searchButtonText}
+                    <i class="fa fa-search" aria-hidden="true"></i> ${this.config.searchButtonText}
                 </button>
             </div>
             ` : null}

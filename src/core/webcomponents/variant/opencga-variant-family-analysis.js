@@ -96,7 +96,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
             tooltip: this.getDefaultConfig().tooltip
         } );
         if (this.mode !== "interactive") {
-            _config.filter.menu.skipSubsections.push("sample");
+            _config.filter.skipSubsections.push("sample");
         }
         this._config = _config;
         this._addTooltip();

@@ -85,12 +85,12 @@ export default class OpencgaFamilyFilter extends LitElement {
 
         this.query = {};
         this.preparedQuery = {};
-        this.searchButton = true
+        this.searchButton = true;
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this.preparedQuery = {...this.query} // propagates here the iva-app query object
+        this.preparedQuery = {...this.query}; // propagates here the iva-app query object
     }
 
     updated(changedProperties) {
@@ -106,16 +106,16 @@ export default class OpencgaFamilyFilter extends LitElement {
         if (this._reset) {
             console.log("onQueryUpdate: calling to 'renderQueryFilters()'", this.query);
             this.preparedQuery = this.query;
-            //renderQueryFilters shouldn't be necessary anymore
-            //this.renderQueryFilters();
-            this.requestUpdate()
+            // renderQueryFilters shouldn't be necessary anymore
+            // this.renderQueryFilters();
+            this.requestUpdate();
         } else {
             this._reset = true;
         }
     }
 
     onSearch() {
-        //this.search = {...this.query};
+        // this.search = {...this.query};
         this.notifySearch(this.preparedQuery);
     }
 
@@ -188,22 +188,22 @@ export default class OpencgaFamilyFilter extends LitElement {
     }
 
     onFilterChange(key, value) {
-        console.log("filterChange", {[key]:value});
+        console.log("filterChange", {[key]: value});
         if (value && value !== "") {
             this.preparedQuery = {...this.preparedQuery, ...{[key]: value}};
         } else {
-            console.log("deleting", key, "from preparedQuery")
+            console.log("deleting", key, "from preparedQuery");
             delete this.preparedQuery[key];
             this.preparedQuery = {...this.preparedQuery};
         }
         this.notifyQuery(this.preparedQuery);
-        this.requestUpdate()
+        this.requestUpdate();
     }
 
     notifyQuery(query) {
         this.dispatchEvent(new CustomEvent("queryChange", {
             detail: {
-                query: query,
+                query: query
             },
             bubbles: true,
             composed: true
@@ -213,11 +213,55 @@ export default class OpencgaFamilyFilter extends LitElement {
     notifySearch(query) {
         this.dispatchEvent(new CustomEvent("querySearch", {
             detail: {
-                query: query,
+                query: query
             },
             bubbles: true,
             composed: true
         }));
+    }
+
+    _createSection(section) {
+        const htmlFields = section.fields && section.fields.length && section.fields.map(subsection => this._createSubSection(subsection));
+        console.log(htmlFields)
+        return this.config.sections.length > 1 ? html`<section-filter .config="${section}" .filters="${htmlFields}">` : htmlFields;
+    }
+
+    _createSubSection(subsection) {
+        let content = "";
+        switch (subsection.id) {
+            case "id":
+            case "members":
+            case "phenotypes":
+                content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
+                break;
+            case "annotations":
+                if (!this.variableSet || !this.variableSet.length) return;
+                content = html`<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
+                                                      .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                                      entity="FAMILY"
+                                                      .config="${this.annotationFilterConfig}"
+                                                      @filterannotation="${this.addAnnotation}">
+                           </opencga-annotation-filter>`;
+                break;
+            case "date":
+                content = html`<opencga-date-filter .config="${this.dateFilterConfig}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>`;
+                break;
+            default:
+                console.error("Filter component not found");
+        }
+        return html`
+                    <div class="form-group">
+                        <div class="browser-subsection" id="${subsection.id}">${subsection.name}
+                            ${subsection.description ? html`
+                                <div class="tooltip-div pull-right">
+                                    <a><i class="fa fa-info-circle" aria-hidden="true" id="${this._prefix}${subsection.id}Tooltip"></i></a>
+                                </div>` : null }
+                        </div>
+                        <div id="${this._prefix}${subsection.id}" class="subsection-content">
+                            ${content}
+                         </div>
+                    </div>
+                `;
     }
 
     calculateFilters(e) {
@@ -308,97 +352,12 @@ export default class OpencgaFamilyFilter extends LitElement {
             ` : null}
 
         <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
-
-            <!-- Family field attributes -->
-            <div class="">
-                <!-- <div class="panel-heading" role="tab" id="${this._prefix}FamilySelectionHeading">
-                    <h4 class="panel-title">
-                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
-                           href="#${this._prefix}FamilySelection" aria-expanded="true" aria-controls="${this._prefix}FamilySelection">
-                            Family
-                        </a>
-                    </h4>
-                </div> -->
-
-                <div id="${this._prefix}FamilySelection" class="panel-collapse collapse in" role="tabpanel"
-                     aria-labelledby="${this._prefix}FamilySelectionHeading">
-                    <div class="panel-body">
-
-                        <div class="form-group">
-                            <div class="browser-subsection">Family id
-                            </div>
-                            <div id="${this._prefix}-name" class="subsection-content form-group">
-                                <text-field-filter placeholder="FAM-1234,FAM-2345..." .value="${this.preparedQuery.id}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></text-field-filter>
-                               <!-- <input type="text" id="${this._prefix}-family-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="FAM-1234,FAM-2345..." @keyup="${this.calculateFilters}"> -->
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="browser-subsection">Members
-                            </div>
-                            <div id="${this._prefix}-members" class="subsection-content form-group">
-                                <text-field-filter placeholder="LP-1234,LP-2345..." .value="${this.preparedQuery.members}" @filterChange="${e => this.onFilterChange("members", e.detail.value)}"></text-field-filter>
-                                <!--<input type="text" id="${this._prefix}-members-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="LP-1234,LP-2345..." @keyup="${this.calculateFilters}"> -->
-                            </div>
-                        </div>
-
-                        <!--<div class="form-group">-->
-                            <!--<div class="browser-subsection">Samples-->
-                            <!--</div>-->
-                            <!--<div id="${this._prefix}-sample" class="subsection-content form-group">-->
-                                <!--<input type="text" id="${this._prefix}-sample-input" class="form-control input-sm ${this._prefix}FilterTextInput"-->
-                                       <!--placeholder="HG01879, HG01880, HG01881..." on-keyup="calculateFilters">-->
-                            <!--</div>-->
-                        <!--</div>-->
-
-                        <div class="form-group">
-                            <div class="browser-subsection">Phenotypes
-                            </div>
-                            <div id="${this._prefix}-phenotypes" class="subsection-content form-group">
-                                <text-field-filter placeholder="Full-text search, e.g. *melanoma*" .value="${this.preparedQuery.phenotypes}" @filterChange="${e => this.onFilterChange("phenotypes", e.detail.value)}"></text-field-filter>
-                                <!--<input type="text" id="${this._prefix}-phenotypes-input" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                       placeholder="Full-text search, e.g. *melanoma*" @keyup="${this.calculateFilters}"> -->
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="browser-subsection" id="${this._prefix}-annotationss">Family Annotations
-                                <div style="float: right" class="tooltip-div">
-                                    <a><i class="fa fa-info-circle" aria-hidden="true" id="${this._prefix}-annotations-tooltip"></i></a>
-                                </div>
-                            </div>
-                            <div id="${this._prefix}-annotations" class="subsection-content">
-                                <opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
-                                                           .opencgaClient="${this.opencgaClient}"
-                                                           .config="${this.annotationFilterConfig}"
-                                                           entity="FAMILY"
-                                                           @filterannotation="${this.addAnnotation}">
-                                </opencga-annotation-filter>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="browser-subsection" id="${this._prefix}-date">Date
-                                <div style="float: right" class="tooltip-div">
-                                    <a><i class="fa fa-info-circle" aria-hidden="true" id="${this._prefix}-date-tooltip"></i></a>
-                                </div>
-                            </div>
-                            <div id="${this._prefix}-date-content" class="subsection-content">
-                                <!-- <opencga-date-filter .config="${this.dateFilterConfig}" @datechanged="${this.onDateChanged}"></opencga-date-filter> -->
-                                <opencga-date-filter .config="${this.dateFilterConfig}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>
-                            </div>
-                        </div>
-
-                    </div>
+                <div class="">
+                    ${this.config.sections && this.config.sections.length ? this.config.sections.map( section => this._createSection(section)) : html`No filter has been configured.`}
                 </div>
-            </div>
-
         </div>
         `;
     }
-
 }
 
 customElements.define("opencga-family-filter", OpencgaFamilyFilter);

@@ -77,21 +77,6 @@ class OpencgaVariantInterpretation extends LitElement {
         };
     }
 
-    firstUpdated(_changedProperties) {
-        // if (!this.interactive) {
-        //     this.collapseFilter();
-        // }
-
-        // CellBase version
-        this.cellbaseClient.getMeta("about").then(response => {
-            if (UtilsNew.isNotUndefinedOrNull(response) && UtilsNew.isNotEmptyArray(response.response)) {
-                if (UtilsNew.isNotUndefinedOrNull(response.response[0].result) && UtilsNew.isNotEmptyArray(response.response[0].result)) {
-                    this.cellbaseVersion = response.response[0].result[0]["Version: "];
-                }
-            }
-        });
-    }
-
     _init() {
         this._prefix = "ovi-" + Utils.randomString(6);
 
@@ -134,6 +119,26 @@ class OpencgaVariantInterpretation extends LitElement {
         this._config = this.getDefaultConfig();
         this.query = {};
         this.search = {};
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
+    firstUpdated(_changedProperties) {
+        // if (!this.interactive) {
+        //     this.collapseFilter();
+        // }
+
+        // CellBase version
+        this.cellbaseClient.getMeta("about").then(response => {
+            if (UtilsNew.isNotUndefinedOrNull(response) && UtilsNew.isNotEmptyArray(response.response)) {
+                if (UtilsNew.isNotUndefinedOrNull(response.response[0].result) && UtilsNew.isNotEmptyArray(response.response[0].result)) {
+                    this.cellbaseVersion = response.response[0].result[0]["Version: "];
+                }
+            }
+        });
     }
 
     updated(changedProperties) {
@@ -650,40 +655,44 @@ class OpencgaVariantInterpretation extends LitElement {
     }
     render() {
         return html`
-                <style include="jso-styles">
-            .prioritization-center {
-                margin: auto;
-                text-align: justify;
-                width: 95%;
-            }
-
-            .browser-variant-tab-title {
-                font-size: 115%;
-                font-weight: bold;
-            }
-
-            .prioritization-variant-tab-title {
-                font-size: 115%;
-                font-weight: bold;
-            }
-
-            .icon-padding {
-                padding-left: 4px;
-                padding-right: 8px;
-            }
-
-            .form-section-title {
-                padding: 5px 0px;
-                width: 95%;
-                border-bottom-width: 1px;
-                border-bottom-style: solid;
-                border-bottom-color: #ddd
-            }
-
-            .jso-label-title {
-                width: 15em !important;
-            }
-        </style>
+            <style include="jso-styles">
+                opencga-variant-intepretation {
+                    font-size: 12px;
+                }
+                
+                .prioritization-center {
+                    margin: auto;
+                    text-align: justify;
+                    width: 95%;
+                }
+    
+                .browser-variant-tab-title {
+                    font-size: 115%;
+                    font-weight: bold;
+                }
+    
+                .prioritization-variant-tab-title {
+                    font-size: 115%;
+                    font-weight: bold;
+                }
+    
+                .icon-padding {
+                    padding-left: 4px;
+                    padding-right: 8px;
+                }
+    
+                .form-section-title {
+                    padding: 5px 0px;
+                    width: 95%;
+                    border-bottom-width: 1px;
+                    border-bottom-style: solid;
+                    border-bottom-color: #ddd
+                }
+    
+                .jso-label-title {
+                    width: 15em !important;
+                }
+            </style>
 
         ${this.checkProjects ? html`
             <div class="panel" style="margin-bottom: 15px">

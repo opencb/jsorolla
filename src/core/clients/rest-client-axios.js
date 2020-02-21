@@ -22,6 +22,9 @@ if (typeof window === 'undefined') {
 /**
  * This is the new version of rest-client.
  */
+
+// TODO use shared observable pattern (in order to avoid repeated calls)
+
 export class RestClientAxios {
 
     //timeout = 0;

@@ -122,14 +122,110 @@ export default class OpencgaIndividualFacet extends LitElement {
     }
 
     getDefaultConfig() {
-
         return {
             title: "Individual Browser",
-            name: "Individual Browser",
-            active: true,
             icon: "fas fa-chart-bar",
+            showAggregationStats: true,
+            showComparator: true,
+            filter: {
+                sections: [
+                    {
+                        title: "Section title",
+                        collapsed: false,
+                        fields: [
+                            {
+                                id: "id",
+                                name: "Individual ID",
+                                type: "string",
+                                placeholder: "LP-1234,LP-2345...",
+                                description: ""
+                            },
+                            {
+                                id: "samples",
+                                name: "Sample ID",
+                                type: "string",
+                                placeholder: "HG01879, HG01880, HG01881...",
+                                description: ""
+                            },
+                            {
+                                id: "sex",
+                                name: "Sex",
+                                allowedValues: ["MALE", "FEMALE", "UNKNOWN", "UNDETERMINED"],
+                                multiple: true,
+                                description: ""
+                            },
+                            {
+                                id: "karyotypicSex",
+                                name: "Karyotypic Sex",
+                                type: "category",
+                                allowedValues: ["VCF", "BCF", "GVCF", "TBI", "BIGWIG", "SAM", "BAM", "BAI", "CRAM", "CRAI", "FASTQ", "FASTA", "PED", "TAB_SEPARATED_VALUES", "COMMA_SEPARATED_VALUES", "XML", "PROTOCOL_BUFFER", "JSON", "AVRO", "PARQUET", "IMAGE", "PLAIN", "BINARY", "EXECUTABLE", "GZIP", "NONE", "UNKNOWN"],
+                                multiple: true,
+                                description: ""
+                            },
+                            {
+                                id: "ethnicity",
+                                name: "Ethnicity",
+                                type: "string",
+                                placeholder: "White caucasian,asiatic...",
+                                description: ""
+                            },
+                            {
+                                id: "disorder",
+                                name: "Disorder",
+                                placeholder: "Intellectual disability,Arthrogryposis...",
+                                description: ""
+                            },
+                            {
+                                id: "affectationStatus",
+                                name: "Affectation Status",
+                                allowedValues: ["CONTROL", "AFFECTED", "UNAFFECTED", "UNKNOWN"],
+                                multiple: true,
+                                description: ""
+                            },
+                            {
+                                id: "lifeStatus",
+                                name: "Life Status",
+                                allowedValues: ["ALIVE", "ABORTED", "DECEASED", "UNBORN", "STILLBORN", "MISCARRIAGE", "UNKNOWN"],
+                                multiple: true,
+                                description: ""
+                            },
+                            {
+                                id: "phenotypes",
+                                name: "Phenotypes",
+                                placeholder: "Full-text search, e.g. *melanoma*",
+                                description: ""
+                            },
+                            {
+                                id: "annotations",
+                                name: "Individual Annotations",
+                                description: ""
+                            },
+                            {
+                                id: "date",
+                                name: "Date",
+                                description: ""
+                            }
+                        ]
+                    }
+                ],
+                grid: {
+                    pageSize: 10,
+                    pageList: [10, 25, 50],
+                    detailView: true,
+                    multiSelection: false
+                },
+                gridComparator: {
+                    pageSize: 5,
+                    pageList: [5, 10],
+                    detailView: true,
+                    multiSelection: true
+                },
+                individualDetail: {
+                    showTitle: false
+                }
+            },
             aggregation: {
-                default: [],
+                default: ["type", "format", "bioformat"],
                 result: {
                     numColumns: 2
                 },
@@ -140,149 +236,98 @@ export default class OpencgaIndividualFacet extends LitElement {
                             {
                                 id: "study",
                                 name: "study",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "Study [[user@]project:]study where study and project can be either the ID or UUID"
                             },
                             {
                                 id: "source",
                                 name: "source",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "Source"
                             },
                             {
                                 id: "creationYear",
                                 name: "creationYear",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "Creation year"
                             },
                             {
                                 id: "creationMonth",
                                 name: "creationMonth",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "Creation month (JANUARY, FEBRUARY...)"
                             },
                             {
                                 id: "creationDay",
                                 name: "creationDay",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "Creation day"
                             },
                             {
                                 id: "creationDayOfWeek",
                                 name: "creationDayOfWeek",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "Creation day of week (MONDAY, TUESDAY...)"
                             },
                             {
                                 id: "status",
                                 name: "status",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "Status"
                             },
                             {
                                 id: "type",
                                 name: "type",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "type"
                             },
                             {
                                 id: "phenotypes",
                                 name: "phenotypes",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "Phenotypes"
                             },
                             {
                                 id: "release",
                                 name: "release",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "Release"
                             },
                             {
                                 id: "version",
                                 name: "version",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "Version"
                             },
                             {
                                 id: "somatic",
                                 name: "somatic",
-                                param: "query",
                                 type: "category",
                                 allowedValues: ["true", "false"],
                                 multiple: false,
-                                required: false,
                                 defaultValue: "false",
                                 description: "Somatic"
                             },
                             {
                                 id: "annotation",
                                 name: "annotation",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "Annotation, e.g: key1=value(,key2=value)"
                             },
                             {
                                 id: "field",
                                 name: "field",
-                                param: "query",
                                 type: "string",
-                                allowedValues: "",
-                                required: false,
-                                defaultValue: "",
                                 description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
                             }
                         ]
                     }
                 ]
             },
-            annotations: {}
+            annotations: {},
+
+            //TODO recheck
+            variableSetIds: []
         };
     }
 

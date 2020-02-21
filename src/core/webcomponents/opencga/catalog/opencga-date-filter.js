@@ -54,9 +54,7 @@ export default class OpencgaDateFilter extends LitElement {
     }
 
     configObserver() {
-        const config = {};
-        Object.assign(config, this.getDefaultConfig(), this.config);
-        this._config = config;
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     firstUpdated(_changedProperties) {

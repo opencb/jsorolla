@@ -271,7 +271,7 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
                     }
                 },
                 onLoadError: function(status, res) {
-                    console.trace()
+                    console.error(res)
                     //debugger;
                 },
                 onPageChange: function(page, size) {

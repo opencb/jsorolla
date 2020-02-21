@@ -16,6 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 
+//TODO refactor
+
 export default class ConsequenceTypeFilter extends LitElement {
 
     constructor() {
@@ -160,9 +162,10 @@ export default class ConsequenceTypeFilter extends LitElement {
                                                    class="soTermCheckBox ${this._prefix}FilterCheckBox" @change="${this.onChange}">
                                         <label for="${this._prefix}${item.name}Checkbox" class="form-check-label notbold" style="text-decoration-color: ${this.consequenceTypes.color[item.impact]}">
                                             <span title="${item.description}">
-                                                ${item.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${item.id}" target="_blank">${item.id}</a>)
+                                                ${item.name}
                                             </span>
                                         </label>
+                                        (<a href="http://www.sequenceontology.org/browser/current_svn/term/${item.id}" target="_blank">${item.id}</a>)
                                     </li>
                                     `)}
                                 </ul>
@@ -172,9 +175,9 @@ export default class ConsequenceTypeFilter extends LitElement {
                                     <label for="${this._prefix}${category.name}Checkbox" style="text-decoration-color: ${this.consequenceTypes.color[category.impact]}">
                                         <span title="${category.description}">
                                             ${category.name}
-                                            (<a href="http://www.sequenceontology.org/browser/current_svn/term/${category.id}" target="_blank">${category.id}</a>)
                                         </span>
                                     </label>
+                                    (<a href="http://www.sequenceontology.org/browser/current_svn/term/${category.id}" target="_blank">${category.id}</a>)
                                 `}
                             </li>
                     `)}

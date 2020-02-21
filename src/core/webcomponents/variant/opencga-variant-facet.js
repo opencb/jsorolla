@@ -185,7 +185,7 @@ export default class OpencgaVariantFacet extends LitElement {
         // debugger
         if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
             // Update cohorts from config, this updates the Cohort filter MAF
-            for (const section of this._config.filter.menu.sections) {
+            for (const section of this._config.filters.sections) {
                 for (const subsection of section.subsections) {
                     if (subsection.id === "cohort") {
                         const projectFields = this.opencgaSession.project.alias.split("@");
@@ -734,7 +734,7 @@ export default class OpencgaVariantFacet extends LitElement {
                 return html`
                     <div class="row facet-row">
                         <div class="col-md-12">
-                            <select-field-filter multiple .data="${facet.allowedValues}" .value="${facet.defaultValue ? facet.defaultValue : ""}" id="${facet.id}_Select" data-id="${facet.id}" @filterChange="${this.onFacetSelectChange}"></select-field-filter>
+                            <select-field-filter ?multiple="${!!facet.multiple}" .data="${facet.allowedValues}" .value="${facet.defaultValue ? facet.defaultValue : ""}" id="${facet.id}_Select" data-id="${facet.id}" @filterChange="${this.onFacetSelectChange}"></select-field-filter>
                         </div>
                     </div>
                     ${renderNestedFieldWrapper(facet)}
@@ -763,7 +763,8 @@ export default class OpencgaVariantFacet extends LitElement {
                     ${renderNestedFieldWrapper(facet)}
                 `;
             default:
-                return html`no type recognized`;
+                console.log("no type recognized", facet)
+                return html`no type recognized: ${facet.type}`;
         }
     }
 
@@ -774,7 +775,7 @@ export default class OpencgaVariantFacet extends LitElement {
             case "category":
                 return html`
                     <div class="col-md-12">
-                        <select-field-filter multiple .data="${facet.values}" .value="${facet.defaultValue ? facet.defaultValue : ""}" id="${facet.id}_NestedSelect" data-parent-facet="${parent}" @filterChange="${this.onNestedFacetValueChange}"></select-field-filter>
+                        <select-field-filter ?multiple="${!!facet.multiple}" .data="${facet.values}" .value="${facet.defaultValue ? facet.defaultValue : ""}" id="${facet.id}_NestedSelect" data-parent-facet="${parent}" @filterChange="${this.onNestedFacetValueChange}"></select-field-filter>
                     </div>
                 `;
             case "number":
@@ -1211,7 +1212,7 @@ export default class OpencgaVariantFacet extends LitElement {
                                                         .populationFrequencies="${this.populationFrequencies}"
                                                         .consequenceTypes="${this.consequenceTypes}"
                                                         .query="${this.query}"
-                                                        .config="${this._config.filter}"
+                                                        .config="${this._config.filters}"
                                                         .searchButton="${false}"
                                                         style="font-size: 12px"
                                                         @queryChange="${this.onQueryFilterChange}"
@@ -1265,7 +1266,7 @@ export default class OpencgaVariantFacet extends LitElement {
                                                   .active="${this.active}" 
                                                   .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                                   .consequenceTypes="${this.consequenceTypes}"
-                                                  .config="${this.config}"
+                                                  .config="${this._config.filters}"
                                                   @selected="${this.selectedGene}"
                                                   @selectvariant="${this.onSelectVariant}"
                                                   @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
