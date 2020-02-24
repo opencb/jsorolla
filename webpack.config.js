@@ -1,6 +1,8 @@
 const path = require("path");
-const glob_entries = require("webpack-glob-entries");
 const regeneratorRuntime = require("regenerator-runtime"); // TODO fix generators and AsyncFunction in babel
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+const EsmWebpackPlugin = require("@purtuga/esm-webpack-plugin");
+const PluginProposalExportDefaultFrom = require("@babel/plugin-proposal-export-default-from"); //Allows export .. from syntax in the entry point
 
 /*
 var fs = require('fs');
@@ -15,8 +17,7 @@ console.log(Object.values(glob_entries("./src/core/!**!/!*.js")).map(entry => `i
 
 
 module.exports = {
-    // entry: glob_entries("./src/core/**/*.js"),
-    entry: "./index.js",
+    entry: "./src/index.js",
     devtool: "source-map",
     output: {
         filename: "[name].js",
@@ -24,7 +25,16 @@ module.exports = {
         library: "jsorolla",
         libraryTarget: "var"
     },
-    plugins: [],
+    plugins: [
+        new EsmWebpackPlugin(),
+        new CopyWebpackPlugin([
+            {
+                context: "node_modules/@webcomponents/webcomponentsjs",
+                from: "**/*.js",
+                to: "webcomponents"
+            }
+        ])
+    ],
     optimization: {
         minimize: false
     },
@@ -36,8 +46,17 @@ module.exports = {
                 use: {
                     loader: "babel-loader",
                     options: {
-                        presets: ["@babel/preset-env"],
+                        presets: [[
+                            "@babel/preset-env",
+                            {
+                                useBuiltIns: "usage",
+                                targets: ">1%, not dead, not ie 11",
+                                corejs: 3
+                            }
+                        ]],
+                        // you need this even if you don't transpile..because of reasons
                         plugins: [
+                            "@babel/plugin-proposal-export-default-from",
                             "@babel/transform-runtime",
                             ["@babel/plugin-proposal-class-properties", {"loose": true}]
                         ]

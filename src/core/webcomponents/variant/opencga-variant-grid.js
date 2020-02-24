@@ -106,15 +106,15 @@ export default class OpencgaVariantGrid extends LitElement {
 
         // this._updateTableColumns();
         // this._columns = this._createDefaultColumns();
-        //this.renderVariantTable();
-        //this.config = this.getDefaultConfig();
+        // this.renderVariantTable();
+        // this.config = this.getDefaultConfig();
         this._config = {...this.getDefaultConfig(), ...this.config};
 
     }
 
     firstUpdated(_changedProperties) {
         this._createDefaultColumns();
-        this.query = {}
+        this.query = {};
     }
 
     updated(changedProperties) {
@@ -122,7 +122,7 @@ export default class OpencgaVariantGrid extends LitElement {
             changedProperties.has("consequenceTypes") ||
             changedProperties.has("populationFrequencies") ||
             changedProperties.has("proteinSubstitutionScores")) {
-            //console.log("propertyObserver")
+            // console.log("propertyObserver")
             this.propertyObserver();
         }
         if (changedProperties.has("data")) {
@@ -137,17 +137,17 @@ export default class OpencgaVariantGrid extends LitElement {
 
         // We check query.sample and query.genotype to check if samples exist.
         // We parse query fields and store a samples object array for convenience
-        let _samples = [];
+        const _samples = [];
         if (this.query !== undefined) {
             if (UtilsNew.isNotUndefinedOrNull(this.query.sample)) {
-                for (let sampleId of this.query.sample.split(",")) {
+                for (const sampleId of this.query.sample.split(",")) {
                     _samples.push({
                         id: sampleId
                     });
                 }
             }
             if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
-                for (let genotype of this.query.genotype.split(";")) {
+                for (const genotype of this.query.genotype.split(";")) {
                     _samples.push({
                         id: genotype.split(":")[0]
                     });
@@ -159,14 +159,14 @@ export default class OpencgaVariantGrid extends LitElement {
         this.variantGridFormatter = new VariantGridFormatter(this.opencgaSession, this._config);
 
         // Set colors
-        let colors = this.variantGridFormatter.assignColors(this.consequenceTypes, this.proteinSubstitutionScores);
+        const colors = this.variantGridFormatter.assignColors(this.consequenceTypes, this.proteinSubstitutionScores);
         Object.assign(this, colors);
 
         this.renderVariantTable();
     }
 
     onColumnChange(e) {
-        let table = $("#" + this._prefix + "VariantBrowserGrid");
+        const table = $("#" + this._prefix + "VariantBrowserGrid");
         if (e.detail.selected) {
             table.bootstrapTable("showColumn", e.detail.id);
         } else {
@@ -181,9 +181,11 @@ export default class OpencgaVariantGrid extends LitElement {
         this.to = 10;
         this.approximateCountResult = false;
 
-        let _table = $("#" + this._prefix + "VariantBrowserGrid");
+        let skipCount = false;
 
-        //TODO quickfix. The check on query is required because the study is in the query object. A request without the study returns the error "Multiple projects found"
+        const _table = $("#" + this._prefix + "VariantBrowserGrid");
+
+        // TODO quickfix. The check on query is required because the study is in the query object. A request without the study returns the error "Multiple projects found"
         if (this.query &&
             typeof this.opencgaSession !== "undefined" &&
             typeof this.opencgaSession.project !== "undefined" &&
@@ -191,13 +193,12 @@ export default class OpencgaVariantGrid extends LitElement {
             typeof this.opencgaSession.study.alias !== "undefined") {
             this._columns = this._createDefaultColumns();
 
-            let urlQueryParams = this._getUrlQueryParams();
-            let queryParams = urlQueryParams.queryParams;
+            const queryParams = this._getUrlQueryParams;
             let _numTotal = -1;
-            let _this = this;
+            const _this = this;
             $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable("destroy");
             $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable({
-                url: urlQueryParams.host,
+                // url: urlQueryParams.host,
                 columns: _this._columns,
                 method: "get",
                 sidePagination: "server",
@@ -213,28 +214,52 @@ export default class OpencgaVariantGrid extends LitElement {
                 // this makes the opencga-variant-grid properties available in the bootstrap-table formatters
                 variantGrid: _this,
 
-                //TODO replace with ajax
-                queryParams: function(params) {
+                //TODO recheck query
+                ajax: params => {
+                    if (this.pageNumber > 1) {
+                        skipCount = true;
+                    }
+                    const filters = {
+                        study: this.opencgaSession.study.fqn,
+                        order: params.data.order,
+                        limit: params.data.limit,
+                        skip: params.data.offset || 0,
+                        skipCount: skipCount,
+                        //include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
+                        ...this.query
+                    };
+                    this.opencgaSession.opencgaClient.variants().query(filters).then( res => params.success(res));
+                },
+                /*queryParams: function(params) {
                     queryParams.limit = params.limit;
                     queryParams.skip = params.offset;
                     return queryParams;
-                },
-                responseHandler: function(_response) {
-                    //TODO remove
-                    let response = new RestResponse(_response);
-                    if (_numTotal === -1) {
-                        _numTotal = response.getResponse().numTotalResults;
+                },*/
+                //TODO recheck
+                responseHandler: function(response) {
+                    if (!skipCount) {
+                        if (!_this.hasOwnProperty("numTotalResults")) {
+                            _this.numTotalResults = 0;
+                        }
+                        if (_this.numTotalResults !== response.getResponse().numTotalResults &&
+                            response.queryOptions.skip === 0) {
+                            _this.numTotalResults = response.getResponse().numTotalResults;
+                        }
                     }
-                    // Format the number string with commas
-                    _this.to = Math.min(response.getResponse(0).numResults, this.pageSize);
-                    _this.numTotalResultsText = _numTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-                    _this.approximateCountResult = response.getResponse().approximateCount;
+                    _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-                    //updates numTotalResultsText
-                    _this.requestUpdate();
+                    if (response.getParams().skip === 0 && _this.numTotalResults < response.getParams().limit) {
+                        _this.from = 1;
+                        _this.to = _this.numTotalResults;
+                    }
 
-                    return {total: _numTotal, rows: response.getResults()};
+                    _this.requestUpdate(); // it is necessary to refresh numTotalResultsText in opencga-grid-toolbar
+
+                    return {
+                        total: _this.numTotalResults,
+                        rows: response.getResults()
+                    };
                 },
                 onClickRow: function(row, $element, field) {
                     $("#" + _this._prefix + "VariantBrowserGrid tr").removeClass("success");
@@ -246,7 +271,7 @@ export default class OpencgaVariantGrid extends LitElement {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (_this._config.detailView) {
-                        //TODO refactor this omg!
+                        // TODO refactor this omg!
                         if (element[0].innerHTML.includes("icon-plus")) {
                             $(PolymerUtils.getElementById(_this._prefix + "VariantBrowserGrid")).bootstrapTable("expandRow", element[0].dataset.index);
                         } else {
@@ -255,10 +280,10 @@ export default class OpencgaVariantGrid extends LitElement {
                     }
                 },
                 onCheck: function(row, $element) {
-//                            $('.success').removeClass('success');
-//                            $($element).addClass('success');
+                    //                            $('.success').removeClass('success');
+                    //                            $($element).addClass('success');
 
-                    let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+                    const _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
                     _this.dispatchEvent(new CustomEvent("checkvariant", {
                         detail: {
                             id: _variant,
@@ -276,10 +301,10 @@ export default class OpencgaVariantGrid extends LitElement {
                     }));
                 },
                 onUncheck: function(row, $element) {
-//                            $('.success').removeClass('success');
-//                            $($element).addClass('success');
+                    //                            $('.success').removeClass('success');
+                    //                            $($element).addClass('success');
 
-                    let _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+                    const _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
                     _this.dispatchEvent(new CustomEvent("checkvariant", {
                         detail: {
                             id: _variant,
@@ -295,8 +320,8 @@ export default class OpencgaVariantGrid extends LitElement {
                         _table[0].rows[2].setAttribute("class", "success");
                         _this._onSelectVariant(data.rows[0]);
 
-                        let elementsByClassName = PolymerUtils.getElementsByClassName("genome-browser-option");
-                        for (let elem of elementsByClassName) {
+                        const elementsByClassName = PolymerUtils.getElementsByClassName("genome-browser-option");
+                        for (const elem of elementsByClassName) {
                             elem.addEventListener("click", function(e) {
                                 // _this.genomeBrowserPosition = e.target.dataset.variantPosition;
                                 _this.dispatchEvent(new CustomEvent("setgenomebrowserposition", {
@@ -309,8 +334,8 @@ export default class OpencgaVariantGrid extends LitElement {
                     }
                 },
                 onLoadError: function(status, res) {
-                    console.trace()
-                    debugger
+                    console.trace();
+                    debugger;
                 },
                 onPageChange: function(page, size) {
                     _this.from = (page - 1) * size + 1;
@@ -369,14 +394,14 @@ export default class OpencgaVariantGrid extends LitElement {
                 url = "http://" + this.cellbaseClient._config.hosts[0];
             }
 
-            let queryParams = {
+            const queryParams = {
                 timeout: 20000
             };
 
             Object.assign(queryParams, this.query); // Important : Adding the query object contents to queryParams
 
             url = url + "/webservices/rest/v4/" + this.cellbaseClient._config.species + "/feature/variation/search";
-            let _this = this;
+            const _this = this;
             $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable({
                 url: url,
                 method: "get",
@@ -384,7 +409,7 @@ export default class OpencgaVariantGrid extends LitElement {
                 queryParams: function(params) {
                     queryParams.limit = params.limit;
                     queryParams.skip = params.offset;
-//                            queryParams.summary = true;
+                    //                            queryParams.summary = true;
 
                     return queryParams;
                 },
@@ -393,7 +418,7 @@ export default class OpencgaVariantGrid extends LitElement {
                         _numTotal = res.response[0].numTotalResults;
                         _this.count = _numTotal;
 
-                        //updates numTotalResultsText
+                        // updates numTotalResultsText
                         _this.requestUpdate();
                     }
                     return {total: _numTotal, rows: res.response[0].result};
@@ -410,9 +435,9 @@ export default class OpencgaVariantGrid extends LitElement {
 
     }
 
-    //TODO refactor using bootstrap table ajax
+    // TODO refactor using bootstrap table ajax
     _getUrlQueryParams() {
-        // Check the opencgaClient exists
+        /* // Check the opencgaClient exists
         if (UtilsNew.isUndefinedOrNull(this.opencgaSession.opencgaClient)) {
             return {host: "", queryParams: {}};
         }
@@ -433,13 +458,13 @@ export default class OpencgaVariantGrid extends LitElement {
             host += "/webservices/rest/v1/analysis/variant/query";
         } else {
             return {host: host, queryParams: {}};
-        }
+        }*/
 
 
         // Init queryParams with default and config values plus query object
-        let queryParams;
-        if (UtilsNew.isNotUndefinedOrNull(this.config) && UtilsNew.isNotUndefinedOrNull(this.config.grid)
-            && UtilsNew.isNotUndefinedOrNull(this.config.grid.queryParams)) {
+        let queryParams = {};
+        if (UtilsNew.isNotUndefinedOrNull(this.config) && UtilsNew.isNotUndefinedOrNull(this.config.grid) &&
+            UtilsNew.isNotUndefinedOrNull(this.config.grid.queryParams)) {
             queryParams = Object.assign({}, this.config.grid.queryParams, this.query);
         } else {
             queryParams = Object.assign({}, this.query);
@@ -458,9 +483,9 @@ export default class OpencgaVariantGrid extends LitElement {
             queryParams.exclude = "annotation.geneExpression";
         }
 
-        if (typeof this.config !== "undefined" && UtilsNew.isNotUndefinedOrNull(this.config.grid)
-            && typeof this.config.grid.includeMissing !== "undefined" && this.config.grid.includeMissing) {
-            let keys = Object.keys(queryParams);
+        if (typeof this.config !== "undefined" && UtilsNew.isNotUndefinedOrNull(this.config.grid) &&
+            typeof this.config.grid.includeMissing !== "undefined" && this.config.grid.includeMissing) {
+            const keys = Object.keys(queryParams);
             for (let i = 0; i < keys.length; i++) {
                 let val = queryParams[keys[i]];
                 if (typeof val === "string" && keys[i] !== "cohortStatsMaf" && keys[i] !== "cohortStatsAlt") {
@@ -471,14 +496,14 @@ export default class OpencgaVariantGrid extends LitElement {
             }
         }
 
-        return {host: host, queryParams: queryParams};
+        return queryParams;
     }
 
     _onSelectVariant(row) {
         if (typeof row !== "undefined") {
-            let reference = row.reference !== "" ? row.reference : "-";
-            let alternate = row.alternate !== "" ? row.alternate : "-";
-            let _variant = row.chromosome + ":" + row.start + ":" + reference + ":" + alternate;
+            const reference = row.reference !== "" ? row.reference : "-";
+            const alternate = row.alternate !== "" ? row.alternate : "-";
+            const _variant = row.chromosome + ":" + row.start + ":" + reference + ":" + alternate;
             this.dispatchEvent(new CustomEvent("selectvariant", {
                 detail: {
                     id: _variant,
@@ -491,7 +516,7 @@ export default class OpencgaVariantGrid extends LitElement {
     }
 
     renderFromLocal() {
-        let _this = this;
+        const _this = this;
         $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable("destroy");
         $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable({
             data: this.data,
@@ -505,7 +530,7 @@ export default class OpencgaVariantGrid extends LitElement {
     }
 
     showGene(geneName) {
-//                this.fire('selected', {gene: geneName});
+        //                this.fire('selected', {gene: geneName});
         this.dispatchEvent(new CustomEvent("selected", {detail: {gene: geneName}}));
     }
 
@@ -523,20 +548,20 @@ export default class OpencgaVariantGrid extends LitElement {
             let clinvarTraits = "";
             let cosmicTraits = "";
             if (typeof row.annotation.variantTraitAssociation !== "undefined" && row.annotation.variantTraitAssociation != null) {
-                let traits = {
+                const traits = {
                     clinvar: [],
                     cosmic: []
                 };
-                let fields = ["clinvar", "cosmic"];
-                for (let field of fields) {
-                    let clinicalData = row.annotation.variantTraitAssociation[field];
+                const fields = ["clinvar", "cosmic"];
+                for (const field of fields) {
+                    const clinicalData = row.annotation.variantTraitAssociation[field];
                     if (typeof clinicalData !== "undefined" && clinicalData.length > 0) {
                         for (let j = 0; j < clinicalData.length; j++) {
-                            if (field === "clinvar" && traits.clinvar.indexOf(clinicalData[j].traits[0]) === -1
-                                && clinicalData[j].traits[0] !== "not specified" && clinicalData[j].traits[0] !== "not provided") {
+                            if (field === "clinvar" && traits.clinvar.indexOf(clinicalData[j].traits[0]) === -1 &&
+                                clinicalData[j].traits[0] !== "not specified" && clinicalData[j].traits[0] !== "not provided") {
                                 traits.clinvar.push(clinicalData[j].traits[0]);
                             } else if (field === "cosmic" && traits.cosmic.indexOf(clinicalData[j].primaryHistology) === -1) {
-                                let histologySubtype = (UtilsNew.isNotEmpty(clinicalData[j].histologySubtype)) ? clinicalData[j].histologySubtype : "-";
+                                const histologySubtype = (UtilsNew.isNotEmpty(clinicalData[j].histologySubtype)) ? clinicalData[j].histologySubtype : "-";
                                 traits.cosmic.push(clinicalData[j].primaryHistology + " (" + histologySubtype + ")");
                             }
                         }
@@ -562,19 +587,19 @@ export default class OpencgaVariantGrid extends LitElement {
     }
 
     variantFormatter(value, row, index) {
-        let variantHtmlDiv = this.variantGridFormatter.variantFormatter(value, row, this._config);
+        const variantHtmlDiv = this.variantGridFormatter.variantFormatter(value, row, this._config);
         return variantHtmlDiv;
     }
 
-    //TODO refactor this to make it more clear (polyphenProteinScoreFormatter too)
+    // TODO refactor this to make it more clear (polyphenProteinScoreFormatter too)
     siftPproteinScoreFormatter(value, row, index) {
         let min = 10;
-        let description = {};
+        const description = {};
         if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
             if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
                 for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                    if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined"
-                        && typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores !== "undefined") {
+                    if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined" &&
+                        typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores !== "undefined") {
                         for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
                             if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source === "sift") {
                                 if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score < min) {
@@ -596,12 +621,12 @@ export default class OpencgaVariantGrid extends LitElement {
 
     polyphenProteinScoreFormatter(value, row, index) {
         let max = 0;
-        let description = {};
+        const description = {};
         if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
             if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
                 for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                    if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined"
-                        && typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores !== "undefined") {
+                    if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined" &&
+                        typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores !== "undefined") {
                         for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
                             if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source === "polyphen") {
                                 if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score >= max) {
@@ -636,7 +661,7 @@ export default class OpencgaVariantGrid extends LitElement {
         if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.functionalScore !== "undefined") {
             for (let i = 0; i < row.annotation.functionalScore.length; i++) {
                 if (typeof row.annotation.functionalScore[i] !== "undefined" && row.annotation.functionalScore[i].source === "cadd_scaled" && row.type !== "INDEL") {
-                    let value = Number(row.annotation.functionalScore[i].score).toFixed(2);
+                    const value = Number(row.annotation.functionalScore[i].score).toFixed(2);
                     if (value < 15) {
                         return value;
                     } else {
@@ -661,11 +686,11 @@ export default class OpencgaVariantGrid extends LitElement {
 
     cohortFormatter(value, row, index) {
         if (typeof row !== "undefined" && typeof row.studies !== "undefined" && typeof row.studies[0].stats !== "undefined") {
-            let cohortStats = new Map();
-            for (let study of row.studies) {
+            const cohortStats = new Map();
+            for (const study of row.studies) {
                 if (study.studyId === this.field.study) {
-                    for (let cohortId in study.stats) {
-                        let cohortStat = study.stats[cohortId];
+                    for (const cohortId in study.stats) {
+                        const cohortStat = study.stats[cohortId];
                         cohortStats.set(cohortId, Number(cohortStat.maf).toFixed(4));
                     }
                     break;
@@ -680,10 +705,10 @@ export default class OpencgaVariantGrid extends LitElement {
 
     populationFrequenciesFormatter(value, row, index) {
         if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.populationFrequencies !== "undefined") {
-            let popFreqMap = new Map();
-            for (let popFreqIdx in row.annotation.populationFrequencies) {
-                let popFreq = row.annotation.populationFrequencies[popFreqIdx];
-                if (this.field.study === popFreq.study) { //&& this.field.populationMap[popFreq.population] === true
+            const popFreqMap = new Map();
+            for (const popFreqIdx in row.annotation.populationFrequencies) {
+                const popFreq = row.annotation.populationFrequencies[popFreqIdx];
+                if (this.field.study === popFreq.study) { // && this.field.populationMap[popFreq.population] === true
                     popFreqMap.set(popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
                 }
             }
@@ -699,12 +724,12 @@ export default class OpencgaVariantGrid extends LitElement {
         let phenotypeHtml = "<span><i class='fa fa-times' style='color: red'></i></span>";
         if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.variantTraitAssociation !== "undefined") {
             if (row.annotation.variantTraitAssociation != null) {
-                let traits = [];
-                let clinicalData = row.annotation.variantTraitAssociation[this.field];
+                const traits = [];
+                const clinicalData = row.annotation.variantTraitAssociation[this.field];
                 if (typeof clinicalData !== "undefined" && clinicalData.length > 0) {
                     for (let j = 0; j < clinicalData.length; j++) {
-                        if (this.field === "clinvar" && traits.indexOf(clinicalData[j].traits[0]) === -1
-                            && clinicalData[j].traits[0] !== "not specified" && clinicalData[j].traits[0] !== "not provided") {
+                        if (this.field === "clinvar" && traits.indexOf(clinicalData[j].traits[0]) === -1 &&
+                            clinicalData[j].traits[0] !== "not specified" && clinicalData[j].traits[0] !== "not provided") {
                             traits.push(clinicalData[j].traits[0]);
                         } else if (this.field === "cosmic" && traits.indexOf(clinicalData[j].primaryHistology) === -1) {
                             traits.push(clinicalData[j].primaryHistology);
@@ -731,9 +756,9 @@ export default class OpencgaVariantGrid extends LitElement {
             // NOTE: There are always 4 columns before the samples
             // This context is for row
             if (this.nucleotideGenotype) {
-                let alternateSequence = row.alternate;
-                let referenceSequence = row.reference;
-                let genotypeMatch = new Map();
+                const alternateSequence = row.alternate;
+                const referenceSequence = row.reference;
+                const genotypeMatch = new Map();
                 let colText = "";
                 let referenceValueColText = "-";
                 let alternateValueColText = "-";
@@ -741,23 +766,23 @@ export default class OpencgaVariantGrid extends LitElement {
                 genotypeMatch.set(0, referenceSequence === "" ? "-" : referenceSequence);
                 genotypeMatch.set(1, alternateSequence === "" ? "-" : alternateSequence);
 
-                row.studies.forEach((study) => {
+                row.studies.forEach(study => {
                     if (UtilsNew.isNotUndefinedOrNull(study.secondaryAlternates) && UtilsNew.isNotEmptyArray(study.secondaryAlternates)) {
-                        study.secondaryAlternates.forEach((secondary) => {
+                        study.secondaryAlternates.forEach(secondary => {
                             genotypeMatch.set(genotypeMatch.size, secondary.alternate === "" ? "-" : secondary.alternate);
                         });
                     }
                     if (UtilsNew.isNotUndefinedOrNull(study.samplesData) && UtilsNew.isNotEmptyArray(study.samplesData)) {
                         if (UtilsNew.isNotUndefinedOrNull(study.samplesData[this.fieldIndex - 4])) {
-                            let currentGenotype = study.samplesData[this.fieldIndex - 4][0];
+                            const currentGenotype = study.samplesData[this.fieldIndex - 4][0];
                             let reference = currentGenotype.split("/")[0];
                             let alternate = currentGenotype.split("/")[1];
                             let tooltipText = reference + " / " + alternate;
                             if (UtilsNew.isNotEqual(reference, ".") && UtilsNew.isNotEqual(alternate, ".")) {
                                 reference = parseInt(reference);
                                 alternate = parseInt(alternate);
-                                let referenceValue = genotypeMatch.get(reference);
-                                let alternateValue = genotypeMatch.get(alternate);
+                                const referenceValue = genotypeMatch.get(reference);
+                                const alternateValue = genotypeMatch.get(alternate);
                                 // Cases which this will cover.
                                 // referenceValue.length <= 5 && alternateVAlue.length <= 5
                                 // referenceValue.length <= 10 && alternateValue == "-"
@@ -771,30 +796,30 @@ export default class OpencgaVariantGrid extends LitElement {
                                         if (referenceValue.length > 5) {
                                             // referenceValue > 5
                                             referenceValueColText = referenceValue.substring(0, 3) + "...";
-//                                                    tooltipText += "<br>" + referenceValue +" / " + alternateValue;
+                                            //                                                    tooltipText += "<br>" + referenceValue +" / " + alternateValue;
                                         } else {
                                             // alternateValue > 5
                                             alternateValueColText = alternateValue.substring(0, 3) + "...";
-//                                                    tooltipText += "<br>" + referenceValue +" / " + alternateValue;
+                                            //                                                    tooltipText += "<br>" + referenceValue +" / " + alternateValue;
                                         }
                                     } else if (referenceValue.length > 5 && alternateValue.length > 5) {
                                         // Both > 5 It will never happen
                                         referenceValueColText = referenceValue.substring(0, 3) + "...";
                                         alternateValueColText = alternateValue.substring(0, 3) + "...";
-//                                                tooltipText += "<br>" +   referenceValue +" / " + alternateValue;
+                                        //                                                tooltipText += "<br>" +   referenceValue +" / " + alternateValue;
                                     }
                                 } else if (UtilsNew.isNotEqual(referenceValue, "-") && referenceValue.length > 10) {
                                     // X/-
-                                    let substringReference = referenceValue.substring(0, 5) + "...";
+                                    const substringReference = referenceValue.substring(0, 5) + "...";
                                     referenceValueColText = substringReference;
                                     alternateValueColText = "-";
-//                                                tooltipText += "<br>" +   referenceValue +" / " + alternateValue;
+                                    //                                                tooltipText += "<br>" +   referenceValue +" / " + alternateValue;
                                 } else if (UtilsNew.isNotEqual(alternateValue, "-") && alternateValue.length > 10) {
                                     // -/X
-                                    let substringAlternate = alternateValue.substring(0, 5) + "...";
+                                    const substringAlternate = alternateValue.substring(0, 5) + "...";
                                     alternateValueColText = substringAlternate;
                                     referenceValueColText = "-";
-//                                                tooltipText += "<br>" +   referenceValue + " / " + alternateValue;
+                                    //                                                tooltipText += "<br>" +   referenceValue + " / " + alternateValue;
                                 }
                                 tooltipText += "<br>" + referenceValue + " / " + alternateValue;
                             } else {
@@ -803,8 +828,8 @@ export default class OpencgaVariantGrid extends LitElement {
                                 tooltipText += "<br>" + reference + " / " + alternate;
                             }
 
-                            let referenceIndex = parseInt(reference);
-                            let alternateIndex = parseInt(alternate);
+                            const referenceIndex = parseInt(reference);
+                            const alternateIndex = parseInt(alternate);
                             if (referenceIndex === 1 && (referenceValueColText !== "-" && referenceValueColText !== "*")) {
                                 referenceValueColText = "<span class='orangeText'>" + referenceValueColText + "</span>";
                             } else if (referenceIndex > 1 && (referenceValueColText !== "-" && referenceValueColText !== "*")) {
@@ -822,9 +847,9 @@ export default class OpencgaVariantGrid extends LitElement {
                     }
                 });
             } else {
-                row.studies.forEach((study) => {
+                row.studies.forEach(study => {
                     if (study.samplesData.length > 0) {
-                        let currentGenotype = study.samplesData[this.fieldIndex - 4];
+                        const currentGenotype = study.samplesData[this.fieldIndex - 4];
                         if (UtilsNew.isNotUndefinedOrNull(currentGenotype)) {
                             res = currentGenotype[0];
                             return;
@@ -1002,12 +1027,12 @@ export default class OpencgaVariantGrid extends LitElement {
         let isCohortPresent = false;
         // if (typeof this._columns !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0
         //     && this.config.filter.menu.skipSubsections !== undefined && !this.config.filter.menu.skipSubsections.includes("cohort")) {
-        if (typeof this._columns !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0
-            && typeof this.cohorts[this.opencgaSession.project.id] !== "undefined") {
+        if (typeof this._columns !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0 &&
+            typeof this.cohorts[this.opencgaSession.project.id] !== "undefined") {
             isCohortPresent = true;
-            let cohortStudyIdx = 7;
-            let cohortIdx = 6;
-            let cohortStudies = Object.keys(this.cohorts[this.opencgaSession.project.id]);
+            const cohortStudyIdx = 7;
+            const cohortIdx = 6;
+            const cohortStudies = Object.keys(this.cohorts[this.opencgaSession.project.id]);
 
             this._columns[0].splice(cohortStudyIdx, 0, {
                 // title: this.opencgaSession.project.name,
@@ -1036,8 +1061,8 @@ export default class OpencgaVariantGrid extends LitElement {
         }
 
         if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
-            let popIdx = isCohortPresent ? 8 : 7;
-            let subPopIdx = isCohortPresent ? 6 + Object.keys(this.cohorts[this.opencgaSession.project.id]).length : 6;
+            const popIdx = isCohortPresent ? 8 : 7;
+            const subPopIdx = isCohortPresent ? 6 + Object.keys(this.cohorts[this.opencgaSession.project.id]).length : 6;
 
             // Just one column called 'Population Frequencies'
             this._columns[0].splice(popIdx, 0, {
@@ -1049,9 +1074,9 @@ export default class OpencgaVariantGrid extends LitElement {
             });
 
             for (let j = 0; j < this.populationFrequencies.studies.length; j++) {
-                let populations = [];
-                let populationMap = {};
-                for (let pop in this.populationFrequencies.studies[j].populations) {
+                const populations = [];
+                const populationMap = {};
+                for (const pop in this.populationFrequencies.studies[j].populations) {
                     populations.push(this.populationFrequencies.studies[j].populations[pop].id);
                     populationMap[this.populationFrequencies.studies[j].populations[pop].id] = true;
                 }
@@ -1096,17 +1121,16 @@ export default class OpencgaVariantGrid extends LitElement {
     }
 
     onDownload(e) {
-        let urlQueryParams = this._getUrlQueryParams();
-        let params = urlQueryParams.queryParams;
+        const params = this._getUrlQueryParams();
         params.limit = 1; // Default limit is 1000 for now
 
         this.downloadRefreshIcon.css("display", "inline-block");
         this.downloadIcon.css("display", "none");
 
-        let _this = this;
+        const _this = this;
         this.opencgaSession.opencgaClient.variants().query(params)
             .then(function(response) {
-                let result = response.response[0].result;
+                const result = response.response[0].result;
                 let dataString = [];
                 let mimeType = "";
                 let extension = "";
@@ -1117,7 +1141,7 @@ export default class OpencgaVariantGrid extends LitElement {
                     mimeType = "text/plain";
                     extension = ".txt";
                 } else {
-                    for (let res of result) {
+                    for (const res of result) {
                         dataString.push(JSON.stringify(res));
                     }
                     mimeType = "application/json";
@@ -1125,9 +1149,9 @@ export default class OpencgaVariantGrid extends LitElement {
                 }
 
                 // Build file and anchor link
-                let data = new Blob([dataString.join("\n")], {type: mimeType});
-                let file = window.URL.createObjectURL(data);
-                let a = document.createElement("a");
+                const data = new Blob([dataString.join("\n")], {type: mimeType});
+                const file = window.URL.createObjectURL(data);
+                const a = document.createElement("a");
                 a.href = file;
                 a.download = _this.opencgaSession.study.alias + extension;
                 document.body.appendChild(a);
@@ -1142,7 +1166,7 @@ export default class OpencgaVariantGrid extends LitElement {
             });
     }
 
-    onShare() {
+    /* onShare() {
         let _this = this;
         $("[data-toggle=popover]").popover({
             content: function() {
@@ -1161,7 +1185,7 @@ export default class OpencgaVariantGrid extends LitElement {
         }).on("show.bs.popover", function() {
             $(this).data("bs.popover").tip().css("max-width", "none");
         });
-    }
+    }*/
 
     getDefaultConfig() {
         return {
@@ -1238,6 +1262,7 @@ export default class OpencgaVariantGrid extends LitElement {
         </div>
         `;
     }
+
 }
 
 customElements.define("opencga-variant-grid", OpencgaVariantGrid);

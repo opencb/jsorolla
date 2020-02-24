@@ -43,6 +43,7 @@ export default class OpencgaFileGrid extends LitElement {
             filters: {
                 type: Object
             },
+            //TODO replace with query
             search: {
                 type: Object
             },
@@ -619,11 +620,6 @@ export default class OpencgaFileGrid extends LitElement {
 
         console.log("QUERYPARAM", queryParams);
         return {host: host, queryParams: queryParams};
-    }
-
-
-    _getUrlQueryParams() {
-        // TODO
     }
 
     onDownload(e) {

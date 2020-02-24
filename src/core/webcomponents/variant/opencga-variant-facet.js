@@ -471,7 +471,7 @@ export default class OpencgaVariantFacet extends LitElement {
 
         // this.querySelector("#loading").style.display = "block";
 
-        this.opencgaClient.variants.aggregationStats(queryParams, {})
+        this.opencgaClient.variants().aggregationStats(queryParams, {})
             .then(queryResponse => {
                 console.log("queryResponse", queryResponse);
                 this.errorState = false;
@@ -1180,7 +1180,7 @@ export default class OpencgaVariantFacet extends LitElement {
                             
                             <div class="facet-list-container">
                                 <label>Selected facets</label>
-                                <div class="facet-list panel-group panel-body">
+                                <div class="facet-list">
                                     <!-- this.selectedFacet <pre>${JSON.stringify(this.selectedFacet, null, "  ")}</pre> --> 
                                     
                                     ${Object.keys(this.selectedFacet).length > 0 ? Object.entries(this.selectedFacet).map(([, facet]) => html`

@@ -41,7 +41,7 @@ export default class VariantBeacon extends LitElement {
     }
 
     _init() {
-        this._prefix = "ovdv-" + Utils.randomString(6) + "_";
+        this._prefix = "ovdv-"/* + Utils.randomString(6) + "_"*/;
         this.checkProjects = false;
         this._config = this.getDefaultConfig();
     }

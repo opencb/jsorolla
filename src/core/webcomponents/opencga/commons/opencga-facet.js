@@ -872,7 +872,7 @@ export default class OpencgaFacet extends LitElement {
                         <div role="tabpanel" class="tab-pane" id="facet_tab" aria-expanded="true">
                             <div class="facet-selector">
                                 <label>Select a Term or Range Facet</label>
-                                    <select-field-filter multiple .data="${this._config.aggregation.sections}" .value=${Object.keys(this.selectedFacet).join(",")} @filterChange="${this.onFacetFieldChange}"></select-field-filter>
+                                    <select-field-filter multiple .data="${this._config.aggregation.sections.length > 1 ? this._config.aggregation.sections : this._config.aggregation.sections[0].fields}" .value=${Object.keys(this.selectedFacet).join(",")} @filterChange="${this.onFacetFieldChange}"></select-field-filter>
                                     <div class="text-center">
                                         <p class="or-text">- or -</p>
                                         <button class="btn btn-default btn-small ripple" @click="${this.addDefaultFacet}">Add default fields</button>
@@ -881,7 +881,7 @@ export default class OpencgaFacet extends LitElement {
                             
                             <div class="facet-list-container">
                                 <label>Selected facets</label>
-                                <div class="facet-list panel-group panel-body">
+                                <div class="facet-list">
                                     <!-- this.selectedFacet <pre>${JSON.stringify(this.selectedFacet, null, "  ")}</pre> --> 
                                     
                                     ${Object.keys(this.selectedFacet).length > 0 ? Object.entries(this.selectedFacet).map(([, facet]) => html`
