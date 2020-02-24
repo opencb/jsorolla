@@ -329,10 +329,7 @@ export default class OpencgaSampleFilter extends LitElement {
                 .notbold {
                     font-weight: normal;
                 }
-            
-                .bootstrap-select {
-                    width: 100% !important;
-                }
+
             </style>
             
             ${this.searchButton ? html`

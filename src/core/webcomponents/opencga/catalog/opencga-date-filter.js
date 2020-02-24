@@ -140,8 +140,7 @@ export default class OpencgaDateFilter extends LitElement {
                 await this.requestUpdate();
                 break;
         }
-
-        console.log("date", date);
+        $(".bootstrap-select", this).selectpicker();
         this.dispatchEvent(new CustomEvent("filterChange", {detail: {value: date}}));
     }
 
@@ -292,6 +291,9 @@ export default class OpencgaDateFilter extends LitElement {
                 padding-left: 8px;
             }
             
+            .range-box:nth-child(2) {
+                margin-top: 20px;
+            }
         </style>
 
         <div class="form-group">
@@ -321,8 +323,8 @@ export default class OpencgaDateFilter extends LitElement {
                             <form class="form-inline text-center">
                                 <div class="form-group row">
                                     <span class="${this._prefix}-text">Last</span>
-                                    <select class="form-control ${this._prefix}SelectInput ${this._prefix}-codeDis"
-                                            id="${this._prefix}RecentSelect" name="birthYear" required @change="${this.calculateFilters}">
+                                    <select class="form-control bootstrap-select ${this._prefix}-codeDis"
+                                            id="${this._prefix}RecentSelect" name="birthYear" required @change="${this.calculateFilters}" data-size="10">
                                         <option value="1" ?selected="${this.matchesRecentDaysConfig(1)}">1</option>
                                         <option value="2" ?selected="${this.matchesRecentDaysConfig(2)}">2</option>
                                         <option value="3" ?selected="${this.matchesRecentDaysConfig(3)}">3</option>
@@ -366,15 +368,15 @@ export default class OpencgaDateFilter extends LitElement {
                         <div>
                             <form class="form-inline">
                                 <div class="form-group row">
-                                    <select class="form-control ${this._prefix}SelectInput ${this._prefix}-codeDis"
+                                    <select class="bootstrap-select form-control ${this._prefix}-codeDis col-md-4"
                                             id="${this._prefix}YearSelect" name="birthYear" required @change="${this.calculateFilters}">
                                         ${this.yearsToSearch.length && this.yearsToSearch.map(item => html`
                                             <option value="${item}">${item}</option>
                                         `)}
                                     </select>
         
-                                    <label style="padding: 0px 2px">-</label>
-                                    <select class="form-control ${this._prefix}SelectInput ${this._prefix}-codeDis"
+                                    <label>-</label>
+                                    <select class="bootstrap-select form-control ${this._prefix}-codeDis col-md-4"
                                             id="${this._prefix}MonthSelect" name="birthYear" required @change="${this.calculateFilters}">
                                         <option value="any">Any</option>
                                         ${this.monthToSearch.length && this.monthToSearch.map(item => html`
@@ -382,9 +384,9 @@ export default class OpencgaDateFilter extends LitElement {
                                         `)}
                                     </select>
         
-                                    <label style="padding: 0px 2px">-</label>
-                                    <select class="form-control ${this._prefix}SelectInput ${this._prefix}-codeDis"
-                                            id="${this._prefix}DaySelect" name="birthYear" required @change="${this.calculateFilters}">
+                                    <label>-</label>
+                                    <select class="bootstrap-select form-control ${this._prefix}-codeDis col-md-4"
+                                            id="${this._prefix}DaySelect" name="birthYear" required @change="${this.calculateFilters}" data-size="10">
                                         <option value="any">Any</option>
                                         ${this.daysToSearch.length && this.daysToSearch.map(item => html`
                                             <option value="${item}">${item}</option>
@@ -398,65 +400,68 @@ export default class OpencgaDateFilter extends LitElement {
                     
                     ${this.activatedRanges ? html`
                         <div>
-                            <label class="${this._prefix}-text" style="padding-left: 10px;">Begin periode</label>
-                            <form class="form-inline">
-                                <div class="form-group row">
-                                    <select class="form-control ${this._prefix}SelectInput ${this._prefix}-codeDis"
-                                            id="${this._prefix}YearSelectFrom" name="birthYear" required @change="${this.calculateFilters}">
-                                         ${this.yearsToSearch.length && this.yearsToSearch.map(item => html`
-                                            <option value="${item}">${item}</option>
-                                        `)}
-                                    </select>
-        
-                                    <label style="padding: 0px 2px">-</label>
-                                    <select class="form-control ${this._prefix}SelectInput ${this._prefix}-codeDis"
-                                            id="${this._prefix}MonthSelectFrom" name="birthYear" required @change="${this.calculateFilters}">
-                                        <option value="any">Any</option>
-                                         ${this.monthToSearch.length && this.monthToSearch.map(item => html`
-                                            <option value="${item}">${item}</option>
-                                        `)}
-                                    </select>
-        
-                                    <label style="padding: 0px 2px">-</label>
-                                    <select class="form-control ${this._prefix}SelectInput ${this._prefix}-codeDis"
-                                            id="${this._prefix}DaySelectFrom" name="birthYear" required @change="${this.calculateFilters}">
-                                        <option value="any">Any</option>
-                                         ${this.daysToSearch.length && this.daysToSearch.map(item => html`
-                                            <option value="${item}">${item}</option>
-                                        `)}
-                                    </select>
-                                </div>
-                            </form>
-    
-                            <label class="${this._prefix}-text" style="padding-left: 10px;">End periode</label>
-                            <form class="form-inline">
-                                <div class="form-group row">
-                                    <select class="form-control ${this._prefix}SelectInput ${this._prefix}-codeDis"
-                                            id="${this._prefix}YearSelectTo" name="birthYear" required @change="${this.calculateFilters}">
-                                         ${this.yearsToSearch.length && this.yearsToSearch.map(item => html`
-                                            <option value="${item}">${item}</option>
-                                        `)}
-                                    </select>
-        
-                                    <label style="padding: 0px 2px">-</label>
-                                    <select class="form-control ${this._prefix}SelectInput ${this._prefix}-codeDis"
-                                            id="${this._prefix}MonthSelectTo" name="birthYear" required @change="${this.calculateFilters}">
-                                        <option value="any">Any</option>
-                                         ${this.monthToSearch.length && this.monthToSearch.map(item => html`
-                                            <option value="${item}">${item}</option>
-                                        `)}
-                                    </select>
-        
-                                    <label style="padding: 0px 2px">-</label>
-                                    <select class="form-control ${this._prefix}SelectInput ${this._prefix}-codeDis"
-                                            id="${this._prefix}DaySelectTo" name="birthYear" required @change="${this.calculateFilters}">
-                                        <option value="any">Any</option>
-                                         ${this.daysToSearch.length && this.daysToSearch.map(item => html`
-                                            <option value="${item}">${item}</option>
-                                        `)}
-                                    </select>
-                                </div>
-                            </form>
+                            <div class="range-box">
+                                <label class="${this._prefix}-text">Begin periode</label>
+                                <form class="form-inline">
+                                    <div class="form-group row">
+                                        <select class="bootstrap-select form-control ${this._prefix}-codeDis col-md-4"
+                                                id="${this._prefix}YearSelectFrom" name="birthYear" required @change="${this.calculateFilters}">
+                                             ${this.yearsToSearch.length && this.yearsToSearch.map(item => html`
+                                                <option value="${item}">${item}</option>
+                                            `)}
+                                        </select>
+            
+                                        <label>-</label>
+                                        <select class="bootstrap-select form-control ${this._prefix}-codeDis col-md-4"
+                                                id="${this._prefix}MonthSelectFrom" name="birthYear" required @change="${this.calculateFilters}">
+                                            <option value="any">Any</option>
+                                             ${this.monthToSearch.length && this.monthToSearch.map(item => html`
+                                                <option value="${item}">${item}</option>
+                                            `)}
+                                        </select>
+            
+                                        <label>-</label>
+                                        <select class="bootstrap-select form-control ${this._prefix}-codeDis col-md-4"
+                                                id="${this._prefix}DaySelectFrom" name="birthYear" required @change="${this.calculateFilters}" data-size="10">
+                                            <option value="any">Any</option>
+                                             ${this.daysToSearch.length && this.daysToSearch.map(item => html`
+                                                <option value="${item}">${item}</option>
+                                            `)}
+                                        </select>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="range-box">
+                                <label class="${this._prefix}-text">End periode</label>
+                                <form class="form-inline">
+                                    <div class="form-group row">
+                                        <select class="bootstrap-select form-control ${this._prefix}-codeDis col-md-4"
+                                                id="${this._prefix}YearSelectTo" name="birthYear" required @change="${this.calculateFilters}">
+                                             ${this.yearsToSearch.length && this.yearsToSearch.map(item => html`
+                                                <option value="${item}">${item}</option>
+                                            `)}
+                                        </select>
+            
+                                        <label>-</label>
+                                        <select class="bootstrap-select form-control ${this._prefix}-codeDis col-md-4"
+                                                id="${this._prefix}MonthSelectTo" name="birthYear" required @change="${this.calculateFilters}">
+                                            <option value="any">Any</option>
+                                             ${this.monthToSearch.length && this.monthToSearch.map(item => html`
+                                                <option value="${item}">${item}</option>
+                                            `)}
+                                        </select>
+            
+                                        <label>-</label>
+                                        <select class="bootstrap-select form-control ${this._prefix}-codeDis col-md-4"
+                                                id="${this._prefix}DaySelectTo" name="birthYear" required @change="${this.calculateFilters}" data-size="10">
+                                            <option value="any">Any</option>
+                                             ${this.daysToSearch.length && this.daysToSearch.map(item => html`
+                                                <option value="${item}">${item}</option>
+                                            `)}
+                                        </select>
+                                    </div>
+                                </form>
+                            </div>
                         </div>` : null}
                     </div>
             </form>

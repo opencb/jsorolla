@@ -2131,11 +2131,6 @@ export default class OpencgaVariantFilter extends LitElement {
     render() {
         return html`
             <style include="jso-styles">
-       
-            span + span {
-                margin-left: 10px;
-            }
-
             .browser-ct-scroll {
                 /*max-height: 450px;*/
                 /*overflow-y: scroll;*/
@@ -2181,19 +2176,6 @@ export default class OpencgaVariantFilter extends LitElement {
                 text-align: left;
                 font-weight: normal;
             }
-
-            select + select {
-                margin-left: 10px;
-            }
-
-            select + input {
-                margin-left: 10px;
-            }
-
-            .bootstrap-select {
-                width: 100%!important;
-            }            
-            
         </style>
         <div>
             ${this.searchButton ? html`
