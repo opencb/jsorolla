@@ -15,7 +15,10 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "./../../../utils.js";
+import UtilsNew from "./../../../utilsNew.js";
 import "../../cellbase/core/cellbase-gene-filter.js";
+
 
 export default class OpencgaPanelTranscriptView extends LitElement {
 

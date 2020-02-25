@@ -1,4 +1,10 @@
-class LinearGeneTrack extends LinearFeatureTrack {
+import Utils from "./../utils.js";
+import UtilsNew from "./../utilsNew.js";
+import LinearFeatureTrack from "./FeatureTrack.js";
+import {CellBaseClientConfig} from "../clients/cellbase-client.js";
+
+
+export default class LinearGeneTrack extends LinearFeatureTrack {
 
     /*
     args = {

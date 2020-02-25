@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
+import Util from "../../utils.js";
+import UtilsNew from "../../utilsNew.js";
+
 
 export default class ReactomeVariantNetwork extends LitElement {
 
@@ -44,25 +47,25 @@ export default class ReactomeVariantNetwork extends LitElement {
             config: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = "ReactomeVariantNetwork-" + Utils.randomString(6) + "_";
         this.active = true;
     }
     static get observers() {
-        return ['propertyObserver(opencgaSession, reactomeClient, genes, active, config)'];
+        return ["propertyObserver(opencgaSession, reactomeClient, genes, active, config)"];
     }
 
     updated(changedProperties) {
         this._config = {...this.getDefaultConfig(), ...this.config};
 
-        if (this.active && UtilsNew.isNotEmptyArray(this.genes) && UtilsNew.isNotUndefinedOrNull(this.reactomeClient)
-            && UtilsNew.isNotUndefinedOrNull(this.opencgaSession)) {
+        if (this.active && UtilsNew.isNotEmptyArray(this.genes) && UtilsNew.isNotUndefinedOrNull(this.reactomeClient) &&
+            UtilsNew.isNotUndefinedOrNull(this.opencgaSession)) {
 
             // Get the position of the current selected element
-            let position = $(`#${this._prefix}-geneSelect`)[0].selectedIndex;
+            const position = $(`#${this._prefix}-geneSelect`)[0].selectedIndex;
 
             let gene = "";
             if (position + 1 > this.genes.length) {
@@ -89,16 +92,16 @@ export default class ReactomeVariantNetwork extends LitElement {
     }
 
 
-    //TODO recheck if connectedCallback() works
+    // TODO recheck if connectedCallback() works
     connectedCallback() {
         super.connectedCallback();
 
         // We add this first listener to get a call whenever the first element is loaded
-        $(`#${this._prefix}-pathwaySelect`).on('loaded.bs.select', this.onPathwayChange.bind(this));
-        $(`#${this._prefix}-geneSelect`).on('loaded.bs.select', this.onGeneChange.bind(this));
+        $(`#${this._prefix}-pathwaySelect`).on("loaded.bs.select", this.onPathwayChange.bind(this));
+        $(`#${this._prefix}-geneSelect`).on("loaded.bs.select", this.onGeneChange.bind(this));
         // We add this listener to receive any future change over the selected pathways
-        $(`#${this._prefix}-pathwaySelect`).on('changed.bs.select', this.onPathwayChange.bind(this));
-        $(`#${this._prefix}-geneSelect`).on('changed.bs.select', this.onGeneChange.bind(this));
+        $(`#${this._prefix}-pathwaySelect`).on("changed.bs.select", this.onPathwayChange.bind(this));
+        $(`#${this._prefix}-geneSelect`).on("changed.bs.select", this.onGeneChange.bind(this));
     }
 
     propertyObserver(opencgaSession, reactomeClient, genes, active, config) {
@@ -122,19 +125,19 @@ export default class ReactomeVariantNetwork extends LitElement {
     _fetchPathwayForDisplay(stableId) {
         if (typeof this._diagram === "undefined") {
             this._diagram = Reactome.Diagram.create({
-                "placeHolder" : this._prefix + "-diagram",
-                "width" : 1500,
-                "height" : 500
+                "placeHolder": this._prefix + "-diagram",
+                "width": 1500,
+                "height": 500
             });
         }
 
         // Show selected diagram
         this._diagram.loadDiagram(stableId);
 
-        let _this = this;
-        this._diagram.onDiagramLoaded(function (loaded) {
+        const _this = this;
+        this._diagram.onDiagramLoaded(function(loaded) {
             // We look for the stable ids where the gene is represented in the diagram
-            let gene = $(`#${_this._prefix}-geneSelect`).selectpicker('val');
+            const gene = $(`#${_this._prefix}-geneSelect`).selectpicker("val");
             _this._diagram.flagItems(gene);
         });
 
@@ -149,15 +152,15 @@ export default class ReactomeVariantNetwork extends LitElement {
     }
 
     _fetchPathwaysForGene(gene) {
-        let _this = this;
+        const _this = this;
 
         // check species
         this.reactomeClient.contentServiceClient().mappingClient().pathways("ENSEMBL", gene,
             {species: 9606})
-            .then(function (response) {
-                let diagrammedPathways = [];
+            .then(function(response) {
+                const diagrammedPathways = [];
                 for (let i = 0; i < response.length; i++) {
-                    let pathway = response[i];
+                    const pathway = response[i];
                     if (pathway.hasDiagram) {
                         diagrammedPathways.push(pathway);
                     }
@@ -170,7 +173,7 @@ export default class ReactomeVariantNetwork extends LitElement {
 
                 _this._fetchPathwayForDisplay(diagrammedPathways[0].stId);
             })
-            .catch(function (response) {
+            .catch(function(response) {
                 console.log(response);
                 _this.pathways = [];
 
@@ -181,15 +184,15 @@ export default class ReactomeVariantNetwork extends LitElement {
     }
 
     renderDomRepeat(e) {
-        $(`#${this._prefix}-geneSelect`).selectpicker('refresh');
-        $(`#${this._prefix}-geneSelect`).selectpicker('deselectAll');
-        $(`#${this._prefix}-pathwaySelect`).selectpicker('refresh');
-        $(`#${this._prefix}-pathwaySelect`).selectpicker('deselectAll');
+        $(`#${this._prefix}-geneSelect`).selectpicker("refresh");
+        $(`#${this._prefix}-geneSelect`).selectpicker("deselectAll");
+        $(`#${this._prefix}-pathwaySelect`).selectpicker("refresh");
+        $(`#${this._prefix}-pathwaySelect`).selectpicker("deselectAll");
     }
 
     getDefaultConfig() {
         return {
-        }
+        };
     }
 
     render() {
@@ -220,5 +223,6 @@ export default class ReactomeVariantNetwork extends LitElement {
         </div>
         `;
     }
+
 }
 customElements.define("reactome-variant-network", ReactomeVariantNetwork);

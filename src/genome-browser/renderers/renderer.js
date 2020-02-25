@@ -1,5 +1,8 @@
+import {SVG} from "./../../core/svg.js";
+
+
 //Parent class for all renderers
-class Renderer {
+export default class Renderer {
 
     constructor(args) {
         this.fontClass = "ocb-font-roboto ocb-font-size-11";

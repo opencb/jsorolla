@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import UtilsNew from "../utilsNew.js";
 
-/**
- * Created by pfurio on 11/02/19.
- */
-class ExonViewer {
+export default class ExonViewer {
 
     constructor(div, exons, tracks, config) {
         if (typeof div === "string") {

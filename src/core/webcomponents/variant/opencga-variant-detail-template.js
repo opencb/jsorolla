@@ -15,9 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-
-//TODO decomment at the end of the refactor (Polymer2 imports this as script and I cannot use it as module)
-//import Region from './../../../region.js';
+import Utils from "./../../utils.js";
+import UtilsNew from "../../utilsNew.js";
+import Region from './../../region.js';
 
 class OpencgaVariantDetailTemplate extends LitElement {
 

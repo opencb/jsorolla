@@ -15,6 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "./../../utils.js";
+import UtilsNew from "../../utilsNew.js";
+import PolymerUtils from "../PolymerUtils.js";
 import "./opencga-variant-filter.js";
 import "./opencga-variant-interpretation-editor.js";
 import "./opencga-variant-grid.js";
@@ -27,6 +30,7 @@ import "../opencga/opencga-active-filters.js";
 import "../opencga/opencga-genome-browser.js";
 import "../opencga/clinical/clinical-interpretation-view.js";
 import "./opencga-variant-interpreter-genome-browser.js";
+
 
 class OpencgaVariantInterpretation extends LitElement {
 

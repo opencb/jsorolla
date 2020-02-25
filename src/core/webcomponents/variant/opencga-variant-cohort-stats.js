@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "../../utils";
+import UtilsNew from "../../utilsNew";
+
 
 export default class OpencgaVariantCohortStats extends LitElement {
 
@@ -43,7 +46,7 @@ export default class OpencgaVariantCohortStats extends LitElement {
             config: {
                 type: Object
             }
-        }
+        };
     }
 
     _init() {
@@ -52,16 +55,16 @@ export default class OpencgaVariantCohortStats extends LitElement {
     }
 
     updated(_changedProperties) {
-        if(_changedProperties.has("variant")) {
+        if (_changedProperties.has("variant")) {
             this.variantObserver();
         }
 
-        if(_changedProperties.has("active")) {
+        if (_changedProperties.has("active")) {
             this.activeObserver();
         }
     }
 
-    //TODO why 2 functions?
+    // TODO why 2 functions?
     activeObserver(e) {
         this._fetchCohortStats(e);
     }
@@ -71,10 +74,10 @@ export default class OpencgaVariantCohortStats extends LitElement {
     }
 
     _fetchCohortStats(e) {
-        if (UtilsNew.isNotUndefinedOrNull(this.variant) && this.variant.split(':').length > 2 && this.active) {
-            let [chromosome, start, ref, alt] = this.variant.split(":");
+        if (UtilsNew.isNotUndefinedOrNull(this.variant) && this.variant.split(":").length > 2 && this.active) {
+            const [chromosome, start, ref, alt] = this.variant.split(":");
             this.region = new Region(chromosome + ":" + start);
-            let params = {
+            const params = {
                 id: this.variant,
                 studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
                 includeStudy: "all",
@@ -82,15 +85,15 @@ export default class OpencgaVariantCohortStats extends LitElement {
                 useSearchIndex: "no"
             };
 
-            let cohorts = {};
-            for (let section of this.config.sections) {
-                for (let subsection of section.subsections) {
+            const cohorts = {};
+            for (const section of this.config.sections) {
+                for (const subsection of section.subsections) {
                     if (subsection.id === "cohort") {
                         // let _cohorts = subsection.cohorts[this.opencgaSession.project.id];
                         if (UtilsNew.isNotUndefinedOrNull(subsection.cohorts[this.opencgaSession.project.id])) {
-                            for (let _study of Object.keys(subsection.cohorts[this.opencgaSession.project.id])) {
+                            for (const _study of Object.keys(subsection.cohorts[this.opencgaSession.project.id])) {
                                 cohorts[_study] = new Set();
-                                for (let cohort of subsection.cohorts[this.opencgaSession.project.id][_study]) {
+                                for (const cohort of subsection.cohorts[this.opencgaSession.project.id][_study]) {
                                     cohorts[_study].add(cohort.id);
                                 }
                             }
@@ -100,20 +103,20 @@ export default class OpencgaVariantCohortStats extends LitElement {
                 }
             }
 
-            let _this = this;
+            const _this = this;
             this.opencgaSession.opencgaClient.variants().query(params)
-                .then(function (response) {
+                .then(function(response) {
                     if (typeof response.response[0].result[0] !== "undefined") {
-                        let _variantStudies = response.response[0].result[0].studies;
+                        const _variantStudies = response.response[0].result[0].studies;
                         for (let i = 0; i < _variantStudies.length; i++) {
-                            let study = _variantStudies[i].studyId.split(':')[1];
-                            let statsObject = _variantStudies[i].stats;
-                            let statsArray = [];
+                            const study = _variantStudies[i].studyId.split(":")[1];
+                            const statsObject = _variantStudies[i].stats;
+                            const statsArray = [];
                             Object.keys(statsObject).map(key => {
-                                if (typeof statsObject[key].mafAllele !== "undefined" && statsObject[key].mafAllele !== -1
-                                    && (cohorts[study] === undefined || cohorts[study].has(key))) {
+                                if (typeof statsObject[key].mafAllele !== "undefined" && statsObject[key].mafAllele !== -1 &&
+                                    (cohorts[study] === undefined || cohorts[study].has(key))) {
                                     statsObject[key].maf = _this._freqFormatter(statsObject[key].maf || 0);
-                                    statsObject[key].mafAllele = statsObject[key].mafAllele || '-';
+                                    statsObject[key].mafAllele = statsObject[key].mafAllele || "-";
                                     if (statsObject[key].alleleCount < 0) {
                                         statsObject[key].alleleCount = statsObject[key].refAlleleCount + statsObject[key].altAlleleCount;
                                     }
@@ -137,13 +140,13 @@ export default class OpencgaVariantCohortStats extends LitElement {
                                             name: key,
                                             value: statsObject[key],
                                             study: study
-                                        })
+                                        });
                                     } else {
                                         statsArray.push({
                                             name: key,
                                             value: statsObject[key],
                                             study: study
-                                        })
+                                        });
                                     }
                                 }
                             });
@@ -152,8 +155,8 @@ export default class OpencgaVariantCohortStats extends LitElement {
                         _this.set("variantStudies", _variantStudies);
                     }
                 })
-                .catch(function (reason) {
-                    console.error(reason)
+                .catch(function(reason) {
+                    console.error(reason);
                 });
         }
     }
@@ -161,7 +164,7 @@ export default class OpencgaVariantCohortStats extends LitElement {
     // TODO remove this function in OpenCGA 1.4.x since we will use new Study.id instead of Study.alias
     getStudy(study) {
         if (study !== undefined) {
-            let fields = study.split(':');
+            const fields = study.split(":");
             return fields[fields.length - 1];
         }
         return "";
@@ -175,8 +178,8 @@ export default class OpencgaVariantCohortStats extends LitElement {
     }
 
     handleCollapseAction(e) {
-        let id = e.target.dataset.id;
-        let elem = $('#' + this._prefix + id)[0];
+        const id = e.target.dataset.id;
+        const elem = $("#" + this._prefix + id)[0];
         elem.hidden = !elem.hidden;
         if (elem.hidden) {
             e.target.className = "fa fa-plus-circle";
@@ -244,6 +247,7 @@ export default class OpencgaVariantCohortStats extends LitElement {
                 `)}
         `;
     }
+
 }
 
-customElements.define('opencga-variant-cohort-stats', OpencgaVariantCohortStats);
+customElements.define("opencga-variant-cohort-stats", OpencgaVariantCohortStats);

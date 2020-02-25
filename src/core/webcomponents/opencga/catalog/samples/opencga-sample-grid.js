@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-// TODO check functionality (this.set and this.push has been replaced)
 import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "./../../../../utils.js";
+import UtilsNew from "./../../../../utilsNew.js";
+import PolymerUtils from "../../../PolymerUtils.js";
 import "../../../commons/opencb-grid-toolbar.js";
+
 
 export default class OpencgaSampleGrid extends LitElement {
 

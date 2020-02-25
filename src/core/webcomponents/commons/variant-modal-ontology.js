@@ -15,6 +15,10 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "./../../utils.js";
+import UtilsNew from "./../../utilsNew.js";
+import PolymerUtils from "../PolymerUtils.js";
+
 
 //TODO FIXME selectedTerms: reopening the modal they are wrong (array of strings)
 export default class VariantModalOntology extends LitElement {
@@ -50,7 +54,7 @@ export default class VariantModalOntology extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("selectedTerms")) {
-            //selectedTerm observer to handle subsequent reopening of the modal after a first selection 
+            //selectedTerm observer to handle subsequent reopening of the modal after a first selection
         }
         if (changedProperties.has("ontologyFilter")) {
             this.ontologyFilterObserver();

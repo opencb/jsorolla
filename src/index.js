@@ -26,3 +26,7 @@ export OpencgaFamilyFacet from "./core/webcomponents/opencga/catalog/family/open
 export OpencgaCohortFacet from "./core/webcomponents/opencga/catalog/cohorts/opencga-cohort-facet.js";
 export OpencgaGwasAnalysis from "./core/webcomponents/variant/analysis/opencga-gwas-analysis.js";
 export OpencgaVariantInterpretation from "./core/webcomponents/variant/opencga-variant-interpretation.js";
+
+export Utils from "./core/utils.js";
+export UtilsNew from "./core/utilsNew.js";
+//export NotificationUtils from "./core/NotificationUtils.js"; we don't need it since it is not directly called from iva-app, it's a 2rd level dep.

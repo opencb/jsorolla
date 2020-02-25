@@ -15,8 +15,13 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "./../../utils.js";
+import UtilsNew from "./../../utilsNew.js";
+import PolymerUtils from "../PolymerUtils.js";
+import Region from "../../region.js";
 import "../../../genome-browser/webcomponent/genome-browser.js";
 import "./catalog/samples/opencga-sample-browser.js";
+
 
 export default class OpencgaGenomeBrowser extends LitElement {
 

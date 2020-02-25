@@ -15,6 +15,10 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "./../../utils.js";
+import PolymerUtils from "../PolymerUtils.js";
+
+
 //TODO Lollipop dependency
 
 export default class VariantProteinView extends LitElement {

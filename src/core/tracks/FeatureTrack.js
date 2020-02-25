@@ -1,4 +1,9 @@
-class LinearFeatureTrack {
+import Utils from "./../utils.js";
+import UtilsNew from "./../utilsNew.js";
+import HistogramRenderer from "../../genome-browser/renderers/histogram-renderer.js";
+
+
+export default class LinearFeatureTrack {
 
     constructor(args, config) {
         this.id = Utils.genId("track");

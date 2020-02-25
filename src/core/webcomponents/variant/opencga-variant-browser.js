@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "./../../utils.js";
+import UtilsNew from "../../utilsNew.js";
 // import "./opencga-variant-cohort-stats.js";
 // import "./opencga-variant-samples.js";
 import "./opencga-variant-facet-query.js";
@@ -27,6 +29,7 @@ import "./opencga-variant-filter.js";
 import "./opencga-variant-grid.js";
 // import "./opencga-variant-detail-template.js";
 import "./opencga-variant-detail-view.js";
+
 
 export default class OpencgaVariantBrowser extends LitElement {
 

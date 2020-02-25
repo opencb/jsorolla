@@ -15,9 +15,12 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "./../../../utils.js";
+
 
 /** NOTE - Design choice: in case of single mode (this.multiple=false), in order to show the placeholder ("Select an option") and NOT adding a dummy option to allow null selection,
  *  the single selection mode is implemented still with the multiple flag in bootstrap-select, but forcing 1 selection with data-max-options=1
+ *  (this has no consequences for the developer point of view)
  */
 
 export default class SelectFieldFilter extends LitElement {

@@ -1,5 +1,8 @@
-//TODO decomment at the end of the refactor
-/*export default */ class Region {
+import Utils from "./utils.js";
+import UtilsNew from "./utilsNew.js";
+
+
+export default class Region {
 
     constructor(args) {
         this.chromosome = null;

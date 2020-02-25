@@ -1,4 +1,8 @@
-class CoverageRenderer {
+import UtilsNew from "../../utilsNew.js";
+import {SVG} from "./../../svg.js";
+
+
+export default class CoverageRenderer {
 
     constructor(target, config) {
         Object.assign(this, Backbone.Events);

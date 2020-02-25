@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "./../../../utils.js";
 
 export default class BiotypeFilter extends LitElement {
 

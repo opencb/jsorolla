@@ -15,6 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "./../../../utils.js";
+import UtilsNew from "../../../utilsNew.js";
+
 
 //TODO FIX in textarea is always used a comma as separator, but in case of loading a saved filter this component could receive a text with semicolon as separator.
 

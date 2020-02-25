@@ -15,7 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-// import "./opencga-variant-filter.js";
+import Utils from "./../../../utils.js";
+import UtilsNew from "./../../../utilsNew.js";
+import PolymerUtils from "../../PolymerUtils.js";
 import "./opencga-facet-result-view.js";
 import "../../opencga/opencga-active-filters.js";
 import "../../commons/filters/select-field-filter.js";

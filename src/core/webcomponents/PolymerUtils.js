@@ -1,4 +1,7 @@
-class PolymerUtils {
+import UtilsNew from "../utilsNew.js";
+
+
+export default class PolymerUtils {
 
     static isNotEmptyValueById(id) {
         const value = PolymerUtils.getValue(id);

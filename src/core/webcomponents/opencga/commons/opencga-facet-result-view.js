@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import UtilsNew from "../../../utilsNew.js";
+import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "./../../../utils.js";
+import PolymerUtils from "../../PolymerUtils.js";
 
 //TODO fixbug querying opencga-client PhastCons - 1kG_phase3_EAS
-
-import {LitElement, html} from "/web_modules/lit-element.js";
-
 
 export default class OpencgaFacetResultView extends LitElement {
 

@@ -15,7 +15,10 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import { CountUp } from '/node_modules/countup.js/dist/countUp.min.js';
+import Utils from "./../../../utils.js";
+import UtilsNew from "../../../utilsNew.js";
+import {CountUp} from '/node_modules/countup.js/dist/countUp.min.js';
+
 
 export default class OpencgaProjects extends LitElement {
 

@@ -1,4 +1,8 @@
-class GeneRenderer {
+import UtilsNew from "../../utilsNew.js";
+import {SVG} from "./../../svg.js";
+
+
+export default class GeneRenderer {
 
     constructor(config) {
         this.config = this._getDefaultConfig().combine(config);

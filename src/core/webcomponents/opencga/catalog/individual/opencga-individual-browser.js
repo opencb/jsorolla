@@ -15,15 +15,14 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-
+import Utils from "./../../../../utils.js";
+import UtilsNew from "../../../../utilsNew.js";
+import PolymerUtils from "../../../PolymerUtils.js";
 import "./opencga-individual-filter.js";
 import "./opencga-individual-grid.js";
 import "../../opencga-active-filters.js";
 import "../../commons/opencga-facet-view.js";
 
-/* it was imported as html module but not used
-import "../variableSets/opencga-annotation-comparator.js";
-*/
 
 export default class OpencgaIndividualBrowser extends LitElement {
 

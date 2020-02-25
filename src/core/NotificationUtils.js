@@ -1,4 +1,7 @@
-class NotificationUtils {
+import UtilsNew from "./utilsNew.js";
+
+
+export default class NotificationUtils {
 
     // Notify api: http://bootstrap-notify.remabledesigns.com/
     static showNotify(message = "", type = "INFO", options = {}, settings = {}, opencgaClient = null, notifyInstance = null) {
@@ -54,7 +57,10 @@ class NotificationUtils {
         }
     }
 
+
+    //TODO check why this method is here...
     static refreshToken(event) {
+        console.log("refreshtoken")
         const _this = this;
         this.opencgaClient.refresh().then(response => {
             const sessionId = response.getResult(0).token;

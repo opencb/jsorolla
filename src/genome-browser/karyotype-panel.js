@@ -1,7 +1,9 @@
-/**
- * Created by agaor on 14/08/17.
- */
-class KaryotypePanel {
+import Utils from "../core/utils.js";
+import UtilsNew from "../core/utilsNew.js";
+import Region from "../core/region.js";
+
+
+export default class KaryotypePanel {
 
     constructor(args) {
         Object.assign(this, Backbone.Events);

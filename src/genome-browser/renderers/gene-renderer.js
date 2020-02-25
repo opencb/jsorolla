@@ -1,4 +1,9 @@
-class GeneRenderer extends Renderer {
+import UtilsNew from "../../core/utilsNew.js";
+import Rendered from "./renderer.js";
+import {SVG} from "./../../core/svg.js";
+
+
+export default class GeneRenderer extends Renderer {
 
     constructor(args) {
         super(args);

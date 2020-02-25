@@ -16,6 +16,9 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {RestResponse} from "../../../clients/RestResponse.js";
+import Utils from "./../../../utils.js";
+import UtilsNew from "./../../../utilsNew.js";
+
 
 export default class OpencgaLogin extends LitElement {
 
@@ -108,6 +111,7 @@ export default class OpencgaLogin extends LitElement {
                     }
                 })
                 .catch(function(response) {
+                    console.log(response)
                     const _message = this.errorMessage = response.error || "Login error. Please check your credentials.";
                     console.log(response.getEvents())
                     this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {

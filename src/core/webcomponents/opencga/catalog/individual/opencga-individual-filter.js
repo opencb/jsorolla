@@ -16,11 +16,14 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-
+import Utils from "./../../../../utils.js";
+import UtilsNew from "./../../../../utilsNew.js";
+import PolymerUtils from "../../../PolymerUtils.js";
 import "../variableSets/opencga-annotation-filter.js";
 import "../opencga-date-filter.js";
 import "../../../commons/filters/text-field-filter.js";
 import "../../../commons/filters/select-field-filter.js";
+
 
 export default class OpencgaIndividualFilter extends LitElement {
 

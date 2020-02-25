@@ -15,6 +15,10 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "./../../core/utils.js";
+import UtilsNew from "./../../core/utilsNew.js";
+import PolymerUtils from "../../core/webcomponents/PolymerUtils.js";
+
 
 export default class GenomeBrowserComponent extends LitElement {
 

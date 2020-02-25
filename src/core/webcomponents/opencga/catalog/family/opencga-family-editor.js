@@ -15,7 +15,10 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "./../../../../utils.js";
+import PolymerUtils from "../../../PolymerUtils.js";
 import "../individual/opencga-individual-browser.js";
+
 
 export default class OpencgaFamilyEditor extends LitElement {
 

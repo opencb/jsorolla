@@ -1,4 +1,11 @@
-class LinearCoverageTrack extends LinearFeatureTrack {
+import Utils from "./../utils.js";
+import UtilsNew from "./../utilsNew.js";
+import LinearFeatureTrack from "./FeatureTrack.js";
+import CoverageRenderer from "./renderers/CoverageRenderer.js";
+import {SVG} from "./../svg.js";
+
+
+export default class LinearCoverageTrack extends LinearFeatureTrack {
 
     /*
     args = {

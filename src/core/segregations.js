@@ -1,4 +1,8 @@
-class Segregations {
+import Utils from "./utils.js";
+import UtilsNew from "./utilsNew.js";
+
+
+export default class Segregations {
 
     static decisionTreeInheritance() {
         return {

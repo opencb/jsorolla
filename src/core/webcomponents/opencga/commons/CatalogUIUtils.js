@@ -1,4 +1,6 @@
-class CatalogUIUtils {
+import UtilsNew from "../../../utilsNew.js";
+
+export default class CatalogUIUtils {
 
     constructor() {
 

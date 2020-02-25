@@ -17,12 +17,15 @@
 //TODO check functionality
 
 import {LitElement, html} from '/web_modules/lit-element.js';
-
+import Utils from "./../../../../utils.js";
+import UtilsNew from "./../../../../utilsNew.js";
+import PolymerUtils from "../../../PolymerUtils.js";
 import "./opencga-sample-filter.js";
 import "./opencga-sample-grid.js";
 import "../../opencga-active-filters.js";
 import "../variableSets/opencga-annotation-comparator.js";
 import "../../commons/opencga-facet-view.js";
+
 
 export default class OpencgaSampleBrowser extends LitElement {
 

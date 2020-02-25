@@ -15,6 +15,9 @@
  */
 
 import {LitElement, html} from '/web_modules/lit-element.js';
+import Utils from "./../../utils.js";
+import UtilsNew from "./../../utilsNew.js";
+
 
 export default class OpencbGridToolbar extends LitElement {
 
@@ -140,8 +143,7 @@ export default class OpencbGridToolbar extends LitElement {
                                                         <li>
                                                             <a data-column-id="${item.field}" @click="${this.onColumnClick}" style="cursor: pointer;">
                                                                 <input type="checkbox" @click="${this.checkboxToggle}" .checked="${this.isTrue(item.visible)}"/>
-                                                                <span class="checkmark-label">${item.title}</span>
-                                                                <span class="checkmark"></span>
+                                                                <label class="checkmark-label">${item.title}</label>
                                                             </a>
                                                         </li>` : null)
                                                 : null}

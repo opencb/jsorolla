@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
+import Utils from "../../utils.js";
+import UtilsNew from "../../utilsNew.js";
+
+
 //TODO urgent review of the whole class
 
-class VariantGridFormatter {
+export default class VariantGridFormatter {
 
     constructor(opencgaSession, config) {
         this.opencgaSession = opencgaSession;

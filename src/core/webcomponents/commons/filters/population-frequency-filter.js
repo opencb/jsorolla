@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "./../../../utils.js";
 
 /*
 * UX improvement: mouse drag for the numeric fields (e.g. jquery.stepper.js)

@@ -15,7 +15,11 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "./../../../utils.js";
+import UtilsNew from "../../../utilsNew.js";
+import PolymerUtils from "../../PolymerUtils.js";
 import "../catalog/opencga-date-filter.js";
+
 
 export default class OpencgaClinicalAnalysisFilter extends LitElement {
 

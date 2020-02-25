@@ -16,6 +16,8 @@
 
 import {RestClient} from "./rest-client.js";
 import {RestResponse} from "./RestResponse.js";
+import UtilsNew from "./../utilsNew.js";
+
 
 export class OpenCGAClientConfig {
 

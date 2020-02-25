@@ -15,6 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "./../../../../utils.js";
+import UtilsNew from "../../../../utilsNew.js";
+
 
 export default class OpencgaAnnotationComparator extends LitElement {
 

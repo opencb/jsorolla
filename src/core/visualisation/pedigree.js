@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-/**
- * Created by imedina on 16/05/17.
- */
-class Pedigree {
+import UtilsNew from "../utilsNew.js";
+import {SVG} from "./../../core/svg.js";
+
+
+export default class Pedigree {
 
     constructor(pedigree, settings) {
         this.pedigree = pedigree;
@@ -189,8 +190,9 @@ class Pedigree {
 
         if (showSampleNames) {
             let text = SVG.addChild(svg, "text", {
-                x: x - radius + 2,  y: y + width + 15,
-                style: "fill: black;font-size=6px;font-weight:8"
+                x: x - radius + 2,
+                y: y + width + 15,
+                style: "fill: black;font-size:11px"
             });
             text.textContent = object.name;
         }

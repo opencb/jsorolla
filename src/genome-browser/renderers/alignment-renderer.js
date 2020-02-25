@@ -1,5 +1,8 @@
+import UtilsNew from "../../core/utilsNew.js";
+import Rendered from "./renderer.js";
+import {SVG} from "./../../core/svg.js";
 
-class AlignmentRenderer extends Renderer {
+export default class AlignmentRenderer extends Renderer {
 
     constructor(args) {
         super(args);

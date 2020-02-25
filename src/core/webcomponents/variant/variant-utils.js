@@ -1,11 +1,11 @@
 /**
  * Created by swaathi on 28/03/17.
  */
+import UtilsNew from "../../utilsNew.js";
 
-/*
-*  TODO add jsdoc
-* */
-class VariantUtils {
+
+// TODO refactor
+export default class VariantUtils {
 
     static jsonToTabConvert(json, studiesPopFrequencies, samples, nucleotideGenotype) {
         let dataString = [];

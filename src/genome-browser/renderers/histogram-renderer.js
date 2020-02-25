@@ -1,3 +1,8 @@
+import UtilsNew from "../../core/utilsNew.js";
+import Rendered from "./renderer.js";
+import {SVG} from "./../../core/svg.js";
+
+
 /**
   @param  args example:
         {
@@ -8,7 +13,7 @@
             ...
         }
  */
-class HistogramRenderer extends Renderer {
+export default class HistogramRenderer extends Renderer {
 
     constructor(args) {
         super(args);

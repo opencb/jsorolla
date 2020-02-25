@@ -1,4 +1,4 @@
-class UtilsNew {
+export default class UtilsNew {
 
     static get MESSAGE_SUCCESS() {
         return "SUCCESS";

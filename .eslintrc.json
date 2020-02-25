@@ -23,6 +23,8 @@
     "comma-dangle": ["error", "never"],
     "arrow-parens": ["error","as-needed"],
     "no-invalid-this": 0,
-    "babel/no-invalid-this": 1
+    "babel/no-invalid-this": 1,
+    "babel/object-curly-spacing": 1,
+    "object-curly-spacing": 1
   }
 }

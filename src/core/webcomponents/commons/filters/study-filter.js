@@ -15,7 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "./../../../utils.js";
 import "./select-field-filter.js";
+
 
 //TODO continue, bootstrap-select doesn't evaluate as selected a disabled option, but in case of AND/OR operator selected we need both
 

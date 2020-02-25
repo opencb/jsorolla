@@ -15,6 +15,10 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "./../../../../utils.js";
+import UtilsNew from "../../../../utilsNew.js";
+import PolymerUtils from "../../../PolymerUtils.js";
+
 
 export default class OpencgaPanelFilter extends LitElement {
 

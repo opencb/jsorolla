@@ -15,7 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "./../../../utils.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
+
 
 export default class OpencgaGwasAnalysis extends LitElement {
 

@@ -1,3 +1,8 @@
+import UtilsNew from "../../core/utilsNew.js";
+import Rendered from "./renderer.js";
+import {SVG} from "./../../core/svg.js";
+
+
 /**
  * Stateless (or almost) object to render variants.
  *
@@ -6,7 +11,7 @@
  *
  * @type {Renderer}
  */
-class VariantRenderer extends Renderer {
+export class VariantRenderer extends Renderer {
 
     /*
      *

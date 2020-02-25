@@ -1,7 +1,8 @@
-/**
- * Created by agaor on 14/08/17.
- */
-class ChromosomePanel {
+import Utils from "../core/utils.js";
+import UtilsNew from "../core/utilsNew.js";
+import Region from "../core/region.js";
+
+export default class ChromosomePanel {
     constructor(args) {
         Object.assign(this, Backbone.Events);
 

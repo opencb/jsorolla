@@ -15,7 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "./../../../utils.js";
 import "../commons/opencga-facet.js";
+
 
 export default class OpencgaClinicalAnalysisFacet extends LitElement {
 

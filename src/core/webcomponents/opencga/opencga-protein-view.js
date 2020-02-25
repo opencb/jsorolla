@@ -15,10 +15,11 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "./../../utils.js";
+import UtilsNew from "../../utilsNew.js";
+import PolymerUtils from "../PolymerUtils.js";
+import "./../variant/opencga-variant-grid.js";
 
-/*
-<link rel="import" href="variant/opencga-variant-grid.html">
-*/
 
 export default class OpencgaProteinView extends LitElement {
 

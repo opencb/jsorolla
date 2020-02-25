@@ -24,7 +24,7 @@
 //	for ( var key in attributes){
 //		el.setAttribute(key, attributes[key]);
 //	}
-//	
+//
 //	// insert child at requested index, or as last child if index is too high or no index is specified
 //    if ( null == index ) {
 //      this.appendChild( el );
@@ -36,7 +36,7 @@
 //      }
 //      var targetEl = this.childNodes[ targetIndex ];
 //      if ( targetEl ) {
-//        this.insertBefore( el, targetEl ); 
+//        this.insertBefore( el, targetEl );
 //      }
 //      else {
 //        this.appendChild( el );
@@ -48,7 +48,7 @@
 //	return this.addChildSVG("svg", attributes);
 // };
 
-const SVG = {
+export const SVG = {
 
     create(elementName, attributes) {
         const el = document.createElementNS("http://www.w3.org/2000/svg", elementName);
@@ -149,15 +149,15 @@ const SVG = {
 // ////		attributes['xmlns:xlink'] = SVG.xlinkns;
 // ////		attributes.push( ['xmlns', SVG.svgns], ['xmlns:xlink', 'http://www.w3.org/1999/xlink']);
 // //		var svg = document.createElementNS(SVG.svgns, "svg");
-// //		
+// //
 // //		for ( var key in attributes){
 // //			svg.setAttribute(key, attributes[key]);
 // //		}
-// //		
+// //
 // //		parentNode.appendChild(svg);
 // //		return svg;
-// //	}, 
-//	
+// //	},
+//
 //	//Shape types : rect, circle, ellipse, line, polyline, polygon , path
 //	createElement : function (svgNode, shapeName, attributes) {
 //		try{
@@ -169,7 +169,7 @@ const SVG = {
 //				console.log("BIOINFO Warn: on SVG.createRectangle: height is negative, will be set to 0");
 //				attributes.height=0;
 //			}
-//			
+//
 //			var shape = document.createElementNS('http://www.w3.org/2000/svg', shapeName);
 //			for ( var key in attributes){
 //				shape.setAttribute(key, attributes[key]);
@@ -189,17 +189,17 @@ const SVG = {
 //
 //
 // var CanvasToSVG = {
-//		
+//
 //	convert: function(sourceCanvas, targetSVG, x, y, id, attributes) {
-//		
+//
 //		var img = this._convert(sourceCanvas, targetSVG, x, y, id);
-//		
+//
 //		for (var i=0; i< attributes.length; i++)
 //		{
 //			img.setAttribute(attributes[i][0], attributes[i][1]);
 //		}
 //	},
-//	
+//
 //	_convert: function(sourceCanvas, targetSVG, x, y, id) {
 //		var svgNS = "http://www.w3.org/2000/svg";
 //		var xlinkNS = "http://www.w3.org/1999/xlink";
@@ -210,11 +210,11 @@ const SVG = {
 //		var svgimg = document.createElementNS(svgNS, "image");
 //
 //		svgimg.setAttribute('id', id);
-//	
+//
 //		//svgimg.setAttribute('class', class);
 //		//svgimg.setAttribute('xlink:href', image);
 //		svgimg.setAttributeNS(xlinkNS, 'xlink:href', image);
-//		
+//
 //
 //		svgimg.setAttribute('x', x ? x : 0);
 //		svgimg.setAttribute('y', y ? y : 0);
@@ -222,11 +222,11 @@ const SVG = {
 //		svgimg.setAttribute('height', sourceCanvas.height);
 //		//svgimg.setAttribute('cursor', 'pointer');
 //		svgimg.imageData = image;
-//	
+//
 //		targetSVG.appendChild(svgimg);
 //		return svgimg;
 //	},
-//	
+//
 //	importSVG: function(sourceSVG, targetCanvas) {
 //	    svg_xml = sourceSVG;//(new XMLSerializer()).serializeToString(sourceSVG);
 //	    var ctx = targetCanvas.getContext('2d');
@@ -237,5 +237,5 @@ const SVG = {
 //	        ctx.drawImage(img, 0, 0);
 // //	    };
 //	}
-//	
+//
 // };

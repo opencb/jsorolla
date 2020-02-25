@@ -15,6 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "./../../utils.js";
+import UtilsNew from "./../../utilsNew.js";
+import PolymerUtils from "../PolymerUtils.js";
 import "../commons/variant-modal-ontology.js";
 import "../commons/filters/cadd-filter.js";
 import "../commons/filters/biotype-filter.js";
@@ -36,6 +39,7 @@ import "../commons/filters/protein-substitution-score-filter.js";
 import "../commons/filters/sample-filter.js";
 import "../commons/filters/study-filter.js";
 import "../commons/filters/variant-type-filter.js";
+
 
 //TODO complete lit-html refactor
 export default class OpencgaVariantFilter extends LitElement {

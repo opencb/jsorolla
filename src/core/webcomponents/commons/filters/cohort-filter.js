@@ -15,6 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "./../../../utils.js";
+import UtilsNew from "../../../utilsNew.js";
+import PolymerUtils from "../../PolymerUtils.js";
 
 // TODO Refactor needed it needs updated() [never saw how does it looks in IVA]
 
