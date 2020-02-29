@@ -626,7 +626,14 @@ export default class OpencgaFacet extends LitElement {
                                                        .eventNotifyName="${this.eventNotifyName}"
                                                        .files="${this.files}"
                                                        @selectfile="${this.onSelectFile}">
-                                 </opencga-file-grid>`;
+                                 </opencga-file-grid>
+                            <h3> Annotation comparator</h3>
+                            <opencga-annotation-viewer .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                                       .opencgaSession="${this.opencgaSession}"
+                                                       .config="${this._config}"
+                                                       .entryIds="${this.files}"
+                                                       entity="FILE">
+                            </opencga-annotation-viewer>`;
             case "samples":
                 this.endpoint = this.opencgaSession.opencgaClient.samples();
                 return html`<opencga-sample-grid .opencgaSession="${this.opencgaSession}"
@@ -932,13 +939,14 @@ export default class OpencgaFacet extends LitElement {
                     
                     <div>
                         <opencga-active-filters facetActive 
-                                                .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                                .opencgaSession="${this.opencgaSession}"
                                                 .defaultStudy="${this.opencgaSession.study.alias}"
                                                 .query="${this.preparedQuery}"
                                                 .refresh="${this.executedQuery}"
                                                 .facetQuery="${this.selectedFacetFormatted}"
                                                 .alias="${this.activeFilterAlias}"
                                                 .config="${this._config.activeFilters}"
+                                                .filters="${this._config.filter.examples}"
                                                 @activeFacetChange="${this.onActiveFacetChange}"
                                                 @activeFacetClear="${this.onActiveFacetClear}"
                                                 @activeFilterChange="${this.onActiveFilterChange}"

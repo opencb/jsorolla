@@ -1,7 +1,8 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Util from "../../../../utils.js";
+import Utils from "../../../../utils.js";
 import UtilsNew from "../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
+import NotificationUtils from "../../../../NotificationUtils.js";
 import "./opencga-variable-selector.js";
 
 // TODO replicate and check on-dom-change behaviour
@@ -42,7 +43,6 @@ export default class OpencgaAnnotationFilter extends LitElement {
     }
 
     _init() {
-        // super.ready();
         this._prefix = "oaf-" + Utils.randomString(6);
         this.multipleVariableSets = false;
         this._config = this.getDefaultConfig();

@@ -120,7 +120,6 @@ class OpencgaVariantInterpretation extends LitElement {
         // this.lofe = ["missense_variant", "transcript_ablation", "splice_acceptor_variant", "splice_donor_variant", "stop_gained",
         //     "frameshift_variant", "stop_lost", "start_lost", "transcript_amplification", "inframe_insertion", "inframe_deletion"].join(", ");
 
-        this._config = this.getDefaultConfig();
         this.query = {};
         this.search = {};
     }

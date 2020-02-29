@@ -265,7 +265,6 @@ export default class OpencgaIndividualFilter extends LitElement {
                 content = html`<select-field-filter ?multiple="${subsection.multiple}" .data="${subsection.allowedValues}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
                 break;
             case "annotations":
-                if (!this.variableSet || !this.variableSet.length) return;
                 content = html`<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
                                                       .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                       entity="INDIVIDUAL"

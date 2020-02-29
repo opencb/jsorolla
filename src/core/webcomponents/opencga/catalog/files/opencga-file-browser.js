@@ -251,7 +251,7 @@ export default class OpencgaFileBrowser extends LitElement {
             </div>
 
             <div class="col-md-10">
-                <opencga-active-filters .opencgaClient="${this.opencgaSession.opencgaClient}"
+                <opencga-active-filters .opencgaSession="${this.opencgaSession}"
                                         .query="${this.preparedQuery}"
                                         .refresh="${this.executedQuery}"
                                         .defaultStudy="${this.opencgaSession.study.alias}"

@@ -178,6 +178,20 @@ export default class OpencgaSampleFacet extends LitElement {
                         ]
                     }
                 ],
+                examples: [
+                    {
+                        name: "Full",
+                        active: false,
+                        query: {
+                            id: "HG",
+                            individual: "LP",
+                            source: "LP",
+                            phenotypes: "melanoma",
+                            somatic: "True",
+                            creationDate: ">=20200216"
+                        }
+                    }
+                ],
                 result: {
                     grid: {
                         pageSize: 10,

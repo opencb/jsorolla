@@ -152,7 +152,7 @@ export default class OpencgaPanelBrowser extends LitElement {
                     <div class="col-md-10">
 
                         <br>
-                        <opencga-active-filters .opencgaClient="${this.opencgaClient}"
+                        <opencga-active-filters .opencgaSession="${this.opencgaSession}"
                                                 .query="${this.query}"
                                                 .filters="${this._config.filters}"
                                                 .defaultStudy="${this.opencgaSession.study.fqn}"

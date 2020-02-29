@@ -226,7 +226,6 @@ export default class OpencgaFamilyFilter extends LitElement {
 
     _createSection(section) {
         const htmlFields = section.fields && section.fields.length && section.fields.map(subsection => this._createSubSection(subsection));
-        console.log(htmlFields)
         return this.config.sections.length > 1 ? html`<section-filter .config="${section}" .filters="${htmlFields}">` : htmlFields;
     }
 
@@ -239,7 +238,6 @@ export default class OpencgaFamilyFilter extends LitElement {
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;
             case "annotations":
-                if (!this.variableSet || !this.variableSet.length) return;
                 content = html`<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
                                                       .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                       entity="FAMILY"

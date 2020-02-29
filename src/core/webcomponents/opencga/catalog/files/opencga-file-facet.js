@@ -185,11 +185,15 @@ export default class OpencgaFileFacet extends LitElement {
                 ],
                 examples: [
                     {
-                        name: "Example BRCA2",
+                        name: "Full",
                         active: false,
                         query: {
-                            gene: "BRCA2",
-                            conservation: "phylop<0.001"
+                            name: "bam",
+                            path: "genomes",
+                            sample: "hg3333",
+                            format: "VCF,BCF,GVCF,BIGWIG",
+                            bioformat: "ALIGNMENT",
+                            creationDate: ">=20200216"
                         }
                     }
                 ],

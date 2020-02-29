@@ -250,7 +250,6 @@ export default class OpencgaFileFilter extends LitElement {
                 content = html`<select-field-filter multiple .value="${this.preparedQuery.format}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange("format", e.detail.value)}"></select-field-filter>`;
                 break;
             case "annotations":
-                if (!this.variableSet || !this.variableSet.length) return;
                 content = html`<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
                                                           .config="${this.annotationFilterConfig}"
                                                           entity="FILE"

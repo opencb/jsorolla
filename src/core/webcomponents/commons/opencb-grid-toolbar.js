@@ -120,6 +120,13 @@ export default class OpencbGridToolbar extends LitElement {
 
     render(){
         return html`
+            <style>
+
+                opencb-grid-toolbar .checkbox-container label:before {
+                    margin-top: 5px;
+                }
+                
+            </style>
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-12" style="padding: 5px 0px 0px 0px">
@@ -161,7 +168,7 @@ export default class OpencbGridToolbar extends LitElement {
                                     </button>
                                     <ul class="dropdown-menu btn-sm">
                                         ${this._config.download.length && this._config.download.map(item => html`
-                                                <li><a data-download-option="${item}" @click="${this.onDownloadFile}">${item}</a></li>
+                                                <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownloadFile}">${item}</a></li>
                                         `) }
                                     </ul>
                                 </div>

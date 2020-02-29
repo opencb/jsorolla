@@ -161,7 +161,7 @@ class OpencbFacetQuery extends LitElement {
 
         console.warn("queryParams", queryParams);
 
-        this.opencgaSession.opencgaClient[this.resource]().aggregationStats(queryParams, {})
+        this.opencgaSession.opencgaClient[this.resource]().aggregationStats(queryParams)
             .then(queryResponse => {
                 this.facetResults = queryResponse.response[0].result[0].results;
                 this.loading = false;

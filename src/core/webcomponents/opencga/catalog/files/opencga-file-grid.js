@@ -341,7 +341,7 @@ export default class OpencgaFileGrid extends LitElement {
      * If filters have been removed, clean the values from the forms.
      */
     onFilterUpdate() {
-        this.updateForms(this.filters);
+        //this.updateForms(this.filters); //TODO recheck, this shouldn't be necessary anymore (and it seems not)
     }
 
     _onSelectFile(row) {

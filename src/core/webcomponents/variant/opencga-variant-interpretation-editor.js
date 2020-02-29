@@ -370,10 +370,12 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
             };
 
             const _this = this;
+            console.error("new client recheck");
             this.opencgaSession.opencgaClient.interpretations().create(this.clinicalAnalysis.id, params, interpretation)
                 .then(response => {
                     console.log(response);
                     // TODO We should update here clinicalAnalysis and add to interpretation list this file with its name from save interpertation form.
+                    console.error("interpretation ref is not defined");
                     if (UtilsNew.isNotUndefinedOrNull(interpretation) && UtilsNew.isNotUndefinedOrNull(interpretation.clinicalAnalysis)) {
                         if (UtilsNew.isEmptyArray(interpretation.clinicalAnalysis.interpretations)) {
                             interpretation.clinicalAnalysis.interpretations = [];
@@ -393,7 +395,8 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
                         study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias
                     };
                     const interpretations = {interpretations: interpretation.clinicalAnalysis.interpretations};
-                    _this.opencgaSession.opencgaClient.clinical().update(interpretation.clinicalAnalysis.id, params, interpretations)
+                    console.log("new clients change")
+                    _this.opencgaSession.opencgaClient.clinical().update(interpretation.clinicalAnalysis.id, interpretations, params)
                         .then(response => {
                             this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
                                 detail: {
@@ -455,7 +458,7 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
             study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
         };
         const _this = this;
-        this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, params, {})
+        this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, params)
             .then(function(response) {
                 _this.showSummary = false;
                 if (response.response[0].numResults === 1) {

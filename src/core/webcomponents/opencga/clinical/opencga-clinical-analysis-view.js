@@ -162,7 +162,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                 study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
             };
             const _this = this;
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, params, {})
+            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, params)
                 .then(function(response) {
                     _this.showSummary = false;
                     if (response.response[0].numResults === 1) {

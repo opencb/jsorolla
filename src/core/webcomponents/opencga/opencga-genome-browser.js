@@ -203,7 +203,7 @@ export default class OpencgaGenomeBrowser extends LitElement {
                     include: "id,name",
                     includeIndividual: false,
                     limit: 20
-                }, {})
+                })
                 .then(function(response) {
                     //                            _this.autocompleteSampleData = response.response[0].result;
                     let options = "";

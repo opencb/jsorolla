@@ -63,7 +63,7 @@ export default class OpencgaIndividualGrid extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        //this.renderTable(this.active);
+        // this.renderTable(this.active);
     }
 
     updated(changedProperties) {
@@ -98,7 +98,7 @@ export default class OpencgaIndividualGrid extends LitElement {
 
         this.individuals = [];
 
-        let filters = Object.assign({}, this.query);
+        const filters = Object.assign({}, this.query);
 
         // Initialise the counters
         this.from = 1;
@@ -123,7 +123,7 @@ export default class OpencgaIndividualGrid extends LitElement {
             }
 
             // Check that HTTP protocol is present and complete the URL
-            /*let opencgaHostUrl = this.opencgaClient.getConfig().host;
+            /* let opencgaHostUrl = this.opencgaClient.getConfig().host;
             if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
                 opencgaHostUrl = "http://" + opencgaHostUrl;
             }
@@ -132,12 +132,12 @@ export default class OpencgaIndividualGrid extends LitElement {
 
             let skipCount = false;
 
-            let _table = $("#" + this._prefix + "IndividualBrowserGrid");
+            const _table = $("#" + this._prefix + "IndividualBrowserGrid");
 
-            let _this = this;
+            const _this = this;
             $("#" + this._prefix + "IndividualBrowserGrid").bootstrapTable("destroy");
             $("#" + this._prefix + "IndividualBrowserGrid").bootstrapTable({
-                //url: opencgaHostUrl,
+                // url: opencgaHostUrl,
                 columns: _this._columns,
                 method: "get",
                 sidePagination: "server",
@@ -153,7 +153,7 @@ export default class OpencgaIndividualGrid extends LitElement {
 
                 // Make Polymer components avalaible to table formatters
                 gridContext: _this,
-                /*queryParams: function(params) {
+                /* queryParams: function(params) {
                     if (this.pageNumber > 1) {
                         skipCount = true;
                     }
@@ -176,12 +176,12 @@ export default class OpencgaIndividualGrid extends LitElement {
                     return Object.assign({}, filters, auxParams);
                 },*/
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
-                ajax: (params) => {
+                ajax: params => {
                     if (this.pageNumber > 1) {
                         skipCount = true;
                     }
-                    let _filters = {
-                        //study: this.opencgaSession.study.fqn,
+                    const _filters = {
+                        // study: this.opencgaSession.study.fqn,
                         order: params.data.order,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
@@ -190,7 +190,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                     };
                     this.opencgaSession.opencgaClient.individuals().search(_filters)
                         .then( res => params.success(res))
-                        .catch( e => console.error(e)) ;
+                        .catch( e => console.error(e));
                 },
                 responseHandler: function(response) {
                     if (!skipCount) {
@@ -221,7 +221,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                     if (_this._config.multiSelection) {
                         // Check and uncheck when clicking in the checkbox TD cell
                         if (field === "state") {
-                            let index = element[0].dataset.index;
+                            const index = element[0].dataset.index;
                             if (element[0].className.includes("selected")) {
                                 $(PolymerUtils.getElementById(_this._prefix + "IndividualBrowserGrid")).bootstrapTable("uncheck", index);
                             } else {
@@ -232,7 +232,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                             }
                         } else {
                             // If user has clicked in the row
-                            let index = element[0].dataset.index;
+                            const index = element[0].dataset.index;
                             if (element[0].className.includes("selected")) {
                                 $(PolymerUtils.getElementById(_this._prefix + "IndividualBrowserGrid")).bootstrapTable("uncheck", index);
                                 $(element).removeClass("success");
@@ -261,15 +261,15 @@ export default class OpencgaIndividualGrid extends LitElement {
                 },
                 onCheck: function(row, element) {
                     // check individual is not already selected
-                    for (let i in _this._individuals) {
+                    for (const i in _this._individuals) {
                         if (_this._individuals[i].id === row.id) {
                             return;
                         }
                     }
 
                     // we add individuals to selected individuals
-                    //_this.push("_individuals", row);
-                    //_this.set("individuals", _this._individuals.slice());
+                    // _this.push("_individuals", row);
+                    // _this.set("individuals", _this._individuals.slice());
                     _this._individuals.push(row);
                     _this.individuals = _this._individuals.slice();
 
@@ -281,7 +281,7 @@ export default class OpencgaIndividualGrid extends LitElement {
 
                     // If exist on single nested sample we must check it
                     if (row.samples.length === 1) {
-                        let checkbox = PolymerUtils.getElementById(_this._prefix + row.samples[0].id + "Checkbox");
+                        const checkbox = PolymerUtils.getElementById(_this._prefix + row.samples[0].id + "Checkbox");
                         if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
                             checkbox.checked = true;
                         }
@@ -289,7 +289,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                 },
                 onUncheck: function(row, elem) {
                     let individualToDeleteIdx = -1;
-                    for (let i in _this.individuals) {
+                    for (const i in _this.individuals) {
                         if (_this.individuals[i].id === row.id) {
                             individualToDeleteIdx = i;
                             break;
@@ -300,8 +300,8 @@ export default class OpencgaIndividualGrid extends LitElement {
                         return;
                     }
 
-                    //_this.splice("_individuals", individualToDeleteIdx, 1);
-                    //_this.set("individuals", _this._individuals.slice());
+                    // _this.splice("_individuals", individualToDeleteIdx, 1);
+                    // _this.set("individuals", _this._individuals.slice());
                     _this._individuals.splice(individualToDeleteIdx, 1);
                     _this.individuals = _this._individuals.slice();
 
@@ -312,8 +312,8 @@ export default class OpencgaIndividualGrid extends LitElement {
 
                     // We must uncheck nested checked samples
                     if (row.samples.length > 0) {
-                        for (let sample of row.samples) {
-                            let checkbox = PolymerUtils.getElementById(_this._prefix + sample.id + "Checkbox");
+                        for (const sample of row.samples) {
+                            const checkbox = PolymerUtils.getElementById(_this._prefix + sample.id + "Checkbox");
                             if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
                                 checkbox.checked = false;
                             }
@@ -321,10 +321,10 @@ export default class OpencgaIndividualGrid extends LitElement {
                     }
                 },
                 onCheckAll: function(rows) {
-                    let newIndividuals = _this._individuals.slice();
+                    const newIndividuals = _this._individuals.slice();
                     // check individual is not already selected
-                    rows.forEach((individual) => {
-                        let existsNewSelected = _this._individuals.some((individualSelected) => {
+                    rows.forEach(individual => {
+                        const existsNewSelected = _this._individuals.some(individualSelected => {
                             return individualSelected.id === individual.id;
                         });
 
@@ -335,13 +335,13 @@ export default class OpencgaIndividualGrid extends LitElement {
 
                     // we add individuals to selected individuals
                     _this._individuals = newIndividuals;
-                    //_this.set("individuals", newIndividuals.slice());
+                    // _this.set("individuals", newIndividuals.slice());
                     _this.individuals = newIndividuals.slice();
 
                     // We must uncheck nested checked samples
-                    for (let row of rows) {
+                    for (const row of rows) {
                         if (row.samples.length === 1) {
-                            let checkbox = PolymerUtils.getElementById(_this._prefix + row.samples[0].id + "Checkbox");
+                            const checkbox = PolymerUtils.getElementById(_this._prefix + row.samples[0].id + "Checkbox");
                             if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
                                 checkbox.checked = true;
                             }
@@ -350,8 +350,8 @@ export default class OpencgaIndividualGrid extends LitElement {
                 },
                 onUncheckAll: function(rows) {
                     // check individual is not already selected
-                    rows.forEach((individual) => {
-                        _this._individuals = _this._individuals.filter((individualSelected) => {
+                    rows.forEach(individual => {
+                        _this._individuals = _this._individuals.filter(individualSelected => {
                             return individualSelected.id !== individual.id;
                         });
                     });
@@ -360,9 +360,9 @@ export default class OpencgaIndividualGrid extends LitElement {
                     _this.individuals = _this._individuals.slice();
 
                     // We must uncheck nested checked samples
-                    for (let row of rows) {
-                        for (let sample of row.samples) {
-                            let checkbox = PolymerUtils.getElementById(_this._prefix + sample.id + "Checkbox");
+                    for (const row of rows) {
+                        for (const sample of row.samples) {
+                            const checkbox = PolymerUtils.getElementById(_this._prefix + sample.id + "Checkbox");
                             if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
                                 checkbox.checked = false;
                             }
@@ -378,8 +378,8 @@ export default class OpencgaIndividualGrid extends LitElement {
                         }
 
                         if (_this.individuals !== "undefined") {
-                            for (let idx in _this.individuals) {
-                                for (let j in data.rows) {
+                            for (const idx in _this.individuals) {
+                                for (const j in data.rows) {
                                     if (_this.individuals[idx].id === data.rows[j].id) {
                                         $(PolymerUtils.getElementById(_this._prefix + "IndividualBrowserGrid")).bootstrapTable("check", j);
                                         break;
@@ -406,7 +406,7 @@ export default class OpencgaIndividualGrid extends LitElement {
     }
 
     _onSelectIndividual(row, event) {
-        console.log("row, event", row, event)
+        console.log("row, event", row, event);
         if (UtilsNew.isNotUndefinedOrNull(row)) {
             if (UtilsNew.isUndefinedOrNull(event) || event !== "onLoad") {
                 this.dispatchEvent(new CustomEvent("selectindividual", {
@@ -420,7 +420,7 @@ export default class OpencgaIndividualGrid extends LitElement {
     }
 
     onColumnChange(e) {
-        let table = $("#" + this._prefix + "IndividualBrowserGrid");
+        const table = $("#" + this._prefix + "IndividualBrowserGrid");
         if (e.detail.selected) {
             table.bootstrapTable("showColumn", e.detail.id);
         } else {
@@ -457,12 +457,12 @@ export default class OpencgaIndividualGrid extends LitElement {
                                     </thead>
                                     <tbody>`;
 
-            for (let sample of row.samples) {
+            for (const sample of row.samples) {
                 let tableCheckboxRow = "";
                 // If parent row is checked and there is only one samlpe then it must be selected
                 if (this.gridContext._config.multiSelection) {
                     let checkedStr = "";
-                    for (let individual of this.gridContext.individuals) {
+                    for (const individual of this.gridContext.individuals) {
                         if (individual.id === row.id && row.samples.length === 1) {
                             // TODO check sampkle has been checked before, we need to store them
                             checkedStr = "checked";
@@ -473,11 +473,11 @@ export default class OpencgaIndividualGrid extends LitElement {
                     tableCheckboxRow = `<td><input id='${this.gridContext.prefix}${sample.id}Checkbox' type='checkbox' ${checkedStr}></td>`;
                 }
 
-                let source = (UtilsNew.isNotEmpty(sample.source)) ? sample.source : "-";
-                let collectionMethod = (sample.collection !== undefined) ? sample.collection.method : "-";
-                let preparationMethod = (sample.processing !== undefined) ? sample.processing.preparationMethod : "-";
-                let cellLine = (sample.somatic) ? "Somatic" : "Germline";
-                let creationDate = moment(sample.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY");
+                const source = (UtilsNew.isNotEmpty(sample.source)) ? sample.source : "-";
+                const collectionMethod = (sample.collection !== undefined) ? sample.collection.method : "-";
+                const preparationMethod = (sample.processing !== undefined) ? sample.processing.preparationMethod : "-";
+                const cellLine = (sample.somatic) ? "Somatic" : "Germline";
+                const creationDate = moment(sample.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY");
 
                 result += `<tr class="detail-view-row">
                                         ${tableCheckboxRow}
@@ -490,7 +490,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                                         <td>${sample.status.name}</td>
                                    </tr>`;
             }
-            result += `</tbody></table></diV>`;
+            result += "</tbody></table></diV>";
         } else {
             result += "No samples found";
         }
@@ -536,7 +536,7 @@ export default class OpencgaIndividualGrid extends LitElement {
     disordersFormatter(value, row) {
         if (UtilsNew.isNotEmpty(value)) {
             let disordersHtml = "<div>";
-            for (let disorder of value) {
+            for (const disorder of value) {
                 disordersHtml += `<span>${disorder.id}</span>`;
             }
             disordersHtml += "</div>";
@@ -549,8 +549,8 @@ export default class OpencgaIndividualGrid extends LitElement {
     phenotypesFormatter(value, row) {
         if (UtilsNew.isNotEmptyArray(value)) {
             let phenotypeTooltipText = "";
-            for (let phenotype of value) {
-                phenotypeTooltipText += `<div style="padding: 5px">`;
+            for (const phenotype of value) {
+                phenotypeTooltipText += "<div style=\"padding: 5px\">";
                 if (UtilsNew.isNotUndefinedOrNull(phenotype.source) && phenotype.source.toUpperCase() === "HPO") {
                     phenotypeTooltipText += `<span><a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})</span>`;
                 } else {
@@ -559,7 +559,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                 phenotypeTooltipText += "</div>";
             }
 
-            let html = `<div class="phenotypesTooltip" data-tooltip-text='${phenotypeTooltipText}' align="center">
+            const html = `<div class="phenotypesTooltip" data-tooltip-text='${phenotypeTooltipText}' align="center">
                                     <a style="cursor: pointer">
                                         ${value.length} terms found
                                     </a>
@@ -574,7 +574,7 @@ export default class OpencgaIndividualGrid extends LitElement {
     samplesFormatter(value, row) {
         if (UtilsNew.isNotEmptyArray(row.samples)) {
             let samples = "<div>";
-            for (let sample of row.samples) {
+            for (const sample of row.samples) {
                 samples += `<div>${sample.id}</div>`;
             }
             samples += "</div>";
@@ -597,10 +597,10 @@ export default class OpencgaIndividualGrid extends LitElement {
 
     _initTableColumns() {
         // Check column visibility
-        let customAnnotationVisible = (UtilsNew.isNotUndefinedOrNull(this._config.customAnnotations)
-            && UtilsNew.isNotEmptyArray(this._config.customAnnotations.fields));
+        const customAnnotationVisible = (UtilsNew.isNotUndefinedOrNull(this._config.customAnnotations) &&
+            UtilsNew.isNotEmptyArray(this._config.customAnnotations.fields));
 
-        let columns = [];
+        const columns = [];
         if (this._config.multiSelection) {
             columns.push({
                 field: "state",
@@ -706,7 +706,7 @@ export default class OpencgaIndividualGrid extends LitElement {
     onDownload(e) {
         // let urlQueryParams = this._getUrlQueryParams();
         // let params = urlQueryParams.queryParams;
-        //console.log(this.opencgaSession);
+        // console.log(this.opencgaSession);
         const params = {
             ...this.query,
             study: this.opencgaSession.study.fqn,
@@ -714,14 +714,14 @@ export default class OpencgaIndividualGrid extends LitElement {
             limit: 1000,
             skip: 0,
             includeIndividual: true,
-            skipCount: true,
+            skipCount: true
 
         };
 
         this.opencgaSession.opencgaClient.individuals().search(params)
             .then(response => {
                 const result = response.response[0].result;
-                console.log(result)
+                console.log(result);
                 let dataString = [];
                 let mimeType = "";
                 let extension = "";
@@ -743,7 +743,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                                 _.creationDate,
                                 _.status.name
                             ].join("\t"))];
-                        //console.log(dataString);
+                        // console.log(dataString);
                         mimeType = "text/plain";
                         extension = ".txt";
                     } else {
@@ -770,8 +770,8 @@ export default class OpencgaIndividualGrid extends LitElement {
                 }
             })
             .then(function() {
-                //this.downloadRefreshIcon.css("display", "none");
-                //this.downloadIcon.css("display", "inline-block");
+                // this.downloadRefreshIcon.css("display", "none");
+                // this.downloadIcon.css("display", "inline-block");
             });
     }
 
@@ -831,6 +831,7 @@ export default class OpencgaIndividualGrid extends LitElement {
         </div>
         `;
     }
+
 }
 
 customElements.define("opencga-individual-grid", OpencgaIndividualGrid);

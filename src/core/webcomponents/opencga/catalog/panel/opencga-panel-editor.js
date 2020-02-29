@@ -485,7 +485,9 @@ export default class OpencgaPanelEditor extends LitElement {
             })
 
         };
-        this.opencgaClient.panels().create(params, panel)
+
+        console.error("arguments order inverted after new clients. recheck functionality");
+        this.opencgaClient.panels().create(panel, params)
             .then(response => {
                 _this.dispatchEvent(new CustomEvent(_this.eventNotifyName, {
                     detail: {

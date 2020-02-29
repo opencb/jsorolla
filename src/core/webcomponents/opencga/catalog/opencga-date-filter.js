@@ -290,10 +290,6 @@ export default class OpencgaDateFilter extends LitElement {
     render() {
         return html`
         <style include="jso-styles">
-            .date-option-wrapper {
-                padding-left: 8px;
-            }
-            
             .range-box:nth-child(2) {
                 margin-top: 20px;
             }
@@ -324,7 +320,7 @@ export default class OpencgaDateFilter extends LitElement {
                     ${this.activatedRecent ? html`
                         <div>
                             <form class="form-inline text-center">
-                                <div class="form-group row">
+                                <div class="">
                                     <span class="${this._prefix}-text">Last</span>
                                     <select class="form-control bootstrap-select ${this._prefix}-codeDis"
                                             id="${this._prefix}RecentSelect" name="birthYear" required @change="${this.calculateFilters}" data-size="10">
@@ -370,7 +366,7 @@ export default class OpencgaDateFilter extends LitElement {
                     ${this.activatedDate ? html`
                         <div>
                             <form class="form-inline">
-                                <div class="form-group row">
+                                <div class="">
                                     <select class="bootstrap-select form-control ${this._prefix}-codeDis col-md-4"
                                             id="${this._prefix}YearSelect" name="birthYear" required @change="${this.calculateFilters}">
                                         ${this.yearsToSearch.length && this.yearsToSearch.map(item => html`
@@ -406,7 +402,7 @@ export default class OpencgaDateFilter extends LitElement {
                             <div class="range-box">
                                 <label class="${this._prefix}-text">Begin periode</label>
                                 <form class="form-inline">
-                                    <div class="form-group row">
+                                    <div class="">
                                         <select class="bootstrap-select form-control ${this._prefix}-codeDis col-md-4"
                                                 id="${this._prefix}YearSelectFrom" name="birthYear" required @change="${this.calculateFilters}">
                                              ${this.yearsToSearch.length && this.yearsToSearch.map(item => html`
@@ -437,7 +433,7 @@ export default class OpencgaDateFilter extends LitElement {
                             <div class="range-box">
                                 <label class="${this._prefix}-text">End periode</label>
                                 <form class="form-inline">
-                                    <div class="form-group row">
+                                    <div class="">
                                         <select class="bootstrap-select form-control ${this._prefix}-codeDis col-md-4"
                                                 id="${this._prefix}YearSelectTo" name="birthYear" required @change="${this.calculateFilters}">
                                              ${this.yearsToSearch.length && this.yearsToSearch.map(item => html`

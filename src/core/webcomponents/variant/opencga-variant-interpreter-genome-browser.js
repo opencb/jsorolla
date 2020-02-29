@@ -18,6 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../utils.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
+import Region from "../../region.js";
 import "../../../genome-browser/webcomponent/genome-browser.js";
 import "../opencga/catalog/samples/opencga-sample-browser.js";
 
@@ -84,6 +85,8 @@ export default class OpencgaVariantInterpreterGenomeBrowser extends LitElement {
         this._config = this.getDefaultConfig();
         this.tracks = this._config.tracks;
         this.active = false;
+
+        console.error("clinicalAnalysis in this class is not defined. Check if it refers to the WC prop")
     }
 
     updated(changedProperties) {

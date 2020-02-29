@@ -218,7 +218,6 @@ export default class OpencgaSampleFilter extends LitElement {
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;
             case "annotations":
-                if (!this.variableSet || !this.variableSet.length) return;
                 content = html`<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
                                                       .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                       entity="SAMPLE"

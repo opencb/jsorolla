@@ -25,6 +25,7 @@
     "no-invalid-this": 0,
     "babel/no-invalid-this": 1,
     "babel/object-curly-spacing": 1,
-    "object-curly-spacing": 1
+    "object-curly-spacing": 1,
+    "valid-jsdoc": [2, {"prefer": {"return": "returns"}}]
   }
 }

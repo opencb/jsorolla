@@ -189,7 +189,7 @@ export default class OpencgaVariantFacet extends LitElement {
         // debugger
         if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
             // Update cohorts from config, this updates the Cohort filter MAF
-            for (const section of this._config.filters.sections) {
+            for (const section of this._config.filter.sections) {
                 for (const subsection of section.subsections) {
                     if (subsection.id === "cohort") {
                         const projectFields = this.opencgaSession.project.alias.split("@");
@@ -475,7 +475,7 @@ export default class OpencgaVariantFacet extends LitElement {
 
         // this.querySelector("#loading").style.display = "block";
 
-        this.opencgaClient.variants().aggregationStats(queryParams, {})
+        this.opencgaClient.variants().aggregationStats(queryParams)
             .then(queryResponse => {
                 console.log("queryResponse", queryResponse);
                 this.errorState = false;
@@ -618,7 +618,7 @@ export default class OpencgaVariantFacet extends LitElement {
             }
 
             const _this = this;
-            this.opencgaClient.variants().query(queryParams, {})
+            this.opencgaClient.variants().query(queryParams)
                 .then(function(response) {
                     _this.totalVariants = response.response[0].numTotalResults;
                     console.log("_this.totalVariants", _this.totalVariants);
@@ -859,7 +859,7 @@ export default class OpencgaVariantFacet extends LitElement {
             title: "Variant Browser",
             active: false,
             populationFrequencies: true,
-            filters: {
+            filter: {
 
                 // from OLD variant-browser
                 activeFilters: {
@@ -1216,7 +1216,7 @@ export default class OpencgaVariantFacet extends LitElement {
                                                         .populationFrequencies="${this.populationFrequencies}"
                                                         .consequenceTypes="${this.consequenceTypes}"
                                                         .query="${this.query}"
-                                                        .config="${this._config.filters}"
+                                                        .config="${this._config.filter}"
                                                         .searchButton="${false}"
                                                         style="font-size: 12px"
                                                         @queryChange="${this.onQueryFilterChange}"
@@ -1246,20 +1246,21 @@ export default class OpencgaVariantFacet extends LitElement {
                     </div>
                     
                     <div>
-                        <opencga-active-filters facetActive 
-                                                .opencgaClient="${this.opencgaSession.opencgaClient}"
+                        <opencga-active-filters facetActive
+                                                filterBioformat="VARIANT"
+                                                .opencgaSession="${this.opencgaSession}"
                                                 .defaultStudy="${this.opencgaSession.study.alias}"
                                                 .query="${this.preparedQuery}"
                                                 .refresh="${this.executedQuery}"
                                                 .facetQuery="${this.selectedFacetFormatted}"
                                                 .alias="${this.activeFilterAlias}"
                                                 .config="${this._config.activeFilters}"
+                                                .filters="${this._config.filter.examples}"
                                                 @activeFacetChange="${this.onActiveFacetChange}"
                                                 @activeFacetClear="${this.onActiveFacetClear}"
                                                 @activeFilterChange="${this.onActiveFilterChange}"
                                                 @activeFilterClear="${this.onActiveFilterClear}">
                         </opencga-active-filters>
-    
                         
                         <div id="table-results" class="content-tab">
                             <opencga-variant-grid .opencgaSession="${this.opencgaSession}"
@@ -1270,7 +1271,7 @@ export default class OpencgaVariantFacet extends LitElement {
                                                   .active="${this.active}" 
                                                   .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                                   .consequenceTypes="${this.consequenceTypes}"
-                                                  .config="${this._config.filters}"
+                                                  .config="${this._config.filter}"
                                                   @selected="${this.selectedGene}"
                                                   @selectvariant="${this.onSelectVariant}"
                                                   @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
@@ -1293,7 +1294,7 @@ export default class OpencgaVariantFacet extends LitElement {
                         </div>
                                          
                                          
-                        <!-- TODO remove RESULTS - Facet Plots -->
+                        <!-- TODO remove RESULTS - Facet Plots 
                         <div id="loading" style="display: none">
                             <loading-spinner></loading-spinner>
                         </div>
@@ -1311,7 +1312,7 @@ export default class OpencgaVariantFacet extends LitElement {
                                     <opencga-facet-result-view .facetResult="${item}" .config="${this.facetConfig}" .active="${this.facetActive}"></opencga-facet-result-view>
                                 </div>
                             </div>
-                        `) : null}
+                        `) : null} -->
                     </div>
                 </div>
             </div>

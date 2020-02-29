@@ -168,6 +168,17 @@ export default class OpencgaCohortFacet extends LitElement {
                         ]
                     }
                 ],
+                examples: [
+                    {
+                        name: "Full",
+                        query: {
+                            annotation: "Pedigree:versionControl.GitVersionControl=git",
+                            type: "TIME_SERIES,FAMILY",
+                            id: "lp",
+                            samples: "hg"
+                        }
+                    }
+                ],
                 grid: {}
             },
             aggregation: {

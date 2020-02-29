@@ -429,7 +429,7 @@ export default class OpencgaPanelTranscriptView extends LitElement {
                 const promises = [];
 
                 for (let i = 0; i < _this.coverageTracks.length; i++) {
-                    promises.push(_this.opencgaSession.opencgaClient.alignments().coverage(
+                    promises.push(_this.opencgaSession.opencgaClient.alignments().queryCoverage(
                         _this._files[i].id, {
                             region: region,
                             study: _this.opencgaSession.study.fqn,

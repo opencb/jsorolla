@@ -165,7 +165,7 @@ export default class OpencgaCohortFilter extends LitElement {
         this.query = _query;
         this._reset = true;
     }
-
+    /*
     onDateChanged(e) {
         const query = {};
         Object.assign(query, this.query);
@@ -177,9 +177,9 @@ export default class OpencgaCohortFilter extends LitElement {
 
         this._reset = false;
         // this.set("query", _query);
-        this.query = _query;
+        this.query = query;
         this._reset = true;
-    }
+    }*/
 
     queryObserver() {
         if (this._reset) {
@@ -251,7 +251,6 @@ export default class OpencgaCohortFilter extends LitElement {
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;
             case "annotations":
-                if (!this.variableSet || !this.variableSet.length) return;
                 content = html`<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
                                                       .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                       entity="COHORT"

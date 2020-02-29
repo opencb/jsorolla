@@ -522,7 +522,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                 
                 <div id="${this._prefix}MainWindow" class="col-md-10">
                    
-                    <opencga-active-filters .opencgaClient="${this.opencgaSession.opencgaClient}"
+                    <opencga-active-filters .opencgaSession="${this.opencgaSession}"
                                             .defaultStudy="${this.opencgaSession.study.alias}"
                                             .query="${this.preparedQuery}"
                                             .refresh="${this.executedQuery}"

@@ -154,7 +154,7 @@ class OpencgaVariantFacetQuery extends LitElement {
                 timeout: 60000};
 
         console.warn("queryParams", queryParams);
-        this.opencgaSession.opencgaClient.variants().aggregationStats(queryParams, {})
+        this.opencgaSession.opencgaClient.variants().aggregationStats(queryParams)
             .then(queryResponse => {
                 this.facetResults = queryResponse.response[0].result[0].results;
                 this.querySelector("#loading").style.display = "none";

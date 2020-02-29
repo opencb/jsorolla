@@ -82,8 +82,8 @@ export default class OpencgaLogin extends LitElement {
                         this.querySelector("#opencgaUser").value = "";
                         this.querySelector("#opencgaPassword").value = "";
                         console.log("response", response)
-                        const sessionId = response.getResult(0).token;
-                        const decoded = jwt_decode(sessionId); // TODO expose as module
+                        const token = response.getResult(0).token;
+                        const decoded = jwt_decode(token); // TODO expose as module
                         const dateExpired = new Date(decoded.exp * 1000);
                         const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss"); // TODO expose as module
 
@@ -91,7 +91,7 @@ export default class OpencgaLogin extends LitElement {
                         this.dispatchEvent(new CustomEvent("login", {
                             detail: {
                                 userId: user,
-                                sessionId: sessionId
+                                token: token
                             },
                             bubbles: true,
                             composed: true

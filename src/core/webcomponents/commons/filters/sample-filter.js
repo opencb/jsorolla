@@ -79,7 +79,7 @@ export default class SampleFilter extends LitElement {
 
     queryObserver(){
         this.updateClinicalQueryTable();
-        this.clinicalFilterQuery = $.extend(true, {}, this.query);  //updates the table opencga-variant-filter-clinical (in the modal)
+        //this.clinicalFilterQuery = $.extend(true, {}, this.query);  //updates the table opencga-variant-filter-clinical (in the modal)
 
         //console.warn("query changed", this.query)
         //console.error("renderClinicalQuerySummary is the problem for the not updating sample-filter table after active-filter change")

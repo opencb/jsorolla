@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../../utils.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 import "../individual/opencga-individual-browser.js";
-
+import NotificationUtils from "../../../../NotificationUtils.js";
 
 export default class OpencgaFamilyEditor extends LitElement {
 
@@ -112,7 +112,7 @@ export default class OpencgaFamilyEditor extends LitElement {
                 skipCount: true,
                 include: "id"
             };
-            _this.opencgaClient.individuals().search(params, {})
+            _this.opencgaClient.individuals().search(params)
                 .then(function(response) {
                     let options = "";
                     for (const id of response.response[0].result) {
@@ -130,7 +130,7 @@ export default class OpencgaFamilyEditor extends LitElement {
             const params = {
                 study: this.study
             };
-            _this.opencgaClient.individuals().info(individualId, params, {})
+            _this.opencgaClient.individuals().info(individualId, params)
                 .then(function(response) {
                     const individual = response.response[0].result[0];
                     _this._addIndividualToSelectedArray(individual);

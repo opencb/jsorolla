@@ -168,6 +168,17 @@ export default class OpencgaFamilyFacet extends LitElement {
                         ]
                     }
                 ],
+                examples: [
+                    {
+                        name: "Full",
+                        query: {
+                            id: "lp",
+                            members: "hg",
+                            phenotypes: "melanoma",
+                            creationDate: "2020"
+                        }
+                    }
+                ],
                 activeFilters: {
                     complexFields: ["annotation"]
                 },

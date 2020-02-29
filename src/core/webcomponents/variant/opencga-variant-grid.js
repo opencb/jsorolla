@@ -16,9 +16,11 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import {CellBaseClient} from "../../clients/cellbase-client.js";
 import Utils from "./../../utils.js";
 import UtilsNew from "./../../utilsNew.js";
 import VariantGridFormatter from "./VariantGridFormatter.js";
+import VariantUtils from "./variant-utils.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../commons/opencb-grid-toolbar.js";
 
@@ -250,14 +252,14 @@ export default class OpencgaVariantGrid extends LitElement {
                             _this.numTotalResults = response.getResponse().numTotalResults;
                         }
                     }
-
+                    //_this.to = Math.min(response.getResponse(0).numResults, this.pageSize);
                     _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
                     if (response.getParams().skip === 0 && _this.numTotalResults < response.getParams().limit) {
                         _this.from = 1;
                         _this.to = _this.numTotalResults;
                     }
-
+                    _this.approximateCountResult = response.getResponse().approximateCount;
                     _this.requestUpdate(); // it is necessary to refresh numTotalResultsText in opencga-grid-toolbar
 
                     return {

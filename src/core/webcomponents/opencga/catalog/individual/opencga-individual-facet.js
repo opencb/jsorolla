@@ -209,6 +209,24 @@ export default class OpencgaIndividualFacet extends LitElement {
                         ]
                     }
                 ],
+                examples: [
+                    {
+                        name: "Full",
+                        active: false,
+                        query: {
+                            id: "LP",
+                            samples: "HG",
+                            sex: "FEMALE",
+                            karyotypicSex: "VCF,BCF,PROTOCOL_BUFFER",
+                            ethnicity: "asiatic",
+                            disorder: "british",
+                            affectationStatus: "AFFECTED",
+                            lifeStatus: "ALIVE",
+                            phenotypes: "melanoma",
+                            creationDate: "20201004"
+                        }
+                    }
+                ],
                 grid: {
                     pageSize: 10,
                     pageList: [10, 25, 50],

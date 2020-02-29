@@ -161,7 +161,7 @@ export default class ConsequenceTypeFilter extends LitElement {
                                     ${category.terms.map(item => html`
                                     <li class="form-check">
                                         <input id="${this._prefix}${item.name}Checkbox" type="checkbox" data-id="${item.name}"
-                                                   class="soTermCheckBox ${this._prefix}FilterCheckBox" @change="${this.onChange}">
+                                                   class="soTermCheckBox ${this._prefix}FilterCheckBox" @change="${this.onChange}" ?checked="${~this.selectedCt.indexOf(item.name)}">
                                         <label for="${this._prefix}${item.name}Checkbox" class="form-check-label notbold" style="text-decoration-color: ${this.consequenceTypes.color[item.impact]}">
                                             <span title="${item.description}">
                                                 ${item.name}
@@ -173,7 +173,7 @@ export default class ConsequenceTypeFilter extends LitElement {
                                 </ul>
                                 ` : html`
                                     <input id="${this._prefix}${category.name}Checkbox" type="checkbox"
-                                        data-id="${category.name}" class="soTermCheckBox ${this._prefix}FilterCheckBox" @change="${this.onChange}">
+                                        data-id="${category.name}" class="soTermCheckBox ${this._prefix}FilterCheckBox" @change="${this.onChange}" ?checked="${~this.selectedCt.indexOf(category.name)}">
                                     <label for="${this._prefix}${category.name}Checkbox" style="text-decoration-color: ${this.consequenceTypes.color[category.impact]}">
                                         <span title="${category.description}">
                                             ${category.name}

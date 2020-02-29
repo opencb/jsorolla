@@ -83,7 +83,7 @@ export default class DiseaseFilter extends LitElement {
                 .info(panels.join(","), {
                     study: _this.opencgaSession.study.fqn,
                     include: "id,name,genes.id,genes.name,regions.id"
-                }, {})
+                })
                 .then(function(response) {
                     let text = "";
                     for (const panelResponse of response.response) {

@@ -309,8 +309,13 @@ export default class VariantSampleSelector extends LitElement {
             </div>
 
             <div class="col-md-9">
-                <opencga-active-filters .opencgaClient="${this.opencgaClient}" .query="${this.query}" .defaultStudy="${this.study.alias}"
-                                        alias="${this.activeFilterAlias}" refresh="{{search}}" @activeFilterClear="${this.onClear}" @activeFilterChange="${this.onFilterChange}">
+                <opencga-active-filters .opencgaSession="${this.opencgaSession}"
+                                        .query="${this.query}"
+                                        .defaultStudy="${this.study.alias}"
+                                        alias="${this.activeFilterAlias}"
+                                        .refresh="${this.search}"
+                                        @activeFilterClear="${this.onClear}"
+                                        @activeFilterChange="${this.onFilterChange}">
                 </opencga-active-filters>
 
                 <!--<h3>Sample results</h3>-->

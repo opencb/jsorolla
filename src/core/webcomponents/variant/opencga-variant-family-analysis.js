@@ -64,9 +64,6 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
             },
             config: {
                 type: Object
-            },
-            preparedQuery: {
-                type: Object
             }
         };
     }
@@ -85,14 +82,13 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
 
         //this.mode = "interactive";
         this.active = true;
-        this._config = this.getDefaultConfig();
     }
 
     //TODO RECHECK
     // ADD FLAG to avoid repeated calls
     connectedCallback() {
         super.connectedCallback();
-        //since _config.filter.menu.skipSubsections in doing to be edited, a deep copy of this.config is required
+        //since _config.filter.menu.skipSubsections in going to be edited, a deep copy of this.config is required
         const _config = $.extend( true, this.getDefaultConfig(), this.config, {
             title: this.getDefaultConfig().title,
             tooltip: this.getDefaultConfig().tooltip
@@ -155,7 +151,6 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
             switch (this.mode) {
             case "interactive":
                 const _genotypes = [];
-                console.error("this.clinicalAnalysis",this.clinicalAnalysis)
                 for (const sampleId of this._sampleIds) {
                     if (this.clinicalAnalysis.proband.samples[0].id === sampleId) {
                         _genotypes.push(sampleId + ":0/1,1/1");
@@ -172,7 +167,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
             }
 
             // Reset query when new session or clinical analysis is provided
-            this.query = _query;
+            this.query = {...this.query, ..._query};
         }
     }
 
@@ -416,8 +411,8 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
                     </div>
 
                     <div class="col-md-10">
-                        <opencga-active-filters .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                .default-study="${this.opencgaSession.study.alias}"
+                        <opencga-active-filters .opencgaSession="${this.opencgaSession}"
+                                                .defaultStudy="${this.opencgaSession.study.alias}"
                                                 .query="${this.preparedQuery}"
                                                 .refresh="${this.executedQuery}"
                                                 .filters="${this._config.filter.examples}"

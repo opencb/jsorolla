@@ -1,4 +1,4 @@
-export {OpenCGAClient, OpenCGAClientConfig} from "./core/clients/opencga-client.js";
+export {OpenCGAClient} from "./core/clients/opencga/opencga-client.js";
 export {CellBaseClient, CellBaseClientConfig} from "./core/clients/cellbase-client.js";
 export {ReactomeClient} from "./core/clients/reactome-client.js";
 
@@ -29,4 +29,6 @@ export OpencgaVariantInterpretation from "./core/webcomponents/variant/opencga-v
 
 export Utils from "./core/utils.js";
 export UtilsNew from "./core/utilsNew.js";
+export NotificationUtils from "./core/NotificationUtils.js";
+
 //export NotificationUtils from "./core/NotificationUtils.js"; we don't need it since it is not directly called from iva-app, it's a 2rd level dep.

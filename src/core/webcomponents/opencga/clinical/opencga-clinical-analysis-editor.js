@@ -19,6 +19,7 @@ import Utils from "./../../../utils.js";
 import UtilsNew from "./../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import CatalogUIUtils from "../commons/CatalogUIUtils.js";
+import NotificationUtils from "../../../NotificationUtils.js";
 import "../catalog/individual/opencga-individual-browser.js";
 import "../catalog/family/opencga-family-editor.js";
 import "../catalog/family/opencga-family-browser.js";
@@ -525,7 +526,8 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         }
 
         const _this = this;
-        this.opencgaSession.opencgaClient.clinical().create({study: this.opencgaSession.study.fqn}, _clinicalAnalysis)
+        console.error("arguments order inverted after new clients. recheck functionality");
+        this.opencgaSession.opencgaClient.clinical().create(_clinicalAnalysis, {study: this.opencgaSession.study.fqn})
             .then(function(response) {
                 _this.onClear();
                 NotificationUtils.showNotify(`Family ${response.response[0].result[0].id} created successfully`, "SUCCESS");
