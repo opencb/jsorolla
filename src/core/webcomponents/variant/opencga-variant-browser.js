@@ -496,13 +496,10 @@ export default class OpencgaVariantBrowser extends LitElement {
         </style>
         
         ${this.checkProjects ? html`
-            <div class="panel" style="margin-bottom: 15px">
-                <h3 style="margin: 10px 10px 10px 15px">
-                                        <span @click="${this.onCollapse}" style="cursor: pointer;margin: 0px 30px 0px 0px">
-                                            <i class="fa fa-bars" aria-hidden="true"></i>
-                                        </span>
-                    <i class="fa fa-search" aria-hidden="true"></i> ${this.config.title}
-                </h3>
+            <div class="page-title">
+                <h2>
+                    <i class="fa fa-bars" aria-hidden="true"></i> </i>&nbsp;${this._config.title}
+                </h2>
             </div>
 
             <div class="row">

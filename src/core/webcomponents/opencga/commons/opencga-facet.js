@@ -747,6 +747,9 @@ export default class OpencgaFacet extends LitElement {
                                         </div>
                                     </div>
                                 </div>`;
+            case "jobs":
+                this.endpoint = this.opencgaSession.opencgaClient.jobs();
+                return html`job grid`;
             default:
                 return html`entity not recognized`;
         }
@@ -759,10 +762,10 @@ export default class OpencgaFacet extends LitElement {
         </style>
 
         ${this.checkProjects ? html`
-            <div class="panel" style="margin-bottom: 15px">
-                <h3 style="margin: 10px 10px 10px 15px">
+            <div class="page-title">
+                <h2>
                     <i class="${this._config.icon}" aria-hidden="true"></i>&nbsp;${this._config.title}
-                </h3>
+                </h2>
             </div>
 
             <div class="row" style="padding: 0px 10px">
@@ -874,6 +877,10 @@ export default class OpencgaFacet extends LitElement {
                                                                     @queryChange="${this.onQueryFilterChange}"
                                                                     @querySearch="${this.onQueryFilterSearch}">
                                 </opencga-clinical-analysis-filter>
+                            ` : null}
+                            
+                            ${this.resource === "jobs" ? html`
+                                jobs
                             ` : null}
                             
                         </div>

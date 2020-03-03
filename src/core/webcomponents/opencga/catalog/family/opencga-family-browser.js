@@ -293,10 +293,10 @@ export default class OpencgaFamilyBrowser extends LitElement {
         </style>
 
         ${this._config.showTitle ? html`
-            <div class="panel" style="margin-bottom: 15px">
-                <h3 style="margin: 10px 10px 10px 15px">
-                    <i class="fa fa-users" aria-hidden="true"></i> &nbsp;${this._config.title}
-                </h3>
+            <div class="page-title">
+                <h2>
+                    <i class="fa fa-users" aria-hidden="true"></i> </i>&nbsp;${this._config.title}
+                </h2>
             </div>
         ` : null}
         <div class="row" style="padding: 0px 10px">

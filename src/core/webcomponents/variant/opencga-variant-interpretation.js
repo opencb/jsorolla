@@ -698,22 +698,15 @@ class OpencgaVariantInterpretation extends LitElement {
             </style>
 
         ${this.checkProjects ? html`
-            <div class="panel" style="margin-bottom: 15px">
-                <h3 style="margin: 10px 10px 10px 15px">
-                    <!--                    <template is="dom-if" if="{{interactive}}">-->
-                    <!--                        <span on-click="onCollapse" style="cursor: pointer;margin: 0px 30px 0px 0px">-->
-                    <!--                            <i class="fa fa-bars" aria-hidden="true"></i>-->
-                    <!--                        </span>-->
-                    <!--                    </template>-->
+            <div class="page-title">
+                <h2>
                     ${this.clinicalAnalysis ? html`
                         <i class="fa fa-filter" aria-hidden="true" style="padding-left: 10px;padding-right: 10px"></i>&nbsp;${this.config.title} - Case ${this.clinicalAnalysis.id}
                     ` : html`
                         <i class="fa fa-filter" aria-hidden="true"></i>&nbsp; ${this.config.title}   
                     `}
-                </h3>
+                </h2>
             </div>
-
-
 
             <div class="col-md-12" style="padding: 10px 25px 25px 25px">
                 <div class="btn-toolbar " role="toolbar" aria-label="..." >

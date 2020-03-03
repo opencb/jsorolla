@@ -134,10 +134,10 @@ export default class VariantBeacon extends LitElement {
             <style include="jso-styles"></style>
     
             ${this.checkProjects ? html`
-                <div class="panel" style="margin-bottom: 15px">
-                    <h3 style="margin: 10px 10px 10px 30px">
-                        <i class="fa fa-share-alt" aria-hidden="true"></i>&nbsp;GA4GH Beacon
-                    </h3>
+                <div class="page-title">
+                    <h2>
+                        <i class="fa fa-share-alt" aria-hidden="true"></i> </i>&nbsp;GA4GH Beacon
+                    </h2>
                 </div>
     
                 <div class="container">

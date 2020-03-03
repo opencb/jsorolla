@@ -1074,6 +1074,7 @@ export default class OpencgaVariantFacet extends LitElement {
                 detail: []
             },
             aggregation: {
+                default: [],
                 sections: [
                     {
                         name: "terms",
@@ -1152,11 +1153,18 @@ export default class OpencgaVariantFacet extends LitElement {
         </style>
 
         ${this.checkProjects ? html`
+            <div class="page-title">
+                <h2>
+                    <i class="${this._config.icon}" aria-hidden="true"></i>&nbsp;${this._config.title}
+                </h2>
+            </div>
+            
+            <!-- 
             <div class="panel" style="margin-bottom: 15px">
                 <h3 style="margin: 10px 10px 10px 15px">
                     <i class="${this._config.icon}" aria-hidden="true"></i>&nbsp;${this._config.title}
                 </h3>
-            </div>
+            </div> -->
 
             <div class="row" style="padding: 0px 10px">
                 <div class="col-md-2 left-menu">
