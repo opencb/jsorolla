@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-import {RestClient} from "../rest-client.js";
 import {RestResponse} from "../RestResponse.js";
 import UtilsNew from "../../utilsNew.js";
-import OpenCGAParentClass from "./opencga-parent-class.js";
 import Admin from "./api/Admin.js";
 import Alignment from "./api/Alignment.js";
 import Clinical from "./api/Clinical.js";
@@ -37,40 +35,11 @@ import Variant from "./api/Variant.js";
 import VariantOperation from "./api/VariantOperation.js";
 
 
-// export class OpenCGAClientConfig {
-//
-//     constructor(host = "172.24.193.208:8080/opencga", version = "v1", useCookies = true, cookiePrefix = "catalog") {
-//         this.host = host;
-//         this.version = version;
-//         this.useCookies = useCookies;
-//         this.cookiePrefix = cookiePrefix;
-//
-//         if (this.useCookies) {
-//             this.setPrefix(cookiePrefix);
-//         } else {
-//             this.userId = "";
-//             this.sessionId = "";
-//         }
-//         // default values
-//         this.rpc = "rest";
-//     }
-//
-//     // to allow multiple sessions of IVA
-//     setPrefix(prefix) {
-//         this.cookieSessionId = `${prefix}_sid`;
-//         this.cookieUserId = `${prefix}_userId`;
-//         // this.cookiePassword = `${prefix}_password`;
-//         // this.cookieLoginResponse = `${prefix}_loginResponse`;
-//     }
-//
-// }
-
-
 export class OpenCGAClient {
 
     constructor(config) {
-        this._config = {...this.getDefaultConfig(), ...config};
-        this.clients = new Map();
+        // this._config = config;
+        this.setConfig(config);
     }
 
     getDefaultConfig() {
@@ -79,7 +48,6 @@ export class OpenCGAClient {
             version: "",
             userId: "",
             token: "",
-            mode: "rest",
             query: {
                 batchSize: "",
                 limit: 10
@@ -104,13 +72,6 @@ export class OpenCGAClient {
         }
         return this.clients.get("users");
     }
-    /* users() {
-        if (typeof this._users === "undefined") {
-            console.log("user client config",this._config)
-            this._users = new Users(this._config);
-        }
-        return this._users;
-    }*/
 
     projects() {
         if (!this.clients.has("projects")) {
@@ -189,20 +150,6 @@ export class OpenCGAClient {
         return this.clients.get("admin");
     }
 
-    // interpretations() {
-    //     if (typeof this._interpretations === "undefined") {
-    //         this._interpretations = new Interpretation(this._config);
-    //     }
-    //     return this._interpretations;
-    // }
-
-    // variables() {
-    //     if (typeof this._variables === "undefined") {
-    //         this._variables = new Variables(this._config);
-    //     }
-    //     return this._variables;
-    // }
-
     // Analysis
     alignments() {
         if (!this.clients.has("alignments")) {
@@ -240,47 +187,22 @@ export class OpenCGAClient {
     }
 
     async login(userId, password) {
-
         try {
-            /* if (this._config.useCookies) {
-                let cookieSession = Cookies.get(this._config.cookieSessionId);
-                let cookieUser = Cookies.get(this._config.cookieUserId);
-                let cookiePass = Cookies.get(this._config.cookiePassword);
-                let loginResponse = Cookies.get(this._config.cookieLoginResponse);
-
-                if (cookieUser !== undefined && cookieUser === userId && cookiePass !== undefined && cookiePass === encryptedPass
-                    && cookieSession !== undefined && loginResponse !== undefined) {
-                    console.log("Credentials taken from cookies");
-                    return Promise.resolve(JSON.parse(loginResponse));
-                }
-            }*/
-
             const response = await this.users().login(userId, {password: password});
             const restResponse = new RestResponse(response);
 
-            // const encryptedPass = CryptoJS.SHA256(password).toString();
-
             // TODO search for Errors in restResponse.events
-            // TODO if password is not defined use token?
             this._config.userId = userId;
             this._config.token = restResponse.getResult(0).token;
 
-            // Cookies being used
+            // Check if cookies being used
             if (this._config.cookies.active) {
-                console.log("Cookies being used");
-                // Cookies.set(this._config.cookies.prefix + "_userId", userId);
-                // Cookies.set(this._config.cookies.prefix + "_sid", this._config.token);
-                // Cookies.set(this._config.cookiePassword, encryptedPass);
-                // Cookies.set(this._config.cookieLoginResponse, JSON.stringify(response));
                 this.setCookies(userId, this._config.token);
             }
-
             this.clients.forEach(client => client.setToken(this._config.token));
             return restResponse;
-
         } catch (e) {
             console.error(e);
-
         }
     }
 
@@ -299,12 +221,8 @@ export class OpenCGAClient {
         const userId = this._config.userId;
         const response = await this.users().login(userId);
         const restResponse = new RestResponse(response);
+        this._config.token = restResponse.getResult(0).token;
         if (this._config.cookies.active) {
-            this._config.token = restResponse.getResult(0).token;
-            // Cookies.set(this._config.cookieSessionId, this._config.sessionId);
-            // Cookies.set(this._config.cookieUserId, userId);
-            // Cookies.set(this._config.cookiePassword, encryptedPass);
-            // Cookies.set(this._config.cookieLoginResponse, JSON.stringify(response));
             this.setCookies(userId, this._config.token);
         }
         this.clients.forEach(client => client.setToken(this._config.token));
@@ -317,8 +235,6 @@ export class OpenCGAClient {
 
         // Remove cookies
         if (this._config.cookies.active) {
-            // delete this._config.userId;
-            // delete this._config.token;
             this.setCookies();
         }
         return Promise.resolve();
@@ -348,7 +264,6 @@ export class OpenCGAClient {
      * opencgaClient object itself.
      * @returns {Promise<any>}
      */
-
     // TODO refactor
     createSession() {
         const _this = this;
@@ -445,16 +360,19 @@ export class OpenCGAClient {
         });
     }
 
-    // TODO remove setter
     getConfig() {
         return this._config;
     }
 
     setConfig(config) {
-        this._config = config;
+        this._config = {...this.getDefaultConfig(), ...config};
+        this.clients = new Map();
+    }
+
+    getClients() {
+        return this.clients;
     }
 
 }
 // TODO OpenCGAClient maybe should be a singleton exported module..
 // Object.freeze(OpenCGAClient);
-
