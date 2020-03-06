@@ -60,7 +60,6 @@ export default class VariantBeacon extends LitElement {
         if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
             this.checkProjects = true;
         } else {
-            console.log("opencgaesession null");
             this.checkProjects = false;
         }
     }
@@ -97,7 +96,7 @@ export default class VariantBeacon extends LitElement {
 
         if (this.opencgaSession.opencgaClient !== undefined) {
             const _this = this;
-            this.opencgaSession.opencgaClient.GA4GH().beacon(queryParams, {})
+            this.opencgaSession.opencgaClient.GA4GH().responses(queryParams, {})
                 .then(function(response) {
                     console.log(response)
                     const exists = response[0].response.toString();

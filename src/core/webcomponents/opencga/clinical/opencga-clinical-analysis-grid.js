@@ -98,6 +98,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         this.requestUpdate();
     }
 
+    // todo move to ajaxRequest BT table
     renderTable(active) {
         // if (!active) {
         //     return;
@@ -161,8 +162,24 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
                 // Make Polymer components avalaible to table formatters
                 gridContext: _this,
-
-                queryParams: function(params) {
+                formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+                ajax: (params) => {
+                    if (this.pageNumber > 1) {
+                        skipCount = true;
+                    }
+                    let filters = {
+                        ...this.query,
+                        exclude: "files",
+                        limit: 100,
+                        order: "asc",
+                        sid: this.opencgaSession.opencgaClient._config.token,
+                        skip: 0,
+                        skipCount: true,
+                        study: this.opencgaSession.study.fqn
+                    };
+                    this.opencgaSession.opencgaClient.clinical().search(filters).then( res => params.success(res));
+                },
+                /*queryParams: function(params) {
                     if (this.pageNumber > 1) {
                         skipCount = true;
                     }
@@ -183,7 +200,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                     }
 
                     return Object.assign({}, filters, auxParams);
-                },
+                },*/
                 responseHandler: function(response) {
                     if (!skipCount) {
                         if (!_this.hasOwnProperty("numTotalResults")) {
@@ -752,7 +769,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             exclude: "files",
             limit: 100,
             order: "asc",
-            sid: this.opencgaSession.opencgaClient._config.sessionId,
+            sid: this.opencgaSession.opencgaClient._config.token,
             skip: 0,
             skipCount: true,
             study: this.opencgaSession.study.fqn
