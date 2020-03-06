@@ -33,6 +33,7 @@ export default class OpenCGAParentClass {
         const _options = {...options, method: "POST"};
         if (this._config.token) {
             _options.sid = this._config.token;
+            _options.token = this._config.token;
         }
         const _params = {...params, body: body};
         if (rpc.toLowerCase() === "rest") {
@@ -80,6 +81,7 @@ export default class OpenCGAParentClass {
             const sid = this._getSessionId();
             if (typeof sid !== "undefined") {
                 _options.sid = sid;
+                _options.token = sid;
             }
         }
 

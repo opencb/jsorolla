@@ -266,7 +266,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
     onModeOfInheritance(e) {
         this.modeOfInheritance = e.target.value;
         const _this = this;
-        this.opencgaSession.opencgaClient.variants().familyGenotypes({
+        this.opencgaSession.opencgaClient.variants().genotypesFamily({
             study: this.opencgaSession.study.fqn,
             family: this.clinicalAnalysis.family.id,
             disorder: this.clinicalAnalysis.disorder.id,

@@ -56,11 +56,12 @@ export class RestClientXmlhttp {
     }
 
     static call(url, options) {
+        console.log("REMOTE", url, options)
         let method = "GET";
         let async = true;
         if (typeof options !== "undefined") {
             method = options.method || "GET";
-            async = options.async;
+            async = options.async || true;
         }
 
         let dataResponse = null;
@@ -118,6 +119,7 @@ export class RestClientXmlhttp {
                 }
             };
 
+            console.log("CALL [method, url, options]", method, url, options)
             request.open(method, url, async);
             if (typeof options !== "undefined" && options.hasOwnProperty("sid")) {
                 request.setRequestHeader("Authorization", `Bearer ${options["sid"]}`);

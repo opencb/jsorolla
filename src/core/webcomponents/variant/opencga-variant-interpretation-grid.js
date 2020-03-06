@@ -39,20 +39,16 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
-                type: Object,
-                observer: "opencgaSessionObserver"
+                type: Object
             },
             clinicalAnalysis: {
-                type: Object,
-                observer: "clinicalAnalysisObserver"
+                type: Object
             },
             query: {
-                type: Object,
-                observer: "queryObserver"
+                type: Object
             },
             reportedVariants: {
-                type: Array,
-                observer: "renderFromLocal"
+                type: Array
             },
             consequenceTypes: {
                 type: Object
@@ -183,13 +179,31 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
             const queryParams = urlQueryParams.queryParams;
             let _numTotal = -1;
             const _this = this;
+
+            let skipCount = false;
+
+
             $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable("destroy");
             $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable({
-                url: urlQueryParams.host,
+                //url: urlQueryParams.host,
                 columns: _this._columns,
                 method: "get",
                 sidePagination: "server",
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+                ajax: (params) => {
+                    if (this.pageNumber > 1) {
+                        skipCount = true;
+                    }
+                    let filters = {
+                        study: this.opencgaSession.study.fqn,
+                        limit: params.data.limit,
+                        skip: params.data.offset || 0,
+                        skipCount: skipCount,
+                        include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
+                        ...this.query
+                    };
+                    this.opencgaSession.opencgaClient.clinical().runInterpretationCustom(filters).then( res => params.success(res));
+                },
                 // Set table properties, these are read from config property
                 uniqueId: "id",
                 pagination: _this._config.pagination,
@@ -1090,6 +1104,7 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
         }
     }
 
+    // TODO adapt to this resource!
     onDownload(e) {
         const urlQueryParams = this._getUrlQueryParams();
         const params = urlQueryParams.queryParams;
