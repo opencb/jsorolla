@@ -192,6 +192,7 @@ export class OpenCGAClient {
             const restResponse = new RestResponse(response);
 
             // TODO search for Errors in restResponse.events
+            // TODO remove userId and token from config and move it to session
             this._config.userId = userId;
             this._config.token = restResponse.getResult(0).token;
 
@@ -200,6 +201,7 @@ export class OpenCGAClient {
                 this.setCookies(userId, this._config.token);
             }
             this.clients.forEach(client => client.setToken(this._config.token));
+            // this.createSession();
             return restResponse;
         } catch (e) {
             console.error(e);
@@ -230,8 +232,10 @@ export class OpenCGAClient {
     }
 
     logout() {
+        // TODO remove when we use session
         this._config.userId = null;
         this._config.token = null;
+        // this.session = null;
 
         // Remove cookies
         if (this._config.cookies.active) {
@@ -345,6 +349,7 @@ export class OpenCGAClient {
                                             }
                                         });
                                 }
+                                // _this.session = session;
                                 resolve(session);
                             })
                             .catch(function(response) {
