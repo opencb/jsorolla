@@ -209,7 +209,7 @@ export default class OpencgaFileFacet extends LitElement {
                 },
                 sections: [
                     {
-                        name: "Section Title",
+                        name: "File attributes",
                         // collapsed: false,
                         fields: [
                             {
@@ -232,9 +232,11 @@ export default class OpencgaFileFacet extends LitElement {
                             },
                             {
                                 id: "format",
-                                name: "format",
-                                type: "string",
-                                description: "Format"
+                                name: "Format",
+                                type: "category",
+                                allowedValues: ["VCF", "BCF", "GVCF", "TBI", "BIGWIG", "SAM", "BAM", "BAI", "CRAM", "CRAI", "FASTQ", "FASTA", "PED", "TAB_SEPARATED_VALUES", "COMMA_SEPARATED_VALUES", "XML", "PROTOCOL_BUFFER", "JSON", "AVRO", "PARQUET", "IMAGE", "PLAIN", "BINARY", "EXECUTABLE", "GZIP", "NONE", "UNKNOWN"],
+                                placeholder: "genomes/resources/files/...",
+                                description: ""
                             },
                             {
                                 id: "bioformat",
@@ -322,6 +324,17 @@ export default class OpencgaFileFacet extends LitElement {
                                 type: "string",
                                 description: "Annotation, e.g: key1=value(,key2=value)"
                             },
+                            {
+                                id: "field",
+                                name: "field",
+                                type: "string",
+                                description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
+                            }
+                        ]
+                    },
+                    {
+                        name: "Advanced",
+                        fields: [
                             {
                                 id: "field",
                                 name: "field",

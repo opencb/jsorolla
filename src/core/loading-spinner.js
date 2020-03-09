@@ -71,7 +71,7 @@ export default class LoadingSpinner extends LitElement {
                 animation: animBefore 2.1s cubic-bezier(0.42, 0, 0.58, 1) infinite;
                 -webkit-animation-delay: -1.869s;
                 animation-delay: -1.869s;
-                background-color: #ff8490;
+                background-color: #9084ff;
             }
         
             .nucleobase:nth-child(1):after {
@@ -79,7 +79,7 @@ export default class LoadingSpinner extends LitElement {
                 animation: animAfter 2.1s cubic-bezier(0.42, 0, 0.58, 1) infinite;
                 -webkit-animation-delay: -1.869s;
                 animation-delay: -1.869s;
-                background-color: #ff737c;
+                background-color: #7c73ff;
             }
         
             .nucleobase:nth-child(2) {
@@ -92,7 +92,7 @@ export default class LoadingSpinner extends LitElement {
                 animation: animBefore 2.1s cubic-bezier(0.42, 0, 0.58, 1) infinite;
                 -webkit-animation-delay: -3.738s;
                 animation-delay: -3.738s;
-                background-color: #ff8490;
+                background-color: #9084ff;
             }
         
             .nucleobase:nth-child(2):after {
@@ -100,7 +100,7 @@ export default class LoadingSpinner extends LitElement {
                 animation: animAfter 2.1s cubic-bezier(0.42, 0, 0.58, 1) infinite;
                 -webkit-animation-delay: -3.738s;
                 animation-delay: -3.738s;
-                background-color: #ff737c;
+                background-color: #7c73ff;
             }
         
             .nucleobase:nth-child(3) {
@@ -113,7 +113,7 @@ export default class LoadingSpinner extends LitElement {
                 animation: animBefore 2.1s cubic-bezier(0.42, 0, 0.58, 1) infinite;
                 -webkit-animation-delay: -5.607s;
                 animation-delay: -5.607s;
-                background-color: #ff8490;
+                background-color: #9084ff;
             }
         
             .nucleobase:nth-child(3):after {
@@ -121,7 +121,7 @@ export default class LoadingSpinner extends LitElement {
                 animation: animAfter 2.1s cubic-bezier(0.42, 0, 0.58, 1) infinite;
                 -webkit-animation-delay: -5.607s;
                 animation-delay: -5.607s;
-                background-color: #ff737c;
+                background-color: #7c73ff;
             }
         
             .nucleobase:nth-child(4) {
@@ -134,7 +134,7 @@ export default class LoadingSpinner extends LitElement {
                 animation: animBefore 2.1s cubic-bezier(0.42, 0, 0.58, 1) infinite;
                 -webkit-animation-delay: -7.476s;
                 animation-delay: -7.476s;
-                background-color: #ff8490;
+                background-color: #9084ff;
             }
         
             .nucleobase:nth-child(4):after {
@@ -142,7 +142,7 @@ export default class LoadingSpinner extends LitElement {
                 animation: animAfter 2.1s cubic-bezier(0.42, 0, 0.58, 1) infinite;
                 -webkit-animation-delay: -7.476s;
                 animation-delay: -7.476s;
-                background-color: #ff737c;
+                background-color: #7c73ff;
             }
         
             .nucleobase:nth-child(5) {
@@ -155,7 +155,7 @@ export default class LoadingSpinner extends LitElement {
                 animation: animBefore 2.1s cubic-bezier(0.42, 0, 0.58, 1) infinite;
                 -webkit-animation-delay: -9.345s;
                 animation-delay: -9.345s;
-                background-color: #ff8490;
+                background-color: #9084ff;
             }
         
             .nucleobase:nth-child(5):after {
@@ -163,7 +163,7 @@ export default class LoadingSpinner extends LitElement {
                 animation: animAfter 2.1s cubic-bezier(0.42, 0, 0.58, 1) infinite;
                 -webkit-animation-delay: -9.345s;
                 animation-delay: -9.345s;
-                background-color: #ff737c;
+                background-color: #7c73ff;
             }
         
             .nucleobase:nth-child(6) {
@@ -176,7 +176,7 @@ export default class LoadingSpinner extends LitElement {
                 animation: animBefore 2.1s cubic-bezier(0.42, 0, 0.58, 1) infinite;
                 -webkit-animation-delay: -11.214s;
                 animation-delay: -11.214s;
-                background-color: #ff8490;
+                background-color: #9084ff;
             }
         
             .nucleobase:nth-child(6):after {
@@ -184,7 +184,7 @@ export default class LoadingSpinner extends LitElement {
                 animation: animAfter 2.1s cubic-bezier(0.42, 0, 0.58, 1) infinite;
                 -webkit-animation-delay: -11.214s;
                 animation-delay: -11.214s;
-                background-color: #ff737c;
+                background-color: #7c73ff;
             }
         
             .nucleobase:nth-child(7) {
@@ -197,7 +197,7 @@ export default class LoadingSpinner extends LitElement {
                 animation: animBefore 2.1s cubic-bezier(0.42, 0, 0.58, 1) infinite;
                 -webkit-animation-delay: -13.083s;
                 animation-delay: -13.083s;
-                background-color: #ff8490;
+                background-color: #9084ff;
             }
         
             .nucleobase:nth-child(7):after {
@@ -205,7 +205,7 @@ export default class LoadingSpinner extends LitElement {
                 animation: animAfter 2.1s cubic-bezier(0.42, 0, 0.58, 1) infinite;
                 -webkit-animation-delay: -13.083s;
                 animation-delay: -13.083s;
-                background-color: #ff737c;
+                background-color: #7c73ff;
             }
         
             .nucleobase:nth-child(8) {
@@ -218,7 +218,7 @@ export default class LoadingSpinner extends LitElement {
                 animation: animBefore 2.1s cubic-bezier(0.42, 0, 0.58, 1) infinite;
                 -webkit-animation-delay: -14.952s;
                 animation-delay: -14.952s;
-                background-color: #ff8490;
+                background-color: #9084ff;
             }
         
             .nucleobase:nth-child(8):after {
@@ -226,7 +226,7 @@ export default class LoadingSpinner extends LitElement {
                 animation: animAfter 2.1s cubic-bezier(0.42, 0, 0.58, 1) infinite;
                 -webkit-animation-delay: -14.952s;
                 animation-delay: -14.952s;
-                background-color: #ff737c;
+                background-color: #7c73ff;
             }
         
             .nucleobase:nth-child(9) {
@@ -239,7 +239,7 @@ export default class LoadingSpinner extends LitElement {
                 animation: animBefore 2.1s cubic-bezier(0.42, 0, 0.58, 1) infinite;
                 -webkit-animation-delay: -16.821s;
                 animation-delay: -16.821s;
-                background-color: #ff8490;
+                background-color: #9084ff;
             }
         
             .nucleobase:nth-child(9):after {
@@ -247,7 +247,7 @@ export default class LoadingSpinner extends LitElement {
                 animation: animAfter 2.1s cubic-bezier(0.42, 0, 0.58, 1) infinite;
                 -webkit-animation-delay: -16.821s;
                 animation-delay: -16.821s;
-                background-color: #ff737c;
+                background-color: #7c73ff;
             }
         
             .nucleobase:nth-child(10) {
@@ -260,7 +260,7 @@ export default class LoadingSpinner extends LitElement {
                 animation: animBefore 2.1s cubic-bezier(0.42, 0, 0.58, 1) infinite;
                 -webkit-animation-delay: -18.69s;
                 animation-delay: -18.69s;
-                background-color: #ff8490;
+                background-color: #9084ff;
             }
         
             .nucleobase:nth-child(10):after {
@@ -268,7 +268,7 @@ export default class LoadingSpinner extends LitElement {
                 animation: animAfter 2.1s cubic-bezier(0.42, 0, 0.58, 1) infinite;
                 -webkit-animation-delay: -18.69s;
                 animation-delay: -18.69s;
-                background-color: #ff737c;
+                background-color: #7c73ff;
             }
         
             @-webkit-keyframes animBefore {
@@ -286,7 +286,7 @@ export default class LoadingSpinner extends LitElement {
                     z-index: -1;
                 }
                 75% {
-                    background-color: #ffdab2;
+                    background-color: #b2daff;
                     -webkit-transform: scale(0.8);
                     transform: scale(0.8);
                     z-index: -1;
@@ -312,7 +312,7 @@ export default class LoadingSpinner extends LitElement {
                     z-index: -1;
                 }
                 75% {
-                    background-color: #ffdab2;
+                    background-color: #b2daff;
                     -webkit-transform: scale(0.8);
                     transform: scale(0.8);
                     z-index: -1;
@@ -329,7 +329,7 @@ export default class LoadingSpinner extends LitElement {
                     z-index: -1;
                 }
                 25% {
-                    background-color: #ff329b;
+                    background-color: #9b32ff;
                     -webkit-transform: scale(0.8);
                     transform: scale(0.8);
                     z-index: -1;
@@ -355,7 +355,7 @@ export default class LoadingSpinner extends LitElement {
                     z-index: -1;
                 }
                 25% {
-                    background-color: #ff329b;
+                    background-color: #9b32ff;
                     -webkit-transform: scale(0.8);
                     transform: scale(0.8);
                     z-index: -1;

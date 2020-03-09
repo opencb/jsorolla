@@ -79,7 +79,7 @@ export default class OpencgaActiveFilters extends LitElement {
             this.configObserver();
         }
         if (changedProperties.has("opencgaSession")) {
-            this.checkFilters(this.config);
+            this.checkFilters();
         }
         if (changedProperties.has("facetQuery")) {
             //TODO review queryObserver and unify the behaviour of the Warning alert
@@ -183,18 +183,18 @@ export default class OpencgaActiveFilters extends LitElement {
         $(PolymerUtils.getElementById(this._prefix + "SaveModal")).modal("show");
     }
 
-    showSelectFilters(config) {
-        return (this.filters !== undefined && this.filters.length > 0) || !UtilsNew.isEmpty(config.sessionId);
+    showSelectFilters() {
+        return (this.filters !== undefined && this.filters.length > 0) || !UtilsNew.isEmpty(this.opencgaSession.token);
     }
 
     checkSid(config) {
-        return UtilsNew.isNotEmpty(config.sessionId);
+        return UtilsNew.isNotEmpty(config);
     }
 
-    checkFilters(config) {
+    checkFilters() {
         let _this = this;
-        if (this.opencgaClient instanceof OpenCGAClient && UtilsNew.isNotUndefined(config.value.sessionId)) {
-            console.error("arguments changed inverted after new clients. recheck functionality. serverVersion is now ignored");
+        if (this.opencgaClient instanceof OpenCGAClient && UtilsNew.isNotUndefined(this.opencgaSession.token)) {
+            //console.error("arguments changed inverted after new clients. recheck functionality. serverVersion is now ignored");
             this.opencgaClient.users().filtersConfigs(this.opencgaSession.user.id)
                 .then(function(response) {
                     let result = response.response[0].result;
@@ -222,7 +222,6 @@ export default class OpencgaActiveFilters extends LitElement {
         data.query = this.query;
         data.options = {};
         let _this = this;
-        console.error("arguments order inverted after new clients. recheck functionality");
         this.opencgaClient.users().filtersConfigs(this.opencgaSession.user.id, {name: filterName})
             .then(function(response) {
                 if (response.response[0].result.length > 0) {

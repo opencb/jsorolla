@@ -36,19 +36,16 @@ export default class OpenCGAParentClass {
             _options.token = this._config.token;
         }
         const _params = {...params, body: body};
-        if (rpc.toLowerCase() === "rest") {
-            let url = this._createRestUrl(host, version, category1, ids1, category2, ids2, action);
-            url = this._addQueryParams(url, _params);
-            _options.data = _params.body;
-            if (action === "upload") {
-                _options["post-method"] = "form";
-            }
-            // console.log(`OpenCGA client calling to ${url}`);
-            // if the URL query fails we try with next host
-            return RestClient.call(url, _options);
-        } else {
-            console.error("rpc NON-REST");
+        let url = this._createRestUrl(host, version, category1, ids1, category2, ids2, action);
+        url = this._addQueryParams(url, _params);
+        _options.data = _params.body;
+        if (action === "upload") {
+            _options["post-method"] = "form";
         }
+        // console.log(`OpenCGA client calling to ${url}`);
+        // if the URL query fails we try with next host
+        return RestClient.call(url, _options);
+
     }
 
     get(category, ids, action, params, options) {
@@ -89,21 +86,19 @@ export default class OpenCGAParentClass {
         if (category1 === "users" && (ids1 === undefined || ids1 === null || ids1 === "")) {
             ids1 = this._getUserId();
         }
-
-        if (rpc.toLowerCase() === "rest") {
-            let url = this._createRestUrl(host, version, category1, ids1, category2, ids2, action);
-            // if (method === "GET") {
-            url = this._addQueryParams(url, _params);
-            if (method === "POST") {
-                _options.data = _params.body;
-                if (action === "upload") {
-                    _options["post-method"] = "form";
-                }
+        let url = this._createRestUrl(host, version, category1, ids1, category2, ids2, action);
+        // if (method === "GET") {
+        url = this._addQueryParams(url, _params);
+        if (method === "POST") {
+            _options.data = _params.body;
+            if (action === "upload") {
+                _options["post-method"] = "form";
             }
-            // console.log(`OpenCGA client calling to ${url}`);
-            // if the URL query fails we try with next host
-            return RestClient.call(url, _options);
         }
+        // console.log(`OpenCGA client calling to ${url}`);
+        // if the URL query fails we try with next host
+        return RestClient.call(url, _options);
+
     }
 
     _createRestUrl(host, version, category1, ids1, category2, ids2, action) {

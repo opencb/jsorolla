@@ -1,7 +1,10 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./utilsNew.js";
 
-//TODO evaluate turning this to a WC and the render would show the notifcation
+import {NotificationQueue} from "./Notification.js";
+
+// TODO remove
+// use Notification.js instead
 export default class NotificationUtils {
 
     constructor() {
@@ -57,7 +60,8 @@ export default class NotificationUtils {
             this.opencgaClient = opencgaClient;
         }
         //this.notifications.push(message)
-        return $.notify(optionsDefault, settingsDefault);
+        (new NotificationQueue()).push(message);
+        //return $.notify(optionsDefault, settingsDefault);
     }
 
     static closeNotify(notifyInstance) {
