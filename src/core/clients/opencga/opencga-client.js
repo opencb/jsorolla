@@ -188,7 +188,7 @@ export class OpenCGAClient {
 
     async login(userId, password) {
         try {
-            const response = await this.users().login(userId, {password: password});
+            const response = await this.users().login(userId, password ? {password: password} : null);
             const restResponse = new RestResponse(response);
 
             // TODO search for Errors in restResponse.events

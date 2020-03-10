@@ -19,20 +19,21 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 
 export class NotificationQueue {
 
-    constructor(litElement) {
+    constructor() {
         if (!NotificationQueue.instance) {
             NotificationQueue.instance = this;
         }
         this.queue = [];
-        this.litElement = litElement;
         return NotificationQueue.instance;
-
     }
+
+    setContext(context) {
+        this.context = context;
+    }
+
     push(title, details = "", severity = "info", dismissible = true, autoDismiss = true) {
         this.queue = [...this.queue, {title, details, severity, dismissible, autoDismiss}];
-        if (this.litElement) {
-            this.litElement.requestUpdate().then( () => console.log("refreshed"));
-        }
+        this.context.requestUpdate().then( () => console.log("refreshed"))
         if (autoDismiss) {
             setTimeout(() => {
                 this.remove(title);
@@ -42,9 +43,7 @@ export class NotificationQueue {
 
     remove(title) {
         this.queue = this.queue.filter( item => item.title !== title);
-        if (this.litElement) {
-            this.litElement.requestUpdate();
-        }
+        this.context.requestUpdate();
     }
 
     get() {

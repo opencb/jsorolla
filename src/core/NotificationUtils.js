@@ -59,8 +59,7 @@ export default class NotificationUtils {
         if (UtilsNew.isNotUndefinedOrNull(opencgaClient)) {
             this.opencgaClient = opencgaClient;
         }
-        //this.notifications.push(message)
-        (new NotificationQueue()).push(message);
+        new NotificationQueue().push(message);
         //return $.notify(optionsDefault, settingsDefault);
     }
 
