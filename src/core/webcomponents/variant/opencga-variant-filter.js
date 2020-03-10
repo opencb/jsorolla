@@ -92,9 +92,6 @@ export default class OpencgaVariantFilter extends LitElement {
 
         this._initialised = false;
         // this._reset = true;
-        if (PANELS) {
-            this.panelList = PANELS; //todo check if have to be managed by litelement
-        }
 
         this.query = {}; // NOTE when no query param (or undefined) is passed to this component, this initialization is replaced with undefined value
         this.preparedQuery = {};
