@@ -245,7 +245,7 @@ export default class OpencgaVariantGrid extends LitElement {
                 ajax: function(params) {
                     let filters = {
                         study: _this.opencgaSession.study.fqn,
-                        limit: params.data.limit || _this._config.pageSize,
+                        limit: params.data.limit || _this.options.pageSize,
                         skip: params.data.offset || 0
                         //include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
                     };
