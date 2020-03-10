@@ -187,7 +187,8 @@ export default class OpencgaVariantGrid extends LitElement {
         this.to = 10;
         this.approximateCountResult = false;
 
-        let skipCount = false;
+        // let skipCount = false;
+        // let count = true;
 
         const _table = $("#" + this._prefix + "VariantBrowserGrid");
 
@@ -199,7 +200,7 @@ export default class OpencgaVariantGrid extends LitElement {
             typeof this.opencgaSession.study.alias !== "undefined") {
             this._columns = this._createDefaultColumns();
 
-            const queryParams = this._getUrlQueryParams;
+            // const queryParams = this._getUrlQueryParams;
             let _numTotal = -1;
             const _this = this;
             $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable("destroy");
@@ -221,49 +222,74 @@ export default class OpencgaVariantGrid extends LitElement {
                 variantGrid: _this,
 
                 //TODO recheck query
-                ajax: params => {
-                    if (this.pageNumber > 1) {
-                        skipCount = true;
-                    }
-                    const filters = {
-                        study: this.opencgaSession.study.fqn,
-                        order: params.data.order,
-                        limit: params.data.limit,
-                        skip: params.data.offset || 0,
-                        skipCount: skipCount,
-                        //include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
-                        ...this.query
-                    };
-                    this.opencgaSession.opencgaClient.variants().query(filters).then( res => params.success(res));
-                },
-                /*queryParams: function(params) {
-                    queryParams.limit = params.limit;
-                    queryParams.skip = params.offset;
-                    return queryParams;
-                },*/
-                //TODO recheck
-                responseHandler: function(response) {
-                    if (!skipCount) {
-                        if (!_this.hasOwnProperty("numTotalResults")) {
-                            _this.numTotalResults = 0;
-                        }
-                        if (_this.numTotalResults !== response.getResponse().numTotalResults &&
-                            response.queryOptions.skip === 0) {
-                            _this.numTotalResults = response.getResponse().numTotalResults;
-                        }
-                    }
-                    //_this.to = Math.min(response.getResponse(0).numResults, this.pageSize);
-                    _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                // ajax: params => {
+                //     let _count = false;
+                //     params
+                //     if (this.pageNumber === 0) {
+                //         // skipCount = true;
+                //         _count = true;
+                //     }
+                //     const filters = {
+                //         study: _this.opencgaSession.study.fqn,
+                //         limit: params.data.limit || _this._config.pageSize,
+                //         skip: params.data.offset || 0,
+                //         count: _count,
+                //         //include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
+                //         ..._this.query
+                //     };
+                //     debugger
+                //     _this.opencgaSession.opencgaClient.variants().query(filters).then( res => params.success(res));
+                // },
 
-                    if (response.getParams().skip === 0 && _this.numTotalResults < response.getParams().limit) {
-                        _this.from = 1;
-                        _this.to = _this.numTotalResults;
+
+                ajax: function(params) {
+                    let filters = {
+                        study: _this.opencgaSession.study.fqn,
+                        limit: params.data.limit || _this._config.pageSize,
+                        skip: params.data.offset || 0
+                        //include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
+                    };
+                    if (this.options.pageNumber === 1) {
+                        filters.count = true;
                     }
-                    _this.approximateCountResult = response.getResponse().approximateCount;
+                    if (typeof _this.query.genotype === "undefined" && typeof _this.query.sample === "undefined"
+                        && typeof _this.query.family === "undefined") {
+                        filters.summary = true;
+                    }
+                    if (_this._config.grid && _this._config.grid.queryParams) {
+                        filters = {...filters, ... _this._config.grid.queryParams};
+                    }
+                    // We finally overwrite with the query object passed
+                    filters = {...filters, ... _this.query};
+                    _this.opencgaSession.opencgaClient.variants()
+                        .query(filters)
+                        .then( res => params.success(res));
+                },
+                responseHandler: function(response) {
+                    let _numMatches = _this._numMatches || 0;
+                    if (response.getResponse().numMatches >= 0) {
+                        _numMatches = response.getResponse().numMatches;
+                        _this._numMatches = _numMatches;
+                    }
+                    // If no variant is returned then we start in 0
+                    if (response.getResponse(0).numMatches === 0) {
+                        _this.from = _numMatches;
+                    }
+                    // If do not fetch as many variants as requested then to is numMatches
+                    if (response.getResponse(0).numResults < this.pageSize) {
+                        _this.to = _numMatches;
+                    }
+                    _this.numTotalResultsText = _numMatches.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+                    if (response.getParams().skip === 0 && _numMatches < response.getParams().limit) {
+                        _this.from = 1;
+                        _this.to = _numMatches;
+                    }
+                    _this.approximateCountResult = response.getResponse().attributes.approximateCount;
                     _this.requestUpdate(); // it is necessary to refresh numTotalResultsText in opencga-grid-toolbar
 
                     return {
-                        total: _this.numTotalResults,
+                        total: _numMatches,
                         rows: response.getResults()
                     };
                 },
@@ -389,55 +415,55 @@ export default class OpencgaVariantGrid extends LitElement {
         }
 
         // To query from cellbase, 'queryCellbase' property must be set to true explicitly
-        if (typeof this.queryCellbase !== "undefined" && this.queryCellbase && this.cellbaseClient instanceof CellBaseClient) {
-            $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable("destroy");
-            let _numTotal = -1;
-
-            let url = "";
-            if (this.cellbaseClient._config.hosts[0].startsWith("https://")) {
-                url = this.cellbaseClient._config.hosts[0];
-            } else {
-                url = "http://" + this.cellbaseClient._config.hosts[0];
-            }
-
-            const queryParams = {
-                timeout: 20000
-            };
-
-            Object.assign(queryParams, this.query); // Important : Adding the query object contents to queryParams
-
-            url = url + "/webservices/rest/v4/" + this.cellbaseClient._config.species + "/feature/variation/search";
-            const _this = this;
-            $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable({
-                url: url,
-                method: "get",
-                sidePagination: "server",
-                queryParams: function(params) {
-                    queryParams.limit = params.limit;
-                    queryParams.skip = params.offset;
-                    //                            queryParams.summary = true;
-
-                    return queryParams;
-                },
-                responseHandler: function(res) {
-                    if (_numTotal === -1) {
-                        _numTotal = res.response[0].numTotalResults;
-                        _this.count = _numTotal;
-
-                        // updates numTotalResultsText
-                        _this.requestUpdate();
-                    }
-                    return {total: _numTotal, rows: res.response[0].result};
-                },
-                columns: _this.cols,
-                onClickRow: function(row, $element) {
-                    _this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-                    $(".success").removeClass("success");
-                    $($element).addClass("success");
-                }
-            });
-            $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable("showLoading");
-        }
+        // if (typeof this.queryCellbase !== "undefined" && this.queryCellbase && this.cellbaseClient instanceof CellBaseClient) {
+        //     $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable("destroy");
+        //     let _numTotal = -1;
+        //
+        //     let url = "";
+        //     if (this.cellbaseClient._config.hosts[0].startsWith("https://")) {
+        //         url = this.cellbaseClient._config.hosts[0];
+        //     } else {
+        //         url = "http://" + this.cellbaseClient._config.hosts[0];
+        //     }
+        //
+        //     const queryParams = {
+        //         timeout: 20000
+        //     };
+        //
+        //     Object.assign(queryParams, this.query); // Important : Adding the query object contents to queryParams
+        //
+        //     url = url + "/webservices/rest/v4/" + this.cellbaseClient._config.species + "/feature/variation/search";
+        //     const _this = this;
+        //     $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable({
+        //         url: url,
+        //         method: "get",
+        //         sidePagination: "server",
+        //         queryParams: function(params) {
+        //             queryParams.limit = params.limit;
+        //             queryParams.skip = params.offset;
+        //             //                            queryParams.summary = true;
+        //
+        //             return queryParams;
+        //         },
+        //         responseHandler: function(res) {
+        //             if (_numTotal === -1) {
+        //                 _numTotal = res.response[0].numTotalResults;
+        //                 _this.count = _numTotal;
+        //
+        //                 // updates numTotalResultsText
+        //                 _this.requestUpdate();
+        //             }
+        //             return {total: _numTotal, rows: res.response[0].result};
+        //         },
+        //         columns: _this.cols,
+        //         onClickRow: function(row, $element) {
+        //             _this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+        //             $(".success").removeClass("success");
+        //             $($element).addClass("success");
+        //         }
+        //     });
+        //     $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable("showLoading");
+        // }
 
     }
 
@@ -485,7 +511,7 @@ export default class OpencgaVariantGrid extends LitElement {
             // queryParams.exclude = "annotation.geneExpression";
         } else {
             queryParams.summary = false;
-            queryParams.approximateCount = true;
+            // queryParams.approximateCount = true;
             queryParams.exclude = "annotation.geneExpression";
         }
 

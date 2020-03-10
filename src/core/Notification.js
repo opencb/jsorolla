@@ -30,7 +30,9 @@ export class NotificationQueue {
     }
     push(title, details = "", severity = "info", dismissible = true, autoDismiss = true) {
         this.queue = [...this.queue, {title, details, severity, dismissible, autoDismiss}];
-        this.litElement.requestUpdate().then( () => console.log("refreshed"));
+        if (this.litElement) {
+            this.litElement.requestUpdate().then( () => console.log("refreshed"));
+        }
         if (autoDismiss) {
             setTimeout(() => {
                 this.remove(title);
@@ -40,7 +42,9 @@ export class NotificationQueue {
 
     remove(title) {
         this.queue = this.queue.filter( item => item.title !== title);
-        this.litElement.requestUpdate();
+        if (this.litElement) {
+            this.litElement.requestUpdate();
+        }
     }
 
     get() {

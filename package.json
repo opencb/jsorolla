@@ -78,7 +78,8 @@
     "regenerator-runtime": "^0.13.3",
     "uglify-es": "~3.1.9",
     "vulcanize": "~1.16.0",
-    "webpack": "^4.41.6"
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11"
   },
   "@pika/web": {
     "webDependencies": [
