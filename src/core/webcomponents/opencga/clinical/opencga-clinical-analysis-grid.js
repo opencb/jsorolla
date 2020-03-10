@@ -19,7 +19,7 @@ import Utils from "./../../../utils.js";
 import UtilsNew from "./../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import "../../commons/opencb-grid-toolbar.js";
-import {RestResponse} from "../../../clients/RestResponse.js";
+import {RestResponse} from "../../../clients/rest-response.js";
 
 
 export default class OpencgaClinicalAnalysisGrid extends LitElement {

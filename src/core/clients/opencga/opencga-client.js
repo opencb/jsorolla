@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {RestResponse} from "../RestResponse.js";
+import {RestResponse} from "../rest-response.js";
 import UtilsNew from "../../utilsNew.js";
 import Admin from "./api/Admin.js";
 import Alignment from "./api/Alignment.js";

@@ -1,4 +1,4 @@
-import {RestResponse} from "./RestResponse.js";
+import {RestResponse} from "./rest-response.js";
 
 export class RestClientXmlhttp {
 

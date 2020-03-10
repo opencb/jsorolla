@@ -9,7 +9,7 @@ import "./threed-viewer/threedv-config.js";
 import Utils from "./core/utils.js";
 import "./core/clients/opencga/opencga-client.js";
 import "./core/clients/rest-client-axios.js";
-import "./core/clients/RestResponse.js";
+import "./core/clients/rest-response.js";
 import "./core/clients/cellbase-client.js";
 import "./core/clients/rest-client-xmlhttp.js";
 import "./core/clients/rest-client.js";
