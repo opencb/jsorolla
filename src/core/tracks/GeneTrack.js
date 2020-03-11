@@ -1,7 +1,7 @@
 import Utils from "./../utils.js";
 import UtilsNew from "./../utilsNew.js";
 import LinearFeatureTrack from "./FeatureTrack.js";
-import {CellBaseClient} from "../clients/cellbase-client.js";
+import {CellBaseClient} from "../clients/cellbase/cellbase-client.js";
 
 
 export default class LinearGeneTrack extends LinearFeatureTrack {

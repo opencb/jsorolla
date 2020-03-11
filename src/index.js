@@ -1,5 +1,5 @@
 export {OpenCGAClient} from "./core/clients/opencga/opencga-client.js";
-export {CellBaseClient} from "./core/clients/cellbase-client.js";
+export {CellBaseClient} from "./core/clients/cellbase/cellbase-client.js";
 export {ReactomeClient} from "./core/clients/reactome-client.js";
 
 export OpencgaVariantFacet from "./core/webcomponents/variant/opencga-variant-facet.js";
