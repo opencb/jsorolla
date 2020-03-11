@@ -25,30 +25,32 @@ export class RestResponse {
      */
     constructor(response) {
         try {
-            // console.log("REST response", response)
             this.apiVersion = response.apiVersion;
             this.time = response.time;
             this.events = response.events;
-            this.params = response.params;
+            this.params = response.params || response.queryOptions;
             this.responses = response.responses || response.response;
 
             // TODO This is a small hack that can be activated if backward compatibility is needed. This should be removed in next 2.1.
-            this.params = this.queryOptions = response.params || response.queryOptions;
+            this.queryOptions = this.params;
             this.response = [];
             this.responses.forEach( (response, i) => {
                 this.response[i] = response;
                 if (response.results) {
                     this.response[i].result = response.results;
-                    if (response.time !== undefined) this.response[i].dbTime = response.time;
-                    if (response.numMatches !== undefined) this.response[i].numTotalResults = response.numMatches;
+                    if (response.time !== undefined) {
+                        this.response[i].dbTime = response.time;
+                    }
+                    if (response.numMatches !== undefined) {
+                        this.response[i].numTotalResults = response.numMatches;
+                    }
                 } else {
                     this.response[i].results = response.result;
                 }
             });
         } catch (e) {
             console.error(e);
-            console.log("Response", response);
-            throw new Error("Unexpected response format");
+            throw new Error("Unexpected REST response format");
         }
     }
 
@@ -148,14 +150,15 @@ export class RestResponse {
      * @return {Object | Array} The retrieved event object or the list of events in case of no eventType defined.
      */
     getEvents(eventType) {
-        const eventNames = ["INFO", "WARNING", "ERROR"];
-        if (!eventType || !this.events.length) {
-            return this.events || [];
-        } else if (eventNames.includes(eventType)) {
-            return this.events.find( event => event.type === eventType);
-        } else {
-            throw new Error(`Argument "eventType" must be one of the following values: "${eventNames.join(", ")}"`);
-        }
+        // const eventNames = ["INFO", "WARNING", "ERROR"];
+        // if (!eventType || !this.events.length) {
+        //     return this.events || [];
+        // } else if (eventNames.includes(eventType)) {
+        //     return this.events.find( event => event.type === eventType);
+        // } else {
+        //     throw new Error(`Argument "eventType" must be one of the following values: "${eventNames.join(", ")}"`);
+        // }
+        return this._filterEvents(this.events, eventType);
     }
 
     /**
@@ -165,11 +168,23 @@ export class RestResponse {
      * @throw {Error} in case of the param "eventType" is not a valid value
      */
     getResultEvents(eventType, responsePos = 0) {
+        // const eventNames = ["INFO", "WARNING", "ERROR"];
+        // if (!eventType) {
+        //     return this.responses[responsePos].events || [];
+        // } else if (eventNames.includes(eventType)) {
+        //     return this.responses[responsePos].events ? this.responses[responsePos].events.filter( event => event.type === eventType) : [];
+        // } else {
+        //     throw new Error(`Argument "eventType" must be one of the following values: "${eventNames.join(", ")}"`);
+        // }
+        return this._filterEvents(this.responses[responsePos].events, eventType);
+    }
+
+    _filterEvents(events, eventType) {
         const eventNames = ["INFO", "WARNING", "ERROR"];
         if (!eventType) {
-            return this.responses[responsePos].events || [];
+            return events || [];
         } else if (eventNames.includes(eventType)) {
-            return this.responses[responsePos].events ? this.responses[responsePos].events.filter( event => event.type === eventType) : [];
+            return events ? events.filter( event => event.type === eventType) : [];
         } else {
             throw new Error(`Argument "eventType" must be one of the following values: "${eventNames.join(", ")}"`);
         }
@@ -220,5 +235,3 @@ export class RestResponse {
     getNumDeleted = responsePos => this.count("numDeleted", responsePos);
 
 }
-
-// module.exports = exports = RestResponse;
