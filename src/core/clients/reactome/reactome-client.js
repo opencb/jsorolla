@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 OpenCB
+ * Copyright 2015-2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {RestClient} from "./rest-client.js";
+import {RestClient} from "../rest-client.js";
 
 export class ReactomeClient {
 
