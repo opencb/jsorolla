@@ -16,65 +16,51 @@
 
 import {RestClient} from "./rest-client.js";
 
-export class CellBaseClientConfig {
-
-    constructor(hosts = ["bioinfo.hpc.cam.ac.uk/cellbase", "www.ebi.ac.uk/cellbase"], version = "v3", species = "hsapiens") {
-        this.setHosts(hosts);
-        this.version = version;
-        this.species = species;
-
-        // default values
-        this.rpc = "rest";
-
-        this.cache = {
-            active: false,
-            database: `${this.species}_${this.version}_cellbase_cache`,
-            subcategories: ["genomic_chromosome", "genomic_region", "genomic_variant", "feature_gene", "feature_variation",
-                "feature_clinical", "feature_id", "feature_protein", "feature_transcript"]
-        };
-    }
-
-    setHosts(hosts) {
-        if (typeof hosts === "string") {
-            this.hosts = hosts.split(",");
-        } else {
-            this.hosts = hosts;
-        }
-    }
-
-}
 
 export class CellBaseClient {
 
     constructor(config) {
-        if (typeof config === "undefined") {
-            this._config = new CellBaseClientConfig();
-        } else {
-            this._config = config;
-        }
+        // if (typeof config === "undefined") {
+        //     this._config = new CellBaseClientConfig();
+        // } else {
+        //     this._config = config;
+        // }
+
+        // this._config = config;
+        this.setConfig(config);
         if (this._config.cache.active) {
             this.indexedDBCache = new IndexedDBCache(this._config.cache.database);
             this._initCache();
         }
     }
 
+    getDefaultConfig() {
+        return {
+            hosts: ["bioinfo.hpc.cam.ac.uk/cellbase"],
+            version: "v4",
+            species: "hsapiens",
+            query: {
+                batchSize: "",
+                limit: 10
+            },
+            cache: {
+                active: false,
+                database: `${this.species}_${this.version}_cellbase_cache`,
+                subcategories: ["genomic_chromosome", "genomic_region", "genomic_variant", "feature_gene", "feature_variation",
+                    "feature_clinical", "feature_id", "feature_protein", "feature_transcript"]
+            }
+        };
+    }
+
+    // TODO check CellBase URL and other variables.
+    check() {}
+
     _initCache() {
         this.indexedDBCache.createObjectStores(this._config.cache.subcategories);
     }
 
-    setHosts(hosts) {
-        if (typeof hosts !== "undefined") {
-            this._config.setHosts(hosts);
-        }
-    }
-
-    setVersion(version) {
-        this._config.version = version;
-    }
-
-
     /**
-     * This method has been implemented to be backword compatible with old cellbase-manager.js
+     * This method has been implemented to be backward compatible with old cellbase-manager.js
      */
     getOldWay(args) {
         return this.get(args.category, args.subcategory, args.id, args.resource, args.params, args.options);
@@ -161,9 +147,7 @@ export class CellBaseClient {
         if (typeof hosts === "string") {
             hosts = hosts.split(",");
         }
-        let rpc = options.rpc || this._config.rpc;
         let cache = options.cache || this._config.cache;
-
 
         let response;
         if (cache.active) {
@@ -198,102 +182,60 @@ export class CellBaseClient {
                         }
                     }
 
-                    if (rpc.toLowerCase() === "rest") {
-                        options.cacheFn = function(dataResponse) {
-                            // we add the new fetched data to the cache
-                            let suffixKey = _this._createSuffixKey(params, true);
-                            // We make a copy of dataResponse
-                            let query = {};
-                            for (let i in dataResponse) {
-                                query[i] = dataResponse[i];
-                            }
-                            // And remove the key response
-                            delete query["response"];
+                    options.cacheFn = function(dataResponse) {
+                        // we add the new fetched data to the cache
+                        let suffixKey = _this._createSuffixKey(params, true);
+                        // We make a copy of dataResponse
+                        let query = {};
+                        for (let i in dataResponse) {
+                            query[i] = dataResponse[i];
+                        }
+                        // And remove the key response
+                        delete query["response"];
 
-                            if (idArray.length > 0) {
-                                for (let i = 0; i < dataResponse.response.length; i++) {
-                                    let result = {
-                                        query: query,
-                                        data: dataResponse.response[i]
-                                    };
-                                    // result['data'] = dataResponse.response[i];
-                                    // // Update the data time to 0
-                                    result.data.dbTime = 0;
-                                    _this.indexedDBCache.add(os, `${idArray[i]}_${resource}${suffixKey}`, result);
-                                }
-                            } else {
-                                for (let i = 0; i < dataResponse.response.length; i++) {
-                                    let result = {
-                                        query: query,
-                                        data: dataResponse.response[i]
-                                    };
-                                    // Update the data time to 0
-                                    result.data.dbTime = 0;
-                                    _this.indexedDBCache.add(os, resource + suffixKey, result);
-                                }
+                        if (idArray.length > 0) {
+                            for (let i = 0; i < dataResponse.response.length; i++) {
+                                let result = {
+                                    query: query,
+                                    data: dataResponse.response[i]
+                                };
+                                // result['data'] = dataResponse.response[i];
+                                // // Update the data time to 0
+                                result.data.dbTime = 0;
+                                _this.indexedDBCache.add(os, `${idArray[i]}_${resource}${suffixKey}`, result);
                             }
-
-                            // debugger
-                            // console.log(dataResponse);
-                            // response = {response: []};
-                            // let responses = [];
-                            // for (let i = 0, j = 0; i < results.length; i++) {
-                            //     if (results[i] == undefined) {
-                            //         results[i] = dataResponse.response[j++].result;
-                            //     }
-                            //     responses.push({result: results[i]});
-                            // }
-                            // response.response = responses;
-                            //
-                            // console.log(response)
-                            // // If the call is OK then we execute the success function from the user
-                            // if (typeof options != "undefined" && typeof options.success === "function") {
-                            //     options.success(response);
-                            // }
-                        };
-                        if (uncachedQueries) {
-                            // response = _this._callRestWebService(hosts, category, subcategory, nonCachedIds, resource, params, options);
-                            resolve(_this._callRestWebService(hosts, category, subcategory, nonCachedIds, resource, params, options));
                         } else {
-                            let queryResponse = results[0].query;
-                            queryResponse["response"] = [];
-
-                            // if (results.length > 1) {
-                            //     debugger;
-                            // }
-
-                            for (let i = 0; i < results.length; i++) {
-                                queryResponse.response.push(results[i].data);
-                            }
-                            // response.response = responses;
-                            // response = Promise.resolve(queryResponse);
-                            resolve(queryResponse);
-                            // If the call is OK then we execute the success function from the user
-                            if (typeof options !== "undefined" && typeof options.success === "function") {
-                                options.success(response);
+                            for (let i = 0; i < dataResponse.response.length; i++) {
+                                let result = {
+                                    query: query,
+                                    data: dataResponse.response[i]
+                                };
+                                // Update the data time to 0
+                                result.data.dbTime = 0;
+                                _this.indexedDBCache.add(os, resource + suffixKey, result);
                             }
                         }
+                    };
+                    if (uncachedQueries) {
+                        // response = _this._callRestWebService(hosts, category, subcategory, nonCachedIds, resource, params, options);
+                        resolve(_this._callRestWebService(hosts, category, subcategory, nonCachedIds, resource, params, options));
                     } else {
-                        if (rpc.toLowerCase() === "grpc") {
-                            response = _this._callGrpcService(hosts, category, subcategory, nonCachedIds, resource, params, options);
-                        } else {
-                            console.error(`No valid RPC method: ${rpc}. Accepted values are 'rest' and 'grpc'`);
+                        let queryResponse = results[0].query;
+                        queryResponse["response"] = [];
+                        for (let i = 0; i < results.length; i++) {
+                            queryResponse.response.push(results[i].data);
+                        }
+                        resolve(queryResponse);
+                        // If the call is OK then we execute the success function from the user
+                        if (typeof options !== "undefined" && typeof options.success === "function") {
+                            options.success(response);
                         }
                     }
                     console.timeEnd("Cache time:");
                 });
             });
         } else {
-            // let response;
-            if (rpc.toLowerCase() === "rest") {
-                response = this._callRestWebService(hosts, category, subcategory, ids, resource, params, options);
-            } else {
-                if (rpc.toLowerCase() === "grpc") {
-                    response = this._callGrpcService(hosts, category, subcategory, ids, resource, params, options);
-                } else {
-                    console.error(`No valid RPC method: ${rpc}. Accepted values are 'rest' and 'grpc'`);
-                }
-            }
+            response = this._callRestWebService(hosts, category, subcategory, ids, resource, params, options);
         }
 
         return response;
@@ -320,7 +262,6 @@ export class CellBaseClient {
             }
         };
 
-        // response = RestClient.call(url, options);
         response = RestClient.call(url, options);
         return response;
     }
@@ -332,8 +273,9 @@ export class CellBaseClient {
         if (_host.endsWith("/")) {
             _host = _host.slice(0, -1);
         }
-        let url = _host + `/webservices/rest/${version}/${species}/`;
+
         // By default we assume https protocol instead of http
+        let url = _host + `/webservices/rest/${version}/${species}/`;
         if (!url.startsWith("https://") && !url.startsWith("http://")) {
             url = `https://${_host}/webservices/rest/${version}/${species}/`;
         }
@@ -368,8 +310,13 @@ export class CellBaseClient {
         return suffixKey;
     }
 
-    _callGrpcService(params) {
-        console.warn("Not implemented yet, params: " + params)
+    getConfig() {
+        return this._config;
+    }
+
+    setConfig(config) {
+        this._config = {...this.getDefaultConfig(), ...config};
+        // this.clients = new Map();
     }
 
 }

@@ -57,8 +57,13 @@
     /***************************************************************************/
 
    //Create a Cellbase Client using the defauts params in src/genome-browser/config.js, in the build in genombre-browser.js
-    let cellBaseClientConfig = new CellBaseClientConfig(hosts = CELLBASE_HOST, version = CELLBASE_VERSION);
-    cellBaseClientConfig.cache.active = false;
+   //  let cellBaseClientConfig = new CellBaseClientConfig(hosts = CELLBASE_HOST, version = CELLBASE_VERSION);
+   //  cellBaseClientConfig.cache.active = false;
+    let cellBaseClientConfig = {
+        hosts: CELLBASE_HOST,
+        version: CELLBASE_VERSION,
+        cache: {active: false}
+    };
     let cellbaseClient = new CellBaseClient(cellBaseClientConfig);
 
 

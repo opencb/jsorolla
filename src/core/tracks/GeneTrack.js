@@ -1,7 +1,7 @@
 import Utils from "./../utils.js";
 import UtilsNew from "./../utilsNew.js";
 import LinearFeatureTrack from "./FeatureTrack.js";
-import {CellBaseClientConfig} from "../clients/cellbase-client.js";
+import {CellBaseClient} from "../clients/cellbase-client.js";
 
 
 export default class LinearGeneTrack extends LinearFeatureTrack {
@@ -31,8 +31,14 @@ export default class LinearGeneTrack extends LinearFeatureTrack {
 
         if (UtilsNew.isUndefinedOrNull(this.dataAdapter)) {
             if (UtilsNew.isNotUndefinedOrNull(this.cellbase)) {
-                let cellBaseConfig = new CellBaseClientConfig(this.cellbase.host, this.cellbase.version, this.cellbase.species);
-                cellBaseConfig.cache.active = false;
+                // let cellBaseConfig = new CellBaseClientConfig(this.cellbase.host, this.cellbase.version, this.cellbase.species);
+                // cellBaseConfig.cache.active = false;
+                let cellBaseConfig = {
+                    hosts: this.cellbase.host,
+                    version: this.cellbase.version,
+                    species: this.cellbase.species,
+                    cache: {active: false}
+                };
                 this.dataAdapter = new CellBaseAdapter(new CellBaseClient(cellBaseConfig), "genomic", "region", "gene", {},
                     { chunkSize: 100000 });
                 // this.dataAdapter = new CellBaseAdapter(new CellBaseClient(cellBaseConfig), "feature", "gene", "info", {},

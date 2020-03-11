@@ -76,8 +76,13 @@
                     CELLBASE_VERSION = "v4";
                     OPENCGA_HOST = "bioinfo.hpc.cam.ac.uk/hgva";
 
-                    let cellBaseClientConfig = new CellBaseClientConfig(CELLBASE_HOST, CELLBASE_VERSION);
-                    cellBaseClientConfig.cache.active = false;
+                    // let cellBaseClientConfig = new CellBaseClientConfig(CELLBASE_HOST, CELLBASE_VERSION);
+                    // cellBaseClientConfig.cache.active = false;
+                    let cellBaseClientConfig = {
+                        hosts: CELLBASE_HOST,
+                        version: CELLBASE_VERSION,
+                        cache: {active: false}
+                    };
                     this.cellbaseClient = new CellBaseClient(cellBaseClientConfig);
 
                     let opencgaClientConfig = new OpenCGAClientConfig(OPENCGA_HOST);

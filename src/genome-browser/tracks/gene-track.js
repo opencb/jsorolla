@@ -1,4 +1,4 @@
-import {CellBaseClientConfig, CellBaseClient} from "../../core/clients/cellbase-client.js";
+import {CellBaseClient} from "../../core/clients/cellbase-client.js";
 import FeatureTrack from "./feature-track.js";
 import HistogramRenderer from "../renderers/histogram-renderer.js";
 
@@ -30,8 +30,14 @@ export default class GeneTrack extends FeatureTrack {
         // set CellBase adapter as default
         if (typeof this.dataAdapter === "undefined") {
             if (typeof this.cellbase !== "undefined" && this.cellbase !== null) {
-                let cellBaseConfig = new CellBaseClientConfig(this.cellbase.host, this.cellbase.version, this.cellbase.species);
-                cellBaseConfig.cache.active = false;
+                // let cellBaseConfig = new CellBaseClientConfig(this.cellbase.host, this.cellbase.version, this.cellbase.species);
+                // cellBaseConfig.cache.active = false;
+                let cellBaseConfig = {
+                    hosts: this.cellbase.host,
+                    version: this.cellbase.version,
+                    species: this.cellbase.species,
+                    cache: {active: false}
+                };
                 this.dataAdapter = new CellBaseAdapter(new CellBaseClient(cellBaseConfig), "genomic", "region", "gene", {},
                     { chunkSize: 100000 });
             }
