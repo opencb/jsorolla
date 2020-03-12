@@ -16,6 +16,7 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import Utils from "../core/utils.js";
 
 export class NotificationQueue {
 
@@ -31,18 +32,31 @@ export class NotificationQueue {
         this.context = context;
     }
 
-    push(title, details = "", severity = "info", dismissible = true, autoDismiss = true) {
-        this.queue = [...this.queue, {title, details, severity, dismissible, autoDismiss}];
-        this.context.requestUpdate().then( () => console.log("refreshed"))
+    async push(title, details = "", severity = "info", dismissible = true, autoDismiss = true) {
+        const id = Utils.randomString(6);
+        const msg = {id, title, details, severity, dismissible, autoDismiss};
+        this.queue = [...this.queue, msg];
+        await this.context.requestUpdate();
         if (autoDismiss) {
-            setTimeout(() => {
-                this.remove(title);
-            }, 5000);
+            //await this.sleep(1000);
+            //$(`#notifications-queue .alert[data-id=${id}]`).removeClass("slideInDown");
+            //await this.context.requestUpdate();
+            await this.sleep(5000);
+            /*$(`#notifications-queue .alert[data-id=${id}]`).addClass("slideOutUp");
+            await this.context.requestUpdate();
+            await this.sleep(500);
+            */
+            this.remove(id);
+            await this.context.requestUpdate();
         }
     }
 
-    remove(title) {
-        this.queue = this.queue.filter( item => item.title !== title);
+    sleep(ms) {
+        return new Promise( resolve => setTimeout( () => resolve(), ms));
+    }
+
+    remove(id) {
+        this.queue = this.queue.filter( item => item.id !== id);
         this.context.requestUpdate();
     }
 
@@ -76,24 +90,23 @@ export class NotificationElement extends LitElement {
             info: "fa fa-info-circle fa-2x",
             success: "fa fa-thumbs-up fa-2x",
             warning: "fa fa-exclamation-triangle fa-2x",
-            danger: "fa ffa fa-exclamation-circle fa-2x"
+            danger: "fa ffa fa-exclamation-circle fa-2x",
+            error: "fa ffa fa-exclamation-circle fa-2x"
         };
     }
 
     render() {
         return html`
-        <div id="notifications-queue" class="col-xs-11 col-sm-4">
-        ${this.queue.map( item => html`
-            <div class="alert animated slideInDown alert-${item.severity.toLowerCase()} ${item.dismissible ? "alert-dismissible" : ""}">
-                <p class="title"><i class="${this.iconMap[item.severity]}"></i> ${item.title}</p>
-                <p>${item.details}</p>
-                ${item.dismissible ? html`<span class="close" data-dismiss="alert"><i class="fa fa-times-circle"></i></span>` : null}
-            </div>
-        `)}
-        </div>
-        `;
+                <div id="notifications-queue" class="col-xs-11 col-sm-4">
+                ${this.queue.map( item => html`
+                    <div class="alert animated slideInDown alert-${item.severity.toLowerCase()} ${item.dismissible ? "alert-dismissible" : ""}" data-id="${item.id}">
+                        <p class="title"><i class="${this.iconMap[item.severity]}"></i> ${item.title}</p>
+                        <p>${item.details}</p>
+                        ${item.dismissible ? html`<span class="close" data-dismiss="alert"><i class="fa fa-times-circle"></i></span>` : null}
+                    </div>
+                `)}
+                </div>`;
     }
-
 }
 
 customElements.define("notification-element", NotificationElement);

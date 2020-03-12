@@ -1,19 +1,19 @@
 export default class UtilsNew {
 
     static get MESSAGE_SUCCESS() {
-        return "SUCCESS";
+        return "success";
     }
 
     static get MESSAGE_ERROR() {
-        return "ERROR";
+        return "danger";
     }
 
     static get MESSAGE_INFO() {
-        return "INFO";
+        return "info";
     }
 
     static get MESSAGE_WARNING() {
-        return "WARNING";
+        return "warning";
     }
 
     static isUndefined(obj) {

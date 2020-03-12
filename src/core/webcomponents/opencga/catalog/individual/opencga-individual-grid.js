@@ -487,7 +487,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                                         <td>${preparationMethod}</td>
                                         <td>${cellLine}</td>
                                         <td>${creationDate}</td>
-                                        <td>${sample.status.name}</td>
+                                        <td>${sample.status ? sample.status.name : ""}</td>
                                    </tr>`;
             }
             result += "</tbody></table></diV>";

@@ -19,10 +19,10 @@ import Utils from "./../../../utils.js";
 import UtilsNew from "./../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import CatalogUIUtils from "../commons/CatalogUIUtils.js";
-import NotificationUtils from "../../../NotificationUtils.js";
 import "../catalog/individual/opencga-individual-browser.js";
 import "../catalog/family/opencga-family-editor.js";
 import "../catalog/family/opencga-family-browser.js";
+import {NotificationQueue} from "../../../Notification.js";
 
 // TODO recheck functionality
 //TODO CHECK on-dom-change="renderDomRepeat"
@@ -73,9 +73,9 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
             showTitle: true,
             showAggregationStats: false,
             showComparator: false,
-            filter: {
+/*            filter: {
 
-            },
+            },*/
             grid: {
                 pageSize: 5,
                 pageList: [5, 10],
@@ -85,14 +85,15 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
             variableSetIds: []
         };
 
+        // TODO adapt configuration
         this.individualBrowserConfig = {
             title: "Individual Browser",
             showTitle: true,
             showAggregationStats: false,
             showComparator: false,
-            filter: {
+/*            filter: {
 
-            },
+            },*/
             grid: {
                 pageSize: 5,
                 pageList: [5, 10],
@@ -530,11 +531,11 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         this.opencgaSession.opencgaClient.clinical().create(_clinicalAnalysis, {study: this.opencgaSession.study.fqn})
             .then(function(response) {
                 _this.onClear();
-                NotificationUtils.showNotify(`Family ${response.response[0].result[0].id} created successfully`, "SUCCESS");
+                new NotificationQueue().push(`Family ${response.response[0].result[0].id} created successfully`, null,"success");
             })
             .catch(function(response) {
                 console.error(response);
-                NotificationUtils.showNotify(response.error, "ERROR");
+                new NotificationQueue().push(response.error, null, "ERROR");
             });
     }
 

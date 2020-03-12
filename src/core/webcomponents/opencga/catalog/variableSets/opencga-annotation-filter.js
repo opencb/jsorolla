@@ -2,7 +2,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "../../../../utils.js";
 import UtilsNew from "../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
-import NotificationUtils from "../../../../NotificationUtils.js";
+import {NotificationQueue} from "../../../../Notification.js";
 import "./opencga-variable-selector.js";
 
 // TODO replicate and check on-dom-change behaviour
@@ -108,7 +108,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
 
     onAddAnnotationClicked(e) {
         if (typeof this.lastAnnotationFilter === "undefined") {
-            NotificationUtils.showNotify("Please choose or input a value", "WARNING");
+            new NotificationQueue().push("Please choose or input a value", "", "warning");
             return;
         }
         this.dispatchEvent(new CustomEvent("filterannotation", {detail: {value: this.lastAnnotationFilter}}));
@@ -248,15 +248,10 @@ export default class OpencgaAnnotationFilter extends LitElement {
     }
 
     onSelectedVariableSetChange(e) {
-        // console.log("onSelectedVariableSetChange", e )
-        const selectedVariableSet = e.currentTarget.value;
-        this.variableSets.forEach( variableSet => {
-            if (variableSet.name === selectedVariableSet) {
-                this.selectedVariableSet = variableSet;
-                // console.log("selectedVariableSet",this.selectedVariableSet)
-                this.requestUpdate();
-            }
-        });
+        //console.log("onSelectedVariableSetChange", e)
+        const selectedVariableSet = e.detail.value;
+        this.selectedVariableSet = this.variableSets.find( variableSet => variableSet.name === selectedVariableSet);
+        this.requestUpdate();
     }
 
     checkVarType(myVar, type) {
@@ -301,10 +296,8 @@ export default class OpencgaAnnotationFilter extends LitElement {
             <!-- Annotations -->
             ${this.multipleVariableSets ? html`
                 <label for="${this._prefix}-variableSetSelect">Select Variable Set</label>
-                <!-- TODO use this <select-field-filter .data="${this.variableSets.map( _ => _.name)}" @filterChange="${this.onSelectedVariableSetChange}"></select-field-filter> -->
-                <select class="selectpicker" id="${this._prefix}-variableSetSelect" @change="${this.onSelectedVariableSetChange}" data-width="100%">
-                    ${this.variableSets.map(item => html`<option>${item.name}</option>`)}
-                </select>` :
+                <select-field-filter .data="${this.variableSets.map( _ => _.name)}" @filterChange="${this.onSelectedVariableSetChange}"></select-field-filter>
+               ` :
         null}
         
         <opencga-variable-selector .variableSet="${this.selectedVariableSet}"

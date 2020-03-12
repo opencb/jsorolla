@@ -18,8 +18,9 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../../utils.js";
 import "../../commons/opencga-facet.js";
 
+// TODO this component will be the new opencga-file-browser and this configuration will be for browser and facet both
 
-export default class OpencgaCohortFacet extends LitElement {
+export default class OpencgaJobsBrowser extends LitElement {
 
     constructor() {
         super();
@@ -119,14 +120,13 @@ export default class OpencgaCohortFacet extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    firstUpdated(_changedProperties) {
-    }
-
     getDefaultConfig() {
         return {
-            title: "Cohort Browser",
+            title: "Jobs Browser",
+            //active: false,
             icon: "fas fa-chart-bar",
-            showComparator: true,
+            description: "",
+            searchButtonText: "Run",
             filter: {
                 sections: [
                     {
@@ -134,35 +134,50 @@ export default class OpencgaCohortFacet extends LitElement {
                         collapsed: false,
                         fields: [
                             {
-                                id: "id",
-                                name: "ID",
+                                id: "name",
+                                name: "Name",
                                 type: "string",
-                                placeholder: "LP-1234,LP-2345...",
+                                placeholder: "accepted_hits.bam, phenotypes.vcf...",
                                 description: ""
                             },
                             {
-                                id: "samples",
-                                name: "Samples",
+                                id: "path",
+                                name: "Path",
+                                type: "string",
+                                placeholder: "genomes/resources/files/...",
+                                description: ""
+                            },
+                            {
+                                id: "sample",
+                                name: "Sample",
                                 type: "string",
                                 placeholder: "HG01879, HG01880, HG01881...",
                                 description: ""
                             },
                             {
-                                id: "annotations",
-                                name: "Cohort annotations",
-                                placeholder: "Full-text search, e.g. *melanoma*",
+                                id: "format",
+                                name: "Format",
+                                type: "category",
+                                allowedValues: ["VCF", "BCF", "GVCF", "TBI", "BIGWIG", "SAM", "BAM", "BAI", "CRAM", "CRAI", "FASTQ", "FASTA", "PED", "TAB_SEPARATED_VALUES", "COMMA_SEPARATED_VALUES", "XML", "PROTOCOL_BUFFER", "JSON", "AVRO", "PARQUET", "IMAGE", "PLAIN", "BINARY", "EXECUTABLE", "GZIP", "NONE", "UNKNOWN"],
+                                placeholder: "genomes/resources/files/...",
                                 description: ""
                             },
                             {
-                                id: "type",
-                                name: "Type",
-                                multiple: true,
-                                allowedValues: ["All", "CASE_CONTROL", "CASE_SET", "CONTROL_SET", "PAIRED", "PAIRED_TUMOR", "AGGREGATE", "TIME_SERIES", "FAMILY", "TRIO"],
+                                id: "bioformat",
+                                name: "Bioformat",
+                                type: "string",
+                                placeholder: "ALIGNMENT,VARIANT...",
+                                description: ""
+                            },
+                            {
+                                id: "annotations",
+                                name: "File annotations",
                                 description: ""
                             },
                             {
                                 id: "date",
                                 name: "Date",
+                                type: "date",
                                 description: ""
                             }
                         ]
@@ -171,36 +186,61 @@ export default class OpencgaCohortFacet extends LitElement {
                 examples: [
                     {
                         name: "Full",
+                        active: false,
                         query: {
-                            annotation: "Pedigree:versionControl.GitVersionControl=git",
-                            type: "TIME_SERIES,FAMILY",
-                            id: "lp",
-                            samples: "hg"
+                            name: "bam",
+                            path: "genomes",
+                            sample: "hg3333",
+                            format: "VCF,BCF,GVCF,BIGWIG",
+                            bioformat: "ALIGNMENT",
+                            creationDate: ">=20200216"
                         }
                     }
                 ],
-                grid: {}
+                result: {
+                    grid: {}
+                },
+                detail: []
             },
             aggregation: {
-                default: ["name"],
+                default: ["type", "study>>bioformat"],
                 result: {
                     numColumns: 2
                 },
                 sections: [
                     {
-                        name: "section title",
+                        name: "Section Title",
+                        // collapsed: false,
                         fields: [
-                            {
+                            /*{
                                 id: "study",
                                 name: "study",
                                 type: "string",
                                 description: "Study [[user@]project:]study where study and project can be either the ID or UUID"
                             },
                             {
+                                id: "name",
+                                name: "name",
+                                type: "string",
+                                description: "Name"
+                            },
+                            {
                                 id: "type",
                                 name: "type",
                                 type: "string",
-                                description: "type"
+                                description: "Type"
+                            },
+                            {
+                                id: "format",
+                                name: "format",
+                                type: "string",
+                                description: "Format"
+                            },
+                            {
+                                id: "bioformat",
+                                name: "bioformat",
+                                type: "string",
+                                description: "Bioformat"
                             },
                             {
                                 id: "creationYear",
@@ -227,12 +267,6 @@ export default class OpencgaCohortFacet extends LitElement {
                                 description: "Creation day of week (MONDAY, TUESDAY...)"
                             },
                             {
-                                id: "numSamples",
-                                name: "numSamples",
-                                type: "string",
-                                description: "Number of samples"
-                            },
-                            {
                                 id: "status",
                                 name: "status",
                                 type: "string",
@@ -245,6 +279,44 @@ export default class OpencgaCohortFacet extends LitElement {
                                 description: "Release"
                             },
                             {
+                                id: "external",
+                                name: "external",
+                                type: "category",
+                                allowedValues: ["true", "false"],
+                                defaultValue: "false",
+                                description: "External"
+                            },
+                            {
+                                id: "size",
+                                name: "size",
+                                type: "string",
+                                description: "Size"
+                            },
+                            {
+                                id: "software",
+                                name: "software",
+                                type: "string",
+                                description: "Software"
+                            },
+                            {
+                                id: "experiment",
+                                name: "experiment",
+                                type: "string",
+                                description: "Experiment"
+                            },
+                            {
+                                id: "numSamples",
+                                name: "numSamples",
+                                type: "string",
+                                description: "Number of samples"
+                            },
+                            {
+                                id: "numRelatedFiles",
+                                name: "numRelatedFiles",
+                                type: "string",
+                                description: "Number of related files"
+                            },
+                            {
                                 id: "annotation",
                                 name: "annotation",
                                 type: "string",
@@ -255,38 +327,24 @@ export default class OpencgaCohortFacet extends LitElement {
                                 name: "field",
                                 type: "string",
                                 description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
-                            }
+                            }*/
                         ]
                     }
-                ]
-            },
-
-            // TODO recheck
-            gridComparator: {
-                multiSelection: true,
-                pageSize: 5,
-                pageList: [5, 10]
-            },
-            variableSetIds: []
+                ],
+            }
         };
     }
 
 
     render() {
         return this._config ? html`
-            <opencga-facet  resource="cohort"
+            <opencga-facet  resource="jobs"
                             .opencgaSession="${this.opencgaSession}"
-                            .opencgaClient="${this.opencgaSession.opencgaClient}"
-                            .query="${this.browserSearchQuery}"
-                            .config="${this._config}"
-                            .cellbaseClient="${this.cellbaseClient}"
-                            .populationFrequencies="${this.populationFrequencies}"
-                            .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                            .consequenceTypes="${this.consequenceTypes}">
+                            .query="${this.query}"
+                            .config="${this._config}">
             </opencga-facet>` : null;
     }
 
 }
 
-
-customElements.define("opencga-cohort-facet", OpencgaCohortFacet);
+customElements.define("opencga-jobs-browser", OpencgaJobsBrowser);

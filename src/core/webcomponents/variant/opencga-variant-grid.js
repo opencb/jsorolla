@@ -217,7 +217,7 @@ export default class OpencgaVariantGrid extends LitElement {
                 showExport: _this._config.showExport,
                 detailView: _this._config.detailView,
                 detailFormatter: _this._config.detailFormatter,
-
+                formatLoadingMessage: () =>"<loading-spinner></loading-spinner>",
                 // this makes the opencga-variant-grid properties available in the bootstrap-table formatters
                 variantGrid: _this,
 

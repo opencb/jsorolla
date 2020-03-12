@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../core/utils.js";
 import UtilsNew from "./../../core/utilsNew.js";
 import PolymerUtils from "../../core/webcomponents/PolymerUtils.js";
-import NotificationUtils from "../../core/NotificationUtils.js";
+import {NotificationQueue} from "../../core/Notification.js";
 
 
 export default class GenomeBrowserComponent extends LitElement {
@@ -588,7 +588,7 @@ export default class GenomeBrowserComponent extends LitElement {
             const region = regionFilter.value;
             if (UtilsNew.isNotEmpty(region)) {
                 if (UtilsNew.isNotEmpty(searchBy)) {
-                    NotificationUtils.showNotify("Cannot apply 'region' and 'gene' filters. Please, choose one or the other.", "WARNING");
+                    new NotificationQueue().push("Cannot apply 'region' and 'gene' filters. Please, choose one or the other.", "", "warning");
                     return;
                 }
                 search = region;
@@ -599,8 +599,8 @@ export default class GenomeBrowserComponent extends LitElement {
         const panelGene = $(`#${this._prefix}-geneSelect`).selectpicker("val");
         if (UtilsNew.isNotEmptyArray(panelGene)) {
             if (UtilsNew.isNotEmpty(searchBy)) {
-                NotificationUtils.showNotify("Cannot apply '" + searchBy + "' and 'gene panel' filters. " +
-                    "Please, choose one or the other.", "WARNING");
+                new NotificationQueue().push("Cannot apply '" + searchBy + "' and 'gene panel' filters. " +
+                    "Please, choose one or the other.", "", "warning");
                 return;
             }
             searchBy = "gene";

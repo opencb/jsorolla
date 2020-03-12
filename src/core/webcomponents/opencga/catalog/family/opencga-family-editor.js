@@ -16,9 +16,10 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../../utils.js";
+import UtilsNew from "../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 import "../individual/opencga-individual-browser.js";
-import NotificationUtils from "../../../../NotificationUtils.js";
+import {NotificationQueue} from "../../../../Notification.js";
 
 export default class OpencgaFamilyEditor extends LitElement {
 
@@ -143,10 +144,10 @@ export default class OpencgaFamilyEditor extends LitElement {
                     // }
                 })
                 .catch(function(response) {
-                    NotificationUtils.showNotify(response.error, "ERROR");
+                    new NotificationQueue().push(response.error, null, "danger");
                 });
         } else {
-            NotificationUtils.showNotify("Please start typing an individual id", "WARNING");
+            new NotificationQueue().push("Please start typing an individual id", null,"danger");
         }
     }
 
@@ -177,7 +178,7 @@ export default class OpencgaFamilyEditor extends LitElement {
     _addIndividualToSelectedArray(individual) {
         for (let i = 0; i < this.selectedIndividuals.length; i++) {
             if (this.selectedIndividuals[i].id === individual.id) {
-                NotificationUtils.showNotify(`Individual ${individual.id} already added`, "WARNING");
+                new NotificationQueue().push(`Individual ${individual.id} already added`, null, "warning");
                 // The individual was already added
                 return;
             }
@@ -204,11 +205,11 @@ export default class OpencgaFamilyEditor extends LitElement {
             this.opencgaClient.families().create({study: this.study}, params)
                 .then(function(response) {
                     _this.resetFields();
-                    NotificationUtils.showNotify(`Family ${response.response[0].result[0].id} created successfully`, "SUCCESS");
+                    new NotificationQueue().push(`Family ${response.response[0].result[0].id} created successfully`, "", "success");
                 })
                 .catch(function(response) {
                     console.error(response);
-                    NotificationUtils.showNotify(response.error, "ERROR");
+                    new NotificationQueue().push(response.error, "", "danger");
                 });
         }
     }
@@ -243,7 +244,7 @@ export default class OpencgaFamilyEditor extends LitElement {
         }
 
         if (UtilsNew.isNotEmptyArray(missingFields)) {
-            NotificationUtils.showNotify("Missing " + missingFields.join(", ") + " fields", "ERROR");
+            new NotificationQueue().push("Missing " + missingFields.join(", ") + " fields", null, "danger");
             return null;
         }
 

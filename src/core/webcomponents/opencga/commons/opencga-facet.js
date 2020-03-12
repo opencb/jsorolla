@@ -24,6 +24,21 @@ import "../../commons/filters/select-field-filter.js";
 import "../../commons/opencb-facet-results.js";
 import "../../../loading-spinner.js";
 import "../../variant/opencga-variant-detail-view.js";
+import "../catalog/files/opencga-file-grid.js";
+import "../catalog/files/opencga-file-filter.js";
+import "../catalog/samples/opencga-sample-grid.js";
+import "../catalog/samples/opencga-sample-filter.js";
+import "../catalog/individual/opencga-individual-grid.js";
+import "../catalog/individual/opencga-individual-filter.js";
+import "../catalog/family/opencga-family-grid.js";
+import "../catalog/family/opencga-family-filter.js";
+import "../catalog/cohorts/opencga-cohort-grid.js";
+import "../catalog/cohorts/opencga-cohort-filter.js";
+import "../clinical/opencga-clinical-analysis-grid.js";
+import "../clinical/opencga-clinical-analysis-filter.js";
+import "../catalog/jobs/opencga-jobs-browser.js";
+import "../clinical/opencga-clinical-analysis-filter.js";
+
 // this is the new opencga-browser
 
 // TODO spring-cleaning the old code
@@ -997,7 +1012,10 @@ export default class OpencgaFacet extends LitElement {
                 </div>
             </div>
         ` : html`
-            <span><h3>No public projects available to browse. Please login to continue</h3></span>
+            <div class="guard-page">
+                <i class="fas fa-lock fa-5x"></i>
+                <h3>No public projects available to browse. Please login to continue</h3>
+            </div>
         `}
     `;
     }

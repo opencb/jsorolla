@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
+
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../utils.js";
 import PolymerUtils from "../../PolymerUtils.js";
-import NotificationUtils from "../../../NotificationUtils.js";
 
 export default class GoAccessionsFilter extends LitElement {
 
@@ -79,7 +79,6 @@ export default class GoAccessionsFilter extends LitElement {
                 _go = _go.join(",");
             } else {
                 const msg = `${_go.length} has been selected. Only the first 100 will be taken into account.`;
-                // NotificationUtils.showNotify(msg, "WARNING");
                 go_message.style.display = "block";
                 go_message.innerHTML = `<i class="fa fa-exclamation-triangle fa-2x"></i><span>${msg}</span>`;
                 _go = _go.slice(0, 99).join(",");
