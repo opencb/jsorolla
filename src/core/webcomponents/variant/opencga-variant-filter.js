@@ -159,18 +159,6 @@ export default class OpencgaVariantFilter extends LitElement {
         // }
     }
 
-
-    // static get observers() {
-    //     return [
-    //         "propertyObserver(opencgaSession, query)"
-    //     ];
-    // }
-    //
-    // propertyObserver(opencgaSession, query) {
-    //     this.opencgaSessionObserver();
-    //     this.queryObserver();
-    // }
-
     opencgaSessionObserver() {
 
         // TODO do not move in connectedCallback (it handle the switch between default studies)

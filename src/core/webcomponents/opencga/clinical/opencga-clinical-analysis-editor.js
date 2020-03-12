@@ -570,7 +570,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
 
                 /**
                  *  returning a lit-html element in a formatter cause the print of [object Object].
-                 *  the flowwing listerners are necessary as temp solution.
+                 *  the following listeners are necessary as temp solution.
                  *  TODO find a better way to make bootstrap-table formatters and lit-html works together.
                  */
 

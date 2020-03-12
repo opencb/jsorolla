@@ -26,8 +26,6 @@ import "../../loading-spinner.js";
 
 import OpencgaFacet from "../opencga/commons/opencga-facet.js";
 
-// TODO Note :: this will be the new variant-browser battery included
-
 export default class OpencgaVariantBrowser extends LitElement {
 
     constructor() {
@@ -315,7 +313,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                 this.requestUpdate();
             })
             .finally(() => {
-                this.querySelector("#loading").style.display = "none";
+                //this.querySelector("#loading").style.display = "none";
             });
 
     }
@@ -491,58 +489,6 @@ export default class OpencgaVariantBrowser extends LitElement {
             });
 
     }
-
-    /*
-
-        /!**
-         * @deprecated
-         * *!/
-        fetchData() {
-            if (UtilsNew.isUndefinedOrNull(this.opencgaClient)) {
-                console.log("opencgaClient is null or undefined");
-                return;
-            }
-
-            if (this.facets.size === 0) {
-                alert("No facets selected.");
-                return;
-            }
-
-            this.clearPlots();
-            // Shows loading modal
-            $(PolymerUtils.getElementById(this._prefix + "LoadingModal")).modal("show");
-
-            // Join 'query' from left menu and facet filters
-            const queryParams = Object.assign({}, this.executedQuery,
-                {
-                    // sid: this.opencgaClient._config.sessionId,
-                    study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
-                    timeout: 60000,
-                    facet: this.facetFilters.join(";")
-                });
-
-            const _this = this;
-            setTimeout(() => {
-                this.opencgaClient.variants().facet(queryParams, {})
-                    .then(function(queryResponse) {
-                        // let response = queryResponse.response[0].result[0].result;
-                        _this.facetResults = queryResponse.response[0].result[0].results;
-
-                        console.log("facetResults", _this.facetResults);
-                        // Remove loading modal
-                        $(PolymerUtils.getElementById(_this._prefix + "LoadingModal")).modal("hide");
-                        _this._showInitMessage = false;
-                    })
-                    .catch(function(e) {
-                        console.log(e);
-                        // Remove loading modal
-                        $(PolymerUtils.getElementById(_this._prefix + "LoadingModal")).modal("hide");
-                        _this._showInitMessage = false;
-                    });
-            }
-            , 250);
-        }
-    */
 
     clearPlots() {
         if (UtilsNew.isNotUndefined(this.results) && this.results.length > 0) {
@@ -1199,9 +1145,10 @@ export default class OpencgaVariantBrowser extends LitElement {
                                         <div class="facet-box" id="${this._prefix}Heading">
                                             <div class="subsection-content form-group">
                                                 <div class="browser-subsection">${facet.name}
-                                                    <div class="tooltip-div pull-right">
-                                                        <a><i class="fa fa-info-circle" aria-hidden="true" id="${this._prefix}${facet.id}Tooltip"></i></a>
-                                                    </div>
+                                                    ${facet.description ? html`
+                                                        <div class="tooltip-div pull-right">
+                                                            <a tooltip-title="${facet.name}" tooltip-text="${facet.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                                        </div>` : null }
                                                 </div>
                                                 <div id="${this._prefix}${facet.id}" class="" role="tabpanel" aria-labelledby="${this._prefix}Heading">
                                                     <div class="">

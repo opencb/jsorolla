@@ -127,8 +127,8 @@ export default class OpencgaVariantGrid extends LitElement {
         if (changedProperties.has("query") ||
             changedProperties.has("consequenceTypes") ||
             changedProperties.has("populationFrequencies") ||
+            changedProperties.has("opencgaSession") ||
             changedProperties.has("proteinSubstitutionScores")) {
-            // console.log("propertyObserver")
             this.propertyObserver();
         }
         if (changedProperties.has("data")) {
