@@ -270,7 +270,7 @@ export default class OpencgaFacet extends LitElement {
             // sid: this.opencgaClient._config.sessionId,
             study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
             timeout: 60000,
-            field: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
+            fields: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
         };
         // this event keeps in sync the query object with the one in iva-app
         // TODO do not use this.preparedQuery, use this.query (change this component accordingly)

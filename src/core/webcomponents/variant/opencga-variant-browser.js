@@ -139,6 +139,7 @@ export default class OpencgaVariantBrowser extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
+        this.endpoint = this.opencgaClient.variants(); // to keep methods consistent with opecnga-facet
     }
 
     firstUpdated(_changedProperties) {
@@ -293,7 +294,7 @@ export default class OpencgaVariantBrowser extends LitElement {
             // sid: this.opencgaClient._config.sessionId,
             study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
             timeout: 60000,
-            field: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
+            fields: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
         };
         // this event keeps in sync the query object with the one in iva-app
         // TODO do not use this.preparedQuery, use this.query (change this component accordingly)
@@ -446,48 +447,6 @@ export default class OpencgaVariantBrowser extends LitElement {
 
     _onMouseOut(e) {
         PolymerUtils.addStyleByClass(e.target.dataset.facet, "text-decoration", "none");
-    }
-
-    notifySearch(query) {
-        this.dispatchEvent(new CustomEvent("querySearch", {
-            detail: {
-                query: query
-            },
-            bubbles: true,
-            composed: true
-        }));
-    }
-
-    async onRun() {
-        this.clearPlots();
-        const queryParams = {
-            ...this.preparedQuery,
-            // sid: this.opencgaClient._config.sessionId,
-            study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
-            timeout: 60000,
-            field: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
-        };
-        // this event keeps in sync the query object with the one in iva-app
-        // TODO do not use this.preparedQuery, use this.query (change this component accordingly)
-        this.notifySearch(this.preparedQuery);
-
-        // this.querySelector("#loading").style.display = "block";
-
-        this.opencgaClient.variants().aggregationStats(queryParams)
-            .then(queryResponse => {
-                console.log("queryResponse", queryResponse);
-                this.errorState = false;
-                this.facetResults = queryResponse.response[0].result[0].results;
-                this.requestUpdate();
-            })
-            .catch(e => {
-                this.errorState = "Error from server: " + e.error;
-                this.requestUpdate();
-            })
-            .finally(() => {
-                this.querySelector("#loading").style.display = "none";
-            });
-
     }
 
     clearPlots() {
