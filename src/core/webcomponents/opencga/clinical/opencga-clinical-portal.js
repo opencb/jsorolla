@@ -91,9 +91,9 @@ export default class OpencgaClinicalPortal extends LitElement {
 
         // Show the active button
         $(".clinical-portal-button").removeClass("active");
-        $(".clinical-portal-button").removeClass("myactive");
+        //$(".clinical-portal-button").removeClass("myactive");
         $(e.target).addClass("active");
-        $(e.target).addClass("myactive");
+        //$(e.target).addClass("myactive");
     }
 
 
@@ -113,17 +113,12 @@ export default class OpencgaClinicalPortal extends LitElement {
     render() {
         return html`
         <style include="jso-styles">
-            .myactive {
-                color: darkorange !important;
-                border-top-color: darkorange !important;
-                border-top-width: 1px !important;
-            }
         </style>
 
         ${this.checkProjects ? html`
             <div class="row">
                 <div id="${this._prefix}ClinicalPortal"  class="col-md-10 col-md-offset-1">
-                    <nav class="navbar" style="border-bottom: 1px solid rgba(221, 221, 221, 0.8)">
+                    <nav class="navbar">
                         <div class="container-fluid" style="padding: 0px 5px">
                             <!-- Brand and toggle get grouped for better mobile display -->
                             <div class="navbar-header">
@@ -138,12 +133,12 @@ export default class OpencgaClinicalPortal extends LitElement {
 
                         <ul class="nav navbar-nav navbar-right" style="padding: 0px 20px">
                             <li>
-                                <button type="button" class="btn btn-link clinical-portal-button active myactive" style="font-size: 1.1em" data-view="ReviewCases" @click="${this._changeView}" active>
+                                <button type="button" class="btn btn-success ripple clinical-portal-button active " style="font-size: 1.1em" data-view="ReviewCases" @click="${this._changeView}" active>
                                     <i class="fa fa-list clinical-portal-button" style="padding: 0px 5px" data-view="ReviewCases" @click="${this._changeView}"></i>Review Cases
                                 </button>
                             </li>
                             <li>
-                                <button type="button" class="btn btn-link clinical-portal-button" style="font-size: 1.1em" data-view="CreateCase" @click="${this._changeView}">
+                                <button type="button" class="btn btn-success ripple clinical-portal-button" style="font-size: 1.1em" data-view="CreateCase" @click="${this._changeView}">
                                     <i class="fa fa-file clinical-portal-button" style="padding: 0px 5px" data-view="CreateCase" @click="${this._changeView}"></i>Create Case
                                 </button>
                             </li>
