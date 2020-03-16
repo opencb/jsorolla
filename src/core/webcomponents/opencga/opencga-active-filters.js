@@ -195,7 +195,7 @@ export default class OpencgaActiveFilters extends LitElement {
         let _this = this;
         if (this.opencgaClient instanceof OpenCGAClient && UtilsNew.isNotUndefined(this.opencgaSession.token)) {
             //console.error("arguments changed inverted after new clients. recheck functionality. serverVersion is now ignored");
-            this.opencgaClient.users().filtersConfigs(this.opencgaSession.user.id)
+            this.opencgaClient.users().filters(this.opencgaSession.user.id)
                 .then(function(response) {
                     let result = response.response[0].result;
                     if (result.length > 0) {

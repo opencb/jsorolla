@@ -64,7 +64,7 @@ export default class OpencgaLogin extends LitElement {
     }
 
     submitLogin(e) {
-        console.log("e", e);
+        //console.log("e", e);
         if (e.isDefaultPrevented()) {
             console.error("submitLogin() Error", e);
             // handle the invalid form...

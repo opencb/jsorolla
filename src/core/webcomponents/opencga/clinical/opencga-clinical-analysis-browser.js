@@ -16,16 +16,15 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../utils.js";
-import PolymerUtils from "../../PolymerUtils.js";
-import "./opencga-clinical-analysis-filter.js";
-import "./opencga-clinical-analysis-grid.js";
-import "../opencga-active-filters.js";
+import "../commons/opencga-facet.js";
 
 
 export default class OpencgaClinicalAnalysisBrowser extends LitElement {
 
     constructor() {
         super();
+
+        // Set status and init private properties
         this._init();
     }
 
@@ -41,139 +40,83 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
             opencgaClient: {
                 type: Object
             },
-            search: {
-                type: Object,
-                notify: true // todo check notify
+            cellbaseClient: {
+                type: Object
+            },
+            populationFrequencies: {
+                type: Object
+            },
+            consequenceTypes: {
+                type: Object
+            },
+            proteinSubstitutionScores: {
+                type: Object
             },
             query: {
                 type: Object
             },
+            search: {
+                type: Object
+            },
             config: {
                 type: Object
+            },
+            facetQuery: {
+                type: Object
+            },
+            selectedFacet: {
+                type: Object
+            },
+            resource: {
+                type: String
             }
         };
     }
 
     _init() {
-        this._prefix = "ocab-" + Utils.randomString(6) + "_";
-        this.analyses = [];
-        this._config = this.getDefaultConfig();
-        this.activeMenu = {
-            table: true
+        this._prefix = "facet" + Utils.randomString(6);
+
+        this.checkProjects = false;
+
+        this.activeFilterAlias = {
+            "annot-xref": "XRef",
+            "biotype": "Biotype",
+            "annot-ct": "Consequence Types",
+            "alternate_frequency": "Population Frequency",
+            "annot-functional-score": "CADD",
+            "protein_substitution": "Protein Substitution",
+            "annot-go": "GO",
+            "annot-hpo": "HPO"
         };
 
-        //it is defined in opencga-clinical-analysis-grid, it must be initialized here because clinical-analysis-view have it as prop
-        this.analysis = {};
+        this.fixedFilters = ["studies"];
+
+        // These are for making the queries to server
+        this.facetFields = [];
+        this.facetRanges = [];
+
+        this.facetFieldsName = [];
+        this.facetRangeFields = [];
+
+        this.results = [];
+        this._showInitMessage = true;
+
+        this.facets = new Set();
+        this.facetFilters = [];
+
+        this.facetConfig = {a: 1};
+        this.facetActive = true;
         this.query = {};
-    }
-
-    updated(changedProperties) {
-        if (changedProperties.has("opencgaClient")) {
-            //this.renderAnalysisTable();
-        }
-        if (changedProperties.has("config")) {
-            this.configObserver();
-        }
-        if (changedProperties.has("query")) {
-            this.queryObserver();
-        }
-    }
-
-    firstUpdated(_changedProperties) {
-    }
-
-    configObserver() {
-        this._config = Object.assign(this.getDefaultConfig(), this.config);
-    }
-
-    queryObserver() {
-        if (this.query) {
-            this.preparedQuery = {...this.query};
-            this.executedQuery ={...this.query};
-        }
-        this.requestUpdate();
-    }
-
-    analysisObserver() {
-        this.dispatchEvent(new CustomEvent("analysischange", {
-            detail: {
-                analyses: this.analyses
-            },
-            bubbles: true, composed: true
-        }));
-    }
-
-    onClear() {
-        this._config = Object.assign(this.getDefaultConfig(), this.config);
-        this.query = {};
-        // this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
-        this.search = {};
-    }
-
-    onSelectClinicalAnalysis(e) {
-        this.analysis = e.detail.analysis;
-    }
-
-    _changeBottomTab(e) {
-        const _activeTabs = {
-            info: e.currentTarget.dataset.id === "info"
-            // familyGrid: e.currentTarget.dataset.id === "familyGrid"
-        };
-
-        this.detailActiveTabs = _activeTabs;
-    }
-
-    _changeView(e) {
-        e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-
-        const activeMenu = {
-            table: e.currentTarget.dataset.id === "table"
-            // comparator: e.currentTarget.dataset.id === "comparator"
-        };
-        this.activeMenu = activeMenu;
-
-        $(".clinical-analysis-browser-view-content").hide(); // hides all content divs
-        if (typeof e.target !== "undefined" && typeof e.target.dataset.view !== "undefined") {
-            PolymerUtils.show(this._prefix + e.target.dataset.view);
-        }
-
-        // Show the active button
-        $(".analysis-browser-view-buttons").removeClass("active");
-        $(e.target).addClass("active");
-
-        if (e.target.dataset.view === "Summary") {
-            this.SummaryActive = true;
-            this.requestUpdate();
-        } else {
-            this.SummaryActive = false;
-        }
-    }
-
-    onQueryFilterChange(e) {
-        console.log("onQueryFilterChange on sample browser", e.detail.query);
-        this.preparedQuery = e.detail.query;
-        this.requestUpdate();
-    }
-
-    onQueryFilterSearch(e) {
-        this.preparedQuery = e.detail.query;
-        this.executedQuery = e.detail.query;
-        this.requestUpdate();
-    }
-
-    //TODO recheck if there is a default param
-    onActiveFilterChange(e) {
-        console.log("onActiveFilterChange on clinical analysis browser", e.detail)
-        this.preparedQuery = {...e.detail};
-        this.query = {...e.detail};
-        this.requestUpdate();
-    }
-
-    onActiveFilterClear() {
-        this.query = {};
-        //this.search = {};
         this.preparedQuery = {};
-        this.requestUpdate();
+        this.selectedFacet = {};
+        this.selectedFacetFormatted = {};
+        this.errorState = false;
+
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     getDefaultConfig() {
@@ -182,134 +125,497 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
             showTitle: true,
             showAggregationStats: true,
             showComparator: true,
-            filter: {},
-            grid: {
-                pageSize: 10,
-                pageList: [10, 25, 50],
-                detailView: false,
-                multiSelection: false
+            filter: {
+                sections: [
+                    {
+                        name: "section title",
+                        fields: [
+                            {
+                                id: "id",
+                                name: "Clinical Analysis ID",
+                                type: "string",
+                                placeholder: "CA-1234,CA-2345...",
+                                description: ""
+                            },
+                            {
+                                id: "family",
+                                name: "Family ID",
+                                type: "string",
+                                placeholder: "FAM123, FAM124...",
+                                description: ""
+                            },
+                            {
+                                id: "proband",
+                                name: "Proband ID",
+                                placeholder: "LP-1234, LP-2345...",
+                                description: ""
+                            },
+                            {
+                                id: "samples",
+                                name: "Sample ID",
+                                placeholder: "HG01879, HG01880, HG01881...",
+                                description: ""
+                            },
+                            {
+                                id: "priority",
+                                name: "Priority",
+                                allowedValues: ["URGENT", "HIGH", "MEDIUM", "LOW"],
+                                description: ""
+                            },
+                            {
+                                id: "type",
+                                name: "Analysis type",
+                                allowedValues: ["SINGLE", "DUO", "TRIO", "FAMILY", "AUTO", "MULTISAMPLE"],
+                                description: ""
+                            },
+                            {
+                                id: "date",
+                                name: "Date",
+                                description: ""
+                            }
+                        ]
+                    }
+                ],
+                grid: {
+                    pageSize: 10,
+                    pageList: [10, 25, 50],
+                    detailView: false,
+                    multiSelection: false
+                }
             },
+            aggregation: {
+                default: [],
+                sections: [
+                    {
+                        name: "section title",
+                        fields: [
+                            {
+                                id: "include",
+                                name: "include",
+                                type: "string",
+                                description: "Fields included in the response, whole JSON path must be provided"
+                            },
+                            {
+                                id: "exclude",
+                                name: "exclude",
+                                type: "string",
+                                description: "Fields excluded in the response, whole JSON path must be provided"
+                            },
+                            {
+                                name: "limit",
+                                type: "integer",
+                                description: "Number of results to be returned"
+                            },
+                            {
+                                name: "skip",
+                                type: "integer",
+                                description: "Number of results to skip"
+                            },
+                            {
+                                name: "count",
+                                type: "category",
+                                allowedValues: ["true", "false"],
+                                multiple: false,
+                                defaultValue: "false",
+                                description: "Get the total number of results matching the query. Deactivated by default."
+                            },
+                            {
+                                name: "sort",
+                                type: "category",
+                                allowedValues: ["true", "false"],
+                                multiple: false,
+                                defaultValue: "false",
+                                description: "Sort the results"
+                            },
+                            {
+                                name: "summary",
+                                type: "category",
+                                allowedValues: ["true", "false"],
+                                multiple: false,
+                                defaultValue: "false",
+                                description: "Fast fetch of main variant parameters"
+                            },
+                            {
+                                name: "approximateCount",
+                                type: "category",
+                                allowedValues: ["true", "false"],
+                                multiple: false,
+                                defaultValue: "false",
+                                description: "Get an approximate count, instead of an exact total count. Reduces execution time"
+                            },
+                            {
+                                name: "approximateCountSamplingSize",
+                                type: "integer",
+                                description: "Sampling size to get the approximate count. Larger values increase accuracy but also increase execution time"
+                            },
+                            {
+                                name: "id",
+                                type: "string",
+                                description: "List of IDs, these can be rs IDs (dbSNP) or variants in the format chrom:start:ref:alt, e.g. rs116600158,19:7177679:C:T"
+                            },
+                            {
+                                name: "region",
+                                type: "string",
+                                description: "List of regions, these can be just a single chromosome name or regions in the format chr:start-end, e.g.: 2,3:100000-200000"
+                            },
+                            {
+                                name: "type",
+                                type: "string",
+                                description: "List of types, accepted values are SNV, MNV, INDEL, SV, CNV, INSERTION, DELETION, e.g. SNV,INDEL"
+                            },
+                            {
+                                name: "reference",
+                                type: "string",
+                                description: "Reference allele"
+                            },
+                            {
+                                name: "alternate",
+                                type: "string",
+                                description: "Main alternate allele"
+                            },
+                            {
+                                name: "project",
+                                type: "string",
+                                description: "Project [user@]project where project can be either the ID or the alias"
+                            },
+                            {
+                                name: "study",
+                                type: "string",
+                                description: "Filter variants from the given studies, these can be either the numeric ID or the alias with the format user@project:study"
+                            },
+                            {
+                                name: "file",
+                                type: "string",
+                                description: "Filter variants from the files specified. This will set includeFile parameter when not provided"
+                            },
+                            {
+                                name: "filter",
+                                type: "string",
+                                description: "Specify the FILTER for any of the files. If 'file' filter is provided, will match the file and the filter. e.g.: PASS,LowGQX"
+                            },
+                            {
+                                name: "qual",
+                                type: "string",
+                                description: "Specify the QUAL for any of the files. If 'file' filter is provided, will match the file and the qual. e.g.: >123.4"
+                            },
+                            {
+                                name: "info",
+                                type: "string",
+                                description: "Filter by INFO attributes from file. [{file}:]{key}{op}{value}[,;]* . If no file is specified, will use all files from \"file\" filter. e.g. AN>200 or file_1.vcf:AN>200;file_2.vcf:AN<10 . Many INFO fields can be combined. e.g. file_1.vcf:AN>200;DB=true;file_2.vcf:AN<10"
+                            },
+                            {
+                                name: "sample",
+                                type: "string",
+                                description: "Filter variants where the samples contain the variant (HET or HOM_ALT). Accepts AND (;) and OR (,) operators. This will automatically set 'includeSample' parameter when not provided"
+                            },
+                            {
+                                name: "genotype",
+                                type: "string",
+                                description: "Samples with a specific genotype: {samp_1}:{gt_1}(,{gt_n})*(;{samp_n}:{gt_1}(,{gt_n})*)* e.g. HG0097:0/0;HG0098:0/1,1/1. Unphased genotypes (e.g. 0/1, 1/1) will also include phased genotypes (e.g. 0|1, 1|0, 1|1), but not vice versa. When filtering by multi-allelic genotypes, any secondary allele will match, regardless of its position e.g. 1/2 will match with genotypes 1/2, 1/3, 1/4, .... Genotype aliases accepted: HOM_REF, HOM_ALT, HET, HET_REF, HET_ALT and MISS  e.g. HG0097:HOM_REF;HG0098:HET_REF,HOM_ALT. This will automatically set 'includeSample' parameter when not provided"
+                            },
+                            {
+                                name: "format",
+                                type: "string",
+                                description: "Filter by any FORMAT field from samples. [{sample}:]{key}{op}{value}[,;]* . If no sample is specified, will use all samples from \"sample\" or \"genotype\" filter. e.g. DP>200 or HG0097:DP>200,HG0098:DP<10 . Many FORMAT fields can be combined. e.g. HG0097:DP>200;GT=1/1,0/1,HG0098:DP<10"
+                            },
+                            {
+                                name: "sampleAnnotation",
+                                type: "string",
+                                description: "Selects some samples using metadata information from Catalog. e.g. age>20;phenotype=hpo:123,hpo:456;name=smith"
+                            },
+                            {
+                                name: "sampleMetadata",
+                                type: "category",
+                                allowedValues: ["true", "false"],
+                                multiple: false,
+                                defaultValue: "false",
+                                description: "Return the samples metadata group by study. Sample names will appear in the same order as their corresponding genotypes."
+                            },
+                            {
+                                name: "unknownGenotype",
+                                type: "string",
+                                description: "Returned genotype for unknown genotypes. Common values: [0/0, 0|0, ./.]"
+                            },
+                            {
+                                name: "sampleLimit",
+                                type: "integer",
+                                description: "Limit the number of samples to be included in the result"
+                            },
+                            {
+                                name: "sampleSkip",
+                                type: "integer",
+                                description: "Skip some samples from the result. Useful for sample pagination."
+                            },
+                            {
+                                name: "cohort",
+                                type: "string",
+                                description: "Select variants with calculated stats for the selected cohorts"
+                            },
+                            {
+                                name: "cohortStatsRef",
+                                type: "string",
+                                description: "Reference Allele Frequency: [{study:}]{cohort}[<|>|<=|>=]{number}. e.g. ALL<=0.4"
+                            },
+                            {
+                                name: "cohortStatsAlt",
+                                type: "string",
+                                description: "Alternate Allele Frequency: [{study:}]{cohort}[<|>|<=|>=]{number}. e.g. ALL<=0.4"
+                            },
+                            {
+                                name: "cohortStatsMaf",
+                                type: "string",
+                                description: "Minor Allele Frequency: [{study:}]{cohort}[<|>|<=|>=]{number}. e.g. ALL<=0.4"
+                            },
+                            {
+                                name: "cohortStatsMgf",
+                                type: "string",
+                                description: "Minor Genotype Frequency: [{study:}]{cohort}[<|>|<=|>=]{number}. e.g. ALL<=0.4"
+                            },
+                            {
+                                name: "cohortStatsPass",
+                                type: "string",
+                                description: "Filter PASS frequency: [{study:}]{cohort}[<|>|<=|>=]{number}. e.g. ALL>0.8"
+                            },
+                            {
+                                name: "missingAlleles",
+                                type: "string",
+                                description: "Number of missing alleles: [{study:}]{cohort}[<|>|<=|>=]{number}"
+                            },
+                            {
+                                name: "missingGenotypes",
+                                type: "string",
+                                description: "Number of missing genotypes: [{study:}]{cohort}[<|>|<=|>=]{number}"
+                            },
+                            {
+                                name: "score",
+                                type: "string",
+                                description: "Filter by variant score: [{study:}]{score}[<|>|<=|>=]{number}"
+                            },
+                            {
+                                name: "includeStudy",
+                                type: "string",
+                                description: "List of studies to include in the result. Accepts 'all' and 'none'."
+                            },
+                            {
+                                name: "includeFile",
+                                type: "string",
+                                description: "List of files to be returned. Accepts 'all' and 'none'."
+                            },
+                            {
+                                name: "includeSample",
+                                type: "string",
+                                description: "List of samples to be included in the result. Accepts 'all' and 'none'."
+                            },
+                            {
+                                name: "includeFormat",
+                                type: "string",
+                                description: "List of FORMAT names from Samples Data to include in the output. e.g: DP,AD. Accepts 'all' and 'none'."
+                            },
+                            {
+                                name: "includeGenotype",
+                                type: "string",
+                                description: "Include genotypes, apart of other formats defined with includeFormat"
+                            },
+                            {
+                                name: "annotationExists",
+                                type: "category",
+                                allowedValues: ["true", "false"],
+                                multiple: false,
+                                defaultValue: "false",
+                                description: "Return only annotated variants"
+                            },
+                            {
+                                name: "gene",
+                                type: "string",
+                                description: "List of genes, most gene IDs are accepted (HGNC, Ensembl gene, ...). This is an alias to 'xref' parameter"
+                            },
+                            {
+                                name: "ct",
+                                type: "string",
+                                description: "List of SO consequence types, e.g. missense_variant,stop_lost or SO:0001583,SO:0001578"
+                            },
+                            {
+                                name: "xref",
+                                type: "string",
+                                description: "List of any external reference, these can be genes, proteins or variants. Accepted IDs include HGNC, Ensembl genes, dbSNP, ClinVar, HPO, Cosmic, ..."
+                            },
+                            {
+                                name: "biotype",
+                                type: "string",
+                                description: "List of biotypes, e.g. protein_coding"
+                            },
+                            {
+                                name: "proteinSubstitution",
+                                type: "string",
+                                description: "Protein substitution scores include SIFT and PolyPhen. You can query using the score {protein_score}[<|>|<=|>=]{number} or the description {protein_score}[~=|=]{description} e.g. polyphen>0.1,sift=tolerant"
+                            },
+                            {
+                                name: "conservation",
+                                type: "string",
+                                description: "Filter by conservation score: {conservation_score}[<|>|<=|>=]{number} e.g. phastCons>0.5,phylop<0.1,gerp>0.1"
+                            },
+                            {
+                                name: "populationFrequencyAlt",
+                                type: "string",
+                                description: "Alternate Population Frequency: {study}:{population}[<|>|<=|>=]{number}. e.g. 1kG_phase3:ALL<0.01"
+                            },
+                            {
+                                name: "populationFrequencyRef",
+                                type: "string",
+                                description: "Reference Population Frequency: {study}:{population}[<|>|<=|>=]{number}. e.g. 1kG_phase3:ALL<0.01"
+                            },
+                            {
+                                name: "populationFrequencyMaf",
+                                type: "string",
+                                description: "Population minor allele frequency: {study}:{population}[<|>|<=|>=]{number}. e.g. 1kG_phase3:ALL<0.01"
+                            },
+                            {
+                                name: "transcriptFlag",
+                                type: "string",
+                                description: "List of transcript annotation flags. e.g. CCDS, basic, cds_end_NF, mRNA_end_NF, cds_start_NF, mRNA_start_NF, seleno"
+                            },
+                            {
+                                name: "geneTraitId",
+                                type: "string",
+                                description: "List of gene trait association id. e.g. \"umls:C0007222\" , \"OMIM:269600\""
+                            },
+                            {
+                                name: "go",
+                                type: "string",
+                                description: "List of GO (Gene Ontology) terms. e.g. \"GO:0002020\""
+                            },
+                            {
+                                name: "expression",
+                                type: "string",
+                                description: "List of tissues of interest. e.g. \"lung\""
+                            },
+                            {
+                                name: "proteinKeyword",
+                                type: "string",
+                                description: "List of Uniprot protein variant annotation keywords"
+                            },
+                            {
+                                name: "drug",
+                                type: "string",
+                                description: "List of drug names"
+                            },
+                            {
+                                name: "functionalScore",
+                                type: "string",
+                                description: "Functional score: {functional_score}[<|>|<=|>=]{number} e.g. cadd_scaled>5.2 , cadd_raw<=0.3"
+                            },
+                            {
+                                name: "clinicalSignificance",
+                                type: "string",
+                                description: "Clinical significance: benign, likely_benign, likely_pathogenic, pathogenic"
+                            },
+                            {
+                                name: "customAnnotation",
+                                type: "string",
+                                description: "Custom annotation: {key}[<|>|<=|>=]{number} or {key}[~=|=]{text}"
+                            },
+                            {
+                                name: "trait",
+                                type: "string",
+                                description: "List of traits, based on ClinVar, HPO, COSMIC, i.e.: IDs, histologies, descriptions,..."
+                            },
+                            {
+                                name: "field",
+                                type: "string",
+                                description: "Facet field for categorical fields"
+                            },
+                            {
+                                name: "fieldRange",
+                                type: "string",
+                                description: "Facet field range for continuous fields"
+                            },
+                            {
+                                name: "study",
+                                type: "string",
+                                description: "Study [[user@]project:]study where study and project can be either the ID or UUID"
+                            },
+                            {
+                                name: "clinicalAnalysisId",
+                                type: "string",
+                                description: "Clinical analysis ID"
+                            },
+                            {
+                                name: "disease",
+                                type: "string",
+                                description: "Disease (HPO term)"
+                            },
+                            {
+                                name: "familyId",
+                                type: "string",
+                                description: "Family ID"
+                            },
+                            {
+                                name: "subjectIds",
+                                type: "string",
+                                description: "Comma separated list of subject IDs"
+                            },
+                            {
+                                name: "type",
+                                type: "string",
+                                description: "Clinical analysis type, e.g. DUO, TRIO, ..."
+                            },
+                            {
+                                name: "panelId",
+                                type: "string",
+                                description: "Panel ID"
+                            },
+                            {
+                                name: "panelVersion",
+                                type: "string",
+                                description: "Panel version"
+                            },
+                            {
+                                name: "save",
+                                type: "category",
+                                allowedValues: ["true", "false"],
+                                multiple: false,
+                                defaultValue: "false",
+                                description: "Save interpretation in Catalog"
+                            },
+                            {
+                                name: "interpretationId",
+                                type: "string",
+                                description: "ID of the stored interpretation"
+                            },
+                            {
+                                name: "interpretationName",
+                                type: "string",
+                                description: "Name of the stored interpretation"
+                            }]
+                    }
+
+                ]
+            },
+            // TODO recheck (they come from clinical-analysis-browser and used in opencga-clinical-analysis-filter and opencga-clinical-analysis-grid now they have been moved in config)
+            analyses: [],
+            analysis: {},
+
             gridComparator: {
                 pageSize: 5,
                 pageList: [5, 10],
                 detailView: true,
                 multiSelection: true
-            },
-            summary: {
-                fields: ["name"]
             }
         };
     }
 
     render() {
-        return html`
-        <style include="jso-styles">
-            .icon-padding {
-                padding-left: 4px;
-                padding-right: 5px;
-            }
-
-            .detail-tab-title {
-                font-size: 115%;
-                font-weight: bold;
-            }
-        </style>
-
-        ${this._config.showTitle ? html`
-            <div class="page-title">
-                <h2>
-                    <i class="fa fa-users" aria-hidden="true"></i> </i>&nbsp;${this._config.title}
-                </h2>
-            </div>` : null}
-            
-
-        <div class="row" style="padding: 0px 10px">
-            <div class="col-md-2">
-                <opencga-clinical-analysis-filter   .opencgaSession="${this.opencgaSession}"
-                                                    .config="${this._config.filter}"
-                                                    .analyses="${this.analyses}"
-                                                    .search="${this.search}"
-                                                    .query="${this.query}"
-                                                    @queryChange="${this.onQueryFilterChange}"
-                                                    @querySearch="${this.onQueryFilterSearch}">
-                </opencga-clinical-analysis-filter>
-            </div>
-
-            <div class="col-md-10">
-                <opencga-active-filters .opencgaSession="${this.opencgaSession}"
-                                        .query="${this.preparedQuery}"
-                                        .refresh="${this.executedQuery}"
-                                        .defaultStudy="${this.opencgaSession.study.alias}"
-                                        .config="${this.filtersConfig}"
-                                        .alias="${this.activeFilterAlias}"
-                                        @activeFilterClear="${this.onActiveFilterClear}"
-                                        @activeFilterChange="${this.onActiveFilterChange}">
-                </opencga-active-filters>
-
-
-                <!-- Clinical Analysis View Buttons -->
-                <div class="col-md-12" style="padding: 5px 0px 5px 0px">
-                    <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px;margin-left: 0px">
-                        <div class="btn-group" role="group" style="margin-left: 0px">
-                            <button type="button" class="btn btn-success analysis-browser-view-buttons ripple active" data-view="TableResult" @click="${this._changeView}" data-id="table">
-                                <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" @click="${this._changeView}" data-id="table"></i> Table Result
-                            </button>
-                            <button type="button" class="btn btn-success analysis-browser-view-buttons ripple" data-view="Summary" @click="${this._changeView}">
-                                <i class="fas fa-chart-bar icon-padding" aria-hidden="true" data-view="Summary" @click="${this._changeView}"></i> Summary Stats
-                            </button>
-                            <!--<button type="button" class="btn btn-success analysis-browser-view-buttons" data-view="FamilyComparator" on-click="_changeView" data-id="comparator">-->
-                                <!--<i class="fa fa-users icon-padding" aria-hidden="true" data-view="FamilyComparator" on-click="_changeView" data-id="comparator"></i> Family Comparator-->
-                            <!--</button>-->
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <div id="${this._prefix}TableResult" class="clinical-analysis-browser-view-content">
-                        <opencga-clinical-analysis-grid .opencgaSession="${this.opencgaSession}"
-                                                        .config="${this._config.grid}"
-                                                        .analyses="${this.analyses}"
-                                                        .query="${this.executedQuery}"
-                                                        .search="${this.executedQuery}"
-                                                        style="font-size: 12px"
-                                                        .active="${this.activeMenu.table}"
-                                                        @selectanalysis="${this.onSelectClinicalAnalysis}">
-                        </opencga-clinical-analysis-grid>
-
-                        <div style="padding-top: 5px">
-                            <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
-                                <li role="presentation" class="active">
-                                    <a href="#${this._prefix}SampleViewer" role="tab" data-toggle="tab" class="detail-tab-title">
-                                        Clinical Analysis Info
-                                    </a>
-                                </li>
-                            </ul>
-
-                            <div class="tab-content" style="height: 680px">
-                                <div role="tabpanel" class="tab-pane active" id="${this._prefix}SampleViewer">
-                                    <clinical-analysis-view .opencgaSession="${this.opencgaSession}"
-                                                            .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                            .clinicalAnalysisId="${this.analysis.id}"
-                                                            .config="${this._config.sampleDetail}"
-                                                            style="font-size: 12px;">
-                                    </clinical-analysis-view>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="${this._prefix}Summary" class="clinical-analysis-browser-view-content" style="display: none">
-                        Work in progress
-                        <!--<opencga-facet-view opencga-session="{{opencgaSession}}" entity="FAMILY"-->
-                                            <!--variable-sets="[[variableSets]]"></opencga-facet-view>-->
-                    </div>
-                </div>
-            </div>
-        </div>
-        `;
+        return this._config ? html`
+            <opencga-facet  resource="clinical-analysis"
+                            .opencgaSession="${this.opencgaSession}"
+                            .opencgaClient="${this.opencgaSession.opencgaClient}"
+                            .query="${this.query}"
+                            .config="${this._config}"
+                            .cellbaseClient="${this.cellbaseClient}">
+            </opencga-facet>` : null;
     }
 
 }
 
-customElements.define("opencga-clinical-analysis-browser", OpencgaClinicalAnalysisBrowser);
 
+customElements.define("opencga-clinical-analysis-browser", OpencgaClinicalAnalysisBrowser);

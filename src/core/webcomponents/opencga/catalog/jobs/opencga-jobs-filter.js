@@ -15,13 +15,15 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
-import UtilsNew from "../../../utilsNew.js";
-import PolymerUtils from "../../PolymerUtils.js";
-import "../catalog/opencga-date-filter.js";
+import Utils from "./../../../../utils.js";
+import UtilsNew from "../../../../utilsNew.js";
+import PolymerUtils from "../../../PolymerUtils.js";
+import "../variableSets/opencga-annotation-filter.js";
+import "../opencga-date-filter.js";
+import "../../../commons/filters/text-field-filter.js";
 
 
-export default class OpencgaClinicalAnalysisFilter extends LitElement {
+export default class OpencgaJobsFilter extends LitElement {
 
     constructor() {
         super();
@@ -37,14 +39,18 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            analyses: {
-                type: Array
+            opencgaClient: {
+                type: Object
             },
             query: {
                 type: Object
             },
-            search: {
-                type: Object
+            // todo check
+            variableSets: {
+                type: Array
+            },
+            variables: {
+                type: Array
             },
             minYear: {
                 type: Number
@@ -54,16 +60,16 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
             },
             config: {
                 type: Object
+            },
+            discriminator: {
+                type: String
             }
         };
     }
 
-
     _init() {
         // super.ready();
         this._prefix = "osf-" + Utils.randomString(6) + "_";
-
-        this.minYear = 1920;
 
         this.annotationFilterConfig = {
             class: "small",
@@ -71,15 +77,15 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
             inputClass: "input-sm"
         };
 
-        this.dateFilterConfig = {
-            recentDays: 10
-        };
         this.query = {};
         this.preparedQuery = {};
+        this.searchButton = true;
+
     }
 
     connectedCallback() {
         super.connectedCallback();
+        this.preparedQuery = {...this.query}; // propagates here the iva-app query object
     }
 
     firstUpdated(_changedProperties) {
@@ -90,6 +96,9 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
     updated(changedProperties) {
         if (changedProperties.has("query")) {
             this.queryObserver();
+        }
+        if (changedProperties.has("variables")) {
+            this.variablesChanged();
         }
     }
 
@@ -114,112 +123,16 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
         });
     }
 
-    onDateChanged(e) {
-        const query = {};
-        Object.assign(query, this.query);
-        if (UtilsNew.isNotEmpty(e.detail.date)) {
-            query["creationDate"] = e.detail.date;
-        } else {
-            delete query["creationDate"];
-        }
-
-        this._reset = false;
-        // this.set("query", query);
-        this.query = query;
-        this._reset = true;
-    }
-
     queryObserver() {
         if (this._reset) {
             console.log("queryObserver: calling to 'renderQueryFilters()'", this.query);
             this.preparedQuery = this.query;
-            // renderQueryFilters shouldn't be necessary anymore
             // this.renderQueryFilters();
             this.requestUpdate();
         } else {
             this._reset = true;
         }
     }
-
-    /*    renderQueryFilters() {
-        // Empty everything before rendering
-        this._clearHtmlDom();
-
-        // ClinicalAnalysis
-        if (UtilsNew.isNotUndefined(this.query.id)) {
-            PolymerUtils.setValue(`${this._prefix}-analysis-input`, this.query.id);
-        }
-
-        // Family
-        if (UtilsNew.isNotUndefined(this.query.family)) {
-            PolymerUtils.setValue(`${this._prefix}-family-input`, this.query.family);
-        }
-
-        // Proband
-        if (UtilsNew.isNotUndefined(this.query.proband)) {
-            PolymerUtils.setValue(`${this._prefix}-proband-input`, this.query.proband);
-        }
-
-        // Sample
-        if (UtilsNew.isNotUndefined(this.query.sample)) {
-            PolymerUtils.setValue(`${this._prefix}-sample-input`, this.query.sample);
-        }
-
-        // Priority
-        if (UtilsNew.isNotUndefined(this.query.priority)) {
-            $(`#${this._prefix}-analysis-priority-select`).selectpicker("val", this.query.priority.split(","));
-        }
-
-        // Type
-        if (UtilsNew.isNotUndefined(this.query.type)) {
-            $(`#${this._prefix}-analysis-type-select`).selectpicker("val", this.query.type.split(","));
-        }
-    }
-
-    calculateFilters(e) {
-        const _query = {};
-
-        const name = PolymerUtils.getValue(`${this._prefix}-analysis-input`);
-        if (UtilsNew.isNotEmpty(name)) {
-            _query.id = name;
-        }
-
-        const family = PolymerUtils.getValue(`${this._prefix}-family-input`);
-        if (UtilsNew.isNotEmpty(family)) {
-            _query.family = family;
-        }
-
-        const proband = PolymerUtils.getValue(`${this._prefix}-proband-input`);
-        if (UtilsNew.isNotEmpty(proband)) {
-            _query.proband = proband;
-        }
-
-        const samples = PolymerUtils.getValue(`${this._prefix}-sample-input`);
-        if (UtilsNew.isNotEmpty(samples)) {
-            _query.sample = samples;
-        }
-
-        const priority = $(`#${this._prefix}-analysis-priority-select`).selectpicker("val");
-        if (UtilsNew.isNotEmpty(priority)) {
-            _query.priority = priority.join(",");
-        }
-
-        const type = $(`#${this._prefix}-analysis-type-select`).selectpicker("val");
-        if (UtilsNew.isNotEmpty(type)) {
-            _query.type = type.join(",");
-        }
-
-        // keep date filters
-        if (UtilsNew.isNotEmpty(this.query.creationDate)) {
-            _query.creationDate = this.query.creationDate;
-        }
-
-        // To prevent to call renderQueryFilters we set this to false
-        this._reset = false;
-        // this.set("query", _query);
-        this.query = _query;
-        this._reset = true;
-    }*/
 
     onFilterChange(key, value) {
         console.log("filterChange", {[key]: value});
@@ -263,21 +176,22 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
         let content = "";
         switch (subsection.id) {
             case "id":
-            case "family":
-            case "proband":
-            case "samples":
+            case "tool":
+            case "tags":
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;
+            case "internal.status.name":
+            case "visited":
             case "priority":
-            case "type":
-                content = html`<select-field-filter ?multiple="${subsection.multiple}" .data="${subsection.allowedValues}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
+                content = html`<select-field-filter multiple .value="${this.preparedQuery[subsection.id]}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
                 break;
-            case "date":
+            case "creationDate":
                 content = html`<opencga-date-filter .config="${this.dateFilterConfig}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>`;
                 break;
             default:
                 console.error("Filter component not found");
         }
+
         return html`
                     <div class="form-group">
                         <div class="browser-subsection" id="${subsection.id}">${subsection.name}
@@ -292,6 +206,8 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
                     </div>
                 `;
     }
+
+
     /**
      * Use custom CSS class to easily reset all controls.
      */
@@ -299,16 +215,54 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
         // Input controls
         PolymerUtils.setPropertyByClassName(this._prefix + "FilterTextInput", "value", "");
         PolymerUtils.removeAttributebyclass(this._prefix + "FilterTextInput", "disabled");
+    }
 
-        $(`#${this._prefix}ClinicalAnalysisSelection .selectpicker`).selectpicker("val", "");
+    isNotEmpty(myArray) {
+        return UtilsNew.isNotEmptyArray(myArray);
     }
 
     render() {
         return html`
         <style include="jso-styles">
-
+            .label-opencga-file-filter {
+                padding-top: 10px;
+            }
             span + span {
                 margin-left: 10px;
+            }
+
+            .browser-ct-scroll {
+                /*max-height: 450px;*/
+                /*overflow-y: scroll;*/
+                overflow-x: scroll;
+            }
+
+            .browser-ct-tree-view,
+            .browser-ct-tree-view * {
+                padding: 0;
+                margin: 0;
+                list-style: none;
+            }
+
+            .browser-ct-tree-view li ul {
+                margin: 0 0 0 22px;
+            }
+
+            .browser-ct-tree-view * {
+                vertical-align: middle;
+            }
+
+            .browser-ct-tree-view {
+                /*font-size: 14px;*/
+            }
+
+            .browser-ct-tree-view input[type="checkbox"] {
+                cursor: pointer;
+            }
+
+            .browser-ct-item {
+                white-space: nowrap;
+                display: inline
             }
 
             div.block {
@@ -330,6 +284,16 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
             select + input {
                 margin-left: 10px;
             }
+
+            span.searchingSpan{
+                background-color: #286090;
+            }
+            .searchingButton{
+                color: #fff;
+            }
+            .notbold{
+                font-weight: normal;
+            }
         </style>
 
         ${this.searchButton ? html`
@@ -341,6 +305,8 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
             ` : null}
 
         <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
+
+            <!-- File field attributes -->
             <div class="">
                 ${this.config.sections && this.config.sections.length ? this.config.sections.map( section => this._createSection(section)) : html`No filter has been configured.`}
             </div>
@@ -350,5 +316,4 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
 
 }
 
-customElements.define("opencga-clinical-analysis-filter", OpencgaClinicalAnalysisFilter);
-
+customElements.define("opencga-jobs-filter", OpencgaJobsFilter);

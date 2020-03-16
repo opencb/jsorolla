@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-//TODO check functionality
-
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../../utils.js";
-import UtilsNew from "../../../../utilsNew.js";
-import PolymerUtils from "../../../PolymerUtils.js";
-import "./opencga-family-filter.js";
-import "./opencga-family-grid.js";
-import "../../opencga-active-filters.js";
-import "../variableSets/opencga-annotation-comparator.js";
-import "../../commons/opencga-facet-view.js";
+import "../../commons/opencga-facet.js";
 
 
 export default class OpencgaFamilyBrowser extends LitElement {
 
     constructor() {
         super();
+
+        // Set status and init private properties
         this._init();
     }
 
@@ -46,354 +40,278 @@ export default class OpencgaFamilyBrowser extends LitElement {
             opencgaClient: {
                 type: Object
             },
-            filters: {
-                type: Object,
-                notify: true
+            cellbaseClient: {
+                type: Object
             },
-            //TODO remove
-            search: {
-                type: Object,
-                notify: true
+            populationFrequencies: {
+                type: Object
             },
-            config: {
+            consequenceTypes: {
+                type: Object
+            },
+            proteinSubstitutionScores: {
                 type: Object
             },
             query: {
                 type: Object
+            },
+            search: {
+                type: Object
+            },
+            config: {
+                type: Object
+            },
+            facetQuery: {
+                type: Object
+            },
+            selectedFacet: {
+                type: Object
+            },
+            resource: {
+                type: String
             }
         };
     }
 
     _init() {
-        this._prefix = "osb-" + Utils.randomString(6);
+        this._prefix = "facet" + Utils.randomString(6);
 
-        this.families = [];
+        this.checkProjects = false;
 
-        this._config = this.getDefaultConfig();
+        this.activeFilterAlias = {
+            "annot-xref": "XRef",
+            "biotype": "Biotype",
+            "annot-ct": "Consequence Types",
+            "alternate_frequency": "Population Frequency",
+            "annot-functional-score": "CADD",
+            "protein_substitution": "Protein Substitution",
+            "annot-go": "GO",
+            "annot-hpo": "HPO"
+        };
 
-        // this.filtersConfig = {
-        //     complexFields: ["annotation"]
-        // };
-    }
+        this.fixedFilters = ["studies"];
 
-    updated(changedProperties) {
-        if (changedProperties.has("config")) {
-            this.configObserver();
-        }
-        if (changedProperties.has("filters")) {
-            this.onFilterUpdate();
-        }
-        if (changedProperties.has("opencgaClient")) {
-            //this.renderAnalysisTable(); it doesn't exists
-        }
-        if (changedProperties.has("families")) {
-            this.familyObserver();
-        }
-        if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
-            this.filterAvailableVariableSets(this.opencgaSession, this.config);
-        }
-        if (changedProperties.has("query")) {
-            this.queryObserver();
-        }
+        // These are for making the queries to server
+        this.facetFields = [];
+        this.facetRanges = [];
+
+        this.facetFieldsName = [];
+        this.facetRangeFields = [];
+
+        this.results = [];
+        this._showInitMessage = true;
+
+        this.facets = new Set();
+        this.facetFilters = [];
+
+        this.facetConfig = {a: 1};
+        this.facetActive = true;
+        this.query = {};
+        this.preparedQuery = {};
+        this.selectedFacet = {};
+        this.selectedFacetFormatted = {};
+        this.errorState = false;
+
     }
 
     connectedCallback() {
         super.connectedCallback();
-
-        this.activeMenu = {
-            table: true,
-            comparator: false
-        };
-
-        this.detailActiveTabs = {
-            info: true,
-            sampleGrid: false
-        };
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    configObserver() {
-        this._config = Object.assign(this.getDefaultConfig(), this.config);
-    }
-
-    queryObserver() {
-        if (UtilsNew.isNotUndefinedOrNull(this.query)) {
-            this.preparedQuery = {...this.query};
-            this.executedQuery = {...this.query};
-        }
-        this.requestUpdate();
-    }
-
-    familyObserver() {
-        this.dispatchEvent(new CustomEvent("familychange", {
-            detail: {
-                families: this.families
-            },
-            bubbles: true, composed: true
-        }));
-    }
-
-    onClear() {
-        this._config = Object.assign(this.getDefaultConfig(), this.config);
-        this.query = {};
-        // this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
-        this.search = {};
-    }
-
-    onActiveFilterChange(e) {
-        this.query = e.detail;
-        this.search = e.detail;
-    }
-
-    onSelectFamily(e) {
-        this.family = e.detail.family;
-
-        const memberList = [];
-        for (let i = 0; i < this.family.members.length; i++) {
-            memberList.push(this.family.members[i].id);
-        }
-
-        this.memberSearch = {
-            id: memberList.join(",")
-        };
-
-        this.dispatchEvent(new CustomEvent("selectfamily", {
-            detail: {
-                family: this.family
-            }
-        }));
-    }
-
-    _changeBottomTab(e) {
-        const _activeTabs = {
-            info: e.currentTarget.dataset.id === "info",
-            sampleGrid: e.currentTarget.dataset.id === "sampleGrid"
-        };
-
-        this.detailActiveTabs = _activeTabs;
-    }
-
-    _changeView(e) {
-        e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-
-        const activeMenu = {
-            table: e.currentTarget.dataset.id === "table",
-            comparator: e.currentTarget.dataset.id === "comparator"
-        };
-
-        this.activeMenu = activeMenu;
-
-        $(".family-browser-view-content").hide(); // hides all content divs
-        if (typeof e.target !== "undefined" && typeof e.target.dataset.view !== "undefined") {
-            PolymerUtils.show(this._prefix + e.target.dataset.view);
-        }
-
-        // Show the active button
-        $(".family-browser-view-buttons").removeClass("active");
-        $(e.target).addClass("active");
-
-        if (e.target.dataset.view === "Summary") {
-            this.SummaryActive = true;
-            this.requestUpdate();
-        } else {
-            this.SummaryActive = false;
-        }
-        this.requestUpdate();
-    }
-
-    filterAvailableVariableSets(opencgaSession, config) {
-        if (this._config.variableSetIds.length === 0 && UtilsNew.isNotUndefinedOrNull(opencgaSession.study)) {
-            this.variableSets = opencgaSession.study.variableSets;
-        } else {
-            const variableSets = [];
-            if (UtilsNew.isNotUndefinedOrNull(opencgaSession.study) && UtilsNew.isNotEmptyArray(opencgaSession.study.variableSets)) {
-                for (let i = 0; i < opencgaSession.study.variableSets.length; i++) {
-                    if (this._config.variableSetIds.indexOf(opencgaSession.study.variableSets[i].id) !== -1) {
-                        variableSets.push(opencgaSession.study.variableSets[i]);
-                    }
-                }
-            }
-            this.variableSets = variableSets;
-        }
-    }
-
-    executeFacet() {
-
-    }
-
-    onQueryFilterChange(e) {
-        console.log("onQueryFilterChange on family browser", e.detail.query);
-        this.preparedQuery = e.detail.query;
-        this.requestUpdate();
-    }
-
-    onQueryFilterSearch(e) {
-        this.preparedQuery = e.detail.query;
-        this.executedQuery = e.detail.query;
-        this.requestUpdate();
-    }
-
-    onActiveFilterChange(e) {
-        this.preparedQuery = {...e.detail};
-        this.query = {...e.detail};
-        this.requestUpdate();
-    }
-
-    onActiveFilterClear() {
-        this.query = {};
-        //this.search = {};
-        this.preparedQuery = {};
-        this.requestUpdate();
+    firstUpdated(_changedProperties) {
     }
 
     getDefaultConfig() {
         return {
             title: "Family Browser",
+            icon: "fas fa-chart-bar",
             showTitle: true,
             showAggregationStats: true,
             showComparator: true,
-            filter: {},
-            grid: {
-                pageSize: 10,
-                pageList: [10, 25, 50],
-                detailView: true,
-                multiSelection: false
+            filter: {
+                sections: [
+                    {
+                        title: "Section title",
+                        collapsed: false,
+                        fields: [
+                            {
+                                id: "id",
+                                name: "Family ID",
+                                type: "string",
+                                placeholder: "LP-1234,LP-2345...",
+                                description: ""
+                            },
+                            {
+                                id: "members",
+                                name: "Members",
+                                type: "string",
+                                placeholder: "HG01879, HG01880, HG01881...",
+                                description: ""
+                            },
+                            {
+                                id: "phenotypes",
+                                name: "Phenotypes",
+                                placeholder: "Full-text search, e.g. *melanoma*",
+                                description: ""
+                            },
+                            {
+                                id: "annotations",
+                                name: "Family Annotations",
+                                description: ""
+                            },
+                            {
+                                id: "date",
+                                name: "Date",
+                                description: ""
+                            }
+                        ]
+                    }
+                ],
+                examples: [
+                    {
+                        name: "Full",
+                        query: {
+                            id: "lp",
+                            members: "hg",
+                            phenotypes: "melanoma",
+                            creationDate: "2020"
+                        }
+                    }
+                ],
+                activeFilters: {
+                    complexFields: ["annotation"]
+                },
+                grid: {
+                    pageSize: 10,
+                    pageList: [10, 25, 50],
+                    detailView: true,
+                    multiSelection: false
+                },
+                familyDetail: {
+                    showTitle: false
+                }
             },
+            aggregation: {
+                default: ["study"],
+                result: {
+                    numColumns: 2
+                },
+                sections: [
+                    {
+                        name: "section title",
+                        fields: [
+                            {
+                                id: "study",
+                                name: "study",
+                                type: "string",
+                                description: "Study [[user@]project:]study where study and project can be either the ID or UUID"
+                            },
+                            {
+                                id: "creationYear",
+                                name: "creationYear",
+                                type: "string",
+                                description: "Creation year"
+                            },
+                            {
+                                id: "creationMonth",
+                                name: "creationMonth",
+                                type: "string",
+                                description: "Creation month (JANUARY, FEBRUARY...)"
+                            },
+                            {
+                                id: "creationDay",
+                                name: "creationDay",
+                                type: "string",
+                                description: "Creation day"
+                            },
+                            {
+                                id: "creationDayOfWeek",
+                                name: "creationDayOfWeek",
+                                type: "string",
+                                description: "Creation day of week (MONDAY, TUESDAY...)"
+                            },
+                            {
+                                id: "status",
+                                name: "status",
+                                type: "string",
+                                description: "Status"
+                            },
+                            {
+                                id: "phenotypes",
+                                name: "phenotypes",
+                                type: "string",
+                                description: "Phenotypes"
+                            },
+                            {
+                                id: "release",
+                                name: "release",
+                                type: "string",
+                                description: "Release"
+                            },
+                            {
+                                id: "version",
+                                name: "version",
+                                type: "string",
+                                description: "Version"
+                            },
+                            {
+                                id: "numMembers",
+                                name: "numMembers",
+                                type: "string",
+                                description: "Number of members"
+                            },
+                            {
+                                id: "expectedSize",
+                                name: "expectedSize",
+                                type: "string",
+                                description: "Expected size"
+                            },
+                            {
+                                id: "annotation",
+                                name: "annotation",
+                                type: "string",
+                                description: "Annotation, e.g: key1=value(,key2=value)"
+                            },
+                            {
+                                id: "field",
+                                name: "field",
+                                type: "string",
+                                description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
+                            }
+                        ]
+                    }
+                ]
+            },
+            annotations: {},
+
+            // TODO recheck
+            variableSetIds: [],
             gridComparator: {
                 pageSize: 5,
                 pageList: [5, 10],
                 detailView: true,
                 multiSelection: true
-            },
-            familyDetail: {
-                showTitle: false
-            },
-            variableSetIds: [],
-            activeFilters: {
-                complexFields: ["annotation"]
-            },
-            summary: {
-                fields: ["name"]
             }
-
         };
     }
 
+
     render() {
-        return html`
-        <style include="jso-styles">
-            .icon-padding {
-                padding-left: 4px;
-                padding-right: 5px;
-            }
-
-            .detail-tab-title {
-                font-size: 115%;
-                font-weight: bold;
-            }
-        </style>
-
-        ${this._config.showTitle ? html`
-            <div class="page-title">
-                <h2>
-                    <i class="fa fa-users" aria-hidden="true"></i> </i>&nbsp;${this._config.title}
-                </h2>
-            </div>
-        ` : null}
-        <div class="row" style="padding: 0px 10px">
-            <div class="col-md-2">
-                <opencga-family-filter .opencgaSession="${this.opencgaSession}"
-                                       .config="${this._config.filter}"
-                                       .families="${this.families}"
-                                       .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                       .search="${this.search}"
-                                       .query="${this.query}"
-                                        @queryChange="${this.onQueryFilterChange}"
-                                        @querySearch="${this.onQueryFilterSearch}">
-                </opencga-family-filter>
-            </div>
-
-            <div class="col-md-10">
-                <opencga-active-filters .opencgaSession="${this.opencgaSession}"
-                                        .query="${this.preparedQuery}"
-                                        .refresh="${this.executedQuery}"
-                                        .defaultStudy="${this.opencgaSession.study.alias}"
-                                        .config="${this._config.activeFilters}"
-                                        .alias="${this.activeFilterAlias}"
-                                        @activeFilterClear="${this.onActiveFilterClear}"
-                                        @activeFilterChange="${this.onActiveFilterChange}">
-                </opencga-active-filters>
-
-                <!-- Family View Buttons -->
-                <div class="col-md-12" style="padding: 5px 0px 5px 0px">
-                    <div class="btn-toolbar" role="toolbar" aria-label="..." style="padding: 10px 0px;margin-left: 0px">
-                        <div class="btn-group" role="group" style="margin-left: 0px">
-                            <button type="button" class="btn btn-success family-browser-view-buttons ripple active" data-view="TableResult" @click="${this._changeView}" data-id="table">
-                                <i class="fa fa-table icon-padding" aria-hidden="true" data-view="TableResult" @click="${this._changeView}" data-id="table"></i> Table Result
-                            </button>
-                            <button type="button" class="btn btn-success family-browser-view-buttons ripple " data-view="Summary" @click="${this._changeView}" .disabled="${!this._config.showAggregationStats}">
-                                <i class="fas fa-chart-bar icon-padding" aria-hidden="true" data-view="Summary" @click="${this._changeView}"></i> Summary Stats
-                            </button>
-                            <button type="button" class="btn btn-success family-browser-view-buttons ripple " data-view="FamilyComparator" @click="${this._changeView}" data-id="comparator" .disabled="${!this._config.showComparator}">
-                                <i class="fa fa-users icon-padding" aria-hidden="true" data-view="FamilyComparator" @click="${this._changeView}" data-id="comparator"></i> Family Comparator
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-
-                <!-- Family View Content -->
-                <div>
-                    <div id="${this._prefix}TableResult" class="family-browser-view-content">
-                        <opencga-family-grid .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                             .opencgaSession="${this.opencgaSession}"
-                                             .query="${this.executedQuery}"
-                                             .config="${this._config.grid}"
-                                             .eventNotifyName="${this.eventNotifyName}"
-                                             .families="${this.families}"
-                                             .search="${this.search}"
-                                             .active="${this.activeMenu.table}"
-                                             @selectfamily="${this.onSelectFamily}">
-                        </opencga-family-grid>
-                    </div>
-
-                    <div id="${this._prefix}Summary" class="family-browser-view-content" style="display: none">
-                        <opencb-facet-query resource="families"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .cellbaseClient="${this.cellbaseClient}"  
-                                            .config="${this._config}"
-                                            .query="${this.executedQuery}"
-                                            .active="${this.SummaryActive}">
-                        </opencb-facet-query>
-                    </div>
-
-                    <div id="${this._prefix}FamilyComparator" class="family-browser-view-content" style="display: none">
-                        <opencga-family-grid .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                             .opencgaSession="${this.opencgaSession}"
-                                             .config="${this._config.gridComparator}"
-                                             .eventNotifyName="${this.eventNotifyName}"
-                                             .families="${this.families}"
-                                             .search="${this.search}" style="font-size: 12px"
-                                             .active="${this.activeMenu.comparator}">
-                        </opencga-family-grid>
-
-                        <div style="padding-top: 5px">
-                            <h3> Annotation comparator</h3>
-                            <opencga-annotation-viewer .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                        .opencgaSession="${this.opencgaSession}"
-                                                        .config="${this._config.gridComparator}"
-                                                        .entryIds="${this.families}"
-                                                        entity="INDIVIDUAL">
-                            </opencga-annotation-viewer>
-                        </div>
-
-                    </div>
-                </div>
-
-            </div>
-        </div>
-        `;
+        return this._config ? html`
+            <opencga-facet  resource="family"
+                            .opencgaSession="${this.opencgaSession}"
+                            .opencgaClient="${this.opencgaSession.opencgaClient}"
+                            .query="${this.browserSearchQuery}"
+                            .config="${this._config}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .populationFrequencies="${this.populationFrequencies}"
+                            .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                            .consequenceTypes="${this.consequenceTypes}">
+            </opencga-facet>` : null;
     }
 
 }
+
 
 customElements.define("opencga-family-browser", OpencgaFamilyBrowser);

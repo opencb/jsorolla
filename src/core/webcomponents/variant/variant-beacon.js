@@ -215,7 +215,10 @@ export default class VariantBeacon extends LitElement {
                     </div>
                 </div>
             ` : html`
-                <span style="text-align: center"><h3>No public projects available to browse. Please login to continue</h3></span>
+                <div class="guard-page">
+                    <i class="fas fa-lock fa-5x"></i>
+                    <h3>No public projects available to browse. Please login to continue</h3>
+                </div>
             `}
         `;
     }

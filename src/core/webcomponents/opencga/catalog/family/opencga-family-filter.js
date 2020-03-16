@@ -97,6 +97,11 @@ export default class OpencgaFamilyFilter extends LitElement {
         this.preparedQuery = {...this.query}; // propagates here the iva-app query object
     }
 
+    firstUpdated(_changedProperties) {
+        super.firstUpdated(_changedProperties);
+        this._initTooltip();
+    }
+
     updated(changedProperties) {
         if (changedProperties.has("query")) {
             this.queryObserver();
@@ -121,6 +126,22 @@ export default class OpencgaFamilyFilter extends LitElement {
     onSearch() {
         // this.search = {...this.query};
         this.notifySearch(this.preparedQuery);
+    }
+
+    _initTooltip() {
+        // TODO move to Utils
+        $("a[tooltip-title]", this).each(function() {
+            $(this).qtip({
+                content: {
+                    title: $(this).attr("tooltip-title"),
+                    text: $(this).attr("tooltip-text")
+                },
+                position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
+                style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
+                show: {delay: 200},
+                hide: {fixed: true, delay: 300}
+            });
+        });
     }
 
     addAnnotation(e) {
@@ -256,7 +277,7 @@ export default class OpencgaFamilyFilter extends LitElement {
                         <div class="browser-subsection" id="${subsection.id}">${subsection.name}
                             ${subsection.description ? html`
                                 <div class="tooltip-div pull-right">
-                                    <a><i class="fa fa-info-circle" aria-hidden="true" id="${this._prefix}${subsection.id}Tooltip"></i></a>
+                                    <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>` : null }
                         </div>
                         <div id="${this._prefix}${subsection.id}" class="subsection-content">

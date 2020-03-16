@@ -24,6 +24,23 @@ import "../../commons/filters/select-field-filter.js";
 import "../../commons/opencb-facet-results.js";
 import "../../../loading-spinner.js";
 import "../../variant/opencga-variant-detail-view.js";
+import "../catalog/files/opencga-file-grid.js";
+import "../catalog/files/opencga-file-filter.js";
+import "../catalog/samples/opencga-sample-grid.js";
+import "../catalog/samples/opencga-sample-filter.js";
+import "../catalog/individual/opencga-individual-grid.js";
+import "../catalog/individual/opencga-individual-filter.js";
+import "../catalog/family/opencga-family-grid.js";
+import "../catalog/family/opencga-family-filter.js";
+import "../catalog/cohorts/opencga-cohort-grid.js";
+import "../catalog/cohorts/opencga-cohort-filter.js";
+import "../catalog/jobs/opencga-jobs-grid.js";
+import "../catalog/jobs/opencga-jobs-filter.js";
+import "../clinical/opencga-clinical-analysis-grid.js";
+import "../clinical/opencga-clinical-analysis-filter.js";
+import "../catalog/jobs/opencga-jobs-browser.js";
+import "../clinical/opencga-clinical-analysis-filter.js";
+
 // this is the new opencga-browser
 
 // TODO spring-cleaning the old code
@@ -118,6 +135,7 @@ export default class OpencgaFacet extends LitElement {
 
     firstUpdated(_changedProperties) {
         $(".bootstrap-select", this).selectpicker();
+        this._initTooltip();
     }
 
     updated(changedProperties) {
@@ -209,6 +227,7 @@ export default class OpencgaFacet extends LitElement {
             this.selectedFacetFormatted = {};
         }
         this.requestUpdate();
+        this._initTooltip();
     }
 
     addDefaultFacet() {
@@ -274,6 +293,22 @@ export default class OpencgaFacet extends LitElement {
                 //this.querySelector("#loading").style.display = "none";
             });
 
+    }
+
+    _initTooltip() {
+        // TODO move to Utils
+        $("a[tooltip-title]", this).each(function() {
+            $(this).qtip({
+                content: {
+                    title: $(this).attr("tooltip-title"),
+                    text: $(this).attr("tooltip-text")
+                },
+                position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
+                style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
+                show: {delay: 200},
+                hide: {fixed: true, delay: 300}
+            });
+        });
     }
 
     async onFacetFieldChange(e) {
@@ -749,7 +784,15 @@ export default class OpencgaFacet extends LitElement {
                                 </div>`;
             case "jobs":
                 this.endpoint = this.opencgaSession.opencgaClient.jobs();
-                return html`job grid`;
+                return html`
+                        <opencga-jobs-grid .opencgaSession="${this.opencgaSession}"
+                                            .config="${this._config.filter.grid}"
+                                            .query="${this.executedQuery}"
+                                            .search="${this.executedQuery}"
+                                            .eventNotifyName="${this.eventNotifyName}"
+                                            .files="${this.files}"
+                                            @selectfile="${this.onSelectFile}">
+                        </opencga-jobs-grid>`;
             default:
                 return html`entity not recognized`;
         }
@@ -880,7 +923,15 @@ export default class OpencgaFacet extends LitElement {
                             ` : null}
                             
                             ${this.resource === "jobs" ? html`
-                                jobs
+                                <opencga-jobs-filter .opencgaSession="${this.opencgaSession}"
+                                                    .config="${this._config.filter}"
+                                                    .files="${this.files}"
+                                                    .query="${this.query}"
+                                                    .variableSets="${this.variableSets}"
+                                                    .searchButton="${false}"
+                                                    @queryChange="${this.onQueryFilterChange}"
+                                                    @querySearch="${this.onQueryFilterSearch}">
+                                </opencga-jobs-filter>
                             ` : null}
                             
                         </div>
@@ -903,10 +954,12 @@ export default class OpencgaFacet extends LitElement {
                                     ${Object.keys(this.selectedFacet).length > 0 ? Object.entries(this.selectedFacet).map(([, facet]) => html`
                                         <div class="facet-box" id="${this._prefix}Heading">
                                             <div class="subsection-content form-group">
-                                                <div class="browser-subsection">${facet.name}
-                                                    <div class="tooltip-div pull-right">
-                                                        <a><i class="fa fa-info-circle" aria-hidden="true" id="${this._prefix}${facet.id}Tooltip"></i></a>
-                                                    </div>
+                                                <div class="browser-subsection">
+                                                    ${facet.name}
+                                                    ${facet.description ? html`
+                                                        <div class="tooltip-div pull-right">
+                                                            <a tooltip-title="${facet.name}" tooltip-text="${facet.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                                        </div>` : null }
                                                 </div>
                                                 <div id="${this._prefix}${facet.id}" class="" role="tabpanel" aria-labelledby="${this._prefix}Heading">
                                                     <div class="">
@@ -997,7 +1050,10 @@ export default class OpencgaFacet extends LitElement {
                 </div>
             </div>
         ` : html`
-            <span><h3>No public projects available to browse. Please login to continue</h3></span>
+            <div class="guard-page">
+                <i class="fas fa-lock fa-5x"></i>
+                <h3>No public projects available to browse. Please login to continue</h3>
+            </div>
         `}
     `;
     }
