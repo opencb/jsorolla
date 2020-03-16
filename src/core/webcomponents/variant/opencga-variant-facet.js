@@ -487,7 +487,7 @@ export default class OpencgaVariantFacet extends LitElement {
                 this.requestUpdate();
             })
             .finally(() => {
-                this.querySelector("#loading").style.display = "none";
+                // this.querySelector("#loading").style.display = "none";
             });
 
     }
@@ -908,6 +908,11 @@ export default class OpencgaVariantFacet extends LitElement {
                             {
                                 id: "feature",
                                 title: "Feature IDs (gene, SNPs, ...)",
+                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                            },
+                            {
+                                id: "consequenceTypeSelect",
+                                title: "Select SO terms",
                                 tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
                             },
                             {
