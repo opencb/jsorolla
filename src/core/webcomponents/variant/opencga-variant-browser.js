@@ -184,12 +184,12 @@ export default class OpencgaVariantBrowser extends LitElement {
     }
 
     opencgaSessionObserver() {
-        console.log("this._config", this._config, this.opencgaSession.project);
+        //console.log("this._config", this._config, this.opencgaSession.project);
         // debugger
         if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
             // Update cohorts from config, this updates the Cohort filter MAF
             for (const section of this._config.filter.sections) {
-                for (const subsection of section.subsections) {
+                for (const subsection of section.fields) {
                     if (subsection.id === "cohort") {
                         const projectFields = this.opencgaSession.project.alias.split("@");
                         const projectId = (projectFields.length > 1) ? projectFields[1] : projectFields[0];
@@ -270,7 +270,8 @@ export default class OpencgaVariantBrowser extends LitElement {
                     nested: {...nestedFacet, facet: facet[1], value: nestedFacet.defaultValue || ""}
                 };
             } else {
-                this.selectedFacet[defaultFacetId] = {...facet, value: facet && facet.defaultValue ? facet.defaultValue : ""};
+                const mainFacet = this._recFind(this._config.aggregation.sections, facet[0]);
+                this.selectedFacet[defaultFacetId] = {...mainFacet, value: mainFacet && mainFacet.defaultValue ? mainFacet.defaultValue : ""};
             }
         }
         this.selectedFacet = {...this.selectedFacet};
@@ -286,37 +287,63 @@ export default class OpencgaVariantBrowser extends LitElement {
         }));
     }
 
-    // TODO since this is the new opencga-browser, this have to be moved this in opencga-facet-results
     async onRun() {
-        this.clearPlots();
-        const queryParams = {
-            ...this.preparedQuery,
-            // sid: this.opencgaClient._config.sessionId,
-            study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
-            timeout: 60000,
-            fields: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
-        };
-        // this event keeps in sync the query object with the one in iva-app
-        // TODO do not use this.preparedQuery, use this.query (change this component accordingly)
+        // this event keeps in sync the query object in variant-browser with the general one in iva-app (this.queries)
+        // it is also in charge of update executedQuery (through queryObserver()).
+        // if we want to dismiss the general query feature replace the following line with:
+        // this.executedQuery = {...this.preparedQuery}; this.requestUpdate();
         this.notifySearch(this.preparedQuery);
 
-        // this.querySelector("#loading").style.display = "block";
 
-        this.endpoint.aggregationStats(queryParams, {})
-            .then(queryResponse => {
-                console.log("queryResponse", queryResponse);
-                this.errorState = false;
-                this.facetResults = queryResponse.response[0].result[0].results;
-                this.requestUpdate();
-            })
-            .catch(e => {
-                this.errorState = "Error from server: " + e.error;
-                this.requestUpdate();
-            })
-            .finally(() => {
-                //this.querySelector("#loading").style.display = "none";
+        if(Object.keys(this.selectedFacet).length) {
+
+            this.clearPlots();
+            /*const queryParams = {
+                ...this.preparedQuery,
+                // sid: this.opencgaClient._config.sessionId,
+                study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
+                timeout: 60000,
+                fields: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
+            };
+            this.endpoint.aggregationStats(queryParams, {})
+                .then(queryResponse => {
+                    console.log("queryResponse", queryResponse);
+                    this.errorState = false;
+                    this.facetResults = queryResponse.response[0].result[0].results;
+                    this.requestUpdate();
+                })
+                .catch(e => {
+                    this.errorState = "Error from server: " + e.error;
+                    this.requestUpdate();
+                })
+                .finally(() => {
+                });*/
+
+            this.facetQuery = {
+                ...this.preparedQuery,
+                // sid: this.opencgaClient._config.sessionId,
+                study: this.opencgaSession.study.fqn,
+                timeout: 60000,
+                fields: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
+            };
+            this._changeView("facet-tab");
+        }
+    }
+
+    _initTooltip() {
+        // TODO move to Utils
+        $("a[tooltip-title]", this).each(function() {
+            $(this).qtip({
+                content: {
+                    title: $(this).attr("tooltip-title"),
+                    text: $(this).attr("tooltip-text")
+                },
+                position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
+                style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
+                show: {delay: 200},
+                hide: {fixed: true, delay: 300}
             });
-
+        });
     }
 
     async onFacetFieldChange(e) {
@@ -441,40 +468,6 @@ export default class OpencgaVariantBrowser extends LitElement {
         this.search = e.detail;
     }
 
-    _onMouseOver(e) {
-        PolymerUtils.addStyleByClass(e.target.dataset.facet, "text-decoration", "line-through");
-    }
-
-    _onMouseOut(e) {
-        PolymerUtils.addStyleByClass(e.target.dataset.facet, "text-decoration", "none");
-    }
-
-    clearPlots() {
-        if (UtilsNew.isNotUndefined(this.results) && this.results.length > 0) {
-            for (const result of this.results) {
-                PolymerUtils.removeElement(this._prefix + result.name + "Plot");
-            }
-        }
-        this.results = [];
-    }
-
-    clearAll() {
-        this.clearPlots();
-        this.chromosome = "";
-        this.facetFields = [];
-        this.facetRanges = [];
-        this.facetFieldsName = [];
-        this.facetRangeFields = [];
-        this._showInitMessage = true;
-
-        PolymerUtils.setAttributeByClassName(this._prefix + "FilterSelect", "selectedIndex", 0);
-
-        PolymerUtils.setValue(this._prefix + "FieldIncludes", "");
-        PolymerUtils.setValue(this._prefix + "NestedFieldIncludes", "");
-        PolymerUtils.setValue(this._prefix + "ChromosomeInput", "");
-        PolymerUtils.removeAttribute(this._prefix + "ChromosomeAdd", "disabled");
-    }
-
     onHistogramChart(e) {
         this.highlightActivePlot(e.target.parentElement);
         const id = e.target.dataId;
@@ -570,44 +563,32 @@ export default class OpencgaVariantBrowser extends LitElement {
         }
     }
 
-    _changeView(e) {
-        e.preventDefault();
-        $(".content-pills").removeClass("active");
-        $(".content-tab").hide();
-        $(e.currentTarget).addClass("active");
-        $("#" + e.currentTarget.dataset.view).show();
+    onClickPill(e){
+        //e.preventDefault();
+        this._changeView(e.currentTarget.dataset.id);
+    }
+
+    _changeView(tabId) {
+        $(".content-pills", this).removeClass("active");
+        $(".content-tab", this).hide();
         for (const tab in this.activeTab) this.activeTab[tab] = false;
-        this.activeTab[e.currentTarget.dataset.view] = true;
-        /* if (e.target.dataset.view === "Summary") {
-            this.SummaryActive = true;
-            this.requestUpdate();
-        } else {
-            this.SummaryActive = false;
-        }*/
+        $(`button.content-pills[data-id=${tabId}]`, this).addClass("active");
+        $("#" + tabId, this).show();
+        this.activeTab[tabId] = true;
         this.requestUpdate();
     }
+
 
     onQueryFilterChange(e) {
         this.preparedQuery = e.detail.query;
         this.requestUpdate();
     }
 
-    /*
-    onQueryFilterSearch(e) {
-        this.preparedQuery = e.detail.query;
-        this.executedQuery = e.detail.query;
-
-        this.fetchVariants();
-
-        this.requestUpdate();
-    }
-*/
     onActiveFilterChange(e) {
         console.log("onActiveFilterChange on variant facet", e.detail);
         // TODO FIXME! study prop have to be wiped off. use studies instead
         this.preparedQuery = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias, ...e.detail};
         this.query = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias, ...e.detail};
-        // this.requestUpdate();
     }
 
     onActiveFilterClear() {
@@ -624,10 +605,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                             <a class="btn btn-small collapsed" role="button" data-collapse="#${facet.id}_nested" @click="${this.toggleCollapse}"> <i class="fas fa-arrow-alt-circle-down"></i> Nested Facet (optional) </a>
                             <div class="collapse ${this.selectedFacet[facet.id].nested ? "in" : ""}" id="${facet.id}_nested"> 
                                 <div class="">
-                                    <select-field-filter .data="${this._config.aggregation.sections.map(section => ({
-        ...section,
-        fields: section.fields.map(item => ({...item, disabled: item.id === facet.id}))
-    }))}" .value=${this.selectedFacet[facet.id].nested ? this.selectedFacet[facet.id].nested.id : null} @filterChange="${e => this.onNestedFacetFieldChange(e, facet.id)}"></select-field-filter>
+                                    <select-field-filter .data="${this._config.aggregation.sections.map(section => ({...section, fields: section.fields.map(item => ({...item, disabled: item.id === facet.id})) }))}" .value=${this.selectedFacet[facet.id].nested ? this.selectedFacet[facet.id].nested.id : null} @filterChange="${e => this.onNestedFacetFieldChange(e, facet.id)}"></select-field-filter>
                                     <div class="row facet-row nested">
                                         ${this.renderNestedField(this.selectedFacet[facet.id].nested, facet.id)}
                                     </div>                                
@@ -792,7 +770,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                     {
                         title: "Study and Cohorts",
                         collapsed: false,
-                        subsections: [
+                        fields: [
                             {
                                 id: "study",
                                 title: "Studies Filter",
@@ -804,7 +782,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                     {
                         title: "Genomic",
                         collapsed: true,
-                        subsections: [
+                        fields: [
                             {
                                 id: "location",
                                 title: "Chromosomal Location",
@@ -845,7 +823,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                     {
                         title: "Population Frequency",
                         collapsed: true,
-                        subsections: [
+                        fields: [
                             {
                                 id: "populationFrequency",
                                 title: "Select Population Frequency",
@@ -857,7 +835,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                     {
                         title: "Consequence Type",
                         collapsed: true,
-                        subsections: [
+                        fields: [
                             {
                                 id: "consequenceType",
                                 title: "Select SO terms",
@@ -868,7 +846,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                     {
                         title: "Deleteriousness",
                         collapsed: true,
-                        subsections: [
+                        fields: [
                             {
                                 id: "proteinSubstitutionScore",
                                 title: "Protein Substitution Score",
@@ -889,7 +867,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                     {
                         title: "Conservation",
                         collapsed: true,
-                        subsections: [
+                        fields: [
                             {
                                 id: "conservation",
                                 title: "Conservation Score",
@@ -909,7 +887,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                     {
                         title: "Gene Ontology",
                         collapsed: true,
-                        subsections: [
+                        fields: [
                             {
                                 id: "go",
                                 title: "GO Accessions (max. 100 terms)",
@@ -920,7 +898,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                     {
                         title: "Phenotype-Disease",
                         collapsed: true,
-                        subsections: [
+                        fields: [
                             {
                                 id: "hpo",
                                 title: "HPO Accessions",
@@ -979,7 +957,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                 detail: []
             },
             aggregation: {
-                default: [],
+                default: ["studies"],
                 sections: [
                     {
                         name: "terms",
@@ -988,7 +966,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                                 name: "Chromosome", id: "chromosome", type: "string"
                             },
                             {
-                                name: "Studies", id: "studies", type: "string"
+                                id: "studies", name: "studies", type: "string"
                             },
                             {
                                 name: "Variant Type", id: "type", type: "string"
@@ -1146,13 +1124,13 @@ export default class OpencgaVariantBrowser extends LitElement {
                     <div>
                         <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
                             <div class="btn-group" role="group" style="margin-left: 0px">
-                                <button type="button" class="btn btn-success active ripple content-pills" data-view="table-results" @click="${this._changeView}" data-id="table">
+                                <button type="button" class="btn btn-success active ripple content-pills" @click="${this.onClickPill}" data-id="table-tab">
                                     <i class="fa fa-table icon-padding" aria-hidden="true"></i> Table Result
                                 </button>
-                                <button type="button" class="btn btn-success ripple content-pills" data-view="facet-results" @click="${this._changeView}" data-id="aggregation">
+                                <button type="button" class="btn btn-success ripple content-pills" @click="${this.onClickPill}" data-id="facet-tab">
                                     <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i> Aggregation stats
                                 </button>
-                                <button type="button" class="btn btn-success ripple content-pills" data-view="comparator" @click="${this._changeView}" data-id="comparator">
+                                <button type="button" class="btn btn-success ripple content-pills" @click="${this.onClickPill}" data-id="comparator-tab">
                                     <i class="fa fa-users icon-padding" aria-hidden="true"></i> Comparator
                                 </button>
                             </div>
@@ -1176,7 +1154,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                                                 @activeFilterClear="${this.onActiveFilterClear}">
                         </opencga-active-filters>
                         
-                        <div id="table-results" class="content-tab">
+                        <div id="table-tab" class="content-tab">
                             <opencga-variant-grid .opencgaSession="${this.opencgaSession}"
                                                   .query="${this.executedQuery}"
                                                   .cohorts="${this.cohorts}"
@@ -1200,8 +1178,10 @@ export default class OpencgaVariantBrowser extends LitElement {
                             
                         </div>
                         
-                        <div id="facet-results" class="content-tab">
-                            <opencb-facet-results .active="${this.activeTab["facet-results"]}"
+                        <div id="facet-tab" class="content-tab">
+                            <opencb-facet-results .opencgaSession="${this.opencgaSession}" 
+                                                   .active="${this.activeTab["facet-tab"]}"
+                                                  .query="${this.facetQuery}"
                                                   .data="${this.facetResults}"
                                                   .error="${this.errorState}">
                             </opencb-facet-results>

@@ -221,7 +221,7 @@ export class OpenCGAClient {
     // refresh only works if cookies are enabled
     async refresh() {
         const userId = this._config.userId;
-        const response = await this.users().login(userId);
+        const response = await this.users().login(userId, {});
         const restResponse = new RestResponse(response);
         this._config.token = restResponse.getResult(0).token;
         if (this._config.cookies.active) {
