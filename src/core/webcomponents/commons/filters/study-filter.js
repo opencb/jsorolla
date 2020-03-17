@@ -19,8 +19,6 @@ import Utils from "./../../../utils.js";
 import "./select-field-filter.js";
 
 
-//TODO continue, bootstrap-select doesn't evaluate as selected a disabled option, but in case of AND/OR operator selected we need both
-
 export default class StudyFilter extends LitElement {
 
     constructor() {
@@ -37,10 +35,7 @@ export default class StudyFilter extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            differentStudies: {
-                type: Object
-            },
-            //part of the query object
+            // part of the query object
             studies: {
                 type: Object
             }
@@ -51,25 +46,27 @@ export default class StudyFilter extends LitElement {
         this._prefix = "sf-" + Utils.randomString(6) + "_";
         this.operator = ";";
         this.differentStudies = [];
-        //this._selectStudies = [];
+        // this._selectStudies = [];
         this._studies = [];
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this.primaryProject = this.opencgaSession.study.fqn;
-        //this._selectStudies = [this.primaryProject];
-        this._studies = [this.primaryProject];
     }
 
-    firstUpdated(_changedProperties) {
-        $(".selectpicker", this).selectpicker("val", this.opencgaSession.study.fqn);
-    }
 
     updated(_changedProperties) {
-        if (_changedProperties.has("differentStudies")) {
-            //this._selectStudies = [{id: this.opencgaSession.study.fqn, name: this.opencgaSession.study.name}, ...this.differentStudies.map( _ => ({id: _.fqn, name: _.name}))];
-            this.requestUpdate().then( () => $(".selectpicker", this).selectpicker("refresh"));
+        if (_changedProperties.has("opencgaSession")) {
+            this.primaryProject = this.opencgaSession.study.fqn;
+            this._studies = [this.primaryProject];
+            if (this.opencgaSession.project.studies.length) {
+                this.differentStudies = this.opencgaSession.project.studies.filter( study => this.opencgaSession.study.alias !== study.alias);
+            }
+            this.requestUpdate().then( () => {
+                $(".selectpicker", this).selectpicker("refresh");
+                //$(".selectpicker", this).selectpicker("val", this.opencgaSession.study.fqn);
+            });
+
         }
 
         if (_changedProperties.has("studies")) {
@@ -97,7 +94,6 @@ export default class StudyFilter extends LitElement {
             }
         });
         this.dispatchEvent(event);
-        // this.requestUpdate();
     }
 
     onChangeOperator(e) {
@@ -106,7 +102,7 @@ export default class StudyFilter extends LitElement {
     }
 
     onChangeStudy(e) {
-        console.log(e)
+        console.log(e);
         console.log($(".selectpicker", this).selectpicker("val"));
 
         const study = e.target.dataset.id;
@@ -123,7 +119,7 @@ export default class StudyFilter extends LitElement {
         this.filterChange();
     }
 
-    onChangeSelectedStudy(e) {
+    onChangeSelectedStudy() {
         const selected = $(".selectpicker", this).selectpicker("val");
         this._studies = [this.primaryProject, ...selected];
         this.requestUpdate();
@@ -153,9 +149,9 @@ export default class StudyFilter extends LitElement {
                 <br>
                 <select multiple class="form-control input-sm selectpicker" id="${this._prefix}includeOtherStudy"
                     @change="${this.onChangeSelectedStudy}">
-                    <option value="${this.opencgaSession.study.fqn}" disabled>${this.opencgaSession.study.name}</option>
+                    <option value="${this.opencgaSession.study.fqn}" selected="selected" disabled>${this.opencgaSession.study.name}</option>
                     ${this.differentStudies && this.differentStudies.length ? this.differentStudies.map(study => html`
-                        <option value="${study.fqn}">${study.alias}</option>
+                        <option value="${study.fqn}">${study.name}</option>
                     `) : null }
                 </select>
                 <fieldset class="switch-toggle-wrapper">

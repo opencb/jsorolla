@@ -274,7 +274,7 @@ export class OpenCGAClient {
         return new Promise(function(resolve, reject) {
             // check that a session exists
             // TODO should we check the session has not expired?
-            console.log("_this._config",_this._config) // ------------ TODO refreshing a page userId is empty
+            //console.log("_this._config", _this._config); // ------------ TODO refreshing a page userId is empty
             if (UtilsNew.isNotUndefined(_this._config.token)) {
 
                 _this.users().info(_this._config.userId)
@@ -312,16 +312,24 @@ export class OpenCGAClient {
                                                     } else {
                                                         study.alias = study.fqn;
                                                     }
+                                                    //default study from config
+                                                    if (study.alias === application.defaultStudy) {
+                                                        session.project = project;
+                                                        session.study = study;
+                                                    }
                                                 }
                                                 // Keep track of the studies to fetch Disease Panels
                                                 studies.push(project.id + ":" + study.id);
                                             }
                                         }
                                     }
+                                    if (!session.project || !session.study) {
+                                        throw new Error("Default study not found");
+                                    }
 
-                                    // this sets the current active project and study
-                                    session.project = session.projects[0];
-                                    session.study = session.projects[0].studies[0];
+                                    // this sets the current active project and study (commented as application.defaultStudy is used now)
+                                    // session.project = session.projects[1];
+                                    // session.study = session.projects[1].studies[0];
 
                                     // Fetch the Disease Panels for each Study
                                     const panelPromises = [];

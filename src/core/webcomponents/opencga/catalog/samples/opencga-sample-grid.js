@@ -62,7 +62,7 @@ export default class OpencgaSampleGrid extends LitElement {
     }
 
     firstUpdated() {
-        //this.renderTable(this.active);
+        // this.renderTable(this.active);
         // this.table = PolymerUtils.getElementById(this._prefix + "SampleBrowserGrid");
     }
 
@@ -97,10 +97,11 @@ export default class OpencgaSampleGrid extends LitElement {
 
         this.samples = [];
 
-        let filters = {...this.query};
+        const filters = {...this.query};
 
         this.from = 1;
         this.to = 10;
+        this.pageNumber = 1;
 
         if (this.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
 
@@ -121,20 +122,20 @@ export default class OpencgaSampleGrid extends LitElement {
             }
 
             // Check that HTTP protocol is present and complete the URL
-            /*let opencgaHostUrl = this.opencgaClient.getConfig().host;
+            /* let opencgaHostUrl = this.opencgaClient.getConfig().host;
             if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
                 opencgaHostUrl = "http://" + opencgaHostUrl;
             }
             opencgaHostUrl += "/webservices/rest/v1/samples/search";*/
 
-            let skipCount = false;
+            let count = true;
 
             const _table = $("#" + this._prefix + "SampleBrowserGrid");
 
             const _this = this;
             $("#" + this._prefix + "SampleBrowserGrid").bootstrapTable("destroy");
             $("#" + this._prefix + "SampleBrowserGrid").bootstrapTable({
-                //url: opencgaHostUrl,
+                // url: opencgaHostUrl,
                 columns: _this._columns,
                 method: "get",
                 sidePagination: "server",
@@ -147,66 +148,46 @@ export default class OpencgaSampleGrid extends LitElement {
                 showExport: _this._config.showExport,
                 detailView: _this._config.detailView,
                 detailFormatter: _this._config.detailFormatter,
-                /*queryParams: function(params) {
-                    if (this.pageNumber > 1) {
-                        skipCount = true;
-                    }
-
-                    const auxParams = {
-                        sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
-                        order: params.order,
-                        sort: params.sort,
-                        limit: params.limit,
-                        skip: params.offset,
-                        includeIndividual: true,
-                        skipCount: skipCount
-                        // include: "id,source,collection,processing,creationDate,status,type,version,release,individual.id"
-                    };
-
-                    if (UtilsNew.isUndefined(filters)) {
-                        filters = {};
-                    }
-                    return Object.assign(filters, auxParams);
-                },*/
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
-                ajax: (params) => {
+                ajax: params => {
                     if (this.pageNumber > 1) {
-                        skipCount = true;
+                        count = false;
                     }
-                    let _filters = {
-                        //study: this.opencgaSession.study.fqn,
+                    const _filters = {
+                        // study: this.opencgaSession.study.fqn,
                         order: params.data.order,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
-                        skipCount: this.pageNumber > 1,
+                        count: this.pageNumber > 1,
                         ...filters
                     };
                     this.opencgaSession.opencgaClient.samples().search(_filters)
                         .then( res => params.success(res))
-                        .catch( e => console.error(e)) ;
+                        .catch( e => console.error(e));
                 },
                 responseHandler: function(response) {
-                    if (!skipCount) {
-                        if (!_this.hasOwnProperty("numTotalResults")) {
-                            _this.numTotalResults = 0;
-                        }
-                        if (_this.numTotalResults !== response.getResponse().numTotalResults &&
-                            response.queryOptions.skip === 0) {
-                            _this.numTotalResults = response.getResponse().numTotalResults;
-                        }
+                    let _numMatches = _this._numMatches || 0;
+                    if (response.getResponse().numMatches >= 0) {
+                        _numMatches = response.getResponse().numMatches;
+                        _this._numMatches = _numMatches;
                     }
-
-                    _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-                    if (response.getParams().skip === 0 && _this.numTotalResults < response.getParams().limit) {
+                    // If no variant is returned then we start in 0
+                    if (response.getResponse(0).numMatches === 0) {
+                        _this.from = _numMatches;
+                    }
+                    // If do not fetch as many variants as requested then to is numMatches
+                    if (response.getResponse(0).numResults < this.pageSize) {
+                        _this.to = _numMatches;
+                    }
+                    _this.numTotalResultsText = _numMatches.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    if (response.getParams().skip === 0 && _numMatches < response.getParams().limit) {
                         _this.from = 1;
-                        _this.to = _this.numTotalResults;
+                        _this.to = _numMatches;
                     }
-
+                    _this.approximateCountResult = response.getResponse().attributes.approximateCount;
                     _this.requestUpdate(); // it is necessary to refresh numTotalResultsText in opencga-grid-toolbar
-
                     return {
-                        total: _this.numTotalResults,
+                        total: _numMatches,
                         rows: response.getResults()
                     };
                 },
@@ -309,20 +290,11 @@ export default class OpencgaSampleGrid extends LitElement {
                             }
                         }
                     }
-
-
                 },
                 onPageChange: function(page, size) {
                     _this.from = (page - 1) * size + 1;
                     _this.to = page * size;
                 }
-                //                         onPostBody: function() {
-                //                             if(PolymerUtils.getElementsByClassName(_this._prefix + 'Download')) {
-                //                                 PolymerUtils.querySelectorAll("." + _this._prefix + "Download").forEach(elem => elem.addEventListener("click", _this.downloadQCFile.bind(_this), true));
-                //
-                // //                                PolymerUtils.getElementById(_this._prefix + 'Download').addEventListener('click', _this.downloadQCFile.bind(_this));
-                //                             }
-                //                         }
             });
         } else {
             // Delete table
@@ -359,7 +331,7 @@ export default class OpencgaSampleGrid extends LitElement {
 
     individualFormatter(value, row) {
 
-        //TODO fix
+        // TODO fix
         let a = "-";
         if (UtilsNew.isNotUndefined(row.attributes) && UtilsNew.isNotUndefined(row.attributes.OPENCGA_INDIVIDUAL)) {
             a = row.attributes.OPENCGA_INDIVIDUAL.id || "-";
@@ -456,7 +428,7 @@ export default class OpencgaSampleGrid extends LitElement {
     onDownload(e) {
         // let urlQueryParams = this._getUrlQueryParams();
         // let params = urlQueryParams.queryParams;
-        //console.log(this.opencgaSession);
+        // console.log(this.opencgaSession);
         const params = {
             ...this.query,
             sid: this.opencgaSession.opencgaClient._config.sessionId,
@@ -470,7 +442,7 @@ export default class OpencgaSampleGrid extends LitElement {
         this.opencgaSession.opencgaClient.samples().search(params)
             .then(response => {
                 const result = response.response[0].result;
-                console.log(result)
+                console.log(result);
                 let dataString = [];
                 let mimeType = "";
                 let extension = "";
@@ -489,7 +461,7 @@ export default class OpencgaSampleGrid extends LitElement {
                                 _.creationDate,
                                 _.status.name
                             ].join("\t"))];
-                        //console.log(dataString);
+                        // console.log(dataString);
                         mimeType = "text/plain";
                         extension = ".txt";
                     } else {
@@ -516,8 +488,8 @@ export default class OpencgaSampleGrid extends LitElement {
                 }
             })
             .then(function() {
-                //this.downloadRefreshIcon.css("display", "none");
-                //this.downloadIcon.css("display", "inline-block");
+                // this.downloadRefreshIcon.css("display", "none");
+                // this.downloadIcon.css("display", "inline-block");
             });
     }
 

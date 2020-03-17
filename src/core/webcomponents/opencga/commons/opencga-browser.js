@@ -36,6 +36,7 @@ import "../catalog/cohorts/opencga-cohort-grid.js";
 import "../catalog/cohorts/opencga-cohort-filter.js";
 import "../catalog/jobs/opencga-jobs-grid.js";
 import "../catalog/jobs/opencga-jobs-filter.js";
+import "../catalog/jobs/opencga-jobs-details.js";
 import "../clinical/opencga-clinical-analysis-grid.js";
 import "../clinical/opencga-clinical-analysis-filter.js";
 import "../catalog/jobs/opencga-jobs-browser.js";
@@ -48,7 +49,7 @@ import "../clinical/opencga-clinical-analysis-filter.js";
 // TODO fix props in EACH opencga-x-filter
 
 
-export default class OpencgaFacet extends LitElement {
+export default class OpencgaBrowser extends LitElement {
 
     constructor() {
         super();
@@ -125,6 +126,8 @@ export default class OpencgaFacet extends LitElement {
         this.errorState = false;
 
         this.activeTab = {};
+
+        this.detail = {};
     }
 
     connectedCallback() {
@@ -487,30 +490,6 @@ export default class OpencgaFacet extends LitElement {
         // PolymerUtils.addClass(button, "active");
     }
 
-    /*    fetchVariants() {
-        console.log("executedQuery changed!!");
-        if (UtilsNew.isNotUndefined(this.opencgaClient)) {
-            const queryParams = {
-                sid: this.opencgaClient._config.sessionId,
-                timeout: 60000,
-                summary: true,
-                limit: 1
-            };
-            Object.assign(queryParams, this.query);
-
-            if (UtilsNew.isEmpty(queryParams.studies) || queryParams.studies.split(new RegExp("[,;]")).length === 1) {
-                queryParams.studies = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
-            }
-
-            const _this = this;
-            this.opencgaClient.variants().query(queryParams, {})
-                .then(function(response) {
-                    _this.totalVariants = response.response[0].numTotalResults;
-                    console.log("_this.totalVariants", _this.totalVariants);
-                });
-        }
-    }*/
-
     _recFind(array, value) {
         for (const f of array) {
             if (f.fields) {
@@ -558,6 +537,13 @@ export default class OpencgaFacet extends LitElement {
         console.log("onActiveFilterClear");
         this.query = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
         this.preparedQuery = {...this.query};
+    }
+
+    onClickRow(e){
+        console.log(e);
+        this.detail = {...this.detail, [e.detail.resource]: e.detail.data};
+        this.requestUpdate();
+        console.log("this.detail",this.detail)
     }
 
     renderField(facet) {
@@ -791,8 +777,15 @@ export default class OpencgaFacet extends LitElement {
                                             .search="${this.executedQuery}"
                                             .eventNotifyName="${this.eventNotifyName}"
                                             .files="${this.files}"
-                                            @selectfile="${this.onSelectFile}">
-                        </opencga-jobs-grid>`;
+                                            @clickRow="${this.onClickRow}">
+                        </opencga-jobs-grid>
+                        <opencga-jobs-details .opencgaSession="${this.opencgaSession}"
+                                              .config="${this._config.filter}"
+                                              .jobId="${1 || this.detail.job.id}"
+                                              .job="${this.detail.job}">
+                        </opencga-jobs-details>
+
+                        `;
             default:
                 return html`entity not recognized`;
         }
@@ -1060,4 +1053,4 @@ export default class OpencgaFacet extends LitElement {
 
 }
 
-customElements.define("opencga-facet", OpencgaFacet);
+customElements.define("opencga-browser", OpencgaBrowser);

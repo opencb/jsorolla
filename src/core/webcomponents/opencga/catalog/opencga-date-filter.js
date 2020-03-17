@@ -324,36 +324,7 @@ export default class OpencgaDateFilter extends LitElement {
                                     <span class="${this._prefix}-text">Last</span>
                                     <select class="form-control bootstrap-select ${this._prefix}-codeDis"
                                             id="${this._prefix}RecentSelect" name="birthYear" required @change="${this.calculateFilters}" data-size="10">
-                                        <option value="1" ?selected="${this.matchesRecentDaysConfig(1)}">1</option>
-                                        <option value="2" ?selected="${this.matchesRecentDaysConfig(2)}">2</option>
-                                        <option value="3" ?selected="${this.matchesRecentDaysConfig(3)}">3</option>
-                                        <option value="4" ?selected="${this.matchesRecentDaysConfig(4)}">4</option>
-                                        <option value="5" ?selected="${this.matchesRecentDaysConfig(5)}">5</option>
-                                        <option value="6" ?selected="${this.matchesRecentDaysConfig(6)}">6</option>
-                                        <option value="7" ?selected="${this.matchesRecentDaysConfig(7)}">7</option>
-                                        <option value="8" ?selected="${this.matchesRecentDaysConfig(8)}">8</option>
-                                        <option value="9" ?selected="${this.matchesRecentDaysConfig(9)}">9</option>
-                                        <option value="10" ?selected="${this.matchesRecentDaysConfig(10)}">10</option>
-                                        <option value="11" ?selected="${this.matchesRecentDaysConfig(11)}">11</option>
-                                        <option value="12" ?selected="${this.matchesRecentDaysConfig(12)}">12</option>
-                                        <option value="13" ?selected="${this.matchesRecentDaysConfig(13)}">13</option>
-                                        <option value="14" ?selected="${this.matchesRecentDaysConfig(14)}">14</option>
-                                        <option value="15" ?selected="${this.matchesRecentDaysConfig(15)}">15</option>
-                                        <option value="16" ?selected="${this.matchesRecentDaysConfig(16)}">16</option>
-                                        <option value="17" ?selected="${this.matchesRecentDaysConfig(17)}">17</option>
-                                        <option value="18" ?selected="${this.matchesRecentDaysConfig(18)}">18</option>
-                                        <option value="19" ?selected="${this.matchesRecentDaysConfig(19)}">19</option>
-                                        <option value="20" ?selected="${this.matchesRecentDaysConfig(20)}">20</option>
-                                        <option value="21" ?selected="${this.matchesRecentDaysConfig(21)}">21</option>
-                                        <option value="22" ?selected="${this.matchesRecentDaysConfig(22)}">22</option>
-                                        <option value="23" ?selected="${this.matchesRecentDaysConfig(23)}">23</option>
-                                        <option value="24" ?selected="${this.matchesRecentDaysConfig(24)}">24</option>
-                                        <option value="25" ?selected="${this.matchesRecentDaysConfig(25)}">25</option>
-                                        <option value="26" ?selected="${this.matchesRecentDaysConfig(26)}">26</option>
-                                        <option value="27" ?selected="${this.matchesRecentDaysConfig(27)}">27</option>
-                                        <option value="28" ?selected="${this.matchesRecentDaysConfig(28)}">28</option>
-                                        <option value="29" ?selected="${this.matchesRecentDaysConfig(29)}">29</option>
-                                        <option value="30" ?selected="${this.matchesRecentDaysConfig(30)}">30</option>
+                                        ${[...Array(30).keys()].map( n => html`<option value="${n + 1}" ?selected="${this.matchesRecentDaysConfig(n + 1)}">${n + 1}</option>`)}
                                     </select>
                                     <span class="${this._prefix}-text"> day(s)</span>
                                 </div>
@@ -361,8 +332,6 @@ export default class OpencgaDateFilter extends LitElement {
                         </div>
                     ` : null}
                     
-                   
-    
                     ${this.activatedDate ? html`
                         <div>
                             <form class="form-inline">

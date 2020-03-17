@@ -113,7 +113,7 @@ export default class OpencgaJobsGrid extends LitElement {
                 this._files = [];
             }
 
-            let skipCount = false;
+            let count = true;
 
             const _this = this;
             $(this.table).bootstrapTable("destroy");
@@ -125,18 +125,16 @@ export default class OpencgaJobsGrid extends LitElement {
                 uniqueId: "id",
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
-
                     if (this.pageNumber > 1) {
-                        skipCount = true;
+                        count = false;
                     }
                     const filters = {
-                        "study": this.opencgaSession.study.fqn,
-                        "deleted": "false",
-                        "count": "false",
-                        "order": params.data.order,
-                        "limit": params.data.limit,
-                        "skip": params.data.offset || 0,
-                        // skipCount: skipCount,
+                        study: this.opencgaSession.study.fqn,
+                        deleted: false,
+                        count: count,
+                        order: params.data.order,
+                        limit: params.data.limit,
+                        skip: params.data.offset || 0,
                         // include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
                         ...this.query
                     };
@@ -151,32 +149,35 @@ export default class OpencgaJobsGrid extends LitElement {
                 detailFormatter: this._config.detailFormatter,
                 //TODO recheck and refactor to ALL handlers!
                 responseHandler: function(response) {
-                    if (!skipCount) {
-                        if (!_this.hasOwnProperty("numTotalResults")) {
-                            _this.numTotalResults = 0;
-                        }
-                        if (_this.numTotalResults !== response.response[0].numTotalResults &&
-                            response.queryOptions.skip === 0) {
-                            _this.numTotalResults = response.response[0].numTotalResults;
-                        }
+                    console.log("response", response);
+                    let _numMatches = _this._numMatches || 0;
+                    if (response.getResponse().numMatches >= 0) {
+                        _numMatches = response.getResponse().numMatches;
+                        _this._numMatches = _numMatches;
                     }
+                    // If no variant is returned then we start in 0
+                    if (response.getResponse(0).numMatches === 0) {
+                        _this.from = _numMatches;
+                    }
+                    if (response.getResponse(0).numResults < this.pageSize) {
+                        _this.to = _numMatches;
+                    }
+                    _this.numTotalResultsText = _numMatches.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-                    _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-                    if (response.queryOptions.skip === 0 && _this.numTotalResults < response.queryOptions.limit) {
+                    if (response.getParams().skip === 0 && _numMatches < response.getParams().limit) {
                         _this.from = 1;
-                        _this.to = _this.numTotalResults;
+                        _this.to = _numMatches;
                     }
-
+                    _this.approximateCountResult = response.getResponse().attributes.approximateCount;
                     _this.requestUpdate(); // it is necessary to refresh numTotalResultsText in opencga-grid-toolbar
 
                     return {
-                        total: _this.numTotalResults,
-                        rows: response.response[0].result
+                        total: _numMatches,
+                        rows: response.getResults()
                     };
                 },
-                onClickRow: function(row, element, field) {
-                    if (_this._config.multiselection) {
+                onClickRow: (row, element, field) => {
+                    if (this._config.multiselection) {
                         $(element).toggleClass("success");
                         const index = element[0].getAttribute("data-index");
                         // Check and uncheck actions trigger events that are captured below
@@ -190,7 +191,7 @@ export default class OpencgaJobsGrid extends LitElement {
                         $(element).addClass("success");
                     }
 
-                    console.error("implement onclickRow!")
+                    this.dispatchEvent(new CustomEvent("clickRow", {detail: {resource: "job", data: row}}));
                     //_this._onSelectFile(row);
                 },
                 onCheck: function(row, elem) {
@@ -524,9 +525,9 @@ export default class OpencgaJobsGrid extends LitElement {
             limit: 1000,
             //sid: this.opencgaSession.opencgaClient._config.sessionId,
             skip: 0,
-            skipCount: true,
+            count: false,
             study: this.opencgaSession.study.fqn,
-            ...this.query,
+            ...this.query
         };
         this.opencgaSession.opencgaClient.jobs().search(filters)
             .then(response => {

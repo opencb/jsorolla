@@ -46,7 +46,7 @@ export default class OpencgaFileGrid extends LitElement {
             filters: {
                 type: Object
             },
-            //TODO replace with query
+            // TODO replace with query
             search: {
                 type: Object
             },
@@ -97,7 +97,7 @@ export default class OpencgaFileGrid extends LitElement {
         this.files = [];
 
         // We avoid listing directories in the grid
-        let filters = Object.assign({}, this.search);
+        const filters = Object.assign({}, this.search);
         if (Object.keys(filters).length === 0) {
             filters["type"] = "FILE";
         }
@@ -122,31 +122,31 @@ export default class OpencgaFileGrid extends LitElement {
             }
             opencgaHostUrl += "/webservices/rest/v1/files/search";
 
-            let skipCount = false;
+            let count = true;
 
             const _table = $("#" + this._prefix + "FileBrowserGrid");
 
             const _this = this;
             $("#" + this._prefix + "FileBrowserGrid").bootstrapTable("destroy");
             $("#" + this._prefix + "FileBrowserGrid").bootstrapTable({
-                //url: opencgaHostUrl,
+                // url: opencgaHostUrl,
                 columns: _this._columns,
                 method: "get",
                 sidePagination: "server",
                 uniqueId: "id",
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
-                ajax: (params) => {
+                ajax: params => {
                     if (this.pageNumber > 1) {
-                        skipCount = true;
+                        count = false;
                     }
-                    let filters = {
+                    const filters = {
                         study: this.opencgaSession.study.fqn,
-                        //sid: Cookies.get(this.opencgaSession.opencgaClient.getConfig().cookieSessionId),
+                        // sid: Cookies.get(this.opencgaSession.opencgaClient.getConfig().cookieSessionId),
                         type: "FILE",
                         order: params.data.order,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
-                        skipCount: skipCount,
+                        count: count,
                         include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
                         ...this.search
                     };
@@ -160,8 +160,8 @@ export default class OpencgaFileGrid extends LitElement {
                 detailView: _this._config.detailView,
                 detailFormatter: _this._config.detailFormatter,
 
-                //it is not used anymore
-                /*queryParams: function(params) {
+                // it is not used anymore
+                /* queryParams: function(params) {
                     if (this.pageNumber > 1) {
                         skipCount = true;
                     }
@@ -182,28 +182,29 @@ export default class OpencgaFileGrid extends LitElement {
                     return Object.assign(filters, auxParams);
                 },*/
                 responseHandler: function(response) {
-                    if (!skipCount) {
-                        if (!_this.hasOwnProperty("numTotalResults")) {
-                            _this.numTotalResults = 0;
-                        }
-                        if (_this.numTotalResults !== response.response[0].numTotalResults &&
-                            response.queryOptions.skip === 0) {
-                            _this.numTotalResults = response.response[0].numTotalResults;
-                        }
+                    let _numMatches = _this._numMatches || 0;
+                    if (response.getResponse().numMatches >= 0) {
+                        _numMatches = response.getResponse().numMatches;
+                        _this._numMatches = _numMatches;
                     }
-
-                    _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-                    if (response.queryOptions.skip === 0 && _this.numTotalResults < response.queryOptions.limit) {
+                    // If no variant is returned then we start in 0
+                    if (response.getResponse(0).numMatches === 0) {
+                        _this.from = _numMatches;
+                    }
+                    // If do not fetch as many variants as requested then to is numMatches
+                    if (response.getResponse(0).numResults < this.pageSize) {
+                        _this.to = _numMatches;
+                    }
+                    _this.numTotalResultsText = _numMatches.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    if (response.getParams().skip === 0 && _numMatches < response.getParams().limit) {
                         _this.from = 1;
-                        _this.to = _this.numTotalResults;
+                        _this.to = _numMatches;
                     }
-
+                    _this.approximateCountResult = response.getResponse().attributes.approximateCount;
                     _this.requestUpdate(); // it is necessary to refresh numTotalResultsText in opencga-grid-toolbar
-
                     return {
-                        total: _this.numTotalResults,
-                        rows: response.response[0].result
+                        total: _numMatches,
+                        rows: response.getResults()
                     };
                 },
                 onClickRow: function(row, element, field) {
@@ -310,17 +311,11 @@ export default class OpencgaFileGrid extends LitElement {
 
 
                 },
-                onPageChange: function(page, size) {
-                    _this.from = (page - 1) * size + 1;
-                    _this.to = page * size;
-                }
-                //                         onPostBody: function() {
-                //                             if(PolymerUtils.getElementsByClassName(_this._prefix + 'Download')) {
-                //                                 PolymerUtils.querySelectorAll("." + _this._prefix + "Download").forEach(elem => elem.addEventListener("click", _this.downloadQCFile.bind(_this), true));
-                //
-                // //                                PolymerUtils.getElementById(_this._prefix + 'Download').addEventListener('click', _this.downloadQCFile.bind(_this));
-                //                             }
-                //                         }
+                onPageChange: (page, size) => {
+                    this.pageNumber = page;
+                    this.from = (page - 1) * size + 1;
+                    this.to = page * size;
+                },
             });
 
             this.opencgaSession.opencgaClient.studies().info(this.opencgaSession.study.id)
@@ -341,7 +336,7 @@ export default class OpencgaFileGrid extends LitElement {
      * If filters have been removed, clean the values from the forms.
      */
     onFilterUpdate() {
-        //this.updateForms(this.filters); //TODO recheck, this shouldn't be necessary anymore (and it seems not)
+        // this.updateForms(this.filters); //TODO recheck, this shouldn't be necessary anymore (and it seems not)
     }
 
     _onSelectFile(row) {
@@ -588,7 +583,7 @@ export default class OpencgaFileGrid extends LitElement {
         return this._columns;
     }
 
-    _getUrlQueryParams() {
+    /*_getUrlQueryParams() {
         // Check the opencgaClient exists
         if (UtilsNew.isUndefinedOrNull(this.opencgaSession.opencgaClient)) {
             return {host: "", queryParams: {}};
@@ -623,7 +618,7 @@ export default class OpencgaFileGrid extends LitElement {
 
         console.log("QUERYPARAM", queryParams);
         return {host: host, queryParams: queryParams};
-    }
+    }*/
 
     onDownload(e) {
         // let urlQueryParams = this._getUrlQueryParams();
@@ -634,7 +629,7 @@ export default class OpencgaFileGrid extends LitElement {
             limit: 1000,
             sid: this.opencgaSession.opencgaClient._config.sessionId,
             skip: 0,
-            skipCount: true,
+            count: false,
             study: this.opencgaSession.study.fqn,
             include: "name,path,format,bioformat,creationDate,modificationDate,status",
             type: "FILE"
@@ -659,7 +654,7 @@ export default class OpencgaFileGrid extends LitElement {
                                 _.modificationDate,
                                 _.status.name
                             ].join("\t"))];
-                        //console.log(dataString);
+                        // console.log(dataString);
                         mimeType = "text/plain";
                         extension = ".txt";
                     } else {
@@ -686,8 +681,8 @@ export default class OpencgaFileGrid extends LitElement {
                 }
             })
             .then(function() {
-                //this.downloadRefreshIcon.css("display", "none");
-                //this.downloadIcon.css("display", "inline-block");
+                // this.downloadRefreshIcon.css("display", "none");
+                // this.downloadIcon.css("display", "inline-block");
             });
     }
 
@@ -707,6 +702,7 @@ export default class OpencgaFileGrid extends LitElement {
     render() {
         return html`
         <style include="jso-styles"></style>
+
 
         <opencb-grid-toolbar .from="${this.from}"
                             .to="${this.to}"
