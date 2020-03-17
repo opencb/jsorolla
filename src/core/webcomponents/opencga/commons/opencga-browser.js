@@ -236,7 +236,7 @@ export default class OpencgaBrowser extends LitElement {
     addDefaultFacet() {
         for (const defaultFacetId of this._config.aggregation.default) {
             const facet = defaultFacetId.split(">>");
-            console.log(facet)
+            console.log(facet);
             // in case of nested facets
             if (facet.length > 1) {
                 const mainFacet = this._recFind(this._config.aggregation.sections, facet[0]);
@@ -267,35 +267,45 @@ export default class OpencgaBrowser extends LitElement {
 
     // TODO since this is the new opencga-browser, this have to be moved this in opencga-facet-results
     async onRun() {
-        this.clearPlots();
-        const queryParams = {
-            ...this.preparedQuery,
-            // sid: this.opencgaClient._config.sessionId,
-            study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
-            timeout: 60000,
-            fields: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
-        };
-        // this event keeps in sync the query object with the one in iva-app
-        // TODO do not use this.preparedQuery, use this.query (change this component accordingly)
+        // this event keeps in sync the query object in opencga-browser with the general one in iva-app (this.queries)
+        // it is also in charge of update executedQuery (through queryObserver()).
+        // if we want to dismiss the general query feature replace the following line with:
+        // this.executedQuery = {...this.preparedQuery}; this.requestUpdate();
         this.notifySearch(this.preparedQuery);
 
-        // this.querySelector("#loading").style.display = "block";
 
-        this.endpoint.aggregationStats(queryParams, {})
-            .then(queryResponse => {
-                console.log("queryResponse", queryResponse);
-                this.errorState = false;
-                this.facetResults = queryResponse.response[0].result[0].results;
-                this.requestUpdate();
-            })
-            .catch(e => {
-                this.errorState = "Error from server: " + e.error;
-                this.requestUpdate();
-            })
-            .finally(() => {
-                //this.querySelector("#loading").style.display = "none";
-            });
+        if (Object.keys(this.selectedFacet).length) {
 
+            this.clearPlots();
+            /*const queryParams = {
+                ...this.preparedQuery,
+                // sid: this.opencgaClient._config.sessionId,
+                study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
+                timeout: 60000,
+                fields: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
+            };
+            this.endpoint.aggregationStats(queryParams, {})
+                .then(queryResponse => {
+                    console.log("queryResponse", queryResponse);
+                    this.errorState = false;
+                    this.facetResults = queryResponse.response[0].result[0].results;
+                    this.requestUpdate();
+                })
+                .catch(e => {
+                    this.errorState = "Error from server: " + e.error;
+                    this.requestUpdate();
+                })
+                .finally(() => {
+                });*/
+
+            this.facetQuery = {
+                ...this.preparedQuery,
+                // sid: this.opencgaClient._config.sessionId,
+                study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
+                timeout: 60000,
+                fields: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
+            }
+        }
     }
 
     _initTooltip() {
@@ -554,7 +564,7 @@ export default class OpencgaBrowser extends LitElement {
                             <a class="btn btn-small collapsed" role="button" data-collapse="#${facet.id}_nested" @click="${this.toggleCollapse}"> <i class="fas fa-arrow-alt-circle-down"></i> Nested Facet (optional) </a>
                             <div class="collapse ${this.selectedFacet[facet.id].nested ? "in" : ""}" id="${facet.id}_nested"> 
                                 <div class="">
-                                    <select-field-filter .data="${this._config.aggregation.sections.map(section => ({...section, fields: section.fields.map(item => ({...item, disabled: item.id === facet.id}))}) )}" .value=${this.selectedFacet[facet.id].nested ? this.selectedFacet[facet.id].nested.id : null} @filterChange="${e => this.onNestedFacetFieldChange(e, facet.id)}"></select-field-filter>
+                                    <select-field-filter .data="${this._config.aggregation.sections.map(section => ({...section, fields: section.fields.map(item => ({...item, disabled: item.id === facet.id}))}))}" .value=${this.selectedFacet[facet.id].nested ? this.selectedFacet[facet.id].nested.id : null} @filterChange="${e => this.onNestedFacetFieldChange(e, facet.id)}"></select-field-filter>
                                     <div class="row facet-row nested">
                                         ${this.renderNestedField(this.selectedFacet[facet.id].nested, facet.id)}
                                     </div>                                

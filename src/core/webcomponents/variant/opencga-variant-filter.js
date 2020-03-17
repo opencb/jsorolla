@@ -171,7 +171,7 @@ export default class OpencgaVariantFilter extends LitElement {
             if (typeof this.config !== "undefined" && typeof this.config.sections !== "undefined") {
                 this._cohorts = [];
                 for (const section of this.config.sections) {
-                    for (const subsection of section.subsections) {
+                    for (const subsection of section.fields) {
                         if (subsection.id === "cohort") {
                             const projectId = this.opencgaSession.project.id;
                             if (UtilsNew.isNotUndefinedOrNull(subsection.cohorts[projectId])) {
@@ -410,7 +410,7 @@ export default class OpencgaVariantFilter extends LitElement {
                             <div class="panel-body">
                                 <!--TODO verify if cadd condition works-->
                                 
-                                ${section.subsections && section.subsections.length && section.subsections.map(subsection => html`
+                                ${section.fields && section.fields.length && section.fields.map(subsection => html`
                                     ${this.config.skipSubsections && this.config.skipSubsections.length && !!~this.config.skipSubsections.indexOf(subsection.id) ? null : this._createSubSection(subsection)}
                                 `)}
                             
@@ -521,7 +521,7 @@ export default class OpencgaVariantFilter extends LitElement {
 
     _addAllTooltips() {
         for (const section of this.config.sections) {
-            for (const subsection of section.subsections) {
+            for (const subsection of section.fields) {
                 if (UtilsNew.isNotEmpty(subsection.tooltip)) {
                     const tooltipIcon = $("#" + this._prefix + subsection.id + "Tooltip");
                     if (UtilsNew.isNotUndefinedOrNull(tooltipIcon)) {

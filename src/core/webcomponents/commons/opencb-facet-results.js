@@ -94,21 +94,38 @@ class OpencbFacetResults extends LitElement {
             this.configObserver();
         }
         if (changedProperties.has("active") && this.active) {
-            console.warn("fire http req") //TODO check if query has changed before (this.facetResults.length)
-            //this.fetchDefaultData();
+            console.warn("fire http req"); // TODO check if query has changed before (this.facetResults.length)
+            // this.fetchDefaultData();
         }
     }
 
     propertyObserver(opencgaSession, query) {
         // this.clear();
-        //PolymerUtils.show(this._prefix + "Warning");
+        // PolymerUtils.show(this._prefix + "Warning");
     }
 
     queryObserver() {
-        console.log("queryObserver  in facet!")
-        //executedQuery in opencga-variant-browser has changed so, if requested,  we have to repeat the facet query
+        console.log("queryObserver  in facet!", this.query);
+        // executedQuery in opencga-variant-browser has changed so, if requested,  we have to repeat the facet query
         this.facetResults = [];
-        this.fetchDefaultData();
+        this.loading = true;
+        this.requestUpdate();
+        this.opencgaSession.opencgaClient.variants().aggregationStats(this.query, {})
+            .then(queryResponse => {
+                console.log("queryResponse", queryResponse);
+                this.errorState = false;
+                this.facetResults = queryResponse.getResults();
+                console.log("this.facetResults",this.facetResults)
+            })
+            .catch(e => {
+                // TODO show the list of the error events once the rest-client has been rewritten in axios and even in case of error a RestResponse is returned
+                this.errorState = "Error from server";
+                console.error("Error", e);
+            })
+            .finally(() => {
+                this.loading = false;
+                this.requestUpdate();
+            });
     }
 
     configObserver() {
@@ -117,7 +134,7 @@ class OpencbFacetResults extends LitElement {
 
     clearPlots() {
         if (UtilsNew.isNotUndefined(this.results) && this.results.length > 0) {
-            for (let result of this.results) {
+            for (const result of this.results) {
                 PolymerUtils.removeElement(this._prefix + result.name + "Plot");
             }
         }
@@ -142,7 +159,7 @@ class OpencbFacetResults extends LitElement {
         this.requestUpdate();
     }
 
-    //TODO add default configuration for file, sample, individual, family, cohort, clinical analysis
+    // TODO add default configuration for variant, file, sample, individual, family, cohort, clinical analysis
     getDefaultConfig() {
         return {
         };
@@ -167,7 +184,6 @@ class OpencbFacetResults extends LitElement {
                 margin-top: 40px;
             }
         </style>
-
         <div class="row">
             ${this.loading ? html`
                 <div id="loading">
@@ -179,7 +195,7 @@ class OpencbFacetResults extends LitElement {
                     ${this.errorState}
                 </div>
             ` : null}
-            ${this.data && this.data.length ? this.data.map(item => html`
+            ${this.facetResults && this.facetResults.length ? this.facetResults.map(item => html`
                 <div>
                     <h3>${item.name}</h3>
                     <opencga-facet-result-view .facetResult="${item}"
@@ -191,6 +207,7 @@ class OpencbFacetResults extends LitElement {
         </div>
     `;
     }
+
 }
 
 customElements.define("opencb-facet-results", OpencbFacetResults);

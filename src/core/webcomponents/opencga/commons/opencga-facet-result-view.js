@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../utils.js";
 import PolymerUtils from "../../PolymerUtils.js";
 
-//TODO fixbug querying opencga-client PhastCons - 1kG_phase3_EAS
+// TODO fixbug querying opencga-client PhastCons - 1kG_phase3_EAS
 
 export default class OpencgaFacetResultView extends LitElement {
 
@@ -71,7 +71,7 @@ export default class OpencgaFacetResultView extends LitElement {
         }
     }
 
-    /*connectedCallback() {
+    /* connectedCallback() {
         super.connectedCallback();
 
         this.renderFacets();
@@ -118,10 +118,10 @@ export default class OpencgaFacetResultView extends LitElement {
         // PolymerUtils.removeStyleByClass("plots", "active");
         // PolymerUtils.removeClass(this._prefix + "HistogramChartButton", "active");
         PolymerUtils.removeClass(".plots", "active");
-        //this.querySelector(this._prefix + "HistogramChartButton").classList.add("active");
+        // this.querySelector(this._prefix + "HistogramChartButton").classList.add("active");
 
 
-        let params = this._getHistogramData();
+        const params = this._getHistogramData();
 
         $(this.plotDiv).highcharts({
             credits: {enabled: false},
@@ -218,7 +218,7 @@ export default class OpencgaFacetResultView extends LitElement {
     _getHistogramData() {
         let params;
         if (this.facetResult.start === undefined) {
-            let field = this.facetResult;
+            const field = this.facetResult;
             // let fields = field.name.split("-");
             // let title = [];
             // if (fields.length > 1) {
@@ -228,21 +228,21 @@ export default class OpencgaFacetResultView extends LitElement {
             // } else {
             //     title.push(this.fieldNamesMap[field.name]);
             // }
-            let obj = {
+            const obj = {
                 title: field.name,
                 name: field.name,
                 categories: [],
                 series: []
             };
-            let series = {};
-            let data = [];
+            const series = {};
+            const data = [];
             for (let i = 0; i < field.buckets.length; i++) {
-                let bucket = field.buckets[i];
+                const bucket = field.buckets[i];
                 obj.categories.push(bucket.value);
-                if (UtilsNew.isNotEmptyArray(bucket.fields)) {
-                    let nestedField = bucket.fields[0];
+                if (UtilsNew.isNotEmptyArray(bucket.facetFields)) {
+                    const nestedField = bucket.facetFields[0];
                     obj.nestedField = nestedField.name;
-                    for (let nestedCountObj of nestedField.buckets) {
+                    for (const nestedCountObj of nestedField.buckets) {
                         if (UtilsNew.isUndefined(series[nestedCountObj.value])) {
                             series[nestedCountObj.value] = [];
                         }
@@ -255,9 +255,9 @@ export default class OpencgaFacetResultView extends LitElement {
             }
 
             if (Object.keys(series).length > 0) {
-                for (let key in series) {
-                    let data = [];
-                    for (let countIndex of series[key]) {
+                for (const key in series) {
+                    const data = [];
+                    for (const countIndex of series[key]) {
                         data[countIndex.index] = countIndex.count;
                     }
                     for (let i = 0; i < data.length; i++) {
@@ -272,16 +272,16 @@ export default class OpencgaFacetResultView extends LitElement {
             }
             params = obj;
         } else if (this.facetResult.start !== undefined) {
-            let range = this.facetResult;
-            let obj = {
+            const range = this.facetResult;
+            const obj = {
                 name: range.name,
                 title: this.fieldNamesMap[range.name] || range.name,
                 categories: [],
                 series: []
             };
-            let data = [];
+            const data = [];
             let start = Number(range.start);
-            for (let rangeCount of range.counts) {
+            for (const rangeCount of range.counts) {
                 if (Math.round(start) !== start) {
                     start = Number(start.toFixed(1));
                 }
@@ -300,15 +300,15 @@ export default class OpencgaFacetResultView extends LitElement {
     }
 
     _getPieData() {
-        let field = this.facetResult;
-        let pieData = {
+        const field = this.facetResult;
+        const pieData = {
             name: field.name,
             // title: this.fieldNamesMap[field.name],
             title: field.name,
             series: []
         };
-        let data = [];
-        for (let bucket of field.buckets) {
+        const data = [];
+        for (const bucket of field.buckets) {
             data.push({name: bucket.value, y: bucket.count});
         }
         pieData.series.push({
@@ -321,9 +321,9 @@ export default class OpencgaFacetResultView extends LitElement {
     }
 
     _getDonutData() {
-        let field = this.facetResult;
-        let fields = field.name.split("-");
-        let title = [];
+        const field = this.facetResult;
+        const fields = field.name.split("-");
+        const title = [];
         // if (fields.length > 1) {
         //     for (let name of fields) {
         //         title.push(this.fieldNamesMap[name]);
@@ -331,24 +331,24 @@ export default class OpencgaFacetResultView extends LitElement {
         // } else {
         //     title.push(this.fieldNamesMap[field.name]);
         // }
-        let donutData = {
+        const donutData = {
             name: field.name,
             title: title.join(" - "),
             series: []
         };
 
-        let colors = Highcharts.getOptions().colors;
-        let categories = [];
-        let data = [];
+        const colors = Highcharts.getOptions().colors;
+        const categories = [];
+        const data = [];
         for (let i = 0; i < field.buckets.length; i++) {
-            let bucket = field.buckets[i];
+            const bucket = field.buckets[i];
 
             categories.push(bucket.value);
-            let subField = bucket.fields;
-            let subCategories = [];
-            let subData = [];
+            const subField = bucket.fields;
+            const subCategories = [];
+            const subData = [];
             if (UtilsNew.isNotUndefinedOrNull(subField[0])) {
-                for (let bucket of subField[0].buckets) {
+                for (const bucket of subField[0].buckets) {
                     subCategories.push(bucket.value);
                     subData.push(bucket.count);
                 }
@@ -364,8 +364,8 @@ export default class OpencgaFacetResultView extends LitElement {
                 }
             });
         }
-        let levelOneData = [];
-        let levelTwoData = [];
+        const levelOneData = [];
+        const levelTwoData = [];
 
         // Build the data arrays
         for (let i = 0; i < data.length; i++) {
@@ -377,9 +377,9 @@ export default class OpencgaFacetResultView extends LitElement {
             });
 
             // add level two data
-            let drillDataLen = data[i].drilldown.data.length;
+            const drillDataLen = data[i].drilldown.data.length;
             for (let j = 0; j < drillDataLen; j++) {
-                let brightness = 0.2 - (j / drillDataLen) / 5;
+                const brightness = 0.2 - (j / drillDataLen) / 5;
                 levelTwoData.push({
                     name: data[i].drilldown.categories[j],
                     y: data[i].drilldown.data[j],
@@ -388,7 +388,7 @@ export default class OpencgaFacetResultView extends LitElement {
             }
         }
 
-        let [levelOneField, levelTwoField] = field.name.split("-");
+        const [levelOneField, levelTwoField] = field.name.split("-");
         donutData.series.push({
             name: levelOneField,
             data: levelOneData,
@@ -439,7 +439,6 @@ export default class OpencgaFacetResultView extends LitElement {
         return html`
         <style include="jso-styles"></style>
         <div style="padding: 5px 10px">
-            <!--<h3>{{facetResult.name}}</h3>-->
             <div class="btn-group" style="float: right">
                 <span id="${this._prefix}HistogramChartButton" class="btn btn-primary plots active" @click="${this.renderHistogramChart}">
                     <i class="fas fa-chart-bar" style="padding-right: 5px" title="Bar Chart" data-id="${this.facetResult.name}"></i>
@@ -447,9 +446,6 @@ export default class OpencgaFacetResultView extends LitElement {
                 <span id="${this._prefix}PieChartButton" class="btn btn-primary plots" @click="${this.onPieChart}">
                     <i class="fas fa-chart-pie" style="padding-right: 5px" title="Pie Chart" data-id="${this.facetResult.name}"></i>
                 </span>
-                <!--<span id="${this._prefix}TableButton" class="btn btn-primary plots" @click="${this.onTabularView}">-->
-                    <!--<i class="fa fa-table" style="padding-right: 5px" title="Tabular View" data-id="${this.facetResult.name}"></i>-->
-                <!--</span>-->
             </div>
             <div id="${this._prefix}Plot"></div>
 
@@ -509,6 +505,7 @@ export default class OpencgaFacetResultView extends LitElement {
         </div>
         `;
     }
+
 }
 
 customElements.define("opencga-facet-result-view", OpencgaFacetResultView);
