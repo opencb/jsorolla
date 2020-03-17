@@ -17,7 +17,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../../utils.js";
-import "../../commons/opencga-facet.js";
+import "../../commons/opencga-browser.js";
 
 export default class OpencgaFileBrowser extends LitElement {
 
@@ -350,11 +350,11 @@ export default class OpencgaFileBrowser extends LitElement {
 
     render() {
         return this._config ? html`
-            <opencga-facet  resource="files"
+            <opencga-browser  resource="files"
                             .opencgaSession="${this.opencgaSession}"
                             .query="${this.query}"
                             .config="${this._config}">
-            </opencga-facet>` : null;
+            </opencga-browser>` : null;
     }
 
 }

@@ -18,13 +18,13 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../utils.js";
 import UtilsNew from "./../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
+import "./opencga-variant-grid.js";
 import "./opencga-variant-filter.js";
 import "../opencga/commons/opencga-facet-result-view.js";
 import "../opencga/opencga-active-filters.js";
 import "../commons/filters/select-field-filter.js";
 import "../../loading-spinner.js";
 
-import OpencgaFacet from "../opencga/commons/opencga-facet.js";
 
 export default class OpencgaVariantBrowser extends LitElement {
 

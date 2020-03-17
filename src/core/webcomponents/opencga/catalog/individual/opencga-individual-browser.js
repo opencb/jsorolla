@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../../utils.js";
-import "../../commons/opencga-facet.js";
+import "../../commons/opencga-browser.js";
 
 
 export default class OpencgaIndividualBrowser extends LitElement {
@@ -353,7 +353,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
 
     render() {
         return this._config ? html`
-            <opencga-facet  resource="individuals"
+            <opencga-browser  resource="individuals"
                             .opencgaSession="${this.opencgaSession}"
                             .opencgaClient="${this.opencgaSession.opencgaClient}"
                             .query="${this.browserSearchQuery}"
@@ -362,7 +362,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
                             .populationFrequencies="${this.populationFrequencies}"
                             .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                             .consequenceTypes="${this.consequenceTypes}">
-            </opencga-facet>` : null;
+            </opencga-browser>` : null;
     }
 
 }

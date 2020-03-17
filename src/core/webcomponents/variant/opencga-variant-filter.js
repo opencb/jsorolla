@@ -165,22 +165,6 @@ export default class OpencgaVariantFilter extends LitElement {
         // TODO do not move in connectedCallback (it handle the switch between default studies)
         if (this.opencgaSession.study) {
             // Update the study list of studies and the selected one
-            if (this.opencgaSession.project.studies) {
-
-                this.differentStudies = this.opencgaSession.project.studies.filter( study => this.opencgaSession.study.alias !== study.alias);
-
-                // Insert study checkboxes HTML, this only happens if the Study subsection has been added
-
-                /* NOTE listener moved in _getStudyHtml()
-
-                PolymerUtils.innerHTML(this._prefix + "study", this._getStudyHtml(this._prefix));
-                for (let study of this.differentStudies) {
-                    let element = PolymerUtils.getElementById(this._prefix + study.alias + "Checkbox");
-                    if (UtilsNew.isNotUndefinedOrNull(element)) {
-                        element.addEventListener('change', this.updateQueryFilters.bind(this));
-                    }
-                }*/
-            }
 
             // TODO should it be moved in cohort-filter?
             // Update cohorts from config, this updates the Cohort filter ALT
@@ -445,9 +429,9 @@ export default class OpencgaVariantFilter extends LitElement {
         let content = "";
         switch (subsection.id) {
             case "study":
-                if (this.opencgaSession.project.studies.length < 2) {
+                /*if (this.opencgaSession.project.studies.length < 2) {
                     return "";
-                }
+                }*/
                 content = html`<study-filter .opencgaSession="${this.opencgaSession}" .differentStudies="${this.differentStudies}" .studies="${this.preparedQuery.studies}" @filterChange="${e => this.onFilterChange("studies", e.detail.value)}">BLABLA</study-filter>`;
                 break;
             case "cohort":

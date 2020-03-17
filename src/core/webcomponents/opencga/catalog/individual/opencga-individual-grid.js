@@ -130,7 +130,7 @@ export default class OpencgaIndividualGrid extends LitElement {
             opencgaHostUrl += "/webservices/rest/v1/individuals/search";
             */
 
-            let skipCount = false;
+            let count = false;
 
             const _table = $("#" + this._prefix + "IndividualBrowserGrid");
 
@@ -178,14 +178,14 @@ export default class OpencgaIndividualGrid extends LitElement {
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
                     if (this.pageNumber > 1) {
-                        skipCount = true;
+                        count = false;
                     }
                     const _filters = {
                         // study: this.opencgaSession.study.fqn,
                         order: params.data.order,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
-                        skipCount: skipCount,
+                        count: count,
                         ...filters
                     };
                     this.opencgaSession.opencgaClient.individuals().search(_filters)
@@ -193,27 +193,30 @@ export default class OpencgaIndividualGrid extends LitElement {
                         .catch( e => console.error(e));
                 },
                 responseHandler: function(response) {
-                    if (!skipCount) {
-                        if (!_this.hasOwnProperty("numTotalResults")) {
-                            _this.numTotalResults = 0;
-                        }
-                        if (_this.numTotalResults !== response.getResponse().numTotalResults &&
-                            response.queryOptions.skip === 0) {
-                            _this.numTotalResults = response.getResponse().numTotalResults;
-                        }
+
+                    console.log("response", response);
+                    let _numMatches = _this._numMatches || 0;
+                    if (response.getResponse().numMatches >= 0) {
+                        _numMatches = response.getResponse().numMatches;
+                        _this._numMatches = _numMatches;
                     }
-
-                    _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-                    if (response.getParams().skip === 0 && _this.numTotalResults < response.getParams().limit) {
+                    // If no variant is returned then we start in 0
+                    if (response.getResponse(0).numMatches === 0) {
+                        _this.from = _numMatches;
+                    }
+                    // If do not fetch as many variants as requested then to is numMatches
+                    if (response.getResponse(0).numResults < this.pageSize) {
+                        _this.to = _numMatches;
+                    }
+                    _this.numTotalResultsText = _numMatches.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    if (response.getParams().skip === 0 && _numMatches < response.getParams().limit) {
                         _this.from = 1;
-                        _this.to = _this.numTotalResults;
+                        _this.to = _numMatches;
                     }
-
+                    _this.approximateCountResult = response.getResponse().attributes.approximateCount;
                     _this.requestUpdate(); // it is necessary to refresh numTotalResultsText in opencga-grid-toolbar
-
                     return {
-                        total: _this.numTotalResults,
+                        total: _numMatches,
                         rows: response.getResults()
                     };
                 },
@@ -714,7 +717,7 @@ export default class OpencgaIndividualGrid extends LitElement {
             limit: 1000,
             skip: 0,
             includeIndividual: true,
-            skipCount: true
+            count: false
 
         };
 

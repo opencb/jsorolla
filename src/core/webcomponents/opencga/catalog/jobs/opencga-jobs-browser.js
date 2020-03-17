@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../../utils.js";
-import "../../commons/opencga-facet.js";
+import "../../commons/opencga-browser.js";
 
 // TODO this component will be the new opencga-file-browser and this configuration will be for browser and facet both
 
@@ -207,7 +207,17 @@ export default class OpencgaJobsBrowser extends LitElement {
                 result: {
                     grid: {}
                 },
-                detail: []
+                detail: [
+                    {
+                        id: "job_detail",
+                        title: "Job detail",
+                        active: true
+                    },
+                    {
+                        id: "log",
+                        title: "Log"
+                    }
+                ],
             },
             aggregation: {
                 default: ["type", "study>>bioformat"],
@@ -345,11 +355,11 @@ export default class OpencgaJobsBrowser extends LitElement {
 
     render() {
         return this._config ? html`
-            <opencga-facet  resource="jobs"
+            <opencga-browser  resource="jobs"
                             .opencgaSession="${this.opencgaSession}"
                             .query="${this.query}"
                             .config="${this._config}">
-            </opencga-facet>` : null;
+            </opencga-browser>` : null;
     }
 
 }

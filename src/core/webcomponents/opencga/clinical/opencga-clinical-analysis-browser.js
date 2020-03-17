@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../utils.js";
-import "../commons/opencga-facet.js";
+import "../commons/opencga-browser.js";
 
 
 export default class OpencgaClinicalAnalysisBrowser extends LitElement {
@@ -606,13 +606,13 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
 
     render() {
         return this._config ? html`
-            <opencga-facet  resource="clinical-analysis"
+            <opencga-browser  resource="clinical-analysis"
                             .opencgaSession="${this.opencgaSession}"
                             .opencgaClient="${this.opencgaSession.opencgaClient}"
                             .query="${this.query}"
                             .config="${this._config}"
                             .cellbaseClient="${this.cellbaseClient}">
-            </opencga-facet>` : null;
+            </opencga-browser>` : null;
     }
 
 }
