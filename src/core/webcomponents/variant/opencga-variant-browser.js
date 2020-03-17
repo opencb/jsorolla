@@ -759,303 +759,9 @@ export default class OpencgaVariantBrowser extends LitElement {
         this.dispatchEvent(new CustomEvent("propagate", {gene: e.detail.gene}));
     }
 
-    getDefaultConfig() {
-        return {
-            title: "Variant Browser",
-            active: false,
-            populationFrequencies: true,
-            filter: {
-
-                // from OLD variant-browser
-                activeFilters: {
-                    alias: {
-                        // Example:
-                        // "region": "Region",
-                        // "gene": "Gene",
-                        // "genotype": "Sample Genotypes",
-                    },
-                    complexFields: ["genotype"],
-                    hiddenFields: ["study"]
-                },
-                genomeBrowser: {
-                    showTitle: false
-                },
-
-
-                // from tools.js
-                title: "Variant Browser",
-                active: false,
-                showSummary: true,
-                showGenomeBrowser: false,
-                sections: [
-                    // sections and subsections, structure and order is respected
-                    {
-                        title: "Study and Cohorts",
-                        collapsed: false,
-                        subsections: [
-                            {
-                                id: "study",
-                                title: "Studies Filter",
-                                tooltip: "Only considers variants from the selected studies"
-                            }
-                            // cohortFileMenu // TODO expose common data
-                        ]
-                    },
-                    {
-                        title: "Genomic",
-                        collapsed: true,
-                        subsections: [
-                            {
-                                id: "location",
-                                title: "Chromosomal Location",
-                                tooltip: "Filter out variants falling outside the genomic interval(s) defined"
-                            },
-                            {
-                                id: "feature",
-                                title: "Feature IDs (gene, SNPs, ...)",
-                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                            },
-                            {
-                                id: "diseasePanels",
-                                title: "Disease Panels",
-                                tooltip: "Filter out variants falling outside the genomic intervals (typically genes) defined by the panel(s) chosen"
-                            },
-                            {
-                                id: "biotype",
-                                title: "Gene Biotype",
-                                biotypes: [
-                                    "3prime_overlapping_ncrna", "IG_C_gene", "IG_C_pseudogene", "IG_D_gene", "IG_J_gene", "IG_J_pseudogene",
-                                    "IG_V_gene", "IG_V_pseudogene", "Mt_rRNA", "Mt_tRNA", "TR_C_gene", "TR_D_gene", "TR_J_gene", "TR_J_pseudogene",
-                                    "TR_V_gene", "TR_V_pseudogene", "antisense", "lincRNA", "miRNA", "misc_RNA", "non_stop_decay",
-                                    "nonsense_mediated_decay", "polymorphic_pseudogene", "processed_pseudogene", "processed_transcript",
-                                    "protein_coding", "pseudogene", "rRNA", "retained_intron", "sense_intronic", "sense_overlapping", "snRNA",
-                                    "snoRNA", "transcribed_processed_pseudogene", "transcribed_unprocessed_pseudogene",
-                                    "translated_processed_pseudogene", "unitary_pseudogene", "unprocessed_pseudogene"
-                                ],
-                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                            },
-                            {
-                                id: "type",
-                                title: "Variant Type",
-                                types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION", "MNV"],
-                                tooltip: "Only considers variants of the selected type"
-                            }
-                        ]
-                    },
-                    {
-                        title: "Population Frequency",
-                        collapsed: true,
-                        subsections: [
-                            {
-                                id: "populationFrequency",
-                                title: "Select Population Frequency",
-                                // tooltip: populationFrequencies.tooltip, // TODO expose common data
-                                showSetAll: true
-                            }
-                        ]
-                    },
-                    {
-                        title: "Consequence Type",
-                        collapsed: true,
-                        subsections: [
-                            {
-                                id: "consequenceType",
-                                title: "Select SO terms",
-                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                            }
-                        ]
-                    },
-                    {
-                        title: "Deleteriousness",
-                        collapsed: true,
-                        subsections: [
-                            {
-                                id: "proteinSubstitutionScore",
-                                title: "Protein Substitution Score",
-                                tooltip: "<strong>SIFT score:</strong> Choose either a Tolerated/Deleterious qualitative score or provide below a " +
-                                        "quantitative impact value. SIFT scores <0.05 are considered deleterious. " +
-                                        "<strong>Polyphen:</strong> Choose, either a Benign/probably damaging qualitative score or provide below a " +
-                                        "quantitative impact value. Polyphen scores can be Benign (<0.15), Possibly damaging (0.15-0.85) or Damaging (>0.85)"
-                            },
-                            {
-                                id: "cadd",
-                                title: "CADD",
-                                tooltip: "Raw values have relative meaning, with higher values indicating that a variant is more likely to be " +
-                                        "simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants " +
-                                        "within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended"
-                            }
-                        ]
-                    },
-                    {
-                        title: "Conservation",
-                        collapsed: true,
-                        subsections: [
-                            {
-                                id: "conservation",
-                                title: "Conservation Score",
-                                tooltip: "<strong>PhyloP</strong> scores measure evolutionary conservation at individual alignment sites. The scores " +
-                                        "are interpreted as follows compared to the evolution expected under neutral drift: positive scores (max 3.0) mean " +
-                                        "conserved positions and negative scores (min -14.0) indicate positive selection. PhyloP scores are useful to " +
-                                        "evaluate signatures of selection at particular nucleotides or classes of nucleotides (e.g., third codon positions, " +
-                                        "or first positions of miRNA target sites).<br>" +
-                                        "<strong>PhastCons</strong> estimates the probability that each nucleotide belongs to a conserved element, based on " +
-                                        "the multiple alignment. The phastCons scores represent probabilities of negative selection and range between 0 " +
-                                        "(non-conserved) and 1 (highly conserved).<br>" +
-                                        "<strong>Genomic Evolutionary Rate Profiling (GERP)</strong> score estimate the level of conservation of positions." +
-                                        " Scores ≥ 2 indicate evolutionary constraint to and ≥ 3 indicate purifying selection."
-                            }
-                        ]
-                    },
-                    {
-                        title: "Gene Ontology",
-                        collapsed: true,
-                        subsections: [
-                            {
-                                id: "go",
-                                title: "GO Accessions (max. 100 terms)",
-                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                            }
-                        ]
-                    },
-                    {
-                        title: "Phenotype-Disease",
-                        collapsed: true,
-                        subsections: [
-                            {
-                                id: "hpo",
-                                title: "HPO Accessions",
-                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                            },
-                            {
-                                id: "clinvar",
-                                title: "ClinVar Accessions",
-                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                            },
-                            {
-                                id: "fullTextSearch",
-                                title: "Full-text search on HPO, ClinVar, protein domains or keywords. Some OMIM and Orphanet IDs are also supported",
-                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                            }
-                        ]
-                    }
-
-                ],
-                examples: [
-                    {
-                        name: "Example BRCA2",
-                        active: false,
-                        query: {
-                            gene: "BRCA2",
-                            conservation: "phylop<0.001"
-                        }
-                    },
-                    {
-                        name: "Example OR11",
-                        query: {
-                            gene: "OR11H1",
-                            conservation: "phylop<=0.001"
-                        }
-                    },
-                    {
-                        name: "Full Example",
-                        query: {
-                            "studies": "exomes_grch37:corpasome;opencga@exomes_grch37:ceph_trio",
-                            "region": "3:444-555",
-                            "xref": "BRCA1,DDEF",
-                            "panel": "Albinism_or_congenital_nystagmus-PanelAppId-511,Amyloidosis-PanelAppId-502",
-                            "biotype": "IG_C_gene,IG_C_pseudogene",
-                            "type": "INDEL",
-                            "ct": "frameshift_variant,incomplete_terminal_codon_variant,inframe_deletion,inframe_insertion,3_prime_UTR_variant,5_prime_UTR_variant,intron_variant,non_coding_transcript_exon_variant,non_coding_transcript_variant",
-                            "populationFrequencyAlt": "1kG_phase3:ALL<1;1kG_phase3:AFR<1;1kG_phase3:AMR<1;1kG_phase3:EAS<1;1kG_phase3:EUR<1;1kG_phase3:SAS<1;GNOMAD_GENOMES:ALL<1;GNOMAD_GENOMES:AFR<1;GNOMAD_GENOMES:AMR<1;GNOMAD_GENOMES:EAS<1;GNOMAD_GENOMES:FIN<1;GNOMAD_GENOMES:NFE<1;GNOMAD_GENOMES:SAS<1",
-                            "protein_substitution": "sift>5,polyphen>4",
-                            "annot-functional-score": "cadd_raw>2,cadd_scaled<4",
-                            "conservation": "phylop>1;phastCons>2;gerp<=3"
-                        }
-                    }
-                ],
-                result: {
-                    grid: {}
-                },
-                detail: []
-            },
-            aggregation: {
-                default: [],
-                sections: [
-                    {
-                        name: "terms",
-                        fields: [
-                            {
-                                name: "Chromosome", id: "chromosome", type: "string"
-                            },
-                            {
-                                name: "Studies", id: "studies", type: "string"
-                            },
-                            {
-                                name: "Variant Type", id: "type", type: "string"
-                            },
-                            {
-                                name: "Genes", id: "genes", type: "string"
-                            },
-                            {
-                                name: "Biotypes", id: "biotypes", type: "string"
-                            },
-                            {
-                                name: "Consequence Type", id: "soAcc", type: "string"
-                            }
-                        ]
-                    },
-                    {
-                        name: "Conservation & Deleteriousness Ranges",
-                        fields: [
-                            {
-                                name: "PhastCons", id: "phastCons", defaultValue: "[0..1]:0.1", type: "string"
-                            },
-                            {
-                                name: "PhyloP", id: "phylop", defaultValue: "", type: "string"
-                            },
-                            {
-                                name: "Gerp", id: "gerp", defaultValue: "[-12.3..6.17]:2", type: "string"
-                            },
-                            {
-                                name: "CADD Raw", id: "caddRaw", defaultValue: "", type: "string"
-                            },
-                            {
-                                name: "CADD Scaled", id: "caddScaled", defaultValue: "", type: "string"
-                            },
-                            {
-                                name: "Sift", id: "sift", defaultValue: "[0..1]:0.1", type: "string"
-                            },
-                            {
-                                name: "Polyphen", id: "polyphen", defaultValue: "[0..1]:0.1", type: "string"
-                            }
-                        ]
-                    },
-                    {
-                        name: "Population frequency Ranges",
-                        fields: [
-                            ...this.populationFrequencies.studies.map(study =>
-                                study.populations.map(population => (
-                                    {
-                                        id: `popFreq__${study.id}__${population.id}`,
-                                        value: `popFreq__${study.id}__${population.id}`,
-                                        name: `pop Freq | ${study.id} | ${population.id}`,
-                                        type: "string"
-                                    }
-                                )
-                                )
-                            ).flat()
-                        ]
-                    }
-                ]
-            }
-
-        };
-    }
-
     render() {
         return html`
-        <style include="jso-styles">
-        </style>
+<!--        <style include="jso-styles"></style>-->
 
         ${this.checkProjects ? html`
             <div class="page-title">
@@ -1152,9 +858,10 @@ export default class OpencgaVariantBrowser extends LitElement {
                                 <button type="button" class="btn btn-success ripple content-pills" data-view="facet-results" @click="${this._changeView}" data-id="aggregation">
                                     <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i> Aggregation stats
                                 </button>
-                                <button type="button" class="btn btn-success ripple content-pills" data-view="comparator" @click="${this._changeView}" data-id="comparator">
+                                <!-- <button type="button" class="btn btn-success ripple content-pills" data-view="comparator" @click="${this._changeView}" data-id="comparator">
                                     <i class="fa fa-users icon-padding" aria-hidden="true"></i> Comparator
                                 </button>
+                                -->
                             </div>
                         </div>
                     </div>
@@ -1191,13 +898,11 @@ export default class OpencgaVariantBrowser extends LitElement {
                                                   @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
                             </opencga-variant-grid>
             
-            
                             <!-- Bottom tabs with specific variant information -->
                             <opencga-variant-detail-view    .opencgaSession="${this.opencgaSession}" 
                                                             .cellbaseClient="${this.cellbaseClient}"
                                                             .variantId="${this.variantId}">
                             </opencga-variant-detail-view>
-                            
                         </div>
                         
                         <div id="facet-results" class="content-tab">
@@ -1239,6 +944,296 @@ export default class OpencgaVariantBrowser extends LitElement {
     `;
     }
 
+    getDefaultConfig() {
+        return {
+            title: "Variant Browser",
+            active: false,
+            populationFrequencies: true,
+            filter: {
+
+                // from OLD variant-browser
+                activeFilters: {
+                    alias: {
+                        // Example:
+                        // "region": "Region",
+                        // "gene": "Gene",
+                        // "genotype": "Sample Genotypes",
+                    },
+                    complexFields: ["genotype"],
+                    hiddenFields: ["study"]
+                },
+                genomeBrowser: {
+                    showTitle: false
+                },
+
+
+                // from tools.js
+                title: "Variant Browser",
+                active: false,
+                showSummary: true,
+                showGenomeBrowser: false,
+                sections: [
+                    // sections and subsections, structure and order is respected
+                    {
+                        title: "Study and Cohorts",
+                        collapsed: false,
+                        subsections: [
+                            {
+                                id: "study",
+                                title: "Studies Filter",
+                                tooltip: "Only considers variants from the selected studies"
+                            }
+                            // cohortFileMenu // TODO expose common data
+                        ]
+                    },
+                    {
+                        title: "Genomic",
+                        collapsed: true,
+                        subsections: [
+                            {
+                                id: "location",
+                                title: "Chromosomal Location",
+                                tooltip: "Filter out variants falling outside the genomic interval(s) defined"
+                            },
+                            {
+                                id: "feature",
+                                title: "Feature IDs (gene, SNPs, ...)",
+                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                            },
+                            {
+                                id: "biotype",
+                                title: "Gene Biotype",
+                                biotypes: [
+                                    "3prime_overlapping_ncrna", "IG_C_gene", "IG_C_pseudogene", "IG_D_gene", "IG_J_gene", "IG_J_pseudogene",
+                                    "IG_V_gene", "IG_V_pseudogene", "Mt_rRNA", "Mt_tRNA", "TR_C_gene", "TR_D_gene", "TR_J_gene", "TR_J_pseudogene",
+                                    "TR_V_gene", "TR_V_pseudogene", "antisense", "lincRNA", "miRNA", "misc_RNA", "non_stop_decay",
+                                    "nonsense_mediated_decay", "polymorphic_pseudogene", "processed_pseudogene", "processed_transcript",
+                                    "protein_coding", "pseudogene", "rRNA", "retained_intron", "sense_intronic", "sense_overlapping", "snRNA",
+                                    "snoRNA", "transcribed_processed_pseudogene", "transcribed_unprocessed_pseudogene",
+                                    "translated_processed_pseudogene", "unitary_pseudogene", "unprocessed_pseudogene"
+                                ],
+                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                            },
+                            {
+                                id: "consequenceTypeSelect",
+                                title: "Select SO terms",
+                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                            },
+                            {
+                                id: "type",
+                                title: "Variant Type",
+                                types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION", "MNV"],
+                                tooltip: "Only considers variants of the selected type"
+                            }
+                        ]
+                    },
+                    {
+                        title: "Population Frequency",
+                        collapsed: true,
+                        subsections: [
+                            {
+                                id: "populationFrequency",
+                                title: "Select Population Frequency",
+                                // tooltip: populationFrequencies.tooltip, // TODO expose common data
+                                showSetAll: true
+                            }
+                        ]
+                    },
+                    {
+                        title: "Phenotype-Disease",
+                        collapsed: true,
+                        subsections: [
+                            {
+                                id: "diseasePanels",
+                                title: "Disease Panels",
+                                tooltip: "Filter out variants falling outside the genomic intervals (typically genes) defined by the panel(s) chosen"
+                            },
+                            {
+                                id: "go",
+                                title: "GO Accessions (max. 100 terms)",
+                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                            },
+                            {
+                                id: "hpo",
+                                title: "HPO Accessions",
+                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                            },
+                            {
+                                id: "clinvar",
+                                title: "ClinVar Accessions",
+                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                            },
+                            {
+                                id: "fullTextSearch",
+                                title: "Full-text search on HPO, ClinVar, protein domains or keywords. Some OMIM and Orphanet IDs are also supported",
+                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                            }
+                        ]
+                    },
+                    {
+                        title: "Consequence Type",
+                        collapsed: true,
+                        subsections: [
+                            {
+                                id: "consequenceType",
+                                title: "Select SO terms",
+                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                            }
+                        ]
+                    },
+                    {
+                        title: "Deleteriousness",
+                        collapsed: true,
+                        subsections: [
+                            {
+                                id: "proteinSubstitutionScore",
+                                title: "Protein Substitution Score",
+                                tooltip: "<strong>SIFT score:</strong> Choose either a Tolerated/Deleterious qualitative score or provide below a " +
+                                    "quantitative impact value. SIFT scores <0.05 are considered deleterious. " +
+                                    "<strong>Polyphen:</strong> Choose, either a Benign/probably damaging qualitative score or provide below a " +
+                                    "quantitative impact value. Polyphen scores can be Benign (<0.15), Possibly damaging (0.15-0.85) or Damaging (>0.85)"
+                            },
+                            {
+                                id: "cadd",
+                                title: "CADD",
+                                tooltip: "Raw values have relative meaning, with higher values indicating that a variant is more likely to be " +
+                                    "simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants " +
+                                    "within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended"
+                            }
+                        ]
+                    },
+                    {
+                        title: "Conservation",
+                        collapsed: true,
+                        subsections: [
+                            {
+                                id: "conservation",
+                                title: "Conservation Score",
+                                tooltip: "<strong>PhyloP</strong> scores measure evolutionary conservation at individual alignment sites. The scores " +
+                                    "are interpreted as follows compared to the evolution expected under neutral drift: positive scores (max 3.0) mean " +
+                                    "conserved positions and negative scores (min -14.0) indicate positive selection. PhyloP scores are useful to " +
+                                    "evaluate signatures of selection at particular nucleotides or classes of nucleotides (e.g., third codon positions, " +
+                                    "or first positions of miRNA target sites).<br>" +
+                                    "<strong>PhastCons</strong> estimates the probability that each nucleotide belongs to a conserved element, based on " +
+                                    "the multiple alignment. The phastCons scores represent probabilities of negative selection and range between 0 " +
+                                    "(non-conserved) and 1 (highly conserved).<br>" +
+                                    "<strong>Genomic Evolutionary Rate Profiling (GERP)</strong> score estimate the level of conservation of positions." +
+                                    " Scores ≥ 2 indicate evolutionary constraint to and ≥ 3 indicate purifying selection."
+                            }
+                        ]
+                    }
+                ],
+                examples: [
+                    {
+                        name: "Example BRCA2",
+                        active: false,
+                        query: {
+                            gene: "BRCA2",
+                            conservation: "phylop<0.001"
+                        }
+                    },
+                    {
+                        name: "Example OR11",
+                        query: {
+                            gene: "OR11H1",
+                            conservation: "phylop<=0.001"
+                        }
+                    },
+                    {
+                        name: "Full Example",
+                        query: {
+                            "studies": "exomes_grch37:corpasome;opencga@exomes_grch37:ceph_trio",
+                            "region": "3:444-555",
+                            "xref": "BRCA1,DDEF",
+                            "panel": "Albinism_or_congenital_nystagmus-PanelAppId-511,Amyloidosis-PanelAppId-502",
+                            "biotype": "IG_C_gene,IG_C_pseudogene",
+                            "type": "INDEL",
+                            "ct": "frameshift_variant,incomplete_terminal_codon_variant,inframe_deletion,inframe_insertion,3_prime_UTR_variant,5_prime_UTR_variant,intron_variant,non_coding_transcript_exon_variant,non_coding_transcript_variant",
+                            "populationFrequencyAlt": "1kG_phase3:ALL<1;1kG_phase3:AFR<1;1kG_phase3:AMR<1;1kG_phase3:EAS<1;1kG_phase3:EUR<1;1kG_phase3:SAS<1;GNOMAD_GENOMES:ALL<1;GNOMAD_GENOMES:AFR<1;GNOMAD_GENOMES:AMR<1;GNOMAD_GENOMES:EAS<1;GNOMAD_GENOMES:FIN<1;GNOMAD_GENOMES:NFE<1;GNOMAD_GENOMES:SAS<1",
+                            "protein_substitution": "sift>5,polyphen>4",
+                            "annot-functional-score": "cadd_raw>2,cadd_scaled<4",
+                            "conservation": "phylop>1;phastCons>2;gerp<=3"
+                        }
+                    }
+                ],
+                result: {
+                    grid: {}
+                },
+                detail: []
+            },
+            aggregation: {
+                default: [],
+                sections: [
+                    {
+                        name: "terms",
+                        fields: [
+                            {
+                                name: "Chromosome", id: "chromosome", type: "string"
+                            },
+                            {
+                                name: "Studies", id: "studies", type: "string"
+                            },
+                            {
+                                name: "Variant Type", id: "type", type: "string"
+                            },
+                            {
+                                name: "Genes", id: "genes", type: "string"
+                            },
+                            {
+                                name: "Biotypes", id: "biotypes", type: "string"
+                            },
+                            {
+                                name: "Consequence Type", id: "soAcc", type: "string"
+                            }
+                        ]
+                    },
+                    {
+                        name: "Conservation & Deleteriousness Ranges",
+                        fields: [
+                            {
+                                name: "PhastCons", id: "phastCons", defaultValue: "[0..1]:0.1", type: "string"
+                            },
+                            {
+                                name: "PhyloP", id: "phylop", defaultValue: "", type: "string"
+                            },
+                            {
+                                name: "Gerp", id: "gerp", defaultValue: "[-12.3..6.17]:2", type: "string"
+                            },
+                            {
+                                name: "CADD Raw", id: "caddRaw", defaultValue: "", type: "string"
+                            },
+                            {
+                                name: "CADD Scaled", id: "caddScaled", defaultValue: "", type: "string"
+                            },
+                            {
+                                name: "Sift", id: "sift", defaultValue: "[0..1]:0.1", type: "string"
+                            },
+                            {
+                                name: "Polyphen", id: "polyphen", defaultValue: "[0..1]:0.1", type: "string"
+                            }
+                        ]
+                    },
+                    {
+                        name: "Population frequency Ranges",
+                        fields: [
+                            ...this.populationFrequencies.studies.map(study =>
+                                study.populations.map(population => (
+                                        {
+                                            id: `popFreq__${study.id}__${population.id}`,
+                                            value: `popFreq__${study.id}__${population.id}`,
+                                            name: `pop Freq | ${study.id} | ${population.id}`,
+                                            type: "string"
+                                        }
+                                    )
+                                )
+                            ).flat()
+                        ]
+                    }
+                ]
+            }
+
+        };
+    }
 }
 
 

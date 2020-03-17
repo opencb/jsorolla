@@ -47,14 +47,15 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
         // this.data = [];
     }
 
-    update(changedProperties) {
+    updated(changedProperties) {
         if (changedProperties.has("data")) {
             this.renderTable();
         }
         if (changedProperties.has("consequenceTypes")) {
             this.assignColors();
         }
-        this.requestUpdate();
+        // this.requestUpdate();
+        // this.renderTable();
     }
 
     assignColors() {
@@ -79,7 +80,8 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
 
     //it was render();
     renderTable() {
-        // debugger
+        this.data
+        debugger
         let _this = this;
         $('#' + this._prefix + 'ConsequenceTypeTable').bootstrapTable('destroy');
         $('#' + this._prefix + 'ConsequenceTypeTable').bootstrapTable({
@@ -172,6 +174,7 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
     }
 
     uniprotAccessionFormatter(value, row, index) {
+        debugger
         if (typeof row.proteinVariantAnnotation !== 'undefined' && typeof row.proteinVariantAnnotation.uniprotAccession !== 'undefined') {
             if (typeof this.field.context.hashFragmentCredentials !== "undefined") {
                 return '<a href="#protein/' + this.field.context.hashFragmentCredentials.project + '/' + this.field.context.hashFragmentCredentials.study + '/' +
