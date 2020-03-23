@@ -22,6 +22,12 @@
         overflow: auto;*/
 
     }
+
+    tspan {
+        font-family: sans-serif;
+        font-size: 12px;
+    }
+
 </style>
 
 <div id="svg"></div>
@@ -32,9 +38,8 @@
 
     //import {SVG} from "../../../../svg.js";
     //import { SVG } from '@svgdotjs/svg.js'
-    import {RestResponse} from "../../../../clients/rest-response.js";
-
     //import {SVG} from "../../../../../../node_modules/@svgdotjs/svg.js/dist/svg.esm.js";
+    import {RestResponse} from "../../../../clients/rest-response.js";
 
     (async () => {
 
@@ -44,9 +49,9 @@
         let results = restResponse.getResults();
 
         const config = {
-            lineWidth: 5,
+            lineWidth: 10,
             ticks: 20,      // number of vertical lines
-            vspace: 50,     // space between tracks
+            vspace: 40,     // space between tracks
             hspace: 10      // space between adjacent intervals
         };
         const board = {
@@ -57,11 +62,27 @@
             padding: 50
         };
 
+        function statusColor(status) {
+            return {
+                "PENDING": `#245da9`,
+                "QUEUED": `#245da9`,
+                "RUNNING": `#245da9`,
+                "DONE": "#008901",
+                "ERROR": `#f00`,
+                "UNKNOWN": `#5b5b5b`,
+                "REGISTERING": `#245da9`,
+                "UNREGISTERED": `#5b5b5b`,
+                "ABORTED": `#b6904e`,
+                "DELETED": `#c09c00`
+            }[status];
+        }
+
         results = results.map(result => {
             return {
                 id: result.id,
                 timestampStart: result.execution && result.execution.start ? result.execution.start : moment(result.creationDate, "YYYYMMDDHHmmss").valueOf(),
                 timestampEnd: result.execution ? result.execution.end ? result.execution.end : result.execution.start : moment(result.creationDate, "YYYYMMDDHHmmss").valueOf(),
+                status: result.internal.status.name,
                 dependsOn: result.dependsOn
             };
         }).sort((a, b) => a.timestampStart - b.timestampStart);
@@ -72,14 +93,13 @@
 
         const tick = Math.round(board.width / config.ticks);
         const dateTick = Math.round((timestampMax - timestampMin) / config.ticks);
-        //console.log(min,max, max-min,  (max-min)/dates.length)
 
         const draw = SVG().addTo("#svg").size(board.width + board.padding, board.height + board.padding);
-        const rect = draw.rect(board.width, board.height).attr({fill: "#f3f3f3", x: board.originX, y: board.originY});
+        const rect = draw.rect(board.width, board.height).attr({fill: "#f3f3f3", x: board.originX + board.padding/2, y: board.originY + board.padding/2});
 
         const intervals = [];
         let track = 0;
-        //the first plots the intervals
+        //the first loop plots the intervals
         let trackLastEnd = [0]; // one element because I need a value to compare the first job ((trackLastEnd[t] + config.hspace) < jobA.start)
         for (let i = 0; i < results.length; i++) {
             let job = results[i];
@@ -102,11 +122,11 @@
                 job.track = track;
                 trackLastEnd[track] = job.end;
             }
-            job.y = 50 + job.track * config.vspace;
+            job.y = board.originY + 50 + job.track * config.vspace;
             addInterval(job);
         }
 
-        // we need the number of tracks to draw ticks
+        // we need the number of tracks to draw the ticks
         config.height = 100 + trackLastEnd.length * config.vspace;
         draw.size(config.width, config.height);
         rect.size(config.width, config.height);
@@ -118,9 +138,9 @@
                 target.dependsOn.forEach(dep => {
                     const source = intervals.find(c => c.id === dep.id);
                     draw.line(source.start, source.y, target.start, target.y).stroke({
-                        color: "#a0a0a0",
+                        color: "#000",
                         width: 1,
-                        opacity: 0.4
+                        opacity: 0.1
                     });
                 });
             }
@@ -132,7 +152,7 @@
             const x2 = job.end;
             const y = job.y;
             draw.line(x1, y, x2, y)
-                .stroke({color: "#f00", width: config.lineWidth, linecap: "round"})
+                .stroke({color: statusColor(job.status), width: config.lineWidth, linecap: "round"})
                 .attr({start: job.timestampStart});
             intervals.push(job);
         }
@@ -144,27 +164,27 @@
         // min-max normalization. unix timestamp (in ms) in pixel
         function rescale_linear(timestamp) {
             const oldRange = timestampMax - timestampMin;
-            const minX = board.originX;
-            const maxX = board.originX + board.width;
+            const minX = 0;
+            const maxX = board.width;
             const newRange = maxX - minX;
             const rescaled = minX + ((timestamp - timestampMin) * newRange / oldRange);
             return Math.round(rescaled);
         }
 
         function drawTicks(num, height) {
-            for (let i = 0; i < num; i++) {
-                draw.line(board.originX + tick * i, board.originX, board.originX + tick * i, height).stroke({
+            for (let i = 0; i <= num; i++) {
+                draw.line(board.originX + tick * i, board.originY + 35, board.originX + tick * i, height).stroke({
                     color: "#aaa",
                     width: 1
                 });
                 draw.text(moment(timestampMin + dateTick * i).format("D MMM YY")).dy(board.originY).dx(board.originX + tick * i - 10);
             }
             //plot the last text and the last tick
-            draw.line(board.originX + tick * num, board.originX, board.originX + tick * num, height).stroke({
+            /*draw.line(board.originX + tick * num, 35, board.originX + tick * num, height).stroke({
                 color: "#aaa",
                 width: 1
-            });
-            draw.text(moment(timestampMax).format("D MMM YY")).dy(board.originY).dx(board.originX + tick * num - 10);
+            });*/
+            //draw.text(moment(timestampMax).format("D MMM YY")).dy(board.originY).dx(board.originX + tick * num - 10);
         }
 
     })();
