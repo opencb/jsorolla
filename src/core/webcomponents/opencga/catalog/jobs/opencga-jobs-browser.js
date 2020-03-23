@@ -127,6 +127,25 @@ export default class OpencgaJobsBrowser extends LitElement {
             icon: "fas fa-chart-bar",
             description: "",
             searchButtonText: "Run",
+            tabs: [
+                {
+                    id: "table-tab",
+                    name: "Table result",
+                    active: true
+                },
+                {
+                    id: "facet-tab",
+                    name: "Aggregation stats"
+                },
+                {
+                    id: "comparator-tab",
+                    name: "Comparator"
+                },
+                {
+                    id: "visual-browser-tab",
+                    name: "Visual browser"
+                }
+            ],
             filter: {
                 sections: [
                     {
@@ -209,7 +228,7 @@ export default class OpencgaJobsBrowser extends LitElement {
                 },
                 detail: [
                     {
-                        id: "job_detail",
+                        id: "job-detail",
                         title: "Job detail",
                         active: true
                     },

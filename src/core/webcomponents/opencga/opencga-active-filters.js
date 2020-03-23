@@ -170,15 +170,6 @@ export default class OpencgaActiveFilters extends LitElement {
         this.dispatchEvent(new CustomEvent("activeFacetClear", {detail: {}, bubbles: true, composed: true}));
     }
 
-    //todo refactor in CSS
-    _onMouseOver(e) {
-        PolymerUtils.addStyleByClass(e.target.dataset.filterName + "ActiveFilter", "text-decoration", "line-through");
-    }
-
-    _onMouseOut(e) {
-        PolymerUtils.addStyleByClass(e.target.dataset.filterName + "ActiveFilter", "text-decoration", "none");
-    }
-
     launchModal() {
         $(PolymerUtils.getElementById(this._prefix + "SaveModal")).modal("show");
     }
@@ -396,7 +387,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     }
                 }
                 // We fist have need to remove defaultStudy from 'filterFields' and 'value'
-                if (key === "studies") {
+                if (key === "study") {
                     let otherStudies = [];
                     for (let study of filterFields) {
                         if (!study.includes(this.defaultStudy)) {
@@ -520,7 +511,7 @@ export default class OpencgaActiveFilters extends LitElement {
                 line-height: 34px;
                 margin: 0;
             }
-
+            
             .rhs {
                 float: right;
             }
@@ -572,7 +563,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                 <!-- Multi-valued filters -->
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
-                                            @click="${this.onQueryFilterDelete}" @mouseover="${this._onMouseOver}" @mouseout="${this._onMouseOut}" >
+                                            @click="${this.onQueryFilterDelete}">
                                         ${item.text} <span class="badge">${item.items.length}</span>
                                     </button>
                                     <button type="button" class="btn btn-warning btn-sm dropdown-toggle ripple no-transform" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

@@ -27,7 +27,7 @@ import Utils from "./../../../utils.js";
  * <select-field-filter .data="${[{id: "a", name: "A", {id:"b", name: "B"}, {id: "c", name: "C"}]}" .value=${"a"} @filterChange="${e => console.log(e)}"></select-field-filter>
  */
 
-export default class SelectFieldFilter extends LitElement {
+export default class SelectFieldFilterRemote extends LitElement {
 
     constructor() {
         super();
@@ -64,7 +64,7 @@ export default class SelectFieldFilter extends LitElement {
             required: {
                 type: Boolean
             },
-            //the expected format is either an array of string or an array of objects {id, name}
+            // the expected format is either an array of string or an array of objects {id, name}
             data: {
                 type: Object
             }
@@ -79,6 +79,28 @@ export default class SelectFieldFilter extends LitElement {
 
     firstUpdated() {
         $(".selectpicker", this).selectpicker("val", "");
+        $(".selectpicker", this).on("loaded.bs.select", (e, clickedIndex, isSelected, previousValue) => {
+            console.log(e);
+            $(".bs-searchbox input", this).on("input", e => {
+                console.log("changed", e.target.value);
+                this.opencgaSession.opencgaClient.variants().query({
+                    study: this.opencgaSession.study.fqn,
+                    limit: 10,
+                    name: e.target.value
+                }).then( restResponse => {
+                    console.log("restResponse",restResponse.getResults())
+                    const data = restResponse.getResults().map( _ => ({id: _.id, name: _.id}));
+                    this.data = data;
+                    this.requestUpdate();
+                    $('.selectpicker', this).selectpicker('refresh');
+
+                })
+            });
+        });
+        $(".selectpicker", this).on("changed.bs.select", function(e, clickedIndex, isSelected, previousValue) {
+            console.log(e);
+
+        });
     }
 
     updated(_changedProperties) {
@@ -121,6 +143,7 @@ export default class SelectFieldFilter extends LitElement {
         return html`
             <div id="${this._prefix}-select-field-filter-wrapper" class="form-group">
                 <select id="${this._prefix}-select"
+                        data-live-search="true"
                         class="selectpicker"
                         multiple
                         .disabled=${this.disabled}
@@ -153,4 +176,4 @@ export default class SelectFieldFilter extends LitElement {
 
 }
 
-customElements.define("select-field-filter", SelectFieldFilter);
+customElements.define("select-field-filter-remote", SelectFieldFilterRemote);

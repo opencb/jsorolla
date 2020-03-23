@@ -36,7 +36,7 @@ export default class StudyFilter extends LitElement {
                 type: Object
             },
             // part of the query object
-            studies: {
+            study: {
                 type: Object
             }
         };
@@ -44,9 +44,8 @@ export default class StudyFilter extends LitElement {
 
     _init() {
         this._prefix = "sf-" + Utils.randomString(6) + "_";
-        this.operator = ";";
+        this.operator = ",";
         this.differentStudies = [];
-        // this._selectStudies = [];
         this._studies = [];
     }
 
@@ -69,11 +68,11 @@ export default class StudyFilter extends LitElement {
 
         }
 
-        if (_changedProperties.has("studies")) {
-            this._studies = this.studies ? this.studies.split(new RegExp("[,;]")) : [this.primaryProject];
+        if (_changedProperties.has("study")) {
+            this._studies = this.study ? this.study.split(new RegExp("[,;]")) : [this.primaryProject];
             $(".selectpicker", this).selectpicker("val", this._studies);
             this.requestUpdate();
-            // this shouldn't be necessary since this.studies is being updated..
+            // this shouldn't be necessary since this.study is being updated..
             // this.requestUpdate();
             // NOTE Do NOT fire filterChange in updated(), it would interferes with other filters changes and active-filters
         }
@@ -150,7 +149,7 @@ export default class StudyFilter extends LitElement {
                 <select multiple class="form-control input-sm selectpicker" id="${this._prefix}includeOtherStudy"
                     @change="${this.onChangeSelectedStudy}">
                     <option value="${this.opencgaSession.study.fqn}" selected="selected" disabled>${this.opencgaSession.study.name}</option>
-                    ${this.differentStudies && this.differentStudies.length ? this.differentStudies.map(study => html`
+                    ${this.differentStudies.length ? this.differentStudies.map(study => html`
                         <option value="${study.fqn}">${study.name}</option>
                     `) : null }
                 </select>

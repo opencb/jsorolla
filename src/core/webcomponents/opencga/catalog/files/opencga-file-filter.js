@@ -21,7 +21,8 @@ import PolymerUtils from "../../../PolymerUtils.js";
 import "../variableSets/opencga-annotation-filter.js";
 import "../opencga-date-filter.js";
 // import "../../../commons/filters/text-field-filter.js";
-
+import "../../../commons/filters/select-field-filter.js";
+//import "../../../commons/filters/select-field-filter-remote.js";
 
 export default class OpencgaFileFilter extends LitElement {
 
@@ -269,6 +270,7 @@ export default class OpencgaFileFilter extends LitElement {
                 break;
             case "format":
                 content = html`<select-field-filter multiple .value="${this.preparedQuery.format}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange("format", e.detail.value)}"></select-field-filter>`;
+                // <select-field-filter-remote multiple .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery.format}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange("format", e.detail.value)}"></select-field-filter-remote>
                 break;
             case "annotations":
                 content = html`<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
