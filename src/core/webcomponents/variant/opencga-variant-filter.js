@@ -432,7 +432,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 /*if (this.opencgaSession.project.studies.length < 2) {
                     return "";
                 }*/
-                content = html`<study-filter .opencgaSession="${this.opencgaSession}" .differentStudies="${this.differentStudies}" .studies="${this.preparedQuery.studies}" @filterChange="${e => this.onFilterChange("studies", e.detail.value)}">BLABLA</study-filter>`;
+                content = html`<study-filter .opencgaSession="${this.opencgaSession}" .study="${this.preparedQuery.study}" @filterChange="${e => this.onFilterChange("study", e.detail.value)}">BLABLA</study-filter>`;
                 break;
             case "cohort":
                 content = html`<cohort-filter .opencgaSession="${this.opencgaSession}" .cohorts="${subsection.cohorts}" ._cohorts="${this._cohorts}" .cohortStatsAlt="${this.preparedQuery.cohortStatsAlt}" @filterChange="${e => this.onFilterChange("cohortStatsAlt", e.detail.value)}"> </cohort-filter>`;

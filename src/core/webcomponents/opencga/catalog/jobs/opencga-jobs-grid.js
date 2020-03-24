@@ -135,7 +135,8 @@ export default class OpencgaJobsGrid extends LitElement {
                         order: params.data.order,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
-                        // include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
+                        //include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid", TODO include only the column I show
+                        exclude: "execution",
                         ...this.query
                     };
                     this.opencgaSession.opencgaClient.jobs().search(filters).then( res => params.success(res));

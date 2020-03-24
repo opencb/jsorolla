@@ -1,0 +1,15 @@
+{
+  "plugins": [
+    "@babel/plugin-proposal-export-default-from",
+    "@babel/transform-runtime",
+    ["@babel/plugin-proposal-class-properties", {"loose": true}]
+  ],
+  "presets": [[
+    "@babel/preset-env",
+    {
+      "useBuiltIns": "usage",
+      "targets": ">1%, not dead, not ie 11",
+      "corejs": 3
+    }
+  ]]
+}

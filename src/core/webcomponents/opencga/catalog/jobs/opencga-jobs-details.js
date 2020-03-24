@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "../../../../utils.js";
-
+import "./opencga-jobs-details-log.js";
 
 export default class OpencgaJobsDetails extends LitElement {
 
@@ -48,6 +48,7 @@ export default class OpencgaJobsDetails extends LitElement {
 
     _init() {
         this._prefix = "sf-" + Utils.randomString(6) + "_";
+        this.activeTab = {};
     }
 
     connectedCallback() {
@@ -58,6 +59,20 @@ export default class OpencgaJobsDetails extends LitElement {
         if (changedProperties.has("job")) {
 
         }
+        if (changedProperties.has("activeTab")) {
+            console.log("activeTab")
+        }
+    }
+
+    _changeBottomTab(e) {
+        const tabId = e.currentTarget.dataset.id;
+        console.log(tabId)
+        $(".nav-tabs", this).removeClass("active");
+        $(".tab-content div[role=tabpanel]", this).hide();
+        for (const tab in this.activeTab) this.activeTab[tab] = false;
+        $("#" + tabId + "-tab", this).show();
+        this.activeTab[tabId] = true;
+        this.requestUpdate();
     }
 
     statusFormatter(status) {
@@ -81,101 +96,91 @@ export default class OpencgaJobsDetails extends LitElement {
 
     render() {
         return this.job ? html`
-        <style>
-            .detail-row{
-                padding: 5px;
-            }
-        </style>
-        <div>
-            <ul class="nav nav-tabs" role="tablist">
-                ${this.config.detail.length && this.config.detail.map(item => html`
-                    ${item.active ? html`
-                         <li role="presentation" class="active">
-                            <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab"
-                               data-id="${item.id}"
-                               class="browser-variant-tab-title"
-                               @click="${this._changeBottomTab}">${item.title}</a>
+            <style>
+                .detail-row{
+                    padding: 5px;
+                }
+            </style>
+            <div>
+                <ul class="nav nav-tabs" role="tablist">
+                    ${this.config.detail.length && this.config.detail.map(item => html`
+                        <li role="presentation" class="${item.active ? "active" : ""}">
+                                <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab"
+                                   data-id="${item.id}"
+                                   class=""
+                                   @click="${this._changeBottomTab}">${item.title}</a>
                         </li>
-                        ` : html`
-                        <li role="presentation" class="">
-                            <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab"
-                               data-id="${item.id}"
-                               class="browser-variant-tab-title"
-                               @click="${this._changeBottomTab}">${item.title}</a>
-                        </li>
-                    `}
-                `)}
-            </ul>
-            <div class="tab-content">
-
-                <div id="${this._prefix}job_detail" role="tabpanel" class="tab-pane active">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-md-6 ">
-                                <div class="form-group detail-row">
-                                    <label for="" class="col-sm-2 control-label">Id</label>
-                                    <div class="col-sm-10">
-                                    ${this.job.id} (${this.job.uuid})
-                                    </div>
-                                </div>         
-                                
-                                <div class="form-group detail-row">
-                                    <label for="" class="col-sm-2 control-label">User</label>
-                                    <div class="col-sm-10">
-                                    ${this.job.userId}
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group detail-row">
-                                    <label for="" class="col-sm-2 control-label">creationDate</label>
-                                    <div class="col-sm-10">
-                                    ${this.job.creationDate}
-                                    </div>
-                                </div>         
-                                
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group detail-row">
-                                    <label for="" class="col-sm-2 control-label">priority</label>
-                                    <div class="col-sm-10">
-                                    ${this.job.priority}
-                                    </div>
-                                </div>
-                                <div class="form-group detail-row">
-                                    <label for="" class="col-sm-2 control-label">outDir</label>
-                                    <div class="col-sm-10">
-                                    ${this.job.outDir.uri}
-                                    </div>
-                                </div>
-                                ${this.job.dependsOn && this.job.dependsOn.length ? html`
-                                    <div class="form-group detail-row">
-                                        <label for="" class="col-sm-2 control-label">dependsOn</label>
-                                        <div class="col-sm-10">
-                                            <ul>
-                                            ${this.job.dependsOn.map( job => html`
-                                                <li>${job.id} (${job.uuid}) (${this.renderHTML(this.statusFormatter(job.internal.status.name))})</li>
-                                            `) }
-                                            </ul>
+                    `)}
+                </ul>
+                
+                <div class="tab-content">
+                    <div id="job-detail-tab" class="tab-pane active" role="tabpanel">
+                        <div id="${this._prefix}job_detail"  >
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-6 ">
+                                        <div class="form-group detail-row">
+                                            <label for="" class="col-sm-2 control-label">Id</label>
+                                            <div class="col-sm-10">
+                                            ${this.job.id} (${this.job.uuid})
+                                            </div>
+                                        </div>         
+                                        
+                                        <div class="form-group detail-row">
+                                            <label for="" class="col-sm-2 control-label">User</label>
+                                            <div class="col-sm-10">
+                                            ${this.job.userId}
+                                            </div>
                                         </div>
+                                        
+                                        <div class="form-group detail-row">
+                                            <label for="" class="col-sm-2 control-label">creationDate</label>
+                                            <div class="col-sm-10">
+                                            ${this.job.creationDate}
+                                            </div>
+                                        </div>         
+                                        
                                     </div>
-                                ` : null}
-                                                                                                                            
+                                    <div class="col-md-6">
+                                        <div class="form-group detail-row">
+                                            <label for="" class="col-sm-2 control-label">priority</label>
+                                            <div class="col-sm-10">
+                                            ${this.job.priority}
+                                            </div>
+                                        </div>
+                                        <div class="form-group detail-row">
+                                            <label for="" class="col-sm-2 control-label">outDir</label>
+                                            <div class="col-sm-10">
+                                            ${this.job.outDir.uri}
+                                            </div>
+                                        </div>
+                                        ${this.job.dependsOn && this.job.dependsOn.length ? html`
+                                            <div class="form-group detail-row">
+                                                <label for="" class="col-sm-2 control-label">dependsOn</label>
+                                                <div class="col-sm-10">
+                                                    <ul>
+                                                    ${this.job.dependsOn.map( job => html`
+                                                        <li>${job.id} (${job.uuid}) (${this.renderHTML(this.statusFormatter(job.internal.status.name))})</li>
+                                                    `) }
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        ` : null}
+                                                                                                                                    
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div id="${this._prefix}log" role="tabpanel" class="tab-pane">
-                    <div>
-                        log
+                    <div id="log-tab" class="tab-pane" role="tabpanel">
+                        <opencga-jobs-details-log .opencgaSession=${this.opencgaSession}
+                                                  .active="${this.activeTab["log"]}"
+                                                  .job="${this.job}">
+                        </opencga-jobs-details-log>
                     </div>
                 </div>
+                
             </div>
-        
-        
-            
-
-            
-        </div>
         ` : null;
     }
 
