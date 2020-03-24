@@ -34,55 +34,82 @@ export default class OpencgaJobsDetailsLog extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            jobId: {
-                type: String
+            job: {
+                type: Object
             },
             active: {
                 type: Boolean
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = "sf-" + Utils.randomString(6) + "_";
-        this.content = []
+        this.content = [];
     }
 
     updated(changedProperties) {
-        if(changedProperties.has("jobId")) {
-            console.log("jobId in details-log", this.jobId, this.active)
-            if(this.active) {
-                this.fetchContent(this.jobId);
+        if (changedProperties.has("job")) {
+            if (this.active) {
+                this.fetchContent(this.job);
             }
 
         }
-        if(changedProperties.has("active")) {
-            console.log("active", this.active)
+        if (changedProperties.has("active")) {
+            console.log("active", this.active);
+            //todo this should call fetchContent iff the job has changed
+            if (this.active) {
+                this.fetchContent(this.job);
+            }
         }
     }
 
-    fetchContent(jobId) {
-        this.opencgaSession.opencgaClient.jobs().tailLog(jobId).then( restResponse => {
-            const content = restResponse.getResults()
-            console.log(content)
-        })
+    fetchContent(job) {
+        this.opencgaSession.opencgaClient.jobs().tailLog(job.id, {
+            study: this.opencgaSession.study.fqn,
+            lines: 50
+        }).then( restResponse => {
+            const result = restResponse.getResult(0);
+            this.content = result.content;
+
+        }).catch( restResponse => {
+            if (restResponse.getEvents("ERROR").length) {
+                this.content = restResponse.getEvents("ERROR").map(error => error.message).join("\n");
+                console.log("ERRORRR", restResponse.getEvents("ERROR"))
+            } else {
+                this.content = "Unknown error";
+            }
+        }).finally( () => this.requestUpdate());
     }
 
     render() {
         return html`
         <style> 
-            .cmd {
+            pre.cmd {
                 background: black;
                 font-family: "Courier New", monospace;
                 padding: 15px;
                 color: #a5a5a5;
                 font-size: .9em;
+                min-height: 150px;
             }
             .wrapper {
-                width: 130px;
-                float: right;
-                height: 30px;
+                height: 35px;
+                margin-top: 5px;
             }
+            
+            .wrapper fieldset {
+                width: 150px;
+            }
+            
+            .wrapper fieldset.autoreload {
+                float: right;
+            }
+            
+            .wrapper fieldset.log-type {
+                float: left;
+            }
+            
             .wrapper-label {
                 color: grey;
                 vertical-align: text-bottom;
@@ -92,27 +119,34 @@ export default class OpencgaJobsDetailsLog extends LitElement {
                 display: inline-block;
             }
         </style>
-        
-        <div class="cmd">
-        <fieldset class="wrapper">
-                <label class="wrapper-label">Autoreload</label>
-                <div class="switch-toggle text-white">
-                    <input type="radio" name="autoreload" id="autoreload-false" value="false" checked @change="${this.calculateFilters}">
-                    <label for="autoreload-false" ><span class="${this._prefix}-text">Off</span></label>
-                
-                    <input type="radio" name="autoreload" id="autoreload-true" value="true" @change="${this.calculateFilters}">
-                    <label for="autoreload-true" ><span class="${this._prefix}-text">On</span></label>
-                    <a class="btn btn-primary ripple btn-small"></a>
-                </div>
-        </fieldset> 
-            this.opencgaSession.opencgaClient.jobs().tailLog<BR>
-            this.opencgaSession.opencgaClient.jobs().tailLog<BR>
-            this.opencgaSession.opencgaClient.jobs().tailLog<BR>
-            this.opencgaSession.opencgaClient.jobs().tailLog<BR>
-            this.opencgaSession.opencgaClient.jobs().tailLog<BR>
+        <div class="wrapper">
+            <fieldset class="log-type">
+                    <div class="switch-toggle text-white">
+                        <input type="radio" name="log-type" id="log-head" value="false" checked @change="${this.calculateFilters}">
+                        <label for="log-head" >Head</label>
+                    
+                        <input type="radio" name="log-type" id="log-tail" value="true" @change="${this.calculateFilters}">
+                        <label for="log-tail">Tail</label>
+                        <a class="btn btn-primary ripple btn-small"></a>
+                    </div>
+            </fieldset> 
+            
+            <fieldset class="autoreload">
+                    <label class="wrapper-label">Autoreload</label>
+                    <div class="switch-toggle text-white">
+                        <input type="radio" name="autoreload" id="autoreload-false" value="false" checked @change="${this.calculateFilters}">
+                        <label for="autoreload-false" ><span class="${this._prefix}-text">Off</span></label>
+                    
+                        <input type="radio" name="autoreload" id="autoreload-true" value="true" @change="${this.calculateFilters}">
+                        <label for="autoreload-true" ><span class="${this._prefix}-text">On</span></label>
+                        <a class="btn btn-primary ripple btn-small"></a>
+                    </div>
+            </fieldset> 
         </div>
+        <pre class="cmd">${this.content}</pre>
         `;
     }
+
 }
 
 customElements.define("opencga-jobs-details-log", OpencgaJobsDetailsLog);

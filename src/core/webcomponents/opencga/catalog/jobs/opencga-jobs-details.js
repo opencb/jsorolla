@@ -57,12 +57,7 @@ export default class OpencgaJobsDetails extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("job")) {
-            this.opencgaSession.opencgaClient.jobs().headLog(this.job.id, {study: this.opencgaSession.study.fqn}).then( response => {
-                console.log(response.getResult(0))
-                this.log = response.getResult(0).content;
-            })
 
-            //http://bioinfo.hpc.cam.ac.uk/opencga-prod/webservices/rest/v2/jobs/variant-index.20200228103518.bPw8hW/log/tail?study=corpasome&type=stdout
         }
         if (changedProperties.has("activeTab")) {
             console.log("activeTab")
@@ -180,7 +175,7 @@ export default class OpencgaJobsDetails extends LitElement {
                     <div id="log-tab" class="tab-pane" role="tabpanel">
                         <opencga-jobs-details-log .opencgaSession=${this.opencgaSession}
                                                   .active="${this.activeTab["log"]}"
-                                                  .jobId="${this.job.id}">
+                                                  .job="${this.job}">
                         </opencga-jobs-details-log>
                     </div>
                 </div>

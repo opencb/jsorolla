@@ -42,7 +42,7 @@ import "../clinical/opencga-clinical-analysis-grid.js";
 import "../clinical/opencga-clinical-analysis-filter.js";
 import "../catalog/jobs/opencga-jobs-browser.js";
 import "../clinical/opencga-clinical-analysis-filter.js";
-
+import "./../catalog/jobs/jobs-timeline.js";
 
 // this is the new opencga-browser
 
@@ -703,8 +703,11 @@ export default class OpencgaBrowser extends LitElement {
                             </opencb-facet-results>
                         </div>
                         
-                        <div id="job-viz">
-                        
+                        <div id="visual-browser-tab" class="content-tab">
+                            <jobs-timeline  .opencgaSession="${this.opencgaSession}"
+                                            .query="${this.executedQuery}">                
+                            </jobs-timeline>
+                                            
                         </div>
                         <div class="v-space">
                         </div>

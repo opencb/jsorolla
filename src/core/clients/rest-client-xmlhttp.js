@@ -100,7 +100,8 @@ export class RestClientXmlhttp {
                     }
                 } else {
                     console.error(`REST call to URL failed: '${url}'`);
-                    reject(JSON.parse(request.response));
+                    //TODO check this. it assumes in case of error a RestResponse shaped json is returned in any case
+                    reject(new RestResponse(JSON.parse(request.response)));
                 }
             };
 
