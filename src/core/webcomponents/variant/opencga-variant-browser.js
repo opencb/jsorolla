@@ -115,7 +115,6 @@ export default class OpencgaVariantBrowser extends LitElement {
         this.selectedFacetFormatted = {};
         this.errorState = false;
 
-        this.checkProjects = false;
         this._collapsed = false;
         this.genotypeColor = {
             "0/0": "#6698FF",
@@ -605,7 +604,11 @@ export default class OpencgaVariantBrowser extends LitElement {
                             <a class="btn btn-small collapsed" role="button" data-collapse="#${facet.id}_nested" @click="${this.toggleCollapse}"> <i class="fas fa-arrow-alt-circle-down"></i> Nested Facet (optional) </a>
                             <div class="collapse ${this.selectedFacet[facet.id].nested ? "in" : ""}" id="${facet.id}_nested"> 
                                 <div class="">
-                                    <select-field-filter .data="${this._config.aggregation.sections.map(section => ({...section, fields: section.fields.map(item => ({...item, disabled: item.id === facet.id})) }))}" .value=${this.selectedFacet[facet.id].nested ? this.selectedFacet[facet.id].nested.id : null} @filterChange="${e => this.onNestedFacetFieldChange(e, facet.id)}"></select-field-filter>
+                                    <select-field-filter 
+                                        .data="${this._config.aggregation.sections.map(section => ({...section, fields: section.fields.map(item => ({...item, disabled: item.id === facet.id})) }))}" 
+                                        .value=${this.selectedFacet[facet.id].nested ? this.selectedFacet[facet.id].nested.id : null} 
+                                        @filterChange="${e => this.onNestedFacetFieldChange(e, facet.id)}">
+                                    </select-field-filter>
                                     <div class="row facet-row nested">
                                         ${this.renderNestedField(this.selectedFacet[facet.id].nested, facet.id)}
                                     </div>                                
@@ -837,9 +840,10 @@ export default class OpencgaVariantBrowser extends LitElement {
                                 <button type="button" class="btn btn-success ripple content-pills" @click="${this.onClickPill}" data-id="facet-tab">
                                     <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i> Aggregation stats
                                 </button>
-                                <button type="button" class="btn btn-success ripple content-pills" @click="${this.onClickPill}" data-id="comparator-tab">
+                                <!-- <button type="button" class="btn btn-success ripple content-pills" @click="${this.onClickPill}" data-id="comparator-tab">
                                     <i class="fa fa-users icon-padding" aria-hidden="true"></i> Comparator
                                 </button>
+                                -->
                             </div>
                         </div>
                     </div>
@@ -973,14 +977,19 @@ export default class OpencgaVariantBrowser extends LitElement {
                         collapsed: true,
                         fields: [
                             {
-                                id: "location",
-                                title: "Chromosomal Location",
+                                id: "region",
+                                title: "Genomic Location",
                                 tooltip: "Filter out variants falling outside the genomic interval(s) defined"
                             },
                             {
                                 id: "feature",
                                 title: "Feature IDs (gene, SNPs, ...)",
                                 tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                            },
+                            {
+                                id: "diseasePanels",
+                                title: "Disease Panels",
+                                tooltip: "Filter out variants falling outside the genomic intervals (typically genes) defined by the panel(s) chosen"
                             },
                             {
                                 id: "biotype",
@@ -997,16 +1006,27 @@ export default class OpencgaVariantBrowser extends LitElement {
                                 tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
                             },
                             {
-                                id: "consequenceTypeSelect",
-                                title: "Select SO terms",
-                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                            },
-                            {
                                 id: "type",
                                 title: "Variant Type",
                                 types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION", "MNV"],
                                 tooltip: "Only considers variants of the selected type"
                             }
+                        ]
+                    },
+                    {
+                        title: "Consequence Type",
+                        collapsed: true,
+                        fields: [
+                            // {
+                            //     id: "consequenceType",
+                            //     title: "Select SO terms",
+                            //     tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                            // },
+                            {
+                                id: "consequenceTypeSelect",
+                                title: "Select SO terms",
+                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                            },
                         ]
                     },
                     {
@@ -1024,12 +1044,8 @@ export default class OpencgaVariantBrowser extends LitElement {
                     {
                         title: "Phenotype-Disease",
                         collapsed: true,
-                        subsections: [
-                            {
-                                id: "diseasePanels",
-                                title: "Disease Panels",
-                                tooltip: "Filter out variants falling outside the genomic intervals (typically genes) defined by the panel(s) chosen"
-                            },
+                        fields: [
+
                             {
                                 id: "go",
                                 title: "GO Accessions (max. 100 terms)",
@@ -1048,17 +1064,6 @@ export default class OpencgaVariantBrowser extends LitElement {
                             {
                                 id: "fullTextSearch",
                                 title: "Full-text search on HPO, ClinVar, protein domains or keywords. Some OMIM and Orphanet IDs are also supported",
-                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                            }
-                        ]
-                    },
-                    {
-                        title: "Consequence Type",
-                        collapsed: true,
-                        fields: [
-                            {
-                                id: "consequenceType",
-                                title: "Select SO terms",
                                 tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
                             }
                         ]
@@ -1104,38 +1109,38 @@ export default class OpencgaVariantBrowser extends LitElement {
                             }
                         ]
                     },
-                    {
-                        title: "Gene Ontology",
-                        collapsed: true,
-                        fields: [
-                            {
-                                id: "go",
-                                title: "GO Accessions (max. 100 terms)",
-                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                            }
-                        ]
-                    },
-                    {
-                        title: "Phenotype-Disease",
-                        collapsed: true,
-                        fields: [
-                            {
-                                id: "hpo",
-                                title: "HPO Accessions",
-                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                            },
-                            {
-                                id: "clinvar",
-                                title: "ClinVar Accessions",
-                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                            },
-                            {
-                                id: "fullTextSearch",
-                                title: "Full-text search on HPO, ClinVar, protein domains or keywords. Some OMIM and Orphanet IDs are also supported",
-                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                            }
-                        ]
-                    }
+                    // {
+                    //     title: "Gene Ontology",
+                    //     collapsed: true,
+                    //     fields: [
+                    //         {
+                    //             id: "go",
+                    //             title: "GO Accessions (max. 100 terms)",
+                    //             tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                    //         }
+                    //     ]
+                    // },
+                    // {
+                    //     title: "Phenotype-Disease",
+                    //     collapsed: true,
+                    //     fields: [
+                    //         {
+                    //             id: "hpo",
+                    //             title: "HPO Accessions",
+                    //             tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                    //         },
+                    //         {
+                    //             id: "clinvar",
+                    //             title: "ClinVar Accessions",
+                    //             tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                    //         },
+                    //         {
+                    //             id: "fullTextSearch",
+                    //             title: "Full-text search on HPO, ClinVar, protein domains or keywords. Some OMIM and Orphanet IDs are also supported",
+                    //             tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                    //         }
+                    //     ]
+                    // }
                 ],
                 examples: [
                     {
@@ -1188,7 +1193,8 @@ export default class OpencgaVariantBrowser extends LitElement {
                                 id: "studies", name: "studies", type: "string"
                             },
                             {
-                                name: "Variant Type", id: "type", type: "string"
+                                name: "Variant Type", id: "type", type: "category",
+                                allowedValues: ["SNV", "Indel", "CNV"]
                             },
                             {
                                 name: "Genes", id: "genes", type: "string"
@@ -1248,13 +1254,6 @@ export default class OpencgaVariantBrowser extends LitElement {
 
         };
     }
-<<<<<<< HEAD
-=======
-
-
-
->>>>>>> 8d05b5e09eec871e820b760582385a224ce8668b
 }
-
 
 customElements.define("opencga-variant-browser", OpencgaVariantBrowser);

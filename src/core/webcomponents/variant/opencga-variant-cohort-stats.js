@@ -15,8 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "../../utils";
-import UtilsNew from "../../utilsNew";
+import Utils from "../../utils.js";
+import UtilsNew from "../../utilsNew.js";
+import Region from "../../region.js";
 
 
 export default class OpencgaVariantCohortStats extends LitElement {
@@ -54,12 +55,13 @@ export default class OpencgaVariantCohortStats extends LitElement {
         this.active = false;
     }
 
-    updated(_changedProperties) {
-        if (_changedProperties.has("variant")) {
+    updated(changedProperties) {
+        debugger
+        if (changedProperties.has("variant")) {
             this.variantObserver();
         }
 
-        if (_changedProperties.has("active")) {
+        if (changedProperties.has("active")) {
             this.activeObserver();
         }
     }
@@ -74,20 +76,21 @@ export default class OpencgaVariantCohortStats extends LitElement {
     }
 
     _fetchCohortStats(e) {
+        debugger
         if (UtilsNew.isNotUndefinedOrNull(this.variant) && this.variant.split(":").length > 2 && this.active) {
             const [chromosome, start, ref, alt] = this.variant.split(":");
             this.region = new Region(chromosome + ":" + start);
             const params = {
                 id: this.variant,
-                studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
+                studies: this.opencgaSession.project.id + ":" + this.opencgaSession.study.id,
                 includeStudy: "all",
                 exclude: "annotation,studies.files,studies.samplesData",
-                useSearchIndex: "no"
+                // useSearchIndex: "no"
             };
-
+            debugger
             const cohorts = {};
             for (const section of this.config.sections) {
-                for (const subsection of section.subsections) {
+                for (const subsection of section.fields) {
                     if (subsection.id === "cohort") {
                         // let _cohorts = subsection.cohorts[this.opencgaSession.project.id];
                         if (UtilsNew.isNotUndefinedOrNull(subsection.cohorts[this.opencgaSession.project.id])) {
@@ -102,12 +105,13 @@ export default class OpencgaVariantCohortStats extends LitElement {
                     }
                 }
             }
-
+debugger
             const _this = this;
             this.opencgaSession.opencgaClient.variants().query(params)
                 .then(function(response) {
                     if (typeof response.response[0].result[0] !== "undefined") {
                         const _variantStudies = response.response[0].result[0].studies;
+                        debugger
                         for (let i = 0; i < _variantStudies.length; i++) {
                             const study = _variantStudies[i].studyId.split(":")[1];
                             const statsObject = _variantStudies[i].stats;

@@ -21,6 +21,7 @@ import "./annotation/cellbase-variant-annotation-summary.js";
 // import "./annotation/cellbase-variantannotation-view.js";
 import "./annotation/cellbase-annotation-consequencetype-grid.js";
 import "./annotation/cellbase-population-frequency-grid.js";
+import "./opencga-variant-cohort-stats.js";
 
 export default class OpenCGAVariantDetailView extends LitElement {
 

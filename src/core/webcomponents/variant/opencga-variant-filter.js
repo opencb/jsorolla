@@ -450,7 +450,7 @@ export default class OpencgaVariantFilter extends LitElement {
             case "file-qual":
                 content = html`<file-qual-filter .qual="${this.preparedQuery.qual}" @filterChange="${e => this.onFilterChange("qual", e.detail.value)}"></file-qual-filter>`;
                 break;
-            case "location":
+            case "region":
                 content = html`<region-filter .cellbaseClient="${this.cellbaseClient}" .region="${this.preparedQuery.region}" 
                                            @filterChange="${e => this.onFilterChange("region", e.detail.value)}"></region-filter>`;
                 break;
