@@ -145,6 +145,9 @@ export default class OpencgaVariantGrid extends LitElement {
         // We parse query fields and store a samples object array for convenience
         const _samples = [];
         if (this.query !== undefined) {
+            // FIXME remove this line
+            // this.query["sample"] = "ISDBM322015";
+
             if (UtilsNew.isNotUndefinedOrNull(this.query.sample)) {
                 for (const sampleId of this.query.sample.split(",")) {
                     _samples.push({
@@ -262,6 +265,7 @@ export default class OpencgaVariantGrid extends LitElement {
                     }
                     // We finally overwrite with the query object passed
                     filters = {...filters, ..._this.query};
+
                     _this.opencgaSession.opencgaClient.variants()
                         .query(filters)
                         .then( res => params.success(res));

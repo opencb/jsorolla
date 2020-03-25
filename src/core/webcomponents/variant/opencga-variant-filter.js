@@ -72,14 +72,14 @@ export default class OpencgaVariantFilter extends LitElement {
             populationFrequencies: {
                 type: Object
             },
+            searchButton: {
+                type: Boolean
+            },
             consequenceTypes: {
                 type: Object
             },
             config: {
                 type: Object
-            },
-            searchButton: {
-                type: Boolean
             }
             // samples: {
             //     type: Array
@@ -410,8 +410,8 @@ export default class OpencgaVariantFilter extends LitElement {
                             <div class="panel-body">
                                 <!--TODO verify if cadd condition works-->
                                 
-                                ${section.fields && section.fields.length && section.fields.map(subsection => html`
-                                    ${this.config.skipSubsections && this.config.skipSubsections.length && !!~this.config.skipSubsections.indexOf(subsection.id) ? null : this._createSubSection(subsection)}
+                                ${section.fields && section.fields.length && section.fields.map(field => html`
+                                    ${this.config.skipSubsections && this.config.skipSubsections.length && !!~this.config.skipSubsections.indexOf(field.id) ? null : this._createSubSection(field)}
                                 `)}
                             
                              </div>
@@ -424,7 +424,6 @@ export default class OpencgaVariantFilter extends LitElement {
     _createSubSection(subsection) {
         // ConsequenceType needs horizontal scroll
         const ctScroll = (subsection.id === "consequenceType") ? "browser-ct-scroll" : "";
-
 
         let content = "";
         switch (subsection.id) {
@@ -617,7 +616,7 @@ export default class OpencgaVariantFilter extends LitElement {
             </div>
             ` : null}
 
-            <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true" style="padding-top: 20px">
+            <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true" style="padding-top: 5px">
                 <div id="FilterMenu">
                 ${this._renderFilterMenu()}
                 </div>

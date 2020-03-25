@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html, css} from "/web_modules/lit-element.js";
 import Utils from "./../../utils.js";
 import UtilsNew from "./../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
@@ -27,7 +27,6 @@ import "./opencga-variant-detail-view.js";
 import "../commons/filters/select-field-filter.js";
 import "../../loading-spinner.js";
 
-import {ConsequenceType, Biotpes, descriptoins} from "../variant-dispaly-configuration.js"
 
 export default class OpencgaVariantBrowser extends LitElement {
 
@@ -47,9 +46,6 @@ export default class OpencgaVariantBrowser extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            cellbaseClient: {
-                type: Object
-            },
             populationFrequencies: {
                 type: Object
             },
@@ -62,16 +58,16 @@ export default class OpencgaVariantBrowser extends LitElement {
             query: {
                 type: Object
             },
+            facetQuery: {
+                type: Object
+            },
+            // selectedFacet: { //TODO naming change: preparedQueryFacet (selectedFacet), preparedQueryFacetFormatted (selectedFacetFormatted), executedQueryFacet (queryFacet) (also in opencga-browser)
+            //     type: Object
+            // },
             search: {
                 type: Object
             },
             config: {
-                type: Object
-            },
-            facetQuery: {
-                type: Object
-            },
-            selectedFacet: { //TODO naming change: preparedQueryFacet (selectedFacet), preparedQueryFacetFormatted (selectedFacetFormatted), executedQueryFacet (queryFacet) (also in opencga-browser)
                 type: Object
             }
         };
@@ -108,7 +104,9 @@ export default class OpencgaVariantBrowser extends LitElement {
 
         this.facetConfig = {a: 1};
         this.facetActive = true;
-        this.query = {};
+        this.query = {
+            sample: "ISDBM322015"
+        };
         this.preparedQuery = {};
         this.executedQuery = {};
         this.selectedFacet = {};
@@ -138,14 +136,13 @@ export default class OpencgaVariantBrowser extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
-        console.error("this.opencgaSession",this.opencgaSession)
+        console.log("this.opencgaSession",this.opencgaSession)
         this.endpoint = this.opencgaClient.variants(); // to keep methods consistent with opecnga-facet
     }
 
     firstUpdated(_changedProperties) {
         $(".bootstrap-select", this).selectpicker();
-        console.error("this.opencgaSession",this.opencgaSession)
-
+        console.log("this.opencgaSession",this.opencgaSession)
         // console.log("this.query from BROWSER", this.query)
     }
 
@@ -159,32 +156,19 @@ export default class OpencgaVariantBrowser extends LitElement {
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
-        if (changedProperties.has("selectedFacet")) {
-            this.selectedFacetObserver();
-        }
+        // if (changedProperties.has("selectedFacet")) {
+        //     this.selectedFacetObserver();
+        // }
     }
 
-    queryObserver() {
-        // Query passed is executed and set to variant-filter, active-filters and variant-grid components
-        let _query = {};
-        if (UtilsNew.isEmpty(this.query) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study)) {
-            _query = {
-                study: this.opencgaSession.study.fqn
-            };
-        }
-
-        if (UtilsNew.isNotUndefinedOrNull(this.query)) {
-            this.preparedQuery = {..._query, ...this.query};
-            this.executedQuery = {..._query, ...this.query};
-        }
-        // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
-        this.dispatchEvent(new CustomEvent("queryChange", {detail: this.preparedQuery}));
-        this.requestUpdate();
+    /**
+     * Apply the 'config' properties on the default
+     */
+    configObserver() {
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     opencgaSessionObserver() {
-        //console.log("this._config", this._config, this.opencgaSession.project);
-        // debugger
         if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
             // Update cohorts from config, this updates the Cohort filter MAF
             for (const section of this._config.filter.sections) {
@@ -206,6 +190,27 @@ export default class OpencgaVariantBrowser extends LitElement {
         }
     }
 
+    queryObserver() {
+        // Query passed is executed and set to variant-filter, active-filters and variant-grid components
+        let _query = {};
+        if (UtilsNew.isEmpty(this.query) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study)) {
+            _query = {
+                study: this.opencgaSession.study.fqn
+            };
+        }
+
+        if (UtilsNew.isNotUndefinedOrNull(this.query)) {
+            this.preparedQuery = {..._query, ...this.query};
+            this.executedQuery = {..._query, ...this.query};
+        }
+        // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
+        this.dispatchEvent(new CustomEvent("queryChange", {
+                detail: this.preparedQuery
+            }
+        ));
+        this.requestUpdate();
+    }
+
     onCollapse() {
         if (this._collapsed) {
             $("#" + this._prefix + "FilterMenu").show(400);
@@ -215,13 +220,6 @@ export default class OpencgaVariantBrowser extends LitElement {
             $("#" + this._prefix + "MainWindow").removeClass("col-md-10").addClass("browser-center");
         }
         this._collapsed = !this._collapsed;
-    }
-
-    /**
-     * Apply the 'config' properties on the default
-     */
-    configObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     notifySearch(query) {
@@ -275,33 +273,33 @@ export default class OpencgaVariantBrowser extends LitElement {
         this.search = e.detail;
     }
 
-    onHistogramChart(e) {
-        this.highlightActivePlot(e.target.parentElement);
-        const id = e.target.dataId;
-        // TODO Refactor
-        this.renderHistogramChart("#" + this._prefix + id + "Plot", id);
+    // onHistogramChart(e) {
+    //     this.highlightActivePlot(e.target.parentElement);
+    //     const id = e.target.dataId;
+    //     // TODO Refactor
+    //     this.renderHistogramChart("#" + this._prefix + id + "Plot", id);
+    //
+    //     PolymerUtils.hide(this._prefix + id + "Table");
+    // }
+    //
+    // onPieChart(e) {
+    //     this.highlightActivePlot(e.target.parentElement);
+    //     const id = e.target.dataId;
+    //     this.renderPieChart("#" + this._prefix + id + "Plot", id);
+    //     PolymerUtils.hide(this._prefix + id + "Table");
+    // }
+    //
+    // onTabularView(e) {
+    //     this.highlightActivePlot(e.target.parentElement);
+    //     const id = e.target.dataId;
+    //     PolymerUtils.innerHTML(this._prefix + id + "Plot", "");
+    //     PolymerUtils.show(this._prefix + id + "Table", "table");
+    // }
 
-        PolymerUtils.hide(this._prefix + id + "Table");
-    }
-
-    onPieChart(e) {
-        this.highlightActivePlot(e.target.parentElement);
-        const id = e.target.dataId;
-        this.renderPieChart("#" + this._prefix + id + "Plot", id);
-        PolymerUtils.hide(this._prefix + id + "Table");
-    }
-
-    onTabularView(e) {
-        this.highlightActivePlot(e.target.parentElement);
-        const id = e.target.dataId;
-        PolymerUtils.innerHTML(this._prefix + id + "Plot", "");
-        PolymerUtils.show(this._prefix + id + "Table", "table");
-    }
-
-    highlightActivePlot(button) {
-        // PolymerUtils.removeClass(".plots", "active");
-        // PolymerUtils.addClass(button, "active");
-    }
+    // highlightActivePlot(button) {
+    //     // PolymerUtils.removeClass(".plots", "active");
+    //     // PolymerUtils.addClass(button, "active");
+    // }
 
     onClickPill(e){
         //e.preventDefault();
@@ -322,6 +320,7 @@ export default class OpencgaVariantBrowser extends LitElement {
         this.preparedQuery = e.detail.query;
         this.requestUpdate();
     }
+
 
     onActiveFilterChange(e) {
         console.log("onActiveFilterChange on variant facet", e.detail);
@@ -415,33 +414,22 @@ export default class OpencgaVariantBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "Variant Browser",
+            icon: "fas fa-search",
             active: false,
-            populationFrequencies: true,
             filter: {
-
-                // from OLD variant-browser
+                title: "Filter",
+                button: "Run",
                 activeFilters: {
                     alias: {
                         // Example:
                         // "region": "Region",
                         // "gene": "Gene",
-                        // "genotype": "Sample Genotypes",
+                        "ct": "Consequence Types",
                     },
                     complexFields: ["genotype"],
                     hiddenFields: ["study"]
                 },
-                genomeBrowser: {
-                    showTitle: false
-                },
-
-
-                // from tools.js
-                title: "Variant Browser",
-                active: false,
-                showSummary: true,
-                showGenomeBrowser: false,
-                sections: [
-                    // sections and subsections, structure and order is respected
+                sections: [     // sections and subsections, structure and order is respected
                     {
                         title: "Study and Cohorts",
                         collapsed: false,
@@ -449,8 +437,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                             {
                                 id: "study",
                                 title: "Studies Filter",
-                                // tooltip: "Only considers variants from the selected studies"
-                                tooltip: descriptn.get("study")
+                                tooltip: "Only considers variants from the selected studies"
                             }
                             // cohortFileMenu // TODO expose common data
                         ]
@@ -508,7 +495,6 @@ export default class OpencgaVariantBrowser extends LitElement {
                             {
                                 id: "consequenceTypeSelect",
                                 title: "Select SO terms",
-                                // conseuqnceTypes: ConsequenceTypes,
                                 tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
                             },
                         ]
@@ -581,50 +567,18 @@ export default class OpencgaVariantBrowser extends LitElement {
                                 id: "conservation",
                                 title: "Conservation Score",
                                 tooltip: "<strong>PhyloP</strong> scores measure evolutionary conservation at individual alignment sites. The scores " +
-                                        "are interpreted as follows compared to the evolution expected under neutral drift: positive scores (max 3.0) mean " +
-                                        "conserved positions and negative scores (min -14.0) indicate positive selection. PhyloP scores are useful to " +
-                                        "evaluate signatures of selection at particular nucleotides or classes of nucleotides (e.g., third codon positions, " +
-                                        "or first positions of miRNA target sites).<br>" +
-                                        "<strong>PhastCons</strong> estimates the probability that each nucleotide belongs to a conserved element, based on " +
-                                        "the multiple alignment. The phastCons scores represent probabilities of negative selection and range between 0 " +
-                                        "(non-conserved) and 1 (highly conserved).<br>" +
-                                        "<strong>Genomic Evolutionary Rate Profiling (GERP)</strong> score estimate the level of conservation of positions." +
-                                        " Scores ≥ 2 indicate evolutionary constraint to and ≥ 3 indicate purifying selection."
+                                    "are interpreted as follows compared to the evolution expected under neutral drift: positive scores (max 3.0) mean " +
+                                    "conserved positions and negative scores (min -14.0) indicate positive selection. PhyloP scores are useful to " +
+                                    "evaluate signatures of selection at particular nucleotides or classes of nucleotides (e.g., third codon positions, " +
+                                    "or first positions of miRNA target sites).<br>" +
+                                    "<strong>PhastCons</strong> estimates the probability that each nucleotide belongs to a conserved element, based on " +
+                                    "the multiple alignment. The phastCons scores represent probabilities of negative selection and range between 0 " +
+                                    "(non-conserved) and 1 (highly conserved).<br>" +
+                                    "<strong>Genomic Evolutionary Rate Profiling (GERP)</strong> score estimate the level of conservation of positions." +
+                                    " Scores ≥ 2 indicate evolutionary constraint to and ≥ 3 indicate purifying selection."
                             }
                         ]
                     },
-                    // {
-                    //     title: "Gene Ontology",
-                    //     collapsed: true,
-                    //     fields: [
-                    //         {
-                    //             id: "go",
-                    //             title: "GO Accessions (max. 100 terms)",
-                    //             tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                    //         }
-                    //     ]
-                    // },
-                    // {
-                    //     title: "Phenotype-Disease",
-                    //     collapsed: true,
-                    //     fields: [
-                    //         {
-                    //             id: "hpo",
-                    //             title: "HPO Accessions",
-                    //             tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                    //         },
-                    //         {
-                    //             id: "clinvar",
-                    //             title: "ClinVar Accessions",
-                    //             tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                    //         },
-                    //         {
-                    //             id: "fullTextSearch",
-                    //             title: "Full-text search on HPO, ClinVar, protein domains or keywords. Some OMIM and Orphanet IDs are also supported",
-                    //             tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                    //         }
-                    //     ]
-                    // }
                 ],
                 examples: [
                     {
@@ -645,16 +599,16 @@ export default class OpencgaVariantBrowser extends LitElement {
                     {
                         name: "Full Example",
                         query: {
-                            "studies": "exomes_grch37:corpasome;opencga@exomes_grch37:ceph_trio",
-                            "region": "3:444-555",
-                            "xref": "BRCA1,DDEF",
-                            "panel": "Albinism_or_congenital_nystagmus-PanelAppId-511,Amyloidosis-PanelAppId-502",
-                            "biotype": "IG_C_gene,IG_C_pseudogene",
+                            "region": "1,2,3,4,5",
+                            "studies": "corpasome",
+                            "xref": "BRCA1,TP53",
+                            // "panel": "Albinism_or_congenital_nystagmus-PanelAppId-511,Amyloidosis-PanelAppId-502",
+                            "biotype": "protein_coding",
                             "type": "INDEL",
-                            "ct": "frameshift_variant,incomplete_terminal_codon_variant,inframe_deletion,inframe_insertion,3_prime_UTR_variant,5_prime_UTR_variant,intron_variant,non_coding_transcript_exon_variant,non_coding_transcript_variant",
-                            "populationFrequencyAlt": "1kG_phase3:ALL<1;1kG_phase3:AFR<1;1kG_phase3:AMR<1;1kG_phase3:EAS<1;1kG_phase3:EUR<1;1kG_phase3:SAS<1;GNOMAD_GENOMES:ALL<1;GNOMAD_GENOMES:AFR<1;GNOMAD_GENOMES:AMR<1;GNOMAD_GENOMES:EAS<1;GNOMAD_GENOMES:FIN<1;GNOMAD_GENOMES:NFE<1;GNOMAD_GENOMES:SAS<1",
+                            "ct": "lof",
+                            "populationFrequencyAlt": "1kG_phase3:ALL<0.1,GNOMAD_GENOMES:ALL<0.1",
                             "protein_substitution": "sift>5,polyphen>4",
-                            "annot-functional-score": "cadd_raw>2,cadd_scaled<4",
+                            // "functionalScore": "cadd_raw>2,cadd_scaled<4",
                             "conservation": "phylop>1;phastCons>2;gerp<=3"
                         }
                     }
@@ -662,70 +616,116 @@ export default class OpencgaVariantBrowser extends LitElement {
                 result: {
                     grid: {}
                 },
-                detail: []
+                detail: {
+                    title: "Selected Variant",
+                    detail: [
+                        {
+                            id: "annotationSummary",
+                            // component: "opencga-variant-cohort-stats",
+                            title: "Summary",
+                            active: true
+                        },
+                        {
+                            id: "annotationConsType",
+                            // component: "opencga-variant-cohort-stats",
+                            title: "Consequence Type",
+                        },
+                        {
+                            id: "annotationPropFreq",
+                            // component: "opencga-variant-cohort-stats",
+                            title: "Population Frequencies"
+                        },
+                        {
+                            id: "cohortStats",
+                            component: "opencga-variant-cohort-stats",
+                            title: "Cohort Stats"
+                        },
+                        {
+                            id: "samples",
+                            component: "opencga-variant-samples",
+                            title: "Samples"
+                        },
+                        {
+                            id: "beacon",
+                            component: "variant-beacon-network",
+                            title: "Beacon"
+                            // Uncomment and edit Beacon hosts to change default hosts
+                            // hosts: [
+                            //     "brca-exchange", "cell_lines", "cosmic", "wtsi", "wgs", "ncbi", "ebi", "ega", "broad", "gigascience", "ucsc",
+                            //     "lovd", "hgmd", "icgc", "sahgp"
+                            // ]
+                        },
+                        {
+                            id: "network",
+                            component: "reactome-variant-network",
+                            title: "Reactome Pathways"
+                        },
+                        // {
+                        //     id: "template",
+                        //     component: "opencga-variant-detail-template",
+                        //     title: "Template"
+                        // }
+                    ]
+                }
             },
             aggregation: {
-                default: ["studies"],
+                title: "Aggregation",
+                default: ["chromosome", "type"],
                 sections: [
                     {
-                        name: "terms",
+                        name: "General",
                         fields: [
                             {
-                                name: "Chromosome", id: "chromosome", type: "string"
+                                id: "chromosome", name: "Chromosome", type: "string"
                             },
                             {
-                                id: "studies", name: "studies", type: "string"
+                                id: "studies", name: "Studiy", type: "string"
                             },
                             {
-                                name: "Variant Type", id: "type", type: "category", allowedValues: ["SNV", "Indel", "CNV"]
+                                id: "type", name: "Variant Type", type: "category", allowedValues: ["SNV", "INDEL", "CNV"]
                             },
                             {
-                                name: "Genes", id: "genes", type: "string"
+                                id: "genes", name: "Gene", type: "string"
                             },
                             {
-                                name: "Biotypes", id: "biotypes", type: "string"
+                                id: "biotypes", name: "Biotype", type: "string"
                             },
                             {
-                                name: "Consequence Type", id: "soAcc", type: "string"
+                                id: "soAcc", name: "Consequence Type", type: "string"
                             }
                         ]
                     },
                     {
-                        name: "Conservation & Deleteriousness Ranges",
+                        name: "Conservation & Deleteriousness",
                         fields: [
                             {
-                                name: "PhastCons", id: "phastCons", defaultValue: "[0..1]:0.1", type: "string"
+                                id: "phastCons", name: "PhastCons", defaultValue: "[0..1]:0.1", type: "number"
                             },
                             {
-                                name: "PhyloP", id: "phylop", defaultValue: "", type: "string"
+                                id: "phylop", name: "PhyloP", defaultValue: "", type: "number"
                             },
                             {
-                                name: "Gerp", id: "gerp", defaultValue: "[-12.3..6.17]:2", type: "string"
+                                id: "gerp", name: "Gerp", defaultValue: "[-12.3..6.17]:2", type: "number"
                             },
                             {
-                                name: "CADD Raw", id: "caddRaw", defaultValue: "", type: "string"
+                                id: "sift", name: "Sift", defaultValue: "[0..1]:0.1", type: "number"
                             },
                             {
-                                name: "CADD Scaled", id: "caddScaled", defaultValue: "", type: "string"
-                            },
-                            {
-                                name: "Sift", id: "sift", defaultValue: "[0..1]:0.1", type: "string"
-                            },
-                            {
-                                name: "Polyphen", id: "polyphen", defaultValue: "[0..1]:0.1", type: "string"
+                                id: "polyphen", name: "Polyphen", defaultValue: "[0..1]:0.1", type: "number"
                             }
                         ]
                     },
                     {
-                        name: "Population frequency Ranges",
+                        name: "Population Frequency",
                         fields: [
                             ...this.populationFrequencies.studies.map(study =>
                                 study.populations.map(population => (
                                         {
                                             id: `popFreq__${study.id}__${population.id}`,
-                                            value: `popFreq__${study.id}__${population.id}`,
-                                            name: `pop Freq | ${study.id} | ${population.id}`,
-                                            type: "string"
+                                            // value: `popFreq__${study.id}__${population.id}`,
+                                            name: `${study.id} - ${population.id}`,
+                                            defaultValue: "[0..1]:0.1",
+                                            type: "number"
                                         }
                                     )
                                 )
@@ -734,54 +734,63 @@ export default class OpencgaVariantBrowser extends LitElement {
                     }
                 ]
             }
-
         };
     }
 
-    render() {
-        return html`
-        <style include="jso-styles">
-        </style>
+    static get styles() {
+        return css`
+            .content-tab { 
+                padding-top: 20px; 
+            }
+        `;
+    }
 
-        ${this.checkProjects ? html`
+    render() {
+        // Check if there is any project available
+        if (!this.checkProjects) {
+            return html`
+                <div class="guard-page">
+                    <i class="fas fa-lock fa-5x"></i>
+                    <h3>No public projects available to browse. Please login to continue</h3>
+                </div>`;
+        }
+
+        return html`
             <div class="page-title">
-                <h2>
+                <h2 style="margin-top: 10px; margin-bottom: 20px">
                     <i class="${this._config.icon}" aria-hidden="true"></i>&nbsp;${this._config.title}
                 </h2>
             </div>
             
-            <!-- 
-            <div class="panel" style="margin-bottom: 15px">
-                <h3 style="margin: 10px 10px 10px 15px">
-                    <i class="${this._config.icon}" aria-hidden="true"></i>&nbsp;${this._config.title}
-                </h3>
-            </div> -->
-
             <div class="row" style="padding: 0px 10px">
                 <div class="col-md-2 left-menu">
                 
                     <div class="search-button-wrapper">
                         <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">
-                            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> Run
+                            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this._config.filter.button}
                         </button>
                     </div>
+                    
                     <ul class="nav nav-tabs left-menu-tabs" role="tablist">
-                        <li role="presentation" class="active"><a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab">Filters</a></li>
-                        <li role="presentation"><a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">Aggregation</a></li>
+                        <li role="presentation" class="active">
+                            <a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab" style="font-size: 1.2em;font-weight: bold">${this._config.filter.title}</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab" style="font-size: 1.2em;font-weight: bold">${this._config.aggregation.title}</a>
+                        </li>
                     </ul>
                     
                     <div class="tab-content">
                         <div role="tabpanel" class="tab-pane active" id="filters_tab">
-                            <opencga-variant-filter .opencgaSession=${this.opencgaSession}
-                                                        .opencgaClient="${this.opencgaClient}"
+                            <opencga-variant-filter     .opencgaSession=${this.opencgaSession}
                                                         .cellbaseClient="${this.cellbaseClient}"
                                                         .populationFrequencies="${this.populationFrequencies}"
                                                         .consequenceTypes="${this.consequenceTypes}"
                                                         .query="${this.query}"
-                                                        .config="${this._config.filter}"
                                                         .searchButton="${false}"
                                                         @queryChange="${this.onQueryFilterChange}"
-                                                        @querySearch="${this.onQueryFilterSearch}">
+                                                        @querySearch="${this.onQueryFilterSearch}"
+                                                        .config="${this._config.filter}">
                             </opencga-variant-filter>
                         </div>
                         
@@ -804,11 +813,13 @@ export default class OpencgaVariantBrowser extends LitElement {
                                     <i class="fa fa-table icon-padding" aria-hidden="true"></i> Table Result
                                 </button>
                                 <button type="button" class="btn btn-success ripple content-pills" @click="${this.onClickPill}" data-id="facet-tab">
-                                    <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i> Aggregation stats
+                                    <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i> Aggregation Stats
                                 </button>
-                                <button type="button" class="btn btn-success ripple content-pills" @click="${this.onClickPill}" data-id="comparator-tab">
-                                    <i class="fa fa-users icon-padding" aria-hidden="true"></i> Comparator
-                                </button>
+                                <!--
+                                    <button type="button" class="btn btn-success ripple content-pills" @click="${this.onClickPill}" data-id="comparator-tab">
+                                        <i class="fa fa-users icon-padding" aria-hidden="true"></i> Comparator
+                                    </button>
+                                -->
                             </div>
                         </div>
                     </div>
@@ -822,7 +833,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                                                 .refresh="${this.executedQuery}"
                                                 .facetQuery="${this.selectedFacetFormatted}"
                                                 .alias="${this.activeFilterAlias}"
-                                                .config="${this._config.activeFilters}"
+                                                .config="${this._config.filter.activeFilters}"
                                                 .filters="${this._config.filter.examples}"
                                                 @activeFacetChange="${this.onActiveFacetChange}"
                                                 @activeFacetClear="${this.onActiveFacetClear}"
@@ -845,13 +856,12 @@ export default class OpencgaVariantBrowser extends LitElement {
                                                   @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
                             </opencga-variant-grid>
             
-            
                             <!-- Bottom tabs with specific variant information -->
                             <opencga-variant-detail-view    .opencgaSession="${this.opencgaSession}" 
                                                             .cellbaseClient="${this.cellbaseClient}"
-                                                            .variantId="${this.variantId}">
+                                                            .variantId="${this.variantId}"
+                                                            .config="${this._config.filter.detail}">
                             </opencga-variant-detail-view>
-                            
                         </div>
                         
                         <div id="facet-tab" class="content-tab">
@@ -865,13 +875,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                     </div>
                 </div>
             </div>
-        ` : html`
-            <div class="guard-page">
-                <i class="fas fa-lock fa-5x"></i>
-                <h3>No public projects available to browse. Please login to continue</h3>
-            </div>
-        `}
-    `;
+        `;
     }
 }
 
