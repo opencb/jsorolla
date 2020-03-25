@@ -20,7 +20,6 @@
         width: 1500px;
         height: 1000px;
         overflow: auto;*/
-
     }
 
     tspan {
@@ -151,10 +150,17 @@
             const x1 = job.start;
             const x2 = job.end;
             const y = job.y;
-            draw.line(x1, y, x2, y)
+            const line = draw.line(x1, y, x2, y)
                 .stroke({color: statusColor(job.status), width: config.lineWidth, linecap: "round"})
-                .attr({start: job.timestampStart});
+                .attr({id: job.id, class:"job", start: job.timestampStart, _color: statusColor(job.status)});
+
+            line.on('click', () => onJobClick(line));
             intervals.push(job);
+        }
+
+        function onJobClick(line) {
+            SVG.find('.job').forEach( line => line.stroke({color: line.node.attributes._color.value}));
+            line.stroke({color: "#000"})
         }
 
         function areOverlappingIntervals(start1, end1, start2, end2) {

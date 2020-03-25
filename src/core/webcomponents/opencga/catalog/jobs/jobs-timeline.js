@@ -33,6 +33,9 @@ export default class JobsTimeline extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            active: {
+                type: Object
+            },
             query: {
                 type: Object
             },
@@ -52,12 +55,20 @@ export default class JobsTimeline extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("query")) {
+        if (changedProperties.has("active") && this.active) {
+            this.queryObserver();
+        }
+        if (changedProperties.has("query") && this.active) {
             this.queryObserver();
         }
     }
 
+    activeObserver() {
+        console.log("fire rest call iff query has changed");
+    }
+
     queryObserver(){
+        console.log("query observer")
         const filters = {
             study: this.opencgaSession.study.fqn,
             deleted: false,
@@ -92,6 +103,7 @@ export default class JobsTimeline extends LitElement {
 
             console.log("this._results",this._results)
 
+            this.querySelector("#svg").innerHTML = ""; // TODO check if this causes memory leaks
             this.draw = SVG().addTo("#svg").size(this._config.board.width + this._config.board.padding, this._config.board.height + this._config.board.padding);
             const rect = this.draw.rect(this._config.board.width, this._config.board.height).attr({fill: "#f3f3f3", x: this._config.board.originX + this._config.board.padding/2, y: this._config.board.originY + this._config.board.padding/2});
 
@@ -150,9 +162,8 @@ export default class JobsTimeline extends LitElement {
     }
 
     render() {
-        return html`
+        return html` timeline ${this.active}
         <div id="svg">
-            
         </div>
         `;
     }
