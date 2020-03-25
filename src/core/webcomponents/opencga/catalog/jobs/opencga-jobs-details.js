@@ -56,9 +56,14 @@ export default class OpencgaJobsDetails extends LitElement {
     }
 
     updated(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.job = null
+        }
+
         if (changedProperties.has("job")) {
 
         }
+
         if (changedProperties.has("activeTab")) {
             console.log("activeTab")
         }

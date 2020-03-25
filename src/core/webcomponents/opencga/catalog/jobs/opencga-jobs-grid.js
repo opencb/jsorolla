@@ -50,7 +50,7 @@ export default class OpencgaJobsGrid extends LitElement {
             query: {
                 type: Object
             },
-            // TODO uhm..
+            // TODO check do we really need it..
             eventNotifyName: {
                 type: String
             },
@@ -83,7 +83,7 @@ export default class OpencgaJobsGrid extends LitElement {
         }
 
         if (changedProperties.has("filteredVariables")) {
-            this.calculateFilters(); // TODO whats this?
+            //this.calculateFilters(); // TODO whats this?
         }
     }
 
@@ -337,7 +337,7 @@ export default class OpencgaJobsGrid extends LitElement {
         }
     }
 
-    updateForms(filters) {
+    /*updateForms(filters) {
         // This is just to avoid entering here when it has just been initialized
         if (UtilsNew.isUndefined(this._prefix)) {
             return;
@@ -369,11 +369,11 @@ export default class OpencgaJobsGrid extends LitElement {
             }
         }
     }
-
+*/
     /**
      * Read from the values in the forms, and sets the filters.
      */
-    calculateFilters() {
+    /*calculateFilters() {
         const filters = {};
         let fileName = "";
         let individual = "";
@@ -402,7 +402,7 @@ export default class OpencgaJobsGrid extends LitElement {
             filters["annotation"] = annotations;
         }
         this.filters = filters;
-    }
+    }*/
 
     // TODO adapct to jobs
     onSearch() {
