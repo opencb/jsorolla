@@ -21,6 +21,7 @@ import "./annotation/cellbase-variant-annotation-summary.js";
 // import "./annotation/cellbase-variantannotation-view.js";
 import "./annotation/cellbase-annotation-consequencetype-grid.js";
 import "./annotation/cellbase-population-frequency-grid.js";
+import "./opencga-variant-cohort-stats.js";
 
 export default class OpenCGAVariantDetailView extends LitElement {
 
@@ -152,7 +153,7 @@ export default class OpenCGAVariantDetailView extends LitElement {
                     //     ]
                     // });
 
-                    _this.requestUpdate();
+                    // _this.requestUpdate();
                 });
         }
     }
@@ -226,9 +227,8 @@ export default class OpenCGAVariantDetailView extends LitElement {
                                         
                                         <div id="${this._prefix}annotationConsType" role="tabpanel" class="tab-pane">
                                             <div style="width: 90%;padding-top: 8px">
-                                                <cellbase-annotation-consequencetype-grid .data="${this.variant.annotation.consequenceTypes}"
-                                                          .hashFragmentCredentials="${this.hashFragmentCredentials}"
-                                                          .consequenceTypes="${this.consequenceTypes}">
+                                                <cellbase-annotation-consequencetype-grid   .data="${this.variant.annotation.consequenceTypes}"
+                                                                                            .consequenceTypes="${this.consequenceTypes}">
                                                 </cellbase-annotation-consequencetype-grid>
                                             </div>
                                         </div>

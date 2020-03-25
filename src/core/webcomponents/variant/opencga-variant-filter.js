@@ -25,6 +25,7 @@ import "../commons/filters/region-filter.js";
 import "../commons/filters/clinvar-accessions-filter.js";
 import "../commons/filters/cohort-filter.js";
 import "../commons/filters/consequence-type-filter.js";
+import "../commons/filters/consequence-type-select-filter.js";
 import "../commons/filters/conservation-filter.js";
 import "../commons/filters/disease-filter.js";
 import "../commons/filters/feature-filter.js";
@@ -449,7 +450,7 @@ export default class OpencgaVariantFilter extends LitElement {
             case "file-qual":
                 content = html`<file-qual-filter .qual="${this.preparedQuery.qual}" @filterChange="${e => this.onFilterChange("qual", e.detail.value)}"></file-qual-filter>`;
                 break;
-            case "location":
+            case "region":
                 content = html`<region-filter .cellbaseClient="${this.cellbaseClient}" .region="${this.preparedQuery.region}" 
                                            @filterChange="${e => this.onFilterChange("region", e.detail.value)}"></region-filter>`;
                 break;
@@ -472,6 +473,9 @@ export default class OpencgaVariantFilter extends LitElement {
                 break;
             case "consequenceType":
                 content = html`<consequence-type-filter .consequenceTypes="${this.consequenceTypes}" .ct="${this.preparedQuery.ct}"  @filterChange="${e => this.onFilterChange("ct", e.detail.value)}"></consequence-type-filter>`;
+                break;
+            case "consequenceTypeSelect":
+                content = html`<consequence-type-select-filter .ct="${this.preparedQuery.ct}" .config="${this.consequenceTypes}" @filterChange="${e => this.onFilterChange("ct", e.detail.value)}"></consequence-type-select-filter>`;
                 break;
             case "proteinSubstitutionScore":
                 content = html`<protein-substitution-score-filter .protein_substitution="${this.preparedQuery.protein_substitution}" @filterChange="${e => this.onFilterChange("protein_substitution", e.detail.value)}"></protein-substitution-score-filter>`;
