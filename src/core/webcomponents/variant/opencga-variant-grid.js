@@ -189,7 +189,6 @@ export default class OpencgaVariantGrid extends LitElement {
         this.from = 1;
         this.to = 10;
         this.approximateCountResult = false;
-        this.pageNumber = 1;
         // let skipCount = false;
         // let count = true;
 
@@ -206,8 +205,8 @@ export default class OpencgaVariantGrid extends LitElement {
             // const queryParams = this._getUrlQueryParams;
             const _numTotal = -1;
             const _this = this;
-            $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable("destroy");
-            $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable({
+            _table.bootstrapTable("destroy");
+            _table.bootstrapTable({
                 // url: urlQueryParams.host,
                 columns: _this._columns,
                 method: "get",
@@ -223,50 +222,29 @@ export default class OpencgaVariantGrid extends LitElement {
                 formatLoadingMessage: () =>"<loading-spinner></loading-spinner>",
                 // this makes the opencga-variant-grid properties available in the bootstrap-table formatters
                 variantGrid: _this,
+                ajax: params => {
+                    console.log("get options", _table.bootstrapTable("getOptions").pageNumber);
 
-                // TODO recheck query
-                // ajax: params => {
-                //     let _count = false;
-                //     params
-                //     if (this.pageNumber === 0) {
-                //         // skipCount = true;
-                //         _count = true;
-                //     }
-                //     const filters = {
-                //         study: _this.opencgaSession.study.fqn,
-                //         limit: params.data.limit || _this._config.pageSize,
-                //         skip: params.data.offset || 0,
-                //         count: _count,
-                //         //include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
-                //         ..._this.query
-                //     };
-                //     debugger
-                //     _this.opencgaSession.opencgaClient.variants().query(filters).then( res => params.success(res));
-                // },
-
-
-                ajax: function(params) {
                     let filters = {
-                        study: _this.opencgaSession.study.fqn,
-                        limit: params.data.limit || _this.options.pageSize,
-                        skip: params.data.offset || 0
+                        study: this.opencgaSession.study.fqn,
+                        limit: params.data.limit || this.options.pageSize,
+                        skip: params.data.offset || 0,
+                        count: _table.bootstrapTable("getOptions").pageNumber === 1
                         // include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
                     };
-                    // keep in sync this.pageNumber and this.options.pageNumber using onPageChange apparently does't work (when ajax callback is executed pageNumber has the previous value)
-                    if (this.options.pageNumber === 1) {
-                        filters.count = true;
-                    }
-                    if (typeof _this.query.genotype === "undefined" && typeof _this.query.sample === "undefined"
-                        && typeof _this.query.family === "undefined") {
+
+                    if (typeof this.query.genotype === "undefined" && typeof this.query.sample === "undefined" &&
+                        typeof this.query.family === "undefined") {
                         filters.summary = true;
                     }
-                    if (_this._config.grid && _this._config.grid.queryParams) {
-                        filters = {...filters, ..._this._config.grid.queryParams};
+                    if (this._config.grid && this._config.grid.queryParams) {
+                        filters = {...filters, ...this._config.grid.queryParams};
                     }
                     // We finally overwrite with the query object passed
-                    filters = {...filters, ..._this.query};
+                    filters = {...filters, ...this.query};
 
-                    _this.opencgaSession.opencgaClient.variants()
+                    console.log("filters", filters)
+                    this.opencgaSession.opencgaClient.variants()
                         .query(filters)
                         .then( res => params.success(res));
                 },
@@ -376,8 +354,8 @@ export default class OpencgaVariantGrid extends LitElement {
                     debugger;
                 },
                 onPageChange: (page, size) => {
-                    //this.pageNumber = page;
-                    //this._config.pageSize = size;
+                    // this.pageNumber = page;
+                    // this._config.pageSize = size;
                     this.from = (page - 1) * size + 1;
                     this.to = page * size;
                 },

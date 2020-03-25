@@ -115,20 +115,11 @@ export default class OpencgaFileGrid extends LitElement {
                 this._files = [];
             }
 
-            // Check that HTTP protocol is present and complete the URL
-            let opencgaHostUrl = this.opencgaSession.opencgaClient.getConfig().host;
-            if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
-                opencgaHostUrl = "http://" + opencgaHostUrl;
-            }
-            opencgaHostUrl += "/webservices/rest/v1/files/search";
-
-            let count = true;
-
             const _table = $("#" + this._prefix + "FileBrowserGrid");
 
             const _this = this;
-            $("#" + this._prefix + "FileBrowserGrid").bootstrapTable("destroy");
-            $("#" + this._prefix + "FileBrowserGrid").bootstrapTable({
+            _table.bootstrapTable("destroy");
+            _table.bootstrapTable({
                 // url: opencgaHostUrl,
                 columns: _this._columns,
                 method: "get",
@@ -136,17 +127,13 @@ export default class OpencgaFileGrid extends LitElement {
                 uniqueId: "id",
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
-                    if (this.pageNumber > 1) {
-                        count = false;
-                    }
                     const filters = {
                         study: this.opencgaSession.study.fqn,
-                        // sid: Cookies.get(this.opencgaSession.opencgaClient.getConfig().cookieSessionId),
                         type: "FILE",
                         order: params.data.order,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
-                        count: count,
+                        count: !_table.bootstrapTable("getOptions").pageNumber || _table.bootstrapTable("getOptions").pageNumber === 1,
                         include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
                         ...this.search
                     };
@@ -159,28 +146,6 @@ export default class OpencgaFileGrid extends LitElement {
                 showExport: _this._config.showExport,
                 detailView: _this._config.detailView,
                 detailFormatter: _this._config.detailFormatter,
-
-                // it is not used anymore
-                /* queryParams: function(params) {
-                    if (this.pageNumber > 1) {
-                        skipCount = true;
-                    }
-                    const auxParams = {
-                        study: _this.opencgaSession.study.fqn,
-                        sid: Cookies.get(_this.opencgaSession.opencgaClient.getConfig().cookieSessionId),
-                        order: params.order,
-                        sort: params.sort,
-                        limit: params.limit,
-                        skip: params.offset,
-                        skipCount: skipCount,
-                        include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid"
-                    };
-
-                    if (UtilsNew.isUndefined(filters)) {
-                        filters = {};
-                    }
-                    return Object.assign(filters, auxParams);
-                },*/
                 responseHandler: function(response) {
                     let _numMatches = _this._numMatches || 0;
                     if (response.getResponse().numMatches >= 0) {
@@ -196,12 +161,14 @@ export default class OpencgaFileGrid extends LitElement {
                         _this.to = _numMatches;
                     }
                     _this.numTotalResultsText = _numMatches.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
                     if (response.getParams().skip === 0 && _numMatches < response.getParams().limit) {
                         _this.from = 1;
                         _this.to = _numMatches;
                     }
                     _this.approximateCountResult = response.getResponse().attributes.approximateCount;
                     _this.requestUpdate(); // it is necessary to refresh numTotalResultsText in opencga-grid-toolbar
+
                     return {
                         total: _numMatches,
                         rows: response.getResults()
@@ -315,7 +282,7 @@ export default class OpencgaFileGrid extends LitElement {
                     this.pageNumber = page;
                     this.from = (page - 1) * size + 1;
                     this.to = page * size;
-                },
+                }
             });
 
             this.opencgaSession.opencgaClient.studies().info(this.opencgaSession.study.id)
@@ -583,7 +550,7 @@ export default class OpencgaFileGrid extends LitElement {
         return this._columns;
     }
 
-    /*_getUrlQueryParams() {
+    /* _getUrlQueryParams() {
         // Check the opencgaClient exists
         if (UtilsNew.isUndefinedOrNull(this.opencgaSession.opencgaClient)) {
             return {host: "", queryParams: {}};

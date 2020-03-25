@@ -177,15 +177,12 @@ export default class OpencgaIndividualGrid extends LitElement {
                 },*/
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
-                    if (this.pageNumber > 1) {
-                        count = false;
-                    }
                     const _filters = {
                         // study: this.opencgaSession.study.fqn,
                         order: params.data.order,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
-                        count: count,
+                        count: !_table.bootstrapTable("getOptions").pageNumber || _table.bootstrapTable("getOptions").pageNumber === 1,
                         ...filters
                     };
                     this.opencgaSession.opencgaClient.individuals().search(_filters)

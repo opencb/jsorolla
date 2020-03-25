@@ -101,7 +101,6 @@ export default class OpencgaSampleGrid extends LitElement {
 
         this.from = 1;
         this.to = 10;
-        this.pageNumber = 1;
 
         if (this.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
 
@@ -150,20 +149,15 @@ export default class OpencgaSampleGrid extends LitElement {
                 detailFormatter: _this._config.detailFormatter,
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
-                    if (this.pageNumber > 1) {
-                        count = false;
-                    }
                     const _filters = {
-                        // study: this.opencgaSession.study.fqn,
+                        study: this.opencgaSession.study.fqn,
                         order: params.data.order,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
-                        count: this.pageNumber > 1,
+                        count: !_table.bootstrapTable("getOptions").pageNumber || _table.bootstrapTable("getOptions").pageNumber === 1,
                         ...filters
                     };
-                    this.opencgaSession.opencgaClient.samples().search(_filters)
-                        .then( res => params.success(res))
-                        .catch( e => console.error(e));
+                    this.opencgaSession.opencgaClient.samples().search(_filters).then( res => params.success(res));
                 },
                 responseHandler: function(response) {
                     let _numMatches = _this._numMatches || 0;

@@ -50,7 +50,7 @@ export default class OpencgaPanelGrid extends LitElement {
             config: {
                 type: Object
             }
-        }
+        };
     }
 
     _init() {
@@ -58,17 +58,17 @@ export default class OpencgaPanelGrid extends LitElement {
         this.defaultConfig = this.getDefaultConfig();
 
         window.icons = {
-            refresh: 'fa-refresh',
-            columns: 'fa-th',
-            paginationSwitchDown: 'fa-caret-square-o-down',
-            paginationSwitchUp: 'fa-caret-square-o-up',
-            detailOpen: 'fa-plus',
-            detailClose: 'fa-minus'
+            refresh: "fa-refresh",
+            columns: "fa-th",
+            paginationSwitchDown: "fa-caret-square-o-down",
+            paginationSwitchUp: "fa-caret-square-o-up",
+            detailOpen: "fa-plus",
+            detailClose: "fa-minus"
         };
     }
 
     updated(changedProperties) {
-        if(changedProperties.has("property")) {
+        if (changedProperties.has("property")) {
             this.propertyObserver();
         }
     }
@@ -82,49 +82,48 @@ export default class OpencgaPanelGrid extends LitElement {
     }
 
 
-
     renderPanelTable() {
-        let _config = Object.assign(this.defaultConfig, this.config.grid);
+        const _config = Object.assign(this.defaultConfig, this.config.grid);
         // Check that HTTP protocol is present and complete the URL
         this.from = 1;
         this.to = Math.max(UtilsNew.isNotUndefinedOrNull(this.query.limit) ? this.query.limit : 0, _config.pageSize);
 
-        let urlQueryParams = this._getUrlQueryParams();
-        let queryParams = urlQueryParams.queryParams;
-        let _numTotal = -1;
+        const urlQueryParams = this._getUrlQueryParams();
+        const queryParams = urlQueryParams.queryParams;
+        const _numTotal = -1;
 
-        let _this = this;
-        let _table = $('#' + this._prefix + 'PanelsGrid');
-        $(_table).bootstrapTable('destroy');
+        const _this = this;
+        const _table = $("#" + this._prefix + "PanelsGrid");
+        $(_table).bootstrapTable("destroy");
         $(_table).bootstrapTable({
             url: urlQueryParams.host,
             columns: _this._createPanels(),
-            method: 'get',
-            sidePagination: 'server',
+            method: "get",
+            sidePagination: "server",
 
             // Set table properties, these are read from config property
             pagination: _config.pagination,
             pageSize: _config.pageSize,
             pageList: _config.pageList,
-            queryParams: function (params) {
+            queryParams: function(params) {
                 if ((queryParams.limit === undefined || params.limit !== queryParams.limit) && UtilsNew.isNotUndefinedOrNull(params.limit)) {
                     queryParams.limit = params.limit;
                 }
                 queryParams.skip = params.offset;
                 return queryParams;
             },
-            responseHandler: function (response) {
+            responseHandler: function(response) {
                 if (!_this.hasOwnProperty("numTotalResults")) {
                     _this.numTotalResults = 0;
                 }
-                if (_this.numTotalResults !== response.response[0].numTotalResults
-                    && response.queryOptions.skip === 0) {
+                if (_this.numTotalResults !== response.response[0].numTotalResults &&
+                    response.queryOptions.skip === 0) {
                     _this.numTotalResults = response.response[0].numTotalResults;
                 }
 
                 _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-                if(response.queryOptions.skip === 0 && _this.numTotalResults < response.queryOptions.limit){
+                if (response.queryOptions.skip === 0 && _this.numTotalResults < response.queryOptions.limit) {
                     _this.from = 1;
                     _this.to = _this.numTotalResults;
                 }
@@ -134,22 +133,22 @@ export default class OpencgaPanelGrid extends LitElement {
                     rows: response.response[0].result
                 };
             },
-            onClickRow: function (row, element, field) {
-                $('.success').removeClass('success');
-                $(element).addClass('success');
+            onClickRow: function(row, element, field) {
+                $(".success").removeClass("success");
+                $(element).addClass("success");
                 _this.selectPanel(row);
             },
-            onLoadSuccess: function (data) {
-                PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
-//                        _this.selectPanel(data[0]);
+            onLoadSuccess: function(data) {
+                PolymerUtils.querySelector(_table.selector).rows[1].setAttribute("class", "success");
+                //                        _this.selectPanel(data[0]);
 
             },
-            onPageChange: function (page, size) {
+            onPageChange: function(page, size) {
                 _this.from = (page - 1) * size + 1;
                 _this.to = page * size;
             },
             onPostBody: function(data) {
-                PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
+                PolymerUtils.querySelector(_table.selector).rows[1].setAttribute("class", "success");
                 // _this.panelSelected = data[0];
                 _this.selectPanel(data[0]);
             }
@@ -158,30 +157,30 @@ export default class OpencgaPanelGrid extends LitElement {
 
 
     renderInstallationPanelTable() {
-        let _config = Object.assign(this.defaultConfig, this.config.grid);
+        const _config = Object.assign(this.defaultConfig, this.config.grid);
         // Check that HTTP protocol is present and complete the URL
         this.from = 1;
         this.to = Math.max(UtilsNew.isNotUndefinedOrNull(this.query.limit) ? this.query.limit : 0, _config.pageSize);
 
-        let urlQueryParams = this._getUrlQueryParams();
-        let queryParams = urlQueryParams.queryParams;
-        let _numTotal = -1;
+        const urlQueryParams = this._getUrlQueryParams();
+        const queryParams = urlQueryParams.queryParams;
+        const _numTotal = -1;
 
-        let _this = this;
-        let _table = $('#' + this._prefix + 'InstallationPanelsGrid');
-        $(_table).bootstrapTable('destroy');
+        const _this = this;
+        const _table = $("#" + this._prefix + "InstallationPanelsGrid");
+        $(_table).bootstrapTable("destroy");
         $(_table).bootstrapTable({
             url: urlQueryParams.host,
             columns: _this._createPanels(),
-            method: 'get',
-            sidePagination: 'server',
+            method: "get",
+            sidePagination: "server",
 
             // Set table properties, these are read from config property
             pagination: _config.pagination,
             pageSize: _config.pageSize,
             pageList: _config.pageList,
 
-            queryParams: function (params) {
+            queryParams: function(params) {
                 if ((queryParams.limit === undefined || params.limit !== queryParams.limit) && UtilsNew.isNotUndefinedOrNull(params.limit)) {
                     queryParams.limit = params.limit;
                 }
@@ -190,18 +189,18 @@ export default class OpencgaPanelGrid extends LitElement {
                 queryParams.global = true;
                 return queryParams;
             },
-            responseHandler: function (response) {
+            responseHandler: function(response) {
                 if (!_this.hasOwnProperty("numTotalResults")) {
                     _this.numTotalResults = 0;
                 }
-                if (_this.numTotalResults !== response.response[0].numTotalResults
-                    && response.queryOptions.skip === 0) {
+                if (_this.numTotalResults !== response.response[0].numTotalResults &&
+                    response.queryOptions.skip === 0) {
                     _this.numTotalResults = response.response[0].numTotalResults;
                 }
 
                 _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-                if(response.queryOptions.skip === 0 && _this.numTotalResults < response.queryOptions.limit){
+                if (response.queryOptions.skip === 0 && _this.numTotalResults < response.queryOptions.limit) {
                     _this.from = 1;
                     _this.to = _this.numTotalResults;
                 }
@@ -211,22 +210,22 @@ export default class OpencgaPanelGrid extends LitElement {
                     rows: response.response[0].result
                 };
             },
-            onClickRow: function (row, element, field) {
-                $('.success').removeClass('success');
-                $(element).addClass('success');
+            onClickRow: function(row, element, field) {
+                $(".success").removeClass("success");
+                $(element).addClass("success");
                 _this.selectInstallationPanel(row);
             },
-            onLoadSuccess: function (data) {
-                PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
-//                        _this.selectPanel(data[0]);
+            onLoadSuccess: function(data) {
+                PolymerUtils.querySelector(_table.selector).rows[1].setAttribute("class", "success");
+                //                        _this.selectPanel(data[0]);
 
             },
-            onPageChange: function (page, size) {
+            onPageChange: function(page, size) {
                 _this.from = (page - 1) * size + 1;
                 _this.to = page * size;
             },
             onPostBody: function(data) {
-                PolymerUtils.querySelector(_table.selector).rows[1].setAttribute('class', 'success');
+                PolymerUtils.querySelector(_table.selector).rows[1].setAttribute("class", "success");
                 // _this.panelSelected = data[0];
                 _this.selectInstallationPanel(data[0]);
             }
@@ -242,7 +241,7 @@ export default class OpencgaPanelGrid extends LitElement {
         let host = this.opencgaClient.getConfig().host;
         // By default we assume https protocol instead of http
         if (!host.startsWith("https://") && !host.startsWith("http://")) {
-            host = 'https://' + this.opencgaClient.getConfig().host;
+            host = "https://" + this.opencgaClient.getConfig().host;
         }
 
         if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
@@ -252,13 +251,13 @@ export default class OpencgaPanelGrid extends LitElement {
             if (UtilsNew.isEmpty(this.query.studies) || this.query.studies.split(new RegExp("[,;]")).length === 1) {
                 this.query.study = this.opencgaSession.study.fqn;
             }
-            host += '/webservices/rest/v1/panels/search';
+            host += "/webservices/rest/v1/panels/search";
         } else {
             return {host: host, queryParams: {}};
         }
 
         // Init queryParams with default and config values plus query object
-        let queryParams = Object.assign(
+        const queryParams = Object.assign(
             {
                 sid: this.opencgaClient._config.sessionId,
                 include: "id,name,author,version,description,genes,variants,phenotypes,source,creationDate",
@@ -333,46 +332,46 @@ export default class OpencgaPanelGrid extends LitElement {
         return [
             [
                 {
-                    title: 'ID',
-                    field: 'id',
+                    title: "ID",
+                    field: "id",
                     // sortable: true,
                     colspan: 1,
                     rowspan: 1,
-                    halign: 'center',
+                    halign: "center",
                     searchable: true
                 },
                 {
-                    title: 'Name',
-                    field: 'name',
+                    title: "Name",
+                    field: "name",
                     // sortable: true,
                     colspan: 1,
                     rowspan: 1,
-                    halign: 'center',
+                    halign: "center",
                     searchable: true
                 },
                 {
-                    title: 'Number of Phenotypes',
+                    title: "Number of Phenotypes",
                     // sortable: true,
                     colspan: 1,
                     rowspan: 1,
-                    halign: 'center',
-                    formatter: this.phenotypesFormatter,
+                    halign: "center",
+                    formatter: this.phenotypesFormatter
                 },
                 {
-                    title: 'Number of Genes',
+                    title: "Number of Genes",
                     // sortable: true,
                     colspan: 1,
                     rowspan: 1,
-                    halign: 'center',
-                    formatter: this.genesFormatter,
+                    halign: "center",
+                    formatter: this.genesFormatter
                 },
                 {
-                    title: 'Number of Mutations',
+                    title: "Number of Mutations",
                     // sortable: true,
                     colspan: 1,
                     rowspan: 1,
-                    halign: 'center',
-                    formatter: this.mutationsFormatter,
+                    halign: "center",
+                    formatter: this.mutationsFormatter
                 }
             ]
         ];
@@ -383,12 +382,12 @@ export default class OpencgaPanelGrid extends LitElement {
         return [
             [
                 {
-                    title: 'Panel',
-                    field: 'name',
+                    title: "Panel",
+                    field: "name",
                     // sortable: true,
                     colspan: 1,
                     rowspan: 1,
-                    halign: 'center',
+                    halign: "center",
                     searchable: true
                 }
             ]
@@ -452,6 +451,7 @@ export default class OpencgaPanelGrid extends LitElement {
         </opencga-panel-summary>
         `;
     }
+
 }
 
 customElements.define("opencga-panel-grid", OpencgaPanelGrid);

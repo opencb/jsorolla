@@ -140,38 +140,14 @@ export default class OpencgaCohortGrid extends LitElement {
                 showExport: _this._config.showExport,
                 detailView: _this._config.detailView,
                 detailFormatter: _this._config.detailFormatter,
-/*
-                queryParams: function(params) {
-                    if (this.pageNumber > 1) {
-                        skipCount = true;
-                    }
-
-                    const auxParams = {
-                        sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
-                        order: params.order,
-                        sort: params.sort,
-                        limit: params.limit,
-                        skip: params.offset,
-                        skipCount: skipCount,
-                        include: "id,creationDate,status,type,samples"
-                    };
-
-                    if (UtilsNew.isUndefined(filters)) {
-                        filters = {};
-                    }
-                    return Object.assign(filters, auxParams);
-                },*/
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
-                ajax: (params) => {
-                    if (this.pageNumber > 1) {
-                        skipCount = true;
-                    }
+                ajax: params => {
                     let _filters = {
                         //study: this.opencgaSession.study.fqn,
                         order: params.data.order,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
-                        skipCount: skipCount,
+                        count: !_table.bootstrapTable("getOptions").pageNumber || _table.bootstrapTable("getOptions").pageNumber === 1,
                         include: "id,creationDate,status,type,samples",
                         ...filters
                     };
@@ -180,27 +156,30 @@ export default class OpencgaCohortGrid extends LitElement {
                         .catch( e => console.error(e)) ;
                 },
                 responseHandler: function(response) {
-                    if (!skipCount) {
-                        if (!_this.hasOwnProperty("numTotalResults")) {
-                            _this.numTotalResults = 0;
-                        }
-                        if (_this.numTotalResults !== response.getResponse().numTotalResults &&
-                            response.queryOptions.skip === 0) {
-                            _this.numTotalResults = response.getResponse().numTotalResults;
-                        }
+                    let _numMatches = _this._numMatches || 0;
+                    if (response.getResponse().numMatches >= 0) {
+                        _numMatches = response.getResponse().numMatches;
+                        _this._numMatches = _numMatches;
                     }
+                    // If no variant is returned then we start in 0
+                    if (response.getResponse(0).numMatches === 0) {
+                        _this.from = _numMatches;
+                    }
+                    // If do not fetch as many variants as requested then to is numMatches
+                    if (response.getResponse(0).numResults < this.pageSize) {
+                        _this.to = _numMatches;
+                    }
+                    _this.numTotalResultsText = _numMatches.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-                    _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-                    if (response.getParams().skip === 0 && _this.numTotalResults < response.getParams().limit) {
+                    if (response.getParams().skip === 0 && _numMatches < response.getParams().limit) {
                         _this.from = 1;
-                        _this.to = _this.numTotalResults;
+                        _this.to = _numMatches;
                     }
-
+                    _this.approximateCountResult = response.getResponse().attributes.approximateCount;
                     _this.requestUpdate(); // it is necessary to refresh numTotalResultsText in opencga-grid-toolbar
 
                     return {
-                        total: _this.numTotalResults,
+                        total: _numMatches,
                         rows: response.getResults()
                     };
                 },

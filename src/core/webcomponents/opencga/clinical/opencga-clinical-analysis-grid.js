@@ -139,8 +139,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             }
             opencgaHostUrl += "/webservices/rest/v1/analysis/clinical/search";
 
-            let skipCount = false;
-
             const _table = $("#" + this._prefix + "ClinicalAnalysisBrowserGrid");
 
             const _this = this;
@@ -163,10 +161,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 // Make Polymer components avalaible to table formatters
                 gridContext: _this,
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
-                ajax: (params) => {
-                    if (this.pageNumber > 1) {
-                        skipCount = true;
-                    }
+                ajax: params => {
                     let filters = {
                         ...this.query,
                         exclude: "files",
@@ -174,58 +169,35 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                         order: "asc",
                         sid: this.opencgaSession.opencgaClient._config.token,
                         skip: 0,
-                        skipCount: true,
+                        count: !_table.bootstrapTable("getOptions").pageNumber || _table.bootstrapTable("getOptions").pageNumber === 1,
                         study: this.opencgaSession.study.fqn
                     };
                     this.opencgaSession.opencgaClient.clinical().search(filters).then( res => params.success(res));
                 },
-                /*queryParams: function(params) {
-                    if (this.pageNumber > 1) {
-                        skipCount = true;
-                    }
-
-                    const auxParams = {
-                        sid: _this.opencgaSession.opencgaClient._config.sessionId,
-                        order: params.order,
-                        sort: params.sort,
-                        limit: params.limit,
-                        skip: params.offset,
-                        skipCount: skipCount,
-                        exclude: "files"
-                        // include: "id,name,priority,proband,family,disease,type,creationDate,interpretations,status,dueDate"
-                    };
-
-                    if (UtilsNew.isUndefined(filters)) {
-                        filters = {};
-                    }
-
-                    return Object.assign({}, filters, auxParams);
-                },*/
                 responseHandler: function(response) {
-                    if (!skipCount) {
-                        if (!_this.hasOwnProperty("numTotalResults")) {
-                            _this.numTotalResults = 0;
-                        }
-                        if (_this.numTotalResults !== response.response[0].numTotalResults &&
-                            response.queryOptions.skip === 0) {
-                            _this.numTotalResults = response.response[0].numTotalResults;
-                        }
+                    let _numMatches = _this._numMatches || 0;
+                    if (response.getResponse().numMatches >= 0) {
+                        _numMatches = response.getResponse().numMatches;
+                        _this._numMatches = _numMatches;
                     }
-
-                    // Set the num total rows in a human readable format
-
-                    _this.numTotalResultsText = _this.numTotalResults.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-                    if (response.queryOptions.skip === 0 && _this.numTotalResults < response.queryOptions.limit) {
+                    // If no variant is returned then we start in 0
+                    if (response.getResponse(0).numMatches === 0) {
+                        _this.from = _numMatches;
+                    }
+                    // If do not fetch as many variants as requested then to is numMatches
+                    if (response.getResponse(0).numResults < this.pageSize) {
+                        _this.to = _numMatches;
+                    }
+                    _this.numTotalResultsText = _numMatches.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    if (response.getParams().skip === 0 && _numMatches < response.getParams().limit) {
                         _this.from = 1;
-                        _this.to = _this.numTotalResults;
+                        _this.to = _numMatches;
                     }
-
+                    _this.approximateCountResult = response.getResponse().attributes.approximateCount;
                     _this.requestUpdate(); // it is necessary to refresh numTotalResultsText in opencga-grid-toolbar
-
                     return {
-                        total: _this.numTotalResults,
-                        rows: response.response[0].result
+                        total: _numMatches,
+                        rows: response.getResults()
                     };
                 },
                 onClickRow: function(row, element, field) {
@@ -771,7 +743,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             order: "asc",
             sid: this.opencgaSession.opencgaClient._config.token,
             skip: 0,
-            skipCount: true,
+            count: true,
             study: this.opencgaSession.study.fqn
         };
         this.opencgaSession.opencgaClient.clinical().search(params)

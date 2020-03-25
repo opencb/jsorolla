@@ -113,8 +113,6 @@ export default class OpencgaJobsGrid extends LitElement {
                 this._files = [];
             }
 
-            let count = true;
-
             const _this = this;
             $(this.table).bootstrapTable("destroy");
             $(this.table).bootstrapTable({
@@ -125,13 +123,10 @@ export default class OpencgaJobsGrid extends LitElement {
                 uniqueId: "id",
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
-                    if (this.pageNumber > 1) {
-                        count = false;
-                    }
                     const filters = {
                         study: this.opencgaSession.study.fqn,
                         deleted: false,
-                        count: count,
+                        count: !$(this.table).bootstrapTable("getOptions").pageNumber || $(this.table).bootstrapTable("getOptions").pageNumber === 1,
                         order: params.data.order,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
