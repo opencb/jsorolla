@@ -718,34 +718,17 @@ export default class OpencgaBrowser extends LitElement {
                     <!-- tabs buttons -->
                     
                     
-                    <div>
-                        <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
-                            <div class="btn-group" role="group" style="margin-left: 0px">
-                                ${this._config.tabs && this._config.tabs.length ? this._config.tabs.map( tab => html`
-                                    <button type="button" class="btn btn-success ripple content-pills ${tab.active ? "active" : ""}" @click="${this.onClickPill}" data-id="${tab.id}">
-                                        <i class="fa fa-table icon-padding" aria-hidden="true"></i> ${tab.name}
-                                    </button>
-                                `) : null}
-                            </div>
-                        </div>
-                    
-                    
-                    
-                    <div>
-                        <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
-                            <div class="btn-group" role="group" style="margin-left: 0px">
-                                <button type="button" class="btn btn-success active ripple content-pills" @click="${this.onClickPill}" data-id="table-tab">
-                                    <i class="fa fa-table icon-padding" aria-hidden="true"></i> Table Result
+
+                    <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
+                        <div class="btn-group" role="group" style="margin-left: 0px">
+                            ${this._config.views && this._config.views.length ? this._config.views.map( tab => html`
+                                <button type="button" class="btn btn-success ripple content-pills ${tab.active ? "active" : ""}" @click="${this.onClickPill}" data-id="${tab.id}">
+                                    <i class="fa fa-table icon-padding" aria-hidden="true"></i> ${tab.name}
                                 </button>
-                                <button type="button" class="btn btn-success ripple content-pills" @click="${this.onClickPill}" data-id="facet-tab">
-                                    <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i> Aggregation stats
-                                </button>
-                                <button type="button" class="btn btn-success ripple content-pills" @click="${this.onClickPill}" data-id="comparator-tab">
-                                    <i class="fa fa-users icon-padding" aria-hidden="true"></i> Comparator
-                                </button>
-                            </div>
+                            `) : html`No view has been configured`}
                         </div>
                     </div>
+                    
                     
                     <div>
                         <opencga-active-filters facetActive 

@@ -126,7 +126,22 @@ export default class OpencgaCohortBrowser extends LitElement {
         return {
             title: "Cohort Browser",
             icon: "fas fa-chart-bar",
-            showComparator: true,
+            searchButtonText: "Run",
+            views: [
+                {
+                    id: "table-tab",
+                    name: "Table result",
+                    active: true
+                },
+                {
+                    id: "facet-tab",
+                    name: "Aggregation stats"
+                },
+                {
+                    id: "comparator-tab",
+                    name: "Comparator"
+                }
+            ],
             filter: {
                 sections: [
                     {

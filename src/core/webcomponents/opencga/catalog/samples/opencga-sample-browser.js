@@ -126,10 +126,23 @@ export default class OpencgaSampleBrowser extends LitElement {
 
         return {
             title: "Sample Browser",
-            showTitle: true,
-            showAggregationStats: true,
-            showComparator: true,
             icon: "fas fa-chart-bar",
+            searchButtonText: "Run",
+            views: [
+                {
+                    id: "table-tab",
+                    name: "Table result",
+                    active: true
+                },
+                {
+                    id: "facet-tab",
+                    name: "Aggregation stats"
+                },
+                {
+                    id: "comparator-tab",
+                    name: "Comparator"
+                }
+            ],
             filter: {
                 sections: [
                     {

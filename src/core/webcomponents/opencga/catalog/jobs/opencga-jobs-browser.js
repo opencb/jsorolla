@@ -127,7 +127,7 @@ export default class OpencgaJobsBrowser extends LitElement {
             icon: "fas fa-chart-bar",
             description: "",
             searchButtonText: "Run",
-            tabs: [
+            views: [
                 {
                     id: "table-tab",
                     name: "Table result",

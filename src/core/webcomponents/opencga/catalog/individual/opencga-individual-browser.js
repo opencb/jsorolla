@@ -126,8 +126,22 @@ export default class OpencgaIndividualBrowser extends LitElement {
         return {
             title: "Individual Browser",
             icon: "fas fa-chart-bar",
-            showAggregationStats: true,
-            showComparator: true,
+            searchButtonText: "Run",
+            views: [
+                {
+                    id: "table-tab",
+                    name: "Table result",
+                    active: true
+                },
+                {
+                    id: "facet-tab",
+                    name: "Aggregation stats"
+                },
+                {
+                    id: "comparator-tab",
+                    name: "Comparator"
+                }
+            ],
             filter: {
                 sections: [
                     {

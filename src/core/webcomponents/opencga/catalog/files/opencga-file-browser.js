@@ -126,6 +126,21 @@ export default class OpencgaFileBrowser extends LitElement {
             icon: "fas fa-chart-bar",
             description: "",
             searchButtonText: "Run",
+            views: [
+                {
+                    id: "table-tab",
+                    name: "Table result",
+                    active: true
+                },
+                {
+                    id: "facet-tab",
+                    name: "Aggregation stats"
+                },
+                {
+                    id: "comparator-tab",
+                    name: "Comparator"
+                }
+            ],
             filter: {
                 sections: [
                     {

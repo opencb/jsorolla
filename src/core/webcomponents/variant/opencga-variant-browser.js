@@ -324,7 +324,6 @@ export default class OpencgaVariantBrowser extends LitElement {
 
     onActiveFilterChange(e) {
         console.log("onActiveFilterChange on variant facet", e.detail);
-        // TODO FIXME! studies prop have to be wiped off. use study instead
         this.preparedQuery = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
     }
@@ -757,7 +756,7 @@ export default class OpencgaVariantBrowser extends LitElement {
 
         return html`
             <div class="page-title">
-                <h2 style="margin-top: 10px; margin-bottom: 20px">
+                <h2>
                     <i class="${this._config.icon}" aria-hidden="true"></i>&nbsp;${this._config.title}
                 </h2>
             </div>
@@ -773,10 +772,10 @@ export default class OpencgaVariantBrowser extends LitElement {
                     
                     <ul class="nav nav-tabs left-menu-tabs" role="tablist">
                         <li role="presentation" class="active">
-                            <a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab" style="font-size: 1.2em;font-weight: bold">${this._config.filter.title}</a>
+                            <a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab">${this._config.filter.title}</a>
                         </li>
                         <li role="presentation">
-                            <a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab" style="font-size: 1.2em;font-weight: bold">${this._config.aggregation.title}</a>
+                            <a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">${this._config.aggregation.title}</a>
                         </li>
                     </ul>
                     

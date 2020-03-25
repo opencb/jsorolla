@@ -126,9 +126,22 @@ export default class OpencgaFamilyBrowser extends LitElement {
         return {
             title: "Family Browser",
             icon: "fas fa-chart-bar",
-            showTitle: true,
-            showAggregationStats: true,
-            showComparator: true,
+            searchButtonText: "Run",
+            views: [
+                {
+                    id: "table-tab",
+                    name: "Table result",
+                    active: true
+                },
+                {
+                    id: "facet-tab",
+                    name: "Aggregation stats"
+                },
+                {
+                    id: "comparator-tab",
+                    name: "Comparator"
+                }
+            ],
             filter: {
                 sections: [
                     {

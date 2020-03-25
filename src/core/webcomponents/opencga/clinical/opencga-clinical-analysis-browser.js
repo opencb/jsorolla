@@ -122,9 +122,22 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "Clinical Analysis Browser",
-            showTitle: true,
-            showAggregationStats: true,
-            showComparator: true,
+            searchButtonText: "Run",
+            views: [
+                {
+                    id: "table-tab",
+                    name: "Table result",
+                    active: true
+                },
+                {
+                    id: "facet-tab",
+                    name: "Aggregation stats"
+                },
+                {
+                    id: "comparator-tab",
+                    name: "Comparator"
+                }
+            ],
             filter: {
                 sections: [
                     {

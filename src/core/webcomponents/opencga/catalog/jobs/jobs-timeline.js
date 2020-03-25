@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "../../../../utils.js";
 
+
 export default class JobsTimeline extends LitElement {
 
     constructor() {
@@ -55,35 +56,39 @@ export default class JobsTimeline extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("active") && this.active) {
-            this.queryObserver();
-        }
-        if (changedProperties.has("query") && this.active) {
-            this.queryObserver();
+        if ((changedProperties.has("active") || changedProperties.has("query") || changedProperties.has("opencgaSession")) && this.active) {
+            this.generateTimeline();
         }
     }
 
-    activeObserver() {
-        console.log("fire rest call iff query has changed");
-    }
+    generateTimeline() {
+        console.log("query observer");
+        this.querySelector("#svg").innerHTML = "";
+        this.querySelector("#loading").style.display = "block";
+        this.intervals = [];
+        this.status = {};
+        //const width = this._config.board.width === "auto" ? this.querySelector("#svg").clientWidth : this._config.board.width;
+        this._config.board.width = this.querySelector("#svg").clientWidth - 200;
 
-    queryObserver(){
-        console.log("query observer")
         const filters = {
             study: this.opencgaSession.study.fqn,
             deleted: false,
             count: true,
-            //order: params.data.order,
+            // order: params.data.order,
             limit: 500,
-            //skip: params.data.offset || 0,
-            //include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid", TODO include only the column I show
-            exclude: "execution",
+            // skip: params.data.offset || 0,
+            // include: "name",
+            //exclude: "execution",
             ...this.query
         };
         this.opencgaSession.opencgaClient.jobs().search(filters).then( restResponse => {
-            console.log(restResponse)
-            let results = restResponse.getResults();
-            console.log(results)
+            const results = restResponse.getResults();
+            console.log(results);
+            if (!results.length) {
+                this.querySelector("#svg").innerHTML = "No matching records found";
+                return;
+            }
+
             this._results = results.map(result => {
                 return {
                     id: result.id,
@@ -96,36 +101,110 @@ export default class JobsTimeline extends LitElement {
 
             this.timestampMin = Math.min(...this._results.map(_ => _.timestampStart));
             this.timestampMax = Math.max(...this._results.map(_ => _.timestampEnd));
-            //console.log("timestampMinMax", timestampMin, timestampMax);
+            // console.log("timestampMinMax", timestampMin, timestampMax);
 
             this.tick = Math.round(this._config.board.width / this._config.ticks);
             this.dateTick = Math.round((this.timestampMax - this.timestampMin) / this._config.ticks);
 
-            console.log("this._results",this._results)
+            this.svg = SVG().addTo("#svg").size(1, 1);
+            this.rect = this.svg.rect(1, 1).attr({fill: "#f5f5f5", x: this._config.board.originX, y: this._config.board.originY});
 
-            this.querySelector("#svg").innerHTML = ""; // TODO check if this causes memory leaks
-            this.draw = SVG().addTo("#svg").size(this._config.board.width + this._config.board.padding, this._config.board.height + this._config.board.padding);
-            const rect = this.draw.rect(this._config.board.width, this._config.board.height).attr({fill: "#f3f3f3", x: this._config.board.originX + this._config.board.padding/2, y: this._config.board.originY + this._config.board.padding/2});
+            this.draw = this.svg.group();
 
-            this.drawTicks(this._config.ticks, 500)
+            // this.drawTicks(this._config.ticks, 500)
+
+            let track = 0;
+            // the first loop plots the intervals
+            const trackLastEnd = [0]; // one element because I need a value to compare the first job ((trackLastEnd[t] + config.hspace) < jobA.start)
+            for (let i = 0; i < this._results.length; i++) {
+                const job = this._results[i];
+                job.start = this._config.board.originX + this.rescale_linear(job.timestampStart);
+                job.end = this._config.board.originX + this.rescale_linear(job.timestampEnd);
+
+                let assigned = false;
+
+                for (let t = 0; t < track; t++) {
+                    if ((trackLastEnd[t] + this._config.hspace) < job.start) {
+                        job.track = t;
+                        trackLastEnd[t] = job.end;
+                        assigned = true;
+                        break;
+                    }
+                }
+                // if job overlaps all the previous jobs
+                if (!assigned) {
+                    track++;
+                    job.track = track;
+                    trackLastEnd[track] = job.end;
+                }
+                job.y = this._config.board.originY + 50 + job.track * this._config.vspace;
+                this.addInterval(job);
+            }
+
+            this._config.height = 200 + trackLastEnd.length * this._config.vspace;
+            this.svg.size(this._config.board.width + 200, this._config.height);
+            this.rect.size(this._config.board.width + 200, this._config.height);
+            this.drawTicks(this._config.ticks, this._config.height - 100);
+
+            //the second loop plots the dependencies arrow (if the jobs are sorted by date we can avoid it and use one loop)
+            this.intervals.forEach((target, i) => {
+                if (target.dependsOn && target.dependsOn.length) {
+                    target.dependsOn.forEach(dep => {
+                        const source = this.intervals.find(c => c.id === dep.id);
+                        this.draw.line(source.start, source.y, target.start, target.y).stroke({
+                            color: "#000",
+                            width: 1,
+                            opacity: 0.1
+                        });
+                    });
+                }
+            });
+
+            this.draw.move(this._config.board.padding, this._config.board.padding);
+        }).catch( e => {
+            console.log(e);
+        }).finally( () => {
+            this.querySelector("#loading").style.display = "none";
         });
+    }
+
+    addInterval(job) {
+        const x1 = job.start;
+        const x2 = job.end;
+        const y = job.y;
+        const line = this.draw.line(x1, y, x2, y)
+            .stroke({color: this.statusColor(job.status), width: this._config.lineWidth, linecap: "round"})
+            .attr({id: job.id, class: "job", start: job.timestampStart, _color: this.statusColor(job.status)});
+
+        line.on("click", () => this.onJobClick(line));
+        this.intervals.push(job);
+    }
+
+    onJobClick(line) {
+        SVG.find(".job").forEach( line => line.stroke({color: line.node.attributes._color.value}));
+        line.stroke({color: "#000"});
     }
 
     drawTicks(num, height) {
         for (let i = 0; i <= num; i++) {
             this.draw.line(this._config.board.originX + this.tick * i, this._config.board.originY + 35, this._config.board.originX + this.tick * i, height).stroke({
-                color: "#aaa",
+                color: "#ddd",
                 width: 1
             });
             this.draw.text(moment(this.timestampMin + this.dateTick * i).format("D MMM YY")).dy(this._config.board.originY).dx(this._config.board.originX + this.tick * i - 10);
         }
-        //plot the last text and the last tick
-        /*draw.line(board.originX + tick * num, 35, board.originX + tick * num, height).stroke({
-            color: "#aaa",
-            width: 1
-        });*/
-        //draw.text(moment(timestampMax).format("D MMM YY")).dy(board.originY).dx(board.originX + tick * num - 10);
     }
+
+    // min-max normalization. unix timestamp (in ms) in pixel
+    rescale_linear(timestamp) {
+        const oldRange = this.timestampMax - this.timestampMin;
+        const minX = 0;
+        const maxX = this._config.board.width;
+        const newRange = maxX - minX;
+        const rescaled = minX + ((timestamp - this.timestampMin) * newRange / oldRange);
+        return Math.round(rescaled);
+    }
+
     statusColor(status) {
         return {
             "PENDING": "#245da9",
@@ -148,7 +227,7 @@ export default class JobsTimeline extends LitElement {
             vspace: 40, // space between tracks
             hspace: 10, // space between adjacent intervals
             board: {
-                width: 1500,
+                width: "auto", // it can a number (px) or "auto" (full width)
                 height: 0, // height is dynamic on the number of tracks
                 originX: 10,
                 originY: 10,
@@ -157,12 +236,17 @@ export default class JobsTimeline extends LitElement {
         };
     }
 
-    generateTimeline() {
-
-    }
-
     render() {
-        return html` timeline ${this.active}
+        return html`timeline ${this.active}
+        <style>
+            tspan {
+                font-family: sans-serif;
+                font-size: 12px;
+            }
+        </style>
+        <div id="loading" style="display: none">
+            <loading-spinner></loading-spinner>
+        </div>
         <div id="svg">
         </div>
         `;
