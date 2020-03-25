@@ -223,13 +223,11 @@ export default class OpencgaVariantGrid extends LitElement {
                 // this makes the opencga-variant-grid properties available in the bootstrap-table formatters
                 variantGrid: _this,
                 ajax: params => {
-                    console.log("get options", _table.bootstrapTable("getOptions").pageNumber);
-
                     let filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit || this.options.pageSize,
                         skip: params.data.offset || 0,
-                        count: _table.bootstrapTable("getOptions").pageNumber === 1
+                        count: !$(this.table).bootstrapTable("getOptions").pageNumber || $(this.table).bootstrapTable("getOptions").pageNumber === 1,
                         // include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
                     };
 
