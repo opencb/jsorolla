@@ -39,20 +39,13 @@ export default class CohortFilter extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            cellbaseClient: {
-                type: Object
-            },
             cohorts: {
-                type: Object
-            },
-            config: {
                 type: Object
             },
             cohortStatsAlt: {
                 type: String
             },
-            // TODO temp fix (should it be defined from config in component itself?)
-            _cohorts: {
+            config: {
                 type: Object
             }
         };
@@ -64,9 +57,9 @@ export default class CohortFilter extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+
         this.cohortsPerStudy = this.cohorts ? this.cohorts[this.opencgaSession.project.id] : null;
     }
-
 
     updated(_changedProperties) {
         if (_changedProperties.has("cohortStatsAlt")) {
@@ -85,39 +78,34 @@ export default class CohortFilter extends LitElement {
                 }
             }
         }
+
+        if (_changedProperties.has("opencgaSession")) {
+            this.cohortsPerStudy = this.cohorts ? this.cohorts[this.opencgaSession.project.id] : null;
+            this.requestUpdate();
+        }
     }
 
-    // TODO refactor!
     filterChange(e) {
-        const cohortFreq = [];
         let cohortStatsAlt;
-        console.log("this._cohorts", this._cohorts);
-        console.log("this.cohorts", this.cohorts);
-        if (UtilsNew.isNotEmpty(this._cohorts)) {
-            for (let studyId in this._cohorts) {
-                for (const cohort of this._cohorts[studyId]) {
+        let cohortFreq = [];
+        if (this.cohorts) {
+            for (const studyId in this.cohortsPerStudy) {
+                for (const cohort of this.cohortsPerStudy[studyId]) {
                     const cohortInput = PolymerUtils.getElementById(this._prefix + studyId + cohort.id + "Cohort");
                     let operator = PolymerUtils.getElementById(this._prefix + studyId + cohort.id + "CohortOperator");
                     if (cohortInput !== null && UtilsNew.isNotEmpty(cohortInput.value)) {
-                        operator = operator.value;
-                        // FIXME to be removed!!
-                        if (studyId === "BRIDGE") {
-                            studyId = "bridge";
-                        }
-                        const pf = studyId + ":" + cohort.id + operator + cohortInput.value;
-                        cohortFreq.push(pf);
+                        // TODO add  this.opencgaSession.project.id + ":" +
+                        cohortFreq.push(studyId + ":" + cohort.id + operator.value + cohortInput.value);
                     }
                 }
             }
         }
         if (cohortFreq.length > 0) {
-            // _filters["cohortStatsMaf"] = cohortFreq.join(';');
             cohortStatsAlt = cohortFreq.join(";");
         }
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: cohortStatsAlt ? cohortStatsAlt : null
-
             }
         });
         this.dispatchEvent(event);

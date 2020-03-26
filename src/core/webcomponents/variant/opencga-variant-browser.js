@@ -67,6 +67,9 @@ export default class OpencgaVariantBrowser extends LitElement {
             search: {
                 type: Object
             },
+            cohorts: {
+                type: Object
+            },
             config: {
                 type: Object
             }
@@ -76,7 +79,7 @@ export default class OpencgaVariantBrowser extends LitElement {
     _init() {
         this._prefix = "facet" + Utils.randomString(6);
 
-        this.checkProjects = false;
+        // this.checkProjects = false;
 
         this.activeFilterAlias = {
             "annot-xref": "XRef",
@@ -135,24 +138,52 @@ export default class OpencgaVariantBrowser extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        console.log("this.opencgaSession",this.opencgaSession)
-        this.endpoint = this.opencgaClient.variants(); // to keep methods consistent with opecnga-facet
+
+        // if cohort filter exists but this.cohorts is not defined then we add cohorts ALL to the 'filter' menu itself
+        let _tempConfig = {...this.getDefaultConfig(), ...this.config};
+        for (let section of _tempConfig.filter.sections) {
+            for (let field of section.fields) {
+                if (field.id === "cohort") {
+                    if (field.cohorts === undefined) {
+                        let _cohorts = {};
+                        for (let project of this.opencgaSession.projects) {
+                            _cohorts[project.id] = {};
+                            for (let study of project.studies) {
+                                if (field.onlyCohortAll) {
+                                    _cohorts[project.id][study.id] = [{id: "ALL", name: "ALL"}]
+                                } else {
+                                    // TODO if onlyCohortAll is false then we must add all cohorts indexed
+                                    // we can take this from session object
+                                }
+                            }
+                        }
+                        // we edit the config.filter.sections.fields.cohorts
+                        field.cohorts = _cohorts;
+                        // if we are here is because this.cohorts is undefined
+                        this.cohorts = _cohorts;
+                    } else {
+                        field.cohorts = this.cohorts;
+                    }
+                    break;
+                }
+            }
+        }
+        this._config = _tempConfig;
     }
 
-    firstUpdated(_changedProperties) {
-        $(".bootstrap-select", this).selectpicker();
-        console.log("this.opencgaSession",this.opencgaSession)
-        // console.log("this.query from BROWSER", this.query)
-    }
+    // firstUpdated(_changedProperties) {
+    //     // $(".bootstrap-select", this).selectpicker();
+    //     // console.log("this.opencgaSession",this.opencgaSession)
+    //     // console.log("this.query from BROWSER", this.query)
+    // }
 
     updated(changedProperties) {
         if (changedProperties.has("config")) {
             this.configObserver();
         }
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
-        }
+        // if (changedProperties.has("opencgaSession")) {
+        //     this.opencgaSessionObserver();
+        // }
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
@@ -168,27 +199,14 @@ export default class OpencgaVariantBrowser extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    opencgaSessionObserver() {
-        if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
-            // Update cohorts from config, this updates the Cohort filter MAF
-            for (const section of this._config.filter.sections) {
-                for (const subsection of section.fields) {
-                    if (subsection.id === "cohort") {
-                        const projectFields = this.opencgaSession.project.alias.split("@");
-                        const projectId = (projectFields.length > 1) ? projectFields[1] : projectFields[0];
-                        this.cohorts = subsection.cohorts[projectId];
-                        // this.set('cohorts', subsection.cohorts[projectId]);
-                        // debugger
-                    }
-                }
-            }
-
-            this.checkProjects = true;
-            this.requestUpdate().then(() => $(".bootstrap-select", this).selectpicker());
-        } else {
-            this.checkProjects = false;
-        }
-    }
+    // opencgaSessionObserver() {
+    //     if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
+    //         // this.checkProjects = true;
+    //         // this.requestUpdate(); //.then(() => $(".bootstrap-select", this).selectpicker());
+    //     } else {
+    //         // this.checkProjects = false;
+    //     }
+    // }
 
     queryObserver() {
         // Query passed is executed and set to variant-filter, active-filters and variant-grid components
@@ -251,55 +269,27 @@ export default class OpencgaVariantBrowser extends LitElement {
         }
     }
 
-    _initTooltip() {
-        // TODO move to Utils
-        $("a[tooltip-title]", this).each(function() {
-            $(this).qtip({
-                content: {
-                    title: $(this).attr("tooltip-title"),
-                    text: $(this).attr("tooltip-text")
-                },
-                position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-                style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-                show: {delay: 200},
-                hide: {fixed: true, delay: 300}
-            });
-        });
-    }
+    // _initTooltip() {
+    //     // TODO move to Utils
+    //     $("a[tooltip-title]", this).each(function() {
+    //         $(this).qtip({
+    //             content: {
+    //                 title: $(this).attr("tooltip-title"),
+    //                 text: $(this).attr("tooltip-text")
+    //             },
+    //             position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
+    //             style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
+    //             show: {delay: 200},
+    //             hide: {fixed: true, delay: 300}
+    //         });
+    //     });
+    // }
 
     onFilterChange(e) {
         this.query = e.detail;
         // TODO remove search field everywhere. use query instead
         this.search = e.detail;
     }
-
-    // onHistogramChart(e) {
-    //     this.highlightActivePlot(e.target.parentElement);
-    //     const id = e.target.dataId;
-    //     // TODO Refactor
-    //     this.renderHistogramChart("#" + this._prefix + id + "Plot", id);
-    //
-    //     PolymerUtils.hide(this._prefix + id + "Table");
-    // }
-    //
-    // onPieChart(e) {
-    //     this.highlightActivePlot(e.target.parentElement);
-    //     const id = e.target.dataId;
-    //     this.renderPieChart("#" + this._prefix + id + "Plot", id);
-    //     PolymerUtils.hide(this._prefix + id + "Table");
-    // }
-    //
-    // onTabularView(e) {
-    //     this.highlightActivePlot(e.target.parentElement);
-    //     const id = e.target.dataId;
-    //     PolymerUtils.innerHTML(this._prefix + id + "Plot", "");
-    //     PolymerUtils.show(this._prefix + id + "Table", "table");
-    // }
-
-    // highlightActivePlot(button) {
-    //     // PolymerUtils.removeClass(".plots", "active");
-    //     // PolymerUtils.addClass(button, "active");
-    // }
 
     onClickPill(e){
         //e.preventDefault();
@@ -320,7 +310,6 @@ export default class OpencgaVariantBrowser extends LitElement {
         this.preparedQuery = e.detail.query;
         this.requestUpdate();
     }
-
 
     onActiveFilterChange(e) {
         console.log("onActiveFilterChange on variant facet", e.detail);
@@ -437,8 +426,13 @@ export default class OpencgaVariantBrowser extends LitElement {
                                 id: "study",
                                 title: "Studies Filter",
                                 tooltip: "Only considers variants from the selected studies"
+                            },
+                            {
+                                id: "cohort",
+                                title: "Cohort Alternate Stats",
+                                onlyCohortAll: true,
+                                cohorts: this.cohorts
                             }
-                            // cohortFileMenu // TODO expose common data
                         ]
                     },
                     {
@@ -636,17 +630,17 @@ export default class OpencgaVariantBrowser extends LitElement {
                         },
                         {
                             id: "cohortStats",
-                            component: "opencga-variant-cohort-stats",
+                            // component: "opencga-variant-cohort-stats",
                             title: "Cohort Stats"
                         },
                         {
                             id: "samples",
-                            component: "opencga-variant-samples",
+                            // component: "opencga-variant-samples",
                             title: "Samples"
                         },
                         {
                             id: "beacon",
-                            component: "variant-beacon-network",
+                            // component: "variant-beacon-network",
                             title: "Beacon"
                             // Uncomment and edit Beacon hosts to change default hosts
                             // hosts: [
@@ -656,7 +650,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                         },
                         {
                             id: "network",
-                            component: "reactome-variant-network",
+                            // component: "reactome-variant-network",
                             title: "Reactome Pathways"
                         },
                         // {
@@ -746,7 +740,7 @@ export default class OpencgaVariantBrowser extends LitElement {
 
     render() {
         // Check if there is any project available
-        if (!this.checkProjects) {
+        if (!this.opencgaSession.project) {
             return html`
                 <div class="guard-page">
                     <i class="fas fa-lock fa-5x"></i>
@@ -786,17 +780,18 @@ export default class OpencgaVariantBrowser extends LitElement {
                                                         .populationFrequencies="${this.populationFrequencies}"
                                                         .consequenceTypes="${this.consequenceTypes}"
                                                         .query="${this.query}"
+                                                        .cohorts="${this.cohorts}"
                                                         .searchButton="${false}"
+                                                        .config="${this._config.filter}"
                                                         @queryChange="${this.onQueryFilterChange}"
-                                                        @querySearch="${this.onQueryFilterSearch}"
-                                                        .config="${this._config.filter}">
+                                                        @querySearch="${this.onQueryFilterSearch}">
                             </opencga-variant-filter>
                         </div>
                         
                         <div role="tabpanel" class="tab-pane" id="facet_tab">
-                            <facet-filter .config="${this._config.aggregation}"
-                                          .selectedFacet="${this.selectedFacet}"
-                                          @facetQueryChange="${this.onFacetQueryChange}">
+                            <facet-filter   .selectedFacet="${this.selectedFacet}"
+                                            .config="${this._config.aggregation}"
+                                            @facetQueryChange="${this.onFacetQueryChange}">
                             </facet-filter>
                         </div>
                     </div>
@@ -814,11 +809,6 @@ export default class OpencgaVariantBrowser extends LitElement {
                                 <button type="button" class="btn btn-success ripple content-pills" @click="${this.onClickPill}" data-id="facet-tab">
                                     <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i> Aggregation Stats
                                 </button>
-                                <!--
-                                    <button type="button" class="btn btn-success ripple content-pills" @click="${this.onClickPill}" data-id="comparator-tab">
-                                        <i class="fa fa-users icon-padding" aria-hidden="true"></i> Comparator
-                                    </button>
-                                -->
                             </div>
                         </div>
                     </div>
@@ -832,8 +822,8 @@ export default class OpencgaVariantBrowser extends LitElement {
                                                 .refresh="${this.executedQuery}"
                                                 .facetQuery="${this.selectedFacetFormatted}"
                                                 .alias="${this.activeFilterAlias}"
-                                                .config="${this._config.filter.activeFilters}"
                                                 .filters="${this._config.filter.examples}"
+                                                .config="${this._config.filter.activeFilters}"
                                                 @activeFacetChange="${this.onActiveFacetChange}"
                                                 @activeFacetClear="${this.onActiveFacetClear}"
                                                 @activeFilterChange="${this.onActiveFilterChange}"

@@ -161,35 +161,8 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     opencgaSessionObserver() {
-
         // TODO do not move in connectedCallback (it handle the switch between default studies)
         if (this.opencgaSession.study) {
-            // Update the study list of studies and the selected one
-
-            // TODO should it be moved in cohort-filter?
-            // Update cohorts from config, this updates the Cohort filter ALT
-            if (typeof this.config !== "undefined" && typeof this.config.sections !== "undefined") {
-                this._cohorts = [];
-                for (const section of this.config.sections) {
-                    for (const subsection of section.fields) {
-                        if (subsection.id === "cohort") {
-                            const projectId = this.opencgaSession.project.id;
-                            if (UtilsNew.isNotUndefinedOrNull(subsection.cohorts[projectId])) {
-                                for (const study of Object.keys(subsection.cohorts[projectId])) {
-                                    // Array.prototype.push.apply(this._cohorts, subsection.cohorts[projectId][study]);
-                                    this._cohorts = subsection.cohorts[projectId];
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            // this.query = {
-            //     study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
-            // };
-            // this.notifySearch(this.query);
-
             // Render filter menu and add event and tooltips
             if (this._initialised) {
                 this._renderFilterMenu();
@@ -431,10 +404,10 @@ export default class OpencgaVariantFilter extends LitElement {
                 /*if (this.opencgaSession.project.studies.length < 2) {
                     return "";
                 }*/
-                content = html`<study-filter .opencgaSession="${this.opencgaSession}" .study="${this.preparedQuery.study}" @filterChange="${e => this.onFilterChange("study", e.detail.value)}">BLABLA</study-filter>`;
+                content = html`<study-filter .opencgaSession="${this.opencgaSession}" .study="${this.preparedQuery.study}" @filterChange="${e => this.onFilterChange("study", e.detail.value)}"></study-filter>`;
                 break;
-            case "cohort":
-                content = html`<cohort-filter .opencgaSession="${this.opencgaSession}" .cohorts="${subsection.cohorts}" ._cohorts="${this._cohorts}" .cohortStatsAlt="${this.preparedQuery.cohortStatsAlt}" @filterChange="${e => this.onFilterChange("cohortStatsAlt", e.detail.value)}"> </cohort-filter>`;
+            case "cohort":   //._cohorts="${this._cohorts}"
+                content = html`<cohort-filter .opencgaSession="${this.opencgaSession}" .cohorts="${subsection.cohorts}" .cohortStatsAlt="${this.preparedQuery.cohortStatsAlt}" @filterChange="${e => this.onFilterChange("cohortStatsAlt", e.detail.value)}"></cohort-filter>`;
                 break;
             case "sample":
                 content = html`<sample-filter ?enabled="${subsection.showSelectSamples}" .opencgaSession="${this.opencgaSession}" .clinicalAnalysis="${this.clinicalAnalysis}" .query="${this.query}" @sampleFilterChange="${e => this.onSampleFilterChange(e.detail.value)}"></sample-filter>`;
