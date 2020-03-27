@@ -23,7 +23,7 @@ import "../commons/filters/cadd-filter.js";
 import "../commons/filters/biotype-filter.js";
 import "../commons/filters/region-filter.js";
 import "../commons/filters/clinvar-accessions-filter.js";
-import "../commons/filters/cohort-filter.js";
+import "../commons/filters/cohort-stats-filter.js";
 import "../commons/filters/consequence-type-filter.js";
 import "../commons/filters/consequence-type-select-filter.js";
 import "../commons/filters/conservation-filter.js";
@@ -407,7 +407,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 content = html`<study-filter .opencgaSession="${this.opencgaSession}" .study="${this.preparedQuery.study}" @filterChange="${e => this.onFilterChange("study", e.detail.value)}"></study-filter>`;
                 break;
             case "cohort":   //._cohorts="${this._cohorts}"
-                content = html`<cohort-filter .opencgaSession="${this.opencgaSession}" .cohorts="${subsection.cohorts}" .cohortStatsAlt="${this.preparedQuery.cohortStatsAlt}" @filterChange="${e => this.onFilterChange("cohortStatsAlt", e.detail.value)}"></cohort-filter>`;
+                content = html`<cohort-stats-filter .opencgaSession="${this.opencgaSession}" .cohorts="${subsection.cohorts}" .cohortStatsAlt="${this.preparedQuery.cohortStatsAlt}" @filterChange="${e => this.onFilterChange("cohortStatsAlt", e.detail.value)}"></cohort-stats-filter>`;
                 break;
             case "sample":
                 content = html`<sample-filter ?enabled="${subsection.showSelectSamples}" .opencgaSession="${this.opencgaSession}" .clinicalAnalysis="${this.clinicalAnalysis}" .query="${this.query}" @sampleFilterChange="${e => this.onSampleFilterChange(e.detail.value)}"></sample-filter>`;
