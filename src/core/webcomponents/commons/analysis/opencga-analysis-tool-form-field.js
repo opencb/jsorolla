@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../utils.js";
 import "../filters/select-field-filter.js";
 import "../filters/text-field-filter.js";
-import "../filters/cohort-filter.js";
+import "../filters/cohort-stats-filter.js";
 
 export default class OpencgaAnalysisToolFormField extends LitElement {
 

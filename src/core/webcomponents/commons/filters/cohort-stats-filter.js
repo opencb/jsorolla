@@ -21,7 +21,7 @@ import PolymerUtils from "../../PolymerUtils.js";
 
 // TODO Refactor needed it needs updated() [never saw how does it looks in IVA]
 
-export default class CohortFilter extends LitElement {
+export default class CohortStatsFilter extends LitElement {
 
     constructor() {
         super();
@@ -146,4 +146,4 @@ export default class CohortFilter extends LitElement {
 
 }
 
-customElements.define("cohort-filter", CohortFilter);
+customElements.define("cohort-stats-filter", CohortStatsFilter);
