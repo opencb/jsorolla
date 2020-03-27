@@ -48,7 +48,7 @@ export default class SelectFieldFilter extends LitElement {
             placeholder: {
                 type: String
             },
-            // NOTE value (default Values) is either a single value as string or a comma separated list (this decision is due to easily manage default values in case of array of objects)
+            // NOTE value (default Values) can be either a single value as string or a comma separated list (this decision is due to easily manage default values in case of array of objects)
             value: {
                 type: String
             },
@@ -64,7 +64,7 @@ export default class SelectFieldFilter extends LitElement {
             required: {
                 type: Boolean
             },
-            //the expected format is either an array of string or an array of objects {id, name}
+            // the expected format is either an array of string or an array of objects {id, name}
             data: {
                 type: Object
             }
@@ -126,7 +126,7 @@ export default class SelectFieldFilter extends LitElement {
                         .disabled=${this.disabled}
                         .required=${this.required}
                         title="${this.placeholder ? this.placeholder : "Select an option"}"
-                        data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}"  
+                        data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}" 
                         @change="${this.filterChange}" data-width="100%">
                     ${this.data.map(opt => html`
                         ${opt.fields ? html`

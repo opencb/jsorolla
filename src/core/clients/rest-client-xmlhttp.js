@@ -56,7 +56,7 @@ export class RestClientXmlhttp {
     }
 
     static call(url, options) {
-        console.log("REMOTE", url, options)
+        //console.log("REMOTE", url, options)
         let method = "GET";
         let async = true;
         if (typeof options !== "undefined") {

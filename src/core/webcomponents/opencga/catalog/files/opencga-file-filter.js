@@ -22,7 +22,7 @@ import "../variableSets/opencga-annotation-filter.js";
 import "../opencga-date-filter.js";
 // import "../../../commons/filters/text-field-filter.js";
 import "../../../commons/filters/select-field-filter.js";
-//import "../../../commons/filters/select-field-filter-remote.js";
+import "../../../commons/filters/select-token-filter.js";
 
 export default class OpencgaFileFilter extends LitElement {
 
@@ -178,6 +178,7 @@ export default class OpencgaFileFilter extends LitElement {
             this._reset = true;
         }
     }
+
     /*
     // TODO refactor!
     renderQueryFilters() {
@@ -266,7 +267,7 @@ export default class OpencgaFileFilter extends LitElement {
             case "path":
             case "sample":
             case "bioformat":
-                content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
+                content = html`<text-field-filter placeholder="${subsection.placeholder}"  @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;
             case "format":
                 content = html`<select-field-filter multiple .value="${this.preparedQuery.format}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange("format", e.detail.value)}"></select-field-filter>`;
@@ -290,7 +291,7 @@ export default class OpencgaFileFilter extends LitElement {
                     <div class="form-group">
                         <div class="browser-subsection" id="${subsection.id}">${subsection.name}
                             ${subsection.description ? html`
-                                <div class="tooltip-div pull-right">tooltip
+                                <div class="tooltip-div pull-right">
                                     <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>` : null }
                         </div>
@@ -299,16 +300,6 @@ export default class OpencgaFileFilter extends LitElement {
                          </div>
                     </div>
                 `;
-    }
-
-
-    /**
-     * Use custom CSS class to easily reset all controls.
-     */
-    _clearHtmlDom() {
-        // Input controls
-        PolymerUtils.setPropertyByClassName(this._prefix + "FilterTextInput", "value", "");
-        PolymerUtils.removeAttributebyclass(this._prefix + "FilterTextInput", "disabled");
     }
 
     isNotEmpty(myArray) {
@@ -399,11 +390,7 @@ export default class OpencgaFileFilter extends LitElement {
             ` : null}
 
         <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
-
-            <!-- File field attributes -->
-            <div class="">
                 ${this.config.sections && this.config.sections.length ? this.config.sections.map( section => this._createSection(section)) : html`No filter has been configured.`}
-            </div>
         </div>
         `;
     }
