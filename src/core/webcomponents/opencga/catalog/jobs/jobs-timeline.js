@@ -58,6 +58,7 @@ export default class JobsTimeline extends LitElement {
     }
 
     updated(changedProperties) {
+        //console.log(`query ${this.query}, active ${this.active}`)
         if ((changedProperties.has("query") || changedProperties.has("opencgaSession")) && this.active) {
             this.fetchContent();
         }

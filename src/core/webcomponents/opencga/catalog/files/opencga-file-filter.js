@@ -20,7 +20,7 @@ import UtilsNew from "../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 import "../variableSets/opencga-annotation-filter.js";
 import "../opencga-date-filter.js";
-// import "../../../commons/filters/text-field-filter.js";
+import "../../../commons/filters/text-field-filter.js";
 import "../../../commons/filters/select-field-filter.js";
 import "../../../commons/filters/select-token-filter.js";
 
@@ -267,11 +267,10 @@ export default class OpencgaFileFilter extends LitElement {
             case "path":
             case "sample":
             case "bioformat":
-                content = html`<text-field-filter placeholder="${subsection.placeholder}"  @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
+                content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;
             case "format":
                 content = html`<select-field-filter multiple .value="${this.preparedQuery.format}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange("format", e.detail.value)}"></select-field-filter>`;
-                // <select-field-filter-remote multiple .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery.format}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange("format", e.detail.value)}"></select-field-filter-remote>
                 break;
             case "annotations":
                 content = html`<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"

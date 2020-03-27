@@ -55,6 +55,9 @@ export default class OpencgaFileGrid extends LitElement {
             },
             config: {
                 type: Object
+            },
+            query: {
+                type: Object
             }
         };
     }
@@ -65,8 +68,14 @@ export default class OpencgaFileGrid extends LitElement {
         this._config = this.getDefaultConfig();
         this.eventNotifyName = "messageevent";
     }
+
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("search")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("query")) {
             this.renderTable();
         }
         if (changedProperties.has("filters")) {
@@ -86,7 +95,7 @@ export default class OpencgaFileGrid extends LitElement {
         this._initTableColumns();
         this.dispatchEvent(new CustomEvent("clear", {detail: {}, bubbles: true, composed: true}));
         this.table = PolymerUtils.getElementById(this._prefix + "FileBrowserGrid");
-        this.search = {};
+        this.query = {};
     }
 
     configObserver() {
@@ -97,7 +106,7 @@ export default class OpencgaFileGrid extends LitElement {
         this.files = [];
 
         // We avoid listing directories in the grid
-        const filters = Object.assign({}, this.search);
+        const filters = Object.assign({}, this.query);
         if (Object.keys(filters).length === 0) {
             filters["type"] = "FILE";
         }
@@ -135,7 +144,7 @@ export default class OpencgaFileGrid extends LitElement {
                         skip: params.data.offset || 0,
                         count: !_table.bootstrapTable("getOptions").pageNumber || _table.bootstrapTable("getOptions").pageNumber === 1,
                         include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
-                        ...this.search
+                        ...this.query
                     };
                     this.opencgaSession.opencgaClient.files().search(filters).then( res => params.success(res));
                 },
@@ -175,7 +184,7 @@ export default class OpencgaFileGrid extends LitElement {
                     };
                 },
                 onClickRow: function(row, element, field) {
-                    if (_this._config.multiselection) {
+                    if (_this._config.multiSelection) {
                         $(element).toggleClass("success");
                         const index = element[0].getAttribute("data-index");
                         // Check and uncheck actions trigger events that are captured below
@@ -259,7 +268,7 @@ export default class OpencgaFileGrid extends LitElement {
                 onLoadSuccess: function(data) {
                     // Check all already selected rows. Selected files are stored in this.files array
                     if (UtilsNew.isNotUndefinedOrNull(_table)) {
-                        if (!_this._config.multiselection) {
+                        if (!_this._config.multiSelection) {
                             PolymerUtils.querySelector(_table.selector).rows[1].setAttribute("class", "success");
                             _this._onSelectFile(data.rows[0]);
                         }
@@ -378,7 +387,7 @@ export default class OpencgaFileGrid extends LitElement {
         }
         this.filters = filters;
     }
-
+/*
     onSearch() {
         // Convert the filters to an objectParam that can be directly send to the file search
         const filterParams = {};
@@ -416,7 +425,7 @@ export default class OpencgaFileGrid extends LitElement {
         }
 
         this.search = filterParams;
-    }
+    }*/
 
 
     stateFormatter(value, row, index) {
@@ -498,7 +507,7 @@ export default class OpencgaFileGrid extends LitElement {
 
     _initTableColumns() {
         const columns = [];
-        if (this._config.multiselection) {
+        if (this._config.multiSelection) {
             columns.push({
                 field: {source: "state", context: this},
                 checkbox: true,
@@ -549,43 +558,6 @@ export default class OpencgaFileGrid extends LitElement {
 
         return this._columns;
     }
-
-    /* _getUrlQueryParams() {
-        // Check the opencgaClient exists
-        if (UtilsNew.isUndefinedOrNull(this.opencgaSession.opencgaClient)) {
-            return {host: "", queryParams: {}};
-        }
-
-        let host = this.opencgaSession.opencgaClient.getConfig().host;
-        // By default we assume https protocol instead of http
-        if (!host.startsWith("https://") && !host.startsWith("http://")) {
-            host = "https://" + this.opencgaSession.opencgaClient.getConfig().host;
-        }
-
-        console.log("this.opencgaSession", this.opencgaSession);
-        if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
-            if (typeof this.query === "undefined") {
-                this.query = {};
-            }
-            if (UtilsNew.isEmpty(this.query.studies) || this.query.studies.split(new RegExp("[,;]")).length === 1) {
-                this.query.study = this.opencgaSession.study.fqn;
-            }
-            host += "/webservices/rest/v1/files/search";
-        } else {
-            return {host: host, queryParams: {}};
-        }
-
-        // Init queryParams with default and config values plus query object
-        const queryParams = Object.assign(
-            {
-                sid: this.opencgaSession.opencgaClient._config.sessionId,
-                include: "id,name,format",
-                skipCount: false
-            }, this.query);
-
-        console.log("QUERYPARAM", queryParams);
-        return {host: host, queryParams: queryParams};
-    }*/
 
     onDownload(e) {
         // let urlQueryParams = this._getUrlQueryParams();
@@ -661,7 +633,7 @@ export default class OpencgaFileGrid extends LitElement {
             showExport: false,
             detailView: false,
             detailFormatter: undefined, // function with the detail formatter
-            multiselection: false
+            multiSelection: false
         };
     }
 

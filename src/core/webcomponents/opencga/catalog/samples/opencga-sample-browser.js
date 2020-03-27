@@ -331,7 +331,7 @@ export default class OpencgaSampleBrowser extends LitElement {
             <opencga-browser  resource="samples"
                             .opencgaSession="${this.opencgaSession}"
                             .opencgaClient="${this.opencgaSession.opencgaClient}"
-                            .query="${this.browserSearchQuery}"
+                            .query="${this.query}"
                             .config="${this._config}"
                             .cellbaseClient="${this.cellbaseClient}"
                             .populationFrequencies="${this.populationFrequencies}"

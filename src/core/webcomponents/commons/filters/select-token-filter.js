@@ -97,9 +97,9 @@ export default class SelectTokenFilter extends LitElement {
             this.propertyObserver();
         }
         if (_changedProperties.has("value")) {
-            console.log("value has changed")
             if(this.value) {
                 if (this.value.split(",").length) {
+                    //$(".tokenize", this).tokenize2().trigger("tokenize:clear");
                     this.value.split(",").forEach( v => $(".tokenize", this).tokenize2().trigger("tokenize:tokens:add", [v, v, true]));
                 }
             } else {
