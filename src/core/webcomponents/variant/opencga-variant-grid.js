@@ -394,8 +394,6 @@ export default class OpencgaVariantGrid extends LitElement {
                     _this.variantGridFormatter.addPhenotypesInfoTooltip("phenotypesInfoIcon");
                 }
             });
-
-            $("#" + _this._prefix + "VariantBrowserGrid").bootstrapTable("showLoading");
         }
 
         // To query from cellbase, 'queryCellbase' property must be set to true explicitly

@@ -96,12 +96,9 @@ class CohortVariantStats extends LitElement {
                     debugger
                 },
                 onPostBody: function (data) {
-                    this.requestUpdate();
                     // console.log(data);
                 }
             });
-
-            $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable("showLoading");
         }
     }
 
