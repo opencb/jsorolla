@@ -44,9 +44,6 @@ export default class OpencgaSampleGrid extends LitElement {
             query: {
                 type: Object
             },
-            search: {
-                type: Object
-            },
             active: {
                 type: Boolean
             },
@@ -58,17 +55,24 @@ export default class OpencgaSampleGrid extends LitElement {
 
     _init() {
         this._prefix = "VarSampleGrid" + Utils.randomString(6) + "_";
-        this.active = false;
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     firstUpdated() {
-        // this.renderTable(this.active);
         // this.table = PolymerUtils.getElementById(this._prefix + "SampleBrowserGrid");
+        this._columns = this._initTableColumns();
     }
 
     updated(changedProperties) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("query")) {
+            this.renderTable();
+        }
         if (changedProperties.has("opencgaSession") ||
-            changedProperties.has("search") ||
+            changedProperties.has("query") ||
             changedProperties.has("config") ||
             changedProperties.has("active")) {
             this.propertyObserver();
@@ -85,14 +89,10 @@ export default class OpencgaSampleGrid extends LitElement {
             columns: this._columns[0]
         };
 
-        this.renderTable(this.active);
+        this.renderTable();
     }
 
-    renderTable(active) {
-        if (!active) {
-            return;
-        }
-
+    renderTable() {
         this.opencgaClient = this.opencgaSession.opencgaClient;
 
         this.samples = [];
@@ -104,7 +104,8 @@ export default class OpencgaSampleGrid extends LitElement {
 
         if (this.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
 
-            filters["study"] = this.opencgaSession.study.fqn;
+
+            //TODO replicate this in all browser
             if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
                 JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
                 // Abort destroying and creating again the grid. The filters have not changed
@@ -120,20 +121,11 @@ export default class OpencgaSampleGrid extends LitElement {
                 this._samples = [];
             }
 
-            // Check that HTTP protocol is present and complete the URL
-            /* let opencgaHostUrl = this.opencgaClient.getConfig().host;
-            if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
-                opencgaHostUrl = "http://" + opencgaHostUrl;
-            }
-            opencgaHostUrl += "/webservices/rest/v1/samples/search";*/
-
-            let count = true;
-
             const _table = $("#" + this._prefix + "SampleBrowserGrid");
 
             const _this = this;
-            $("#" + this._prefix + "SampleBrowserGrid").bootstrapTable("destroy");
-            $("#" + this._prefix + "SampleBrowserGrid").bootstrapTable({
+            _table.bootstrapTable("destroy");
+            _table.bootstrapTable({
                 // url: opencgaHostUrl,
                 columns: _this._columns,
                 method: "get",
@@ -413,10 +405,6 @@ export default class OpencgaSampleGrid extends LitElement {
         ];
 
         return this._columns;
-    }
-
-    _getUrlQueryParams() {
-        // TODO
     }
 
     onDownload(e) {

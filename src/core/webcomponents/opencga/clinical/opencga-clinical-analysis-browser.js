@@ -114,6 +114,7 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
 
     }
 
+    // eslint-disable-next-line require-jsdoc
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
@@ -128,11 +129,11 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                     id: "table-tab",
                     name: "Table result",
                     active: true
-                },
+                },/*
                 {
                     id: "facet-tab",
                     name: "Aggregation stats"
-                },
+                },*/
                 {
                     id: "comparator-tab",
                     name: "Comparator"
@@ -239,14 +240,6 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                                 multiple: false,
                                 defaultValue: "false",
                                 description: "Sort the results"
-                            },
-                            {
-                                name: "summary",
-                                type: "category",
-                                allowedValues: ["true", "false"],
-                                multiple: false,
-                                defaultValue: "false",
-                                description: "Fast fetch of main variant parameters"
                             },
                             {
                                 name: "approximateCount",

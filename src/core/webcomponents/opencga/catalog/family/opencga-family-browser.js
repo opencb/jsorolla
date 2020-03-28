@@ -315,7 +315,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
             <opencga-browser  resource="family"
                             .opencgaSession="${this.opencgaSession}"
                             .opencgaClient="${this.opencgaSession.opencgaClient}"
-                            .query="${this.browserSearchQuery}"
+                            .query="${this.query}"
                             .config="${this._config}"
                             .cellbaseClient="${this.cellbaseClient}"
                             .populationFrequencies="${this.populationFrequencies}"

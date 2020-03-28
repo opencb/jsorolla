@@ -54,13 +54,14 @@ class OpencbFacetResults extends LitElement {
             active: {
                 type: Boolean
             },
+            // Static data. Non currently used (query is being used instead)
             data: {
                 type: Object
             },
             loading: {
                 type: Boolean
             },
-            errorState: {
+            resource: {
                 type: String
             }
         };
@@ -80,12 +81,11 @@ class OpencbFacetResults extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        $(".bootstrap-select", this).selectpicker();
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("query")) {
-            this.propertyObserver();
+        if (changedProperties.has("opencgaSession") && this.active) {
+            this.queryObserver();
         }
         if (changedProperties.has("query")) {
             this.queryObserver();
@@ -94,28 +94,22 @@ class OpencbFacetResults extends LitElement {
             this.configObserver();
         }
         if (changedProperties.has("active") && this.active) {
-            console.warn("fire http req"); // TODO check if query has changed before (this.facetResults.length)
+            console.warn("fire http req"); // TODO check if query has changed before
             // this.fetchDefaultData();
         }
     }
 
-    propertyObserver(opencgaSession, query) {
-        // this.clear();
-        // PolymerUtils.show(this._prefix + "Warning");
-    }
-
     queryObserver() {
-        console.log("queryObserver  in facet!", this.query);
         // executedQuery in opencga-variant-browser has changed so, if requested,  we have to repeat the facet query
         this.facetResults = [];
         this.loading = true;
+        this.errorState = false;
         this.requestUpdate();
-        this.opencgaSession.opencgaClient.variants().aggregationStats(this.query, {})
+        this.endpoint(this.resource).aggregationStats(this.query, {})
             .then(queryResponse => {
-                console.log("queryResponse", queryResponse);
                 this.errorState = false;
-                this.facetResults = queryResponse.getResults();
-                console.log("this.facetResults",this.facetResults)
+                this.facetResults = queryResponse.getResults() || [];
+                console.log("this.facetResults", this.facetResults);
             })
             .catch(e => {
                 // TODO show the list of the error events once the rest-client has been rewritten in axios and even in case of error a RestResponse is returned
@@ -130,6 +124,29 @@ class OpencbFacetResults extends LitElement {
 
     configObserver() {
         this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
+    endpoint(resource) {
+        switch (resource) {
+            case "variant":
+                return this.opencgaSession.opencgaClient.variants();
+            case "files":
+                return this.opencgaSession.opencgaClient.files();
+            case "samples":
+                return this.opencgaSession.opencgaClient.samples();
+            case "individuals":
+                return this.opencgaSession.opencgaClient.individuals();
+            case "cohort":
+                return this.opencgaSession.opencgaClient.cohorts();
+            case "family":
+                return this.opencgaSession.opencgaClient.families();
+            case "clinical-analysis":
+                return this.opencgaSession.opencgaClient.clinical();
+            case "jobs":
+                return this.opencgaSession.opencgaClient.jobs();
+            default:
+                throw new Error("Resource not recognized");
+        }
     }
 
     clearPlots() {
@@ -184,7 +201,7 @@ class OpencbFacetResults extends LitElement {
                 margin-top: 40px;
             }
         </style>
-        <div class="row">
+        <div>
             ${this.loading ? html`
                 <div id="loading">
                     <loading-spinner></loading-spinner>

@@ -25,6 +25,7 @@ import "../../../commons/filters/file-pass-filter.js";
 import "../../../commons/filters/file-qual-filter.js";
 import "../../../commons/filters/somatic-filter.js";
 import "../../../commons/filters/section-filter.js";
+import "../../../commons/filters/select-token-filter.js";
 
 
 export default class OpencgaSampleFilter extends LitElement {
@@ -233,6 +234,14 @@ export default class OpencgaSampleFilter extends LitElement {
         let content = "";
         switch (subsection.id) {
             case "id":
+                content = html`<select-token-filter
+                                    resource="samples"
+                                   .opencgaSession="${this.opencgaSession}"
+                                   placeholder="${subsection.placeholder}"
+                                   .value="${this.preparedQuery[subsection.id]}"
+                                   @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                            </select-token-filter>`;
+                break;
             case "individual":
             case "source":
             case "phenotypes":
@@ -362,10 +371,7 @@ export default class OpencgaSampleFilter extends LitElement {
                 </div>
                 ` : null}
             
-            <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true"
-                 style="padding-top: 20px">
-            
-                <!-- Sample field attributes -->
+            <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
                 <div class="">            
                     ${this.config.sections && this.config.sections.length ? this.config.sections.map( section => this._createSection(section)) : html`No filter has been configured.`}
                 </div>

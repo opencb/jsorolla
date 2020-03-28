@@ -125,7 +125,6 @@ export default class OpencgaBrowser extends LitElement {
         this.preparedQuery = {};
         this.selectedFacet = {};
         this.selectedFacetFormatted = {};
-        this.errorState = false;
 
         this.activeTab = {};
 
@@ -139,6 +138,7 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
+        // this.renderView(this.resource);
         $(".bootstrap-select", this).selectpicker();
         this._initTooltip();
     }
@@ -213,18 +213,17 @@ export default class OpencgaBrowser extends LitElement {
 
     async onRun() {
         // this event keeps in sync the query object in opencga-browser with the general one in iva-app (this.queries)
-        // it is also in charge of update executedQuery (through queryObserver()).
-        // if we want to dismiss the general query feature replace the following line with:
+        // it is also in charge of update executedQuery (notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() in opencga-browser).
+        // if we want to dismiss the general query feature (that is browsers remembering your last query even if you change view) replace the following line with:
         // this.executedQuery = {...this.preparedQuery}; this.requestUpdate();
         this.notifySearch(this.preparedQuery);
 
-        if(Object.keys(this.selectedFacet).length) {
+        if (Object.keys(this.selectedFacet).length) {
             this.facetQuery = {
                 ...this.preparedQuery,
-                // sid: this.opencgaClient._config.sessionId,
                 study: this.opencgaSession.study.fqn,
-                timeout: 60000,
-                fields: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
+                //timeout: 60000,
+                field: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
             };
             this._changeView("facet-tab");
         }
@@ -280,8 +279,8 @@ export default class OpencgaBrowser extends LitElement {
         // PolymerUtils.addClass(button, "active");
     }
 
-    onClickPill(e){
-        //e.preventDefault();
+    onClickPill(e) {
+        // e.preventDefault();
         this._changeView(e.currentTarget.dataset.id);
     }
 
@@ -320,8 +319,8 @@ export default class OpencgaBrowser extends LitElement {
 
     onActiveFacetChange(e) {
         this.selectedFacet = {...e.detail};
-        // console.log("selectedFacet",Object.keys(this.selectedFacet))
         $("#" + this._prefix + "FacetField", this).selectpicker("val", Object.keys(this.selectedFacet));
+        this.onRun(); // TODO the query should be repeated every action on active-filter (delete, clear, load from Saved filter)
         this.requestUpdate();
     }
 
@@ -339,55 +338,56 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     renderView(entity) {
+        // TODO be sure to EXECUTE this function each template update, otherwise props in the following components won't be updated.
+        // this function cannot be moved in firstUpdated()
+        // possible modular solution (which still doesn't solve the update filter issue): map of TemplateResult: renderView(entity).mainView
+        const facetView = html`<div id="facet-tab" class="content-tab">
+                                    <opencb-facet-results
+                                                    resource="${this.resource}"
+                                                    .opencgaSession="${this.opencgaSession}" 
+                                                    .active="${this.activeTab["facet-tab"]}"
+                                                    .query="${this.facetQuery}"
+                                                    .data="${this.facetResults}">
+                                    </opencb-facet-results>
+                                </div>
+                        `;
         switch (entity) {
             // TODO handle specific events
             case "files":
                 this.endpoint = this.opencgaSession.opencgaClient.files();
+                //this.mainView = html``;
                 return html`
-                        <div id="table-tab" class="content-tab">
-                            <opencga-file-grid .opencgaSession="${this.opencgaSession}"
-                                                       .config="${this._config.filter.grid}"
-                                                       .query="${this.executedQuery}"
-                                                       .search="${this.executedQuery}"
-                                                       .eventNotifyName="${this.eventNotifyName}"
-                                                       .files="${this.files}"
-                                                       @selectfile="${this.onSelectFile}">
-                                 </opencga-file-grid>
-                            <h3> Annotation comparator</h3>
-                            <opencga-annotation-viewer .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                       .opencgaSession="${this.opencgaSession}"
-                                                       .config="${this._config}"
-                                                       .entryIds="${this.files}"
-                                                       entity="FILE">
-                            </opencga-annotation-viewer>
-                        </div>
-                        
-                        <div id="facet-tab" class="content-tab">
-                            <opencb-facet-results .active="${this.activeTab["facet-tab"]}"
-                                                  .data="${this.facetResults}"
-                                                  .error="${this.errorState}">
-                            </opencb-facet-results>
-                        </div>`;
+                            <div id="table-tab" class="content-tab">
+                                <opencga-file-grid .opencgaSession="${this.opencgaSession}"
+                                                           .config="${this._config.filter.grid}"
+                                                           .query="${this.executedQuery}"
+                                                           .search="${this.executedQuery}"
+                                                           .eventNotifyName="${this.eventNotifyName}"
+                                                           .files="${this.files}"
+                                                           @selectfile="${this.onSelectFile}">
+                                     </opencga-file-grid>
+                                <h3> Annotation comparator</h3>
+                                <opencga-annotation-viewer .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                                           .opencgaSession="${this.opencgaSession}"
+                                                           .config="${this._config}"
+                                                           .entryIds="${this.files}"
+                                                           entity="FILE">
+                                </opencga-annotation-viewer>
+                            </div>
+                            ${facetView}`;
             case "samples":
                 this.endpoint = this.opencgaSession.opencgaClient.samples();
                 return html`
                         <div id="table-tab" class="content-tab">
                             <opencga-sample-grid .opencgaSession="${this.opencgaSession}"
                                                      .query="${this.executedQuery}"
-                                                     .search="${this.executedQuery}"
                                                      .config="${this._config.filter.grid}"
                                                      .samples="${this.samples}"
                                                      .active="${true}"
                                                      @selectsample="${this.onSelectSample}">
                             </opencga-sample-grid>
                         </div>
-                        
-                        <div id="facet-tab" class="content-tab">
-                            <opencb-facet-results .active="${this.activeTab["facet-tab"]}"
-                                                  .data="${this.facetResults}"
-                                                  .error="${this.errorState}">
-                            </opencb-facet-results>
-                        </div>`;
+                        ${facetView}`;
             case "individuals":
                 this.endpoint = this.opencgaSession.opencgaClient.individuals();
                 return html`
@@ -397,11 +397,11 @@ export default class OpencgaBrowser extends LitElement {
                                                  .config="${this._config.filter.grid}"
                                                  .eventNotifyName="${this.eventNotifyName}"
                                                  .individuals="${this.individuals}"
-                                                 .search="${this.search}"
+                                                 .query="${this.executedQuery}"
                                                  .active="${true}">
                             </opencga-individual-grid>
 
-                            
+
                             <h3> Annotation comparator</h3>
                             <opencga-annotation-viewer .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                        .opencgaSession="${this.opencgaSession}"
@@ -410,13 +410,7 @@ export default class OpencgaBrowser extends LitElement {
                                                        entity="INDIVIDUAL">
                             </opencga-annotation-viewer>
                         </div>
-                        
-                        <div id="facet-tab" class="content-tab">
-                            <opencb-facet-results .active="${this.activeTab["facet-tab"]}"
-                                                  .data="${this.facetResults}"
-                                                  .error="${this.errorState}">
-                            </opencb-facet-results>
-                        </div>`;
+                        ${facetView}`;
             case "cohort":
                 this.endpoint = this.opencgaSession.opencgaClient.cohorts();
                 return html`
@@ -430,7 +424,7 @@ export default class OpencgaBrowser extends LitElement {
                                                      .active="${true}"
                                                      @selectcohort="${this.onSelectCohort}">
                                                 </opencga-cohort-grid>
-        
+
                                 <div style="padding-top: 5px">
                                     <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
                                         <li role="presentation" class="active">
@@ -439,7 +433,7 @@ export default class OpencgaBrowser extends LitElement {
                                                 Cohort info
                                             </a>
                                         </li>
-        
+
                                         <li role="presentation">
                                             <a href="#${this._prefix}SampleViewer" role="tab" data-toggle="tab" class="detail-tab-title"
                                                data-id="sampleGrid" @click="${this._changeBottomTab}">
@@ -447,7 +441,7 @@ export default class OpencgaBrowser extends LitElement {
                                             </a>
                                         </li>
                                     </ul>
-        
+
                                     <div class="tab-content" style="height: 680px">
                                         <div role="tabpanel" class="tab-pane active" id="${this._prefix}CohortViewer">
                                             Work in progress
@@ -459,19 +453,16 @@ export default class OpencgaBrowser extends LitElement {
                                                                  .active="${true}">
                                             </opencga-sample-grid>
                                         </div>
-        
+
                                     </div>
                                 </div>
                         </div>
-                        <div id="facet-tab" class="content-tab">
-                            <opencb-facet-results .active="${this.activeTab["facet-tab"]}"
-                                                  .data="${this.facetResults}"
-                                                  .error="${this.errorState}">
-                            </opencb-facet-results>
-                        </div>`;
+                        ${facetView}`;
             case "family":
                 this.endpoint = this.opencgaSession.opencgaClient.families();
                 return html`
+
+                        ${JSON.stringify(this.activeTab["facet-tab"]) } ${JSON.stringify(this.facetQuery)}
                         <div id="table-tab" class="content-tab">
                             <opencga-family-grid .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                 .opencgaSession="${this.opencgaSession}"
@@ -484,13 +475,7 @@ export default class OpencgaBrowser extends LitElement {
                                                 @selectfamily="${this.onSelectFamily}">
                             </opencga-family-grid>
                         </div>
-                        
-                        <div id="facet-tab" class="content-tab">
-                            <opencb-facet-results .active="${this.activeTab["facet-tab"]}"
-                                                  .data="${this.facetResults}"
-                                                  .error="${this.errorState}">
-                            </opencb-facet-results>
-                        </div>`;
+                        ${facetView}`;
             case "clinical-analysis":
                 this.endpoint = this.opencgaSession.opencgaClient.clinical();
                 return html`
@@ -503,14 +488,14 @@ export default class OpencgaBrowser extends LitElement {
                                                             .active="${true}"
                                                             @selectanalysis="${this.onSelectClinicalAnalysis}">
                                 </opencga-clinical-analysis-grid>
-        
+
                                 <div style="padding-top: 5px">
                                 <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
                                     <li role="presentation" class="active">
                                         <a href="#${this._prefix}SampleViewer" role="tab" data-toggle="tab" class="detail-tab-title">Clinical Analysis Info</a>
                                     </li>
                                 </ul>
-                
+
                                     <div class="tab-content" style="height: 680px">
                                         <div role="tabpanel" class="tab-pane active" id="${this._prefix}SampleViewer">
                                             <clinical-analysis-view .opencgaSession="${this.opencgaSession}"
@@ -522,13 +507,7 @@ export default class OpencgaBrowser extends LitElement {
                                     </div>
                                 </div>
                         </div>
-                        
-                        <div id="facet-tab" class="content-tab">
-                            <opencb-facet-results .active="${this.activeTab["facet-tab"]}"
-                                                  .data="${this.facetResults}"
-                                                  .error="${this.errorState}">
-                            </opencb-facet-results>
-                        </div>`;
+                        <!-- ${facetView} --> `;
             case "jobs":
                 this.endpoint = this.opencgaSession.opencgaClient.jobs();
                 return html`
@@ -547,24 +526,33 @@ export default class OpencgaBrowser extends LitElement {
                                                   .job="${this.detail.job}">
                             </opencga-jobs-details>
                         </div>
-                        <div id="facet-tab" class="content-tab">
-                            <opencb-facet-results .active="${this.activeTab["facet-tab"]}"
-                                                  .data="${this.facetResults}"
-                                                  .error="${this.errorState}">
-                            </opencb-facet-results>
-                        </div>
+                        ${facetView}
                         <div id="visual-browser-tab" class="content-tab">
                             <jobs-timeline  .opencgaSession="${this.opencgaSession}"
                                             .active="${this.activeTab["visual-browser-tab"]}"
-                                            .query="${this.executedQuery}">                
+                                            .query="${this.executedQuery}">
                             </jobs-timeline>
-                                            
+
                         </div>
                         `;
             default:
                 return html`entity not recognized`;
         }
     }
+
+    /*    _filterComp(){
+        return html`
+             <opencga-file-filter discriminator="hardcoded"
+                                                    .opencgaSession="${this.opencgaSession}"
+                                                    .config="${this._config.filter}"
+                                                    .files="${this.files}"
+                                                    .query="${this.query}"
+                                                    .variableSets="${this.variableSets}"
+                                                    .searchButton="${false}"
+                                                    @queryChange="${this.onQueryFilterChange}"
+                                                    @querySearch="${this.onQueryFilterSearch}">
+             </opencga-file-filter>`
+    }*/
 
     render() {
         return html`
@@ -597,27 +585,12 @@ export default class OpencgaBrowser extends LitElement {
                                      
                             <!-- dynamic render doesn't work well with active-filter events  _filterComp ${this._filterComp} -->
                             
-                            ${this.resource === "variants" ? html`
-                                <opencga-variant-filter .opencgaSession=${this.opencgaSession}
-                                                        .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                        .cellbaseClient="${this.cellbaseClient}"
-                                                        .populationFrequencies="${this.populationFrequencies}"
-                                                        .consequenceTypes="${this.consequenceTypes}"
-                                                        .query="${this.query}"
-                                                        .config="${this._config.filter}"
-                                                        .searchButton="${false}"
-                                                        @queryChange="${this.onQueryFilterChange}"
-                                                        @querySearch="${this.onQueryFilterSearch}">
-                                </opencga-variant-filter>
-                            ` : null}
-                            
                             ${this.resource === "files" ? html`
                                 <opencga-file-filter discriminator="hardcoded"  
                                                     .opencgaSession="${this.opencgaSession}"
                                                     .config="${this._config.filter}"
                                                     .files="${this.files}"
                                                     .query="${this.query}"
-                                                    .search="${this.search}"
                                                     .variableSets="${this.variableSets}"
                                                     .searchButton="${false}"
                                                     @queryChange="${this.onQueryFilterChange}"
@@ -631,7 +604,6 @@ export default class OpencgaBrowser extends LitElement {
                                                         .cellbaseClient="${this.cellbaseClient}"
                                                         .config="${this._config.filter}"
                                                         .query="${this.query}"
-                                                        .search="${this.search}"
                                                         .variableSets="${this.variableSets}"
                                                         .searchButton="${false}"
                                                         @queryChange="${this.onQueryFilterChange}"
@@ -747,6 +719,8 @@ export default class OpencgaBrowser extends LitElement {
                         </opencga-active-filters>
 
                         ${this.renderView(this.resource)}
+                        
+                        <!-- Other option: return an {string, TemplateResult} map ${this.renderView(this.resource).facetView} -->
                         
                         <div class="v-space">
                         </div>

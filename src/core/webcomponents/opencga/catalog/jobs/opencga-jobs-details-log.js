@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "../../../../utils.js";
 
-
+//TODO review autoreload
 export default class OpencgaJobsDetailsLog extends LitElement {
 
     constructor() {
@@ -59,18 +59,22 @@ export default class OpencgaJobsDetailsLog extends LitElement {
 
     async updated(changedProperties) {
         if (changedProperties.has("job")) {
+            this.jobId = this.job.id;
             if (this.active) {
-                this.fetchContent(this.job);
+                this.fetchContent(this.job, {command: this._config.command, type: this._config.type});
             }
-
         }
+
         if (changedProperties.has("active")) {
             console.log("active", this.active);
             this.content = null;
+
             await this.requestUpdate();
             // todo this should call fetchContent iff the job has changed
+            //console.log("new job = old job ", this.active && this.jobId === this.job.id)
             if (this.active) {
-                this.fetchContent(this.job);
+                this.firstTailCall();
+                this.fetchContent(this.job, {command: this._config.command, type: this._config.type});
             } else {
                 this.clearReload();
             }
@@ -80,19 +84,23 @@ export default class OpencgaJobsDetailsLog extends LitElement {
     setCommand(command) {
         this._config.command = command;
         this.clearReload();
-        this.fetchContent(this.job);
-        this.toggleReloadInterval();
+        this.firstTailCall();
+        this.fetchContent(this.job, {command: this.actualCommand, type: this._config.type});
+        this.setReloadInterval();
     }
 
     setType(type) {
         this._config.type = type;
-        this.fetchContent(this.job);
         this.clearReload();
+        this.firstTailCall();
+        this.fetchContent(this.job, {command: this.actualCommand, type: this._config.type});
+    }
+
+    firstTailCall() {
+        this.actualCommand = this._config.command === "tail" ? "head" : this._config.command;
     }
 
     setAutoreload(e) {
-        console.log(e.currentTarget)
-
         if(this._config.autoreload) {
             this._config.autoreload = false;
             $(e.currentTarget).removeClass("active");
@@ -100,21 +108,23 @@ export default class OpencgaJobsDetailsLog extends LitElement {
         } else {
             this._config.autoreload = true;
             $(e.currentTarget).addClass("active");
-            this.toggleReloadInterval();
+            this.setReloadInterval();
         }
         //this._config.autoreload = e.target.value === "true";
         //this.clearReload();
 
     }
 
-    toggleReloadInterval() {
+    // setInterval makes sense only in case of Tail log
+    setReloadInterval() {
         if (this.active && this._config.autoreload && this._config.command === "tail") {
             console.log("setting interval")
+            this.requestUpdate();
             this.interval = setInterval(() => {
                 //this.content += "\n" + Utils.randomString(6);
                 this.fetchContent(this.job, {offset: this.contentOffset}, true);
                 this.requestUpdate();
-            }, 1000);
+            }, 10000);
         }
     }
 
@@ -131,19 +141,29 @@ export default class OpencgaJobsDetailsLog extends LitElement {
         }
         this.loading = true;
         await this.requestUpdate();
-        this.opencgaSession.opencgaClient.jobs()[this._config.command + "Log"](job.id, {
+
+        const command = params.command || this._config.command;
+        const offset = params.offset || 0;
+        console.log("request ", "command", command, "params", params, "offset", offset, "append", append);
+
+        this.opencgaSession.opencgaClient.jobs()[command + "Log"](job.id, {
             study: this.opencgaSession.study.fqn,
             lines: this._config.lines,
             type: this._config.type,
-            ...params
+            ...params,
+            offset
         }).then( restResponse => {
             const result = restResponse.getResult(0);
-            console.log(result)
-            this.contentOffset = result.offset;
+            console.log("response ", result)
+            console.log("OFFSET old/new", this.contentOffset, result.offset);
             if (result.content) {
+                //append is true only in case of tail command
                 if(append) {
-                    this.content += result.content;
-                    console.log("appended");
+                    if(this.contentOffset !== result.offset) {
+                        this.content = this.content + result.content + "\n";
+                        this.contentOffset = result.offset;
+                    }
+                    //console.log("appended");
                 } else {
                     this.content = result.content;
                 }
@@ -166,7 +186,7 @@ export default class OpencgaJobsDetailsLog extends LitElement {
         return {
             command: "head",
             type: "stderr",
-            lines: 20,
+            lines: 1,
             autoreload: false
         };
     }
@@ -253,12 +273,11 @@ export default class OpencgaJobsDetailsLog extends LitElement {
                 </div>
             </div>    
            
-            ${this._config.command === "tail" ? html`
             <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
-                <button type="button" class="btn btn-default btn-small ripple ${this._config.autoreload ? "active" : ""}" @click="${this.setAutoreload}">
+                <button type="button" class="btn btn-default btn-small ripple ${this._config.autoreload ? "active" : ""} ${this._config.command !== "tail" ? "disabled" : ""}" @click="${this.setAutoreload}" ?disabled = ${this._config.command !== "tail"}>
                        <i class="fas fa-sync-alt ${this._config.autoreload ? "anim-rotate" : ""}"></i> Autoreload
                 </button>
-            </div>` : null}
+            </div>
                  
         </div>
         command ${this._config.command} - type ${this._config.type} - autoreload ${this._config.autoreload}

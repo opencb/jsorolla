@@ -259,15 +259,14 @@ export default class OpencgaVariantBrowser extends LitElement {
 
     async onRun() {
         // this event keeps in sync the query object in variant-browser with the general one in iva-app (this.queries)
-        // it is also in charge of update executedQuery (through queryObserver()).
-        // if we want to dismiss the general query feature replace the following line with:
+        // it is also in charge of update executedQuery (notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() in variant-browser).
+        // if we want to dismiss the general query feature (that is browsers remembering your last query even if you change view) replace the following line with:
         // this.executedQuery = {...this.preparedQuery}; this.requestUpdate();
         this.notifySearch(this.preparedQuery);
 
         if(Object.keys(this.selectedFacet).length) {
             this.facetQuery = {
                 ...this.preparedQuery,
-                // sid: this.opencgaClient._config.sessionId,
                 study: this.opencgaSession.study.fqn,
                 timeout: 60000,
                 fields: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
@@ -862,7 +861,8 @@ export default class OpencgaVariantBrowser extends LitElement {
                         </div>
                         
                         <div id="facet-tab" class="content-tab">
-                            <opencb-facet-results .opencgaSession="${this.opencgaSession}" 
+                            <opencb-facet-results  resource="variant"
+                                                   .opencgaSession="${this.opencgaSession}" 
                                                    .active="${this.activeTab["facet-tab"]}"
                                                   .query="${this.facetQuery}"
                                                   .data="${this.facetResults}"
