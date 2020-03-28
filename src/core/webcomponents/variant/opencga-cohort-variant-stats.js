@@ -22,7 +22,7 @@ class CohortVariantStats extends LitElement {
 
     constructor() {
         super();
-        // Set status and init private properties
+
         this._init();
     }
 
@@ -49,7 +49,6 @@ class CohortVariantStats extends LitElement {
 
     _init() {
         this._prefix = "cvs-" + Utils.randomString(6);
-        // this.stats = [];
     }
 
     connectedCallback() {
@@ -58,45 +57,29 @@ class CohortVariantStats extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    // firstUpdated(_changedProperties) {
-    //     this._createDefaultColumns();
-    //
-    //     this.renderVariantTable();
-    // }
-
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession") || changedProperties.has("stats")) {
             this.renderVariantTable();
-            // this.requestUpdate();
         }
     }
 
     renderVariantTable() {
-        const _table = $("#" + this._prefix + "VariantBrowserGrid");
         if (typeof this.stats !== "undefined") {
-            this._columns = this._createDefaultColumns();
+            const _table = $("#" + this._prefix + "CohortStatsGrid");
             const _this = this;
             _table.bootstrapTable("destroy");
             _table.bootstrapTable({
-                columns: _this._columns,
+                columns: _this._createDefaultColumns(),
                 data: _this.stats,
-                // sidePagination: "local",
-                // Set table properties, these are read from config property
-                // uniqueId: "id",
                 pagination: _this._config.pagination,
                 pageSize: _this._config.pageSize,
                 pageList: _this._config.pageList,
-                showExport: _this._config.showExport,
-                detailView: _this._config.detailView,
-                // detailFormatter: _this._config.detailFormatter,
                 formatLoadingMessage: () =>"<loading-spinner></loading-spinner>",
 
                 onLoadError: function(status, res) {
+                    console(status);
+                    console(res);
                     console.trace();
-                    debugger
-                },
-                onPostBody: function (data) {
-                    // console.log(data);
                 }
             });
         }
@@ -112,32 +95,21 @@ class CohortVariantStats extends LitElement {
     }
 
     filterFormatter(value, row, index) {
-        let freqs = [
-            {
-                id: "PASS",
-                freq: row.filterFreq["PASS"],
-                count: row.filterCount["PASS"]
-            }
-        ];
-        // PASS must be the first elemenet
+        let content = "";
         for (let filter of Object.keys(row.filterFreq)) {
-            if (filter !== "PASS") {
-                freqs.push({
-                    id: filter,
-                    freq: row.filterFreq[filter],
-                    count: row.filterCount[filter]
-                });
-            }
-        }
-        let str = "";
-        for (let freq of freqs) {
-            let fixedFreq = freq.freq;
+            let fixedFreq = row.filterFreq[filter];
             if (fixedFreq !== 0 && fixedFreq !== 1) {
                 fixedFreq = Number(fixedFreq).toFixed(4);
             }
-            str += `<span style="padding-right: 20px">${freq.id}</span><span>${fixedFreq} (${freq.count})</span><br>`;
+            let s = `<span style="padding-right: 20px">${filter}</span><span>${fixedFreq} (${row.filterCount[filter]})</span><br>`;
+            // PASS must be the first element
+            if (filter === "PASS") {
+                content = s + content;
+            } else {
+                content += s;
+            }
         }
-        return str;
+        return content;
     }
 
     statsFormatter(value, row, index) {
@@ -186,7 +158,7 @@ class CohortVariantStats extends LitElement {
     }
 
     _createDefaultColumns() {
-        this._columns = [
+        return [
             [
                 {
                     title: "Cohort ID",
@@ -208,6 +180,7 @@ class CohortVariantStats extends LitElement {
                     field: "qualityAvg",
                     rowspan: 2,
                     colspan: 1,
+                    align: "right",
                     halign: "center"
                 },
                 {
@@ -223,16 +196,17 @@ class CohortVariantStats extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: this.numSamplesFormatter,
+                    align: "right",
                     halign: "center"
                 },
                 {
-                    title: "Alleles",
+                    title: "Allele Frequency",
                     rowspan: 1,
                     colspan: 2,
                     halign: "center"
                 },
                 {
-                    title: "Genotypes",
+                    title: "Genotype Frequency",
                     rowspan: 1,
                     colspan: 4,
                     halign: "center"
@@ -288,8 +262,6 @@ class CohortVariantStats extends LitElement {
                 }
             ]
         ];
-
-        return this._columns;
     }
 
     getDefaultConfig() {
@@ -297,25 +269,18 @@ class CohortVariantStats extends LitElement {
             pagination: true,
             pageSize: 5,
             pageList: [5, 10, 25],
-            showExport: true,
-            detailView: false,
 
-            showSelectCheckbox: false,
-            multiSelection: false,
-            nucleotideGenotype: true,
-            alleleStringLengthMax: 15,
-
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            }
+            // header: {
+            //     horizontalAlign: "center",
+            //     verticalAlign: "bottom"
+            // }
         };
     }
 
     render() {
         return html`
                 <div>
-                    <table id="${this._prefix}VariantBrowserGrid"></table>
+                    <table id="${this._prefix}CohortStatsGrid" data-buttons-toolbar="#toolbar"></table>
                 </div>
         `;
     }

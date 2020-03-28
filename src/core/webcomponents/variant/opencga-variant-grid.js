@@ -183,14 +183,27 @@ export default class OpencgaVariantGrid extends LitElement {
         }
     }
 
+    renderFromLocal() {
+        const _this = this;
+        $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable("destroy");
+        $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable({
+            data: this.data,
+            columns: this.cols,
+            onClickRow: function(row, $element) {
+                _this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+                $(".success").removeClass("success");
+                $($element).addClass("success");
+            }
+        });
+    }
+
+
     renderVariantTable() {
         this.variant = ""; // Empty the variant every time the grid is loaded
 
         this.from = 1;
         this.to = 10;
         this.approximateCountResult = false;
-        // let skipCount = false;
-        // let count = true;
 
         const _table = $("#" + this._prefix + "VariantBrowserGrid");
 
@@ -203,7 +216,7 @@ export default class OpencgaVariantGrid extends LitElement {
             this._columns = this._createDefaultColumns();
 
             // const queryParams = this._getUrlQueryParams;
-            const _numTotal = -1;
+            // const _numTotal = -1;
             const _this = this;
             _table.bootstrapTable("destroy");
             _table.bootstrapTable({
@@ -241,13 +254,13 @@ export default class OpencgaVariantGrid extends LitElement {
                     // We finally overwrite with the query object passed
                     filters = {...filters, ...this.query};
 
-                    console.log("filters", filters)
+                    console.log("variant-grid filters", filters)
                     this.opencgaSession.opencgaClient.variants()
                         .query(filters)
                         .then( res => params.success(res));
                 },
                 responseHandler: function(response) {
-                    console.log("response", response);
+                    console.log("variant-grid response", response);
                     let _numMatches = _this._numMatches || 0;
                     if (response.getResponse().numMatches >= 0) {
                         _numMatches = response.getResponse().numMatches;
@@ -451,30 +464,6 @@ export default class OpencgaVariantGrid extends LitElement {
 
     // TODO refactor using bootstrap table ajax
     _getUrlQueryParams() {
-        /* // Check the opencgaClient exists
-        if (UtilsNew.isUndefinedOrNull(this.opencgaSession.opencgaClient)) {
-            return {host: "", queryParams: {}};
-        }
-
-        let host = this.opencgaSession.opencgaClient.getConfig().host;
-        // By default we assume https protocol instead of http
-        if (!host.startsWith("https://") && !host.startsWith("http://")) {
-            host = "https://" + host;
-        }
-
-        if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
-            // if (typeof this.query === "undefined") {
-            //     this.query = {};
-            // }
-            // if (UtilsNew.isEmpty(this.query.studies) || this.query.studies.split(new RegExp("[,;]")).length === 1) {
-            //     this.query.studies = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
-            // }
-            host += "/webservices/rest/v1/analysis/variant/query";
-        } else {
-            return {host: host, queryParams: {}};
-        }*/
-
-
         // Init queryParams with default and config values plus query object
         let queryParams = {};
         if (UtilsNew.isNotUndefinedOrNull(this.config) && UtilsNew.isNotUndefinedOrNull(this.config.grid) &&
@@ -484,9 +473,9 @@ export default class OpencgaVariantGrid extends LitElement {
             queryParams = Object.assign({}, this.query);
         }
 
-        if (this.opencgaSession.opencgaClient._config.sessionId !== undefined) {
-            queryParams = Object.assign(queryParams, {sid: this.opencgaSession.opencgaClient._config.sessionId});
-        }
+        // if (this.opencgaSession.opencgaClient._config.sessionId !== undefined) {
+        //     queryParams = Object.assign(queryParams, {sid: this.opencgaSession.opencgaClient._config.sessionId});
+        // }
 
         if (UtilsNew.isEmptyArray(this.samples)) {
             queryParams.summary = true;
@@ -517,10 +506,10 @@ export default class OpencgaVariantGrid extends LitElement {
         if (typeof row !== "undefined") {
             const reference = row.reference !== "" ? row.reference : "-";
             const alternate = row.alternate !== "" ? row.alternate : "-";
-            const _variant = row.chromosome + ":" + row.start + ":" + reference + ":" + alternate;
+            const id = row.chromosome + ":" + row.start + ":" + reference + ":" + alternate;
             this.dispatchEvent(new CustomEvent("selectvariant", {
                 detail: {
-                    id: _variant,
+                    id: id,
                     variant: row
                 },
                 bubbles: true,
@@ -1136,7 +1125,7 @@ export default class OpencgaVariantGrid extends LitElement {
 
     onDownload(e) {
         const params = this._getUrlQueryParams();
-        params.limit = 1; // Default limit is 1000 for now
+        params.limit = 1000; // Default limit is 1000 for now
 
         this.downloadRefreshIcon.css("display", "inline-block");
         this.downloadIcon.css("display", "none");
@@ -1276,7 +1265,6 @@ export default class OpencgaVariantGrid extends LitElement {
         </div>
         `;
     }
-
 }
 
 customElements.define("opencga-variant-grid", OpencgaVariantGrid);
