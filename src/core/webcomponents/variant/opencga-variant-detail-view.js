@@ -66,6 +66,13 @@ export default class OpenCGAVariantDetailView extends LitElement {
 
     firstUpdated(_changedProperties) {
         this._config = {...this.getDefaultConfig(), ...this.config};
+        for (let view of this._config.views) {
+            switch (view.id) {
+                case "cohortStats":
+                    this.cohortConfig = {cohorts: view.cohorts};
+                    break;
+            }
+        }
     }
 
     updated(_changedProperties) {
@@ -171,6 +178,9 @@ export default class OpenCGAVariantDetailView extends LitElement {
         if (this.variant === undefined || this.variant.annotation === undefined) {
             return;
         }
+
+
+
         return html`
                     <div style="padding-top: 20px">
                                 <h3>Variant: ${this.variant.id}</h3>
@@ -180,17 +190,13 @@ export default class OpenCGAVariantDetailView extends LitElement {
                                         ${this._config.detail.length && this._config.detail.map(item => html`
                                             ${item.active ? html`
                                                  <li role="presentation" class="active">
-                                                    <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab"
-                                                       data-id="${item.id}"
-                                                       class="browser-variant-tab-title"
-                                                       @click="${this._changeBottomTab}">${item.title}</a>
+                                                    <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}"
+                                                       class="browser-variant-tab-title" @click="${this._changeBottomTab}">${item.title}</a>
                                                 </li>
                                             ` : html`
-                                            <li role="presentation" class="">
-                                                    <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab"
-                                                       data-id="${item.id}"
-                                                       class="browser-variant-tab-title"
-                                                       @click="${this._changeBottomTab}">${item.title}</a>
+                                                <li role="presentation" class="">
+                                                    <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}"
+                                                       class="browser-variant-tab-title" @click="${this._changeBottomTab}">${item.title}</a>
                                                 </li>
                                             `}
                                         `)}
@@ -243,10 +249,10 @@ export default class OpenCGAVariantDetailView extends LitElement {
                                         <!-- Cohort Stats Tab -->
                                         <div id="${this._prefix}cohortStats" role="tabpanel" class="tab-pane">
                                             <div style="width: 75%;padding-top: 8px">
-                                                <opencga-variant-cohort-stats .opencgaSession="${this.opencgaSession}"
-                                                                              variant="${this.variant.id}"
-                                                                              .active="${this.detailActiveTabs.cohortStats}"
-                                                                              .config="${this._config.filter.menu}">
+                                                <opencga-variant-cohort-stats   .opencgaSession="${this.opencgaSession}"
+                                                                                variantId="${this.variant.id}"
+                                                                                .active="${this.detailActiveTabs.cohortStats}"
+                                                                                .config="${this.cohortConfig}">
                                                 </opencga-variant-cohort-stats>
                                             </div>
                                         </div>

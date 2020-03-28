@@ -159,6 +159,13 @@ export default class OpencgaVariantBrowser extends LitElement {
                         }
                         // we edit the config.filter.sections.fields.cohorts
                         field.cohorts = _cohorts;
+
+                        // _tempConfig.filter.detail.views.foreach(view => {if (view.id === "cohortStats") {view.cohorts = _cohorts}});
+                        for (let view of _tempConfig.filter.detail.views) {
+                            if (view.id === "cohortStats") {
+                                view.cohorts = _cohorts;
+                            }
+                        }
                         // if we are here is because this.cohorts is undefined
                         this.cohorts = _cohorts;
                     } else {
@@ -611,7 +618,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                 },
                 detail: {
                     title: "Selected Variant",
-                    detail: [
+                    views: [
                         {
                             id: "annotationSummary",
                             // component: "opencga-variant-cohort-stats",
@@ -631,7 +638,8 @@ export default class OpencgaVariantBrowser extends LitElement {
                         {
                             id: "cohortStats",
                             // component: "opencga-variant-cohort-stats",
-                            title: "Cohort Stats"
+                            title: "Cohort Stats",
+                            cohorts: this.cohorts
                         },
                         {
                             id: "samples",

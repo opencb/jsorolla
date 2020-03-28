@@ -17,13 +17,13 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "../../utils.js";
 import UtilsNew from "../../utilsNew.js";
-import Region from "../../region.js";
-
+import "./opencga-cohort-variant-stats.js";
 
 export default class OpencgaVariantCohortStats extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -36,13 +36,11 @@ export default class OpencgaVariantCohortStats extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            variant: {
+            variantId: {
                 type: String,
-                observer: "variantObserver"
             },
             active: {
                 type: Boolean,
-                observer: "activeObserver"
             },
             config: {
                 type: Object
@@ -51,112 +49,38 @@ export default class OpencgaVariantCohortStats extends LitElement {
     }
 
     _init() {
-        this._prefix = "ovcs-" + Utils.randomString(6) + "_";
+        this._prefix = "ovcs-" + Utils.randomString(6);
         this.active = false;
     }
 
     updated(changedProperties) {
-        debugger
-        if (changedProperties.has("variant")) {
-            this.variantObserver();
-        }
-
-        if (changedProperties.has("active")) {
-            this.activeObserver();
+        if (changedProperties.has("opencgaSession") || changedProperties.has("variantId") || changedProperties.has("active")) {
+            this.fetchCohortStats();
         }
     }
 
-    // TODO why 2 functions?
-    activeObserver(e) {
-        this._fetchCohortStats(e);
-    }
-
-    variantObserver(e) {
-        this._fetchCohortStats(e);
-    }
-
-    _fetchCohortStats(e) {
-        debugger
-        if (UtilsNew.isNotUndefinedOrNull(this.variant) && this.variant.split(":").length > 2 && this.active) {
-            const [chromosome, start, ref, alt] = this.variant.split(":");
-            this.region = new Region(chromosome + ":" + start);
-            const params = {
-                id: this.variant,
-                studies: this.opencgaSession.project.id + ":" + this.opencgaSession.study.id,
-                includeStudy: "all",
-                exclude: "annotation,studies.files,studies.samplesData",
-                // useSearchIndex: "no"
-            };
-            debugger
-            const cohorts = {};
-            for (const section of this.config.sections) {
-                for (const subsection of section.fields) {
-                    if (subsection.id === "cohort") {
-                        // let _cohorts = subsection.cohorts[this.opencgaSession.project.id];
-                        if (UtilsNew.isNotUndefinedOrNull(subsection.cohorts[this.opencgaSession.project.id])) {
-                            for (const _study of Object.keys(subsection.cohorts[this.opencgaSession.project.id])) {
-                                cohorts[_study] = new Set();
-                                for (const cohort of subsection.cohorts[this.opencgaSession.project.id][_study]) {
-                                    cohorts[_study].add(cohort.id);
-                                }
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-debugger
+    fetchCohortStats() {
+        if (typeof this.variantId !== "undefined" && this.variantId.split(":").length > 2 && this.active) {
+            // const cohorts = {};
+            // for (const studyCohorts in this.config.cohorts[this.opencgaSession.project.id]) {
+            //     cohorts[studyCohorts] = new Set();
+            //     for (const cohort of this.config.cohorts[this.opencgaSession.project.id][studyCohorts]) {
+            //         cohorts[studyCohorts].add(cohort.id);
+            //     }
+            // }
             const _this = this;
+            const params = {
+                id: this.variantId,
+                study: this.opencgaSession.project.id + ":" + this.opencgaSession.study.id,
+                includeStudy: "all",
+                exclude: "annotation,studies.files,studies.samples,studies.scores,studies.issues",
+                useSearchIndex: "no"
+            };
             this.opencgaSession.opencgaClient.variants().query(params)
                 .then(function(response) {
-                    if (typeof response.response[0].result[0] !== "undefined") {
-                        const _variantStudies = response.response[0].result[0].studies;
-                        debugger
-                        for (let i = 0; i < _variantStudies.length; i++) {
-                            const study = _variantStudies[i].studyId.split(":")[1];
-                            const statsObject = _variantStudies[i].stats;
-                            const statsArray = [];
-                            Object.keys(statsObject).map(key => {
-                                if (typeof statsObject[key].mafAllele !== "undefined" && statsObject[key].mafAllele !== -1 &&
-                                    (cohorts[study] === undefined || cohorts[study].has(key))) {
-                                    statsObject[key].maf = _this._freqFormatter(statsObject[key].maf || 0);
-                                    statsObject[key].mafAllele = statsObject[key].mafAllele || "-";
-                                    if (statsObject[key].alleleCount < 0) {
-                                        statsObject[key].alleleCount = statsObject[key].refAlleleCount + statsObject[key].altAlleleCount;
-                                    }
-                                    statsObject[key].numSamples = Math.round(statsObject[key].alleleCount / 2);
-
-                                    statsObject[key].refAlleleFreq = _this._freqFormatter(statsObject[key].refAlleleFreq || 0);
-                                    // statsObject[key].alleleCountRef = statsObject[key].refAlleleCount;
-                                    statsObject[key].altAlleleFreq = _this._freqFormatter(statsObject[key].altAlleleFreq || 0);
-                                    // statsObject[key].alleleCountAlt = statsObject[key].altAlleleCount;
-
-                                    statsObject[key].genotypeFreq.homref = _this._freqFormatter(statsObject[key].genotypeFreq["0/0"] || statsObject[key].genotypeFreq["0|0"] || 0);
-                                    statsObject[key].genotypeFreq.het = _this._freqFormatter(statsObject[key].genotypeFreq["0/1"] || statsObject[key].genotypeFreq["0|1"] || 0);
-                                    statsObject[key].genotypeFreq.homalt = _this._freqFormatter(statsObject[key].genotypeFreq["1/1"] || statsObject[key].genotypeFreq["1|1"] || 0);
-
-                                    statsObject[key].genotypeCount.homref = statsObject[key].genotypeCount["0/0"] || statsObject[key].genotypeCount["0|0"] || 0;
-                                    statsObject[key].genotypeCount.het = statsObject[key].genotypeCount["0/1"] || statsObject[key].genotypeCount["0|1"] || 0;
-                                    statsObject[key].genotypeCount.homalt = statsObject[key].genotypeCount["1/1"] || statsObject[key].genotypeCount["1|1"] || 0;
-
-                                    if (key === "ALL") {
-                                        statsArray.unshift({
-                                            name: key,
-                                            value: statsObject[key],
-                                            study: study
-                                        });
-                                    } else {
-                                        statsArray.push({
-                                            name: key,
-                                            value: statsObject[key],
-                                            study: study
-                                        });
-                                    }
-                                }
-                            });
-                            _variantStudies[i].stats = statsArray;
-                        }
-                        _this.set("variantStudies", _variantStudies);
+                    if (typeof response.responses[0].results[0] !== "undefined") {
+                        _this.studies = response.responses[0].results[0].studies;
+                        _this.requestUpdate();
                     }
                 })
                 .catch(function(reason) {
@@ -174,84 +98,17 @@ debugger
         return "";
     }
 
-    _freqFormatter(value) {
-        if (value !== 0 && value !== 1) {
-            return Number(value).toFixed(5);
-        }
-        return value;
-    }
-
-    handleCollapseAction(e) {
-        const id = e.target.dataset.id;
-        const elem = $("#" + this._prefix + id)[0];
-        elem.hidden = !elem.hidden;
-        if (elem.hidden) {
-            e.target.className = "fa fa-plus-circle";
-        } else {
-            e.target.className = "fa fa-minus-circle";
-        }
-    }
-
     render() {
         return html`
-                <style include="jso-styles"></style>
-            
-                ${this.variantStudies && this.variantStudies.length && this.variantStudies.map(study => html`
-                    <h4 style="font-weight: bold;padding: 20px 0px 0px 0px">
-                        <i class="fa fa-minus-circle" @click="${this.handleCollapseAction}" data-id="${this.getStudy(study.alias)}"
-                           style="cursor: pointer"></i> #RECHECK data-id$#
+                ${this.studies && this.studies.length && this.studies.map(study => html`
+                    <h3 > 
                         &nbsp;${this.getStudy(study.studyId)}
-                    </h4>
-                    <div id="${this._prefix}${this.getStudy(study.alias)}">
-                        ${study.stats.length ? html`
-                            <div style="padding: 5px 20px">
-                                <table class="table table-bordered">
-                                    <thead style="background-color: #eee;">
-                                    <tr>
-                                        <th scope="col" rowspan="2">Cohort</th>
-                                        <!--<th scope="col" rowspan="2">Reference</th>-->
-                                        <!--<th scope="col" rowspan="2">Alternate</th>-->
-                                        <th scope="col" rowspan="2">MAF (allele)</th>
-                                        <th scope="col" rowspan="2">Number of Samples</th>
-                                        <th colspan="2" scope="colgroup" style="text-align: center">Allele Frequencies</th>
-                                        <th colspan="3" scope="colgroup" style="text-align: center">Genotype Frequencies</th>
-                                    </tr>
-                                    <tr>
-                                        <th scope="col">Reference</th>
-                                        <th scope="col">Alternate</th>
-                                        <th scope="col">Ref/Ref</th>
-                                        <th scope="col">Ref/Alt</th>
-                                        <th scope="col">Alt/Alt</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    ${study.stats.map( cohort => html`
-                                        <tr>
-                                            <td>${this.cohort.name}}</td>
-                                            <!--<td>${this.cohort.value.refAllele}</td>-->
-                                            <!--<td>${this.cohort.value.altAllele}</td>-->
-                                            <td>${this.cohort.value.maf} (${this.cohort.value.mafAllele})</td>
-                                            <td>${this.cohort.value.numSamples}</td>
-                                            <td>${this.cohort.value.refAlleleFreq} (${this.cohort.value.refAlleleCount})</td>
-                                            <td>${this.cohort.value.altAlleleFreq} (${this.cohort.value.altAlleleCount})</td>
-                                            <td>${this.cohort.value.genotypeFreq.homref} (${this.cohort.value.genotypeCount.homref})</td>
-                                            <td>${this.cohort.value.genotypeFreq.het} (${this.cohort.value.genotypeCount.het})</td>
-                                            <td>${this.cohort.value.genotypeFreq.homalt} (${this.cohort.value.genotypeCount.homalt})</td>
-                                        </tr>                                    
-                                    `)}
-                                    </tbody>
-                                </table>
-                            </div>
-                        ` : html`
-                            <div style="padding: 5px 20px">
-                                No Genotypes statistics available
-                            </div>
-                        `}
-                    </div>
+                    </h3>
+                    
+                    <opencga-cohort-variant-stats .stats="${study.stats}"></opencga-cohort-variant-stats>
                 `)}
         `;
     }
-
 }
 
 customElements.define("opencga-variant-cohort-stats", OpencgaVariantCohortStats);
