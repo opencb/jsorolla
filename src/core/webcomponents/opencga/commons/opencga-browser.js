@@ -38,10 +38,10 @@ import "../catalog/cohorts/opencga-cohort-filter.js";
 import "../catalog/jobs/opencga-jobs-grid.js";
 import "../catalog/jobs/opencga-jobs-filter.js";
 import "../catalog/jobs/opencga-jobs-details.js";
-import "../clinical/opencga-clinical-analysis-grid.js";
-import "../clinical/opencga-clinical-analysis-filter.js";
+import "../../clinical/opencga-clinical-analysis-grid.js";
+import "../../clinical/opencga-clinical-analysis-filter.js";
 import "../catalog/jobs/opencga-jobs-browser.js";
-import "../clinical/opencga-clinical-analysis-filter.js";
+import "../../clinical/opencga-clinical-analysis-filter.js";
 import "./../catalog/jobs/jobs-timeline.js";
 
 // this is the new opencga-browser

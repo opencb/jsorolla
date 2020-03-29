@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
-import PolymerUtils from "../../PolymerUtils.js";
+import Utils from "../../utils.js";
+import PolymerUtils from "../PolymerUtils.js";
 import "./opencga-clinical-analysis-filter.js";
 import "./opencga-clinical-analysis-grid.js";
 import "../opencga-active-filters.js";

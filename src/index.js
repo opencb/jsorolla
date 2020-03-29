@@ -3,7 +3,7 @@ export {CellBaseClient} from "./core/clients/cellbase/cellbase-client.js";
 export {ReactomeClient} from "./core/clients/reactome/reactome-client.js";
 
 export OpencgaVariantBrowser from "./core/webcomponents/variant/opencga-variant-browser.js";
-export PpencgaClinicalPortal from "./core/webcomponents/opencga/clinical/opencga-clinical-portal.js";
+export PpencgaClinicalPortal from "./core/webcomponents/clinical/opencga-clinical-portal.js";
 export VariantBeacon from "./core/webcomponents/variant/variant-beacon.js";
 export OpencgaProjects from "./core/webcomponents/opencga/catalog/opencga-projects.js";
 export OpencgaSampleBrowser from "./core/webcomponents/opencga/catalog/samples/opencga-sample-browser.js";
@@ -16,7 +16,7 @@ export OpencgaLogin from "./core/webcomponents/opencga/catalog/opencga-login.js"
 export OpencgaIndividualBrowser from "./core/webcomponents/opencga/catalog/individual/opencga-individual-browser.js";
 export OpencgaFamilyBrowser from "./core/webcomponents/opencga/catalog/family/opencga-family-browser.js";
 export OpencgaCohortBrowser from "./core/webcomponents/opencga/catalog/cohorts/opencga-cohort-browser.js";
-export OpencgaClinicalAnalysisBrowser from "./core/webcomponents/opencga/clinical/opencga-clinical-analysis-browser.js";
+export OpencgaClinicalAnalysisBrowser from "./core/webcomponents/clinical/opencga-clinical-analysis-browser.js";
 export OpencgaGwasAnalysis from "./core/webcomponents/variant/analysis/opencga-gwas-analysis.js";
 export OpencgaVariantInterpretation from "./core/webcomponents/variant/opencga-variant-interpretation.js";
 

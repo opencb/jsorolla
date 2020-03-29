@@ -25,10 +25,10 @@ import "./opencga-variant-interpretation-grid.js";
 import "./opencga-variant-interpretation-detail.js";
 import "./opencga-variant-family-analysis.js";
 import "../opencga/alignment/opencga-panel-transcript-view.js";
-import "../opencga/clinical/opencga-clinical-analysis-view.js";
+import "../clinical/opencga-clinical-analysis-view.js";
 import "../opencga/opencga-active-filters.js";
 import "../opencga/opencga-genome-browser.js";
-import "../opencga/clinical/clinical-interpretation-view.js";
+import "../clinical/clinical-interpretation-view.js";
 import "./opencga-variant-interpreter-genome-browser.js";
 
 
