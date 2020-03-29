@@ -22,9 +22,9 @@ import UtilsNew from "./../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 import "./opencga-sample-filter.js";
 import "./opencga-sample-grid.js";
-import "../../opencga-active-filters.js";
+import "../../../commons/opencga-active-filters.js";
 import "../variableSets/opencga-annotation-comparator.js";
-import "../../commons/opencga-facet-view.js";
+import "../../../commons/opencga-facet-view.js";
 
 
 export default class OpencgaSampleBrowser_old extends LitElement {

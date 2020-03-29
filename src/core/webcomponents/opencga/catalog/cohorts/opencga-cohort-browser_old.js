@@ -19,10 +19,10 @@ import Utils from "./../../../../utils.js";
 import UtilsNew from "../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 import "./opencga-cohort-grid.js";
-import "../../opencga-active-filters.js";
+import "../../../commons/opencga-active-filters.js";
 import "../variableSets/opencga-annotation-comparator.js";
 import "../variableSets/opencga-annotation-viewer.js";
-import "../../commons/opencga-facet-view.js";
+import "../../../commons/opencga-facet-view.js";
 import "./opencga-cohort-filter.js";
 
 

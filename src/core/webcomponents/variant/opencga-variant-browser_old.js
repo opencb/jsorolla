@@ -21,7 +21,7 @@ import UtilsNew from "../../utilsNew.js";
 import "./opencga-variant-facet-query.js";
 // import "./variant-beacon-network.js";
 import "./variant-genome-browser.js";
-import "../opencga/opencga-active-filters.js";
+import "../commons/opencga-active-filters.js";
 import "../opencga/opencga-genome-browser.js";
 // import "../reactome/reactome-variant-network.js";
 // import "./annotation/cellbase-variantannotation-view.js";

@@ -17,7 +17,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../../utils.js";
-import "../../commons/opencga-browser.js";
+import "../../../commons/opencga-browser.js";
 
 export default class OpencgaFileBrowser extends LitElement {
 

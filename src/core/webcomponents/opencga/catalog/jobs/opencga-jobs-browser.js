@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../../utils.js";
-import "../../commons/opencga-browser.js";
+import "../../../commons/opencga-browser.js";
 
 // TODO this component will be the new opencga-file-browser and this configuration will be for browser and facet both
 

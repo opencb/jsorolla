@@ -1,5 +1,5 @@
-/**
- * Copyright 2015-2019 OpenCB
+/*
+ * Copyright 2015-2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../utilsNew.js";
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
-import PolymerUtils from "../../PolymerUtils.js";
+import Utils from "../../utils.js";
+import PolymerUtils from "../PolymerUtils.js";
 
 // TODO fixbug querying opencga-client PhastCons - 1kG_phase3_EAS
 

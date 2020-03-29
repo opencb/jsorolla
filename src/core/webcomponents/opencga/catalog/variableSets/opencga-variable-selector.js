@@ -19,7 +19,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../../utils.js";
 import UtilsNew from "../../../../utilsNew.js";
-import CatalogUIUtils from "../../commons/CatalogUIUtils.js";
+import CatalogUIUtils from "../../../commons/CatalogUIUtils.js";
 
 
 export default class OpencgaVariableSelector extends LitElement {

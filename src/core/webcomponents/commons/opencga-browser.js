@@ -1,5 +1,5 @@
-/**
- * Copyright 2015-2019 OpenCB
+/*
+ * Copyright 2015-2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,34 +15,33 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
-import UtilsNew from "./../../../utilsNew.js";
-import PolymerUtils from "../../PolymerUtils.js";
+import Utils from "../../utils.js";
+import UtilsNew from "../../utilsNew.js";
+import PolymerUtils from "../PolymerUtils.js";
 import "./opencga-facet-result-view.js";
-import "../../opencga/opencga-active-filters.js";
-import "../../commons/filters/select-field-filter.js";
-import "../../commons/opencb-facet-results.js";
+import "./opencga-active-filters.js";
+import "./filters/select-field-filter.js";
+import "./opencb-facet-results.js";
 import "./facet-filter.js";
-import "../../../loading-spinner.js";
-import "../../variant/opencga-variant-detail-view.js";
-import "../catalog/files/opencga-file-grid.js";
-import "../catalog/files/opencga-file-filter.js";
-import "../catalog/samples/opencga-sample-grid.js";
-import "../catalog/samples/opencga-sample-filter.js";
-import "../catalog/individual/opencga-individual-grid.js";
-import "../catalog/individual/opencga-individual-filter.js";
-import "../catalog/family/opencga-family-grid.js";
-import "../catalog/family/opencga-family-filter.js";
-import "../catalog/cohorts/opencga-cohort-grid.js";
-import "../catalog/cohorts/opencga-cohort-filter.js";
-import "../catalog/jobs/opencga-jobs-grid.js";
-import "../catalog/jobs/opencga-jobs-filter.js";
-import "../catalog/jobs/opencga-jobs-details.js";
-import "../../clinical/opencga-clinical-analysis-grid.js";
-import "../../clinical/opencga-clinical-analysis-filter.js";
-import "../catalog/jobs/opencga-jobs-browser.js";
-import "../../clinical/opencga-clinical-analysis-filter.js";
-import "./../catalog/jobs/jobs-timeline.js";
+import "../../loading-spinner.js";
+import "../variant/opencga-variant-detail-view.js";
+import "../opencga/catalog/files/opencga-file-grid.js";
+import "../opencga/catalog/files/opencga-file-filter.js";
+import "../opencga/catalog/samples/opencga-sample-grid.js";
+import "../opencga/catalog/samples/opencga-sample-filter.js";
+import "../opencga/catalog/individual/opencga-individual-grid.js";
+import "../opencga/catalog/individual/opencga-individual-filter.js";
+import "../opencga/catalog/family/opencga-family-grid.js";
+import "../opencga/catalog/family/opencga-family-filter.js";
+import "../opencga/catalog/cohorts/opencga-cohort-grid.js";
+import "../opencga/catalog/cohorts/opencga-cohort-filter.js";
+import "../opencga/catalog/jobs/opencga-jobs-grid.js";
+import "../opencga/catalog/jobs/opencga-jobs-filter.js";
+import "../opencga/catalog/jobs/opencga-jobs-details.js";
+import "../opencga/catalog/jobs/opencga-jobs-browser.js";
+import "../opencga/catalog/jobs/jobs-timeline.js";
+import "../clinical/opencga-clinical-analysis-grid.js";
+import "../clinical/opencga-clinical-analysis-filter.js";
 
 // this is the new opencga-browser
 

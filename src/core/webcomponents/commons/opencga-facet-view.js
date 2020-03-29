@@ -1,5 +1,5 @@
-/**
- * Copyright 2015-2019 OpenCB
+/*
+ * Copyright 2015-2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
-import UtilsNew from "../../../utilsNew.js";
-import PolymerUtils from "../../PolymerUtils.js";
-import "../commons/opencga-facet-result-view.js";
-import "../commons/opencga-facet-view-selector.js";
+import Utils from "../../utils.js";
+import UtilsNew from "../../utilsNew.js";
+import PolymerUtils from "../PolymerUtils.js";
+import "./opencga-facet-result-view.js";
+import "./opencga-facet-view-selector.js";
 
 /**
  * @deprecated

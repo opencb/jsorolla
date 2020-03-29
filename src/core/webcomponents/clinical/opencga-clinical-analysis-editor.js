@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "../../utils.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
-import CatalogUIUtils from "../opencga/commons/CatalogUIUtils.js";
+import CatalogUIUtils from "../commons/CatalogUIUtils.js";
 import "../opencga/catalog/individual/opencga-individual-browser.js";
 import "../opencga/catalog/family/opencga-family-editor.js";
 import "../opencga/catalog/family/opencga-family-browser.js";

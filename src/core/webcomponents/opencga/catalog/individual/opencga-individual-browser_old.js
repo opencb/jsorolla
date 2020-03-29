@@ -20,8 +20,8 @@ import UtilsNew from "../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 import "./opencga-individual-filter.js";
 import "./opencga-individual-grid.js";
-import "../../opencga-active-filters.js";
-import "../../commons/opencga-facet-view.js";
+import "../../../commons/opencga-active-filters.js";
+import "../../../commons/opencga-facet-view.js";
 
 
 export default class OpencgaIndividualBrowser_old extends LitElement {

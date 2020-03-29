@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../../utils.js";
 import UtilsNew from "./../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
-import CatalogUIUtils from "../../commons/CatalogUIUtils.js";
+import CatalogUIUtils from "../../../commons/CatalogUIUtils.js";
 import "../../../commons/opencb-grid-toolbar.js";
 import "./opencga-family-filter.js";
 

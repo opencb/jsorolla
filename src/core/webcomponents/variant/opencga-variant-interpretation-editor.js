@@ -19,7 +19,7 @@ import Utils from "./../../utils.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "./opencga-variant-filter.js";
-import "../opencga/opencga-active-filters.js";
+import "../commons/opencga-active-filters.js";
 import "./opencga-variant-grid.js";
 import "./opencga-variant-interpretation-grid.js";
 import "./opencga-variant-interpretation-detail.js";

@@ -20,7 +20,7 @@ import UtilsNew from "../../utilsNew.js";
 import "./opencga-variant-filter.js";
 import "./opencga-variant-interpretation-grid.js";
 import "./opencga-variant-interpretation-detail.js";
-import "../opencga/opencga-active-filters.js";
+import "../commons/opencga-active-filters.js";
 
 export default class OpencgaVariantFamilyAnalysis extends LitElement {
 

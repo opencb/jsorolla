@@ -19,7 +19,7 @@ import Utils from "./../../../../utils.js";
 import UtilsNew from "../../../../utilsNew.js";
 import "./../variableSets/opencga-annotation-filter.js";
 import "./../opencga-date-filter.js";
-import "../../commons/opencga-facet-view.js";
+import "../../../commons/opencga-facet-view.js";
 import "../../../commons/filters/text-field-filter.js";
 import "../../../commons/filters/file-pass-filter.js";
 import "../../../commons/filters/file-qual-filter.js";
