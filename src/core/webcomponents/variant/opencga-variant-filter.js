@@ -194,6 +194,7 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     clinicalObserver(clinicalAnalysis) {
+        debugger
         if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis)) {
             // this.clinicalAnalysis = Object.assign({}, clinicalAnalysis);
         }
@@ -493,6 +494,7 @@ export default class OpencgaVariantFilter extends LitElement {
 
     _addAllTooltips() {
         for (const section of this.config.sections) {
+            console.log(section)
             for (const subsection of section.fields) {
                 if (UtilsNew.isNotEmpty(subsection.tooltip)) {
                     const tooltipIcon = $("#" + this._prefix + subsection.id + "Tooltip");

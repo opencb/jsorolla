@@ -159,15 +159,15 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
     clinicalAnalysisIdObserver() {
         if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId)) {
             const params = {
-                study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
+                study: this.opencgaSession.study.fqn
             };
             const _this = this;
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, params)
                 .then(function(response) {
                     _this.showSummary = false;
-                    if (response.response[0].numResults === 1) {
+                    if (response.responses[0].numResults === 1) {
                         console.log("aysnc response", response.response[0].numResults)
-                        _this.clinicalAnalysis = response.response[0].result[0];
+                        _this.clinicalAnalysis = response.responses[0].results[0];
                         _this._dueDate = moment(_this.clinicalAnalysis.dueDate, "YYYYMMDDHHmmss").format("D MMM YY");
                         _this._creationDate = moment(_this.clinicalAnalysis.creationDate, "YYYYMMDDHHmmss").format("D MMM YY");
                         _this.showSummary = true;

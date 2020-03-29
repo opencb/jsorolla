@@ -131,20 +131,21 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
 
     propertyObserver(opencgaSession, mode, config) {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
-        let _config = JSON.parse(JSON.stringify(config));
+        // let _config = JSON.parse(JSON.stringify(config));
+        let _config = config;
         _config = Object.assign(this.getDefaultConfig(), _config);
-        _config.grid.showSelectCheckbox = false;
-        _config.grid.showStatus = true;
+        // _config.grid.showSelectCheckbox = false;
+        // _config.grid.showStatus = true;
         this._config = _config;
 
         // Check if Beacon hosts are configured
-        for (const detail of this._config.detail) {
-            if (detail.id === "beacon" && UtilsNew.isNotEmptyArray(detail.hosts)) {
-                this.beaconConfig = {
-                    hosts: detail.hosts
-                };
-            }
-        }
+        // for (const detail of this._config.detail) {
+        //     if (detail.id === "beacon" && UtilsNew.isNotEmptyArray(detail.hosts)) {
+        //         this.beaconConfig = {
+        //             hosts: detail.hosts
+        //         };
+        //     }
+        // }
 
         if (UtilsNew.isNotUndefinedOrNull(mode)) {
             this.isCreate = mode.toLowerCase() === "create";
@@ -555,7 +556,7 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
                                     ${this.isCreate ? html`
                                         <input type="text" id="${this._prefix}IDInterpretation" class="${this._prefix}TextInput form-control"
                                                placeholder="ID of the interpretation" data-field="id" @input="${this.onInputChange}"
-                                               value="${this._interpretation.id}">
+                                               value="">
                                     ` : html`
                                         <div class="input-group">
                                             <input type="text" id="${this._prefix}IDInterpretation" class="${this._prefix}TextInput form-control"

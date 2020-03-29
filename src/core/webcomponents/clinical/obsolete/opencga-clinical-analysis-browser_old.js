@@ -1,5 +1,5 @@
-/**
- * Copyright 2015-2019 OpenCB
+/*
+ * Copyright 2015-2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "../../utils.js";
-import PolymerUtils from "../PolymerUtils.js";
-import "./opencga-clinical-analysis-filter.js";
+import Utils from "../../../utils.js";
+import PolymerUtils from "../../PolymerUtils.js";
+import "../opencga-clinical-analysis-filter.js";
 import "./opencga-clinical-analysis-grid.js";
 import "../opencga-active-filters.js";
 

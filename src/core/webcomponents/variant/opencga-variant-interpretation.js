@@ -196,10 +196,11 @@ class OpencgaVariantInterpretation extends LitElement {
     clinicalAnalysisIdObserver() {
         if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotEmpty(this.clinicalAnalysisId)) {
             const _this = this;
+            debugger
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     // This triggers the call to clinicalAnalysisObserver function below
-                    _this.clinicalAnalysis = response.response[0].result[0];
+                    _this.clinicalAnalysis = response.responses[0].results[0];
 
                     console.log("clinicalAnalysisIdObserver _this.clinicalAnalysis",_this.clinicalAnalysis)
                     _this.requestUpdate()
@@ -278,7 +279,7 @@ class OpencgaVariantInterpretation extends LitElement {
     onClinicalAnalysisEditor(e) {
         //console.warn("onClinicalAnalysisEditor commented")
         //console.warn(" e.detail.clinicalAnalysis", e.detail.clinicalAnalysis)
-        this.clinicalAnalysis = Object.assign({}, e.detail.clinicalAnalysis);
+        // this.clinicalAnalysis = Object.assign({}, e.detail.clinicalAnalysis);
     }
 
     // interactiveObserver() {

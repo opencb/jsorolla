@@ -132,7 +132,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
                             UtilsNew.isNotEmptyArray(this.clinicalAnalysis.files[this._individualToSampleIds[individualId]])) {
                             for (const file of this.clinicalAnalysis.files[this._individualToSampleIds[individualId]]) {
                                 if (file.format === "VCF" && UtilsNew.isNotUndefinedOrNull(file.index.status) &&
-                                    file.index.status.name === "READY") {
+                                    file.internal.index.status.name === "READY") {
                                     _existParent = true;
                                     break;
                                 }
@@ -142,7 +142,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
                 }
                 this.existParent = _existParent;
             }
-
+debugger
             // Init query objects every time there is a new session or clinical analysis
             const _query = Object.assign({}, this.query, {
                 study: this.opencgaSession.study.fqn,
@@ -169,6 +169,8 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
             // Reset query when new session or clinical analysis is provided
             this.query = {...this.query, ..._query};
         }
+        console.log(this.clinicalAnalysis)
+        debugger
     }
 
     queryObserver() {
@@ -412,6 +414,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
 
                     <div class="col-md-10">
                         <opencga-active-filters .opencgaSession="${this.opencgaSession}"
+                                                .clinicalAnalysis="${this.clinicalAnalysis}"
                                                 .defaultStudy="${this.opencgaSession.study.alias}"
                                                 .query="${this.preparedQuery}"
                                                 .refresh="${this.executedQuery}"

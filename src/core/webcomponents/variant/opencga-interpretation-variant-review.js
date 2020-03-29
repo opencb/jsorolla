@@ -29,29 +29,6 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
         return this;
     }
 
-    static get properties() {
-        return {
-            cellbaseClient: {
-                type: Object
-            },
-            query: {
-                type: Object
-            },
-            config: {
-                type: Object
-            }
-        }
-    }
-
-    _init(){
-        this._prefix = "ovcs" + Utils.randomString(6) + "_";
-    }
-
-    updated(changedProperties) {
-        /*if(changedProperties.has("property")) {
-            this.propertyObserver();
-        }*/
-    }
 
     static get properties() {
         return {
@@ -70,8 +47,17 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
         }
     }
 
+    _init(){
+        this._prefix = "ovcs" + Utils.randomString(6) + "_";
+    }
 
-    variantObserver(e) {
+    updated(changedProperties) {
+        if(changedProperties.has("variant")) {
+            this.variantObserver();
+        }
+    }
+
+    variantObserver() {
         // this._fetchCohortStats(e);
     }
 
@@ -87,7 +73,7 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
                 <div class="col-md-3">
                     <input type="text" id="${this._prefix}IDInterpretation" class="${this._prefix}TextInput form-control"
                            placeholder="ID of the interpretation" data-field="id" @input="${this.onInputChange}"
-                           value="${this._interpretation.id}">
+                           value="">
                 </div>
             </div>
 
