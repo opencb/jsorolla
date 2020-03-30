@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../utils.js";
-// import {Utils} from "./../../../utils.js"; //this cannot be a plain script and a module at the same time
 import "./opencga-analysis-tool-form.js";
 
 

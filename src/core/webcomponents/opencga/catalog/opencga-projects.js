@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../utils.js";
 import UtilsNew from "../../../utilsNew.js";
-import { CountUp } from '/node_modules/countup.js/dist/countUp.min.js';
+import {CountUp} from "/node_modules/countup.js/dist/countUp.min.js";
 
 
 export default class OpencgaProjects extends LitElement {
@@ -54,12 +54,12 @@ export default class OpencgaProjects extends LitElement {
         this.requestDone = false;
 
         this.totalCount = {
+            variants: 0,
             files: 0,
             samples: 0,
             jobs: 0,
             individuals: 0,
-            cohorts: 0,
-            variants: 0
+            cohorts: 0
         };
         this.data = {};
 
@@ -312,44 +312,58 @@ export default class OpencgaProjects extends LitElement {
         // this.clearPlots();
         console.log("projects", this.projects);
         console.log("this.opencgaSession", this.opencgaSession);
-        // console.log("study",this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias)
-
         this.querySelector("#loading").style.display = "block";
         const sleep = s => new Promise(resolve => setTimeout(() => resolve(), s*1000));
-
+        this.errors = "";
 
         const _this = this;
+
+        let done = 0;
         this.projects.forEach( project => {
             // let studyPromises = [];
-            project.studies.forEach( study => {
-                const catalogStats = _this.opencgaClient.studies().aggregationStats(study.fqn).then( response => {
-                    // handle opencga 1.4 and 2
-                    const r = response.getResult(0).results ? response.getResult(0).results[0] : response.getResult(0);
-                    console.log(r);
-                    this.filesCount.update(this.totalCount.files += r.files);
-                    this.samplesCount.update(this.totalCount.samples += r.samples);
-                    this.jobsCount.update(this.totalCount.jobs += r.jobs);
-                    this.individualsCount.update(this.totalCount.individuals += r.individuals);
-                    this.samplesCount.update(this.totalCount.samples += r.samples);
-                    // this.variantCount.update(this.totalCount.variants += r.variants);
-                    this.cohortsCount.update(this.totalCount.cohorts += r.cohorts);
-
+            console.log("prj", project);
+            const catalogStats = _this.opencgaClient.studies().aggregationStats([project.studies.map( study => study.fqn)].join(","), {}).then( response => {
+                // handle opencga 1.4 and 2
+                const r = response.getResult(0).results ? response.getResult(0).results[0] : response.getResult(0);
+                const entries = Object.entries(r);
+                if (entries.length) {
+                    entries.forEach( ([fqn, stats]) => {
+                        this.filesCount.update(this.totalCount.files += stats.file.numTotalResults);
+                        this.samplesCount.update(this.totalCount.samples += stats.sample.numTotalResults);
+                        this.jobsCount.update(this.totalCount.jobs += stats.job.numTotalResults);
+                        this.individualsCount.update(this.totalCount.individuals += stats.individual.numTotalResults);
+                        this.samplesCount.update(this.totalCount.samples += stats.sample.numTotalResults);
+                        // this.variantCount.update(this.totalCount.variants += r.variants);
+                        this.cohortsCount.update(this.totalCount.cohorts += stats.cohort.numTotalResults);
+                    });
                     this.data[project.id] = {
                         name: project.name,
                         dataset: [
                             // ...r.buckets.map( datapoint => ({name: datapoint.value, data: [datapoint.count], type: "column"})),
-                            {name: "count", data: [r.count], type: "spline"}
+                            // {name: "count", data: [r.count], type: "spline"}
+                            {name: "count", data: [10], type: "spline"}
                         ]
                     };
-                    this.requestUpdate();
-                });
-                _this.opencgaClient.variants().aggregationStats({fields: "studies"}).then(response => {
+                }
+            }).catch( restResponse => {
+                if (restResponse.getEvents("ERROR").length) {
+                    this.errors += restResponse.getEvents("ERROR").map(error => error.message).join("\n") + "\n";
+                } else {
+                    this.errors += `Unknown error requiring stats for ${project.name}\n`;
+                }
+            }).finally( () => {
+                done++;
+                if(done === this.projects.length) {
+                    this.querySelector("#loading").style.display = "none";
+                }
+                this.requestUpdate();
+            });
+            /*_this.opencgaClient.variants().aggregationStats({fields: "studies"}).then(response => {
                     const r = response.getResult(0).results ? response.getResult(0).results[0] : response.getResult(0);
                     console.log("variants", r);
                     _this.variantsCount.update(this.totalCount.variants += r.count);
-                });
-            // studyPromises.push(studyPromise);
-            });
+            });*/
+
         });
 
         // TODO remove this??
@@ -543,44 +557,25 @@ export default class OpencgaProjects extends LitElement {
                     </div>
                 </div>
             </div>
-            
-            <div style="margin:100px"></div>
-            
-            <ul class="nav nav-tabs left-menu-tabs" role="tablist">
-                <!--<li role="presentation" class="active"><a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">Aggregation</a></li>
-                <li role="presentation"><a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab">Filters</a></li> -->
-                
+           
+            <div class="v-space"></div>
+            <ul class="nav nav-tabs" role="tablist">
                 ${this.data ? Object.entries(this.data).map( (project, i) => html`
-                    <li role="presentation" class="${ i===0 ? "active" : "" }"><a href="#${project[0]}" aria-controls="profile" role="tab" data-toggle="tab">${project[0]}</a></li>
+                    <li role="presentation" class="${ i===0 ? "active" : "" }"><a href="#${project[0]}" aria-controls="profile" role="tab" data-toggle="tab">${project[1].name}</a></li>
                 `) : null}
             </ul>
-                        
+            <pre id="errors" class="alert alert-warning" role="alert" style="display: ${this.errors ? "block" : "none"}">${this.errors}</pre>      
             <div class="tab-content">
-                <div class="container">
-                    <div class="row">
-                ${this.projects.length ? this.projects.map( project => html`
-                    <div class="col-md-4" id="${project.alias}-chart1"></div>
-                    <div class="col-md-4" id="${project.alias}-chart2"></div>
-                    <div class="col-md-4" id="${project.alias}-chart3"></div>
-                `) : null}
-                    </div>
-                </div>
                 ${this.data ? Object.entries(this.data).map( (project, i) => html`
-                    <div role="tabpanel" class="tab-pane ${ i===0 ? "active" : "" }" id="facet_tab">
+                    <div role="tabpanel" class="tab-pane ${ i===0 ? "active" : "" }" id="${project[0]}">
                         ${project[0]} tab
                     </div>
                 `) : null}
-                <!--<div role="tabpanel" class="tab-pane active" id="facet_tab">
-                    facet_tab
-                </div>
-                <div role="tabpanel" class="tab-pane" id="filters_tab">
-                    filters_tab
-                </div> -->
             </div>
             
-            <div id="loading" style="">
+            <div id="loading" style="display: none">
                 <loading-spinner></loading-spinner>
-            </div>    
+            </div>
             <div id="facetChart"></div>    
             <div id="containerChart"></div>
             <div>

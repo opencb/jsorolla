@@ -17,7 +17,6 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "../../../../utils.js";
 
-//TODO review autoreload
 export default class OpencgaJobsDetailsLog extends LitElement {
 
     constructor() {
@@ -54,7 +53,6 @@ export default class OpencgaJobsDetailsLog extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
-        console.log("connectedCallback")
     }
 
     async updated(changedProperties) {
@@ -71,7 +69,7 @@ export default class OpencgaJobsDetailsLog extends LitElement {
 
             await this.requestUpdate();
             // todo this should call fetchContent iff the job has changed
-            //console.log("new job = old job ", this.active && this.jobId === this.job.id)
+            // console.log("new job = old job ", this.active && this.jobId === this.job.id)
             if (this.active) {
                 this.firstTailCall();
                 this.fetchContent(this.job, {command: this._config.command, type: this._config.type});
@@ -101,7 +99,7 @@ export default class OpencgaJobsDetailsLog extends LitElement {
     }
 
     setAutoreload(e) {
-        if(this._config.autoreload) {
+        if (this._config.autoreload) {
             this._config.autoreload = false;
             $(e.currentTarget).removeClass("active");
             this.clearReload();
@@ -110,19 +108,23 @@ export default class OpencgaJobsDetailsLog extends LitElement {
             $(e.currentTarget).addClass("active");
             this.setReloadInterval();
         }
-        //this._config.autoreload = e.target.value === "true";
-        //this.clearReload();
+        // this._config.autoreload = e.target.value === "true";
+        // this.clearReload();
 
     }
 
     // setInterval makes sense only in case of Tail log
     setReloadInterval() {
         if (this.active && this._config.autoreload && this._config.command === "tail") {
-            console.log("setting interval")
+            //console.log("setting interval");
             this.requestUpdate();
             this.interval = setInterval(() => {
-                //this.content += "\n" + Utils.randomString(6);
-                this.fetchContent(this.job, {offset: this.contentOffset}, true);
+                // this.content += "\n" + Utils.randomString(6);
+                if ($(".jobs-details-log").is(":visible")) {
+                    this.fetchContent(this.job, {offset: this.contentOffset}, true);
+                } else {
+                    this.clearReload();
+                }
                 this.requestUpdate();
             }, 10000);
         }
@@ -154,21 +156,21 @@ export default class OpencgaJobsDetailsLog extends LitElement {
             offset
         }).then( restResponse => {
             const result = restResponse.getResult(0);
-            console.log("response ", result)
-            console.log("OFFSET old/new", this.contentOffset, result.offset);
+            //console.log("response ", result);
+            //console.log("OFFSET old/new", this.contentOffset, result.offset);
             if (result.content) {
-                //append is true only in case of tail command
-                if(append) {
-                    if(this.contentOffset !== result.offset) {
+                // append is true only in case of tail command
+                if (append) {
+                    if (this.contentOffset !== result.offset) {
                         this.content = this.content + result.content + "\n";
                         this.contentOffset = result.offset;
                     }
-                    //console.log("appended");
+                    // console.log("appended");
                 } else {
                     this.content = result.content;
                 }
             } else {
-                //this.content = "No content";
+                // this.content = "No content";
             }
         }).catch( restResponse => {
             if (restResponse.getEvents("ERROR").length) {
@@ -281,7 +283,7 @@ export default class OpencgaJobsDetailsLog extends LitElement {
                  
         </div>
         command ${this._config.command} - type ${this._config.type} - autoreload ${this._config.autoreload}
-        <pre class="cmd">${this.content}\n${this.loading || (this.content && this._config.command === "tail" && this._config.autoreload) ? html`<div class="cursor"></div>` : ""}</pre>
+        <pre class="cmd ${this._config.command}">${this.content}\n${this.loading || (this.content && this._config.command === "tail" && this._config.autoreload) ? html`<div class="cursor"></div>` : ""}</pre>
         `;
     }
 
