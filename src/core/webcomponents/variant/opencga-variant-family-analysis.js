@@ -118,7 +118,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
 
     clinicalAnalysisObserver() {
 
-        console.log("clinicalAnalysisObserver",this.clinicalAnalysis)
+        console.log("clinicalAnalysisObserver", this.clinicalAnalysis)
 
         if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
             this._calculateSamples();

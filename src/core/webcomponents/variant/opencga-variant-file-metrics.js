@@ -85,7 +85,7 @@ export default class OpencgaVariantFileMetrics extends LitElement {
         const attributesSet = new Set();
         // We find all the existing attributes
         for (const file of files) {
-            for (const attr of Object.keys(file.attributes)) {
+            for (const attr of Object.keys(file.data)) {
                 if (attr !== "QUAL" && attr !== "FILTER") {
                     attributesSet.add(attr);
                 }
@@ -99,7 +99,7 @@ export default class OpencgaVariantFileMetrics extends LitElement {
         for (const attr of attributesArray) {
             const tmp = {name: attr, values: []};
             for (const file of files) {
-                tmp.values.push(file.attributes[attr]);
+                tmp.values.push(file.data[attr]);
             }
             result.push(tmp);
         }

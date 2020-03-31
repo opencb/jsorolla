@@ -583,7 +583,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                                    `;
 
         return `<div style="padding: 5px">
-                            <a style="cursor: pointer" href="#interpretation/${this.opencgaSession.project.alias}/${this.opencgaSession.study.alias}/${row.id}">
+                            <a style="cursor: pointer" href="#interpretation/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
                                 <i class="fa fa-filter" aria-hidden="true"></i> Open Interpreter 
                             </a> 
                         </div>

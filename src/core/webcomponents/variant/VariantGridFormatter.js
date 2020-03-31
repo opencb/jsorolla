@@ -201,7 +201,7 @@ export default class VariantGridFormatter {
                 if (i + 1 !== geneLinks.length) {
                     if (i === 0) {
                         resultHtml += ",";
-                    } else if ((i + 1) % 4 !== 0) {
+                    } else if ((i + 1) % 2 !== 0) {
                         resultHtml += ",";
                     } else {
                         resultHtml += "<br>";

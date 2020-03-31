@@ -87,7 +87,7 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
             this.opencgaSessionObserver();
         }
         if (changedProperties.has("clinicalAnalysis")) {
-            this.clinicalAnalysisObserver();
+            this.clinicalAnalysisObserver(this.clinicalAnalysis);
         }
         if (changedProperties.has("query")) {
             this.queryObserver();
@@ -147,7 +147,7 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
         }
         this.samples = _samples;
         this.individuals = _individuals;
-
+debugger
         // We reset the query object when the session is changed
         if (UtilsNew.isUndefinedOrNull(this.reportedVariants)) {
             this.renderVariantTable();
@@ -175,9 +175,9 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
             typeof this.opencgaSession.study !== "undefined" && UtilsNew.isNotEmpty(this.query)) {
             this._columns = this._createDefaultColumns();
 
-            const urlQueryParams = this._getUrlQueryParams();
-            const queryParams = urlQueryParams.queryParams;
-            let _numTotal = -1;
+            // const urlQueryParams = this._getUrlQueryParams();
+            // const queryParams = urlQueryParams.queryParams;
+
             const _this = this;
 
             let skipCount = false;
@@ -189,21 +189,7 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
                 columns: _this._columns,
                 method: "get",
                 sidePagination: "server",
-                formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
-                ajax: (params) => {
-                    if (this.pageNumber > 1) {
-                        skipCount = true;
-                    }
-                    let filters = {
-                        study: this.opencgaSession.study.fqn,
-                        limit: params.data.limit,
-                        skip: params.data.offset || 0,
-                        skipCount: skipCount,
-                        include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
-                        ...this.query
-                    };
-                    this.opencgaSession.opencgaClient.clinical().runInterpretationCustom(filters).then( res => params.success(res));
-                },
+
                 // Set table properties, these are read from config property
                 uniqueId: "id",
                 pagination: _this._config.pagination,
@@ -212,28 +198,101 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
                 showExport: _this._config.showExport,
                 detailView: _this._config.detailView,
                 detailFormatter: _this._config.detailFormatter,
+                formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
 
                 // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
                 variantGrid: _this,
 
-                queryParams: function(params) {
-                    queryParams.limit = params.limit;
-                    queryParams.skip = params.offset;
-                    return queryParams;
+                ajax: (params) => {
+                    // if (this.pageNumber > 1) {
+                    //     skipCount = true;
+                    // }
+                    let filters = {
+                        study: this.opencgaSession.study.fqn,
+                        limit: params.data.limit,
+                        skip: params.data.offset || 0,
+                        count: false,
+                        includeSampleId: true,
+                        // skipCount: skipCount,
+                        // include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
+                        ...this.query
+                    };
+                    // this.opencgaSession.opencgaClient.clinical().primaryFindingsInterpretation(filters)
+                    //     .then( res => params.success(res));
+                    this.opencgaSession.opencgaClient.variants().query(filters)
+                        .then( res => params.success(res));
                 },
-                responseHandler: function(resp) {
-                    if (_numTotal === -1) {
-                        _numTotal = resp.response[0].numTotalResults;
-                        // _numTotal = resp.response[0].numTotalResults >= 0 && resp.response[0].numTotalResults < this.pageSize
-                        //     ? resp.response[0].numTotalResults
-                        //     : 1150;
+                // ajax: params => {
+                //     let filters = {
+                //         study: this.opencgaSession.study.fqn,
+                //         limit: params.data.limit || this.options.pageSize,
+                //         skip: params.data.offset || 0,
+                //         count: !$(this.table).bootstrapTable("getOptions").pageNumber || $(this.table).bootstrapTable("getOptions").pageNumber === 1,
+                //         // include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
+                //     };
+                //
+                //     if (typeof this.query.genotype === "undefined" && typeof this.query.sample === "undefined" &&
+                //         typeof this.query.family === "undefined") {
+                //         filters.summary = true;
+                //     }
+                //     if (this._config.grid && this._config.grid.queryParams) {
+                //         filters = {...filters, ...this._config.grid.queryParams};
+                //     }
+                //     // We finally overwrite with the query object passed
+                //     filters = {...filters, ...this.query};
+                //
+                //     console.log("variant-grid filters", filters)
+                //     this.opencgaSession.opencgaClient.variants()
+                //         .query(filters)
+                //         .then( res => params.success(res));
+                // },
+                // queryParams: function(params) {
+                //     queryParams.limit = params.limit;
+                //     queryParams.skip = params.offset;
+                //     return queryParams;
+                // },
+                responseHandler: function(response) {
+//                     let _numTotal = resp.responses[0].numMatches || -1;
+//                     // if (_numTotal === -1) {
+//                     //     _numTotal = resp.responses[0].numMatches;
+//                     //     // _numTotal = resp.response[0].numTotalResults >= 0 && resp.response[0].numTotalResults < this.pageSize
+//                     //     //     ? resp.response[0].numTotalResults
+//                     //     //     : 1150;
+//                     // }
+//                     // Format the number string with commas
+//                     _this.to = Math.min(resp.response[0].numResults, this.pageSize);
+//                     _this.numTotalResultsText = _numTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+//                     _this.approximateCountResult = resp.response[0].approximateCount;
+// debugger
+//                     _this.requestUpdate();
+//                     return {total: _numTotal, rows: resp.responses[0].results};
+                    console.log("variant-grid response", response);
+                    let _numMatches = _this._numMatches || 0;
+                    if (response.getResponse().numMatches >= 0) {
+                        _numMatches = response.getResponse().numMatches;
+                        _this._numMatches = _numMatches;
                     }
-                    // Format the number string with commas
-                    _this.to = Math.min(resp.response[0].numResults, this.pageSize);
-                    _this.numTotalResultsText = _numTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                    _this.approximateCountResult = resp.response[0].approximateCount;
+                    // If no variant is returned then we start in 0
+                    if (response.getResponse(0).numMatches === 0) {
+                        _this.from = _numMatches;
+                    }
+                    // If do not fetch as many variants as requested then to is numMatches
+                    if (response.getResponse(0).numResults < this.pageSize) {
+                        _this.to = _numMatches;
+                    }
+                    _this.numTotalResultsText = _numMatches.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-                    return {total: _numTotal, rows: resp.response[0].result.primaryFindings};
+                    if (response.getParams().skip === 0 && _numMatches < response.getParams().limit) {
+                        _this.from = 1;
+                        _this.to = _numMatches;
+                    }
+                    _this.approximateCountResult = response.getResponse().attributes.approximateCount;
+                    _this.requestUpdate(); // it is necessary to refresh numTotalResultsText in opencga-grid-toolbar
+
+                    return {
+                        total: _numMatches,
+                        rows: response.getResults()
+                    };
                 },
                 onClickRow: function(row, $element, field) {
                     $("#" + _this._prefix + "VariantBrowserGrid tr").removeClass("success");
@@ -276,22 +335,22 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
                         PolymerUtils.querySelector(_table.selector).rows[2].setAttribute("class", "success");
                         _this._onSelectVariant(data.rows[0]);
 
-                        const elementsByClassName = PolymerUtils.getElementsByClassName("genome-browser-option");
-                        for (const elem of elementsByClassName) {
-                            elem.addEventListener("click", function(e) {
-                                // _this.genomeBrowserPosition = e.target.dataset.variantPosition;
-                                _this.dispatchEvent(new CustomEvent("setgenomebrowserposition", {
-                                    detail: {
-                                        genomeBrowserPosition: e.target.dataset.variantPosition
-                                    }, bubbles: true, composed: true
-                                }));
-                            });
-                        }
+                        // const elementsByClassName = PolymerUtils.getElementsByClassName("genome-browser-option");
+                        // for (const elem of elementsByClassName) {
+                        //     elem.addEventListener("click", function(e) {
+                        //         // _this.genomeBrowserPosition = e.target.dataset.variantPosition;
+                        //         _this.dispatchEvent(new CustomEvent("setgenomebrowserposition", {
+                        //             detail: {
+                        //                 genomeBrowserPosition: e.target.dataset.variantPosition
+                        //             }, bubbles: true, composed: true
+                        //         }));
+                        //     });
+                        // }
                     }
                 },
                 onLoadError: function(status, res) {
                     console.error(res)
-                    //debugger;
+                    debugger;
                 },
                 onPageChange: function(page, size) {
                     _this.from = (page - 1) * size + 1;
@@ -303,98 +362,98 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
                 }
             });
 
-            $("#" + _this._prefix + "VariantBrowserGrid").bootstrapTable("showLoading");
+            // $("#" + _this._prefix + "VariantBrowserGrid").bootstrapTable("showLoading");
         }
     }
 
-    _getUrlQueryParams() {
-        // Check the opencgaClient exists
-        if (UtilsNew.isUndefinedOrNull(this.opencgaSession.opencgaClient)) {
-            return {host: "", queryParams: {}};
-        }
-
-        // Prepare host. By default we assume https protocol instead of http
-        let host = this.opencgaSession.opencgaClient.getConfig().host;
-        if (!host.startsWith("https://") && !host.startsWith("http://")) {
-            host += "https://";
-        }
-
-        if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
-            // if (typeof this.query === "undefined") {
-            //     this.query = {};
-            // }     || this.query.study.split(new RegExp("[,;]")).length === 1
-            if (UtilsNew.isEmpty(this.query.study) ) {
-                this.query.study = this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias;
-            }
-            // host += '/webservices/rest/v1/analysis/variant/query';
-            host += "/webservices/rest/v1/analysis/clinical/interpretation/tools/custom";
-        } else {
-            return {host: host, queryParams: {}};
-        }
-
-
-        // Init queryParams with default and config values plus query object
-        let queryParams;
-        if (UtilsNew.isNotUndefinedOrNull(this.config) && UtilsNew.isNotUndefinedOrNull(this.config.queryParams)) {
-            queryParams = Object.assign({}, this.config.queryParams, this.query);
-        } else {
-            queryParams = Object.assign({}, this.query);
-        }
-
-        if (this.opencgaSession.opencgaClient._config.sessionId !== undefined) {
-            queryParams = Object.assign(queryParams, {sid: this.opencgaSession.opencgaClient._config.sessionId});
-        }
-
-        if (UtilsNew.isNotEmptyArray(this.samples)) {
-            // Filters sample and genotype are exclusive
-            if (UtilsNew.isUndefinedOrNull(queryParams.genotype) && UtilsNew.isUndefinedOrNull(queryParams.family)) {
-                const sampleIds = [];
-                this.samples.forEach(sample => {
-                    sampleIds.push(sample.id);
-                });
-                queryParams.sample = sampleIds.join(";");
-                // queryParams.includeSample = sampleIds.join(",");
-            }
-
-            queryParams.summary = false;
-            queryParams.exclude = "annotation.geneExpression";
-
-            // FIXME
-            // queryParams.approximateCount = true;
-            // queryParams.skipCount = false;
-
-            queryParams.useSearchIndex = "auto";
-            queryParams.unknownGenotype = "0/0";
-        } else {
-            queryParams.summary = true;
-            // queryParams.exclude = "annotation.geneExpression";
-        }
-
-        if (typeof this.config !== "undefined" && this.config.includeMissing) {
-            const keys = Object.keys(queryParams);
-            for (let i = 0; i < keys.length; i++) {
-                let val = queryParams[keys[i]];
-
-                // Replace standard fields with aliases
-                if (UtilsNew.isNotUndefinedOrNull(this.config.alias) && (keys[i] === "filter" || keys[i] === "format")) {
-                    for (const aliasKey of Object.keys(this.config.alias)) {
-                        if (val.includes(aliasKey)) {
-                            val = val.replace(aliasKey + ">", this.config.alias[aliasKey] + ">");
-                            queryParams[keys[i]] = val;
-                            break;
-                        }
-                    }
-                }
-                if (typeof val === "string" && keys[i] !== "cohortStatsMaf" && keys[i] !== "cohortStatsAlt") {
-                    val = val.replace(/</g, "<<");
-                    val = val.replace(/>/g, ">>");
-                    queryParams[keys[i]] = val;
-                }
-            }
-        }
-
-        return {host: host, queryParams: queryParams};
-    }
+    // _getUrlQueryParams() {
+    //     // Check the opencgaClient exists
+    //     if (UtilsNew.isUndefinedOrNull(this.opencgaSession.opencgaClient)) {
+    //         return {host: "", queryParams: {}};
+    //     }
+    //
+    //     // Prepare host. By default we assume https protocol instead of http
+    //     let host = this.opencgaSession.opencgaClient.getConfig().host;
+    //     if (!host.startsWith("https://") && !host.startsWith("http://")) {
+    //         host += "https://";
+    //     }
+    //
+    //     if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study.id !== "undefined") {
+    //         // if (typeof this.query === "undefined") {
+    //         //     this.query = {};
+    //         // }     || this.query.study.split(new RegExp("[,;]")).length === 1
+    //         if (UtilsNew.isEmpty(this.query.study) ) {
+    //             this.query.study = this.opencgaSession.project.id + ":" + this.opencgaSession.study.id;
+    //         }
+    //         // host += '/webservices/rest/v1/analysis/variant/query';
+    //         host += "/webservices/rest/v1/analysis/clinical/interpretation/tools/custom";
+    //     } else {
+    //         return {host: host, queryParams: {}};
+    //     }
+    //
+    //
+    //     // Init queryParams with default and config values plus query object
+    //     let queryParams;
+    //     if (UtilsNew.isNotUndefinedOrNull(this.config) && UtilsNew.isNotUndefinedOrNull(this.config.queryParams)) {
+    //         queryParams = Object.assign({}, this.config.queryParams, this.query);
+    //     } else {
+    //         queryParams = Object.assign({}, this.query);
+    //     }
+    //
+    //     if (this.opencgaSession.opencgaClient._config.sessionId !== undefined) {
+    //         queryParams = Object.assign(queryParams, {sid: this.opencgaSession.opencgaClient._config.sessionId});
+    //     }
+    //
+    //     if (UtilsNew.isNotEmptyArray(this.samples)) {
+    //         // Filters sample and genotype are exclusive
+    //         if (UtilsNew.isUndefinedOrNull(queryParams.genotype) && UtilsNew.isUndefinedOrNull(queryParams.family)) {
+    //             const sampleIds = [];
+    //             this.samples.forEach(sample => {
+    //                 sampleIds.push(sample.id);
+    //             });
+    //             queryParams.sample = sampleIds.join(";");
+    //             // queryParams.includeSample = sampleIds.join(",");
+    //         }
+    //
+    //         queryParams.summary = false;
+    //         queryParams.exclude = "annotation.geneExpression";
+    //
+    //         // FIXME
+    //         // queryParams.approximateCount = true;
+    //         // queryParams.skipCount = false;
+    //
+    //         queryParams.useSearchIndex = "auto";
+    //         queryParams.unknownGenotype = "0/0";
+    //     } else {
+    //         queryParams.summary = true;
+    //         // queryParams.exclude = "annotation.geneExpression";
+    //     }
+    //
+    //     if (typeof this.config !== "undefined" && this.config.includeMissing) {
+    //         const keys = Object.keys(queryParams);
+    //         for (let i = 0; i < keys.length; i++) {
+    //             let val = queryParams[keys[i]];
+    //
+    //             // Replace standard fields with aliases
+    //             if (UtilsNew.isNotUndefinedOrNull(this.config.alias) && (keys[i] === "filter" || keys[i] === "format")) {
+    //                 for (const aliasKey of Object.keys(this.config.alias)) {
+    //                     if (val.includes(aliasKey)) {
+    //                         val = val.replace(aliasKey + ">", this.config.alias[aliasKey] + ">");
+    //                         queryParams[keys[i]] = val;
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+    //             if (typeof val === "string" && keys[i] !== "cohortStatsMaf" && keys[i] !== "cohortStatsAlt") {
+    //                 val = val.replace(/</g, "<<");
+    //                 val = val.replace(/>/g, ">>");
+    //                 queryParams[keys[i]] = val;
+    //             }
+    //         }
+    //     }
+    //
+    //     return {host: host, queryParams: queryParams};
+    // }
 
     renderFromLocal() {
         this.from = 1;
@@ -595,45 +654,43 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
         let resultHtml = "";
 
         if (UtilsNew.isNotEmptyArray(row.studies)) {
-            if (UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData) &&
-                UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData[this.field.memberIdx]) &&
-                UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData[this.field.memberIdx][0])) {
+            if (UtilsNew.isNotUndefinedOrNull(row.studies[0].samples) &&
+                UtilsNew.isNotUndefinedOrNull(row.studies[0].samples[this.field.memberIdx]) &&
+                UtilsNew.isNotUndefinedOrNull(row.studies[0].samples[this.field.memberIdx].data[0])) {
 
                 // First, get and check info fields QUAL, FILTER; and format fields DP, AD and GQ
                 let qual = "-";
                 let filter = "-";
                 let mutationColor = "black";
-                const sampleFormat = row.studies[0].samplesData[this.field.memberIdx];
+                const sampleFormat = row.studies[0].samples[this.field.memberIdx].data;
 
                 // INFO fields
-                if (UtilsNew.isNotEmptyArray(this.field.clinicalAnalysis.files[this.field.memberName])) {
-                    for (const file of this.field.clinicalAnalysis.files[this.field.memberName]) {
-                        // Find the sample VCF file, if exists
-                        if (file.format === "VCF") {
-                            for (const studyFile of row.studies[0].files) {
-                                if (studyFile.fileId === file.name) {
-                                    qual = Number(studyFile.attributes.QUAL).toFixed(2);
-                                    if (qual < this.field.quality.qual) {
-                                        mutationColor = "silver";
-                                    }
+                if (row.studies[0].files) {
+                    let fileIdx = row.studies[0].samples[this.field.memberIdx].fileIndex;
+                    let file = row.studies[0].files[fileIdx];
 
-                                    filter = studyFile.attributes.FILTER;
-                                    if (filter !== "PASS") {
-                                        mutationColor = "silver";
-                                    }
-                                }
-                            }
+                    if (file && file.data) {
+                        qual = Number(file.data.QUAL).toFixed(2);
+                        if (qual < this.field.quality.qual) {
+                            mutationColor = "silver";
                         }
+
+                        filter = file.data.FILTER;
+                        if (filter !== "PASS") {
+                            mutationColor = "silver";
+                        }
+                    } else {
+                        console.warn("file is undefined")
                     }
                 }
 
                 // FORMAT fields
                 const formatFields = [];
-                for (const formatField in row.studies[0].format) {
+                for (const formatField in row.studies[0].sampleDataKeys) {
                     // GT fields is treated separately
-                    if (row.studies[0].format[formatField] !== "GT") {
+                    if (row.studies[0].sampleDataKeys[formatField] !== "GT") {
                         const html = `<div class="form-group" style="margin: 0px 2px">
-                                            <label class="col-md-5">${row.studies[0].format[formatField]}</label>
+                                            <label class="col-md-5">${row.studies[0].sampleDataKeys[formatField]}</label>
                                             <div class="col-md-7">${sampleFormat[formatField]}</div>
                                         </div>`;
                         formatFields.push(html);
@@ -645,7 +702,7 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
                 let leftRadio = 8;
                 let rightRadio = 8;
                 const genotypeSplitRegExp = new RegExp("[/|]");
-                const sampleGT = row.studies[0].samplesData[this.field.memberIdx][0];
+                const sampleGT = row.studies[0].samples[this.field.memberIdx].data[0];
                 if (sampleGT === "0/1" || sampleGT === "1/0") {
                     // If genotype si 0/1 or 1/0 they must be displayed like 0/1 (not phased)
                     left = "white";
@@ -747,7 +804,7 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
                 const arr = study.studyId.split(":");
                 const s = arr[arr.length - 1] + ":ALL";
                 cohorts.push(s);
-                cohortMap.set(s, Number(study.stats["ALL"].altAlleleFreq).toFixed(4));
+                cohortMap.set(s, Number(study.stats[0].altAlleleFreq).toFixed(4));
             }
 
             return this.variantGridFormatter.createPopulationFrequenciesTable(cohorts, cohortMap, this.populationFrequencies.color);
@@ -801,6 +858,10 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
     }
 
     predictionFormatter(value, row, index) {
+        if (typeof row.evidences === "undefined") {
+            return "-";
+        }
+
         const clinicalSignificanceCodes = {
             PATHOGENIC_VARIANT: {code: 5, color: "red"},
             LIKELY_PATHOGENIC_VARIANT: {code: 5, color: "red"},

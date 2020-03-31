@@ -454,14 +454,13 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                                             </thead>
                                             <tbody>
                                             <tr>
-                                                <td>${this.clinicalAnalysis.proband.samples[0].id}</td>
-                                                <!--<td>{{clinicalAnalysis.proband.samples.0.source}}</td>-->
-                                                <td>${this._probandFiles}</td>
-                                                <td>${this.clinicalAnalysis.proband.samples[0].collection ? this.clinicalAnalysis.proband.samples[0].collection.method : ""}</td>
-                                                <td>${this.clinicalAnalysis.proband.samples[0].processing ? this.clinicalAnalysis.proband.samples[0].processing.preparationMethod : ""}</td>
-                                                <td>${this.clinicalAnalysis.proband.samples[0].somatic}</td>
-                                                <td>${this.clinicalAnalysis.proband.samples[0].creationDate}</td>
-                                                <td>${this.clinicalAnalysis.proband.samples[0].status.name}</td>
+                                                <td>{this.clinicalAnalysis.proband.samples[0].id}</td>
+                                                <td>{this._probandFiles}</td>
+                                                <td>{this.clinicalAnalysis.proband.samples[0].collection ? this.clinicalAnalysis.proband.samples[0].collection.method : ""}</td>
+                                                <td>{this.clinicalAnalysis.proband.samples[0].processing ? this.clinicalAnalysis.proband.samples[0].processing.preparationMethod : ""}</td>
+                                                <td>{this.clinicalAnalysis.proband.samples[0].somatic}</td>
+                                                <td>{this.clinicalAnalysis.proband.samples[0].creationDate}</td>
+                                                <td>{this.clinicalAnalysis.proband.samples[0].status.name}</td>
                                             </tr>
                                             </tbody>
                                         </table>
@@ -518,7 +517,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                                                         <td>${member.lifeStatus}</td>
                                                         <td>${member.dateOfBirth}</td>
                                                         <td>${member.creationDate}</td>
-                                                        <td>${member.status.name}</td>
+                                                        <td>${member.internal.status.name}</td>
                                                     </tr>
                                                 `) : null }
                                                 </tbody>
