@@ -134,8 +134,6 @@ export default class JobsTimeline extends LitElement {
 
         this.draw = this.svg.group();
 
-        // this.drawTicks(this._config.ticks, 500)
-
         let track = 0;
         // the first loop plots the intervals
         const trackLastEnd = [-Infinity]; // one element because I need a value to compare the first job ((trackLastEnd[t] + config.hspace) < jobA.start)
@@ -177,12 +175,11 @@ export default class JobsTimeline extends LitElement {
                     this.draw.line(source.start, source.y, target.start, target.y).stroke({
                         color: "#000",
                         width: 1,
-                        opacity: 0.1
-                    });
+                        opacity: 0
+                    }).attr({id: source.id + "__" + target.id, class: "edge"});
                 });
             }
         });
-
         this.draw.move(this._config.board.padding, this._config.board.padding);
     }
 
@@ -200,6 +197,8 @@ export default class JobsTimeline extends LitElement {
 
     onJobClick(line) {
         SVG.find(".job").forEach( line => line.stroke({color: line.node.attributes._color.value}));
+        SVG.find(".edge").stroke({opacity: 0});
+        SVG.find(`.edge[id*="${line.id()}"]`).stroke({opacity: 0.3});
         line.stroke({color: "#000"});
     }
 

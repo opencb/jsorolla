@@ -344,7 +344,7 @@ export default class OpencgaActiveFilters extends LitElement {
         let keys = Object.keys(this.query);
         for (let keyIdx in keys) {
             let key = keys[keyIdx];
-            if (UtilsNew.isNotEmpty(this.query[key]) && !this._config.hiddenFields.includes(key)) {
+            if (UtilsNew.isNotEmpty(this.query[key])) {
                 let queryString = Object.entries(this.query).sort().toString();
                 let prevQueryString = Object.entries(this._previousQuery).sort().toString();
                 if (queryString !== prevQueryString) {
@@ -352,9 +352,9 @@ export default class OpencgaActiveFilters extends LitElement {
                     console.log(this._previousQuery);
                     console.log(queryString);
                     console.log(prevQueryString);*/
-                    PolymerUtils.show(this._prefix + "Warning");
+                    this.querySelector("#" + this._prefix + "Warning").style.display = "block";
                 } else {
-                    PolymerUtils.hide(this._prefix + "Warning");
+                    this.querySelector("#" + this._prefix + "Warning").style.display = "none";
                 }
 
                 // We use the alias to rename the key

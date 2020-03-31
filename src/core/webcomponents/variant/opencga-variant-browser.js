@@ -18,6 +18,7 @@ import {LitElement, html, css} from "/web_modules/lit-element.js";
 import Utils from "./../../utils.js";
 import UtilsNew from "./../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
+import {biotypes, populationFrequencies, conservation, proteinSubstitutionScore} from "./opencga-variant-contants.js";
 import "./opencga-variant-grid.js";
 import "./opencga-variant-filter.js";
 import "../commons/opencga-facet-result-view.js";
@@ -463,15 +464,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                             {
                                 id: "biotype",
                                 title: "Gene Biotype",
-                                biotypes: [
-                                    "3prime_overlapping_ncrna", "IG_C_gene", "IG_C_pseudogene", "IG_D_gene", "IG_J_gene", "IG_J_pseudogene",
-                                    "IG_V_gene", "IG_V_pseudogene", "Mt_rRNA", "Mt_tRNA", "TR_C_gene", "TR_D_gene", "TR_J_gene", "TR_J_pseudogene",
-                                    "TR_V_gene", "TR_V_pseudogene", "antisense", "lincRNA", "miRNA", "misc_RNA", "non_stop_decay",
-                                    "nonsense_mediated_decay", "polymorphic_pseudogene", "processed_pseudogene", "processed_transcript",
-                                    "protein_coding", "pseudogene", "rRNA", "retained_intron", "sense_intronic", "sense_overlapping", "snRNA",
-                                    "snoRNA", "transcribed_processed_pseudogene", "transcribed_unprocessed_pseudogene",
-                                    "translated_processed_pseudogene", "unitary_pseudogene", "unprocessed_pseudogene"
-                                ],
+                                biotypes: biotypes,
                                 tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
                             },
                             {
@@ -505,7 +498,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                             {
                                 id: "populationFrequency",
                                 title: "Select Population Frequency",
-                                // tooltip: populationFrequencies.tooltip, // TODO expose common data
+                                tooltip: populationFrequencies.tooltip,
                                 showSetAll: true
                             }
                         ]
@@ -544,10 +537,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                             {
                                 id: "proteinSubstitutionScore",
                                 title: "Protein Substitution Score",
-                                tooltip: "<strong>SIFT score:</strong> Choose either a Tolerated/Deleterious qualitative score or provide below a " +
-                                    "quantitative impact value. SIFT scores <0.05 are considered deleterious. " +
-                                    "<strong>Polyphen:</strong> Choose, either a Benign/probably damaging qualitative score or provide below a " +
-                                    "quantitative impact value. Polyphen scores can be Benign (<0.15), Possibly damaging (0.15-0.85) or Damaging (>0.85)"
+                                tooltip: proteinSubstitutionScore.tooltip
                             },
                             {
                                 id: "cadd",
@@ -565,16 +555,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                             {
                                 id: "conservation",
                                 title: "Conservation Score",
-                                tooltip: "<strong>PhyloP</strong> scores measure evolutionary conservation at individual alignment sites. The scores " +
-                                    "are interpreted as follows compared to the evolution expected under neutral drift: positive scores (max 3.0) mean " +
-                                    "conserved positions and negative scores (min -14.0) indicate positive selection. PhyloP scores are useful to " +
-                                    "evaluate signatures of selection at particular nucleotides or classes of nucleotides (e.g., third codon positions, " +
-                                    "or first positions of miRNA target sites).<br>" +
-                                    "<strong>PhastCons</strong> estimates the probability that each nucleotide belongs to a conserved element, based on " +
-                                    "the multiple alignment. The phastCons scores represent probabilities of negative selection and range between 0 " +
-                                    "(non-conserved) and 1 (highly conserved).<br>" +
-                                    "<strong>Genomic Evolutionary Rate Profiling (GERP)</strong> score estimate the level of conservation of positions." +
-                                    " Scores ≥ 2 indicate evolutionary constraint to and ≥ 3 indicate purifying selection."
+                                tooltip: conservation.tooltip
                             }
                         ]
                     },
