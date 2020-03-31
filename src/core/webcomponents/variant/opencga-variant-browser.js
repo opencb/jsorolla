@@ -18,7 +18,7 @@ import {LitElement, html, css} from "/web_modules/lit-element.js";
 import Utils from "./../../utils.js";
 import UtilsNew from "./../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
-import {biotypes, populationFrequencies, conservation, proteinSubstitutionScore} from "./opencga-variant-contants.js";
+import {biotypes, populationFrequencies, tooltips, conservation, proteinSubstitutionScore} from "./opencga-variant-contants.js";
 import "./opencga-variant-grid.js";
 import "./opencga-variant-filter.js";
 import "../commons/opencga-facet-result-view.js";
@@ -28,6 +28,7 @@ import "./opencga-variant-detail-view.js";
 import "../commons/filters/select-field-filter.js";
 import "../../loading-spinner.js";
 
+// import BrowserConf from "";
 
 export default class OpencgaVariantBrowser extends LitElement {
 
@@ -407,6 +408,7 @@ export default class OpencgaVariantBrowser extends LitElement {
     }
 
     getDefaultConfig() {
+        // return BrowserConf.config;
         return {
             title: "Variant Browser",
             icon: "fas fa-search",
@@ -555,7 +557,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                             {
                                 id: "conservation",
                                 title: "Conservation Score",
-                                tooltip: conservation.tooltip
+                                tooltip: tooltips.conservation
                             }
                         ]
                     },

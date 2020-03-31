@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+
+// export const biotypes = VARIANT_CONSTANTS.biotypes;
+
 export const biotypes = [
     "3prime_overlapping_ncrna", "IG_C_gene", "IG_C_pseudogene", "IG_D_gene", "IG_J_gene", "IG_J_pseudogene",
     "IG_V_gene", "IG_V_pseudogene", "Mt_rRNA", "Mt_tRNA", "TR_C_gene", "TR_D_gene", "TR_J_gene", "TR_J_pseudogene",
@@ -23,18 +26,15 @@ export const biotypes = [
     "snoRNA", "transcribed_processed_pseudogene", "transcribed_unprocessed_pseudogene",
     "translated_processed_pseudogene", "unitary_pseudogene", "unprocessed_pseudogene"
 ];
-/*
 
-// This is the impact color. It allows to customise both the impact categories and desired colors
-color: {
-    high: "red",
-        moderate: "darkorange",
-        low: "blue",
-        modifier: "green"
-},
-*/
+// TODO complete the list
+export const type =["SNV"];
 
 export const consequenceTypes = {
+    style: {
+
+    },
+
     // Loss-of-function SO terms
     lof: ["transcript_ablation", "splice_acceptor_variant", "splice_donor_variant", "stop_gained", "frameshift_variant",
         "stop_lost", "start_lost", "transcript_amplification", "inframe_insertion", "inframe_deletion"],
@@ -376,6 +376,20 @@ export const populationFrequencies = {
     ]
 };
 
+// TODO complete this
+export const tooltips = {
+    conservation: "<strong>PhyloP</strong> scores measure evolutionary conservation at individual alignment sites. The scores " +
+        "are interpreted as follows compared to the evolution expected under neutral drift: positive scores (max 3.0) mean " +
+        "conserved positions and negative scores (min -14.0) indicate positive selection. PhyloP scores are useful to " +
+        "evaluate signatures of selection at particular nucleotides or classes of nucleotides (e.g., third codon positions, " +
+        "or first positions of miRNA target sites).<br>" +
+        "<strong>PhastCons</strong> estimates the probability that each nucleotide belongs to a conserved element, based on " +
+        "the multiple alignment. The phastCons scores represent probabilities of negative selection and range between 0 " +
+        "(non-conserved) and 1 (highly conserved).<br>" +
+        "<strong>Genomic Evolutionary Rate Profiling (GERP)</strong> score estimate the level of conservation of positions." +
+        " Scores ≥ 2 indicate evolutionary constraint to and ≥ 3 indicate purifying selection."
+};
+
 export const beacon = {
     hosts: [
         "brca-exchange", "cell_lines", "cosmic", "wtsi", "wgs", "ncbi", "ebi", "ega", "broad", "gigascience",
@@ -383,6 +397,8 @@ export const beacon = {
     ]
 };
 
+
+// TODO remove these ones
 export const conservation = {
     tooltip: "<strong>PhyloP</strong> scores measure evolutionary conservation at individual alignment sites. The scores " +
         "are interpreted as follows compared to the evolution expected under neutral drift: positive scores (max 3.0) mean " +
