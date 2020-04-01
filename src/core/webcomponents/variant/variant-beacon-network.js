@@ -73,7 +73,7 @@ export default class VariantBeaconNetwork extends LitElement {
     async searchBeaconNetwork() {
         if (this._config.hosts !== undefined && this.variant !== undefined && this.variant.split(":").length > 2) {
             const [chromosome, position, reference, alternate] = this.variant.split(":");
-            this.querySelector(".loading-spinner").style.display = "block";
+            $(".loading-spinner").css("display", "block");
             //$("#" + this._prefix + "spinGif").show();
             // url to search : https://beacon-network.org/api/responses?allele=C&beacon=[cosmic]&chrom=1&pos=99999&ref=GRCh37
             // TODO: Assembly is hardcoded for now. It has to be taken care in the future
@@ -95,7 +95,6 @@ export default class VariantBeaconNetwork extends LitElement {
                     .then( async res => {
                         if (res.ok) {
                             const response = await res.json();
-                            console.log(response);
                             for (const r of response) {
                                 console.log(r);
                                 const host = this.querySelector("." + this._prefix + this._config.hosts[i]);
@@ -147,9 +146,14 @@ export default class VariantBeaconNetwork extends LitElement {
         .beacon-square.true {
             background: red;
         }
+        
+        #variant-beacon-network .loading-spinner {
+            display: none;
+        }
+        
         </style>
 
-        <div style="padding: 15px 20px">
+        <div id="variant-beacon-network" style="padding: 15px 20px">
             <div style="padding: 0px 0px 10px 0px">
                 <button class="btn btn-primary ripple" type="button" @click="${this.searchBeaconNetwork}">Search Beacon Network</button>
                 <a data-toggle="tooltip"
@@ -161,7 +165,7 @@ export default class VariantBeaconNetwork extends LitElement {
             ${this._config.hosts && this._config.hosts.length && this._config.hosts.map( item => html`
                 <div class="beacon-square ${this._prefix}${item} shadow">
                     <span>${item}</span>
-                    <span id="${this._prefix}${item}" class="beaconResponse"><i class="fa fa-spinner fa-spin loading-spinner" style="display: none" aria-hidden="true"></i>&nbsp;</span>
+                    <span id="${this._prefix}${item}" class="beaconResponse"><i class="fa fa-spinner fa-spin loading-spinner" aria-hidden="true"></i></span>
                 </div> 
             `)}
         </div>

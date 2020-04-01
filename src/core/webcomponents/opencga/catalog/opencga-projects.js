@@ -338,6 +338,7 @@ export default class OpencgaProjects extends LitElement {
                     });
                     this.data[project.id] = {
                         name: project.name,
+                        ...project,
                         dataset: [
                             // ...r.buckets.map( datapoint => ({name: datapoint.value, data: [datapoint.count], type: "column"})),
                             // {name: "count", data: [r.count], type: "spline"}
@@ -566,9 +567,11 @@ export default class OpencgaProjects extends LitElement {
             </ul>
             <pre id="errors" class="alert alert-warning" role="alert" style="display: ${this.errors ? "block" : "none"}">${this.errors}</pre>      
             <div class="tab-content">
-                ${this.data ? Object.entries(this.data).map( (project, i) => html`
-                    <div role="tabpanel" class="tab-pane ${ i===0 ? "active" : "" }" id="${project[0]}">
-                        ${project[0]} tab
+                ${this.data ? Object.entries(this.data).map( ([id, project], i) => html`
+                    <div role="tabpanel" class="tab-pane ${ i===0 ? "active" : "" }" id="${id}">
+                        <div><label>Name:</label> ${project.name} (${project.uuid})</div>
+                        ${project.description ? html`<div><label>Description:</label> ${project.description}</div>` : ""}
+                        <div><label>Studies:</label> ${project.studies ? project.studies.map( study => study.name) : "-"}</div>
                     </div>
                 `) : null}
             </div>

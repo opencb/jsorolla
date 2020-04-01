@@ -306,10 +306,10 @@ export default class OpencgaVariantBrowser extends LitElement {
 
     _changeView(tabId) {
         $(".content-pills", this).removeClass("active");
-        $(".content-tab", this).hide();
+        $(".content-tab", this).removeClass("active");
         for (const tab in this.activeTab) this.activeTab[tab] = false;
         $(`button.content-pills[data-id=${tabId}]`, this).addClass("active");
-        $("#" + tabId, this).show();
+        $("#" + tabId, this).addClass("active");
         this.activeTab[tabId] = true;
         this.requestUpdate();
     }
@@ -424,7 +424,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                         "ct": "Consequence Types",
                     },
                     complexFields: ["genotype"],
-                    hiddenFields: ["study"]
+                    hiddenFields: []
                 },
                 sections: [     // sections and subsections, structure and order is respected
                     {
@@ -820,37 +820,39 @@ export default class OpencgaVariantBrowser extends LitElement {
                                                 @activeFilterClear="${this.onActiveFilterClear}">
                         </opencga-active-filters>
                         
-                        <div id="table-tab" class="content-tab">
-                            <opencga-variant-grid .opencgaSession="${this.opencgaSession}"
-                                                  .query="${this.executedQuery}"
-                                                  .cohorts="${this.cohorts}"
-                                                  .cellbaseClient="${this.cellbaseClient}"
-                                                  .populationFrequencies="${this.populationFrequencies}"
-                                                  .active="${this.active}" 
-                                                  .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                  .consequenceTypes="${this.consequenceTypes}"
-                                                  .config="${this._config.filter}"
-                                                  @selected="${this.selectedGene}"
-                                                  @selectvariant="${this.onSelectVariant}"
-                                                  @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
-                            </opencga-variant-grid>
-            
-                            <!-- Bottom tabs with specific variant information -->
-                            <opencga-variant-detail-view    .opencgaSession="${this.opencgaSession}" 
-                                                            .cellbaseClient="${this.cellbaseClient}"
-                                                            .variantId="${this.variantId}"
-                                                            .config="${this._config.filter.detail}">
-                            </opencga-variant-detail-view>
-                        </div>
-                        
-                        <div id="facet-tab" class="content-tab">
-                            <opencb-facet-results  resource="variant"
-                                                   .opencgaSession="${this.opencgaSession}" 
-                                                   .active="${this.activeTab["facet-tab"]}"
-                                                  .query="${this.facetQuery}"
-                                                  .data="${this.facetResults}"
-                                                  .error="${this.errorState}">
-                            </opencb-facet-results>
+                        <div class="main-view">
+                            <div id="table-tab" class="content-tab active">
+                                <opencga-variant-grid .opencgaSession="${this.opencgaSession}"
+                                                      .query="${this.executedQuery}"
+                                                      .cohorts="${this.cohorts}"
+                                                      .cellbaseClient="${this.cellbaseClient}"
+                                                      .populationFrequencies="${this.populationFrequencies}"
+                                                      .active="${this.active}" 
+                                                      .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                      .consequenceTypes="${this.consequenceTypes}"
+                                                      .config="${this._config.filter}"
+                                                      @selected="${this.selectedGene}"
+                                                      @selectvariant="${this.onSelectVariant}"
+                                                      @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
+                                </opencga-variant-grid>
+                
+                                <!-- Bottom tabs with specific variant information -->
+                                <opencga-variant-detail-view    .opencgaSession="${this.opencgaSession}" 
+                                                                .cellbaseClient="${this.cellbaseClient}"
+                                                                .variantId="${this.variantId}"
+                                                                .config="${this._config.filter.detail}">
+                                </opencga-variant-detail-view>
+                            </div>
+                            
+                            <div id="facet-tab" class="content-tab">
+                                <opencb-facet-results  resource="variant"
+                                                       .opencgaSession="${this.opencgaSession}" 
+                                                       .active="${this.activeTab["facet-tab"]}"
+                                                      .query="${this.facetQuery}"
+                                                      .data="${this.facetResults}"
+                                                      .error="${this.errorState}">
+                                </opencb-facet-results>
+                            </div>
                         </div>
                     </div>
                 </div>

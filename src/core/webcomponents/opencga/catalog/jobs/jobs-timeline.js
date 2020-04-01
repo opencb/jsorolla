@@ -118,13 +118,12 @@ export default class JobsTimeline extends LitElement {
             return;
         }
         this.querySelector("#svg-timeline").innerHTML = "";
-        this.querySelector("#loading").style.display = "block";
 
         this.timestampMin = Math.min(...this._results.map(_ => _.timestampStart));
         this.timestampMax = Math.max(...this._results.map(_ => _.timestampEnd));
         // console.log("timestampMinMax", timestampMin, timestampMax);
 
-        this._config.board.width = this.querySelector("#svg-timeline").clientWidth - 200;
+        this._config.board.width = this._config.board.width || this.querySelector("#svg-timeline").clientWidth - 200;
 
         this.tick = Math.round(this._config.board.width / this._config.ticks);
         this.dateTick = Math.round((this.timestampMax - this.timestampMin) / this._config.ticks);
@@ -253,13 +252,28 @@ export default class JobsTimeline extends LitElement {
             vspace: 40, // space between tracks
             hspace: 10, // space between adjacent intervals
             board: {
-                width: "auto", // it can a number (px) or "auto" (full width)
+                width: 0, // it can a number (px) or "auto" (full width)
                 height: 0, // height is dynamic on the number of tracks
                 originX: 0,
                 originY: 0,
                 padding: 50
             }
         };
+    }
+
+    setWidth(e) {
+        this._config.board.width = e.target.value * (this.querySelector("#svg-timeline").clientWidth - 200);
+        this.generateTimeline();
+    }
+
+    setHeight(e) {
+        console.log(e)
+        this._config.vspace = e.target.value;
+        this.generateTimeline();
+    }
+
+    resizing(e) {
+        $("#svg-timeline").css("opacity", e.type === "mousedown" ? .5 : 1);
     }
 
     render() {
@@ -269,11 +283,48 @@ export default class JobsTimeline extends LitElement {
                 font-family: sans-serif;
                 font-size: 12px;
             }
+            
+            #jobs-timeline .slide-container {
+                text-align: center;
+                height: 45px;
+                display: inline-block;
+            }
+            
+            #jobs-timeline .slide-container:first-child {
+                margin-right: 10px;
+            }
+            
+            #jobs-timeline .slide-container span {
+                display: block;   
+            }
+            
+            #jobs-timeline .toolbar {
+                width: 275px;
+                float: right;
+            }
+            
+            #svg-timeline {
+                overflow: auto;
+                clear: both;
+            }
+            
         </style>
-        <div id="loading" style="display: none">
-            <loading-spinner></loading-spinner>
-        </div>
-        <div id="svg-timeline">
+        <div id="jobs-timeline">
+            <div id="loading" style="display: none">
+                <loading-spinner></loading-spinner>
+            </div> 
+            <div id="svg-timeline">
+            </div>
+            <div class="toolbar">
+                <div class="slide-container">
+                    <label>Height</label>
+                    <input type="range" min="30" max="150" value="40" class="slider" id="svg-height" @change="${this.setHeight}" @mousedown="${this.resizing}" @mouseup="${this.resizing}">
+                </div>
+                <div class="slide-container">
+                    <label>Width</label>
+                    <input type="range" min="0.1" max="2" value="1" class="slider" step="0.1" id="svg-width" @change="${this.setWidth}" @mousedown="${this.resizing}" @mouseup="${this.resizing}">
+                </div>
+            </div>
         </div>
         `;
     }

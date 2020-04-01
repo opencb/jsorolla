@@ -32,7 +32,11 @@ export const type =["SNV"];
 
 export const consequenceTypes = {
     style: {
-
+        // This is the impact color. It allows to customise both the impact categories and desired colors
+        high: "red",
+        moderate: "darkorange",
+        low: "blue",
+        modifier: "green"
     },
 
     // Loss-of-function SO terms
@@ -313,6 +317,15 @@ export const consequenceTypes = {
 };
 
 export const populationFrequencies = {
+    style: {
+        // This is based on this figure:
+        // http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg
+        veryRare: "#ff0000",
+        rare: "#ff8080",
+        average: "#8080ff",
+        common: "#0000ff",
+        unobserved: "black"
+    },
     tooltip: `<strong>1000 Genomes</strong> Only considers variants whose observed allelic frequency in the 1000 genomes phase 3 database 
                 is below (or above) the defined value. Genome-wide allelic frequencies were obtained from more than 2.500 genomes.<br><br>
               <strong>gnomAD Genomes</strong> Only considers variants whose observed allelic frequency in the gnomAD Genomes database is 
@@ -413,9 +426,22 @@ export const conservation = {
 };
 
 export const proteinSubstitutionScore = {
+    style: {
+        // This is to show the predictions in respective colors
+        sift: {
+            deleterious: "red",
+            tolerated: "green"
+        },
+        polyphen: {
+            probablyDamaging: "red",
+            possiblyDamaging: "darkorange",
+            benign: "green",
+            unknown: "black"
+        }
+    },
     tooltip: "<strong>SIFT score:</strong> Choose either a Tolerated/Deleterious qualitative score or provide below a " +
         "quantitative impact value. SIFT scores <0.05 are considered deleterious. " +
         "<strong>Polyphen:</strong> Choose, either a Benign/probably damaging qualitative score or provide below a " +
         "quantitative impact value. Polyphen scores can be Benign (<0.15), Possibly damaging (0.15-0.85) or Damaging (>0.85)"
-}
+};
 

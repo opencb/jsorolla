@@ -37,6 +37,7 @@ export default class OpencgaJobsDetails extends LitElement {
             config: {
                 type: Object
             },
+            // this is not actually used at the moment
             jobId: {
                 type: Object
             },

@@ -96,7 +96,7 @@ export default class VariantBeacon extends LitElement {
 
         if (this.opencgaSession.opencgaClient !== undefined) {
             const _this = this;
-            this.opencgaSession.opencgaClient.GA4GH().responses(queryParams, {})
+            this.opencgaSession.opencgaClient.ga4gh().responses(queryParams, {})
                 .then(function(response) {
                     console.log(response)
                     const exists = response[0].response.toString();

@@ -478,7 +478,7 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
                     // "genotype": "Sample Genotypes",
                 },
                 complexFields: ["genotype"],
-                hiddenFields: ["study"]
+                hiddenFields: []
             },
             genomeBrowser: {
                 showTitle: false

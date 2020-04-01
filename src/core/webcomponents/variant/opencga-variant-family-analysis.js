@@ -327,7 +327,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
                         // "region": "Region",
                     },
                     complexFields: ["genotype"],
-                    hiddenFields: ["study", "includeSample"],
+                    hiddenFields: ["includeSample"],
                     lockedFields: [
                         {id: "sample", message: "'sample' filter is mandatory in Compound Heterozygous analysis"},
                     ]
@@ -356,7 +356,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
                         // "region": "Region",
                     },
                     complexFields: ["genotype"],
-                    hiddenFields: ["study", "familyDisorder", "familySegregation", "familyProband", "includeSample"],
+                    hiddenFields: ["familyDisorder", "familySegregation", "familyProband", "includeSample"],
                     lockedFields: [
                         {id: "biotype", message: "'biotype' filter is mandatory in Compound Heterozygous analysis"},
                         {id: "family", message: "'biotype' filter is mandatory in Compound Heterozygous analysis"}
@@ -381,7 +381,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
                         // "region": "Region",
                     },
                     complexFields: ["genotype"],
-                    hiddenFields: ["study", "familyDisorder", "familySegregation", "familyProband", "includeSample"]
+                    hiddenFields: ["familyDisorder", "familySegregation", "familyProband", "includeSample"]
                 }
             };
         }

@@ -172,6 +172,7 @@ export default class OpencgaBrowser extends LitElement {
         }
         // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
         this.dispatchEvent(new CustomEvent("queryChange", {detail: this.preparedQuery}));
+        this.detail = {};
         this.requestUpdate();
     }
 
@@ -285,10 +286,10 @@ export default class OpencgaBrowser extends LitElement {
 
     _changeView(tabId) {
         $(".content-pills", this).removeClass("active");
-        $(".content-tab", this).hide();
+        $(".content-tab", this).removeClass("active");
         for (const tab in this.activeTab) this.activeTab[tab] = false;
         $(`button.content-pills[data-id=${tabId}]`, this).addClass("active");
-        $("#" + tabId, this).show();
+        $("#" + tabId, this).addClass("active");
         this.activeTab[tabId] = true;
         this.requestUpdate();
     }
@@ -356,7 +357,7 @@ export default class OpencgaBrowser extends LitElement {
                 this.endpoint = this.opencgaSession.opencgaClient.files();
                 //this.mainView = html``;
                 return html`
-                            <div id="table-tab" class="content-tab">
+                            <div id="table-tab" class="content-tab active">
                                 <opencga-file-grid .opencgaSession="${this.opencgaSession}"
                                                            .config="${this._config.filter.grid}"
                                                            .query="${this.executedQuery}"
@@ -377,7 +378,7 @@ export default class OpencgaBrowser extends LitElement {
             case "samples":
                 this.endpoint = this.opencgaSession.opencgaClient.samples();
                 return html`
-                        <div id="table-tab" class="content-tab">
+                        <div id="table-tab" class="content-tab active">
                             <opencga-sample-grid .opencgaSession="${this.opencgaSession}"
                                                      .query="${this.executedQuery}"
                                                      .config="${this._config.filter.grid}"
@@ -390,7 +391,7 @@ export default class OpencgaBrowser extends LitElement {
             case "individuals":
                 this.endpoint = this.opencgaSession.opencgaClient.individuals();
                 return html`
-                        <div id="table-tab" class="content-tab">
+                        <div id="table-tab" class="content-tab active">
                             <opencga-individual-grid .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                  .opencgaSession="${this.opencgaSession}"
                                                  .config="${this._config.filter.grid}"
@@ -413,7 +414,7 @@ export default class OpencgaBrowser extends LitElement {
             case "cohort":
                 this.endpoint = this.opencgaSession.opencgaClient.cohorts();
                 return html`
-                        <div id="table-tab" class="content-tab">
+                        <div id="table-tab" class="content-tab active">
                             <opencga-cohort-grid .opencgaSession="${this.opencgaSession}"
                                                      .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                      .query="${this.executedQuery}"
@@ -462,7 +463,7 @@ export default class OpencgaBrowser extends LitElement {
                 return html`
 
                         ${JSON.stringify(this.activeTab["facet-tab"]) } ${JSON.stringify(this.facetQuery)}
-                        <div id="table-tab" class="content-tab">
+                        <div id="table-tab" class="content-tab active">
                             <opencga-family-grid .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                 .opencgaSession="${this.opencgaSession}"
                                                 .query="${this.executedQuery}"
@@ -478,7 +479,7 @@ export default class OpencgaBrowser extends LitElement {
             case "clinical-analysis":
                 this.endpoint = this.opencgaSession.opencgaClient.clinical();
                 return html`
-                        <div id="table-tab" class="content-tab">
+                        <div id="table-tab" class="content-tab active">
                             <opencga-clinical-analysis-grid .opencgaSession="${this.opencgaSession}"
                                                             .config="${this._config.filter.grid}"
                                                             .analyses="${this._config.analyses}"
@@ -510,7 +511,7 @@ export default class OpencgaBrowser extends LitElement {
             case "jobs":
                 this.endpoint = this.opencgaSession.opencgaClient.jobs();
                 return html`
-                        <div id="table-tab" class="content-tab">
+                        <div id="table-tab" class="content-tab active">
                             <opencga-jobs-grid .opencgaSession="${this.opencgaSession}"
                                             .config="${this._config.filter.grid}"
                                             .query="${this.executedQuery}"
@@ -521,7 +522,7 @@ export default class OpencgaBrowser extends LitElement {
                             </opencga-jobs-grid>
                             <opencga-jobs-details .opencgaSession="${this.opencgaSession}"
                                                   .config="${this._config.filter}"
-                                                  .jobId="${1 || this.detail.job.id}"
+                                                  .jobId="${1 || this.detail.job.id /* TODO fix */}"
                                                   .job="${this.detail.job}">
                             </opencga-jobs-details>
                         </div>
@@ -555,10 +556,6 @@ export default class OpencgaBrowser extends LitElement {
 
     render() {
         return html`
- 
-        <style include="jso-styles">
-        </style>
-
         ${this.checkProjects ? html`
             <div class="page-title">
                 <h2>
@@ -717,7 +714,9 @@ export default class OpencgaBrowser extends LitElement {
                                                 @activeFilterClear="${this.onActiveFilterClear}">
                         </opencga-active-filters>
 
-                        ${this.renderView(this.resource)}
+                        <div class="main-view">
+                            ${this.renderView(this.resource)}
+                        </div>
                         
                         <!-- Other option: return an {string, TemplateResult} map ${this.renderView(this.resource).facetView} -->
                         
