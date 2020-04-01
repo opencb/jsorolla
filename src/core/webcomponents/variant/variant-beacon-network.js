@@ -73,14 +73,13 @@ export default class VariantBeaconNetwork extends LitElement {
     async searchBeaconNetwork() {
         if (this._config.hosts !== undefined && this.variant !== undefined && this.variant.split(":").length > 2) {
             const [chromosome, position, reference, alternate] = this.variant.split(":");
-
-            $("#" + this._prefix + "spinGif").show();
+            this.querySelector(".loading-spinner").style.display = "block";
+            //$("#" + this._prefix + "spinGif").show();
             // url to search : https://beacon-network.org/api/responses?allele=C&beacon=[cosmic]&chrom=1&pos=99999&ref=GRCh37
             // TODO: Assembly is hardcoded for now. It has to be taken care in the future
 
             const _this = this;
             for (let i = 0; i < this._config.hosts.length; i++) {
-                const xhr = new XMLHttpRequest();
                 // Beacon network uses zero-based numbering hence (position-1) is used in the url.
                 const url = "https://beacon-network.org/api/responses?allele=" + alternate + "&beacon=[" + _this._config.hosts[i] + "]&chrom=" + chromosome +
                     "&pos=" + (position - 1) + "&ref=GRCh37";
@@ -100,6 +99,7 @@ export default class VariantBeaconNetwork extends LitElement {
                             for (const r of response) {
                                 console.log(r);
                                 const host = this.querySelector("." + this._prefix + this._config.hosts[i]);
+                                host.querySelector(".loading-spinner").style.display = "none";
                                 host.classList.add(r.response || "false");
                                 if (r.response === null) {
                                     // null from server
@@ -114,40 +114,6 @@ export default class VariantBeaconNetwork extends LitElement {
                         }
                     })
                     .catch( e => console.error(e));
-
-                /* xhr.onload = function (event) {
-                    if (xhr.readyState === xhr.DONE) {
-                        if (xhr.status === 200) {
-                            let contentType = xhr.getResponseHeader('Content-Type');
-                            if (contentType === 'application/json') {
-                                let beaconResponse = JSON.parse(xhr.response);
-                                for (let j = 0; j < beaconResponse.length; j++) {
-                                    if (beaconResponse[j].response != null) {
-                                        let response = beaconResponse[j].response.toString();
-                                        PolymerUtils.innerHTML(_this._prefix + _this._config.hosts[i], "" + response.charAt(0).toUpperCase() + response.slice(1));
-                                        //_this.querySelector("." + _this._prefix + _this._config.hosts[i]).classList.add(response.charAt(0).toUpperCase() + response.slice(1))
-                                        if (response === "true") {
-                                            //PolymerUtils.addStyle(_this._prefix + _this._config.hosts[i], "color", "red"); // Highlighting the true response in the table
-
-                                        } else {
-                                            PolymerUtils.addStyle(_this._prefix + _this._config.hosts[i], "color", "black");
-                                        }
-                                    } else {
-                                        PolymerUtils.innerHTML(_this._prefix + _this._config.hosts[i], "False");
-                                        PolymerUtils.addStyle(_this._prefix + _this._config.hosts[i], "color", "black");
-                                    }
-                                }
-                                PolymerUtils.hide(_this._prefix + 'spinGif');
-                            }
-                        } else {
-                            PolymerUtils.innerHTML(_this._prefix + _this._config.hosts[i], "False (not 200)");
-                        }
-                    } else {
-                        PolymerUtils.innerHTML(_this._prefix + _this._config.hosts[i], "False (No response from server)");
-                    }
-                };
-                xhr.open("GET", url, true);
-                xhr.send(null);*/
             }
         }
     }
@@ -163,8 +129,7 @@ export default class VariantBeaconNetwork extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles">
-        
+        <style>
         .beacon-square {
             width: 120px;
             height: 120px;
@@ -191,14 +156,12 @@ export default class VariantBeaconNetwork extends LitElement {
                    title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/">
                    <i class="fa fa-info-circle" aria-hidden="true"></i>
                 </a>
-                        
-                <i class="fa fa-spinner fa-spin" aria-hidden="true" id="${this._prefix}spinGif" style="display:none"></i>
             </div>
 
             ${this._config.hosts && this._config.hosts.length && this._config.hosts.map( item => html`
                 <div class="beacon-square ${this._prefix}${item} shadow">
                     <span>${item}</span>
-                    <span id="${this._prefix}${item}" class="beaconResponse">&nbsp;</span>
+                    <span id="${this._prefix}${item}" class="beaconResponse"><i class="fa fa-spinner fa-spin loading-spinner" style="display: none" aria-hidden="true"></i>&nbsp;</span>
                 </div> 
             `)}
         </div>
