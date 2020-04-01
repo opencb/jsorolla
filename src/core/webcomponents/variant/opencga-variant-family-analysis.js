@@ -125,24 +125,29 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
 
             if (this.mode !== "interactive" && UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.roleToProband)) {
                 let _existParent = false;
+                debugger
                 for (const individualId of Object.keys(this.clinicalAnalysis.roleToProband)) {
                     if (this.clinicalAnalysis.roleToProband[individualId] === "FATHER" ||
                         this.clinicalAnalysis.roleToProband[individualId] === "MOTHER") {
-                        if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.files) &&
-                            UtilsNew.isNotEmptyArray(this.clinicalAnalysis.files[this._individualToSampleIds[individualId]])) {
-                            for (const file of this.clinicalAnalysis.files[this._individualToSampleIds[individualId]]) {
-                                if (file.format === "VCF" && UtilsNew.isNotUndefinedOrNull(file.index.status) &&
-                                    file.internal.index.status.name === "READY") {
-                                    _existParent = true;
-                                    break;
-                                }
-                            }
-                        }
+
+                        // if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.files) &&
+                        //     UtilsNew.isNotEmptyArray(this.clinicalAnalysis.files[this._individualToSampleIds[individualId]])) {
+                        //     for (const file of this.clinicalAnalysis.files[this._individualToSampleIds[individualId]]) {
+                        //
+                        //         if (file.format === "VCF" && UtilsNew.isNotUndefinedOrNull(file.internal.index.status) &&
+                        //             file.internal.index.status.name === "READY") {
+                        //             _existParent = true;
+                        //             break;
+                        //         }
+                        //     }
+                        // }
+
+                        _existParent = true;
                     }
                 }
                 this.existParent = _existParent;
             }
-debugger
+
             // Init query objects every time there is a new session or clinical analysis
             const _query = Object.assign({}, this.query, {
                 study: this.opencgaSession.study.fqn,
@@ -161,7 +166,7 @@ debugger
                 _query.genotype = _genotypes.join(";");
                 break;
             case "compoundHeterozygous":
-                _query.biotype = "protein_coding";
+                // _query.biotype = "protein_coding";
                 _query.ct = "missense_variant," + this._config.filter.lof.join(",");
                 break;
             }
@@ -227,7 +232,7 @@ debugger
     _prepareQuery(query) {
         let _query = Object.assign({}, query, {
             study: this.opencgaSession.study.fqn,
-            includeSample: this._sampleIds.join(",")
+            // includeSample: this._sampleIds.join(",")
         });
 
         if (this.mode === "interactive") {
@@ -243,10 +248,10 @@ debugger
         } else {
             if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis) && UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family)) {
                 _query = Object.assign({}, _query, {
-                    // Replace family and familyDisorder with clinicalAnalysisId
                     family: this.clinicalAnalysis.family.id,
                     familyDisorder: this.clinicalAnalysis.disorder.id,
-                    familySegregation: this.mode
+                    familySegregation: this.mode,
+                    familyProband: this.clinicalAnalysis.proband.samples[0].id
                 });
                 delete _query.genotype;
                 delete _query.sample;
@@ -322,7 +327,10 @@ debugger
                         // "region": "Region",
                     },
                     complexFields: ["genotype"],
-                    hiddenFields: ["study", "sample", "includeSample"]
+                    hiddenFields: ["study", "includeSample"],
+                    lockedFields: [
+                        {id: "sample", message: "'sample' filter is mandatory in Compound Heterozygous analysis"},
+                    ]
                 },
                 genomeBrowser: {
                     showTitle: false
@@ -348,8 +356,11 @@ debugger
                         // "region": "Region",
                     },
                     complexFields: ["genotype"],
-                    hiddenFields: ["study", "family", "familyDisorder", "familySegregation", "includeSample"],
-                    lockedFields: [{id: "biotype", message: "'biotype' filter is mandatory in Compound Heterozygous analysis"}]
+                    hiddenFields: ["study", "familyDisorder", "familySegregation", "familyProband", "includeSample"],
+                    lockedFields: [
+                        {id: "biotype", message: "'biotype' filter is mandatory in Compound Heterozygous analysis"},
+                        {id: "family", message: "'biotype' filter is mandatory in Compound Heterozygous analysis"}
+                    ]
                 }
             };
         case "deNovo":
@@ -370,7 +381,7 @@ debugger
                         // "region": "Region",
                     },
                     complexFields: ["genotype"],
-                    hiddenFields: ["study", "family", "familyDisorder", "familySegregation", "includeSample"]
+                    hiddenFields: ["study", "familyDisorder", "familySegregation", "familyProband", "includeSample"]
                 }
             };
         }

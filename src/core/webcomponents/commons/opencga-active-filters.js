@@ -344,6 +344,9 @@ export default class OpencgaActiveFilters extends LitElement {
         let keys = Object.keys(this.query);
         for (let keyIdx in keys) {
             let key = keys[keyIdx];
+            if (this._config.hiddenFields.includes(key)) {
+                continue;
+            }
             if (UtilsNew.isNotEmpty(this.query[key])) {
                 let queryString = Object.entries(this.query).sort().toString();
                 let prevQueryString = Object.entries(this._previousQuery).sort().toString();
