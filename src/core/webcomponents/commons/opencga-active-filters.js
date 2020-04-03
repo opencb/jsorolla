@@ -32,7 +32,7 @@ export default class OpencgaActiveFilters extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            //NOTE this is actually preparedQuery (in case of variant-browser)
+            // NOTE this is actually preparedQuery (in case of variant-browser)
             query: {
                 type: Object
             },
@@ -82,7 +82,7 @@ export default class OpencgaActiveFilters extends LitElement {
             this.checkFilters();
         }
         if (changedProperties.has("facetQuery")) {
-            //TODO review queryObserver and unify the behaviour of the Warning alert
+            // TODO review queryObserver and unify the behaviour of the Warning alert
             this.facetQueryObserver();
         }
     }
@@ -93,7 +93,7 @@ export default class OpencgaActiveFilters extends LitElement {
         this.filters = [];
 
 
-        //todo recheck why function?
+        // todo recheck why function?
         this.opencgaClient = function() {
             return {"_config": {}};
         };
@@ -108,9 +108,9 @@ export default class OpencgaActiveFilters extends LitElement {
         this.opencgaClient = this.opencgaSession.opencgaClient;
     }
 
-    //TODO recheck connectedCallback
+    // TODO recheck connectedCallback
     firstUpdated() {
-        //super.connectedCallback();
+        // super.connectedCallback();
 
         // Small trick to force the warning message display after DOM is renderer
         this.query = {...this.query};
@@ -118,12 +118,12 @@ export default class OpencgaActiveFilters extends LitElement {
         // We need to init _previousQuery with query in order to work before executing any search
         this._previousQuery = this.query;
 
-        //console.log("CONFIG", this.filters)
+        // console.log("CONFIG", this.filters)
         // If there is any active filter we set the first one in the initialisation
         if (typeof this.filters !== "undefined" && UtilsNew.isEmpty(this.query)) {
-            for (let filter of this.filters) {
+            for (const filter of this.filters) {
                 if (filter.active) {
-                    let _queryList = Object.assign({}, filter.query);
+                    const _queryList = Object.assign({}, filter.query);
                     this.dispatchEvent(new CustomEvent("activeFilterChange", {
                         detail: _queryList,
                         bubbles: true,
@@ -142,12 +142,12 @@ export default class OpencgaActiveFilters extends LitElement {
         this._config.alias = Object.assign({}, this.getDefaultConfig().alias, this.config.alias);
 
         this.lockedFieldsMap = {};
-        for (let lockedField of this._config.lockedFields) {
+        for (const lockedField of this._config.lockedFields) {
             this.lockedFieldsMap[lockedField.id] = lockedField;
         }
     }
 
-    facetQueryObserver(){
+    facetQueryObserver() {
         if (JSON.stringify(this._facetQuery) !== JSON.stringify(this.facetQuery)) {
             this.querySelector("#" + this._prefix + "Warning").style.display = "block";
             this._facetQuery = this.facetQuery;
@@ -160,7 +160,7 @@ export default class OpencgaActiveFilters extends LitElement {
     clear() {
         PolymerUtils.addStyleByClass("filtersLink", "color", "black");
 
-        //TODO do not trigger event if there are no active filters
+        // TODO do not trigger event if there are no active filters
         // Trigger clear event
         this.dispatchEvent(new CustomEvent("activeFilterClear", {detail: {}, bubbles: true, composed: true}));
     }
@@ -183,17 +183,17 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     checkFilters() {
-        let _this = this;
+        const _this = this;
         if (this.opencgaClient instanceof OpenCGAClient && UtilsNew.isNotUndefined(this.opencgaSession.token)) {
-            //console.error("arguments changed inverted after new clients. recheck functionality. serverVersion is now ignored");
+            // console.error("arguments changed inverted after new clients. recheck functionality. serverVersion is now ignored");
             this.opencgaClient.users().filters(this.opencgaSession.user.id)
                 .then(function(response) {
-                    let result = response.response[0].result;
+                    const result = response.response[0].result;
                     if (result.length > 0) {
                         if (UtilsNew.isUndefined(_this.filters)) {
                             _this.filters = [];
                         }
-                        for (let obj of result) {
+                        for (const obj of result) {
                             _this.filters.push = obj;
                         }
                     }
@@ -203,16 +203,16 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     save() {
-        let filterName = PolymerUtils.getValue("filterName");
-        let filterDescription = PolymerUtils.getValue(this._prefix + "filterDescription");
+        const filterName = PolymerUtils.getValue("filterName");
+        const filterDescription = PolymerUtils.getValue(this._prefix + "filterDescription");
 
-        let data = {};
+        const data = {};
         data.name = filterName;
         data.description = filterDescription;
         data.bioformat = this.filterBioformat;
         data.query = this.query;
         data.options = {};
-        let _this = this;
+        const _this = this;
         this.opencgaClient.users().filtersConfigs(this.opencgaSession.user.id, {name: filterName})
             .then(function(response) {
                 if (response.response[0].result.length > 0) {
@@ -220,7 +220,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     // TODO recheck!!
                     _this.opencgaClient.users().updateFilter(this.opencgaSession.user.id, filterName, data)
                         .then(function(response) {
-                            for (let i in _this.filters) {
+                            for (const i in _this.filters) {
                                 if (_this.filters[i].name === filterName) {
                                     _this.filters[i] = response.response[0].result[0];
                                 }
@@ -253,12 +253,12 @@ export default class OpencgaActiveFilters extends LitElement {
 
         if (!UtilsNew.isUndefinedOrNull(this.filters)) {
             // We look for the filter name in the filters array
-            for (let filter of this.filters) {
+            for (const filter of this.filters) {
                 if (filter.name === e.target.dataset.filterName) {
                     PolymerUtils.addStyleByClass("filtersLink", "color", "black");
                     e.target.style.color = "green";
 
-                    let _queryList = Object.assign({}, filter.query);
+                    const _queryList = Object.assign({}, filter.query);
                     this.dispatchEvent(new CustomEvent("activeFilterChange", {
                         detail: _queryList,
                         bubbles: true,
@@ -272,25 +272,25 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     onQueryFilterDelete(e) {
-        let _queryList = Object.assign({}, this.query);
+        const _queryList = Object.assign({}, this.query);
         // Reset selected filters to none
         PolymerUtils.addStyleByClass("filtersLink", "color", "black");
 
-        let name = e.target.dataset.filterName;
-        let value = e.target.dataset.filterValue;
+        const name = e.target.dataset.filterName;
+        const value = e.target.dataset.filterValue;
         console.log("onQueryFilterDelete", name, value);
 
         if (UtilsNew.isEmpty(value)) {
             delete _queryList[name];
-            //TODO check the reason of this condition
-            //FIXME this.modeInheritance is never defined
+            // TODO check the reason of this condition
+            // FIXME this.modeInheritance is never defined
             if (UtilsNew.isEqual(name, "genotype")) {
                 if (this.modeInheritance === "xLinked" || this.modeInheritance === "yLinked") {
                     delete _queryList["region"];
                 }
             }
         } else {
-//                    let filterFields = _queryList[name].split(new RegExp("[,;]"));
+            //                    let filterFields = _queryList[name].split(new RegExp("[,;]"));
             let filterFields;
             if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(name) !== -1) {
                 filterFields = _queryList[name].split(new RegExp(";"));
@@ -298,7 +298,7 @@ export default class OpencgaActiveFilters extends LitElement {
                 filterFields = _queryList[name].split(new RegExp("[,;]"));
             }
 
-            let indexOfValue = filterFields.indexOf(value);
+            const indexOfValue = filterFields.indexOf(value);
             filterFields.splice(indexOfValue, 1);
 
             if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(name) !== -1) {
@@ -314,7 +314,7 @@ export default class OpencgaActiveFilters extends LitElement {
 
         // When you delete any query filter we are not longer using any known Filter
         if (UtilsNew.isNotUndefined(PolymerUtils.getElementById("filtersList"))) {
-            //TODO Refactor
+            // TODO Refactor
             $("#filtersList option[value='none']").prop("selected", true);
         }
 
@@ -329,7 +329,7 @@ export default class OpencgaActiveFilters extends LitElement {
     onQueryFacetDelete(e) {
         this.querySelector("#" + this._prefix + "Warning").style.display = "none";
 
-        console.log("onQueryFacetDelete",e.target.dataset.filterName);
+        console.log("onQueryFacetDelete", e.target.dataset.filterName);
         delete this.facetQuery[e.target.dataset.filterName];
         this.facetQuery = {...this.facetQuery};
         this.dispatchEvent(new CustomEvent("activeFacetChange", {
@@ -340,15 +340,15 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     queryObserver() {
-        let _queryList = [];
-        let keys = Object.keys(this.query);
-        for (let keyIdx in keys) {
-            let key = keys[keyIdx];
+        const _queryList = [];
+        const keys = Object.keys(this.query);
+        for (const keyIdx in keys) {
+            const key = keys[keyIdx];
             if (UtilsNew.isNotEmpty(this.query[key]) && (!this._config.hiddenFields || (this._config.hiddenFields && !this._config.hiddenFields.includes(key)))) {
-                let queryString = Object.entries(this.query).sort().toString();
-                let prevQueryString = Object.entries(this._previousQuery).sort().toString();
+                const queryString = Object.entries(this.query).sort().toString();
+                const prevQueryString = Object.entries(this._previousQuery).sort().toString();
                 if (queryString !== prevQueryString) {
-                    /*console.log(this.query);
+                    /* console.log(this.query);
                     console.log(this._previousQuery);
                     console.log(queryString);
                     console.log(prevQueryString);*/
@@ -371,11 +371,10 @@ export default class OpencgaActiveFilters extends LitElement {
 
                 let filterFields = [];
 
-
                 // in case of annotation
                 if (key === "annotation") {
                     const [variable, val] = value.split("=");
-                    //filterFields = val.split(",").map( v => variable + "=" + v); // TODO this has an error on filter delete
+                    // filterFields = val.split(",").map( v => variable + "=" + v); // TODO this causes an error on filter delete.
                     filterFields = [val];
                 } else {
                     // If we find a field with both ; and , or the field has been defined as complex, we will only
@@ -388,29 +387,16 @@ export default class OpencgaActiveFilters extends LitElement {
                 }
                 // We fist have need to remove defaultStudy from 'filterFields' and 'value'
                 if (key === "study") {
-                    let otherStudies = [];
-                    for (let study of filterFields) {
-                        if (!study.includes(this.defaultStudy)) {
-                            otherStudies.push(study);
-                        }
-                    }
-
-                    if (otherStudies.length === 0) {
-                        // defaultStudy was the only one present so no need to render anything
+                    filterFields = value.split(/[,;]/).filter(fqn => fqn !== this.defaultStudy);
+                    // defaultStudy was the only one present so no need to render anything
+                    if (!filterFields.length) {
                         continue;
-                    } else {
-                        // defaultStudy was just one of the studies selected, we need to set filterFields and value
-                        filterFields = otherStudies;
-                        if (value.indexOf(",") !== -1) {
-                            value = filterFields.join(",");
-                        } else {
-                            value = filterFields.join(";");
-                        }
                     }
+                    value = filterFields.join(/[,;]/);
                 }
 
-                let locked = UtilsNew.isNotUndefinedOrNull(this.lockedFieldsMap[key]);
-                let lockedTooltip = UtilsNew.isNotUndefinedOrNull(this.lockedFieldsMap[key]) ? this.lockedFieldsMap[key].message : "";
+                const locked = UtilsNew.isNotUndefinedOrNull(this.lockedFieldsMap[key]);
+                const lockedTooltip = UtilsNew.isNotUndefinedOrNull(this.lockedFieldsMap[key]) ? this.lockedFieldsMap[key].message : "";
 
                 // Just in case one is a flag
                 if (filterFields.length === 0) {
@@ -422,7 +408,7 @@ export default class OpencgaActiveFilters extends LitElement {
                         } else {
                             _queryList.push({name: key, text: title + " = " + value, locked: locked, message: lockedTooltip});
                         }
-//                                }
+                        //                                }
                     } else {
                         _queryList.push({name: key, text: title, items: filterFields, locked: locked, message: lockedTooltip});
                     }
@@ -581,7 +567,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                     </ul>
                                 </div>
                             `
-        )}
+    )}
                     `}
                 ` : null}
                 </div>
@@ -672,6 +658,7 @@ export default class OpencgaActiveFilters extends LitElement {
 
         `;
     }
+
 }
 
 customElements.define("opencga-active-filters", OpencgaActiveFilters);

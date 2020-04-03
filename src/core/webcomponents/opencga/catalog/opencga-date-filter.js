@@ -298,7 +298,7 @@ export default class OpencgaDateFilter extends LitElement {
         <div class="form-group">
             <form id="${this._prefix}DateRadioButton">
             <fieldset>
-                <div class="switch-toggle text-white alert alert-light">
+                <div class="switch-toggle text-white">
                     <input type="radio" name="selectionButtons" id="${this._prefix}allRadio" value="all" class="${this._prefix}FilterRadio" checked @change="${this.calculateFilters}">
                     <label for="${this._prefix}allRadio" ><span class="${this._prefix}-text">All</span></label>
                 

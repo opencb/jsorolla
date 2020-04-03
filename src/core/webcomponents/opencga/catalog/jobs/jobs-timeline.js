@@ -58,12 +58,12 @@ export default class JobsTimeline extends LitElement {
     }
 
     updated(changedProperties) {
-        //console.log(`query ${this.query}, active ${this.active}`)
+        // console.log(`query ${this.query}, active ${this.active}`)
         if ((changedProperties.has("query") || changedProperties.has("opencgaSession")) && this.active) {
             this.fetchContent();
         }
         if (changedProperties.has("active") && this.active) {
-            this.fetchContent(); //TODO avoid remote request in case the query hasn't changed
+            this.fetchContent(); // TODO avoid remote request in case the query hasn't changed
         }
     }
 
@@ -94,15 +94,27 @@ export default class JobsTimeline extends LitElement {
                 return;
             }
 
-            this._results = results.map(result => {
-                return {
-                    id: result.id,
-                    timestampStart: result.execution && result.execution.start ? result.execution.start : moment(result.creationDate, "YYYYMMDDHHmmss").valueOf(),
-                    timestampEnd: result.execution ? result.execution.end ? result.execution.end : result.execution.start : moment(result.creationDate, "YYYYMMDDHHmmss").valueOf(),
-                    status: result.internal.status.name,
-                    dependsOn: result.dependsOn
+            this.timestampMin = Infinity;
+            this.timestampMax = -Infinity;
+
+            this._results = [];
+            for (let i = 0; i < results.length; i++) {
+                const result = {
+                    id: results[i].id,
+                    timestampStart: results[i].execution && results[i].execution.start ? results[i].execution.start : moment(results[i].creationDate, "YYYYMMDDHHmmss").valueOf(),
+                    timestampEnd: results[i].execution ? results[i].execution.end ? results[i].execution.end : results[i].execution.start : moment(results[i].creationDate, "YYYYMMDDHHmmss").valueOf(),
+                    status: results[i].internal.status.name,
+                    dependsOn: results[i].dependsOn
                 };
-            }).sort((a, b) => a.timestampStart - b.timestampStart);
+                this._results.push(result);
+                if (this.timestampMin > result.timestampStart) {
+                    this.timestampMin = result.timestampStart;
+                }
+                if (this.timestampMax < result.timestampEnd) {
+                    this.timestampMax = result.timestampEnd;
+                }
+            }
+            this._results = this._results.sort((a, b) => a.timestampStart - b.timestampStart);
             this.generateTimeline();
 
         }).catch( e => {
@@ -113,14 +125,17 @@ export default class JobsTimeline extends LitElement {
     }
 
     generateTimeline() {
-        if(!this._results.length) {
+        if (!this._results.length) {
             this.querySelector("#svg-timeline").innerHTML = "No matching records found";
             return;
         }
         this.querySelector("#svg-timeline").innerHTML = "";
+        if (this.draw) {
+            this.draw.clear();
+            // TODO FIXME for some reason draw is not actually really cleared (cache issue?)
+            //console.log("CHILDS", this.draw)
+        }
 
-        this.timestampMin = Math.min(...this._results.map(_ => _.timestampStart));
-        this.timestampMax = Math.max(...this._results.map(_ => _.timestampEnd));
         // console.log("timestampMinMax", timestampMin, timestampMax);
 
         this._config.board.width = this._config.board.width || this.querySelector("#svg-timeline").clientWidth - 200;
@@ -144,7 +159,7 @@ export default class JobsTimeline extends LitElement {
             let assigned = false;
 
             for (let t = 0; t < track; t++) {
-                if ((trackLastEnd[t] + this._config.hspace) < job.start) {
+                if (trackLastEnd[t] + this._config.hspace < job.start) {
                     job.track = t;
                     trackLastEnd[t] = job.end;
                     assigned = true;
@@ -171,11 +186,13 @@ export default class JobsTimeline extends LitElement {
             if (target.dependsOn && target.dependsOn.length) {
                 target.dependsOn.forEach(dep => {
                     const source = this.intervals.find(c => c.id === dep.id);
-                    this.draw.line(source.start, source.y, target.start, target.y).stroke({
-                        color: "#000",
-                        width: 1,
-                        opacity: 0
-                    }).attr({id: source.id + "__" + target.id, class: "edge"});
+                    if (source) {
+                        this.draw.line(source.end, source.y, target.start, target.y).stroke({
+                            color: "#000",
+                            width: 1,
+                            opacity: this._config.edgesVisibility === "onclick" ? .3 : .1
+                        }).attr({id: source.id + "__" + target.id, class: "edge"});
+                    }
                 });
             }
         });
@@ -196,8 +213,11 @@ export default class JobsTimeline extends LitElement {
 
     onJobClick(line) {
         SVG.find(".job").forEach( line => line.stroke({color: line.node.attributes._color.value}));
-        SVG.find(".edge").stroke({opacity: 0});
-        SVG.find(`.edge[id*="${line.id()}"]`).stroke({opacity: 0.3});
+        if (this._config.edgesVisibility === "onclick") {
+            SVG.find(".edge").stroke({opacity: 0});
+            SVG.find(`.edge[id*="${line.id()}"]`).stroke({opacity: .3});
+        }
+
         line.stroke({color: "#000"});
     }
 
@@ -251,6 +271,7 @@ export default class JobsTimeline extends LitElement {
             minorTicks: 0, // number of vertical lines between ticks
             vspace: 40, // space between tracks
             hspace: 10, // space between adjacent intervals
+            edgesVisibility: "always", // [always | onclick]
             board: {
                 width: 0, // it can a number (px) or "auto" (full width)
                 height: 0, // height is dynamic on the number of tracks
@@ -267,14 +288,19 @@ export default class JobsTimeline extends LitElement {
     }
 
     setHeight(e) {
-        console.log(e)
+        console.log(e);
         this._config.vspace = e.target.value;
         this.generateTimeline();
     }
 
+    setEdgeVisibility(e) {
+        this._config.edgesVisibility = e.currentTarget.value;
+        this.generateTimeline();
+    }
     resizing(e) {
         $("#svg-timeline").css("opacity", e.type === "mousedown" ? .5 : 1);
     }
+
 
     render() {
         return html`
@@ -299,8 +325,9 @@ export default class JobsTimeline extends LitElement {
             }
             
             #jobs-timeline .toolbar {
-                width: 275px;
+                width: 480px;
                 float: right;
+                margin-bottom: 10px;
             }
             
             #svg-timeline {
@@ -308,14 +335,26 @@ export default class JobsTimeline extends LitElement {
                 clear: both;
             }
             
+            #jobs-timeline .edge-radio-container {
+                width: 210px;
+                display: inline-block;
+                vertical-align: middle;
+                text-align: center;
+            }
+            
         </style>
         <div id="jobs-timeline">
-            <div id="loading" style="display: none">
-                <loading-spinner></loading-spinner>
-            </div> 
-            <div id="svg-timeline">
-            </div>
             <div class="toolbar">
+                <fieldset class="edge-radio-container">
+                <label>Job dependencies</label>
+                <div class="switch-toggle text-white">
+                    <input id="edge-all" type="radio" name="edge-radio" value="all" checked @change="${this.setEdgeVisibility}">
+                    <label for="edge-all" ><span class="${this._prefix}-text">Always visible</span></label>
+                    <input id="edge-onclick" type="radio" name="edge-radio" value="onclick" @change="${this.setEdgeVisibility}">
+                    <label for="edge-onclick" ><span class="${this._prefix}-text">On click</span></label>
+                    <a class="btn btn-primary ripple btn-small"></a>
+                </div>
+            </fieldset>      
                 <div class="slide-container">
                     <label>Height</label>
                     <input type="range" min="30" max="150" value="40" class="slider" id="svg-height" @change="${this.setHeight}" @mousedown="${this.resizing}" @mouseup="${this.resizing}">
@@ -324,6 +363,11 @@ export default class JobsTimeline extends LitElement {
                     <label>Width</label>
                     <input type="range" min="0.1" max="2" value="1" class="slider" step="0.1" id="svg-width" @change="${this.setWidth}" @mousedown="${this.resizing}" @mouseup="${this.resizing}">
                 </div>
+            </div>
+            <div id="loading" style="display: none">
+                <loading-spinner></loading-spinner>
+            </div> 
+            <div id="svg-timeline">
             </div>
         </div>
         `;

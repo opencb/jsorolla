@@ -701,7 +701,7 @@ export default class OpencgaBrowser extends LitElement {
                     <div>
                         <opencga-active-filters facetActive 
                                                 .opencgaSession="${this.opencgaSession}"
-                                                .defaultStudy="${this.opencgaSession.study.alias}"
+                                                .defaultStudy="${this.opencgaSession.study.fqn}"
                                                 .query="${this.preparedQuery}"
                                                 .refresh="${this.executedQuery}"
                                                 .facetQuery="${this.selectedFacetFormatted}"

@@ -2,7 +2,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "../../../../utils.js";
 import UtilsNew from "../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
-import {NotificationQueue} from "../../../../Notification.js";
+import {NotificationQueue} from "../../../Notification.js";
 import "./opencga-variable-selector.js";
 
 // TODO replicate and check on-dom-change behaviour

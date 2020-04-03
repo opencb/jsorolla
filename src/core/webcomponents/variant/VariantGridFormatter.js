@@ -16,7 +16,7 @@
 
 import Utils from "../../utils.js";
 import UtilsNew from "../../utilsNew.js";
-import {consequenceTypes as CT} from "./opencga-variant-contants.js";
+import {consequenceTypes as CT} from "../commons/opencga-variant-contants.js";
 
 //TODO urgent review of the whole class
 

@@ -80,15 +80,15 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
         // Initially we set the default config, this will be overridden if 'config' is passed
         // this._config = this.getDefaultConfig();
 
-        //this.mode = "interactive";
+        // this.mode = "interactive";
         this.active = true;
     }
 
-    //TODO RECHECK
+    // TODO RECHECK
     // ADD FLAG to avoid repeated calls
     connectedCallback() {
         super.connectedCallback();
-        //since _config.filter.menu.skipSubsections in going to be edited, a deep copy of this.config is required
+        // since _config.filter.menu.skipSubsections in going to be edited, a deep copy of this.config is required
         const _config = $.extend( true, this.getDefaultConfig(), this.config, {
             title: this.getDefaultConfig().title,
             tooltip: this.getDefaultConfig().tooltip
@@ -118,14 +118,14 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
 
     clinicalAnalysisObserver() {
 
-        console.log("clinicalAnalysisObserver", this.clinicalAnalysis)
+        console.log("clinicalAnalysisObserver", this.clinicalAnalysis);
 
         if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
             this._calculateSamples();
 
             if (this.mode !== "interactive" && UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.roleToProband)) {
                 let _existParent = false;
-                debugger
+                debugger;
                 for (const individualId of Object.keys(this.clinicalAnalysis.roleToProband)) {
                     if (this.clinicalAnalysis.roleToProband[individualId] === "FATHER" ||
                         this.clinicalAnalysis.roleToProband[individualId] === "MOTHER") {
@@ -154,28 +154,28 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
                 includeSample: this._sampleIds.join(",")
             });
             switch (this.mode) {
-            case "interactive":
-                const _genotypes = [];
-                for (const sampleId of this._sampleIds) {
-                    if (this.clinicalAnalysis.proband.samples[0].id === sampleId) {
-                        _genotypes.push(sampleId + ":0/1,1/1");
-                    } else {
-                        _genotypes.push(sampleId + ":0/0,0/1,1/1");
+                case "interactive":
+                    const _genotypes = [];
+                    for (const sampleId of this._sampleIds) {
+                        if (this.clinicalAnalysis.proband.samples[0].id === sampleId) {
+                            _genotypes.push(sampleId + ":0/1,1/1");
+                        } else {
+                            _genotypes.push(sampleId + ":0/0,0/1,1/1");
+                        }
                     }
-                }
-                _query.genotype = _genotypes.join(";");
-                break;
-            case "compoundHeterozygous":
+                    _query.genotype = _genotypes.join(";");
+                    break;
+                case "compoundHeterozygous":
                 // _query.biotype = "protein_coding";
-                _query.ct = "missense_variant," + this._config.filter.lof.join(",");
-                break;
+                    _query.ct = "missense_variant," + this._config.filter.lof.join(",");
+                    break;
             }
 
             // Reset query when new session or clinical analysis is provided
             this.query = {...this.query, ..._query};
         }
-        console.log(this.clinicalAnalysis)
-        debugger
+        console.log(this.clinicalAnalysis);
+        debugger;
     }
 
     queryObserver() {
@@ -195,7 +195,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
 
     onVariantFilterChange(e) {
         this.preparedQuery = this._prepareQuery(e.detail.query);
-        //console.log("onVariantFilterChange preparedQuery", this.preparedQuery)
+        // console.log("onVariantFilterChange preparedQuery", this.preparedQuery)
         this.preparedQuery = {...this.preparedQuery};
         this.requestUpdate();
     }
@@ -207,14 +207,14 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
     }
 
     onActiveFilterChange(e) {
-        //console.log("onActiveFilterChange", e.detail)
+        // console.log("onActiveFilterChange", e.detail)
         this.query = {...e.detail};
         this.preparedQuery = {...e.detail};
         this.requestUpdate();
     }
 
     onActiveFilterClear() {
-        this.query = { study: this.opencgaSession.study.fqn };
+        this.query = {study: this.opencgaSession.study.fqn};
         this.preparedQuery = {...this.query};
         this.requestUpdate();
     }
@@ -231,7 +231,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
 
     _prepareQuery(query) {
         let _query = Object.assign({}, query, {
-            study: this.opencgaSession.study.fqn,
+            study: this.opencgaSession.study.fqn
             // includeSample: this._sampleIds.join(",")
         });
 
@@ -314,32 +314,32 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
 
     getDefaultConfig() {
         switch (this.mode) {
-        case "interactive":
-            return {
-                title: "Interactive Variant Interpretation Analysis",
-                tooltip: `<p>
+            case "interactive":
+                return {
+                    title: "Interactive Variant Interpretation Analysis",
+                    tooltip: `<p>
                                         <span style="font-weight: bold">Interactive Variant</span> analysis allows clinicians to filter
                                         variants from the left menu and perform a clinical analysis. Results can be stored as an Interpretation.
                                       </p>`,
-                activeFilters: {
-                    alias: {
+                    activeFilters: {
+                        alias: {
                         // Example:
                         // "region": "Region",
+                        },
+                        complexFields: ["genotype"],
+                        hiddenFields: ["includeSample"],
+                        lockedFields: [
+                            {id: "sample", message: "'sample' filter is mandatory in Compound Heterozygous analysis"}
+                        ]
                     },
-                    complexFields: ["genotype"],
-                    hiddenFields: ["includeSample"],
-                    lockedFields: [
-                        {id: "sample", message: "'sample' filter is mandatory in Compound Heterozygous analysis"},
-                    ]
-                },
-                genomeBrowser: {
-                    showTitle: false
-                }
-            };
-        case "compoundHeterozygous":
-            return {
-                title: "Compound Heterozygous Variant Analysis",
-                tooltip: `<p>
+                    genomeBrowser: {
+                        showTitle: false
+                    }
+                };
+            case "compoundHeterozygous":
+                return {
+                    title: "Compound Heterozygous Variant Analysis",
+                    tooltip: `<p>
                                         <span style="font-weight: bold">Compound Heterozygous Variant</span> in medical genetics is the
                                         condition of having two heterozygous recessive alleles at a particular gene locus that can cause a
                                         genetic disease in a heterozygous state, one on each chromosome of a pair. You can find more
@@ -351,22 +351,22 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
                                         you can use any other selected filter from the left menu. Note that finding Compound Heterozygous variants
                                         can take few seconds depending on the OpenCGA server installation.
                                       </p>`,
-                activeFilters: {
-                    alias: {
+                    activeFilters: {
+                        alias: {
                         // "region": "Region",
-                    },
-                    complexFields: ["genotype"],
-                    hiddenFields: ["familyDisorder", "familySegregation", "familyProband", "includeSample"],
-                    lockedFields: [
-                        {id: "biotype", message: "'biotype' filter is mandatory in Compound Heterozygous analysis"},
-                        {id: "family", message: "'biotype' filter is mandatory in Compound Heterozygous analysis"}
-                    ]
-                }
-            };
-        case "deNovo":
-            return {
-                title: "de Novo Variant Analysis",
-                tooltip: `<p>
+                        },
+                        complexFields: ["genotype"],
+                        hiddenFields: ["familyDisorder", "familySegregation", "familyProband", "includeSample"],
+                        lockedFields: [
+                            {id: "biotype", message: "'biotype' filter is mandatory in Compound Heterozygous analysis"},
+                            {id: "family", message: "'biotype' filter is mandatory in Compound Heterozygous analysis"}
+                        ]
+                    }
+                };
+            case "deNovo":
+                return {
+                    title: "de Novo Variant Analysis",
+                    tooltip: `<p>
                                         <span style="font-weight: bold">de Novo Variant</span> is a genetic alteration that is present
                                         for the first time in one family member as a result of a variant (or mutation) in a germ cell (egg or sperm)
                                         of one of the parents, or a variant that arises in the fertilized egg itself during early embryogenesis.
@@ -376,19 +376,19 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
                                         However, you can use any other selected filter from the left menu. Note that finding de Novo variants can take few seconds
                                         depending on the OpenCGA server installation.
                                     </p>`,
-                activeFilters: {
-                    alias: {
+                    activeFilters: {
+                        alias: {
                         // "region": "Region",
-                    },
-                    complexFields: ["genotype"],
-                    hiddenFields: ["familyDisorder", "familySegregation", "familyProband", "includeSample"]
-                }
-            };
+                        },
+                        complexFields: ["genotype"],
+                        hiddenFields: ["familyDisorder", "familySegregation", "familyProband", "includeSample"]
+                    }
+                };
         }
     }
 
     render() {
-        return  html`
+        return html`
         <style>
             .qtip-family-class {
                 max-width: 480px;

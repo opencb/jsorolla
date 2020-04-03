@@ -18,7 +18,7 @@ import {LitElement, html, css} from "/web_modules/lit-element.js";
 import Utils from "./../../utils.js";
 import UtilsNew from "./../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
-import {biotypes, populationFrequencies, tooltips, conservation, proteinSubstitutionScore} from "./opencga-variant-contants.js";
+import {biotypes, populationFrequencies, tooltips, proteinSubstitutionScore} from "../commons/opencga-variant-contants.js";
 import "./opencga-variant-grid.js";
 import "./opencga-variant-filter.js";
 import "../commons/opencga-facet-result-view.js";
@@ -434,7 +434,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                             {
                                 id: "study",
                                 title: "Studies Filter",
-                                tooltip: "Only considers variants from the selected studies"
+                                tooltip: tooltips.study
                             },
                             {
                                 id: "cohort",
@@ -451,29 +451,29 @@ export default class OpencgaVariantBrowser extends LitElement {
                             {
                                 id: "region",
                                 title: "Genomic Location",
-                                tooltip: "Filter out variants falling outside the genomic interval(s) defined"
+                                tooltip: tooltips.region
                             },
                             {
                                 id: "feature",
                                 title: "Feature IDs (gene, SNPs, ...)",
-                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                                tooltip: tooltips.feature
                             },
                             {
                                 id: "diseasePanels",
                                 title: "Disease Panels",
-                                tooltip: "Filter out variants falling outside the genomic intervals (typically genes) defined by the panel(s) chosen"
+                                tooltip: tooltips.diseasePanels
                             },
                             {
                                 id: "biotype",
                                 title: "Gene Biotype",
                                 biotypes: biotypes,
-                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                                tooltip: tooltips.biotype
                             },
                             {
                                 id: "type",
                                 title: "Variant Type",
                                 types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION", "MNV"],
-                                tooltip: "Only considers variants of the selected type"
+                                tooltip: tooltips.type
                             }
                         ]
                     },
@@ -489,7 +489,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                             {
                                 id: "consequenceTypeSelect",
                                 title: "Select SO terms",
-                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                                tooltip: tooltips.consequenceTypeSelect
                             },
                         ]
                     },
@@ -500,7 +500,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                             {
                                 id: "populationFrequency",
                                 title: "Select Population Frequency",
-                                tooltip: populationFrequencies.tooltip,
+                                tooltip: tooltips.populationFrequencies,
                                 showSetAll: true
                             }
                         ]
@@ -513,22 +513,22 @@ export default class OpencgaVariantBrowser extends LitElement {
                             {
                                 id: "go",
                                 title: "GO Accessions (max. 100 terms)",
-                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                                tooltip: tooltips.go
                             },
                             {
                                 id: "hpo",
                                 title: "HPO Accessions",
-                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                                tooltip: tooltips.hpo
                             },
                             {
                                 id: "clinvar",
                                 title: "ClinVar Accessions",
-                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                                tooltip: tooltips.clinvar
                             },
                             {
                                 id: "fullTextSearch",
                                 title: "Full-text search on HPO, ClinVar, protein domains or keywords. Some OMIM and Orphanet IDs are also supported",
-                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                                tooltip: tooltips.fullTextSearch
                             }
                         ]
                     },
@@ -539,14 +539,12 @@ export default class OpencgaVariantBrowser extends LitElement {
                             {
                                 id: "proteinSubstitutionScore",
                                 title: "Protein Substitution Score",
-                                tooltip: proteinSubstitutionScore.tooltip
+                                tooltip: tooltips.proteinSubstitutionScore
                             },
                             {
                                 id: "cadd",
                                 title: "CADD",
-                                tooltip: "Raw values have relative meaning, with higher values indicating that a variant is more likely to be " +
-                                    "simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants " +
-                                    "within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended"
+                                tooltip: tooltips.cadd
                             }
                         ]
                     },
@@ -807,7 +805,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                         <opencga-active-filters facetActive
                                                 filterBioformat="VARIANT"
                                                 .opencgaSession="${this.opencgaSession}"
-                                                .defaultStudy="${this.opencgaSession.study.alias}"
+                                                .defaultStudy="${this.opencgaSession.study.fqn}"
                                                 .query="${this.preparedQuery}"
                                                 .refresh="${this.executedQuery}"
                                                 .facetQuery="${this.selectedFacetFormatted}"

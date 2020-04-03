@@ -1,7 +1,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./utilsNew.js";
 
-import {NotificationQueue} from "./Notification.js";
+import {NotificationQueue} from "./webcomponents/Notification.js";
 
 // TODO remove
 // use Notification.js instead

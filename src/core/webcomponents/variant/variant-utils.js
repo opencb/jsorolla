@@ -4,7 +4,7 @@
 import UtilsNew from "../../utilsNew.js";
 
 
-// TODO refactor
+// TODO urgent refactor
 export default class VariantUtils {
 
     static jsonToTabConvert(json, studiesPopFrequencies, samples, nucleotideGenotype) {

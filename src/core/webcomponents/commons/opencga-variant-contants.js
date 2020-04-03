@@ -326,10 +326,6 @@ export const populationFrequencies = {
         common: "#0000ff",
         unobserved: "black"
     },
-    tooltip: `<strong>1000 Genomes</strong> Only considers variants whose observed allelic frequency in the 1000 genomes phase 3 database 
-                is below (or above) the defined value. Genome-wide allelic frequencies were obtained from more than 2.500 genomes.<br><br>
-              <strong>gnomAD Genomes</strong> Only considers variants whose observed allelic frequency in the gnomAD Genomes database is 
-                below (or above) the defined value. Frequencies were calculated from about 15,000 unrelated individuals`,
     studies: [
         {
             id: "1kG_phase3",
@@ -400,7 +396,29 @@ export const tooltips = {
         "the multiple alignment. The phastCons scores represent probabilities of negative selection and range between 0 " +
         "(non-conserved) and 1 (highly conserved).<br>" +
         "<strong>Genomic Evolutionary Rate Profiling (GERP)</strong> score estimate the level of conservation of positions." +
-        " Scores ≥ 2 indicate evolutionary constraint to and ≥ 3 indicate purifying selection."
+        " Scores ≥ 2 indicate evolutionary constraint to and ≥ 3 indicate purifying selection.",
+    populationFrequencies: `<strong>1000 Genomes</strong> Only considers variants whose observed allelic frequency in the 1000 genomes phase 3 database 
+                is below (or above) the defined value. Genome-wide allelic frequencies were obtained from more than 2.500 genomes.<br><br>
+              <strong>gnomAD Genomes</strong> Only considers variants whose observed allelic frequency in the gnomAD Genomes database is 
+                below (or above) the defined value. Frequencies were calculated from about 15,000 unrelated individuals`,
+    proteinSubstitutionScore: "<strong>SIFT score:</strong> Choose either a Tolerated/Deleterious qualitative score or provide below a " +
+            "quantitative impact value. SIFT scores <0.05 are considered deleterious. " +
+            "<strong>Polyphen:</strong> Choose, either a Benign/probably damaging qualitative score or provide below a " +
+            "quantitative impact value. Polyphen scores can be Benign (<0.15), Possibly damaging (0.15-0.85) or Damaging (>0.85)",
+    study: "Only considers variants from the selected studies",
+    region: "Filter out variants falling outside the genomic interval(s) defined",
+    feature: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
+    diseasePanels: "Filter out variants falling outside the genomic intervals (typically genes) defined by the panel(s) chosen",
+    biotype: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
+    type: "Only considers variants of the selected type",
+    consequenceTypeSelect: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
+    go: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
+    hpo: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
+    clinvar: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
+    fullTextSearch: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
+    cadd: "Raw values have relative meaning, with higher values indicating that a variant is more likely to be " +
+        "simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants " +
+        "within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended"
 };
 
 export const beacon = {
@@ -408,21 +426,6 @@ export const beacon = {
         "brca-exchange", "cell_lines", "cosmic", "wtsi", "wgs", "ncbi", "ebi", "ega", "broad", "gigascience",
         "ucsc", "lovd", "hgmd", "icgc", "sahgp"
     ]
-};
-
-
-// TODO remove these ones
-export const conservation = {
-    tooltip: "<strong>PhyloP</strong> scores measure evolutionary conservation at individual alignment sites. The scores " +
-        "are interpreted as follows compared to the evolution expected under neutral drift: positive scores (max 3.0) mean " +
-        "conserved positions and negative scores (min -14.0) indicate positive selection. PhyloP scores are useful to " +
-        "evaluate signatures of selection at particular nucleotides or classes of nucleotides (e.g., third codon positions, " +
-        "or first positions of miRNA target sites).<br>" +
-        "<strong>PhastCons</strong> estimates the probability that each nucleotide belongs to a conserved element, based on " +
-        "the multiple alignment. The phastCons scores represent probabilities of negative selection and range between 0 " +
-        "(non-conserved) and 1 (highly conserved).<br>" +
-        "<strong>Genomic Evolutionary Rate Profiling (GERP)</strong> score estimate the level of conservation of positions." +
-        " Scores ≥ 2 indicate evolutionary constraint to and ≥ 3 indicate purifying selection."
 };
 
 export const proteinSubstitutionScore = {
@@ -438,10 +441,6 @@ export const proteinSubstitutionScore = {
             benign: "green",
             unknown: "black"
         }
-    },
-    tooltip: "<strong>SIFT score:</strong> Choose either a Tolerated/Deleterious qualitative score or provide below a " +
-        "quantitative impact value. SIFT scores <0.05 are considered deleterious. " +
-        "<strong>Polyphen:</strong> Choose, either a Benign/probably damaging qualitative score or provide below a " +
-        "quantitative impact value. Polyphen scores can be Benign (<0.15), Possibly damaging (0.15-0.85) or Damaging (>0.85)"
+    }
 };
 
