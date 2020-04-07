@@ -190,8 +190,6 @@ export default class OpencgaIndividualGrid extends LitElement {
                         .catch( e => console.error(e));
                 },
                 responseHandler: function(response) {
-
-                    console.log("response", response);
                     let _numMatches = _this._numMatches || 0;
                     if (response.getResponse().numMatches >= 0) {
                         _numMatches = response.getResponse().numMatches;

@@ -17,11 +17,11 @@ export default class UtilsNew {
     }
 
     static isUndefined(obj) {
-        return typeof obj === 'undefined';
+        return typeof obj === "undefined";
     }
 
     static isNotUndefined(obj) {
-        return typeof obj !== 'undefined';
+        return typeof obj !== "undefined";
     }
 
     static isNull(obj) {
@@ -33,11 +33,11 @@ export default class UtilsNew {
     }
 
     static isUndefinedOrNull(obj) {
-        return typeof obj === 'undefined' || obj === null;
+        return typeof obj === "undefined" || obj === null;
     }
 
     static isNotUndefinedOrNull(obj) {
-        return typeof obj !== 'undefined' && obj !== null;
+        return typeof obj !== "undefined" && obj !== null;
     }
 
     static isEmpty(obj) {
@@ -47,9 +47,10 @@ export default class UtilsNew {
 
         // obj is an actual Object
         if (typeof obj === "object") {
-            for (let key in obj) {
-                if(obj.hasOwnProperty(key))
+            for (const key in obj) {
+                if (obj.hasOwnProperty(key)) {
                     return false;
+                }
             }
             return true;
         } else {
@@ -65,11 +66,11 @@ export default class UtilsNew {
     }
 
     static isEmptyArray(arr) {
-        return typeof arr !== 'undefined' && arr !== null && arr.length === 0;
+        return typeof arr !== "undefined" && arr !== null && arr.length === 0;
     }
 
     static isNotEmptyArray(arr) {
-        return typeof arr !== 'undefined' && arr !== null && arr.length > 0;
+        return typeof arr !== "undefined" && arr !== null && arr.length > 0;
     }
 
     static defaultString(str, str2) {
@@ -84,15 +85,15 @@ export default class UtilsNew {
         return false;
     }
 
-    static removeDuplicates (array, prop) {
-        var newArray = [];
-        var lookupObject  = {};
+    static removeDuplicates(array, prop) {
+        const newArray = [];
+        const lookupObject = {};
 
-        for(let i in array) {
+        for (const i in array) {
             lookupObject[array[i][prop]] = array[i];
         }
 
-        for(let i in lookupObject) {
+        for (const i in lookupObject) {
             newArray.push(lookupObject[i]);
         }
         return newArray;
@@ -109,4 +110,22 @@ export default class UtilsNew {
     static isEqual(str, str2) {
         return str === str2;
     }
+
+    /*  Utils refactoring in progress */
+
+    static randomString(length) {
+        let result = "";
+        const _length = length || 6;
+        const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        for (let i = 0; i < _length; i++ ) {
+            result += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        return result;
+    }
+
+    // safe check if the field is an object (NOTE null is an object, the constructor check is not enough)
+    static isObject(o) {
+        return o != null && o.constructor.name === "Object";
+    }
+
 }

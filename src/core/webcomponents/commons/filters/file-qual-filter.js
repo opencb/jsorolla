@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
+import UtilsNew from "./../../../utilsNew.js";
 
 
 export default class FileQualFilter extends LitElement {
@@ -43,7 +43,7 @@ export default class FileQualFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "fqf-" + Utils.randomString(6) + "_";
+        this._prefix = "fqf-" + UtilsNew.randomString(6) + "_";
         this.qual = "";
     }
 

@@ -18,7 +18,9 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../utils.js";
 import UtilsNew from "../../../utilsNew.js";
 
-//TODO refactor
+/**
+    @deprecated
+ */
 
 export default class ConsequenceTypeFilter extends LitElement {
 
@@ -162,7 +164,7 @@ export default class ConsequenceTypeFilter extends LitElement {
                                     <li class="form-check">
                                         <input id="${this._prefix}${item.name}Checkbox" type="checkbox" data-id="${item.name}"
                                                    class="soTermCheckBox ${this._prefix}FilterCheckBox" @change="${this.onChange}" ?checked="${~this.selectedCt.indexOf(item.name)}">
-                                        <label for="${this._prefix}${item.name}Checkbox" class="form-check-label notbold" style="text-decoration-color: ${this.consequenceTypes.color[item.impact]}">
+                                        <label for="${this._prefix}${item.name}Checkbox" class="form-check-label notbold" style="text-decoration-color: ${this.consequenceTypes.style[item.impact]}">
                                             <span title="${item.description}">
                                                 ${item.name}
                                             </span>
@@ -174,7 +176,7 @@ export default class ConsequenceTypeFilter extends LitElement {
                                 ` : html`
                                     <input id="${this._prefix}${category.name}Checkbox" type="checkbox"
                                         data-id="${category.name}" class="soTermCheckBox ${this._prefix}FilterCheckBox" @change="${this.onChange}" ?checked="${~this.selectedCt.indexOf(category.name)}">
-                                    <label for="${this._prefix}${category.name}Checkbox" style="text-decoration-color: ${this.consequenceTypes.color[category.impact]}">
+                                    <label for="${this._prefix}${category.name}Checkbox" style="text-decoration-color: ${this.consequenceTypes.style[category.impact]}">
                                         <span title="${category.description}">
                                             ${category.name}
                                         </span>

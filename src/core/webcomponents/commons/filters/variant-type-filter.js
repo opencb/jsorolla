@@ -17,7 +17,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../utils.js";
-
+import {types} from "../../commons/opencga-variant-contants.js";
 
 export default class VariantTypeFilter extends LitElement {
 
@@ -76,7 +76,7 @@ export default class VariantTypeFilter extends LitElement {
 
     getDefaultConfig() {
         return {
-            types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION", "MNV"]
+            types: types
         };
     }
     toggle(type) {

@@ -148,12 +148,16 @@ export default class OpencgaLogin extends LitElement {
                 background: none;
             }
             
+            .login-box {
+                padding: 20px;
+            }
+            
             .has-error .form-control:focus {
             
             }
         </style>
         <div class="container-fluid">
-            <div class="row v-offset">
+            <div class="login-box row v-offset shadow">
                 <div class="col-md-12">
                     <form id="formLogin" data-toggle="validator" class="form-horizontal" role="form">
                         <div class="form-group has-feedback">

@@ -17,6 +17,8 @@
 
 // export const biotypes = VARIANT_CONSTANTS.biotypes;
 
+// TODO discriminate between constants data and configuration data
+
 export const biotypes = [
     "3prime_overlapping_ncrna", "IG_C_gene", "IG_C_pseudogene", "IG_D_gene", "IG_J_gene", "IG_J_pseudogene",
     "IG_V_gene", "IG_V_pseudogene", "Mt_rRNA", "Mt_tRNA", "TR_C_gene", "TR_D_gene", "TR_J_gene", "TR_J_pseudogene",
@@ -27,8 +29,7 @@ export const biotypes = [
     "translated_processed_pseudogene", "unitary_pseudogene", "unprocessed_pseudogene"
 ];
 
-// TODO complete the list
-export const type =["SNV"];
+export const types = ["SNV", "INDEL", "CNV", "INSERTION", "DELETION", "MNV"];
 
 export const consequenceTypes = {
     style: {

@@ -97,9 +97,11 @@ export default class SelectTokenFilter extends LitElement {
             this.propertyObserver();
         }
         if (_changedProperties.has("value")) {
-            if(this.value) {
+            if (this.value) {
                 if (this.value.split(",").length) {
                     //$(".tokenize", this).tokenize2().trigger("tokenize:clear");
+                    console.log("changing")
+                    this.silentClear()
                     this.value.split(",").forEach( v => $(".tokenize", this).tokenize2().trigger("tokenize:tokens:add", [v, v, true]));
                 }
             } else {
@@ -113,11 +115,11 @@ export default class SelectTokenFilter extends LitElement {
         const selection = $(e.target).val();
         let val;
         if (selection && selection.length) {
-            //val = this.multiple ? selection.join(",") : selection[0];
+            // val = this.multiple ? selection.join(",") : selection[0];
             val = selection.join(",");
         }
         this.value = val ? val : null; // this allow users to get the selected values using DOMElement.value
-        //console.log("select filterChange", val);
+        // console.log("select filterChange", val);
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: this.value
@@ -155,8 +157,82 @@ export default class SelectTokenFilter extends LitElement {
         };
     }
 
+    readFile(event) {
+        //console.log(event);
+        const input = event.target;
+        const reader = new FileReader();
+        /*reader.onload = function() {
+            const dataURL = reader.result;
+            console.log(dataURL);
+        };*/
+        reader.readAsText(input.files[0]);
+    }
+
+
+    onDragOver(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(e.currentTarget).addClass("dragover");
+    }
+
+    onDragLeave(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(e.currentTarget).removeClass("dragover");
+    }
+
+    // it silently clear the input field without triggering  tokenize:tokens:remove which fire the filterChange
+    silentClear(){
+        //$("select.tokenize").empty()
+        $(".tokens-container li.token").remove();
+        $(".tokens-container li.placeholder").show();
+
+    }
+
     render() {
         return html`
+            <style>
+            .dropzone-wrapper {
+                border: 2px dashed #91b0b3;
+                color: #92b0b3;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100px;
+            }
+            .dropzone-desc {
+                margin: 0 auto;
+                text-align: center;
+            }
+            .dropzone,
+            .dropzone:focus {
+                position: absolute;
+                outline: none !important;
+                width: 100%;
+                height: 150px;
+                cursor: pointer;
+                opacity: 0;
+            }
+            .dropzone-wrapper:hover,
+            .dropzone-wrapper.dragover {
+                background: #ecf0f5;
+            }
+            </style>
+
+        <form action="" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+            <label class="control-label">Upload File</label>
+            <div class="dropzone-wrapper" @change="${this.readFile}" @dragover="${this.onDragOver}" @dragleave="${this.onDragLeave}">
+              <div class="dropzone-desc">
+                <i class="glyphicon glyphicon-download-alt"></i>
+                <div>Choose an text file or drag it here.</div>
+              </div>
+              <input type="file" class="dropzone" />
+            </div>
+            </div>
+        </form>
+
+        <button @click="${this.click}"> click</button>
         <div class="subsection-content">
             <select class="tokenize" multiple></select>
         </div>

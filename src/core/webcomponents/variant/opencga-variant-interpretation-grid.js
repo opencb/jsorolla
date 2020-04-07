@@ -170,7 +170,7 @@ debugger
         this.to = 10;
         this.approximateCountResult = false;
 
-        const _table = $("#" + this._prefix + "VariantBrowserGrid");
+        this.table = $("#" + this._prefix + "VariantBrowserGrid");
         if (typeof this.opencgaSession !== "undefined" && typeof this.opencgaSession.project !== "undefined" &&
             typeof this.opencgaSession.study !== "undefined" && UtilsNew.isNotEmpty(this.query)) {
             this._columns = this._createDefaultColumns();
@@ -183,8 +183,8 @@ debugger
             let skipCount = false;
 
 
-            $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable("destroy");
-            $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable({
+            this.table.bootstrapTable("destroy");
+            this.table.bootstrapTable({
                 //url: urlQueryParams.host,
                 columns: _this._columns,
                 method: "get",
@@ -211,7 +211,7 @@ debugger
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
-                        count: false,
+                        count: !$(this.table).bootstrapTable("getOptions").pageNumber || $(this.table).bootstrapTable("getOptions").pageNumber === 1,
                         includeSampleId: true,
                         // skipCount: skipCount,
                         // include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
@@ -294,6 +294,7 @@ debugger
                         rows: response.getResults()
                     };
                 },
+
                 onClickRow: function(row, $element, field) {
                     $("#" + _this._prefix + "VariantBrowserGrid tr").removeClass("success");
                     $($element).addClass("success");
@@ -329,10 +330,10 @@ debugger
                         }
                     }));
                 },
-                onLoadSuccess: function(data) {
+                onLoadSuccess: data => {
                     // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
-                    if (UtilsNew.isNotEmptyArray(data.rows) && UtilsNew.isNotUndefinedOrNull(_table)) {
-                        PolymerUtils.querySelector(_table.selector).rows[2].setAttribute("class", "success");
+                    if (UtilsNew.isNotEmptyArray(data.rows) && UtilsNew.isNotUndefinedOrNull(this.table)) {
+                        PolymerUtils.querySelector(this.table.selector).rows[2].setAttribute("class", "success");
                         _this._onSelectVariant(data.rows[0]);
 
                         // const elementsByClassName = PolymerUtils.getElementsByClassName("genome-browser-option");

@@ -18,14 +18,10 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../utils.js";
 
 
-/** NOTE - Design choice: in case of single mode (this.multiple=false), in order to show the placeholder ("Select an option") and NOT adding a dummy option to allow null selection,
- *  the single selection mode is implemented still with the multiple flag in bootstrap-select, but forcing 1 selection with data-max-options=1
- *  (this has no consequences for the developer point of view)
+/**
+ * @deprecated
  *
- *  Example of usage:
- * <select-field-filter .data="${["A","B","C"]}" .value=${"A"} @filterChange="${e => console.log(e)}"></select-field-filter>
- * <select-field-filter .data="${[{id: "a", name: "A", {id:"b", name: "B"}, {id: "c", name: "C"}]}" .value=${"a"} @filterChange="${e => console.log(e)}"></select-field-filter>
- */
+ * */
 
 export default class SelectFieldFilterRemote extends LitElement {
 

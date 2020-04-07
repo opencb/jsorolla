@@ -327,7 +327,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
                         // "region": "Region",
                         },
                         complexFields: ["genotype"],
-                        hiddenFields: ["includeSample"],
+                        hiddenFields: ["study", "includeSample"],
                         lockedFields: [
                             {id: "sample", message: "'sample' filter is mandatory in Compound Heterozygous analysis"}
                         ]
@@ -448,7 +448,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
                                                                  .populationFrequencies="${this.populationFrequencies}"
                                                                  .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                                                  .config="${this.config.grid}"
-                                                                 @selected="${this.selectedGene}"
+                                                                 @selected="${this.onSelectedGene}"
                                                                  @selectvariant="${this.onSelectVariant}"
                                                                  @checkvariant="${this.onCheckVariant}"
                                                                  @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">

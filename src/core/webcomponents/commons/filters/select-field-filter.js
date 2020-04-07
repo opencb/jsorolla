@@ -16,13 +16,14 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../utils.js";
+import UtilsNew from "./../../../utilsNew.js";
 
 
 /** NOTE - Design choice: in case of single mode (this.multiple=false), in order to show the placeholder ("Select an option") and NOT adding a dummy option to allow null selection,
  *  the single selection mode is implemented still with the multiple flag in bootstrap-select, but forcing 1 selection with data-max-options=1
  *  (this has no consequences for the developer point of view)
  *
- *  Example of usage:
+ *  Usage:
  * <select-field-filter .data="${["A","B","C"]}" .value=${"A"} @filterChange="${e => console.log(e)}"></select-field-filter>
  * <select-field-filter .data="${[{id: "a", name: "A", {id:"b", name: "B"}, {id: "c", name: "C"}]}" .value=${"a"} @filterChange="${e => console.log(e)}"></select-field-filter>
  */
@@ -111,12 +112,6 @@ export default class SelectFieldFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
-    // safe check if the field is an object (NOTE null is an object, so the constructor check is not enough)
-    // TODO add safe check if is a plain string
-    isObject(obj) {
-        return obj != null && obj.constructor.name === "Object";
-    }
-
     render() {
         return html`
             <div id="${this._prefix}-select-field-filter-wrapper" class="form-group">
@@ -131,7 +126,7 @@ export default class SelectFieldFilter extends LitElement {
                     ${this.data.map(opt => html`
                         ${opt.fields ? html`
                             <optgroup label="${opt.name}">${opt.fields.map(subopt => html`
-                                ${this.isObject(subopt) ? html`
+                                ${UtilsNew.isObject(subopt) ? html`
                                     <option ?disabled="${subopt.disabled}" ?selected="${subopt.selected}" .value="${subopt.id ? subopt.id : subopt.name}">${subopt.name}</option>    
                                 ` : html`
                                     <option>${subopt}</option>
@@ -139,7 +134,7 @@ export default class SelectFieldFilter extends LitElement {
                                 `)}
                             </optgroup>
                             ` : html` 
-                                ${this.isObject(opt) ? html`
+                                ${UtilsNew.isObject(opt) ? html`
                                     <option ?disabled="${opt.disabled}" ?selected="${opt.selected}" .value="${opt.id ? opt.id : opt.name}">${opt.name}</option>
                                 ` : html`
                                     <option>${opt}</option>

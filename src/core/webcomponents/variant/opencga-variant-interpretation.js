@@ -122,6 +122,7 @@ class OpencgaVariantInterpretation extends LitElement {
 
         this.query = {};
         this.search = {};
+
     }
 
     connectedCallback() {
@@ -191,19 +192,23 @@ class OpencgaVariantInterpretation extends LitElement {
     }
 
     /**
-             * Fetch the CinicalAnalysis object from REST and trigger the observer call.
-             */
+     * Fetch the CinicalAnalysis object from REST and trigger the observer call.
+    */
     clinicalAnalysisIdObserver() {
+
+        // TODO tempfix check for clinicalAnalysisId undefined
+        // this.clinicalAnalysisId = "AN-3"; return;
+
         if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotEmpty(this.clinicalAnalysisId)) {
             const _this = this;
-            debugger
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     // This triggers the call to clinicalAnalysisObserver function below
+                    console.log("response", response);
                     _this.clinicalAnalysis = response.responses[0].results[0];
 
-                    console.log("clinicalAnalysisIdObserver _this.clinicalAnalysis",_this.clinicalAnalysis)
-                    _this.requestUpdate()
+                    console.log("clinicalAnalysisIdObserver _this.clinicalAnalysis", _this.clinicalAnalysis);
+                    _this.requestUpdate();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -277,8 +282,8 @@ class OpencgaVariantInterpretation extends LitElement {
 
 
     onClinicalAnalysisEditor(e) {
-        //console.warn("onClinicalAnalysisEditor commented")
-        //console.warn(" e.detail.clinicalAnalysis", e.detail.clinicalAnalysis)
+        // console.warn("onClinicalAnalysisEditor commented")
+        // console.warn(" e.detail.clinicalAnalysis", e.detail.clinicalAnalysis)
         // this.clinicalAnalysis = Object.assign({}, e.detail.clinicalAnalysis);
     }
 
@@ -313,9 +318,14 @@ class OpencgaVariantInterpretation extends LitElement {
         }
     }
 
+    setClinicalAnalysisId() {
+        console.log($("#clinicalAnalysisIdText").val());
+        this.clinicalAnalysisId = $("#clinicalAnalysisIdText").val();
+    }
+
     /**
-             * Set properties for LowCoverage tools and others
-             */
+     * Set properties for LowCoverage tools and others
+     */
     _setPropertiesForTools() {
         this.diseasePanelIds = (UtilsNew.isNotEmpty(this.preparedQuery.panel)) ? this.preparedQuery.panel.split(",") : [];
         if (UtilsNew.isNotUndefinedOrNull(this.preparedQuery.xref)) {
@@ -650,7 +660,7 @@ class OpencgaVariantInterpretation extends LitElement {
                     // "genotype": "Sample Genotypes",
                 },
                 complexFields: ["genotype"],
-                hiddenFields: []
+                hiddenFields: ["study"]
             },
             genomeBrowser: {
                 showTitle: false
@@ -696,6 +706,18 @@ class OpencgaVariantInterpretation extends LitElement {
                 .jso-label-title {
                     width: 15em !important;
                 }
+                
+                #clinicalAnalysisIdText {
+                    padding: 10px;
+                }
+                
+                .clinical-analysis-id-wrapper {
+                    padding: 20px;
+                }
+                
+                .clinical-analysis-id-wrapper .text-filter-wrapper {
+                    margin: 20px 0;
+                }
             </style>
 
         ${this.checkProjects ? html`
@@ -704,222 +726,227 @@ class OpencgaVariantInterpretation extends LitElement {
                     ${this.clinicalAnalysis ? html`
                         <i class="fa fa-filter" aria-hidden="true" style="padding-left: 10px;padding-right: 10px"></i>&nbsp;${this.config.title} - Case ${this.clinicalAnalysis.id}
                     ` : html`
-                        <i class="fa fa-filter" aria-hidden="true"></i>&nbsp; ${this.config.title}   
+                        <i class="fa fa-filter" aria-hidden="true"></i>&nbsp; ${this.config.title}
                     `}
                 </h2>
             </div>
 
-            <div class="col-md-12" style="padding: 10px 25px 25px 25px">
-                <div class="btn-toolbar " role="toolbar" aria-label="..." >
-                    <!-- Left buttons -->
-                    <div class="btn-group" role="group" aria-label="..." >
-                        <button id="${this._prefix}InteractiveButton" type="button" class="btn btn-success variant-interpretation-view-buttons active ripple" data-view="Interactive" @click="${this.onChangeView}">
-                            <i class="fa fa-filter icon-padding" aria-hidden="true" data-view="Interactive" @click="${this.onChangeView}"></i>Interactive Analysis ${this.counterTitles.rv}
-                        </button>
-                        <button id="${this._prefix}CompoundHeterozygousButton" type="button" class="btn btn-success variant-interpretation-view-buttons ripple" data-view="CompoundHeterozygous" @click="${this.onChangeView}">
-                            <i class="fas fa-random icon-padding" aria-hidden="true" data-view="CompoundHeterozygous" @click="${this.onChangeView}"></i>Compound Heterozygous ${this.counterTitles.ch}
-                        </button>
-                        <button id="${this._prefix}DeNovoButton" type="button" class="btn btn-success variant-interpretation-view-buttons ripple" data-view="DeNovo" @click="${this.onChangeView}">
-                            <i class="fa fa-divide icon-padding" aria-hidden="true" data-view="DeNovo" @click="${this.onChangeView}"></i>de Novo ${this.counterTitles.dn}
-                        </button>
+            ${this.clinicalAnalysis ? html`
+                <div class="col-md-12" style="padding: 10px 25px 25px 25px">
+                    <div class="btn-toolbar " role="toolbar" aria-label="..." >
+                        <!-- Left buttons -->
+                        <div class="btn-group" role="group" aria-label="..." >
+                            <button id="${this._prefix}InteractiveButton" type="button" class="btn btn-success variant-interpretation-view-buttons active ripple" data-view="Interactive" @click="${this.onChangeView}">
+                                <i class="fa fa-filter icon-padding" aria-hidden="true" data-view="Interactive" @click="${this.onChangeView}"></i>Interactive Analysis ${this.counterTitles.rv}
+                            </button>
+                            <button id="${this._prefix}CompoundHeterozygousButton" type="button" class="btn btn-success variant-interpretation-view-buttons ripple" data-view="CompoundHeterozygous" @click="${this.onChangeView}">
+                                <i class="fas fa-random icon-padding" aria-hidden="true" data-view="CompoundHeterozygous" @click="${this.onChangeView}"></i>Compound Heterozygous ${this.counterTitles.ch}
+                            </button>
+                            <button id="${this._prefix}DeNovoButton" type="button" class="btn btn-success variant-interpretation-view-buttons ripple" data-view="DeNovo" @click="${this.onChangeView}">
+                                <i class="fa fa-divide icon-padding" aria-hidden="true" data-view="DeNovo" @click="${this.onChangeView}"></i>de Novo ${this.counterTitles.dn}
+                            </button>
+                        </div>
+    
+                        ${this._config.showOtherTools ? html`
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-success dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa fa-wrench" aria-hidden="true" style="padding-right: 5px"></i> Other Tools <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    <li>
+                                        <a id="${this._prefix}LowCoverageButton" data-view="LowCoverage" @click="${this.onChangeView}" style="cursor: pointer">
+                                            <i class="fa fa-water icon-padding" aria-hidden="true" data-view="LowCoverage" @click="${this.onChangeView}"></i>Low Coverage Regions
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a id="${this._prefix}GenomeBrowserButton" data-view="GenomeBrowser" @click="${this.onChangeView}" data-view="GenomeBrowser" style="cursor: pointer">
+                                            <i class="fa fa-stream icon-padding" aria-hidden="true" data-view="GenomeBrowser" @click="${this.onChangeView}"></i>Genome Browser (Beta)
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        ` : null}
+    
+                        <!-- Right buttons -->
+                        ${this.hasClinicalAnalysis ? html`
+                            <div class="btn-group" role="group" aria-label="..." style="float: right">
+                                <button id="${this._prefix}ClinicalAnalysisButton" type="button" class="btn btn-primary variant-interpretation-view-buttons" data-view="ClinicalAnalysis" @click="${this.onChangeView}">
+                                    <i class="fa fa-user-md icon-padding" aria-hidden="true" data-view="ClinicalAnalysis" @click="${this.onChangeView}"></i>Case Summary
+                                </button>
+                                <button id="${this._prefix}InterpretationEditorButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
+                                        data-view="InterpretationEditor" @click="${this.onChangeView}" .disabled="${this._config.disableSaveInterpretation}">
+                                    <i class="fa fa-save icon-padding" aria-hidden="true" data-view="InterpretationEditor" @click="${this.onChangeView}"></i>Review and Save ${this.counterTitles.total}
+                                </button>
+                            </div>
+                        ` : html`
+                            <div class="btn-group" role="group" aria-label="..." style="float: right">
+                                <button id="${this._prefix}ClinicalAnalysisEditorButton" class="btn btn-primary variant-interpretation-view-buttons" data-view="ClinicalAnalysisEditor" @click="${this.onChangeView}" >
+                                    <i class="fa fa-edit icon-padding" aria-hidden="true" data-view="ClinicalAnalysisEditor" @click="${this.onChangeView}"></i>Clinical Analysis Definition
+                                </button>
+                                <button id="${this._prefix}InterpretationEditorButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
+                                        data-view="InterpretationEditor" @click="${this.onChangeView}" .disabled="${this._config.disableSaveInterpretation}">
+                                    <i class="fa fa-save icon-padding" aria-hidden="true" data-view="InterpretationEditor" @click="${this.onChangeView}"></i>Review and Save ${this.counterTitles.total}
+                                </button>
+                            </div>
+                        `}
                     </div>
-
-                    <!--<div class="btn-group">-->
-                    <!--<button type="button" class="btn btn-success variant-interpretation-view-buttons" data-view="SecondaryFindings" on-click="onChangeView">-->
-                    <!--<i class="fa fa-comment-medical icon-padding" aria-hidden="true" data-view="SecondaryFindings" on-click="onChangeView"></i>Secondary Findings-->
-                    <!--</button>-->
-                    <!--</div>-->
-
-                    ${this._config.showOtherTools ? html`
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-success dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fa fa-wrench" aria-hidden="true" style="padding-right: 5px"></i> Other Tools <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-right">
-                                <li>
-                                    <a id="${this._prefix}LowCoverageButton" data-view="LowCoverage" @click="${this.onChangeView}" style="cursor: pointer">
-                                        <i class="fa fa-water icon-padding" aria-hidden="true" data-view="LowCoverage" @click="${this.onChangeView}"></i>Low Coverage Regions
-                                    </a>
-                                </li>
-                                <li>
-                                    <a id="${this._prefix}GenomeBrowserButton" data-view="GenomeBrowser" @click="${this.onChangeView}" data-view="GenomeBrowser" style="cursor: pointer">
-                                        <i class="fa fa-stream icon-padding" aria-hidden="true" data-view="GenomeBrowser" @click="${this.onChangeView}"></i>Genome Browser (Beta)
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    ` : null}
-
-                    <!-- Right buttons -->
-                    ${this.hasClinicalAnalysis ? html`
-                        <div class="btn-group" role="group" aria-label="..." style="float: right">
-                            <button id="${this._prefix}ClinicalAnalysisButton" type="button" class="btn btn-primary variant-interpretation-view-buttons" data-view="ClinicalAnalysis" @click="${this.onChangeView}">
-                                <i class="fa fa-user-md icon-padding" aria-hidden="true" data-view="ClinicalAnalysis" @click="${this.onChangeView}"></i>Case Summary
-                            </button>
-                            <button id="${this._prefix}InterpretationEditorButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
-                                    data-view="InterpretationEditor" @click="${this.onChangeView}" .disabled="${this._config.disableSaveInterpretation}">
-                                <i class="fa fa-save icon-padding" aria-hidden="true" data-view="InterpretationEditor" @click="${this.onChangeView}"></i>Review and Save ${this.counterTitles.total}
-                            </button>
-                        </div>
-                    ` : html`
-                        <div class="btn-group" role="group" aria-label="..." style="float: right">
-                            <button id="${this._prefix}ClinicalAnalysisEditorButton" class="btn btn-primary variant-interpretation-view-buttons" data-view="ClinicalAnalysisEditor" @click="${this.onChangeView}" >
-                                <i class="fa fa-edit icon-padding" aria-hidden="true" data-view="ClinicalAnalysisEditor" @click="${this.onChangeView}"></i>Clinical Analysis Definition
-                            </button>
-                            <button id="${this._prefix}InterpretationEditorButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
-                                    data-view="InterpretationEditor" @click="${this.onChangeView}" .disabled="${this._config.disableSaveInterpretation}">
-                                <i class="fa fa-save icon-padding" aria-hidden="true" data-view="InterpretationEditor" @click="${this.onChangeView}"></i>Review and Save ${this.counterTitles.total}
-                            </button>
-                        </div>
-                    `}
                 </div>
-            </div>
-
-
-            <!--<div class="row">-->
-            <div class="" style="padding: 0px 10px">
-
-                <!-- SEARCH TABLE RESULT -->
-                <div id="${this._prefix}MainContent" class="">
-                    <!--<template is="dom-if" if="{{interactive}}">-->
-                    <!--                    <div class="col-md-12">-->
-                    <!--                        <h4 id="${this._prefix}Title" class="form-section-title" style="margin: 5px 0px;padding: 0px 10px">-->
-                    <!--                            Interactive Variant Analysis-->
-                    <!--                            <span class='denovo-info-icon' style="color: #337ab7; padding-left: 20px">-->
-                    <!--                        <i class='fa fa-info-circle' aria-hidden='true'></i>-->
-                    <!--                    </span>-->
-                    <!--                        </h4>-->
-                    <!--                    </div>-->
-                    <div id="${this._prefix}Interactive" class="variant-interpretation-content">
-                        <div style="padding: 10px 10px">
-                            <opencga-variant-family-analysis .opencgaSession="${this.opencgaSession}"
-                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                             .query="${this.query}"
-                                                             .config="${this.config}"
-                                                             .cellbaseClient="${this.cellbaseClient}"
-                                                             .consequenceTypes="${this.consequenceTypes}"
-                                                             .populationFrequencies="${this.populationFrequencies}"
-                                                             .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                             mode="interactive"
-                                                             @selectvariant="${this.onSelectVariant}"
-                                                             @checkvariant="${this.onCheckVariant}">
-                            </opencga-variant-family-analysis>
+    
+    
+                <!--<div class="row">-->
+                <div class="" style="padding: 0px 10px">
+    
+                    <!-- SEARCH TABLE RESULT -->
+                    <div id="${this._prefix}MainContent" class="">
+                        <!--<template is="dom-if" if="{{interactive}}">-->
+                        <!--                    <div class="col-md-12">-->
+                        <!--                        <h4 id="${this._prefix}Title" class="form-section-title" style="margin: 5px 0px;padding: 0px 10px">-->
+                        <!--                            Interactive Variant Analysis-->
+                        <!--                            <span class='denovo-info-icon' style="color: #337ab7; padding-left: 20px">-->
+                        <!--                        <i class='fa fa-info-circle' aria-hidden='true'></i>-->
+                        <!--                    </span>-->
+                        <!--                        </h4>-->
+                        <!--                    </div>-->
+                        <div id="${this._prefix}Interactive" class="variant-interpretation-content">
+                            <div style="padding: 10px 10px">
+                                <opencga-variant-family-analysis .opencgaSession="${this.opencgaSession}"
+                                                                 .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                 .query="${this.query}"
+                                                                 .config="${this.config}"
+                                                                 .cellbaseClient="${this.cellbaseClient}"
+                                                                 .consequenceTypes="${this.consequenceTypes}"
+                                                                 .populationFrequencies="${this.populationFrequencies}"
+                                                                 .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                                 mode="interactive"
+                                                                 @selectvariant="${this.onSelectVariant}"
+                                                                 @checkvariant="${this.onCheckVariant}">
+                                </opencga-variant-family-analysis>
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- COMPOUND HETEROZYGOUS -->
-                    <div id="${this._prefix}CompoundHeterozygous" class="variant-interpretation-content" style="display: none">
-                        <div style="padding: 10px 10px">
-                            <opencga-variant-family-analysis .opencgaSession="${this.opencgaSession}"
-                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                             .query="${this.query}"
-                                                             .config="${this.config}"
-                                                             .cellbaseClient="${this.cellbaseClient}"
-                                                             .consequenceTypes="${this.consequenceTypes}"
-                                                             .populationFrequencies="${this.populationFrequencies}"
-                                                             .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                             mode="compoundHeterozygous"
-                                                             @selectvariant="${this.onSelectCompHetVariant}"
-                                                             @checkvariant="${this.onCheckCompHetVariant}">
-                            </opencga-variant-family-analysis>
+    
+                        <!-- COMPOUND HETEROZYGOUS -->
+                        <div id="${this._prefix}CompoundHeterozygous" class="variant-interpretation-content" style="display: none">
+                            <div style="padding: 10px 10px">
+                                <opencga-variant-family-analysis .opencgaSession="${this.opencgaSession}"
+                                                                 .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                 .query="${this.query}"
+                                                                 .config="${this.config}"
+                                                                 .cellbaseClient="${this.cellbaseClient}"
+                                                                 .consequenceTypes="${this.consequenceTypes}"
+                                                                 .populationFrequencies="${this.populationFrequencies}"
+                                                                 .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                                 mode="compoundHeterozygous"
+                                                                 @selectvariant="${this.onSelectCompHetVariant}"
+                                                                 @checkvariant="${this.onCheckCompHetVariant}">
+                                </opencga-variant-family-analysis>
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- DE NOVO -->
-                    <div id="${this._prefix}DeNovo" class="variant-interpretation-content" style="display: none">
-                        <div style="padding: 10px 10px">
-                            <opencga-variant-family-analysis .opencgaSession="${this.opencgaSession}"
-                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                             .query="${this.query}"
-                                                             .config="${this.config}"
-                                                             .cellbaseClient="${this.cellbaseClient}"
-                                                             .consequenceTypes="${this.consequenceTypes}"
-                                                             .populationFrequencies="${this.populationFrequencies}"
-                                                             .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                             mode="deNovo"
-                                                             @selectvariant="${this.onSelectDeNovoVariant}"
-                                                             @checkvariant="${this.onCheckDeNovoVariant}">
-                            </opencga-variant-family-analysis>
+    
+                        <!-- DE NOVO -->
+                        <div id="${this._prefix}DeNovo" class="variant-interpretation-content" style="display: none">
+                            <div style="padding: 10px 10px">
+                                <opencga-variant-family-analysis .opencgaSession="${this.opencgaSession}"
+                                                                 .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                 .query="${this.query}"
+                                                                 .config="${this.config}"
+                                                                 .cellbaseClient="${this.cellbaseClient}"
+                                                                 .consequenceTypes="${this.consequenceTypes}"
+                                                                 .populationFrequencies="${this.populationFrequencies}"
+                                                                 .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                                 mode="deNovo"
+                                                                 @selectvariant="${this.onSelectDeNovoVariant}"
+                                                                 @checkvariant="${this.onCheckDeNovoVariant}">
+                                </opencga-variant-family-analysis>
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- PANEL LOW COVERAGE VIEW -->
-                    <div id="${this._prefix}LowCoverage" class="variant-interpretation-content" style="display: none">
-                        <opencga-panel-transcript-view .opencgaSession="${this.opencgaSession}"
-                                                       .cellbaseClient="${this.cellbaseClient}"
-                                                       .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                       .geneIds="${this.geneIds}"
-                                                       .panelIds="${this.diseasePanelIds}">
-                        </opencga-panel-transcript-view>
-                    </div>
-
-                    <!-- GENOME BROWSER VIEW -->
-                    <div id="${this._prefix}GenomeBrowser" class="variant-interpretation-content" style="display: none">
-                        <opencga-variant-interpreter-genome-browser .opencgaSession="${this.opencgaSession}"
-                                                                    .cellbaseClient="${this.cellbaseClient}"
-                                                                    .samples="${this.samples}"
-                                                                    .query="${this.query}"
-                                                                    .search="${this.search}"
-                                                                    .region="${this.search.region}"
-                                                                    .geneIds="${this.geneIds}"
-                                                                    .panelIds="${this.diseasePanelIds}"
+    
+                        <!-- PANEL LOW COVERAGE VIEW -->
+                        <div id="${this._prefix}LowCoverage" class="variant-interpretation-content" style="display: none">
+                            <opencga-panel-transcript-view .opencgaSession="${this.opencgaSession}"
+                                                           .cellbaseClient="${this.cellbaseClient}"
+                                                           .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                           .geneIds="${this.geneIds}"
+                                                           .panelIds="${this.diseasePanelIds}">
+                            </opencga-panel-transcript-view>
+                        </div>
+    
+                        <!-- GENOME BROWSER VIEW -->
+                        <div id="${this._prefix}GenomeBrowser" class="variant-interpretation-content" style="display: none">
+                            <opencga-variant-interpreter-genome-browser .opencgaSession="${this.opencgaSession}"
+                                                                        .cellbaseClient="${this.cellbaseClient}"
+                                                                        .samples="${this.samples}"
+                                                                        .query="${this.query}"
+                                                                        .search="${this.search}"
+                                                                        .region="${this.search.region}"
+                                                                        .geneIds="${this.geneIds}"
+                                                                        .panelIds="${this.diseasePanelIds}"
+                                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                        .active="${this._genomeBrowserActive}"
+                                                                        .fullScreen="${this.fullScreen}"
+                                                                        .config="${this._config.genomeBrowser}">
+                            </opencga-variant-interpreter-genome-browser>
+                        </div>
+    
+    
+                        <!-- CLINICAL ANALYSIS VIEW -->
+                        <div id="${this._prefix}ClinicalAnalysis" class="variant-interpretation-content" style="padding: 0px 20px;display: none">
+                            <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
+                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                            style="font-size: 12px"
+                                                            .config="${this.config}">
+                            </opencga-clinical-analysis-view>
+                        </div>
+    
+                        <!-- CREATE CLINICAL ANALYSIS TAB -->
+                        <div id="${this._prefix}ClinicalAnalysisEditor" class="variant-interpretation-content" style="display: none">
+                            <!--<div id="${this._prefix}ClinicalAnalysisCreatorWarning" class="col-md-10 col-md-offset-2" style="padding: 20px 10px">-->
+                            <!--<span class="alert alert-warning" role="alert" style="padding: 10px 10px;font-weight: bold;font-size: 1.2em">-->
+                            <!--No valid Clinical Analysis found, please fill the form below to define one case. You can also save it.-->
+                            <!--</span>-->
+                            <!--</div>-->
+                            <div style="padding: 10px 20px">
+                                <opencga-clinical-analysis-editor .opencgaSession="${this.opencgaSession}"
                                                                     .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                    .active="${this._genomeBrowserActive}"
-                                                                    .fullScreen="${this.fullScreen}"
-                                                                    .config="${this._config.genomeBrowser}">
-                        </opencga-variant-interpreter-genome-browser>
-                    </div>
-
-
-                    <!-- CLINICAL ANALYSIS VIEW -->
-                    <div id="${this._prefix}ClinicalAnalysis" class="variant-interpretation-content" style="padding: 0px 20px;display: none">
-                        <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
-                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                        style="font-size: 12px"
-                                                        .config="${this.config}">
-                        </opencga-clinical-analysis-view>
-                    </div>
-
-                    <!-- CREATE CLINICAL ANALYSIS TAB -->
-                    <div id="${this._prefix}ClinicalAnalysisEditor" class="variant-interpretation-content" style="display: none">
-                        <!--<div id="${this._prefix}ClinicalAnalysisCreatorWarning" class="col-md-10 col-md-offset-2" style="padding: 20px 10px">-->
-                        <!--<span class="alert alert-warning" role="alert" style="padding: 10px 10px;font-weight: bold;font-size: 1.2em">-->
-                        <!--No valid Clinical Analysis found, please fill the form below to define one case. You can also save it.-->
-                        <!--</span>-->
-                        <!--</div>-->
-                        <div style="padding: 10px 20px">
-                            <opencga-clinical-analysis-editor .opencgaSession="${this.opencgaSession}"
-                                                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                .config="${this.config.clinicalAnalysisBrowser}"
-                                                                @clinicalanalysischange="${this.onClinicalAnalysisEditor}"
-                                                              >
-                            </opencga-clinical-analysis-editor>
+                                                                    .config="${this.config.clinicalAnalysisBrowser}"
+                                                                    @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
+                                </opencga-clinical-analysis-editor>
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- SAVE INTERPRETATION TAB -->
-                    <div id="${this._prefix}InterpretationEditor" class="variant-interpretation-content" style="display: none">
-                        <div style="padding: 10px 20px">
-                            <!--                                clinical-analysis="{{clinicalAnalysis}}"-->
-                            <!--                                reported-variants="{{checkedVariants}}"-->
-                            <opencga-variant-interpretation-editor .opencgaSession="${this.opencgaSession}"
-                                                                   .cellbaseClient="${this.cellbaseClient}"
-                                                                   .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                   .interpretation="${this.interpretation}"
-                                                                   .populationFrequencies="${this.populationFrequencies}"
-                                                                   .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                                   .consequenceTypes="${this.consequenceTypes}"
-                                                                   .config="${this.config}"
-                                                                   @gene="${this.geneSelected}"
-                                                                   @samplechange="${this.onSampleChange}"
-                                                                   style="font-size: 12px" >
-                            </opencga-variant-interpretation-editor>
+    
+                        <!-- SAVE INTERPRETATION TAB -->
+                        <div id="${this._prefix}InterpretationEditor" class="variant-interpretation-content" style="display: none">
+                            <div style="padding: 10px 20px">
+                                <!--                                clinical-analysis="{{clinicalAnalysis}}"-->
+                                <!--                                reported-variants="{{checkedVariants}}"-->
+                                <opencga-variant-interpretation-editor .opencgaSession="${this.opencgaSession}"
+                                                                       .cellbaseClient="${this.cellbaseClient}"
+                                                                       .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                       .interpretation="${this.interpretation}"
+                                                                       .populationFrequencies="${this.populationFrequencies}"
+                                                                       .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                                       .consequenceTypes="${this.consequenceTypes}"
+                                                                       .config="${this.config}"
+                                                                       @gene="${this.geneSelected}"
+                                                                       @samplechange="${this.onSampleChange}"
+                                                                       style="font-size: 12px" >
+                                </opencga-variant-interpretation-editor>
+                            </div>
                         </div>
+    
                     </div>
-
                 </div>
-                <!--                </div>-->
-            </div>
+            ` : html`
+                <div class="container">
+                    <div class="row">
+                        <div class="clinical-analysis-id-wrapper col-md-6 col-md-offset-3 shadow">
+                            <h3>Clinical Analysis</h3>
+                            <div class="text-filter-wrapper"><input type="text" name="clinicalAnalysisText" id="clinicalAnalysisIdText" value="AN-3"></div>
+                            <button class="btn btn-default ripple" @click="${this.setClinicalAnalysisId}">Search</button>  
+                        </div>
+                    </div>
+                </div>
+
+            `}
         ` : html`
              <div class="guard-page">
                 <i class="fas fa-lock fa-5x"></i>

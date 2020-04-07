@@ -215,7 +215,7 @@ export default class SampleFilter extends LitElement {
             }
 
             //TODO this cause a bug (variant-filter-clinical table is not updated correctly changing GT), but commenting this line the table in sample-filter is not updated on its end (changing active-filters)
-            //this.requestUpdate();
+            this.requestUpdate();
         }
     }
 
@@ -280,7 +280,7 @@ export default class SampleFilter extends LitElement {
                 <div class="modal-dialog" style="width: 1280px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
-                            <h3>Sample and File Filters</h3>
+                            <h3>Samples and Genotypes Filter</h3>
                         </div>
                         <div class="modal-body">
                             <opencga-variant-filter-clinical .opencgaSession="${this.opencgaSession}"

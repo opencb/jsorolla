@@ -19,6 +19,7 @@ import Utils from "./../../utils.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 
+// TODO complete refactor
 
 export default class OpencgaVariantFilterClinical extends LitElement {
 
@@ -100,7 +101,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
             individuals = this.clinicalAnalysis.family.members;
             this.showModeOfInheritance = true;
         } else {
-            if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.proband)) {
+            if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.proband)) {
                 individuals = [this.clinicalAnalysis.proband];
             }
             this.showModeOfInheritance = false;
@@ -111,6 +112,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
 
             // Prepare data to be easier to query
             const _sampleFiltersMap = {};
+            console.log("sampleFilters", this.sampleFilters)
             if (UtilsNew.isNotEmptyArray(this.sampleFilters)) {
                 for (const sampleFilter of this.sampleFilters) {
                     _sampleFiltersMap[sampleFilter.id] = sampleFilter;
@@ -149,8 +151,8 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                     const sample = individual.samples[0];
                     const _sampleFilter = {
                         id: sample.id,
-                        proband: false,
-                        affected: false,
+                        proband: this.clinicalAnalysis.proband && individual.id === this.clinicalAnalysis.proband.id,
+                        affected: this.clinicalAnalysis.disorder && individual.disorders.length ? individual.disorders.some(disorder => disorder.id === this.clinicalAnalysis.disorder.id) : false, // some() returns either true or false, false of the ternary operator is useless
                         sex: individual.sex,
                         // father: (individual.father !== undefined && individual.father.id !== undefined) ? individual.father.id : "-",
                         // mother: (individual.mother !== undefined && individual.mother.id !== undefined) ? individual.mother.id : "-",
@@ -159,18 +161,6 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                         genotypes: (UtilsNew.isNotUndefinedOrNull(_sampleFiltersMap[sample.id])) ? _sampleFiltersMap[sample.id].genotypes : this._config.defaultGenotypes,
                         dp: (UtilsNew.isNotUndefinedOrNull(_sampleFiltersMap[sample.id])) ? _sampleFiltersMap[sample.id].dp : ""
                     };
-
-                    if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.proband) && individual.id === this.clinicalAnalysis.proband.id) {
-                        _sampleFilter.proband = true;
-                    }
-
-                    if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.disorder) && UtilsNew.isNotEmptyArray(individual.disorders)) {
-                        for (const disorder of individual.disorders) {
-                            if (disorder.id === this.clinicalAnalysis.disorder.id) {
-                                _sampleFilter.affected = true;
-                            }
-                        }
-                    }
 
                     _sampleFilters.push(_sampleFilter);
                 }
@@ -309,8 +299,13 @@ export default class OpencgaVariantFilterClinical extends LitElement {
     async onSampleTableChange(e) {
         const table = PolymerUtils.getElementById(this._prefix + "BasicTable");
         let counter = 0;
-
-        for (const row of table.rows) {
+        const {gt, sampleId} = e.target.dataset;
+        console.log("GT", gt, sampleId)
+        console.log("sampleFilters", this.sampleFilters)
+        let sample = this.sampleFilters.find(sample => sample.id === sampleId)
+        sample.genotypes.push(gt)
+        console.log("sampleFilters", this.sampleFilters) //TODO continue
+        /*for (const row of table.rows) {
             if (row.dataset.sample !== undefined) {
                 // Set GT values reading columns 5, 6 and 7
                 this.sampleFilters[counter].genotypes = [];
@@ -328,7 +323,8 @@ export default class OpencgaVariantFilterClinical extends LitElement {
 
                 counter++;
             }
-        }
+        }*/
+        console.log("this.sampleFilters", this.sampleFilters)
         this.sampleFilters = $.extend([], this.sampleFilters);
         //console.log("this.sampleFilters", this.sampleFilters);
         //this.requestUpdate();
@@ -345,11 +341,15 @@ export default class OpencgaVariantFilterClinical extends LitElement {
         this.sampleFiltersChange();
     }
 
+    setSample(e) {
+        this.mode = e.target.value;
+        this.requestUpdate();
+    }
     getDefaultConfig() {
         return {
             // defaultGenotypes: ["0/1", "1/1"],
             defaultGenotypes: [],
-            sexIConMap: {
+            sexIconMap: {
                 MALE: "fa-mars",
                 FEMALE: "fa-venus",
                 UNKNOWN: "fa-genderless"
@@ -363,18 +363,46 @@ export default class OpencgaVariantFilterClinical extends LitElement {
             #opencga-variant-filter-clinical {
                 font-size: 12px;
             }
+            
+/*            #opencga-variant-filter-clinical .checkbox-container input[type=radio]:checked ~ label:before {
+                font-family: "Font Awesome 5 Free";
+                content: "\\f111";        
+            }
+            #opencga-variant-filter-clinical .checkbox-container input[type=radio] {
+                display: none;
+            }*/
+            
+            #segregation-select {
+                width: 200px;
+            }
+    
         </style>
 
         <div id="opencga-variant-filter-clinical" class="row">
 
-            <div class="col-md-12" style="padding: 0px 20px">
-                <h4>Select Sample Filters</h4>
+            <div class="col-md-12">
+                <!--<h4>Select Sample Filters</h4>
                 <div style="padding: 5px 20px">
                     You can select the sample genotypes manually or select a <span style="font-weight: bold;margin: 0px">Mode of Inheritance</span>
                     in the dropdown below the table, this option is only available for Family analysis. Please, notice that if you want to execute a
                     <span style="font-weight: bold;margin: 0px">Compound Heterozygous</span> or <span style="font-weight: bold;margin: 0px">de Novo</span>
                     analysis you can go to the corresponding tools in the analysis toolbar.
+                </div>-->
+
+                <div class="form-check">
+                <div class="form-check-label">
+                    <input id="segregation" value="segregation" name="mode" type="radio" class="magic-radio" @change="${this.setSample}"/>
+                    <label for="segregation" class="">Segregation</label>
+                    ${this.mode === "segregation" ? html`<div id="segregation-select"><select-field-filter .data="${[{id: "CUSTOM", name: "Custom"}, {id: "MONOALLELIC", name: "Autosomal Dominant"}, {id: "BIALLELIC", name: "Autosomal Recessive"}, {id: "XLINKED_MONOALLELIC", name: "X-linked Dominant"}, {id: "XLINKED_BIALLELIC", name: "X-linked Recessive"}, {id: "YLINKED", name: "Y-linked"}]}" .value=${"A"} @filterChange="${e => console.log(e)}"></select-field-filter></div>` : null}
+
+                    <input id="ch" value="ch" name="mode" type="radio" class="magic-radio" @change="${this.setSample}"/>
+                    <label for="ch" class="">Compound Heterozygous</label>
+                    
+                    <input id="denovo" value="denovo" name="mode" type="radio" class="magic-radio" @change="${this.setSample}"/>
+                    <label for="denovo" class="">De Novo</label>
                 </div>
+
+            </div>
                 <div style="padding: 0px 20px">
                     <table id="${this._prefix}BasicTable" class="table table-hover table-no-bordered">
                         <thead>
@@ -388,13 +416,12 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                             <th rowspan="2">Min. Depth</th>
                         </tr>
                         <tr>
-                            <th scope="col" rowspan="2">HOM_REF</th>
-                            <th scope="col" rowspan="2">HET</th>
-                            <th scope="col" rowspan="2">HOM_ALT</th>
+                            <th scope="col">HOM_REF</th>
+                            <th scope="col">HET</th>
+                            <th scope="col">HOM_ALT</th>
                         </tr>
                         </thead>
                         <tbody id="${this._prefix}BasicTBody">
-                           <!-- renderSampleTable() -->
                             ${this.sampleFilters && this.sampleFilters.length ? this.sampleFilters.map(sampleFilter => html`
                                 <tr data-sample="${sampleFilter.id}">
                                     <td style="vertical-align: middle">
@@ -403,8 +430,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                                                     data-toggle="tooltip"
                                                     data-placement="bottom"
                                                     title="">
-                                                        ${sampleFilter.id}
-                                                        <i class='fa ${this._config.sexIConMap[sampleFilter.sex]} fa-lg' style='padding-left: 5px'></i>
+                                                        ${sampleFilter.id} &nbsp; <i class='fa ${this._config.sexIconMap[sampleFilter.sex]} fa-lg'></i>
                                             </span>
                                         </div>
                                     </td>
@@ -429,7 +455,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                                         <span>${sampleFilter.mother}</span>
                                     </td>
                                     <td style="padding-left: 20px">
-                                        <input id="${this._prefix}${sampleFilter.id}00" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/0"
+                                        <input id="${this._prefix}${sampleFilter.id}00" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/0" data-sample-id="${sampleFilter.id}"
                                                .checked="${sampleFilter.genotypes.includes("0/0")}" @change="${this.onSampleTableChange}">
                                     </td>
                                     <td style="padding-left: 20px">
