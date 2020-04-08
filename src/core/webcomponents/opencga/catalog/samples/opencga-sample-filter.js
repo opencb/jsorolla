@@ -26,6 +26,7 @@ import "../../../commons/filters/file-qual-filter.js";
 import "../../../commons/filters/somatic-filter.js";
 import "../../../commons/filters/section-filter.js";
 import "../../../commons/filters/select-token-filter.js";
+import "../../../commons/filters/select-field-filter-autocomplete.js";
 
 
 export default class OpencgaSampleFilter extends LitElement {
@@ -234,13 +235,16 @@ export default class OpencgaSampleFilter extends LitElement {
         let content = "";
         switch (subsection.id) {
             case "id":
-                content = html`<select-token-filter
+                content = html`<!-- <select-token-filter
                                     resource="samples"
                                    .opencgaSession="${this.opencgaSession}"
                                    placeholder="${subsection.placeholder}"
                                    .value="${this.preparedQuery[subsection.id]}"
                                    @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                            </select-token-filter>`;
+                              </select-token-filter> -->
+                              <select-field-filter-autocomplete resource="samples" placeholder="${subsection.placeholder}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter-autocomplete>
+
+`;
                 break;
             case "individual":
             case "source":

@@ -125,7 +125,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
 
             if (this.mode !== "interactive" && UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.roleToProband)) {
                 let _existParent = false;
-                debugger;
+                //debugger;
                 for (const individualId of Object.keys(this.clinicalAnalysis.roleToProband)) {
                     if (this.clinicalAnalysis.roleToProband[individualId] === "FATHER" ||
                         this.clinicalAnalysis.roleToProband[individualId] === "MOTHER") {
@@ -175,7 +175,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
             this.query = {...this.query, ..._query};
         }
         console.log(this.clinicalAnalysis);
-        debugger;
+        //debugger;
     }
 
     queryObserver() {

@@ -194,7 +194,7 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     clinicalObserver(clinicalAnalysis) {
-        debugger
+        //debugger
         if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis)) {
             // this.clinicalAnalysis = Object.assign({}, clinicalAnalysis);
         }

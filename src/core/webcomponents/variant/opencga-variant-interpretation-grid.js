@@ -147,7 +147,7 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
         }
         this.samples = _samples;
         this.individuals = _individuals;
-debugger
+
         // We reset the query object when the session is changed
         if (UtilsNew.isUndefinedOrNull(this.reportedVariants)) {
             this.renderVariantTable();
@@ -351,7 +351,7 @@ debugger
                 },
                 onLoadError: function(status, res) {
                     console.error(res)
-                    debugger;
+
                 },
                 onPageChange: function(page, size) {
                     _this.from = (page - 1) * size + 1;

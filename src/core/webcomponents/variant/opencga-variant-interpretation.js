@@ -275,6 +275,7 @@ class OpencgaVariantInterpretation extends LitElement {
             // this._sampleIds = _sampleIds;
 
             this.hasClinicalAnalysis = true;
+            this.requestUpdate();
         } else {
             this.missingMembersMessage = "Missing clinical analysis";
         }
@@ -777,6 +778,9 @@ class OpencgaVariantInterpretation extends LitElement {
                                         data-view="InterpretationEditor" @click="${this.onChangeView}" .disabled="${this._config.disableSaveInterpretation}">
                                     <i class="fa fa-save icon-padding" aria-hidden="true" data-view="InterpretationEditor" @click="${this.onChangeView}"></i>Review and Save ${this.counterTitles.total}
                                 </button>
+                                
+                                <button> Change Analysis </button>
+                                <button> Close </button>
                             </div>
                         ` : html`
                             <div class="btn-group" role="group" aria-label="..." style="float: right">

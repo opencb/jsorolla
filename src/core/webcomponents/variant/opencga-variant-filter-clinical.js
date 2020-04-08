@@ -297,15 +297,28 @@ export default class OpencgaVariantFilterClinical extends LitElement {
     }
 
     async onSampleTableChange(e) {
+        e.preventDefault()
         const table = PolymerUtils.getElementById(this._prefix + "BasicTable");
         let counter = 0;
         const {gt, sampleId} = e.target.dataset;
         console.log("GT", gt, sampleId)
+        let sampleIndex = this.sampleFilters.findIndex(sample => sample.id === sampleId)
+        console.log("checked", e.target.checked)
+        console.log("sample", sampleIndex)
+
+        if(e.target.checked) {
+            console.log("adding")
+            this.sampleFilters[sampleIndex].genotypes.push(gt);
+        } else {
+            console.log("removing")
+            this.sampleFilters[sampleIndex].genotypes.splice(sample.genotypes.indexOf(gt),1);
+
+        }
+
+        console.log("res", sampleIndex.genotypes)
+
         console.log("sampleFilters", this.sampleFilters)
-        let sample = this.sampleFilters.find(sample => sample.id === sampleId)
-        sample.genotypes.push(gt)
-        console.log("sampleFilters", this.sampleFilters) //TODO continue
-        /*for (const row of table.rows) {
+/*        for (const row of table.rows) {
             if (row.dataset.sample !== undefined) {
                 // Set GT values reading columns 5, 6 and 7
                 this.sampleFilters[counter].genotypes = [];
@@ -325,7 +338,9 @@ export default class OpencgaVariantFilterClinical extends LitElement {
             }
         }*/
         console.log("this.sampleFilters", this.sampleFilters)
-        this.sampleFilters = $.extend([], this.sampleFilters);
+        this.sampleFilters = [...this.sampleFilters];
+        //this.sampleFilters = $.extend([], this.sampleFilters);
+
         //console.log("this.sampleFilters", this.sampleFilters);
         //this.requestUpdate();
 
@@ -338,13 +353,14 @@ export default class OpencgaVariantFilterClinical extends LitElement {
 
         //'console.log("this.sampleFilters",this.sampleFilters);
         await this.requestUpdate();
-        this.sampleFiltersChange();
+        //this.sampleFiltersChange();
     }
 
     setSample(e) {
         this.mode = e.target.value;
         this.requestUpdate();
     }
+
     getDefaultConfig() {
         return {
             // defaultGenotypes: ["0/1", "1/1"],
@@ -376,6 +392,16 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                 width: 200px;
             }
     
+            #opencga-variant-filter-clinical .mode-button > div {
+                margin-right: 20px;
+                display: inline-block;
+                vertical-align: top;
+            }
+            
+            #opencga-variant-filter-clinical .select-field-filter-wrapper {
+                display: inline-block;
+                width: 180px;
+            }
         </style>
 
         <div id="opencga-variant-filter-clinical" class="row">
@@ -390,19 +416,26 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                 </div>-->
 
                 <div class="form-check">
-                <div class="form-check-label">
-                    <input id="segregation" value="segregation" name="mode" type="radio" class="magic-radio" @change="${this.setSample}"/>
-                    <label for="segregation" class="">Segregation</label>
-                    ${this.mode === "segregation" ? html`<div id="segregation-select"><select-field-filter .data="${[{id: "CUSTOM", name: "Custom"}, {id: "MONOALLELIC", name: "Autosomal Dominant"}, {id: "BIALLELIC", name: "Autosomal Recessive"}, {id: "XLINKED_MONOALLELIC", name: "X-linked Dominant"}, {id: "XLINKED_BIALLELIC", name: "X-linked Recessive"}, {id: "YLINKED", name: "Y-linked"}]}" .value=${"A"} @filterChange="${e => console.log(e)}"></select-field-filter></div>` : null}
+                    <div class="form-check-label mode-button">
+                                <div>
+                                    <button class="btn btn-primary ripple ${this.mode === "custom" ? "active" : ""}" value="custom" @click="${this.setSample}">Custom</button>
+                                </div>
 
-                    <input id="ch" value="ch" name="mode" type="radio" class="magic-radio" @change="${this.setSample}"/>
-                    <label for="ch" class="">Compound Heterozygous</label>
-                    
-                    <input id="denovo" value="denovo" name="mode" type="radio" class="magic-radio" @change="${this.setSample}"/>
-                    <label for="denovo" class="">De Novo</label>
+                                <div>
+                                    <button class="btn btn-primary ripple ${this.mode === "segregation" ? "active" : ""}" value="segregation" @click="${this.setSample}">Segregation</button>
+                                    <div class="select-field-filter-wrapper"><select-field-filter ?disabled="${this.mode !== "segregation"}" .data="${[{id: "MONOALLELIC", name: "Autosomal Dominant"}, {id: "BIALLELIC", name: "Autosomal Recessive"}, {id: "XLINKED_MONOALLELIC", name: "X-linked Dominant"}, {id: "XLINKED_BIALLELIC", name: "X-linked Recessive"}, {id: "YLINKED", name: "Y-linked"}]}" .value=${"A"} @filterChange="${e => console.log(e)}"></select-field-filter></div>
+                                </div>
+ 
+                                <div>
+                                    <button class="btn btn-primary ripple ${this.mode === "ch" ? "active" : ""}" value="ch" @click="${this.setSample}">Compound Heterozygous</button>
+                                </div>
+                                <div>
+                                    <button class="btn btn-primary ripple ${this.mode === "denovo" ? "active" : ""}" value="denovo" @click="${this.setSample}">De Novo</button>
+                                </div>
+                    </div>
+
                 </div>
-
-            </div>
+    
                 <div style="padding: 0px 20px">
                     <table id="${this._prefix}BasicTable" class="table table-hover table-no-bordered">
                         <thead>
@@ -423,6 +456,8 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                         </thead>
                         <tbody id="${this._prefix}BasicTBody">
                             ${this.sampleFilters && this.sampleFilters.length ? this.sampleFilters.map(sampleFilter => html`
+
+                           
                                 <tr data-sample="${sampleFilter.id}">
                                     <td style="vertical-align: middle">
                                         <div>
@@ -431,6 +466,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                                                     data-placement="bottom"
                                                     title="">
                                                         ${sampleFilter.id} &nbsp; <i class='fa ${this._config.sexIconMap[sampleFilter.sex]} fa-lg'></i>
+                                                         sampleFilter ${JSON.stringify(sampleFilter)}
                                             </span>
                                         </div>
                                     </td>
@@ -455,15 +491,15 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                                         <span>${sampleFilter.mother}</span>
                                     </td>
                                     <td style="padding-left: 20px">
-                                        <input id="${this._prefix}${sampleFilter.id}00" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/0" data-sample-id="${sampleFilter.id}"
+                                        ${sampleFilter.genotypes.includes("0/0")}<input id="${this._prefix}${sampleFilter.id}00" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/0" data-sample-id="${sampleFilter.id}"
                                                .checked="${sampleFilter.genotypes.includes("0/0")}" @change="${this.onSampleTableChange}">
                                     </td>
                                     <td style="padding-left: 20px">
-                                        <input id="${this._prefix}${sampleFilter.id}01" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/1"
+                                        ${sampleFilter.genotypes.includes("0/1")}<input id="${this._prefix}${sampleFilter.id}01" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/1" data-sample-id="${sampleFilter.id}"
                                                .checked="${sampleFilter.genotypes.includes("0/1")}" @change="${this.onSampleTableChange}">
                                     </td>
                                     <td style="padding-left: 20px">
-                                        <input id="${this._prefix}${sampleFilter.id}11" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="1/1"
+                                        ${sampleFilter.genotypes.includes("1/1")}<input id="${this._prefix}${sampleFilter.id}11" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="1/1" data-sample-id="${sampleFilter.id}"
                                                .checked="${sampleFilter.genotypes.includes("1/1")}" @change="${this.onSampleTableChange}">
                                     </td>
                                     <td style="padding-left: 10px">

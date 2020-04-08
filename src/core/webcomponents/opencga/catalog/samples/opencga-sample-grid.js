@@ -435,7 +435,7 @@ export default class OpencgaSampleGrid extends LitElement {
                             ["Sample ID", "Individual ID", "Source", "Collection Method", "Preparation Method", "Cell Line", "Creation Date", "Status"].join("\t"),
                             ...result.map( _ => [
                                 _.id,
-                                _.attributes && _.attributes.OPENCGA_INDIVIDUAL ? _.attributes.OPENCGA_INDIVIDUAL .id : "",
+                                _.attributes && _.attributes.OPENCGA_INDIVIDUAL ? _.attributes.OPENCGA_INDIVIDUAL.id : "",
                                 _.source,
                                 _.collection && _.collection.method ? _.collection.method : "",
                                 _.processing && _.processing.preparationMethod ? _.processing.preparationMethod : "",

@@ -196,10 +196,12 @@ export default class SampleFilter extends LitElement {
             if (this.clinicalAnalysis.family && this.clinicalAnalysis.family.members) {
                 this.individuals = this.clinicalAnalysis.family.members;
             } else if (this.clinicalAnalysis.proband) {
+                console.log("WTF")
                 this.individuals = this.clinicalAnalysis.proband;
             }
 
             // First, render Genotype table
+            console.warn("sampleGenotypeMap temporarily commented")
             this.sampleGenotypeMap = {};
             if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
                 for (const genotype of this.query.genotype.split(";")) {

@@ -261,6 +261,9 @@ export default class OpencgaJobsDetailsLog extends LitElement {
                     <button type="button" class="btn btn-default btn-small ripple ${this._config.command === "tail" ? "active" : ""}" @click="${() => this.setCommand("tail")}">
                         <i class="fa fa-table icon-padding" aria-hidden="true"></i> Tail
                     </button>
+                    <button type="button" class="btn btn-default btn-small ripple ${this._config.command === "tail-f" ? "active" : ""}" @click="${() => this.setCommand("tail-f")}">
+                        <i class="fa fa-table icon-padding" aria-hidden="true"></i> Tail live
+                    </button>
                 </div>
             </div>
             <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
