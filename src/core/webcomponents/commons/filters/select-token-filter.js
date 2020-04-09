@@ -192,31 +192,56 @@ export default class SelectTokenFilter extends LitElement {
     render() {
         return html`
             <style>
-            .dropzone-wrapper {
-                border: 2px dashed #91b0b3;
-                color: #92b0b3;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                height: 100px;
-            }
-            .dropzone-desc {
-                margin: 0 auto;
-                text-align: center;
-            }
-            .dropzone,
-            .dropzone:focus {
-                position: absolute;
-                outline: none !important;
-                width: 100%;
-                height: 150px;
-                cursor: pointer;
-                opacity: 0;
-            }
-            .dropzone-wrapper:hover,
-            .dropzone-wrapper.dragover {
-                background: #ecf0f5;
-            }
+                .dropdown-item-extra {
+                    font-size: .8em;
+                }
+                
+                .dropdown-item-extra label {
+                    width: 50%;
+                }
+                
+                .selection-list ul {
+                    list-style: none;
+                    margin: 0;
+                    padding: 0;
+                }
+                
+                .selection-list {
+                    border: #d0d0d0 solid 1px;
+                    padding: 5px;
+                    margin-top: 10px;
+                }
+                
+                .dropzone-wrapper {
+                    border: 2px dashed #91b0b3;
+                    color: #92b0b3;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    height: 100px;
+                    position: relative;
+                    cursor: pointer;
+                }
+                
+                .dropzone-desc {
+                    margin: 0 auto;
+                    text-align: center;
+                }
+                
+                .dropzone,
+                .dropzone:focus {
+                    position: absolute;
+                    outline: none !important;
+                    width: 100%;
+                    height: 100px;
+                    cursor: pointer;
+                    opacity: 0;
+                }
+                
+                .dropzone-wrapper:hover,
+                .dropzone-wrapper.dragover {
+                    background: #ecf0f5;
+                }
             </style>
 
         <form action="" method="POST" enctype="multipart/form-data">

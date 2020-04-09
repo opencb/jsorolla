@@ -242,12 +242,14 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                 }
                 
                 .dropzone-wrapper {
-                border: 2px dashed #91b0b3;
-                color: #92b0b3;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                height: 100px;
+                    border: 2px dashed #91b0b3;
+                    color: #92b0b3;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    height: 100px;
+                    position: relative;
+                    cursor: pointer;
                 }
                 
                 .dropzone-desc {
@@ -260,7 +262,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                     position: absolute;
                     outline: none !important;
                     width: 100%;
-                    height: 150px;
+                    height: 100px;
                     cursor: pointer;
                     opacity: 0;
                 }
