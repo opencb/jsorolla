@@ -235,7 +235,7 @@ export default class OpencgaSampleFilter extends LitElement {
         let content = "";
         switch (subsection.id) {
             case "id":
-                content = html`<!-- <select-token-filter
+                content = html`<!--<select-token-filter
                                     resource="samples"
                                    .opencgaSession="${this.opencgaSession}"
                                    placeholder="${subsection.placeholder}"

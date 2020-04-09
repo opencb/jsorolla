@@ -80,7 +80,7 @@ export default class SomaticFilter extends LitElement {
             <form id="${this._prefix}-somatic" class="subsection-content form-group">
                
             <fieldset>
-                <div class="switch-toggle alert text-white alert-light">
+                <div class="switch-toggle text-white">
                     <input id="${this._prefix}-somatic-option-none"
                                    class="form-group-sm ${this._prefix}FilterRadio"
                                    type="radio" name="${this._prefix}-somatic-options" value=""

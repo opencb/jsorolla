@@ -297,24 +297,23 @@ export default class OpencgaDateFilter extends LitElement {
 
         <div class="form-group">
             <form id="${this._prefix}DateRadioButton">
-            <fieldset>
-                <div class="switch-toggle text-white">
-                    <input type="radio" name="selectionButtons" id="${this._prefix}allRadio" value="all" class="${this._prefix}FilterRadio" checked @change="${this.calculateFilters}">
-                    <label for="${this._prefix}allRadio" ><span class="${this._prefix}-text">All</span></label>
-                
-                    <input type="radio" name="selectionButtons" id="${this._prefix}recentlyRadio" value="recently" class="${this._prefix}FilterRadio" @change="${this.calculateFilters}">
-                    <label for="${this._prefix}recentlyRadio" ><span class="${this._prefix}-text">Recent</span></label>
-                
-                    <input type="radio" name="selectionButtons" id="${this._prefix}dateRadio" value="date" class="${this._prefix}FilterRadio" @change="${this.calculateFilters}">
-                    <label for="${this._prefix}dateRadio" ><span class="${this._prefix}-text">Date</span></label>
-                
-                    <input type="radio" name="selectionButtons" id="${this._prefix}rangesRadio" value="range" class="${this._prefix}FilterRadio" @change="${this.calculateFilters}">
-                    <label for="${this._prefix}rangesRadio" ><span class="${this._prefix}-text">Range</span></label>
+                <fieldset class="switch-toggle-wrapper">
+                    <div class="switch-toggle text-white">
+                        <input type="radio" name="selectionButtons" id="${this._prefix}allRadio" value="all" class="${this._prefix}FilterRadio" checked @change="${this.calculateFilters}">
+                        <label for="${this._prefix}allRadio" ><span class="${this._prefix}-text">All</span></label>
                     
+                        <input type="radio" name="selectionButtons" id="${this._prefix}recentlyRadio" value="recently" class="${this._prefix}FilterRadio" @change="${this.calculateFilters}">
+                        <label for="${this._prefix}recentlyRadio" ><span class="${this._prefix}-text">Recent</span></label>
                     
-                    <a class="btn btn-primary ripple btn-small"></a>
-                </div>
-            </fieldset>            
+                        <input type="radio" name="selectionButtons" id="${this._prefix}dateRadio" value="date" class="${this._prefix}FilterRadio" @change="${this.calculateFilters}">
+                        <label for="${this._prefix}dateRadio" ><span class="${this._prefix}-text">Date</span></label>
+             
+                        <input type="radio" name="selectionButtons" id="${this._prefix}rangesRadio" value="range" class="${this._prefix}FilterRadio" @change="${this.calculateFilters}">
+                        <label for="${this._prefix}rangesRadio" ><span class="${this._prefix}-text">Range</span></label>
+                        
+                        <a class="btn btn-primary ripple btn-small"></a>
+                    </div>
+                </fieldset>            
             
                 <div class="date-option-wrapper">
                     ${this.activatedRecent ? html`

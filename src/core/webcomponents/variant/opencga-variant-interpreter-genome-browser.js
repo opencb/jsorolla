@@ -192,7 +192,7 @@ export default class OpencgaVariantInterpreterGenomeBrowser extends LitElement {
     }
 
     toggleCollapsedFilter() {
-        this.set("_filtersCollapsed", !this._filtersCollapsed);
+        this.set("_filtersCollapsed", !this._filtersCollapsed); //TODO adapt litelement
     }
 
     regionObserver() {

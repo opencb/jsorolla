@@ -161,11 +161,11 @@ export default class SelectTokenFilter extends LitElement {
         //console.log(event);
         const input = event.target;
         const reader = new FileReader();
-        /*reader.onload = function() {
+        reader.readAsText(input.files[0]);
+        reader.onload = function() {
             const dataURL = reader.result;
             console.log(dataURL);
-        };*/
-        reader.readAsText(input.files[0]);
+        };
     }
 
 
