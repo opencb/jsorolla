@@ -263,6 +263,7 @@ export default class OpencgaProjects extends LitElement {
             }
         });
     }*/
+
     /*
     projectsChanged() {
         if (UtilsNew.isNotUndefined(this.opencgaClient) && this.opencgaClient instanceof OpenCGAClient &&
@@ -320,13 +321,13 @@ export default class OpencgaProjects extends LitElement {
         console.log("projects", this.projects);
         console.log("this.opencgaSession", this.opencgaSession);
         this.querySelector("#loading").style.display = "block";
-        const sleep = s => new Promise(resolve => setTimeout(() => resolve(), s*1000));
+        const sleep = s => new Promise(resolve => setTimeout(() => resolve(), s * 1000));
         this.errors = "";
 
         const _this = this;
 
         let done = 0;
-        this.projects.forEach( project => {
+        this.projects.forEach(project => {
             // let studyPromises = [];
             console.log("prj", project);
             this.data[project.id] = {
@@ -339,14 +340,12 @@ export default class OpencgaProjects extends LitElement {
                 ],
                 studies: []
             };
-            const catalogStats = _this.opencgaClient.studies().aggregationStats([project.studies.map( study => study.fqn)].join(","), {}).then( response => {
+            const catalogStats = this.opencgaClient.studies().aggregationStats(project.studies.map( study => study.fqn).join(","), {}).then( response => {
                 // handle opencga 1.4 and 2
                 const r = response.getResult(0).results ? response.getResult(0).results[0] : response.getResult(0);
-
-                console.log("R", r);
-
+                //console.log("R", r);
                 const entries = Object.entries(r);
-                console.log("entries", entries);
+                //console.log("entries", entries);
 
                 if (entries.length) {
                     entries.forEach( ([fqn, study]) => {
@@ -387,17 +386,17 @@ export default class OpencgaProjects extends LitElement {
                     this.errors += `Unknown error requiring stats for ${project.name}\n`;
                 }
             }).finally( () => {
-                done++;
-                if (done === this.projects.length) {
+                if (++done === this.projects.length) {
                     this.querySelector("#loading").style.display = "none";
                 }
                 this.requestUpdate();
             });
-            /* _this.opencgaClient.variants().aggregationStats({fields: "studies"}).then(response => {
-                    const r = response.getResult(0).results ? response.getResult(0).results[0] : response.getResult(0);
-                    console.log("variants", r);
-                    _this.variantsCount.update(this.totalCount.variants += r.count);
-            });*/
+
+            this.opencgaClient.variants().aggregationStats({project: project.id, fields: "studies"}).then(response => {
+                const r = response.getResult(0).results ? response.getResult(0).results[0] : response.getResult(0);
+                //console.log("variants", r);
+                this.variantsCount.update(this.totalCount.variants += r.count);
+            });
 
         });
 
@@ -475,14 +474,13 @@ export default class OpencgaProjects extends LitElement {
             subtitle: {
                 text: ""
             },
-            xAxis: {
-            },
+            xAxis: {},
             yAxis: {
                 min: 0,
                 plotLines: [{
                     color: "green",
                     // TODO temp solution. It shows the total count for the first project only (replace this point with a line (no splined))
-                    value: facetData.find( point => point.name === "count").data[0],
+                    value: facetData.find(point => point.name === "count").data[0],
                     width: 1,
                     zIndex: 2
                 }]
@@ -508,6 +506,7 @@ export default class OpencgaProjects extends LitElement {
 
         });
     }
+
     renderTable(studySummaries) {
         this._studies = studySummaries;
     }
@@ -601,27 +600,27 @@ export default class OpencgaProjects extends LitElement {
            
             <div class="v-space"></div>
             <ul class="nav nav-tabs" role="tablist">
-                ${this.data ? Object.entries(this.data).map( (project, i) => html`
-                    <li role="presentation" class="${ i === 0 ? "active" : "" }"><a href="#${project[0]}" @click="${e => console.log(e)}" aria-controls="profile" role="tab" data-toggle="tab">${project[1].name}</a></li>
+                ${this.data ? Object.entries(this.data).map((project, i) => html`
+                    <li role="presentation" class="${i === 0 ? "active" : ""}"><a href="#${project[0]}" @click="${e => console.log(e)}" aria-controls="profile" role="tab" data-toggle="tab">${project[1].name}</a></li>
                 `) : null}
             </ul>
             <pre id="errors" class="alert alert-warning" role="alert" style="display: ${this.errors ? "block" : "none"}">${this.errors}</pre>      
             <div class="tab-content">
-                ${this.data ? Object.entries(this.data).map( ([id, project], i) => html`
-                    <div role="tabpanel" class="tab-pane ${ i===0 ? "active" : "" }" id="${id}">
+                ${this.data ? Object.entries(this.data).map(([id, project], i) => html`
+                    <div role="tabpanel" class="tab-pane ${i === 0 ? "active" : ""}" id="${id}">
                         <div><h4>${project.name} (${project.uuid})</h4></div>
                         ${project.description ? html`<div><label>Description:</label> ${project.description}</div>` : ""}
                         <div class="container-fluid">
                             <div class="row">
-                                ${project.studies ? project.studies.map( study => {
-                                    return html`
+                                ${project.studies ? project.studies.map(study => {
+            return html`
                                         <div class="panel panel-default col-md-12 study-panel">
                                             <div class="panel-body">
                                                 <p class="study-title">Study: ${study.name}</p>
                                                 <p class="study-description">${study.description}</p>
                                             </div>
-                                             ${Object.entries(study.stats).map( ([resource, stat]) => html`
-                                                ${stat.results.map( facetResult => html`
+                                             ${Object.entries(study.stats).map(([resource, stat]) => html`
+                                                ${stat.results.map(facetResult => html`
                                                     <div class="col-md-4">
                                                         <opencga-facet-result-view .facetResult="${facetResult}">
                                                         </opencga-facet-result-view>
@@ -629,7 +628,7 @@ export default class OpencgaProjects extends LitElement {
                                              `)}
                                         </div>
                                         `;
-                                    } ) : "-"}
+        }) : "-"}
                             </div>
                         </div>
                     </div>
@@ -656,14 +655,14 @@ export default class OpencgaProjects extends LitElement {
                     </tr>
                     </thead>
                     <tbody>
-                    ${this._studies && this._studies.length ? this._studies.map( summaries => html`
+                    ${this._studies && this._studies.length ? this._studies.map(summaries => html`
                         <tr>
                             <td rowspan="${summaries.rowspan}" colspan="5">
                                 ${summaries.name}
                                
                             </td>
                         </tr>
-                        ${summaries.studies && summaries.studies.length ? summaries.studies.map( item => html`
+                        ${summaries.studies && summaries.studies.length ? summaries.studies.map(item => html`
                             <tr>
                                 <td>${item.name}</td>
                                 <td>${item.creationDate}</td>

@@ -156,9 +156,9 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 pageList: _this._config.pageList,
                 showExport: _this._config.showExport,
                 detailView: _this._config.detailView,
-                detailFormatter: _this._config.detailFormatter,
+                //detailFormatter: _this._config.detailFormatter,
 
-                // Make Polymer components avalaible to table formatters
+                // Make Polymer components available to table formatters
                 gridContext: _this,
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
@@ -608,6 +608,10 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         // The clinical anlysisi id is in: e.target.dataset.id
     }
 
+    onClick(e, value, row) {
+        console.log(e.target, value, row)
+    }
+
     _initTableColumns() {
         const columns = [];
         if (this._config.multiSelection) {
@@ -722,7 +726,18 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                         valign: "middle",
                         formatter: this.reportFormatter.bind(this),
                         visible: this._config.showReport
-                    }
+                    },
+
+                    {
+                        title: "Manage",
+                        //field: "id",
+                        formatter: "<button class='btn btn-small btn-primary ripple'><i class=\"fas fa-edit\"></i> Edit</button><button class='btn btn-small btn-danger ripple'><i class=\"fas fa-times\"></i> Delete</button>",
+                        valign: "middle",
+                        events: {
+                            'click button': this.onClick.bind(this)
+                        },
+                        visible: !this._config.columns.hidden.includes("manage")
+                    },
                 ])
         ];
 
@@ -766,7 +781,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                                 _.id,
                                 _.proband.id,
                                 _.family.id + "" + _.family.members.length,
-                                _.disorder ? _.disorder.id : "",
+                                _.disorder.id,
                                 _.type,
                                 _.interpretations.join(","),
                                 _.status.name,

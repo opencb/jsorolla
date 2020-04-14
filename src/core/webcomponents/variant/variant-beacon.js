@@ -77,7 +77,7 @@ export default class VariantBeacon extends LitElement {
     }
 
     loadExample() {
-        console.log(this.opencgaSession.project.studies)
+        //console.log(this.opencgaSession.project.studies);
         this.querySelector("#" + this._prefix + "datasetInput").value = this.opencgaSession.project.studies[0].alias;
         this.querySelector("#" + this._prefix + "refNameInput").value = "21";
         this.querySelector("#" + this._prefix + "startInput").value = "46047686";
@@ -87,22 +87,19 @@ export default class VariantBeacon extends LitElement {
 
     execute(e) {
         this.clear = Utils.randomString(4); // Clear beacon network response
-        const queryParams = {
-            chrom: this.querySelector("#" + this._prefix + "refNameInput").value,
-            pos: Number(this.querySelector("#" + this._prefix + "startInput").value) - 1,
-            allele: this.querySelector("#" + this._prefix + "alleleInput").value,
-            beacon: this.opencgaSession.project.alias + ":" + this.querySelector("#" + this._prefix + "datasetInput").value
-        };
+        const chrom = this.querySelector("#" + this._prefix + "refNameInput").value;
+        const pos = Number(this.querySelector("#" + this._prefix + "startInput").value) - 1;
+        const allele = this.querySelector("#" + this._prefix + "alleleInput").value;
+        const beacon = this.opencgaSession.project.alias + ":" + this.querySelector("#" + this._prefix + "datasetInput").value;
 
         if (this.opencgaSession.opencgaClient !== undefined) {
             const _this = this;
-            this.opencgaSession.opencgaClient.ga4gh().responses(queryParams, {})
-                .then(function(response) {
-                    console.log(response)
-                    const exists = response[0].response.toString();
-                    _this.result = exists.charAt(0).toUpperCase() + exists.slice(1);
-                    _this.requestUpdate();
-                });
+            this.opencgaSession.opencgaClient.ga4gh().responses(chrom, pos, allele, beacon).then(function(response) {
+                console.log(response);
+                const exists = response[0].response.toString();
+                _this.result = exists.charAt(0).toUpperCase() + exists.slice(1);
+                _this.requestUpdate();
+            });
         }
     }
 

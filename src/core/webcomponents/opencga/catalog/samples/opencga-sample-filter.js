@@ -242,7 +242,7 @@ export default class OpencgaSampleFilter extends LitElement {
                                    .value="${this.preparedQuery[subsection.id]}"
                                    @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                               </select-token-filter> -->
-                              <select-field-filter-autocomplete resource="samples" placeholder="${subsection.placeholder}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter-autocomplete>
+                              <select-field-filter-autocomplete .fn="${true}" fileUpload resource="samples" placeholder="${subsection.placeholder}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter-autocomplete>
 
 `;
                 break;

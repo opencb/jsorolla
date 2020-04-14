@@ -65,10 +65,10 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
             for (let i = 0; i < this.consequenceTypes.categories.length; i++) {
                 if (typeof this.consequenceTypes.categories[i].terms !== "undefined") {
                     for (let j = 0; j < this.consequenceTypes.categories[i].terms.length; j++) {
-                        consequenceTypeToColor[this.consequenceTypes.categories[i].terms[j].name] = this.consequenceTypes.color[this.consequenceTypes.categories[i].terms[j].impact];
+                        consequenceTypeToColor[this.consequenceTypes.categories[i].terms[j].name] = this.consequenceTypes.style[this.consequenceTypes.categories[i].terms[j].impact];
                     }
                 } else if (typeof this.consequenceTypes.categories[i].id !== "undefined" && typeof this.consequenceTypes.categories[i].name !== "undefined") {
-                    consequenceTypeToColor[this.consequenceTypes.categories[i].name] = this.consequenceTypes.color[this.consequenceTypes.categories[i].impact];
+                    consequenceTypeToColor[this.consequenceTypes.categories[i].name] = this.consequenceTypes.style[this.consequenceTypes.categories[i].impact];
                 }
             }
             this.consequenceTypeToColor = consequenceTypeToColor;

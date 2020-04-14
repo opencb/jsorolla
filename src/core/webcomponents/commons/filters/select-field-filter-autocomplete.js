@@ -19,15 +19,6 @@ import Utils from "./../../../utils.js";
 import UtilsNew from "./../../../utilsNew.js";
 
 
-/** NOTE - Design choice: in case of single mode (this.multiple=false), in order to show the placeholder ("Select an option") and NOT adding a dummy option to allow null selection,
- *  the single selection mode is implemented still with the multiple flag in bootstrap-select, but forcing 1 selection with data-max-options=1
- *  (this has no consequences for the developer point of view)
- *
- *  Usage:
- * <select-field-filter .data="${["A","B","C"]}" .value=${"A"} @filterChange="${e => console.log(e)}"></select-field-filter>
- * <select-field-filter .data="${[{id: "a", name: "A", {id:"b", name: "B"}, {id: "c", name: "C"}]}" .value=${"a"} @filterChange="${e => console.log(e)}"></select-field-filter>
- */
-
 export default class SelectFieldFilterAutocomplete extends LitElement {
 
     constructor() {
@@ -43,6 +34,9 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
 
     static get properties() {
         return {
+            fn: {
+                type: Object
+            },
             opencgaSession: {
                 type: Object
             },
@@ -57,6 +51,9 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
             },
             disabled: {
                 type: Boolean
+            },
+            config: {
+                type: Object
             }
         };
     }
@@ -76,6 +73,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
     firstUpdated() {
         this.input = $(".typeahead", this);
 
+        //MAP result => ({name: result.id, individual: result.attributes && result.attributes.OPENCGA_INDIVIDUAL ? result.attributes.OPENCGA_INDIVIDUAL.id : ""})
         this.input.typeahead({
             source: (query, process) => {
                 const filters = {
@@ -89,6 +87,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                     const results = restResponse.getResults();
                     console.log("results", results);
                     process(results.map(result => ({name: result.id, individual: result.attributes && result.attributes.OPENCGA_INDIVIDUAL ? result.attributes.OPENCGA_INDIVIDUAL.id : ""})));
+                    //process(results);
                 });
             },
             minLength: this._config.searchMinLength,
@@ -96,12 +95,15 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
             displayText: function(item) {
                 return item.name + "<p class=\"dropdown-item-extra\"><label>Individual ID</label>" + item.individual + "</p>";
             },
+            /* displayText: function(item) {
+                return item.id + "<p class=\"dropdown-item-extra\"><label>Individual ID</label>" + (item.attributes && item.attributes.OPENCGA_INDIVIDUAL ? item.attributes.OPENCGA_INDIVIDUAL.id : "") + "</p>";
+            },*/
             highlighter: Object,
             afterSelect: (item) => {
                 this.input.val(item.name).change();
             }
         });
-        this.input.change( () => {
+        this.input.change(() => {
             const current = this.input.typeahead("getActive");
             if (current) {
                 if (current.name === this.input.val()) {
@@ -127,7 +129,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
             $(".typeahead", this).attr("disabled", this.disabled);
         }
         if (_changedProperties.has("value")) {
-            console.log("new value from active filter", this.value)
+            console.log("new value from active filter", this.value);
             this.selectionList = this.value ? this.value.split(",") : [];
             this.requestUpdate();
         }
@@ -165,9 +167,9 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
         this.dispatchEvent(event);
     }
 
-    addTerm(){
+    addTerm() {
         if (this.input.val()) {
-            this.selectionList.push(this.input.val().split(",").filter(_ => _));
+            this.selectionList.push(this.input.val().split(new RegExp("[,;]")).filter(_ => _));
             this.filterChange();
             this.input.val("").change();
             this.requestUpdate();
@@ -184,11 +186,11 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
 
         reader.onload = () => {
             const plain = reader.result;
-            this.selectionList.push(plain.split(",").filter(_ => _));
+            //it handles split on ",", ";", "CR", "LF" and "CRLF"
+            this.selectionList.push(plain.split(/\r\n|\r|\n|,|;/).filter(_ => _));
             $("#file-form").collapse("toggle");
             this.filterChange();
         };
-        //console.log("FILES", e.target.files[0])
         reader.readAsText(e.target.files[0] /*|| e.dataTransfer.files[0]*/);
     }
 
@@ -215,7 +217,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
     }
 
     toggleCollapse(e) {
-        $(e.target.dataset.collapse).collapse("toggle");
+        $(e.currentTarget.dataset.collapse).collapse("toggle");
     }
 
     render() {
@@ -236,7 +238,8 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                 }
                 
                 .selection-list {
-                    border: #d0d0d0 solid 1px;
+                    /*background-color: #eee;
+                    border: 1px solid #ccc;*/
                     padding: 5px;
                     margin-top: 10px;
                 }
@@ -250,6 +253,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                     height: 100px;
                     position: relative;
                     cursor: pointer;
+                    margin-top: 10px;
                 }
                 
                 .dropzone-desc {
@@ -271,26 +275,33 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                 .dropzone-wrapper.dragover {
                     background: #ecf0f5;
                 }
+                
+                .input-group-addon {
+                    border-radius: 0;
+                    cursor:pointer;
+                }
+               
+                .separator {
+                    background: transparent;
+                    border: solid #ccc;
+                    border-width: 0 1px 0 0;
+                    padding: 5px;
+                    cursor: auto;
+                }
+                
             </style>
             <div class="form-group" >
                 <form autocomplete="off" action="javascript:void 0">
                     <div class="input-group">
-                        <input name="sample" id="sample" type="text" class="form-control typeahead" data-provide="typeahead" autocomplete="off" placeholder="${this.placeholder || "Start typing"}">
+                        <input name="sample" id="sample" type="text" class="form-control typeahead" data-provide="typeahead" autocomplete="off" placeholder="${this.placeholder || "Start typing"}" />
                         <span class="input-group-addon" @click="${this.addTerm}">+</span>
+                        ${this._config.fileUpload ? html`<span class="input-group-addon separator"></span>
+                        <span class="input-group-addon" data-collapse="#file-form" @click="${this.toggleCollapse}"> <i class="fas fa-upload"></i> </span>` : ""}
                     </div>
                 </form>
-
-                ${this.selectionList.length ? html`
-                    <div class="selection-list">
-                        <ul>
-                            ${this.selectionList.slice(0, this._config.limitToShow).map(term => html`<li><span class="">${term}</span></li>`)}
-                            ${this.showAll ? this.selectionList.slice(this._config.limitToShow).map(term => html`<li><span class="">${term}</span></li>`) : ""}
-                        </ul>
-                        ${this.selectionList.length > this._config.limitToShow ? html`<button class="btn btn-small ripple" @click="${this.toggleList}">Show ${this.showAll ? "less" : "all"}</button>` : ""}
-                    </div>` : null }
                 
                 ${this._config.fileUpload ? html`
-                    <a class="btn btn-small collapsed" role="button" data-collapse="#file-form" @click="${this.toggleCollapse}"> <i class="fas fa-arrow-alt-circle-down"></i> Upload file</a>
+                    <!-- <a class="btn btn-small collapsed" role="button" data-collapse="#file-form" @click="${this.toggleCollapse}"> <i class="fas fa-arrow-alt-circle-down"></i> Upload file</a> -->
                     <div class="collapse" id="file-form"> 
                         <div class="">
                             <div class="">
@@ -309,6 +320,15 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                         </div>
                     </div>
                 ` : null}
+                
+                ${this.selectionList.length ? html`
+                    <div class="selection-list">
+                        <ul>
+                            ${this.selectionList.slice(0, this._config.limitToShow).map(term => html`<li><span class="badge">${term}</span></li>`)}
+                            ${this.showAll ? this.selectionList.slice(this._config.limitToShow).map(term => html`<li><span class="badge">${term}</span></li>`) : ""}
+                        </ul>
+                        ${this.selectionList.length > this._config.limitToShow ? html`<button class="btn btn-small ripple" @click="${this.toggleList}">Show ${this.showAll ? "less" : "all"}</button>` : ""}
+                    </div>` : null}
             </div>
         `;
     }

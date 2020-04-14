@@ -30,6 +30,7 @@ import "../commons/opencga-active-filters.js";
 import "../opencga/opencga-genome-browser.js";
 import "../clinical/clinical-interpretation-view.js";
 import "./opencga-variant-interpreter-genome-browser.js";
+import "../commons/filters/select-field-filter-autocomplete-simple.js";
 
 
 class OpencgaVariantInterpretation extends LitElement {
@@ -648,6 +649,11 @@ class OpencgaVariantInterpretation extends LitElement {
         }
     }
 
+    onFilterChange(name, value) {
+        this.clinicalAnalysisId = value;
+
+    }
+
     getDefaultConfig() {
         return {
             title: "Variant Interpreter",
@@ -944,8 +950,12 @@ class OpencgaVariantInterpretation extends LitElement {
                     <div class="row">
                         <div class="clinical-analysis-id-wrapper col-md-6 col-md-offset-3 shadow">
                             <h3>Clinical Analysis</h3>
-                            <div class="text-filter-wrapper"><input type="text" name="clinicalAnalysisText" id="clinicalAnalysisIdText" value="AN-3"></div>
-                            <button class="btn btn-default ripple" @click="${this.setClinicalAnalysisId}">Search</button>  
+                            <div class="text-filter-wrapper">
+                                <!--<input type="text" name="clinicalAnalysisText" id="clinicalAnalysisIdText" value="AN-3">-->
+                                <select-field-filter-autocomplete-simple .fn="${true}" resource="clinical-analysis" .value="${"AN-3"}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("clinicalAnalysisId", e.detail.value)}"></select-field-filter-autocomplete-simple>
+                                    
+                            </div>
+                            <button class="btn btn-default ripple" @click="${this.setClinicalAnalysisId}">Search</button>
                         </div>
                     </div>
                 </div>

@@ -81,16 +81,7 @@ export default class VariantBeaconNetwork extends LitElement {
             const _this = this;
             for (let i = 0; i < this._config.hosts.length; i++) {
                 // Beacon network uses zero-based numbering hence (position-1) is used in the url.
-                const url = "https://beacon-network.org/api/responses?allele=" + alternate + "&beacon=[" + _this._config.hosts[i] + "]&chrom=" + chromosome +
-                    "&pos=" + (position - 1) + "&ref=GRCh37";
-
-                // TODO continue
-                /* axios.get(url)
-                    .then( response => {
-                        console.log("rr", response)
-                    })
-                    .catch( e => console.error(e))
-                */
+                const url = `https://beacon-network.org/api/responses?allele=${alternate}&beacon=[${this._config.hosts[i]}]&chrom=${chromosome}&pos=${(position - 1)}&ref=GRCh37`;
                 fetch(url)
                     .then( async res => {
                         if (res.ok) {
@@ -153,13 +144,11 @@ export default class VariantBeaconNetwork extends LitElement {
         
         </style>
 
-        <div id="variant-beacon-network" style="padding: 15px 20px">
-            <div style="padding: 0px 0px 10px 0px">
+        <div id="variant-beacon-network">
+            <div>
+                <p>Beacon Network is a search engine across the world's public beacons. You can find it here <a href="https://beacon-network.org">beacon-network.org</a>.</p>
+                <br>
                 <button class="btn btn-primary ripple" type="button" @click="${this.searchBeaconNetwork}">Search Beacon Network</button>
-                <a data-toggle="tooltip"
-                   title="Beacon Network is a search engine across the world's public beacons. You can find it here - https://beacon-network.org/#/">
-                   <i class="fa fa-info-circle" aria-hidden="true"></i>
-                </a>
             </div>
 
             ${this._config.hosts && this._config.hosts.length && this._config.hosts.map( item => html`
