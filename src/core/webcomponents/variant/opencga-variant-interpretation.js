@@ -200,20 +200,24 @@ class OpencgaVariantInterpretation extends LitElement {
         // TODO tempfix check for clinicalAnalysisId undefined
         // this.clinicalAnalysisId = "AN-3"; return;
 
-        if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotEmpty(this.clinicalAnalysisId)) {
-            const _this = this;
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    // This triggers the call to clinicalAnalysisObserver function below
-                    console.log("response", response);
-                    _this.clinicalAnalysis = response.responses[0].results[0];
+        if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession)) {
+            if (UtilsNew.isNotEmpty(this.clinicalAnalysisId)) {
+                const _this = this;
+                this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                    .then(response => {
+                        // This triggers the call to clinicalAnalysisObserver function below
+                        console.log("response", response);
+                        _this.clinicalAnalysis = response.responses[0].results[0];
 
-                    console.log("clinicalAnalysisIdObserver _this.clinicalAnalysis", _this.clinicalAnalysis);
-                    _this.requestUpdate();
-                })
-                .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
-                });
+                        console.log("clinicalAnalysisIdObserver _this.clinicalAnalysis", _this.clinicalAnalysis);
+                        _this.requestUpdate();
+                    })
+                    .catch(response => {
+                        console.error("An error occurred fetching clinicalAnalysis: ", response);
+                    });
+            } else {
+                this.requestUpdate();
+            }
         }
     }
 
@@ -323,6 +327,11 @@ class OpencgaVariantInterpretation extends LitElement {
     setClinicalAnalysisId() {
         console.log($("#clinicalAnalysisIdText").val());
         this.clinicalAnalysisId = $("#clinicalAnalysisIdText").val();
+    }
+
+    unsetClinicalAnalysis() {
+        this.clinicalAnalysisId = null;
+        this.clinicalAnalysis = null;
     }
 
     /**
@@ -785,8 +794,7 @@ class OpencgaVariantInterpretation extends LitElement {
                                     <i class="fa fa-save icon-padding" aria-hidden="true" data-view="InterpretationEditor" @click="${this.onChangeView}"></i>Review and Save ${this.counterTitles.total}
                                 </button>
                                 
-                                <button> Change Analysis </button>
-                                <button> Close </button>
+                                <button class="btn btn-primary variant-interpretation-view-buttons" @click="${this.unsetClinicalAnalysis}"> <i class="fas fa-window-close"></i> Close Case</button>
                             </div>
                         ` : html`
                             <div class="btn-group" role="group" aria-label="..." style="float: right">

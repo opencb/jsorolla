@@ -28,6 +28,7 @@ export default class OpencgaFileGrid extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -74,6 +75,14 @@ export default class OpencgaFileGrid extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
+    // todo recheck! it was connectedCallback() and ready()
+    firstUpdated(_changedProperties) {
+        this._initTableColumns();
+        this.dispatchEvent(new CustomEvent("clear", {detail: {}, bubbles: true, composed: true}));
+        this.table = PolymerUtils.getElementById(this._prefix + "FileBrowserGrid");
+        this.query = {};
+    }
+
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession") || changedProperties.has("query")) {
             this.renderTable();
@@ -90,26 +99,12 @@ export default class OpencgaFileGrid extends LitElement {
         }
     }
 
-    // todo recheck! it was connectedCallback() and ready()
-    firstUpdated(_changedProperties) {
-        this._initTableColumns();
-        this.dispatchEvent(new CustomEvent("clear", {detail: {}, bubbles: true, composed: true}));
-        this.table = PolymerUtils.getElementById(this._prefix + "FileBrowserGrid");
-        this.query = {};
-    }
-
     configObserver() {
         this._config = Object.assign(this.getDefaultConfig(), this.config);
     }
 
     renderTable() {
         this.files = [];
-
-        // We avoid listing directories in the grid
-        const filters = Object.assign({}, this.query);
-        if (Object.keys(filters).length === 0) {
-            filters["type"] = "FILE";
-        }
 
         this.from = 1;
         this.to = 10;
@@ -134,6 +129,13 @@ export default class OpencgaFileGrid extends LitElement {
                 method: "get",
                 sidePagination: "server",
                 uniqueId: "id",
+                // Table properties
+                pagination: _this._config.pagination,
+                pageSize: _this._config.pageSize,
+                pageList: _this._config.pageList,
+                showExport: _this._config.showExport,
+                detailView: _this._config.detailView,
+                detailFormatter: _this._config.detailFormatter,
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
                     const filters = {
@@ -148,13 +150,7 @@ export default class OpencgaFileGrid extends LitElement {
                     };
                     this.opencgaSession.opencgaClient.files().search(filters).then( res => params.success(res));
                 },
-                // Table properties
-                pagination: _this._config.pagination,
-                pageSize: _this._config.pageSize,
-                pageList: _this._config.pageList,
-                showExport: _this._config.showExport,
-                detailView: _this._config.detailView,
-                detailFormatter: _this._config.detailFormatter,
+
                 responseHandler: function(response) {
                     let _numMatches = _this._numMatches || 0;
                     if (response.getResponse().numMatches >= 0) {
@@ -646,6 +642,7 @@ export default class OpencgaFileGrid extends LitElement {
         <opencb-grid-toolbar .from="${this.from}"
                             .to="${this.to}"
                             .numTotalResultsText="${this.numTotalResultsText}"
+                            @columnchange="${this.onColumnChange}"
                             @download="${this.onDownload}">
         </opencb-grid-toolbar>
 

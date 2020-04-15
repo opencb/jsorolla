@@ -53,6 +53,11 @@ export default class VariantTypeFilter extends LitElement {
         this.requestUpdate();
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
     updated(_changedProperties) {
         if (_changedProperties.has("type")) {
             if (this.type) {

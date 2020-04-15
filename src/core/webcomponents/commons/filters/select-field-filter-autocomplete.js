@@ -86,20 +86,20 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                 this.client().search(filters).then(restResponse => {
                     const results = restResponse.getResults();
                     console.log("results", results);
-                    process(results.map(result => ({name: result.id, individual: result.attributes && result.attributes.OPENCGA_INDIVIDUAL ? result.attributes.OPENCGA_INDIVIDUAL.id : ""})));
+                    //process(results.map(result => ({name: result.id, individual: result.attributes && result.attributes.OPENCGA_INDIVIDUAL ? result.attributes.OPENCGA_INDIVIDUAL.id : ""})));
                     //process(results);
+                    process(results.map(this._config.fields));
                 });
             },
             minLength: this._config.searchMinLength,
             autoSelect: true,
-            displayText: function(item) {
-                return item.name + "<p class=\"dropdown-item-extra\"><label>Individual ID</label>" + item.individual + "</p>";
+            displayText: item => {
+                //return this._config.template(item);
+                //return item.name + "<p class=\"dropdown-item-extra\"><label>Individual ID</label>" + item.individual + "</p>";
+                return item.name + (item.secondary ? Object.entries(item.secondary).map( ([label, value]) => `<p class="dropdown-item-extra"><label>${label}</label> ${value}</p>`) : "");
             },
-            /* displayText: function(item) {
-                return item.id + "<p class=\"dropdown-item-extra\"><label>Individual ID</label>" + (item.attributes && item.attributes.OPENCGA_INDIVIDUAL ? item.attributes.OPENCGA_INDIVIDUAL.id : "") + "</p>";
-            },*/
             highlighter: Object,
-            afterSelect: (item) => {
+            afterSelect: item => {
                 this.input.val(item.name).change();
             }
         });
@@ -209,7 +209,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
     getDefaultConfig() {
         return {
             limit: 10,
-            searchMinLength: 3,
+            searchMinLength: 1,
             maxItems: 0,
             limitToShow: 20,
             fileUpload: true
@@ -226,24 +226,24 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                 .dropdown-item-extra {
                     font-size: .8em;
                 }
-                
+
                 .dropdown-item-extra label {
                     width: 50%;
                 }
-                
+
                 .selection-list ul {
                     list-style: none;
                     margin: 0;
                     padding: 0;
                 }
-                
+
                 .selection-list {
                     /*background-color: #eee;
                     border: 1px solid #ccc;*/
                     padding: 5px;
                     margin-top: 10px;
                 }
-                
+
                 .dropzone-wrapper {
                     border: 2px dashed #91b0b3;
                     color: #92b0b3;
@@ -255,12 +255,12 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                     cursor: pointer;
                     margin-top: 10px;
                 }
-                
+
                 .dropzone-desc {
                     margin: 0 auto;
                     text-align: center;
                 }
-                
+
                 .dropzone,
                 .dropzone:focus {
                     position: absolute;
@@ -270,39 +270,46 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                     cursor: pointer;
                     opacity: 0;
                 }
-                
+
                 .dropzone-wrapper:hover,
                 .dropzone-wrapper.dragover {
                     background: #ecf0f5;
                 }
-                
-                .input-group-addon {
+
+                .select-field-filter-autocomplete .input-group-addon {
                     border-radius: 0;
                     cursor:pointer;
+                    padding: 6px 9px;
                 }
-               
-                .separator {
+
+                .select-field-filter-autocomplete .separator {
                     background: transparent;
                     border: solid #ccc;
                     border-width: 0 1px 0 0;
                     padding: 5px;
                     cursor: auto;
                 }
-                
+
+                .badge.break-spaces {
+                    text-align: left;
+                    white-space: break-spaces;
+                    word-break: break-all;
+                }
+
             </style>
-            <div class="form-group" >
+            <div class="form-group select-field-filter-autocomplete">
                 <form autocomplete="off" action="javascript:void 0">
                     <div class="input-group">
-                        <input name="sample" id="sample" type="text" class="form-control typeahead" data-provide="typeahead" autocomplete="off" placeholder="${this.placeholder || "Start typing"}" />
-                        <span class="input-group-addon" @click="${this.addTerm}">+</span>
+                        <input name="sample" type="text" class="form-control input-sm typeahead" data-provide="typeahead" autocomplete="off" placeholder="${this.placeholder || "Start typing"}" />
+                        <span class="input-group-addon" @click="${this.addTerm}"><i class="fas fa-plus"></i></span>
                         ${this._config.fileUpload ? html`<span class="input-group-addon separator"></span>
-                        <span class="input-group-addon" data-collapse="#file-form" @click="${this.toggleCollapse}"> <i class="fas fa-upload"></i> </span>` : ""}
+                        <span class="input-group-addon" data-collapse="#${this._prefix}file-form" @click="${this.toggleCollapse}"><i class="fas fa-upload"></i></span>` : ""}
                     </div>
                 </form>
-                
+
                 ${this._config.fileUpload ? html`
                     <!-- <a class="btn btn-small collapsed" role="button" data-collapse="#file-form" @click="${this.toggleCollapse}"> <i class="fas fa-arrow-alt-circle-down"></i> Upload file</a> -->
-                    <div class="collapse" id="file-form"> 
+                    <div class="collapse" id="${this._prefix}file-form">
                         <div class="">
                             <div class="">
                                 <form action="" method="POST" enctype="multipart/form-data">
@@ -316,7 +323,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                                         </div>
                                     </div>
                                 </form>
-                            </div>                                
+                            </div>
                         </div>
                     </div>
                 ` : null}
@@ -324,8 +331,8 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                 ${this.selectionList.length ? html`
                     <div class="selection-list">
                         <ul>
-                            ${this.selectionList.slice(0, this._config.limitToShow).map(term => html`<li><span class="badge">${term}</span></li>`)}
-                            ${this.showAll ? this.selectionList.slice(this._config.limitToShow).map(term => html`<li><span class="badge">${term}</span></li>`) : ""}
+                            ${this.selectionList.slice(0, this._config.limitToShow).map(term => html`<li><span class="badge break-spaces">${term}</span></li>`)}
+                            ${this.showAll ? this.selectionList.slice(this._config.limitToShow).map(term => html`<li><span class="badge break-spaces">${term}</span></li>`) : ""}
                         </ul>
                         ${this.selectionList.length > this._config.limitToShow ? html`<button class="btn btn-small ripple" @click="${this.toggleList}">Show ${this.showAll ? "less" : "all"}</button>` : ""}
                     </div>` : null}

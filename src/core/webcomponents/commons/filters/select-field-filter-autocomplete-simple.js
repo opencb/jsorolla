@@ -66,7 +66,6 @@ export default class SelectFieldFilterAutocompleteSimple extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-
     firstUpdated() {
         this.input = $(".typeahead", this);
 
@@ -97,7 +96,7 @@ export default class SelectFieldFilterAutocompleteSimple extends LitElement {
             },*/
             highlighter: Object,
             afterSelect: item => {
-                this.input.val(item.id).change();
+                this.input.val(item.name).change();
             }
         });
         this.input.change(() => {
@@ -155,7 +154,7 @@ export default class SelectFieldFilterAutocompleteSimple extends LitElement {
     }
 
     filterChange() {
-        this.value = this.input.val() ?? null; // this allows the users to get the selected values using DOMElement.value
+        this.value = this.input.val() ? this.input.val() : null; // this allows the users to get the selected values using DOMElement.value
         console.log("select filterChange", this.value);
         const event = new CustomEvent("filterChange", {
             detail: {

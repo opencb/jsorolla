@@ -73,28 +73,33 @@ export default class OpencgaSampleGrid extends LitElement {
         }
         if (changedProperties.has("opencgaSession") ||
             changedProperties.has("query") ||
-            changedProperties.has("config") ||
             changedProperties.has("active")) {
-            this.propertyObserver();
+            //this.propertyObserver();
+        }
+
+        if (changedProperties.has("config")) {
+            this.configObserver();
         }
     }
 
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
-        this._config = Object.assign(this.getDefaultConfig(), this.config);
-        this._columns = this._initTableColumns();
+        //this._config = Object.assign(this.getDefaultConfig(), this.config);
+        //this._columns = this._initTableColumns();
 
         // Config for the grid toolbar
         this.toolbarConfig = {
             columns: this._columns[0]
         };
 
-        this.renderTable();
+        //this.renderTable();
+    }
+
+    configObserver() {
+        this._config = Object.assign(this.getDefaultConfig(), this.config);
     }
 
     renderTable() {
-        this.opencgaClient = this.opencgaSession.opencgaClient;
-
         this.samples = [];
 
         const filters = {...this.query};
@@ -102,17 +107,13 @@ export default class OpencgaSampleGrid extends LitElement {
         this.from = 1;
         this.to = 10;
 
-        if (this.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
-
-
-            //TODO replicate this in all browser
+        if (this.opencgaSession.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
+            //TODO fix and replicate this in all browsers (the current filter is not "filters", it is actually built in the ajax() function in bootstrapTable)
             if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
                 JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
                 // Abort destroying and creating again the grid. The filters have not changed
                 return;
             }
-            // Store the current filters
-            this.lastFilters = {...filters};
 
             // Make a copy of the samples (if they exist), we will use this private copy until it is assigned to this.samples
             if (UtilsNew.isNotUndefined(this.samples)) {
@@ -131,7 +132,6 @@ export default class OpencgaSampleGrid extends LitElement {
                 method: "get",
                 sidePagination: "server",
                 uniqueId: "id",
-
                 // Table properties
                 pagination: _this._config.pagination,
                 pageSize: _this._config.pageSize,
@@ -149,6 +149,8 @@ export default class OpencgaSampleGrid extends LitElement {
                         count: !_table.bootstrapTable("getOptions").pageNumber || _table.bootstrapTable("getOptions").pageNumber === 1,
                         ...filters
                     };
+                    // Store the current filters
+                    this.lastFilters = {..._filters};
                     this.opencgaSession.opencgaClient.samples().search(_filters).then( res => params.success(res));
                 },
                 responseHandler: function(response) {
@@ -417,7 +419,7 @@ export default class OpencgaSampleGrid extends LitElement {
             limit: 1000,
             skip: 0,
             includeIndividual: true,
-            skipCount: true,
+            count: false,
             include: "id,source,collection,processing,creationDate,status,type,version,release,individual.id"
         };
 
