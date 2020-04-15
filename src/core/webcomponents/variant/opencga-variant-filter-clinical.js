@@ -70,10 +70,10 @@ export default class OpencgaVariantFilterClinical extends LitElement {
             this.clinicalAnalysisObserver();
         }
         if (changedProperties.has("query")) {
-            //this.queryObserver();
+            this.queryObserver();
         }
         if (changedProperties.has("config")) {
-            this.configObserver();
+            //this.configObserver();
         }
     }
 
@@ -97,6 +97,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
 
         // We read Individuals from Clinical Analysis
         let individuals = [];
+
         if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family.members)) {
             individuals = this.clinicalAnalysis.family.members;
             this.showModeOfInheritance = true;
@@ -174,7 +175,10 @@ export default class OpencgaVariantFilterClinical extends LitElement {
         // this.renderSampleTable();
         this.sampleFilters = $.extend([], this.sampleFilters);
         //this.requestUpdate();
-        this.sampleFiltersChange();
+
+        // TODO temp commented
+        console.warn("sampleFiltersChange")
+        //this.sampleFiltersChange();
     }
 
     /**
@@ -224,18 +228,6 @@ export default class OpencgaVariantFilterClinical extends LitElement {
     sampleFiltersChange() {
         // let compHet = false;
         let missing = this.querySelector("#" + this._prefix + "MissingCheckbox").checked;
-
-        // File Filters
-        // let _qual = undefined;
-        // if (UtilsNew.isNotUndefinedOrNull(PolymerUtils.getElementById(this._prefix + "FileFilterQualCheckbox"))
-        //     && PolymerUtils.getElementById(this._prefix + "FileFilterQualCheckbox").checked) {
-        //     _qual = PolymerUtils.getElementById(this._prefix + "FileFilterQualInput").value;
-        // }
-        // let _filter = undefined;
-        // if (UtilsNew.isNotUndefinedOrNull(PolymerUtils.getElementById(this._prefix + "FileFilterPass"))
-        //     && PolymerUtils.getElementById(this._prefix + "FileFilterPass").checked) {
-        //     _filter = "PASS";
-        // }
 
         // Notify the sample change
         this.dispatchEvent(new CustomEvent("sampleFiltersChange", {
@@ -306,18 +298,17 @@ export default class OpencgaVariantFilterClinical extends LitElement {
         console.log("checked", e.target.checked)
         console.log("sample", sampleIndex)
 
-        if(e.target.checked) {
-            console.log("adding")
-            this.sampleFilters[sampleIndex].genotypes.push(gt);
-        } else {
-            console.log("removing")
-            this.sampleFilters[sampleIndex].genotypes.splice(sample.genotypes.indexOf(gt),1);
+        console.log("sampleFilters before", this.sampleFilters)
 
+        if(e.target.checked) {
+            this.sampleFilters[sampleIndex].genotypes.push(gt);
+            //console.log("added", this.sampleFilters[sampleIndex].genotypes);
+        } else {
+            this.sampleFilters[sampleIndex].genotypes.splice(this.sampleFilters[sampleIndex].genotypes.indexOf(gt),1);
+            //console.log("removed", this.sampleFilters[sampleIndex].genotypes);
         }
 
-        console.log("res", sampleIndex.genotypes)
-
-        console.log("sampleFilters", this.sampleFilters)
+        console.log("sampleFilters after", this.sampleFilters)
 /*        for (const row of table.rows) {
             if (row.dataset.sample !== undefined) {
                 // Set GT values reading columns 5, 6 and 7
@@ -337,9 +328,10 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                 counter++;
             }
         }*/
+
         console.log("this.sampleFilters", this.sampleFilters)
         this.sampleFilters = [...this.sampleFilters];
-        //this.sampleFilters = $.extend([], this.sampleFilters);
+        //this.sampleFilters = $.extend(true, [], this.sampleFilters);
 
         //console.log("this.sampleFilters", this.sampleFilters);
         //this.requestUpdate();
@@ -353,7 +345,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
 
         //'console.log("this.sampleFilters",this.sampleFilters);
         await this.requestUpdate();
-        //this.sampleFiltersChange();
+        this.sampleFiltersChange();
     }
 
     setSample(e) {
@@ -417,26 +409,22 @@ export default class OpencgaVariantFilterClinical extends LitElement {
 
                 <div class="form-check">
                     <div class="form-check-label mode-button">
-                                <div>
-                                    <button class="btn btn-primary ripple ${this.mode === "custom" ? "active" : ""}" value="custom" @click="${this.setSample}">Custom</button>
-                                </div>
-
-                                <div>
-                                    <button class="btn btn-primary ripple ${this.mode === "segregation" ? "active" : ""}" value="segregation" @click="${this.setSample}">Segregation</button>
-                                    <div class="select-field-filter-wrapper"><select-field-filter ?disabled="${this.mode !== "segregation"}" .data="${[{id: "MONOALLELIC", name: "Autosomal Dominant"}, {id: "BIALLELIC", name: "Autosomal Recessive"}, {id: "XLINKED_MONOALLELIC", name: "X-linked Dominant"}, {id: "XLINKED_BIALLELIC", name: "X-linked Recessive"}, {id: "YLINKED", name: "Y-linked"}]}" .value=${"A"} @filterChange="${e => console.log(e)}"></select-field-filter></div>
-                                </div>
- 
-                                <div>
-                                    <button class="btn btn-primary ripple ${this.mode === "ch" ? "active" : ""}" value="ch" @click="${this.setSample}">Compound Heterozygous</button>
-                                </div>
-                                <div>
-                                    <button class="btn btn-primary ripple ${this.mode === "denovo" ? "active" : ""}" value="denovo" @click="${this.setSample}">De Novo</button>
-                                </div>
+                        <div>
+                            <button class="btn btn-default ripple ${this.mode === "custom" ? "active" : ""}" value="custom" @click="${this.setSample}">Custom</button>
+                        </div>
+                        <div>
+                            <button class="btn btn-default ripple ${this.mode === "segregation" ? "active" : ""}" value="segregation" @click="${this.setSample}">Segregation</button>
+                            <div class="select-field-filter-wrapper"><select-field-filter ?disabled="${this.mode !== "segregation"}" .data="${[{id: "MONOALLELIC", name: "Autosomal Dominant"}, {id: "BIALLELIC", name: "Autosomal Recessive"}, {id: "XLINKED_MONOALLELIC", name: "X-linked Dominant"}, {id: "XLINKED_BIALLELIC", name: "X-linked Recessive"}, {id: "YLINKED", name: "Y-linked"}]}" .value=${"A"} @filterChange="${e => console.log(e)}"></select-field-filter></div>
+                        </div>
+                        <div>
+                            <button class="btn btn-default ripple ${this.mode === "ch" ? "active" : ""}" value="ch" @click="${this.setSample}">Compound Heterozygous</button>
+                        </div>
+                        <div>
+                            <button class="btn btn-default ripple ${this.mode === "denovo" ? "active" : ""}" value="denovo" @click="${this.setSample}">De Novo</button>
+                        </div>
                     </div>
-
                 </div>
-    
-                <div style="padding: 0px 20px">
+                <div>
                     <table id="${this._prefix}BasicTable" class="table table-hover table-no-bordered">
                         <thead>
                         <tr>
@@ -456,17 +444,13 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                         </thead>
                         <tbody id="${this._prefix}BasicTBody">
                             ${this.sampleFilters && this.sampleFilters.length ? this.sampleFilters.map(sampleFilter => html`
-
-                           
                                 <tr data-sample="${sampleFilter.id}">
                                     <td style="vertical-align: middle">
                                         <div>
-                                            <span   style="${(sampleFilter.affected ? "color: darkred;" : "font-weight: normal;")}${sampleFilter.proband ? "font-weight: bold" : ""}"
-                                                    data-toggle="tooltip"
-                                                    data-placement="bottom"
-                                                    title="">
-                                                        ${sampleFilter.id} &nbsp; <i class='fa ${this._config.sexIconMap[sampleFilter.sex]} fa-lg'></i>
-                                                         sampleFilter ${JSON.stringify(sampleFilter)}
+                                            <span style="${(sampleFilter.affected ? "color: darkred;" : "font-weight: normal;")}${sampleFilter.proband ? "font-weight: bold" : ""}"
+                                                  data-toggle="tooltip"
+                                                  data-placement="bottom">
+                                                ${sampleFilter.id} &nbsp; <i class='fa ${this._config.sexIconMap[sampleFilter.sex]} fa-lg'></i>
                                             </span>
                                         </div>
                                     </td>
@@ -482,7 +466,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                                         ${sampleFilter.affected ? html`
                                             <span data-toggle="tooltip" data-placement="bottom" title="Affected"><i class='fa fa-check' style='color: green'></i></span>` : html`
                                             <span><i class='fa fa-times' style='color: red'></i></span>`
-}
+                                        }
                                     </td>
                                     <td style="padding-left: 20px">
                                         <span>${sampleFilter.father}</span>
@@ -491,15 +475,15 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                                         <span>${sampleFilter.mother}</span>
                                     </td>
                                     <td style="padding-left: 20px">
-                                        ${sampleFilter.genotypes.includes("0/0")}<input id="${this._prefix}${sampleFilter.id}00" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/0" data-sample-id="${sampleFilter.id}"
+                                        <input id="${this._prefix}${sampleFilter.id}00" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/0" data-sample-id="${sampleFilter.id}"
                                                .checked="${sampleFilter.genotypes.includes("0/0")}" @change="${this.onSampleTableChange}">
                                     </td>
                                     <td style="padding-left: 20px">
-                                        ${sampleFilter.genotypes.includes("0/1")}<input id="${this._prefix}${sampleFilter.id}01" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/1" data-sample-id="${sampleFilter.id}"
+                                        <input id="${this._prefix}${sampleFilter.id}01" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/1" data-sample-id="${sampleFilter.id}"
                                                .checked="${sampleFilter.genotypes.includes("0/1")}" @change="${this.onSampleTableChange}">
                                     </td>
                                     <td style="padding-left: 20px">
-                                        ${sampleFilter.genotypes.includes("1/1")}<input id="${this._prefix}${sampleFilter.id}11" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="1/1" data-sample-id="${sampleFilter.id}"
+                                        <input id="${this._prefix}${sampleFilter.id}11" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="1/1" data-sample-id="${sampleFilter.id}"
                                                .checked="${sampleFilter.genotypes.includes("1/1")}" @change="${this.onSampleTableChange}">
                                     </td>
                                     <td style="padding-left: 10px">
@@ -509,8 +493,6 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                                     </td>
                                 </tr>
                              `) : ""}
-                           
-                           
                         </tbody>
                     </table>
                 </div>

@@ -636,16 +636,12 @@ export default class OpencgaFileGrid extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles"></style>
-
-
         <opencb-grid-toolbar .from="${this.from}"
                             .to="${this.to}"
                             .numTotalResultsText="${this.numTotalResultsText}"
                             @columnchange="${this.onColumnChange}"
                             @download="${this.onDownload}">
         </opencb-grid-toolbar>
-
         <div id="${this._prefix}GridTableDiv">
             <table id="${this._prefix}FileBrowserGrid">
             </table>

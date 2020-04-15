@@ -57,6 +57,18 @@ export class RestClientXmlhttp {
 
     static call(url, options) {
         //console.log("REMOTE", url, options)
+        const eventFire = new CustomEvent("request", {
+            detail: {
+                value: url
+            }
+        });
+        const eventDone = new CustomEvent("response", {
+            detail: {
+                value: url
+            }
+        });
+        globalThis.dispatchEvent(eventFire);
+
         let method = "GET";
         let async = true;
         if (typeof options !== "undefined") {
@@ -88,18 +100,21 @@ export class RestClientXmlhttp {
                             options.success(dataResponse);
                         }
                         console.timeEnd(`REST call to ${url}`);
+                        globalThis.dispatchEvent(eventDone);
                         resolve( new RestResponse(dataResponse));
                     } else if (contentType.startsWith("text/plain")) {
+                        globalThis.dispatchEvent(eventDone);
                         resolve(this.response);
 
                     } else if (contentType.startsWith("application/octet-stream")) {
+                        globalThis.dispatchEvent(eventDone);
                         resolve(this.response);
-
                     }  else {
                         console.log(`Result is not JSON: ${this.response}`);
                     }
                 } else {
                     console.error(`REST call to URL failed: '${url}'`);
+                    globalThis.dispatchEvent(eventDone);
                     //TODO check this. it assumes in case of error a RestResponse shaped json is returned in any case
                     reject(new RestResponse(JSON.parse(request.response)));
                 }

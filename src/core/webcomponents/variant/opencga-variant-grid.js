@@ -700,7 +700,7 @@ export default class OpencgaVariantGrid extends LitElement {
                 }
             }
             return this.field.context.variantGridFormatter.createCohortStatsTable(this.field.cohorts, cohortStats,
-                this.field.context.populationFrequencies.color);
+                this.field.context.populationFrequencies.style);
         } else {
             return "-";
         }
@@ -717,7 +717,7 @@ export default class OpencgaVariantGrid extends LitElement {
             }
 
             return this.field.context.variantGridFormatter.createPopulationFrequenciesTable(this.field.populations,
-                popFreqMap, this.field.context.populationFrequencies.color);
+                popFreqMap, this.field.context.populationFrequencies.style);
         } else {
             return "-";
         }
@@ -1052,7 +1052,7 @@ export default class OpencgaVariantGrid extends LitElement {
                     field: {
                         study: cohortStudies[i],
                         cohorts: this.cohorts[this.opencgaSession.project.id][cohortStudies[i]],
-                        colors: this.populationFrequencies.color,
+                        colors: this.populationFrequencies.style,
                         context: this
                     },
                     rowspan: 1,
@@ -1090,7 +1090,7 @@ export default class OpencgaVariantGrid extends LitElement {
                         study: this.populationFrequencies.studies[j].id,
                         populations: populations,
                         populationMap: populationMap,
-                        colors: this.populationFrequencies.color,
+                        colors: this.populationFrequencies.style,
                         context: this
                     },
                     rowspan: 1,

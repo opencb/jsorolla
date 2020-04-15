@@ -23,6 +23,7 @@ import "../opencga-date-filter.js";
 import "../../../commons/filters/text-field-filter.js";
 import "../../../commons/filters/select-field-filter.js";
 import "../../../commons/filters/select-token-filter.js";
+import "../../../commons/filters/file-name-autocomplete.js";
 
 export default class OpencgaFileFilter extends LitElement {
 
@@ -264,6 +265,8 @@ export default class OpencgaFileFilter extends LitElement {
         let content = "";
         switch (subsection.id) {
             case "name":
+                content = html`<file-name-autocomplete .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></file-name-autocomplete>`
+                break;
             case "path":
             case "sample":
             case "bioformat":

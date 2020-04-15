@@ -461,10 +461,12 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
         this.to = Math.min(this.reportedVariants.length, this._config.pageSize);
         this.numTotalResultsText = this.reportedVariants.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
+        const _table = $("#" + this._prefix + "VariantBrowserGrid");
+
         this._columns = this._createDefaultColumns();
         const _this = this;
-        $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable("destroy");
-        $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable({
+        _table.bootstrapTable("destroy");
+        _table.bootstrapTable({
             data: _this.reportedVariants,
             columns: _this._columns,
             sidePagination: "local",
@@ -808,7 +810,7 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
                 cohortMap.set(s, Number(study.stats[0].altAlleleFreq).toFixed(4));
             }
 
-            return this.variantGridFormatter.createPopulationFrequenciesTable(cohorts, cohortMap, this.populationFrequencies.color);
+            return this.variantGridFormatter.createPopulationFrequenciesTable(cohorts, cohortMap, this.populationFrequencies.style);
         } else {
             return "-";
         }
@@ -823,7 +825,7 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
                 }
             }
             return this.variantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies,
-                popFreqMap, this.populationFrequencies.color);
+                popFreqMap, this.populationFrequencies.style);
         } else {
             return "-";
         }

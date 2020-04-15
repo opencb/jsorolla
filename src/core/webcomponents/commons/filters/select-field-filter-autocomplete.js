@@ -80,8 +80,9 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
                     count: false,
+                    ...this._config.query,
                     // include: "id,individual.id",
-                    id: "^" + query.toUpperCase()
+                    [this._config.searchOn || "id"]: "^" + query.toUpperCase()
                 };
                 this.client().search(filters).then(restResponse => {
                     const results = restResponse.getResults();
@@ -228,7 +229,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                 }
 
                 .dropdown-item-extra label {
-                    width: 50%;
+                    margin-right: 10px;
                 }
 
                 .selection-list ul {
@@ -286,7 +287,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                     background: transparent;
                     border: solid #ccc;
                     border-width: 0 1px 0 0;
-                    padding: 5px;
+                    padding: 3px;
                     cursor: auto;
                 }
 
@@ -294,6 +295,8 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                     text-align: left;
                     white-space: break-spaces;
                     word-break: break-all;
+                    padding: 3px 4px;
+                    border-radius: 5px;
                 }
 
             </style>

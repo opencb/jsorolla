@@ -122,17 +122,7 @@ export default class SampleFilter extends LitElement {
             _sampleIds.push(sampleFilter.id)
         }
 
-        // Process File filters
-        // let _files = [];
-        // let _qual = e.detail.qual;
-        // let _filter = e.detail.filter;
-        // for (let fileFilter of e.detail.fileFilters) {
-        //     if (fileFilter.selected) {
-        //         // _files.push(fileFilter.name);
-        //         _files.push(fileFilter.id);
-        //     }
-        // }
-
+        //debugger
         // Add sample filters to query
         let _query = {...this.query};
         if (_genotypeFilters !== undefined && _genotypeFilters.length > 0) {
@@ -150,25 +140,6 @@ export default class SampleFilter extends LitElement {
                 delete _query.format;
             }
         }
-
-        // Add file filters to query
-        // if (_files.length > 0) {
-        //     _query.file = _files.join(";");
-        //     if (UtilsNew.isNotEmpty(_qual)) {
-        //         _query.qual = ">=" + _qual;
-        //     }
-        //     if (UtilsNew.isNotEmpty(_filter)) {
-        //         _query.filter = _filter;
-        //     }
-        //     needUpdateQuery = true;
-        // } else {
-        //     // If no files are selected we remove all files-related filters
-        //     delete _query.file;
-        //     delete _query.qual;
-        //     delete _query.filter;
-        // }
-
-        //Only update query if really needed, this avoids unneeded web refresh
 
         this.query = {...this.query, ..._query};
         //this.renderClinicalQuerySummary();
@@ -216,7 +187,7 @@ export default class SampleFilter extends LitElement {
                 }
             }
 
-            //TODO this cause a bug (variant-filter-clinical table is not updated correctly changing GT), but commenting this line the table in sample-filter is not updated on its end (changing active-filters)
+            //TODO this cause a bug (the table in variant-filter-clinical is not updated correctly changing GT checkboxes), but commenting this line the table in sample-filter is not updated on its end (changing active-filters)
             this.requestUpdate();
         }
     }

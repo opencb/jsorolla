@@ -271,13 +271,11 @@ export default class OpencgaVariantFilter extends LitElement {
             this.preparedQuery = {...this.preparedQuery};
         }
         this.notifyQuery(this.preparedQuery);
-        // this.requestUpdate(); //TODO recheck if this is necessary. it seems it cause a bug in the select in study-filter (on the first click on the option the option is not selected)
+        this.requestUpdate(); //TODO recheck if this is necessary. it seems it cause a bug in the select in study-filter (on the first click on the option the option is not selected)
     }
 
     onSampleFilterChange(sampleFields) {
         console.log("onSampleFilterChange in variant-filter", sampleFields);
-        // TODO refactor with proper optional spreading
-
         if (!sampleFields.genotype) {
             delete this.preparedQuery.genotype;
         }
