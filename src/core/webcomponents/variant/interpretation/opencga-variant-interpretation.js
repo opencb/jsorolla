@@ -1,5 +1,5 @@
-/**
- * Copyright 2015-2019 OpenCB
+/*
+ * Copyright 2015-2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,22 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../utils.js";
-import UtilsNew from "../../utilsNew.js";
-import PolymerUtils from "../PolymerUtils.js";
-import "./opencga-variant-filter.js";
+import Utils from "../../../utils.js";
+import UtilsNew from "../../../utilsNew.js";
+import PolymerUtils from "../../PolymerUtils.js";
 import "./opencga-variant-interpretation-editor.js";
-import "./opencga-variant-grid.js";
 import "./opencga-variant-interpretation-grid.js";
 import "./opencga-variant-interpretation-detail.js";
-import "./opencga-variant-family-analysis.js";
-import "../opencga/alignment/opencga-panel-transcript-view.js";
-import "../clinical/opencga-clinical-analysis-view.js";
-import "../commons/opencga-active-filters.js";
-import "../opencga/opencga-genome-browser.js";
-import "../clinical/clinical-interpretation-view.js";
 import "./opencga-variant-interpreter-genome-browser.js";
-import "../commons/filters/select-field-filter-autocomplete-simple.js";
-
+import "../opencga-variant-filter.js";
+import "../opencga-variant-family-analysis.js";     // TODO to be removed soon!
+import "../../opencga/alignment/opencga-panel-transcript-view.js";
+import "../../opencga/opencga-genome-browser.js";
+import "../../clinical/opencga-clinical-analysis-view.js";
+import "../../clinical/clinical-interpretation-view.js";
+import "../../commons/opencga-active-filters.js";
+import "../../commons/filters/select-field-filter-autocomplete-simple.js";
+import {biotypes, tooltips} from "../../commons/opencga-variant-contants.js";
 
 class OpencgaVariantInterpretation extends LitElement {
 

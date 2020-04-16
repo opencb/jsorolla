@@ -1,5 +1,5 @@
-/**
- * Copyright 2015-2019 OpenCB
+/*
+ * Copyright 2015-2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../utils.js";
-import UtilsNew from "../../utilsNew.js";
-import "./annotation/cellbase-variantannotation-view.js";
-import "./opencga-variant-file-metrics.js";
+import Utils from "../../../utils.js";
+import UtilsNew from "../../../utilsNew.js";
 import "./opencga-interpretation-variant-review.js";
-import "./variant-beacon-network.js";
+import "../annotation/cellbase-variantannotation-view.js";
+import "../opencga-variant-file-metrics.js";
+import "../variant-beacon-network.js";
 
 
 export default class OpencgaVariantInterpretationDetail extends LitElement {
