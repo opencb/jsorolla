@@ -16,13 +16,12 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../utils.js";
-
+import "./select-field-filter-autocomplete.js";
 
 export default class SampleIdAutocomplete extends LitElement {
 
     constructor() {
         super();
-        this._init();
     }
 
     createRenderRoot() {
@@ -43,19 +42,9 @@ export default class SampleIdAutocomplete extends LitElement {
         };
     }
 
-    _init() {
-        this._prefix = "sf-" + Utils.randomString(6) + "_";
-    }
-
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    updated(changedProperties) {
-        if (changedProperties.has("property")) {
-            this.propertyObserver();
-        }
     }
 
     onFilterChange(key, value) {
@@ -75,14 +64,25 @@ export default class SampleIdAutocomplete extends LitElement {
                     "Individual ID": item?.attributes?.OPENCGA_INDIVIDUAL?.id || ""
                 }
             }),
-            // template: item => item.id + "<p class=\"dropdown-item-extra\"><label>Individual ID</label>" + (item.attributes && item.attributes.OPENCGA_INDIVIDUAL ? item.attributes.OPENCGA_INDIVIDUAL.id : "") + "</p>",
-            //placeholder: "ISDBM322015, ISDBM322016..."
+            dataSource: (query, process) => {
+                const filters = {
+                    study: this.opencgaSession.study.fqn,
+                    limit: 5,
+                    count: false,
+                    // include: "id,individual.id",
+                    id: "^" + query.toUpperCase()
+                };
+                this.opencgaSession.opencgaClient.samples().search(filters).then(restResponse => {
+                    const results = restResponse.getResults();
+                    process(results.map(this._config.fields));
+                });
+            }
         };
     }
 
     render() {
         return html`
-            <select-field-filter-autocomplete resource="samples" placeholder="${this._config.placeholder}" .opencgaSession="${this.opencgaSession}" .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></select-field-filter-autocomplete>
+            <select-field-filter-autocomplete .opencgaSession="${this.opencgaSession}" .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></select-field-filter-autocomplete>
         `;
     }
 

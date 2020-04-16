@@ -22,7 +22,6 @@ export default class FamilyIdAutocomplete extends LitElement {
 
     constructor() {
         super();
-        this._init();
     }
 
     createRenderRoot() {
@@ -41,10 +40,6 @@ export default class FamilyIdAutocomplete extends LitElement {
                 type: Object
             }
         };
-    }
-
-    _init() {
-        this._prefix = "sf-" + Utils.randomString(6) + "_";
     }
 
     connectedCallback() {
@@ -69,21 +64,28 @@ export default class FamilyIdAutocomplete extends LitElement {
 
     getDefaultConfig() {
         return {
-            searchOn: "id",
             fields: item => ({
-                name: item.id,
-                secondary: {
-                    "Disorders": item.format || ""
-                }
+                name: item.id
             }),
-            // template: item => item.id + "<p class=\"dropdown-item-extra\"><label>Individual ID</label>" + (item.attributes && item.attributes.OPENCGA_INDIVIDUAL ? item.attributes.OPENCGA_INDIVIDUAL.id : "") + "</p>",
-            //placeholder: "samples.tsv, phenotypes.vcf...",
+            dataSource: (query, process) => {
+                const filters = {
+                    study: this.opencgaSession.study.fqn,
+                    limit: 5,
+                    count: false,
+                    // include: "id,individual.id",
+                    id: "^" + query.toUpperCase()
+                };
+                this.opencgaSession.opencgaClient.families().search(filters).then(restResponse => {
+                    const results = restResponse.getResults();
+                    process(results.map(this._config.fields));
+                });
+            }
         };
     }
 
     render() {
         return html`
-            <select-field-filter-autocomplete resource="family" placeholder="${this._config.placeholder}" .opencgaSession="${this.opencgaSession}" .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></select-field-filter-autocomplete>
+            <select-field-filter-autocomplete .opencgaSession="${this.opencgaSession}" .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></select-field-filter-autocomplete>
         `;
     }
 

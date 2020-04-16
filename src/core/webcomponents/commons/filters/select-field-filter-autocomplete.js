@@ -34,17 +34,8 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
 
     static get properties() {
         return {
-            fn: {
-                type: Object
-            },
             opencgaSession: {
                 type: Object
-            },
-            placeholder: {
-                type: String
-            },
-            resource: {
-                type: String
             },
             value: {
                 type: String
@@ -73,9 +64,11 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
     firstUpdated() {
         this.input = $(".typeahead", this);
 
+        console.log("this._config.dataSource",this._config)
         //MAP result => ({name: result.id, individual: result.attributes && result.attributes.OPENCGA_INDIVIDUAL ? result.attributes.OPENCGA_INDIVIDUAL.id : ""})
         this.input.typeahead({
-            source: (query, process) => {
+            source: this._config.dataSource,
+            /*source: (query, process) => {
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
@@ -91,7 +84,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                     //process(results);
                     process(results.map(this._config.fields));
                 });
-            },
+            },*/
             minLength: this._config.searchMinLength,
             autoSelect: true,
             displayText: item => {
@@ -135,7 +128,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
             this.requestUpdate();
         }
     }
-
+    /*
     client() {
         switch (this.resource) {
             case "files":
@@ -155,7 +148,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
             default:
                 console.error("Resource not recognized");
         }
-    }
+    }*/
 
     filterChange() {
         this.value = this.selectionList.length ? this.selectionList.join(",") : null; // this allows the users to get the selected values using DOMElement.value
@@ -184,7 +177,6 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
 
     readFile(e) {
         const reader = new FileReader();
-
         reader.onload = () => {
             const plain = reader.result;
             //it handles split on ",", ";", "CR", "LF" and "CRLF"
@@ -213,7 +205,11 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
             searchMinLength: 1,
             maxItems: 0,
             limitToShow: 20,
-            fileUpload: true
+            fileUpload: true,
+            fields: item => ({name: item.id}),
+            dataSource: (query, process) => {
+                throw new Error("dataSource not defined");
+            }
         };
     }
 
@@ -303,7 +299,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
             <div class="form-group select-field-filter-autocomplete">
                 <form autocomplete="off" action="javascript:void 0">
                     <div class="input-group">
-                        <input name="sample" type="text" class="form-control input-sm typeahead" data-provide="typeahead" autocomplete="off" placeholder="${this.placeholder || "Start typing"}" />
+                        <input name="sample" type="text" class="form-control input-sm typeahead" data-provide="typeahead" autocomplete="off" placeholder="${this._config.placeholder || "Start typing"}" />
                         <span class="input-group-addon" @click="${this.addTerm}"><i class="fas fa-plus"></i></span>
                         ${this._config.fileUpload ? html`<span class="input-group-addon separator"></span>
                         <span class="input-group-addon" data-collapse="#${this._prefix}file-form" @click="${this.toggleCollapse}"><i class="fas fa-upload"></i></span>` : ""}
