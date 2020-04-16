@@ -16,9 +16,9 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../utils.js";
+import "../../commons/filters/select-field-filter-autocomplete.js";
 
-
-export default class SampleIdAutocomplete extends LitElement {
+export default class IndividualIdAutocomplete extends LitElement {
 
     constructor() {
         super();
@@ -69,23 +69,24 @@ export default class SampleIdAutocomplete extends LitElement {
 
     getDefaultConfig() {
         return {
+            searchOn: "id",
             fields: item => ({
                 name: item.id,
                 secondary: {
-                    "Individual ID": item?.attributes?.OPENCGA_INDIVIDUAL?.id || ""
+                    "Samples": item.format || ""
                 }
             }),
             // template: item => item.id + "<p class=\"dropdown-item-extra\"><label>Individual ID</label>" + (item.attributes && item.attributes.OPENCGA_INDIVIDUAL ? item.attributes.OPENCGA_INDIVIDUAL.id : "") + "</p>",
-            //placeholder: "ISDBM322015, ISDBM322016..."
+            //placeholder: "samples.tsv, phenotypes.vcf...",
         };
     }
 
     render() {
         return html`
-            <select-field-filter-autocomplete resource="samples" placeholder="${this._config.placeholder}" .opencgaSession="${this.opencgaSession}" .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></select-field-filter-autocomplete>
+            <select-field-filter-autocomplete resource="individuals" placeholder="${this._config.placeholder}" .opencgaSession="${this.opencgaSession}" .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></select-field-filter-autocomplete>
         `;
     }
 
 }
 
-customElements.define("sample-id-autocomplete", SampleIdAutocomplete);
+customElements.define("individual-id-autocomplete", IndividualIdAutocomplete);

@@ -21,6 +21,7 @@ import PolymerUtils from "../../../PolymerUtils.js";
 import "../variableSets/opencga-annotation-filter.js";
 import "../opencga-date-filter.js";
 import "../../../commons/filters/text-field-filter.js";
+import "../../../commons/filters/jobs-id-autocomplete.js";
 
 
 export default class OpencgaJobsFilter extends LitElement {
@@ -176,6 +177,8 @@ export default class OpencgaJobsFilter extends LitElement {
         let content = "";
         switch (subsection.id) {
             case "id":
+                content = html`<jobs-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></jobs-id-autocomplete>`;
+                break;
             case "tool":
             case "tags":
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
@@ -227,9 +230,6 @@ export default class OpencgaJobsFilter extends LitElement {
             .label-opencga-file-filter {
                 padding-top: 10px;
             }
-            span + span {
-                margin-left: 10px;
-            }
 
             .browser-ct-scroll {
                 /*max-height: 450px;*/
@@ -265,34 +265,11 @@ export default class OpencgaJobsFilter extends LitElement {
                 display: inline
             }
 
-            div.block {
-                overflow: hidden;
-            }
-
-            div.block label {
-                width: 80px;
-                display: block;
-                float: left;
-                text-align: left;
-                font-weight: normal;
-            }
-
-            select + select {
-                margin-left: 10px;
-            }
-
-            select + input {
-                margin-left: 10px;
-            }
-
             span.searchingSpan{
                 background-color: #286090;
             }
             .searchingButton{
                 color: #fff;
-            }
-            .notbold{
-                font-weight: normal;
             }
         </style>
 

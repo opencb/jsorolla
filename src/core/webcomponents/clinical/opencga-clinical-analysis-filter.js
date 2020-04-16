@@ -19,7 +19,7 @@ import Utils from "../../utils.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../opencga/catalog/opencga-date-filter.js";
-
+import "../commons/filters/clinical-analysis-id-autocomplete.js";
 
 export default class OpencgaClinicalAnalysisFilter extends LitElement {
 
@@ -263,6 +263,8 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
         let content = "";
         switch (subsection.id) {
             case "id":
+                content = html`<clinical-analysis-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></clinical-analysis-id-autocomplete>`;
+                break;
             case "family":
             case "proband":
             case "samples":

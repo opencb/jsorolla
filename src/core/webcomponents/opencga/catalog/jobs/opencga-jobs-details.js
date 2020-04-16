@@ -157,7 +157,7 @@ export default class OpencgaJobsDetails extends LitElement {
                                         <div class="form-group detail-row">
                                             <label for="" class="col-sm-2 control-label">outDir</label>
                                             <div class="col-sm-10">
-                                            ${this.job.outDir.uri}
+                                            ${this.job.outDir?.uri || "-"}
                                             </div>
                                         </div>
                                         ${this.job.dependsOn && this.job.dependsOn.length ? html`

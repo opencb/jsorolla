@@ -23,6 +23,7 @@ import "../variableSets/opencga-annotation-filter.js";
 import "../opencga-date-filter.js";
 import "../../../commons/filters/text-field-filter.js";
 import "../../../commons/filters/select-field-filter.js";
+import "../../../commons/filters/individual-id-autocomplete.js";
 
 
 export default class OpencgaIndividualFilter extends LitElement {
@@ -273,6 +274,8 @@ export default class OpencgaIndividualFilter extends LitElement {
         let content = "";
         switch (subsection.id) {
             case "id":
+                content = html`<individual-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></individual-id-autocomplete>`
+                break;
             case "samples":
             case "ethnicity":
             case "disorder":

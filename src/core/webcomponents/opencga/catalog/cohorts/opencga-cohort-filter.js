@@ -22,6 +22,7 @@ import "../variableSets/opencga-annotation-filter.js";
 import "../opencga-date-filter.js";
 import "../../../commons/filters/text-field-filter.js";
 import "../../../commons/filters/select-field-filter.js";
+import "../../../commons/filters/cohort-id-autocomplete.js";
 
 
 export default class OpencgaCohortFilter extends LitElement {
@@ -259,6 +260,8 @@ export default class OpencgaCohortFilter extends LitElement {
         let content = "";
         switch (subsection.id) {
             case "id":
+                content = html`<cohort-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></cohort-id-autocomplete>`;
+                break;
             case "samples":
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;
@@ -551,39 +554,7 @@ export default class OpencgaCohortFilter extends LitElement {
     }
 
     render() {
-        return html`
-        <style include="jso-styles">
-
-            span + span {
-                margin-left: 10px;
-            }
-
-            div.block {
-                overflow: hidden;
-            }
-
-            div.block label {
-                width: 80px;
-                display: block;
-                float: left;
-                text-align: left;
-                font-weight: normal;
-            }
-
-            select + select {
-                margin-left: 10px;
-            }
-
-            select + input {
-                margin-left: 10px;
-            }
-
-            .subsection-content {
-                margin: 5px 5px;
-            }
-        </style>
-
-        ${this.searchButton ? html`
+        return html`${this.searchButton ? html`
             <div class="search-button-wrapper">
                 <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
                     <i class="fa fa-search" aria-hidden="true"></i> Search
