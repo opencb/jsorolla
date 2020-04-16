@@ -112,7 +112,7 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
     }
 
     opencgaSessionObserver() {
-        this._config = Object.assign({}, this.getDefaultConfig(), this.config);
+        this._config = {...this.getDefaultConfig(), ...this.config};
         this.variantGridFormatter = new VariantGridFormatter(this.opencgaSession, this._config);
         const colors = this.variantGridFormatter.assignColors(this.consequenceTypes, this.proteinSubstitutionScores);
         Object.assign(this, colors);
@@ -172,7 +172,7 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
 
         this.table = $("#" + this._prefix + "VariantBrowserGrid");
         if (typeof this.opencgaSession !== "undefined" && typeof this.opencgaSession.project !== "undefined" &&
-            typeof this.opencgaSession.study !== "undefined" && UtilsNew.isNotEmpty(this.query)) {
+            typeof this.opencgaSession.study !== "undefined") {
             this._columns = this._createDefaultColumns();
 
             // const urlQueryParams = this._getUrlQueryParams();
@@ -359,7 +359,7 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
                 },
                 onPostBody: function(data) {
                     const _onPostBody = _this._onPostBody.bind(_this, data, "remote");
-                    _this._onPostBody();
+                    // _this._onPostBody();
                 }
             });
 
@@ -597,14 +597,14 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
             detailHtml += "<div style='padding: 5px 50px'>";
             let clinvarTraits = "<div><label style='padding-right: 10px'>ClinVar: </label>-</div>";
             let cosmicTraits = "<div><label style='padding-right: 10px'>Cosmic: </label>-</div>";
-            if (typeof row.annotation.variantTraitAssociation !== "undefined" && row.annotation.variantTraitAssociation != null) {
+            if (typeof row.annotation.traitAssociation !== "undefined" && row.annotation.traitAssociation != null) {
                 const traits = {
                     clinvar: [],
                     cosmic: []
                 };
                 const fields = ["clinvar", "cosmic"];
                 for (const field of fields) {
-                    const clinicalData = row.annotation.variantTraitAssociation[field];
+                    const clinicalData = row.annotation.traitAssociation[field];
                     if (UtilsNew.isNotEmptyArray(clinicalData)) {
                         for (let j = 0; j < clinicalData.length; j++) {
                             if (field === "clinvar" && traits.clinvar.indexOf(clinicalData[j].traits[0]) === -1 &&

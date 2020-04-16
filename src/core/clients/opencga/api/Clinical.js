@@ -285,7 +285,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     primaryFindingsInterpretation(params) {
-        return this._get("analysis/clinical", null, "interpretation", null, "primaryFindings", params);
+        return this._get("analysis/clinical", null, "variant", null, "query", params);
     }
 
     /** Query for reported variants
