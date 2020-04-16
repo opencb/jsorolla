@@ -35,7 +35,7 @@ import "./core/visualisation/test/resources/BRCA2.js";
 import "./core/opencga-manager.js";
 import "./core/loading-spinner.js";
 import "./core/webcomponents/variant/opencga-variant-facet_meta.js";
-import "./core/webcomponents/variant/opencga-variant-interpretation.js";
+import "./core/webcomponents/variant/variant-rd-interpreter.js";
 import "./core/webcomponents/variant/variant-beacon-network.js";
 import "./core/webcomponents/variant/opencga-variant-interpreter-genome-browser.js";
 import "./core/webcomponents/variant/annotation/cellbase-population-frequency-grid.js";

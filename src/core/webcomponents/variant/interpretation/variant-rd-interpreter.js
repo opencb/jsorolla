@@ -32,7 +32,7 @@ import "../../commons/opencga-active-filters.js";
 import "../../commons/filters/select-field-filter-autocomplete-simple.js";
 import {biotypes, tooltips} from "../../commons/opencga-variant-contants.js";
 
-class OpencgaVariantInterpretation extends LitElement {
+class VariantRdInterpreter extends LitElement {
 
     constructor() {
         super();
@@ -979,4 +979,4 @@ class OpencgaVariantInterpretation extends LitElement {
 
 }
 
-customElements.define("opencga-variant-interpretation", OpencgaVariantInterpretation);
+customElements.define("variant-rd-interpreter", VariantRdInterpreter);
