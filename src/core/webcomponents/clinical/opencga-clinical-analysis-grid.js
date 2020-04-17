@@ -132,19 +132,11 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 this._analyses = [];
             }
 
-            // Check that HTTP protocol is present and complete the URL
-            let opencgaHostUrl = this.opencgaSession.opencgaClient.getConfig().host;
-            if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
-                opencgaHostUrl = "http://" + opencgaHostUrl;
-            }
-            opencgaHostUrl += "/webservices/rest/v1/analysis/clinical/search";
-
             const _table = $("#" + this._prefix + "ClinicalAnalysisBrowserGrid");
 
             const _this = this;
             _table.bootstrapTable("destroy");
             _table.bootstrapTable({
-                url: opencgaHostUrl,
                 columns: _this._columns,
                 method: "get",
                 sidePagination: "server",

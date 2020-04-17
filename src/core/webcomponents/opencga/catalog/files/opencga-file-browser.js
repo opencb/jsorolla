@@ -162,7 +162,7 @@ export default class OpencgaFileBrowser extends LitElement {
                                 description: ""
                             },
                             {
-                                id: "sample",
+                                id: "samples",
                                 name: "Sample",
                                 type: "string",
                                 placeholder: "HG01879, HG01880, HG01881...",

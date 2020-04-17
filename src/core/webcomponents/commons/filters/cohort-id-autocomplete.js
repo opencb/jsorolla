@@ -69,7 +69,7 @@ export default class CohortIdAutocomplete extends LitElement {
                     // include: "id,individual.id",
                     id: "^" + query.toUpperCase()
                 };
-                this.opencgaSession.opencgaClient.cohort().search(filters).then(restResponse => {
+                this.opencgaSession.opencgaClient.cohorts().search(filters).then(restResponse => {
                     const results = restResponse.getResults();
                     process(results.map(this._config.fields));
                 });
