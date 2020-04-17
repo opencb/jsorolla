@@ -18,15 +18,14 @@ import {LitElement, html, css} from "/web_modules/lit-element.js";
 import Utils from "../../../utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
-import "../opencga-variant-filter.js";
 import "./opencga-variant-interpretation-editor.js";
-// import "../opencga-variant-grid.js";
-import "./opencga-variant-interpretation-grid.js";
+import "./variant-cancer-interpreter-grid.js";
 import "./opencga-variant-interpretation-detail.js";
 import "./opencga-variant-interpreter-genome-browser.js";
+import "../opencga-variant-filter.js";
 import "../../opencga/alignment/opencga-panel-transcript-view.js";
-import "../../clinical/opencga-clinical-analysis-view.js";
 import "../../opencga/opencga-genome-browser.js";
+import "../../clinical/opencga-clinical-analysis-view.js";
 import "../../clinical/clinical-interpretation-view.js";
 import "../../commons/opencga-active-filters.js";
 import "../../commons/filters/select-field-filter-autocomplete-simple.js";
@@ -366,7 +365,7 @@ class VariantCancerInterpreter extends LitElement {
     }
 
     onSelectVariant(e) {
-        // this.variant = e.detail.variant;
+        this.variant = e.detail.variant;
     }
 
     onCheckVariant(e) {
@@ -594,6 +593,33 @@ class VariantCancerInterpreter extends LitElement {
     onFilterChange(name, value) {
         this.clinicalAnalysisId = value;
     }
+
+    onVariantFilterChange(e) {
+        this.preparedQuery = e.detail.query;
+        // console.log("onVariantFilterChange preparedQuery", this.preparedQuery)
+        this.preparedQuery = {...this.preparedQuery};
+        this.requestUpdate();
+    }
+
+    onVariantFilterSearch(e) {
+        this.preparedQuery = e.detail.query;
+        this.executedQuery = {...this.preparedQuery};
+        this.requestUpdate();
+    }
+
+    onActiveFilterChange(e) {
+        // console.log("onActiveFilterChange", e.detail)
+        this.query = {...e.detail};
+        this.preparedQuery = {...e.detail};
+        this.requestUpdate();
+    }
+
+    onActiveFilterClear() {
+        this.query = {study: this.opencgaSession.study.fqn};
+        this.preparedQuery = {...this.query};
+        this.requestUpdate();
+    }
+
 
     getDefaultConfig() {
         return {
@@ -1078,7 +1104,7 @@ class VariantCancerInterpreter extends LitElement {
                                     </opencga-active-filters>
             
                                     <div style="padding-top: 5px">
-                                        <opencga-variant-interpretation-grid .opencgaSession="${this.opencgaSession}"
+                                        <variant-cancer-interpreter-grid .opencgaSession="${this.opencgaSession}"
                                                                              .query="${this.executedQuery}"
                                                                              .clinicalAnalysis="${this.clinicalAnalysis}"
                                                                              .consequenceTypes="${this.consequenceTypes}"
@@ -1089,7 +1115,7 @@ class VariantCancerInterpreter extends LitElement {
                                                                              @selectvariant="${this.onSelectVariant}"
                                                                              @checkvariant="${this.onCheckVariant}"
                                                                              @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
-                                        </opencga-variant-interpretation-grid>
+                                        </variant-cancer-interpreter-grid>
             
                                         <!-- Bottom tabs with detailed variant information -->
                                         <opencga-variant-interpretation-detail .opencgaSession="${this.opencgaSession}"
