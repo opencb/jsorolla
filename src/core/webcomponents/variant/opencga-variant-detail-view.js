@@ -60,7 +60,7 @@ export default class OpenCGAVariantDetailView extends LitElement {
         this._prefix = "ovdv-" + Utils.randomString(6) + "_";
         // FIXME in case of region as a prop (with value = this.query.region from variant-filter) in case opencga-active-filter deletes a region filter this component is not updated.
         // A temp solution is to add query as prop and watch for its edits in updated() [this.region as prop is not used anymore].
-        this.detailActiveTabs = [];
+        this.detailActiveTabs = {};
         this._config = this.getDefaultConfig();
     }
 
@@ -75,7 +75,7 @@ export default class OpenCGAVariantDetailView extends LitElement {
         }
     }
 
-    updated(_changedProperties) {
+    updated(changedProperties) {
         // if (_changedProperties.has("query")) {
         //     let _region = this.query && this.query.region ? this.query.region : "";
         //     //this shouldn't be necessary.. component view is refreshed but the textArea isn't.
@@ -84,11 +84,11 @@ export default class OpenCGAVariantDetailView extends LitElement {
 
         // let _region = _changedProperties.has("variant") && this.variant ? this.variant : null;
         // this.querySelector("#" + this._prefix + "LocationTextarea").value = _region;
-        if (_changedProperties.has("variantId")) {
-            this._variantChanged();
+        if (changedProperties.has("variantId")) {
+            this.variantIdObserver();
         }
 
-        if (_changedProperties.has("variant")) {
+        if (changedProperties.has("variant")) {
             // this.variant
             // debugger
             // this.requestUpdate();
@@ -115,12 +115,12 @@ export default class OpenCGAVariantDetailView extends LitElement {
     //     this.dispatchEvent(event);
     // }
 
-    _variantChanged() {
+    variantIdObserver() {
         let _this = this;
-        if (typeof this.cellbaseClient !== "undefined" && UtilsNew.isNotEmpty(this.variantId)) {
+        if (this.cellbaseClient && this.variantId) {
             this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", {assembly: this.opencgaSession.project.organism.assembly}, {})
                 .then(function(response) {
-                    _this.variant = {id: _this.variantId, annotation: response.response[0].result[0]};
+                    _this.variant = {id: _this.variantId, annotation: response.responses[0].results[0]};
                     _this.variantAnnotation = response.response[0].result[0];
                     _this.numberConsequenceTypes = 0;
                     _this.numberPopulationFrequencies = 0;
@@ -133,34 +133,6 @@ export default class OpenCGAVariantDetailView extends LitElement {
                         _this.numberVTA = UtilsNew.isNotUndefinedOrNull(_this.variantAnnotation.traitAssociation) ? _this.variantAnnotation.traitAssociation.length : 0;
                         _this.numberGTA = UtilsNew.isNotUndefinedOrNull(_this.variantAnnotation.geneTraitAssociation) ? _this.variantAnnotation.geneTraitAssociation.length : 0;
                     }
-
-                    // Gene Trait Association definition
-                    // $("#" + _this._prefix + "GTATable").bootstrapTable("destroy");
-                    // $("#" + _this._prefix + "GTATable").bootstrapTable({
-                    //     data: _this.variantAnnotation.geneTraitAssociation,
-                    //     columns: [
-                    //         [
-                    //             {
-                    //                 title: "id",
-                    //                 field: "id"
-                    //             },
-                    //             {
-                    //                 title: "name",
-                    //                 field: "name"
-                    //             },
-                    //             {
-                    //                 title: "hpo",
-                    //                 field: "hpo"
-                    //             },
-                    //             {
-                    //                 title: "source",
-                    //                 field: "source"
-                    //             }
-                    //         ]
-                    //     ]
-                    // });
-
-                    // _this.requestUpdate();
                 });
         }
     }
@@ -178,8 +150,6 @@ export default class OpenCGAVariantDetailView extends LitElement {
         if (this.variant === undefined || this.variant.annotation === undefined) {
             return;
         }
-
-
 
         return html`
                     <div style="padding-top: 20px">

@@ -365,18 +365,20 @@ class VariantCancerInterpreter extends LitElement {
     }
 
     onSelectVariant(e) {
-        this.variant = e.detail.variant;
+        this.variant = e.detail.row;
+
+        this.requestUpdate();
     }
 
     onCheckVariant(e) {
-        this.counters.rv = e.detail.variants.length;
-        this.counterTitles.rv = (e.detail.variants.length > 0) ? "(" + e.detail.variants.length + ")" : "";
+        this.counters.rv = e.detail.rows.length;
+        this.counterTitles.rv = (e.detail.rows.length > 0) ? "(" + e.detail.rows.length + ")" : "";
         this.counters.total = this.counters.rv + this.counters.ch + this.counters.dn;
         this.counterTitles.total = (this.counters.total > 0) ? "(" + this.counters.total + ")" : "";
         this.counters = Object.assign({}, this.counters);
         this.counterTitles = Object.assign({}, this.counterTitles);
 
-        this.checkedVariants = e.detail.variants;
+        this.checkedVariants = e.detail.rows;
         this._createInterpretation();
     }
 
@@ -814,51 +816,36 @@ class VariantCancerInterpreter extends LitElement {
                     views: [
                         {
                             id: "annotationSummary",
-                            // component: "opencga-variant-cohort-stats",
                             title: "Summary",
                             active: true
                         },
                         {
                             id: "annotationConsType",
-                            // component: "opencga-variant-cohort-stats",
                             title: "Consequence Type",
                         },
                         {
                             id: "annotationPropFreq",
-                            // component: "opencga-variant-cohort-stats",
                             title: "Population Frequencies"
                         },
                         {
+                            id: "fileMetrics",
+                            title: "File Metrics"
+                        },
+                        {
                             id: "cohortStats",
-                            // component: "opencga-variant-cohort-stats",
                             title: "Cohort Stats",
                             cohorts: this.cohorts
                         },
-                        {
-                            id: "samples",
-                            // component: "opencga-variant-samples",
-                            title: "Samples"
-                        },
+
                         {
                             id: "beacon",
-                            // component: "variant-beacon-network",
                             title: "Beacon"
                             // Uncomment and edit Beacon hosts to change default hosts
                             // hosts: [
                             //     "brca-exchange", "cell_lines", "cosmic", "wtsi", "wgs", "ncbi", "ebi", "ega", "broad", "gigascience", "ucsc",
                             //     "lovd", "hgmd", "icgc", "sahgp"
                             // ]
-                        },
-                        {
-                            id: "network",
-                            // component: "reactome-variant-network",
-                            title: "Reactome Pathways"
-                        },
-                        // {
-                        //     id: "template",
-                        //     component: "opencga-variant-detail-template",
-                        //     title: "Template"
-                        // }
+                        }
                     ]
                 }
             },
@@ -1112,8 +1099,8 @@ class VariantCancerInterpreter extends LitElement {
                                                                              .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                                                              .config="${this._config.filter.result.grid}"
                                                                              @selected="${this.onSelectedGene}"
-                                                                             @selectvariant="${this.onSelectVariant}"
-                                                                             @checkvariant="${this.onCheckVariant}"
+                                                                             @selectrow="${this.onSelectVariant}"
+                                                                             @checkrow="${this.onCheckVariant}"
                                                                              @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
                                         </variant-cancer-interpreter-grid>
             

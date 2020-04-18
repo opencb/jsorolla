@@ -17,16 +17,18 @@
 
 import Utils from "../../utils.js";
 
-export default class VariantGridUtils {
+export default class GridCommons {
 
-    constructor(opencgaSession, config) {
-        this.opencgaSession = opencgaSession;
+    constructor(gridId, context, config) {
+        this.gridId = gridId;
+        this.context = context;
         this.config = config;
 
-        this.prefix = "VarBrowserGrid-" + Utils.randomString(6);
+        // this.bootstrapTable = $("#" + this.gridId);
+        // this.bootstrapTableConfig = this.bootstrapTable.bootstrapTable("getOptions");
     }
 
-    responseHandler(response, gridConfig) {
+    responseHandler(response, bootstrapTableConfig) {
         let numMatches, from, to, numTotalResultsText, approximateCountResult;
         // let _numMatches = _this._numMatches || 0;
         numMatches = 0;
@@ -38,7 +40,7 @@ export default class VariantGridUtils {
             from = numMatches;
         }
         // If do not fetch as many variants as requested then to is numMatches
-        if (response.getResponse(0).numResults < gridConfig.pageSize) {
+        if (response.getResponse(0).numResults < bootstrapTableConfig.pageSize) {
             to = numMatches;
         }
         numTotalResultsText = numMatches.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -62,28 +64,34 @@ export default class VariantGridUtils {
         };
     }
 
-    onClickRow(variant, gridRows, selectedElement, _this) {
-        $("#" + gridRows).removeClass("success");
+    onClickRow(rowId, row, selectedElement) {
+        $("#" + this.gridId + " tr").removeClass("success");
         $(selectedElement).addClass("success");
 
-        this.onSelectVariant(variant, _this);
-    }
-
-    onCheck(variant, _this) {
-        let variantId = this._getVariantId(variant);
-        _this.dispatchEvent(new CustomEvent("checkvariant", {
+        // this.onSelectVariant(row, this.context);
+        this.context.dispatchEvent(new CustomEvent("selectrow", {
             detail: {
-                id: variantId,
-                variant: variant,
-                checkdVariant: true,
-                variants: $("#" + _this._prefix + "VariantBrowserGrid").bootstrapTable("getAllSelections")
+                id: rowId,
+                row: row
             }
         }));
     }
 
-    onSelectVariant(variant, _this) {
+    onCheck(rowId, row) {
+        // let rowId = this._getVariantId(variant);
+        this.context.dispatchEvent(new CustomEvent("checkrow", {
+            detail: {
+                id: rowId,
+                row: row,
+                checked: true,
+                rows: $("#" + this.gridId).bootstrapTable("getAllSelections") || []
+            }
+        }));
+    }
+
+    onSelectVariant(variant, event) {
         let variantId = this._getVariantId(variant);
-        _this.dispatchEvent(new CustomEvent("selectvariant", {
+        this.context.dispatchEvent(new CustomEvent(event, {
             detail: {
                 id: variantId,
                 variant: variant

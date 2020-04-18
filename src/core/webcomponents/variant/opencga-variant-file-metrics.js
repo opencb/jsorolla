@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../utils.js";
 import UtilsNew from "../../utilsNew.js";
 
 
@@ -38,13 +37,9 @@ export default class OpencgaVariantFileMetrics extends LitElement {
             variant: {
                 type: Object
             },
-            clinicalAnalysis: {
+            files: {
                 type: Object
             },
-            // active: {
-            //     type: Boolean,
-            //     value: false,
-            // },
             config: {
                 type: Object
             }
@@ -54,28 +49,23 @@ export default class OpencgaVariantFileMetrics extends LitElement {
     // This is executed before the actual Polymer properties exist
     _init() {
         // All id fields in the template must start with prefix, this allows components to be instantiated more than once
-        this._prefix = "ovfm" + Utils.randomString(6) + "_";
+        this._prefix = "ovfm" + UtilsNew.randomString(6) + "_";
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.propertyObserver();
-        }
         if (changedProperties.has("variant")) {
-            this.propertyObserver();
+            this.renderTable();
         }
         if (changedProperties.has("config")) {
-            this.propertyObserver();
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.renderTable();
         }
-    }
-
-    propertyObserver() {
-        this.renderTable();
     }
 
     renderTable() {
-        if (UtilsNew.isUndefinedOrNull(this.variant) || UtilsNew.isEmptyArray(this.variant.studies)) {
-            return [];
+        if (!this.variant || !this.variant.studies || !this.variant.studies.length) {
+            return;
         }
 
         // We take the first study by default. Two possible improvements are:
@@ -104,46 +94,44 @@ export default class OpencgaVariantFileMetrics extends LitElement {
             result.push(tmp);
         }
         this._attributes = result;
-        // return result;
+
+        this.requestUpdate();
     }
 
     getDefaultConfig() {
         return {
-            property: "example property"
         };
     }
 
     render() {
         return html`
-        <style include="jso-styles"></style>
-
-        <div id="${this._prefix}FileMetrics">
-            <div class="col-md-10 col-md-offset-1" style="padding-top: 20px;overflow: auto;">
-                <table class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th>VCF Attributes</th>
-                        ${this.variant.studies[0].files && this.variant.studies[0].files.length ? this.variant.studies[0].files.map( member => html`
-                            <th>${member.fileId}</th>
-                        `) : null}
-                    </tr>
-                    </thead>
-                    <tbody id="${this._prefix}TableTBody">
-                    ${this._attributes && this._attributes.length ? this._attributes.map(attribute => html`
-                        <tr id="${attribute.name}" class="file-metrics-table-${attribute.name}">
-                            <td><span style="font-weight: bold">${attribute.name}</span></td>
-                            ${attribute.values && attribute.values.length ? attribute.values.map(attr => html`
-                                <td>${attr}</td>
-                            `) : null}                            
-                        </tr>
-                    `) : null}
-                    </tbody>
-                </table>
+            <div id="${this._prefix}FileMetrics">
+                <div class="col-md-10 col-md-offset-1" style="padding-top: 20px;overflow: auto;">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>File Attributes</th>
+                                ${this.variant.studies[0].files && this.variant.studies[0].files.length 
+                                    ? this.variant.studies[0].files.map( member => html`<th>${member.fileId}</th>`) 
+                                    : null
+                                }
+                            </tr>
+                        </thead>
+                        <tbody id="${this._prefix}TableTBody">
+                            ${this._attributes && this._attributes.length ? this._attributes.map(attribute => html`
+                                <tr id="${attribute.name}" class="file-metrics-table-${attribute.name}">
+                                    <td><span style="font-weight: bold">${attribute.name}</span></td>
+                                    ${attribute.values && attribute.values.length ? attribute.values.map(attr => html`
+                                        <td>${attr}</td>
+                                    `) : null}                            
+                                </tr>
+                            `) : null}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
         `;
     }
-
 }
 
 customElements.define("opencga-variant-file-metrics", OpencgaVariantFileMetrics);

@@ -19,7 +19,7 @@ import Utils from "../../../utils.js"
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import VariantGridFormatter from "../VariantGridFormatter.js";
-import VariantGridUtils from "../variant-grid-utils.js";
+import GridCommons from "../grid-commons.js";
 import VariantUtils from "../variant-utils.js";
 import "./opencga-interpretation-variant-review.js";
 import "../../commons/opencb-grid-toolbar.js";
@@ -81,8 +81,29 @@ export default class VariantCancerInterpreterGrid extends LitElement {
             ]
         };
 
-        this.variantGridUtils = new VariantGridUtils();
         this._config = this.getDefaultConfig();
+        this.gridId = this._prefix + "VariantBrowserGrid";
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+
+    }
+
+    firstUpdated(_changedProperties) {
+        // debugger
+        // TODO Refactor
+        this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
+        this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
+
+        if (UtilsNew.isUndefinedOrNull(this.reportedVariants)) {
+            this.renderVariantTable();
+        } else {
+            this.renderFromLocal();
+        }
+        this._initialised = true;
+
     }
 
     updated(changedProperties) {
@@ -98,20 +119,6 @@ export default class VariantCancerInterpreterGrid extends LitElement {
         if (changedProperties.has("reportedVariants")) {
             this.renderFromLocal();
         }
-    }
-
-    firstUpdated(_changedProperties) {
-        // debugger
-        // TODO Refactor
-        this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
-        this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
-
-        if (UtilsNew.isUndefinedOrNull(this.reportedVariants)) {
-            this.renderVariantTable();
-        } else {
-            this.renderFromLocal();
-        }
-        this._initialised = true;
     }
 
     opencgaSessionObserver() {
@@ -255,7 +262,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                 //     return queryParams;
                 // },
                 responseHandler: response => {
-                    let result = this.variantGridUtils.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                    let result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     _this.from = result.from || _this.from;
                     _this.to = result.to || _this.to;
                     _this.numTotalResultsText = result.numTotalResultsText;
@@ -307,13 +314,13 @@ export default class VariantCancerInterpreterGrid extends LitElement {
 //                         rows: response.getResults()
 //                     };
 //                 },
-                onClickRow: (row, $element, field) => this.variantGridUtils.onClickRow(row, this._prefix + "VariantBrowserGrid tr", $element, _this),
-                // onClickRow: function(row, $element, field) {
-                //     $("#" + _this._prefix + "VariantBrowserGrid tr").removeClass("success");
-                //     $($element).addClass("success");
-                //     _this._onSelectVariant(row);
-                // },
-                onCheck: (row, $element) => this.variantGridUtils.onCheck(row, _this),
+                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+//                 onClickRow: function(row, selectedElement, field) {
+//                     $("#" + _this._prefix + "VariantBrowserGrid tr").removeClass("success");
+//                     $(selectedElement).addClass("success");
+//                     _this._onSelectVariant(row, "selectvariant");
+//                 },
+                onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
                 // onCheck: function(row, $element) {
                 //     const _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
                 //     _this.dispatchEvent(new CustomEvent("checkvariant", {
@@ -326,7 +333,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                 //     }));
                 // },
                 onCheckAll: function(rows) {
-                    _this.dispatchEvent(new CustomEvent("checkvariant", {
+                    _this.dispatchEvent(new CustomEvent("checkrow", {
                         detail: {
                             variants: $("#" + _this._prefix + "VariantBrowserGrid").bootstrapTable("getAllSelections")
                         }
@@ -334,7 +341,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                 },
                 onUncheck: function(row, $element) {
                     const _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-                    _this.dispatchEvent(new CustomEvent("checkvariant", {
+                    _this.dispatchEvent(new CustomEvent("checkrow", {
                         detail: {
                             id: _variant,
                             variant: row,
@@ -546,10 +553,10 @@ export default class VariantCancerInterpreterGrid extends LitElement {
             const reference = row.reference !== "" ? row.reference : "-";
             const alternate = row.alternate !== "" ? row.alternate : "-";
             const _variant = row.chromosome + ":" + row.start + ":" + reference + ":" + alternate;
-            this.dispatchEvent(new CustomEvent("selectvariant", {
+            this.dispatchEvent(new CustomEvent("selectrow", {
                 detail: {
                     id: _variant,
-                    variant: row
+                    row: row
                 }
             }));
         }

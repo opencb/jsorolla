@@ -42,16 +42,13 @@ export default class OpencgaVariantInterpretationDetail extends LitElement {
             cellbaseClient: {
                 type: Object
             },
-            clinicalAnalysis: {
-                type: Object
+            variantId: {
+                type: String
             },
             variant: {
                 type: Object
             },
-            consequenceTypes: {
-                type: Object
-            },
-            proteinSubstitutionScores: {
+            clinicalAnalysis: {
                 type: Object
             },
             config: {
@@ -63,160 +60,222 @@ export default class OpencgaVariantInterpretationDetail extends LitElement {
     _init() {
         // All id fields in the template must start with prefix, this allows components to be instantiated more than once
         this._prefix = "oivd" + Utils.randomString(6);
+        this.detailActiveTabs = {};
 
         // Initially we set the default config, this will be overridden if 'config' is passed
         this._config = this.getDefaultConfig();
-        this.detailActiveTabs = {};
+    }
+
+    firstUpdated(_changedProperties) {
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") ||
-            changedProperties.has("variant") ||
-            changedProperties.has("config")) {
-            this.propertyObserver();
+        if (changedProperties.has("variantId")) {
+            this.variantIdObserver();
+        }
+        debugger
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 
-    propertyObserver() {
-        // With each property change we must updated config and create the columns again. No extra checks are needed.
-        this._config = Object.assign(this.getDefaultConfig(), this.config);
+    variantIdObserver() {
+        let _this = this;
+        if (typeof this.cellbaseClient !== "undefined" && UtilsNew.isNotEmpty(this.variantId)) {
+            this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", {assembly: this.opencgaSession.project.organism.assembly}, {})
+                .then(function(response) {
+                    _this.variant = {id: _this.variantId, annotation: response.response[0].result[0]};
+                    _this.variantAnnotation = response.response[0].result[0];
+                    _this.numberConsequenceTypes = 0;
+                    _this.numberPopulationFrequencies = 0;
+                    _this.numberVTA = 0;
+                    _this.numberGTA = 0;
 
-        if (UtilsNew.isNotEmpty(this.variant)) {
-            this._variantId = `${this.variant.chromosome}:${this.variant.start}:${this.variant.reference}:${this.variant.alternate}`;
-        }
-    }
-
-    checkVariant(variant) {
-        if (UtilsNew.isNotUndefinedOrNull(variant)) {
-            return variant.id.startsWith("rs") || variant.id.split(":").length > 2;
-        } else {
-            return false;
+                    if (_this.variantAnnotation.geneTraitAssociation != null) {
+                        _this.numberConsequenceTypes = _this.variantAnnotation.consequenceTypes.length;
+                        _this.numberPopulationFrequencies = UtilsNew.isNotEmptyArray(_this.variantAnnotation.populationFrequencies) ? _this.variantAnnotation.populationFrequencies.length : 0;
+                        _this.numberVTA = UtilsNew.isNotUndefinedOrNull(_this.variantAnnotation.traitAssociation) ? _this.variantAnnotation.traitAssociation.length : 0;
+                        _this.numberGTA = UtilsNew.isNotUndefinedOrNull(_this.variantAnnotation.geneTraitAssociation) ? _this.variantAnnotation.geneTraitAssociation.length : 0;
+                    }
+                });
         }
     }
 
     _changeBottomTab(e) {
         const _activeTabs = {};
-        for (const detail of this.config) {
+        for (let detail of this._config.views) {
             _activeTabs[detail.id] = (detail.id === e.currentTarget.dataset.id);
         }
         this.detailActiveTabs = _activeTabs;
+        this.requestUpdate();
     }
 
     getDefaultConfig() {
         return {
-
+            title: "Selected Variant",
+            views: [
+                {
+                    id: "annotationSummary",
+                    title: "Summary",
+                    active: true
+                },
+                {
+                    id: "annotationConsType",
+                    title: "Consequence Type",
+                },
+                {
+                    id: "annotationPropFreq",
+                    title: "Population Frequencies"
+                },
+                {
+                    id: "fileMetrics",
+                    title: "File Metrics"
+                },
+                {
+                    id: "cohortStats",
+                    title: "Cohort Stats",
+                    // cohorts: this.cohorts
+                },
+                {
+                    id: "beacon",
+                    title: "Beacon"
+                    // Uncomment and edit Beacon hosts to change default hosts
+                    // hosts: [
+                    //     "brca-exchange", "cell_lines", "cosmic", "wtsi", "wgs", "ncbi", "ebi", "ega", "broad", "gigascience", "ucsc",
+                    //     "lovd", "hgmd", "icgc", "sahgp"
+                    // ]
+                }
+            ]
         };
     }
 
     render() {
+        if (!this.variant || !this.variant.annotation) {
+            return html`<h3>Error: No valid variant or annotation</h3>`;
+        }
+
+        if (!this._config || !this._config.views) {
+            return html`<h3>Error: No valid tab configuration</h3>`;
+        }
+
         return html`
-        <style include="jso-styles"></style>
-
-        ${this.checkVariant(this.variant) ? html`
-        <div style="padding-top: 20px">
-            <h3>Variant: ${this.variant.id}</h3>
-
             <div style="padding-top: 20px">
-                <!-- Dynamically create the Detail Tabs from Browser config -->
-                <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
-                    
-                    ${this.config && this.config.length ? this.config.map( item => html`
-                        ${this.active ? html`
-                            <li role="presentation" class="active">
-                                <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}"
-                                   class="browser-variant-tab-title" @click="${this._changeBottomTab}">${item.title}</a>
-                            </li>
-                        ` : html`
-                            <li role="presentation" class="">
-                                <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}"
-                                   class="browser-variant-tab-title" @click="${this._changeBottomTab}">${item.title}</a>
-                            </li>
-                        `}
-                    `) : null }
-                    
-                </ul>
+                <h3>${this._config.title}: ${this.variant.id}</h3>
+    
+                <div style="padding-top: 20px">
+                    <!-- Dynamically create the Detail Tabs from Browser config -->
+                    <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
+                        ${this._config.views.map( item => html`
+                            ${this.active ? html`
+                                    <li role="presentation" class="active">
+                                        <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}"
+                                            class="browser-variant-tab-title" @click="${this._changeBottomTab}">${item.title}
+                                        </a>
+                                    </li>` 
+                                : html`
+                                    <li role="presentation" class="">
+                                        <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}"
+                                           class="browser-variant-tab-title" @click="${this._changeBottomTab}">${item.title}</a>
+                                    </li>
+                                `}
+                            `) }
+                    </ul>
 
-<!--                style="height: 680px"-->
-                <div class="tab-content">
-<!--                    &lt;!&ndash; Annotation Tab &ndash;&gt;-->
-<!--                    <div id="${this._prefix}variantReview" role="tabpanel" class="tab-pane">-->
-<!--                        <div style="width: 75%;padding-top: 8px">-->
-<!--                            <opencga-interpretation-variant-review opencga-session="{{opencgaSession}}"-->
-<!--                                                                   variant="{{variant}}">-->
-<!--                            </opencga-interpretation-variant-review>-->
-<!--                        </div>-->
-<!--                    </div>-->
-
+                    <div class="tab-content" style="height: 680px">
                     <!-- Annotation Tab -->
-                    <div id="${this._prefix}annotation" role="tabpanel" class="tab-pane active">
-                        <div style="width: 75%;padding-top: 8px">
-                            <cellbase-variantannotation-view .data="${this._variantId}"
-                                                             .assembly="${this.opencgaSession.project.organism.assembly}"
-                                                             _prefix="${this._prefix}"
-                                                             .cellbaseClient="${this.cellbaseClient}"
-                                                             mode="vertical"
-                                                             .consequenceTypes="${this.consequenceTypes}"
-                                                             .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                             style="font-size: 12px">
-                            </cellbase-variantannotation-view>
+                        <!--
+                            <div id="${this._prefix}annotation" role="tabpanel" class="tab-pane active">
+                                <div style="width: 75%;padding-top: 8px">
+                                    <cellbase-variantannotation-view .data="${this.variant.id}"
+                                                                     .assembly="${this.opencgaSession.project.organism.assembly}"
+                                                                     _prefix="${this._prefix}"
+                                                                     .cellbaseClient="${this.cellbaseClient}"
+                                                                     mode="vertical"
+                                                                     .consequenceTypes="${this.consequenceTypes}"
+                                                                     .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                                     style="font-size: 12px">
+                                    </cellbase-variantannotation-view>
+                                </div>
+                            </div>
+                        -->
+                        
+                        <div id="${this._prefix}annotationSummary" role="tabpanel" class="tab-pane active">
+                            <div style="width: 90%;padding-top: 8px">
+                                <cellbase-variant-annotation-summary    .variantAnnotation="${this.variant.annotation}"
+                                                                        .consequenceTypes="${this.consequenceTypes}"
+                                                                        .proteinSubstitutionScores="${this.proteinSubstitutionScores}">
+                                </cellbase-variant-annotation-summary>  
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- Cohort Stats Tab -->
-                    <div id="${this._prefix}fileMetrics" role="tabpanel" class="tab-pane">
-                        <div style="width: 75%;padding-top: 8px">
-                            <opencga-variant-file-metrics .opencgaSession="${this.opencgaSession}"
-                                                          .variant="${this.variant}"
-                                                          .clinicalAnalysis="${this.clinicalAnalysis}"
-                            </opencga-variant-file-metrics>
+                        
+                         <div id="${this._prefix}annotationConsType" role="tabpanel" class="tab-pane">
+                            <div style="width: 90%;padding-top: 8px">
+                                <cellbase-annotation-consequencetype-grid   .data="${this.variant.annotation.consequenceTypes}"
+                                                                            .consequenceTypes="${this.consequenceTypes}">
+                                </cellbase-annotation-consequencetype-grid>
+                            </div>
+                         </div>
+                                        
+                         <div id="${this._prefix}annotationPropFreq" role="tabpanel" class="tab-pane">
+                            <div style="width: 90%;padding-top: 8px">
+                                <cellbase-population-frequency-grid .populationFrequencies="${this.variant.annotation.populationFrequencies}">
+                                </cellbase-population-frequency-grid>
+                            </div>
+                         </div>
+                                        
+                        <!-- Cohort Stats Tab -->
+                        <div id="${this._prefix}fileMetrics" role="tabpanel" class="tab-pane">
+                            <div style="width: 75%;padding-top: 8px">
+                                <opencga-variant-file-metrics .opencgaSession="${this.opencgaSession}"
+                                                              .variant="${this.variant}"
+                                                              .files="${this.clinicalAnalysis}"
+                                </opencga-variant-file-metrics>
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- Cohort Stats Tab -->
-                    <div id="${this._prefix}cohortStats" role="tabpanel" class="tab-pane">
-                        <div style="width: 75%;padding-top: 8px">
-                            <opencga-variant-cohort-stats .opencgaSession="${this.opencgaSession}"
-                                                          .variant="${this.variant.id}"
-                                                          .active="${this.detailActiveTabs.cohortStats}">
-                            </opencga-variant-cohort-stats>
+    
+                        <!-- Cohort Stats Tab -->
+                        <div id="${this._prefix}cohortStats" role="tabpanel" class="tab-pane">
+                            <div style="width: 75%;padding-top: 8px">
+                                <opencga-variant-cohort-stats .opencgaSession="${this.opencgaSession}"
+                                                              .variant="${this.variant.id}"
+                                                              .active="${this.detailActiveTabs.cohortStats}">
+                                </opencga-variant-cohort-stats>
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- Samples Tab -->
-                    <div id="${this._prefix}samples" role="tabpanel" class="tab-pane">
-                        <div style="width: 75%;padding-top: 8px">
-                            <opencga-variant-samples .opencgaSession="${this.opencgaSession}"
-                                                     .variant="${this.variant.id}"
-                                                     .active="${this.detailActiveTabs.samples}">
-                            </opencga-variant-samples>
+    
+                        <!-- Samples Tab -->
+                        <div id="${this._prefix}samples" role="tabpanel" class="tab-pane">
+                            <div style="width: 75%;padding-top: 8px">
+                                <opencga-variant-samples .opencgaSession="${this.opencgaSession}"
+                                                         .variant="${this.variant.id}"
+                                                         .active="${this.detailActiveTabs.samples}">
+                                </opencga-variant-samples>
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- Beacon Network Tab-->
-                    <div id="${this._prefix}beacon" role="tabpanel" class="tab-pane">
-                        <div style="width: 75%;padding-top: 8px">
-                            <variant-beacon-network .variant="${this.variant.id}" .clear="${this.variant.id}" .config="${this.beaconConfig}">
-                            </variant-beacon-network>
+    
+                        <!-- Beacon Network Tab-->
+                        <div id="${this._prefix}beacon" role="tabpanel" class="tab-pane">
+                            <div style="width: 75%;padding-top: 8px">
+                                <variant-beacon-network .variant="${this.variant.id}" .clear="${this.variant.id}" .config="${this.beaconConfig}">
+                                </variant-beacon-network>
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- Example Template Tab-->
-                    <div id="${this._prefix}template" role="tabpanel" class="tab-pane">
-                        <div style="width: 75%;padding-top: 8px">
-                            <opencga-variant-detail-template .opencgaSession="${this.opencgaSession}"
-                                                             .variant="${this.variant.id}"
-                                                             .active="${this.detailActiveTabs.template}">
-                            </opencga-variant-detail-template>
+    
+                        <!-- Example Template Tab-->
+                        <div id="${this._prefix}template" role="tabpanel" class="tab-pane">
+                            <div style="width: 75%;padding-top: 8px">
+                                <opencga-variant-detail-template .opencgaSession="${this.opencgaSession}"
+                                                                 .variant="${this.variant.id}"
+                                                                 .active="${this.detailActiveTabs.template}">
+                                </opencga-variant-detail-template>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        ` : null }
-        
         `;
     }
-
 }
 
 customElements.define("opencga-variant-interpretation-detail", OpencgaVariantInterpretationDetail);
