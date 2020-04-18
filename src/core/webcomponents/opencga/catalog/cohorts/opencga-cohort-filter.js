@@ -135,6 +135,9 @@ export default class OpencgaCohortFilter extends LitElement {
         if (changedProperties.has("variables")) {
             this.variablesChanged();
         }
+        if (changedProperties.has("opencgaSession")) {
+            //this.updateVariableSets();
+        }
     }
 
     onSearch() {
@@ -206,7 +209,7 @@ export default class OpencgaCohortFilter extends LitElement {
         }
     }
 
-    renderQueryFilters() {
+    /*renderQueryFilters() {
         // Empty everything before rendering
         this._clearHtmlDom();
 
@@ -216,7 +219,7 @@ export default class OpencgaCohortFilter extends LitElement {
         if (UtilsNew.isNotUndefined(this.query.name)) {
             PolymerUtils.setValue(this._prefix + "CohortName", this.query.name);
         }
-    }
+    }*/
 
     onFilterChange(key, value) {
         console.log("filterChange", {[key]: value});
@@ -263,7 +266,7 @@ export default class OpencgaCohortFilter extends LitElement {
                 content = html`<cohort-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></cohort-id-autocomplete>`;
                 break;
             case "samples":
-                content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
+                content = html`<sample-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></sample-id-autocomplete>`;
                 break;
             case "annotations":
                 content = html`<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
@@ -363,6 +366,7 @@ export default class OpencgaCohortFilter extends LitElement {
                     // _this.variableSets = [{name: "none"}];
                     _this.variableSets = [];
                 }
+                _this.requestUpdate();
             })
             .catch(function() {
                 console.log("Could not obtain the variable sets of the study " + _this.opencgaSession.study);
@@ -520,9 +524,9 @@ export default class OpencgaCohortFilter extends LitElement {
         }
     }
 
-    /**
+/*    /!**
      * Use custom CSS class to easily reset all controls.
-     */
+     *!/
     _clearHtmlDom() {
         // Input controls
         PolymerUtils.setPropertyByClassName(this._prefix + "FilterTextInput", "value", "");
@@ -537,9 +541,9 @@ export default class OpencgaCohortFilter extends LitElement {
 
         // TODO Refactor
         $("." + this._prefix + "FilterRadio").filter("[value=\"or\"]").prop("checked", true);
-    }
+    }*/
 
-    isVisible(myVar) {
+/*    isVisible(myVar) {
         if (UtilsNew.isNotUndefinedOrNull(this.config) && UtilsNew.isNotUndefinedOrNull(this.config.variableSet)) {
             const excludeArray = this.config.variableSet.exclude;
             for (const index in excludeArray) {
@@ -551,7 +555,7 @@ export default class OpencgaCohortFilter extends LitElement {
             }
         }
         return true;
-    }
+    }*/
 
     render() {
         return html`${this.searchButton ? html`

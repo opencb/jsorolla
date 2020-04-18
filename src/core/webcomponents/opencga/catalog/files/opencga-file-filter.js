@@ -24,6 +24,7 @@ import "../../../commons/filters/text-field-filter.js";
 import "../../../commons/filters/select-field-filter.js";
 import "../../../commons/filters/select-token-filter.js";
 import "../../../commons/filters/file-name-autocomplete.js";
+import "../../../commons/filters/sample-id-autocomplete.js";
 
 export default class OpencgaFileFilter extends LitElement {
 
@@ -267,8 +268,10 @@ export default class OpencgaFileFilter extends LitElement {
             case "name":
                 content = html`<file-name-autocomplete .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></file-name-autocomplete>`
                 break;
+            case "samples":
+                content = html`<sample-id-autocomplete .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></sample-id-autocomplete>`
+                break;
             case "path":
-            case "sample":
             case "bioformat":
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;

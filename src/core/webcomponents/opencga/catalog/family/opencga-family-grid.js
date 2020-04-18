@@ -42,7 +42,7 @@ export default class OpencgaFamilyGrid extends LitElement {
             families: {
                 type: Array
             },
-            //TODO remove
+            // TODO remove
             search: {
                 type: Object
             },
@@ -54,7 +54,7 @@ export default class OpencgaFamilyGrid extends LitElement {
             },
             query: {
                 type: Object
-            },
+            }
         };
     }
 
@@ -80,7 +80,7 @@ export default class OpencgaFamilyGrid extends LitElement {
     }*/
 
     firstUpdated(_changedProperties) {
-        //this.renderTable(this.active);
+        // this.renderTable(this.active);
     }
 
     propertyObserver() {
@@ -105,7 +105,7 @@ export default class OpencgaFamilyGrid extends LitElement {
 
         this.families = [];
 
-        let filters = {...this.query};
+        const filters = {...this.query};
 
         // Initialise the counters
         this.from = 1;
@@ -128,22 +128,11 @@ export default class OpencgaFamilyGrid extends LitElement {
             } else {
                 this._families = [];
             }
-
-            // Check that HTTP protocol is present and complete the URL
-/*            let opencgaHostUrl = this.opencgaClient.getConfig().host;
-            if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
-                opencgaHostUrl = "http://" + opencgaHostUrl;
-            }
-            opencgaHostUrl += "/webservices/rest/v1/families/search";*/
-
-            let skipCount = false;
-
             const _table = $("#" + this._prefix + "FamilyBrowserGrid");
-
             const _this = this;
             $("#" + this._prefix + "FamilyBrowserGrid").bootstrapTable("destroy");
             $("#" + this._prefix + "FamilyBrowserGrid").bootstrapTable({
-                //url: opencgaHostUrl,
+                // url: opencgaHostUrl,
                 columns: _this._columns,
                 method: "get",
                 sidePagination: "server",
@@ -161,8 +150,8 @@ export default class OpencgaFamilyGrid extends LitElement {
                 gridContext: _this,
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
-                    let _filters = {
-                        //study: this.opencgaSession.study.fqn,
+                    const _filters = {
+                        // study: this.opencgaSession.study.fqn,
                         order: params.data.order,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
@@ -171,7 +160,7 @@ export default class OpencgaFamilyGrid extends LitElement {
                     };
                     this.opencgaSession.opencgaClient.families().search(_filters)
                         .then( res => params.success(res))
-                        .catch( e => console.error(e)) ;
+                        .catch( e => console.error(e));
                 },
                 responseHandler: function(response) {
                     let _numMatches = _this._numMatches || 0;
@@ -632,7 +621,7 @@ export default class OpencgaFamilyGrid extends LitElement {
     onDownload(e) {
         // let urlQueryParams = this._getUrlQueryParams();
         // let params = urlQueryParams.queryParams;
-        //console.log(this.opencgaSession);
+        // console.log(this.opencgaSession);
         const params = {
             ...this.query,
             study: this.opencgaSession.study.fqn,
@@ -640,12 +629,12 @@ export default class OpencgaFamilyGrid extends LitElement {
             limit: 1000,
             skip: 0,
             includeIndividual: true,
-            skipCount: true,
+            skipCount: true
         };
         this.opencgaSession.opencgaClient.families().search(params)
             .then( response => {
                 const result = response.response[0].result;
-                console.log(result)
+                console.log(result);
                 let dataString = [];
                 let mimeType = "";
                 let extension = "";
@@ -662,7 +651,7 @@ export default class OpencgaFamilyGrid extends LitElement {
                                 _.creationDate,
                                 _.status.name
                             ].join("\t"))];
-                        //console.log(dataString);
+                        // console.log(dataString);
                         mimeType = "text/plain";
                         extension = ".txt";
                     } else {
@@ -689,8 +678,8 @@ export default class OpencgaFamilyGrid extends LitElement {
                 }
             })
             .then(function() {
-                //this.downloadRefreshIcon.css("display", "none");
-                //this.downloadIcon.css("display", "inline-block");
+                // this.downloadRefreshIcon.css("display", "none");
+                // this.downloadIcon.css("display", "inline-block");
             });
     }
 

@@ -582,8 +582,7 @@ export default class OpencgaBrowser extends LitElement {
                             <!-- dynamic render doesn't work well with active-filter events  _filterComp ${this._filterComp} -->
                             
                             ${this.resource === "files" ? html`
-                                <opencga-file-filter discriminator="hardcoded"  
-                                                    .opencgaSession="${this.opencgaSession}"
+                                <opencga-file-filter .opencgaSession="${this.opencgaSession}"
                                                     .config="${this._config.filter}"
                                                     .files="${this.files}"
                                                     .query="${this.query}"
@@ -595,8 +594,7 @@ export default class OpencgaBrowser extends LitElement {
                             ` : null}
                             
                             ${this.resource === "samples" ? html`
-                                <opencga-sample-filter  discriminator="hardcoded"  
-                                                        .opencgaSession="${this.opencgaSession}"
+                                <opencga-sample-filter  .opencgaSession="${this.opencgaSession}"
                                                         .cellbaseClient="${this.cellbaseClient}"
                                                         .config="${this._config.filter}"
                                                         .query="${this.query}"
@@ -608,8 +606,7 @@ export default class OpencgaBrowser extends LitElement {
                             ` : null}
                             
                             ${this.resource === "individuals" ? html`
-                                <opencga-individual-filter discriminator="hardcoded"  
-                                                            .opencgaSession="${this.opencgaSession}"
+                                <opencga-individual-filter  .opencgaSession="${this.opencgaSession}"
                                                             .config="${this._config.filter}"
                                                             .query="${this.query}"
                                                             .search="${this.search}"
@@ -621,8 +618,7 @@ export default class OpencgaBrowser extends LitElement {
                             ` : null}                            
                             
                             ${this.resource === "family" ? html`
-                                <opencga-family-filter  discriminator="hardcoded"  
-                                                        .opencgaSession="${this.opencgaSession}"
+                                <opencga-family-filter  .opencgaSession="${this.opencgaSession}"
                                                         .config="${this._config.filter}"
                                                         .query="${this.query}"
                                                         .search="${this.search}"
@@ -634,8 +630,7 @@ export default class OpencgaBrowser extends LitElement {
                             ` : null}
                             
                             ${this.resource === "cohort" ? html`
-                                <opencga-cohort-filter  discriminator="hardcoded"  
-                                                        .opencgaSession="${this.opencgaSession}"
+                                <opencga-cohort-filter  .opencgaSession="${this.opencgaSession}"
                                                         .config="${this._config.filter}"
                                                         .query="${this.query}"
                                                         .search="${this.search}"

@@ -160,13 +160,13 @@ export default class OpencgaSampleBrowser extends LitElement {
                                 name: "Individual",
                                 placeholder: "LP-1234, LP-4567...",
                                 description: ""
-                            },
+                            },/*
                             {
                                 id: "source",
                                 name: "Source",
                                 placeholder: "LP-1234, LP-4567...",
                                 description: ""
-                            },
+                            },*/
                             {
                                 id: "annotations",
                                 name: "Sample annotations",
