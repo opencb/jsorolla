@@ -15,7 +15,8 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
+import UtilsNew from "./../../../utilsNew.js";
+import {consequenceTypes, proteinSubstitutionScore} from "../../commons/opencga-variant-contants.js";
 
 export default class AnnotationConsequencetypeGrid extends LitElement {
 
@@ -32,313 +33,285 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
         return {
             data: {
                 type: Array
-            },
-            consequenceTypes: {
-                type: Object,
-            },
-            hashFragmentCredentials: {
-                type: Object
             }
         }
     }
 
     _init() {
-        this._prefix = "actg" + Utils.randomString(6);
-        // this.data = [];
+        this._prefix = "actg" + UtilsNew.randomString(6);
+
+        this._consequenceTypeColorMap = this._getConsequenceTypeColorMap();
     }
 
     updated(changedProperties) {
         if (changedProperties.has("data")) {
             this.renderTable();
         }
-        if (changedProperties.has("consequenceTypes")) {
-            this.assignColors();
-        }
-        // this.requestUpdate();
-        // this.renderTable();
     }
 
-    assignColors() {
-        if (typeof this.consequenceTypes !== "undefined") {
-            let consequenceTypeToColor = {};
-            let consequenceTypeToImpact = {};
-            for (let i = 0; i < this.consequenceTypes.categories.length; i++) {
-                if (typeof this.consequenceTypes.categories[i].terms !== "undefined") {
-                    for (let j = 0; j < this.consequenceTypes.categories[i].terms.length; j++) {
-                        consequenceTypeToColor[this.consequenceTypes.categories[i].terms[j].name] = this.consequenceTypes.style[this.consequenceTypes.categories[i].terms[j].impact];
-                    }
-                } else if (typeof this.consequenceTypes.categories[i].id !== "undefined" && typeof this.consequenceTypes.categories[i].name !== "undefined") {
-                    consequenceTypeToColor[this.consequenceTypes.categories[i].name] = this.consequenceTypes.style[this.consequenceTypes.categories[i].impact];
+    _getConsequenceTypeColorMap() {
+        let consequenceTypeToColor = {};
+        if (consequenceTypes) {
+            for (let categoryIndex in consequenceTypes.categories) {
+                let terms = consequenceTypes.categories[categoryIndex].terms;
+                for (let termIndex in terms) {
+                    consequenceTypeToColor[terms[termIndex].name] = consequenceTypes.style[terms[termIndex].impact];
                 }
             }
-            this.consequenceTypeToColor = consequenceTypeToColor;
+        }
+        return consequenceTypeToColor;
+    }
 
-            this.renderTable();
-            // this.requestUpdate();
+    detailFormatter(value, row) {
+        let result = "<div class='row' style='padding-bottom: 20px'>";
+        let detailHtml = "";
+
+        // Transcript Section
+        detailHtml += "<div style='padding: 20px 0px 10px 25px'><h4>Transcript Annotation</h4></div>";
+        let exonOverlap = "NA";
+        if (row.exonOverlap) {
+            let exons = [];
+            for (let exon in row.exonOverlap) {
+                exons.push(`${row.exonOverlap[exon].number} (${row.exonOverlap[exon].percentage})`);
+            }
+            exonOverlap = exons.join(", ");
+        }
+        detailHtml += `<div style='padding: 0px 40px'>
+                                <label style="padding-right: 10px">Ensembl Transcript ID:</label>${row.ensemblTranscriptId || "NA"}<br>
+                                <label style="padding-right: 10px">Strand:</label>${row.strand || "NA"}<br>
+                                <label style="padding-right: 10px">cDNA Position:</label>${row.cdnaPosition || "NA"}<br>
+                                <label style="padding-right: 10px">CDS Position:</label>${row.cdsPosition || "NA"}<br>
+                                <label style="padding-right: 10px">Codon:</label>${row.codon || "NA"}<br>
+                                <label style="padding-right: 10px">Exon Overlap (%):</label>${exonOverlap}
+                       </div>`;
+
+        // Protein Section
+        detailHtml += `<div style='padding: 20px 0px 10px 25px'><h4>Protein Annotation</h4></div>
+                            <div style='padding: 0px 40px'>`;
+        if (row.proteinVariantAnnotation) {
+            let protAnnot = row.proteinVariantAnnotation;
+            let keywords = protAnnot.keywords ? protAnnot.keywords.join(", ") : "NA";
+            let domains = protAnnot.features ? protAnnot.features.map(v => {if (v.id) {return " " + v.id}}) : "NA";
+            detailHtml += `<label style="padding-right: 10px">UniProt Accession:</label>${protAnnot.uniprotAccession || "NA"}<br>
+                           <label style="padding-right: 10px">UniProt Variant ID:</label>${protAnnot.uniprotVariantId || "NA"}<br>
+                           <label style="padding-right: 10px">Functional Description:</label>${protAnnot.functionalDescription || "NA"}<br>
+                           <label style="padding-right: 10px">Keywords:</label>${keywords}<br>
+                           <label style="padding-right: 10px">Features:</label>${domains}`;
+        } else {
+            detailHtml += "No Uniprot Data Available";
+        }
+        detailHtml += "</div>";
+
+        result += detailHtml + "</div>";
+        return result;
+    }
+
+    geneNameFormatter(value, row, index) {
+        if (value) {
+            return `<a href="https://www.genenames.org/tools/search/#!/all?query=${value}" target="_blank">${value}</a>`;
+        } else {
+            return "";
         }
     }
 
-    //it was render();
+    ensemblGeneFormatter(value, row, index) {
+        if (value) {
+            return `<a href="https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${value}" target="_blank">${value}</a>`;
+        } else {
+            return "-";
+        }
+    }
+
+    ensemblTranscriptFormatter(value, row, index) {
+        if (value) {
+            return `<a href="https://www.ensembl.org/Homo_sapiens/Transcript/Idhistory?t=${value}" target="_blank">${value}</a>`;
+        } else {
+            return "-";
+        }
+    }
+
+    transcriptFlagFormatter(value, row, index) {
+        if (value) {
+            return value.join(", ");
+        } else {
+            return "-";
+        }
+    }
+
+    consequenceTypeFormatter(values, row, index) {
+        if (values) {
+            let result = [];
+            for (let soTerm of values) {
+                let color = this._consequenceTypeColorMap && this._consequenceTypeColorMap[soTerm.name]
+                    ? this._consequenceTypeColorMap[soTerm.name]
+                    : "black";
+                result.push(`<span style="color: ${color}">${soTerm.name}</span>&nbsp;(<a href="http://www.sequenceontology.org/browser/current_svn/term/${soTerm.accession}" target="_blank">${soTerm.accession}</a>)`);
+            }
+            return result.join("<br>");
+        } else {
+            return "-";
+        }
+    }
+
+    uniprotAccessionFormatter(value, row, index) {
+        if (value && value.uniprotAccession) {
+            return `<a href="https://www.uniprot.org/uniprot/${value.uniprotAccession}" target="_blank">${value.uniprotAccession}</a>`;
+        } else {
+            return "-";
+        }
+    }
+
+    proteinAlleleFormatter(value, row, index) {
+        if (value && value.reference && value.alternate) {
+            return value.reference + "/" + value.alternate;
+        } else {
+            return "-";
+        }
+    }
+
+    siftScoreFormatter(value, row, index) {
+        if (value) {
+            for (let i in value) {
+                if (value[i].source === "sift") {
+                    let color = proteinSubstitutionScore.style.sift[value[i].description];
+                    return `<span title="${value[i].description}" style="color: ${color}">${value[i].score}</span>`;
+                }
+            }
+        } else {
+            return "-";
+        }
+    }
+
+    polyphenScoreFormatter(value, row, index) {
+        if (value) {
+            for (let i in value) {
+                if (value[i].source === "polyphen") {
+                    let color = proteinSubstitutionScore.style.polyphen[value[i].description];
+                    return `<span title="${value[i].description}" style="color: ${color}">${value[i].score}</span>`;
+                }
+            }
+        } else {
+            return "-";
+        }
+    }
+
     renderTable() {
-        // this.data
-        // debugger
         let _this = this;
         $('#' + this._prefix + 'ConsequenceTypeTable').bootstrapTable('destroy');
         $('#' + this._prefix + 'ConsequenceTypeTable').bootstrapTable({
             data: _this.data,
+            pagination: false,
+            showExport: true,
             detailView: true,
-            detailFormatter: _this.detailFormatter,
+            detailFormatter: this.detailFormatter,
             columns: [
                 [
                     {
                         title: 'Gene',
                         field: 'geneName',
+                        rowspan: 2,
                         colspan: 1,
-                        rowspan: 2
+                        formatter: this.geneNameFormatter,
+                        halign: "center"
                     },
                     {
                         title: 'Ensembl Gene',
                         field: 'ensemblGeneId',
+                        rowspan: 2,
                         colspan: 1,
-                        rowspan: 2
+                        formatter: this.ensemblGeneFormatter,
+                        halign: "center"
                     },
                     {
                         title: 'Ensembl Transcript',
                         field: 'ensemblTranscriptId',
+                        rowspan: 2,
                         colspan: 1,
-                        rowspan: 2
+                        formatter: this.ensemblTranscriptFormatter,
+                        halign: "center"
                     },
                     {
                         title: 'Biotype',
                         field: 'biotype',
+                        rowspan: 2,
                         colspan: 1,
-                        rowspan: 2
+                        halign: "center"
                     },
                     {
-                        title: 'Sequence Ontology Term',
-                        field: {context : _this},
-                        formatter: _this.seqOntologyFormatter,
+                        title: 'Transcript Flag',
+                        field: 'transcriptAnnotationFlags',
                         colspan: 1,
-                        rowspan: 2
+                        rowspan: 2,
+                        formatter: this.transcriptFlagFormatter,
+                        halign: "center"
+                    },
+                    {
+                        title: 'Consequence Types (SO Term)',
+                        field: "sequenceOntologyTerms",
+                        rowspan: 2,
+                        colspan: 1,
+                        formatter: this.consequenceTypeFormatter.bind(this),
+                        halign: "center"
                     },
                     {
                         title: 'Protein Variant Annotation',
+                        rowspan: 1,
                         colspan: 6,
-                        rowspan: 1
+                        halign: "center"
                     }
                 ],
                 [
                     {
                         title: 'Uniprot Accession',
-                        field: {context: _this},
-                        formatter: _this.uniprotAccessionFormatter,
+                        field: "proteinVariantAnnotation",
+                        formatter: this.uniprotAccessionFormatter,
+                        rowspan: 1,
                         colspan: 1,
-                        rowspan: 1
+                        halign: "center"
                     },
                     {
                         title: 'Position',
                         field: 'proteinVariantAnnotation.position',
+                        rowspan: 1,
                         colspan: 1,
-                        rowspan: 1
+                        align: "right",
+                        halign: "center"
                     },
                     {
                         title: 'Ref/Alt',
-                        formatter: _this.proteinAlleleFormatter,
+                        field: 'proteinVariantAnnotation',
+                        rowspan: 1,
                         colspan: 1,
-                        rowspan: 1
+                        formatter: this.proteinAlleleFormatter,
+                        halign: "center"
                     },
                     {
                         title: 'Sift',
-                        formatter: _this.siftScoreFormatter,
-                        cellStyle: _this.siftCellStyle,
+                        field: "proteinVariantAnnotation.substitutionScores",
+                        rowspan: 1,
                         colspan: 1,
-                        rowspan: 1
+                        formatter: this.siftScoreFormatter,
+                        align: "right",
+                        halign: "center"
                     },
                     {
                         title: 'Polyphen',
-                        formatter: _this.polyphenScoreFormatter,
-                        cellStyle: _this.polyphenCellStyle,
+                        field: "proteinVariantAnnotation.substitutionScores",
+                        rowspan: 1,
                         colspan: 1,
-                        rowspan: 1
-                    },
-                    {
-                        title: 'Functional Description',
-                        field: 'proteinVariantAnnotation.functionalDescription',
-                        colspan: 1,
-                        rowspan: 1
+                        formatter: this.polyphenScoreFormatter,
+                        align: "right",
+                        halign: "center"
                     }
                 ]
             ]
         });
-        // this.requestUpdate();
-    }
-
-    uniprotAccessionFormatter(value, row, index) {
-        // debugger
-        if (typeof row.proteinVariantAnnotation !== 'undefined' && typeof row.proteinVariantAnnotation.uniprotAccession !== 'undefined') {
-            if (typeof this.field.context.hashFragmentCredentials !== "undefined") {
-                return '<a href="#protein/' + this.field.context.hashFragmentCredentials.project + '/' + this.field.context.hashFragmentCredentials.study + '/' +
-                    row.proteinVariantAnnotation.uniprotAccession + '">' + row.proteinVariantAnnotation.uniprotAccession + '</a>';
-            } else {
-                return '<a href="http://www.uniprot.org/uniprot/' + row.proteinVariantAnnotation.uniprotAccession + '">' + row.proteinVariantAnnotation.uniprotAccession
-                    + '</a>';
-            }
-        } else {
-            return '-';
-        }
-    }
-
-    seqOntologyFormatter(value, row, index) {
-        let soTerm = row.sequenceOntologyTerms[0];
-        if (typeof this.field.context.consequenceTypeToColor !== "undefined" && typeof this.field.context.consequenceTypeToColor[soTerm.name] !== "undefined") {
-            return '<span style="color: ' + this.field.context.consequenceTypeToColor[soTerm.name] + '">' + soTerm.name + '</span>&nbsp;'
-                + '(<a target="_blank" href="http://www.sequenceontology.org/browser/current_svn/term/' + soTerm.accession + '">' + soTerm.accession + '</a>)';
-        } else {
-            return soTerm.name + '&nbsp;(<a target="_blank" href="http://www.sequenceontology.org/browser/current_svn/term/' + soTerm.accession + '">' + soTerm.accession + '</a>)';
-        }
-    }
-
-    proteinAlleleFormatter(value, row, index) {
-        if (typeof row.proteinVariantAnnotation !== 'undefined' && typeof row.proteinVariantAnnotation.reference !== 'undefined'
-            && typeof row.proteinVariantAnnotation.alternate !== 'undefined') {
-            return row.proteinVariantAnnotation.reference + "/" + row.proteinVariantAnnotation.alternate;
-        } else {
-            return '-';
-        }
-    }
-
-    detailFormatter(index, row) {
-        if (row.biotype === "protein_coding") {
-            if (typeof row.proteinVariantAnnotation !== 'undefined') {
-                if (typeof row.proteinVariantAnnotation.uniprotVariantId !== 'undefined') {
-                    var html = [];
-                    var result = "";
-                    if (typeof row.proteinVariantAnnotation.features !== 'undefined') {
-                        let features = row.proteinVariantAnnotation.features;
-                        var xxx = [];
-                        for (let i in features) {
-                            features[i].id = features[i].id || '-';
-                            features[i].type = features[i].type || '-';
-                            features[i].description = features[i].description || '-';
-                            xxx.push('<span> ID: ' + features[i].id + ', Start:' + features[i].start + ', End:' + features[i].end +
-                                ', Type:' + features[i].type + ', Description:' + features[i].description + ' </span> <br>');
-                        }
-                        result = xxx.join('');
-                    } else {
-                        result = '-';
-                    }
-
-                    html.push('<b>Uniprot Variant ID:</b> ' + row.proteinVariantAnnotation.uniprotVariantId +
-                        '<br> <b>Keywords:</b> ' + row.proteinVariantAnnotation.keywords +
-                        '<br> <b>Features:</b><br> ' + result);
-                    return html.join('');
-                } else {
-                    return "No Uniprot Data Available";
-                }
-            }
-            else {
-                return "No Uniprot Data Available";
-            }
-        } else {
-            return '-';
-        }
-
-    }
-
-    siftScoreFormatter(value, row, index) {
-        if (typeof row.proteinVariantAnnotation !== 'undefined') {
-            let sub = row.proteinVariantAnnotation.substitutionScores;
-            for (let i in sub) {
-                if (sub[i].source === "sift") {
-                    return '<span title="' + sub[i].description + '">' + sub[i].score + '</span>';
-                }
-            }
-        } else {
-            return '-';
-        }
-    }
-
-    polyphenScoreFormatter(value, row, index) {
-        if (typeof row.proteinVariantAnnotation !== 'undefined') {
-            let sub = row.proteinVariantAnnotation.substitutionScores;
-            for (let i in sub) {
-                if (sub[i].source === "polyphen") {
-                    return '<span title="' + sub[i].description + '">' + sub[i].score + '</span>';
-                }
-            }
-        } else {
-            return '-';
-        }
-    }
-
-    siftCellStyle(value, row, index) {
-        if (typeof row.proteinVariantAnnotation !== 'undefined') {
-            if (typeof row.proteinVariantAnnotation.substitutionScores !== 'undefined') {
-                let sift = row.proteinVariantAnnotation.substitutionScores[0];
-                if (sift) {
-                    switch (sift.description) {
-                    case 'tolerated':
-                        return {
-                            css: {
-                                "background-color": "green"
-                            }
-                        };
-                    case 'deleterious':
-                        return {
-                            css: {
-                                "background-color": "red"
-                            }
-                        };
-                    }
-                }
-            }
-        }
-        return {};
-    }
-
-    polyphenCellStyle(value, row, index) {
-        if (typeof row.proteinVariantAnnotation !== 'undefined') {
-            if (typeof row.proteinVariantAnnotation.substitutionScores !== 'undefined') {
-                let polyphen = row.proteinVariantAnnotation.substitutionScores[1];
-                if (polyphen) {
-                    switch (polyphen.description) {
-                    case 'probably damaging':
-                        return {
-                            css: {
-                                "background-color": "red"
-                            }
-                        };
-                    case 'possibly damaging':
-                        return {
-                            css: {
-                                "background-color": "orange"
-                            }
-                        };
-                    case 'benign':
-                        return {
-                            css: {
-                                "background-color": "green"
-                            }
-                        };
-                    case 'unknown':
-                        return {
-                            css: {
-                                "background-color": "blue"
-                            }
-                        };
-                    }
-                }
-            }
-        }
-        return {};
     }
 
     render() {
         return html`
             <div style="padding: 10px;">
-                <table id="${this._prefix}ConsequenceTypeTable" data-search="true" data-show-columns="true" data-pagination="true"
-                       data-page-list="[10, 25]" data-show-pagination-switch="true" data-show-export="true" data-icons-prefix="fa" data-icons="icons">
-                </table>
+                <table id="${this._prefix}ConsequenceTypeTable"></table>
             </div>
         `;
     }
