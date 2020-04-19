@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./cellbase-variant-annotation-summary.js";
-import "./cellbase-annotation-consequencetype-grid.js";
+import "./variant-consequence-type-view.js";
 import "./cellbase-population-frequency-grid.js";
 
 export default class CellbaseVariantAnnotationView extends LitElement {

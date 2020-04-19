@@ -40,7 +40,7 @@ import "./core/webcomponents/variant/variant-beacon-network.js";
 import "./core/webcomponents/variant/opencga-variant-interpreter-genome-browser.js";
 import "./core/webcomponents/variant/annotation/cellbase-population-frequency-grid.js";
 import "./core/webcomponents/variant/annotation/cellbase-variantannotation-view.js";
-import "./core/webcomponents/variant/annotation/cellbase-annotation-consequencetype-grid.js";
+import "./core/webcomponents/variant/annotation/variant-consequence-type-view.js";
 import "./core/webcomponents/variant/annotation/cellbase-variant-annotation-summary.js";
 import "./core/webcomponents/variant/opencga-variant-browser.js";
 import "./core/webcomponents/variant/opencga-variant-facet-query.js";

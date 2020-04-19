@@ -21,10 +21,10 @@ import PolymerUtils from "../PolymerUtils.js";
 import {biotypes, populationFrequencies, tooltips, proteinSubstitutionScore} from "../commons/opencga-variant-contants.js";
 import "./opencga-variant-grid.js";
 import "./opencga-variant-filter.js";
+import "./opencga-variant-detail-view.js";
 import "../commons/opencga-facet-result-view.js";
 import "../commons/facet-filter.js";
 import "../commons/opencga-active-filters.js";
-import "./opencga-variant-detail-view.js";
 import "../commons/filters/select-field-filter.js";
 import "../../loading-spinner.js";
 

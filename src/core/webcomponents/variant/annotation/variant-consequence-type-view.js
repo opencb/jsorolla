@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../../utilsNew.js";
 import {consequenceTypes, proteinSubstitutionScore} from "../../commons/opencga-variant-contants.js";
 
-export default class AnnotationConsequencetypeGrid extends LitElement {
+export default class VariantConsequenceTypeView extends LitElement {
 
     constructor() {
         super();
@@ -31,20 +31,20 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
 
     static get properties() {
         return {
-            data: {
+            consequenceTypes: {
                 type: Array
             }
         }
     }
 
     _init() {
-        this._prefix = "actg" + UtilsNew.randomString(6);
+        this._prefix = "vctv" + UtilsNew.randomString(6);
 
         this._consequenceTypeColorMap = this._getConsequenceTypeColorMap();
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("data")) {
+        if (changedProperties.has("consequenceTypes")) {
             this.renderTable();
         }
     }
@@ -174,7 +174,7 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
             for (let i in value) {
                 if (value[i].source === "sift") {
                     let color = proteinSubstitutionScore.style.sift[value[i].description];
-                    return `<span title="${value[i].description}" style="color: ${color}">${value[i].score}</span>`;
+                    return `<span title="${value[i].score}" style="color: ${color}">${value[i].description}</span>`;
                 }
             }
         } else {
@@ -187,7 +187,7 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
             for (let i in value) {
                 if (value[i].source === "polyphen") {
                     let color = proteinSubstitutionScore.style.polyphen[value[i].description];
-                    return `<span title="${value[i].description}" style="color: ${color}">${value[i].score}</span>`;
+                    return `<span title="${value[i].score}" style="color: ${color}">${value[i].description}</span>`;
                 }
             }
         } else {
@@ -196,10 +196,9 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
     }
 
     renderTable() {
-        let _this = this;
         $('#' + this._prefix + 'ConsequenceTypeTable').bootstrapTable('destroy');
         $('#' + this._prefix + 'ConsequenceTypeTable').bootstrapTable({
-            data: _this.data,
+            data: this.consequenceTypes,
             pagination: false,
             showExport: true,
             detailView: true,
@@ -262,7 +261,7 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
                 ],
                 [
                     {
-                        title: 'Uniprot Accession',
+                        title: 'UniProt Accession',
                         field: "proteinVariantAnnotation",
                         formatter: this.uniprotAccessionFormatter,
                         rowspan: 1,
@@ -310,11 +309,11 @@ export default class AnnotationConsequencetypeGrid extends LitElement {
 
     render() {
         return html`
-            <div style="padding: 10px;">
+            <div style="padding: 20px">
                 <table id="${this._prefix}ConsequenceTypeTable"></table>
             </div>
         `;
     }
 }
 
-customElements.define('cellbase-annotation-consequencetype-grid', AnnotationConsequencetypeGrid);
+customElements.define('variant-consequence-type-view', VariantConsequenceTypeView);

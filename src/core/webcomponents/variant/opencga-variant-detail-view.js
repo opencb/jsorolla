@@ -18,8 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../utils.js";
 import UtilsNew from "./../../utilsNew.js";
 import "./annotation/cellbase-variant-annotation-summary.js";
-// import "./annotation/cellbase-variantannotation-view.js";
-import "./annotation/cellbase-annotation-consequencetype-grid.js";
+import "./annotation/variant-consequence-type-view.js";
 import "./annotation/cellbase-population-frequency-grid.js";
 import "./opencga-variant-cohort-stats.js";
 
@@ -196,16 +195,15 @@ export default class OpenCGAVariantDetailView extends LitElement {
                                                 <cellbase-variant-annotation-summary    .variantAnnotation="${this.variant.annotation}"
                                                                                         .consequenceTypes="${this.consequenceTypes}"
                                                                                         .proteinSubstitutionScores="${this.proteinSubstitutionScores}">
-                                                </cellbase-variant-annotation-summary>  
+                                                </cellbase-variant-annotation-summary> 
                                             </div>
                                         </div>
                                         
                                         
                                         <div id="${this._prefix}annotationConsType" role="tabpanel" class="tab-pane">
                                             <div style="width: 90%;padding-top: 8px">
-                                                <cellbase-annotation-consequencetype-grid   .data="${this.variant.annotation.consequenceTypes}"
-                                                                                            .consequenceTypes="${this.consequenceTypes}">
-                                                </cellbase-annotation-consequencetype-grid>
+                                                <variant-consequence-type-view  .consequenceTypes="${this.variant.annotation.consequenceTypes}">
+                                                </variant-consequence-type-view>
                                             </div>
                                         </div>
                                         
@@ -291,28 +289,23 @@ export default class OpenCGAVariantDetailView extends LitElement {
                 // },
                 {
                     id: "annotationSummary",
-                    // component: "opencga-variant-cohort-stats",
                     title: "Summary",
                     active: true
                 },
                 {
                     id: "annotationConsType",
-                    // component: "opencga-variant-cohort-stats",
-                    title: "Consequence Type",
+                    title: "Consequence Types",
                 },
                 {
                     id: "annotationPropFreq",
-                    // component: "opencga-variant-cohort-stats",
                     title: "Population Frequencies"
                 },
                 {
                     id: "cohortStats",
-                    component: "opencga-variant-cohort-stats",
                     title: "Cohort Stats"
                 },
                 {
                     id: "samples",
-                    component: "opencga-variant-samples",
                     title: "Samples"
                 },
                 {
@@ -330,11 +323,6 @@ export default class OpenCGAVariantDetailView extends LitElement {
                     component: "reactome-variant-network",
                     title: "Reactome Pathways"
                 }
-                // {
-                //     id: "template",
-                //     component: "opencga-variant-detail-template",
-                //     title: "Template"
-                // }
             ]
         };
     }

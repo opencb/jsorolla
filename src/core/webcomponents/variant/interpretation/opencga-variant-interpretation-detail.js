@@ -19,6 +19,7 @@ import Utils from "../../../utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./opencga-interpretation-variant-review.js";
 import "../annotation/cellbase-variantannotation-view.js";
+import "../annotation/variant-consequence-type-view.js";
 import "../opencga-variant-file-metrics.js";
 import "../variant-beacon-network.js";
 
@@ -211,9 +212,8 @@ export default class OpencgaVariantInterpretationDetail extends LitElement {
                         
                          <div id="${this._prefix}annotationConsType" role="tabpanel" class="tab-pane">
                             <div style="width: 90%;padding-top: 8px">
-                                <cellbase-annotation-consequencetype-grid   .data="${this.variant.annotation.consequenceTypes}"
-                                                                            .consequenceTypes="${this.consequenceTypes}">
-                                </cellbase-annotation-consequencetype-grid>
+                                <variant-consequence-type-view  .consequenceTypes="${this.variant.annotation.consequenceTypes}">
+                                </variant-consequence-type-view>
                             </div>
                          </div>
                                         
