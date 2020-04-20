@@ -19,6 +19,7 @@ import Utils from "./../../utils.js";
 import UtilsNew from "./../../utilsNew.js";
 import "./annotation/cellbase-variant-annotation-summary.js";
 import "./annotation/variant-consequence-type-view.js";
+import "./annotation/variant-annotation-clinical-view.js";
 import "./annotation/cellbase-population-frequency-grid.js";
 import "./opencga-variant-cohort-stats.js";
 
@@ -214,6 +215,15 @@ export default class OpenCGAVariantDetailView extends LitElement {
                                             </div>
                                         </div>
 
+
+                                        <div id="${this._prefix}annotationClinical" role="tabpanel" class="tab-pane">
+                                            <div style="width: 90%;padding-top: 8px">
+                                                <variant-annotation-clinical-view   .traitAssociation="${this.variant.annotation.traitAssociation}"
+                                                                                    .geneTraitAssociation="${this.variant.annotation.geneTraitAssociation}">
+                                                </variant-annotation-clinical-view>
+                                            </div>
+                                        </div>
+                                        
                                         <!-- Cohort Stats Tab -->
                                         <div id="${this._prefix}cohortStats" role="tabpanel" class="tab-pane">
                                             <div style="width: 75%;padding-top: 8px">
@@ -299,6 +309,10 @@ export default class OpenCGAVariantDetailView extends LitElement {
                 {
                     id: "annotationPropFreq",
                     title: "Population Frequencies"
+                },
+                {
+                    id: "annotationClinical",
+                    title: "Clinical"
                 },
                 {
                     id: "cohortStats",

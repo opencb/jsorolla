@@ -601,29 +601,28 @@ export default class OpencgaVariantBrowser extends LitElement {
                     views: [
                         {
                             id: "annotationSummary",
-                            // component: "opencga-variant-cohort-stats",
                             title: "Summary",
                             active: true
                         },
                         {
                             id: "annotationConsType",
-                            // component: "opencga-variant-cohort-stats",
                             title: "Consequence Type",
                         },
                         {
                             id: "annotationPropFreq",
-                            // component: "opencga-variant-cohort-stats",
                             title: "Population Frequencies"
                         },
                         {
+                            id: "annotationClinical",
+                            title: "Clinical"
+                        },
+                        {
                             id: "cohortStats",
-                            // component: "opencga-variant-cohort-stats",
                             title: "Cohort Stats",
                             cohorts: this.cohorts
                         },
                         {
                             id: "samples",
-                            // component: "opencga-variant-samples",
                             title: "Samples"
                         },
                         {
