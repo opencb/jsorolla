@@ -148,6 +148,11 @@ class VariantRdInterpreter extends LitElement {
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
+
+            /* TODO temp hack for autoselecting (comment prop as well)
+            this.clinicalAnalysisId = "AN-3";
+            this.clinicalAnalysisIdObserver()*/
+
         }
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
@@ -195,10 +200,6 @@ class VariantRdInterpreter extends LitElement {
      * Fetch the CinicalAnalysis object from REST and trigger the observer call.
     */
     clinicalAnalysisIdObserver() {
-
-        // TODO tempfix check for clinicalAnalysisId undefined
-        // this.clinicalAnalysisId = "AN-3"; return;
-
         if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession)) {
             if (UtilsNew.isNotEmpty(this.clinicalAnalysisId)) {
                 const _this = this;
@@ -659,7 +660,6 @@ class VariantRdInterpreter extends LitElement {
 
     onFilterChange(name, value) {
         this.clinicalAnalysisId = value;
-
     }
 
     getDefaultConfig() {

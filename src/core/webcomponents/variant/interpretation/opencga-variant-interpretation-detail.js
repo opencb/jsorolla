@@ -76,7 +76,6 @@ export default class OpencgaVariantInterpretationDetail extends LitElement {
         if (changedProperties.has("variantId")) {
             this.variantIdObserver();
         }
-        debugger
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
