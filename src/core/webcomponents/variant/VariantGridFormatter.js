@@ -696,7 +696,7 @@ export default class VariantGridFormatter {
                 }
 
                 // Prepare data info for columns
-                let gene = "NA";
+                let gene = "-";
                 if (UtilsNew.isNotEmpty(re.genomicFeature.id)) {
                     gene = `<div>
                                 <a href="https://www.genenames.org/tools/search/#!/all?query=${re.genomicFeature.geneName}" target="_blank">
@@ -712,9 +712,9 @@ export default class VariantGridFormatter {
 
 
 
-                let transcriptId = "NA";
+                let transcriptId = "-";
                 if (UtilsNew.isNotEmpty(re.genomicFeature.transcriptId)) {
-                    let biotype = "NA";
+                    let biotype = "-";
                     if (UtilsNew.isNotUndefinedOrNull(row.annotation) && UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
                         for (let ct of row.annotation.consequenceTypes) {
                             if (ct.ensemblTranscriptId === re.genomicFeature.transcriptId) {
@@ -745,13 +745,16 @@ export default class VariantGridFormatter {
                                                   </span>`;
                                 transcriptFlagChecked = true;
                             } else {
-                                transcriptFlag = `<span><i class='fa fa-times' style='color: red'></i></span>`;
+                                if (re.genomicFeature.transcriptId) {
+                                    transcriptFlag = `<span><i class='fa fa-times' style='color: red'></i></span>`;
+                                } else {
+                                    transcriptFlag = `-`;
+                                }
                             }
                             break;
                         }
                     }
                 }
-
 
                 let soArray = [];
                 if (UtilsNew.isNotEmptyArray(re.consequenceTypes)) {
@@ -792,7 +795,7 @@ export default class VariantGridFormatter {
                     acmg = re.classification.acmg.join(", ");
                 }
 
-                let tier = "none";
+                let tier = "-";
                 let color = "black";
                 if (UtilsNew.isNotUndefinedOrNull(re.tier)) {
                     color = (re.tier === "Tier1" || re.tier === "Tier 1") ? "red" : color;
@@ -831,7 +834,7 @@ export default class VariantGridFormatter {
                 let checboxHtml = "";
                 if (variantGrid._config.showSelectCheckbox) {
                     let checked = "";
-                    if (transcriptFlagChecked && tier !== "none") {
+                    if (transcriptFlagChecked && tier !== "-") {
                         checked = "checked";
                     }
                     checboxHtml = `<td><input type="checkbox" ${checked}></td>`;

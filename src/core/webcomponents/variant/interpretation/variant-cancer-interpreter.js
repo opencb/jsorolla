@@ -646,11 +646,11 @@ class VariantCancerInterpreter extends LitElement {
                         title: "Study and Cohorts",
                         collapsed: false,
                         fields: [
-                            {
-                                id: "study",
-                                title: "Studies Filter",
-                                tooltip: tooltips.study
-                            },
+                            // {
+                            //     id: "study",
+                            //     title: "Studies Filter",
+                            //     tooltip: tooltips.study
+                            // },
                             {
                                 id: "cohort",
                                 title: "Cohort Alternate Stats",

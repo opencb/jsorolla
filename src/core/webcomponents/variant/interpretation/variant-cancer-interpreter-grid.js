@@ -227,10 +227,10 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                         // include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
                         ...this.query
                     };
-                    // this.opencgaSession.opencgaClient.clinical().primaryFindingsInterpretation(filters)
-                    //     .then( res => params.success(res));
-                    this.opencgaSession.opencgaClient.variants().query(filters)
+                    this.opencgaSession.opencgaClient.clinical().primaryFindingsInterpretation(filters)
                         .then( res => params.success(res));
+                    // this.opencgaSession.opencgaClient.variants().query(filters)
+                    //     .then( res => params.success(res));
                 },
                 // ajax: params => {
                 //     let filters = {
@@ -387,95 +387,6 @@ export default class VariantCancerInterpreterGrid extends LitElement {
         }
     }
 
-    // _getUrlQueryParams() {
-    //     // Check the opencgaClient exists
-    //     if (UtilsNew.isUndefinedOrNull(this.opencgaSession.opencgaClient)) {
-    //         return {host: "", queryParams: {}};
-    //     }
-    //
-    //     // Prepare host. By default we assume https protocol instead of http
-    //     let host = this.opencgaSession.opencgaClient.getConfig().host;
-    //     if (!host.startsWith("https://") && !host.startsWith("http://")) {
-    //         host += "https://";
-    //     }
-    //
-    //     if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study.id !== "undefined") {
-    //         // if (typeof this.query === "undefined") {
-    //         //     this.query = {};
-    //         // }     || this.query.study.split(new RegExp("[,;]")).length === 1
-    //         if (UtilsNew.isEmpty(this.query.study) ) {
-    //             this.query.study = this.opencgaSession.project.id + ":" + this.opencgaSession.study.id;
-    //         }
-    //         // host += '/webservices/rest/v1/analysis/variant/query';
-    //         host += "/webservices/rest/v1/analysis/clinical/interpretation/tools/custom";
-    //     } else {
-    //         return {host: host, queryParams: {}};
-    //     }
-    //
-    //
-    //     // Init queryParams with default and config values plus query object
-    //     let queryParams;
-    //     if (UtilsNew.isNotUndefinedOrNull(this.config) && UtilsNew.isNotUndefinedOrNull(this.config.queryParams)) {
-    //         queryParams = Object.assign({}, this.config.queryParams, this.query);
-    //     } else {
-    //         queryParams = Object.assign({}, this.query);
-    //     }
-    //
-    //     if (this.opencgaSession.opencgaClient._config.sessionId !== undefined) {
-    //         queryParams = Object.assign(queryParams, {sid: this.opencgaSession.opencgaClient._config.sessionId});
-    //     }
-    //
-    //     if (UtilsNew.isNotEmptyArray(this.samples)) {
-    //         // Filters sample and genotype are exclusive
-    //         if (UtilsNew.isUndefinedOrNull(queryParams.genotype) && UtilsNew.isUndefinedOrNull(queryParams.family)) {
-    //             const sampleIds = [];
-    //             this.samples.forEach(sample => {
-    //                 sampleIds.push(sample.id);
-    //             });
-    //             queryParams.sample = sampleIds.join(";");
-    //             // queryParams.includeSample = sampleIds.join(",");
-    //         }
-    //
-    //         queryParams.summary = false;
-    //         queryParams.exclude = "annotation.geneExpression";
-    //
-    //         // FIXME
-    //         // queryParams.approximateCount = true;
-    //         // queryParams.skipCount = false;
-    //
-    //         queryParams.useSearchIndex = "auto";
-    //         queryParams.unknownGenotype = "0/0";
-    //     } else {
-    //         queryParams.summary = true;
-    //         // queryParams.exclude = "annotation.geneExpression";
-    //     }
-    //
-    //     if (typeof this.config !== "undefined" && this.config.includeMissing) {
-    //         const keys = Object.keys(queryParams);
-    //         for (let i = 0; i < keys.length; i++) {
-    //             let val = queryParams[keys[i]];
-    //
-    //             // Replace standard fields with aliases
-    //             if (UtilsNew.isNotUndefinedOrNull(this.config.alias) && (keys[i] === "filter" || keys[i] === "format")) {
-    //                 for (const aliasKey of Object.keys(this.config.alias)) {
-    //                     if (val.includes(aliasKey)) {
-    //                         val = val.replace(aliasKey + ">", this.config.alias[aliasKey] + ">");
-    //                         queryParams[keys[i]] = val;
-    //                         break;
-    //                     }
-    //                 }
-    //             }
-    //             if (typeof val === "string" && keys[i] !== "cohortStatsMaf" && keys[i] !== "cohortStatsAlt") {
-    //                 val = val.replace(/</g, "<<");
-    //                 val = val.replace(/>/g, ">>");
-    //                 queryParams[keys[i]] = val;
-    //             }
-    //         }
-    //     }
-    //
-    //     return {host: host, queryParams: queryParams};
-    // }
-
     renderFromLocal() {
         this.from = 1;
         this.to = Math.min(this.reportedVariants.length, this._config.pageSize);
@@ -603,7 +514,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
         let result = "<div class='row' style='padding-bottom: 20px'>";
         let detailHtml = "";
         if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-            detailHtml = "<div style='padding: 10px 0px 5px 25px'><h4>Relevant Mutation Events</h4></div>";
+            detailHtml = "<div style='padding: 10px 0px 5px 25px'><h4>Mutation Evidence</h4></div>";
             detailHtml += "<div style='padding: 5px 50px'>";
             detailHtml += this.variantGrid.variantGridFormatter.reportedEventDetailFormatter(value, row, this.variantGrid);
             detailHtml += "</div>";
@@ -672,6 +583,22 @@ export default class VariantCancerInterpreterGrid extends LitElement {
     //     }
     //     return res;
     // }
+
+    roleInCancerFormatter(value, row, index) {
+        if (value) {
+            let roles = new Set();
+            for (let evidenceIndex in value) {
+                let evidence = value[evidenceIndex];
+                if (evidence.roleInCancer && evidence.genomicFeature.geneName) {
+                    roles.add(`${evidence.roleInCancer} (${evidence.genomicFeature.geneName})`);
+                }
+            }
+            if (roles.size > 0) {
+                return Array.from(roles.keys()).join("<br>");
+            }
+        }
+        return "-";
+    }
 
     zygosityFormatter(value, row, index) {
         let resultHtml = "";
@@ -881,17 +808,24 @@ export default class VariantCancerInterpreterGrid extends LitElement {
     }
 
     predictionFormatter(value, row, index) {
-        if (typeof row.evidences === "undefined") {
+        if (!row.evidences) {
             return "-";
         }
 
         const clinicalSignificanceCodes = {
+            BENIGN: {code: 5, color: "blue"},
+            LIKELY_BENIGN: {code: 5, color: "blue"},
+            UNCERTAIN_SIGNIFICANCE: {code: 5, color: "darkorange"},
+            LIKELY_PATHOGENIC: {code: 5, color: "red"},
+            PATHOGENIC: {code: 5, color: "red"},
+            NOT_ASSESSED: {code: 5, color: "black"},
+
+            // DEPRECATED
             PATHOGENIC_VARIANT: {code: 5, color: "red"},
             LIKELY_PATHOGENIC_VARIANT: {code: 5, color: "red"},
             VARIANT_OF_UNKNOWN_CLINICAL_SIGNIFICANCE: {code: 5, color: "darkorange"},
             LIKELY_BENIGN_VARIANT: {code: 5, color: "blue"},
             BENIGN_VARIANT: {code: 5, color: "blue"},
-            NOT_ASSESSED: {code: 5, color: "black"}
         };
 
         let clinicalSignificanceCode = 0;
@@ -981,15 +915,23 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                     halign: "center"
                 },
                 {
-                    title: "Variant Stats <span class='pop-preq-info-icon'><i class='fa fa-info-circle' style='color: #337ab7' aria-hidden='true'></i></span>",
-                    field: "frequencies",
-                    rowspan: 1,
-                    colspan: 2,
-                    align: "center"
+                    title: "Role in Cancer",
+                    field: "evidences",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: this.roleInCancerFormatter.bind(this),
+                    halign: "center"
                 },
+                // {
+                //     title: "Variant Stats <span class='pop-preq-info-icon'><i class='fa fa-info-circle' style='color: #337ab7' aria-hidden='true'></i></span>",
+                //     field: "frequencies",
+                //     rowspan: 1,
+                //     colspan: 2,
+                //     align: "center"
+                // },
                 {
-                    title: "Phenotypes",
-                    field: "phenotypes",
+                    title: "Clinical",
+                    // field: "phenotypes",
                     rowspan: 1,
                     colspan: 2,
                     align: "center"
@@ -1003,26 +945,19 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                 // },
             ],
             [
-                {
-                    title: "Cohorts",
-                    field: "cohort",
-                    colspan: 1,
-                    rowspan: 1,
-                    formatter: this.studyCohortsFormatter.bind(this)
-                },
-                {
-                    title: "Population Frequencies",
-                    field: "populationFrequencies",
-                    colspan: 1,
-                    rowspan: 1,
-                    formatter: this.clinicalPopulationFrequenciesFormatter.bind(this)
-                },
                 // {
-                //     title: "Max Allele Freq",
-                //     field: "maxAlleleFreq",
-                //     rowspan: 1,
+                //     title: "Cohorts",
+                //     field: "cohort",
                 //     colspan: 1,
-                //     // halign: 'center'
+                //     rowspan: 1,
+                //     formatter: this.studyCohortsFormatter.bind(this)
+                // },
+                // {
+                //     title: "Population Frequencies",
+                //     field: "populationFrequencies",
+                //     colspan: 1,
+                //     rowspan: 1,
+                //     formatter: this.clinicalPopulationFrequenciesFormatter.bind(this)
                 // },
                 {
                     title: "ClinVar",
@@ -1135,7 +1070,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
         }
 
         if (typeof this._columns !== "undefined" && UtilsNew.isNotEmptyArray(this.samples)) {
-            this._columns[0].splice(4, 0, {
+            this._columns[0].splice(5, 0, {
                 title: "Sample Genotypes",
                 field: "zygosity",
                 rowspan: 1,
