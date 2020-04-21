@@ -49,7 +49,8 @@ export default class GridCommons {
             from = 1;
             to = numMatches;
         }
-        approximateCountResult = response.getResponse().attributes.approximateCount;
+        // debugger
+        // approximateCountResult = response.getResponse().attributes.approximateCount;
 
         return {
             numMatches: numMatches,
@@ -59,7 +60,8 @@ export default class GridCommons {
             approximateCountResult: approximateCountResult,
             response: {
                 total: numMatches,
-                rows: response.getResults()
+                // rows: response.getResults()
+                rows: response.getResponse()
             }
         };
     }
