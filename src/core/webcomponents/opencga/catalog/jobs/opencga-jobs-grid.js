@@ -578,14 +578,11 @@ export default class OpencgaJobsGrid extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles"></style>
-
         <opencb-grid-toolbar .from="${this.from}"
                             .to="${this.to}"
                             .numTotalResultsText="${this.numTotalResultsText}"
                             @download="${this.onDownload}">
         </opencb-grid-toolbar>
-
         <div>
             <table id="${this._prefix}jobs-browser-grid">
             </table>

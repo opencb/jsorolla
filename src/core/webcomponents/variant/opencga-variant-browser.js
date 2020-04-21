@@ -130,7 +130,7 @@ export default class OpencgaVariantBrowser extends LitElement {
             "1|1": "#FF0000",
             ".|.": "#000000"
         };
-        this.variantId = "No variant selected";
+        this.variantId = false;
 
         this._sessionInitialised = false;
         this.detailActiveTabs = [];

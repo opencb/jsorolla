@@ -58,9 +58,9 @@ export default class OpencgaAnnotationFilter extends LitElement {
         // Components are already set. We will override with the classes from the configuration file
         PolymerUtils.addClassById(`${this._prefix}-main-annotation-filter-div`, [this._config.class]);
 
-        $("select.selectpicker", this).selectpicker("render");
-        $("select.selectpicker", this).selectpicker("refresh");
-        $("select.selectpicker", this).selectpicker("deselectAll");
+        //$("select.selectpicker", this).selectpicker("render");
+        //$("select.selectpicker", this).selectpicker("refresh");
+        //$("select.selectpicker", this).selectpicker("deselectAll");
 
         // Get selected variable
         const variableSetSelector = $(`button[data-id=${this._prefix}-annotation-picker]`)[0];
@@ -71,6 +71,14 @@ export default class OpencgaAnnotationFilter extends LitElement {
 
         this.lastAnnotationFilter = undefined;
 
+
+    }
+
+    firstUpdated(_changedProperties) {
+        $("select.selectpicker").selectpicker("render");
+        $("select.selectpicker").selectpicker("refresh");
+        $("select.selectpicker").selectpicker("deselectAll");
+
         const annotationDiv = $(`#${this._prefix}-main-annotation-filter-div`);
         // Add the class to the select picker buttons
         annotationDiv.find(".selectpicker").selectpicker("setStyle", this._config.buttonClass, "add");
@@ -78,12 +86,6 @@ export default class OpencgaAnnotationFilter extends LitElement {
         annotationDiv.find("ul > li").addClass(this._config.class);
         // Add the class to the input
         annotationDiv.find(`.${this._prefix}AnnotationTextInput`).addClass(this._config.class);
-    }
-
-    firstUpdated(_changedProperties) {
-        $("select.selectpicker").selectpicker("render");
-        $("select.selectpicker").selectpicker("refresh");
-        $("select.selectpicker").selectpicker("deselectAll");
 
     }
 
@@ -305,17 +307,16 @@ export default class OpencgaAnnotationFilter extends LitElement {
         </opencga-variable-selector>
                 
         <!-- Show different value selector based on the type of the selected variable -->
-        ${this.selectedVariable ? html`<div class="row" style="margin-top: 15px; margin-right: 20px;">
-            <div class="col-md-10">
-                
-                ${this.selectedVariable.type === "TEXT" ? html`
+        ${this.selectedVariable ? html`<div>
+            <div class="input-group">
+                ${this.selectedVariable.type === "TEXT" || this.selectedVariable.type === "STRING" ? html`
                     <!-- TEXT type: include an input text and add suitable regular expression for text-->
                     <!-- http://stackoverflow.com/questions/14237686/disabling-controls-in-bootstrap-->
                     <input type="text" class="form-control ${this._prefix}AnnotationTextInput"
                            placeholder="${this.selectedVariable.id} name" data-variable-name="${this.selectedVariable.id}"
                            pattern="${this.selectedVariable.attributes && this.selectedVariable.attributes.pattern ? this.selectedVariable.attributes.pattern : null}"
                            aria-describedby="basic-addon1" @input="${this.addInputFilter}">
-                ` : this.selectedVariable.type === "NUMERIC" || this.selectedVariable.type === "INTEGER" || this.selectedVariable.type === "DOUBLE" ? html`
+                ` : this.selectedVariable.type === "NUMERIC" ? html`
                     <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
                     <input type="text" class="form-control ${this._prefix}AnnotationTextInput"
                            placeholder="${this.selectedVariable.id} number" data-variable-name="${this.selectedVariable.id}"
@@ -327,7 +328,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
                                     <option value="${item}" on-dom-change="renderDomRepeat">${item}</option>F
                                 `)}
                     </select>
-                ` : this.selectedVariable.type === "BOOLEAN" ? html`
+                ` : this.selectedVariable.type === "INTEGER" ? html`
                     <!-- BOOLEAN type, 2 values: radio buttons for selection: yes or no -->
                     <div class="form-check form-check-inline">
                         <input id="${this._prefix}${this.selectedVariable.id}yes" class="form-check-input"
@@ -337,12 +338,8 @@ export default class OpencgaAnnotationFilter extends LitElement {
                                type="radio" name="${this.selectedVariable.id}Options" data-value=false @input="${this.addSelectedFilter}">
                         False
                     </div>
-
                 ` : null}
-            </div>
-            
-            <div class="col-md-2">
-                <button class="btn btn-default" @click="${this.onAddAnnotationClicked}"><i class="fa fa-plus-circle plus-button" aria-hidden="true"></i></button>
+                 <span class="input-group-addon" @click="${this.onAddAnnotationClicked}"><i class="fas fa-plus"></i></span>
             </div>
         ` : null }
         </div>

@@ -24,7 +24,6 @@ import "./filters/select-field-filter.js";
 import "./opencb-facet-results.js";
 import "./facet-filter.js";
 import "../../loading-spinner.js";
-import "../variant/opencga-variant-detail-view.js";
 import "../opencga/catalog/files/opencga-file-grid.js";
 import "../opencga/catalog/files/opencga-file-filter.js";
 import "../opencga/catalog/samples/opencga-sample-grid.js";

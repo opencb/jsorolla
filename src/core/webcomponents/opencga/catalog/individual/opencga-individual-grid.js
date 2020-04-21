@@ -26,6 +26,7 @@ export default class OpencgaIndividualGrid extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -62,6 +63,11 @@ export default class OpencgaIndividualGrid extends LitElement {
         this.active = false;
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
     firstUpdated(_changedProperties) {
         // this.renderTable(this.active);
     }
@@ -69,6 +75,7 @@ export default class OpencgaIndividualGrid extends LitElement {
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession") ||
             changedProperties.has("search") ||
+            changedProperties.has("query") ||
             changedProperties.has("config") ||
             changedProperties.has("active")) {
             this.propertyObserver();
@@ -135,8 +142,8 @@ export default class OpencgaIndividualGrid extends LitElement {
             const _table = $("#" + this._prefix + "IndividualBrowserGrid");
 
             const _this = this;
-            $("#" + this._prefix + "IndividualBrowserGrid").bootstrapTable("destroy");
-            $("#" + this._prefix + "IndividualBrowserGrid").bootstrapTable({
+            _table.bootstrapTable("destroy");
+            _table.bootstrapTable({
                 // url: opencgaHostUrl,
                 columns: _this._columns,
                 method: "get",
@@ -151,7 +158,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                 detailView: _this._config.detailView,
                 detailFormatter: _this._config.detailFormatter,
 
-                // Make Polymer components avalaible to table formatters
+                // Make Polymer components available to table formatters
                 gridContext: _this,
                 /* queryParams: function(params) {
                     if (this.pageNumber > 1) {
@@ -178,7 +185,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
                     const _filters = {
-                        // study: this.opencgaSession.study.fqn,
+                        study: this.opencgaSession.study.fqn,
                         order: params.data.order,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
@@ -426,6 +433,7 @@ export default class OpencgaIndividualGrid extends LitElement {
         }
     }
 
+    //TODO lit-html refactor
     detailFormatter(value, row) {
         let result = `<div class='row' style="padding: 5px 10px 20px 10px">
                                 <div class='col-md-12'>
@@ -797,7 +805,7 @@ export default class OpencgaIndividualGrid extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles">
+        <style>
             .detail-view :hover {
                 background-color: white;
             }

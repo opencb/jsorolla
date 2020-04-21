@@ -71,7 +71,6 @@ export default class OpencgaJobsDetailsLog extends LitElement {
             // todo this should call fetchContent iff the job has changed
             // console.log("new job = old job ", this.active && this.jobId === this.job.id)
             if (this.active) {
-                this.firstTailCall();
                 this.fetchContent(this.job, {command: this._config.command, type: this._config.type});
             } else {
                 this.clearReload();
@@ -82,46 +81,28 @@ export default class OpencgaJobsDetailsLog extends LitElement {
     setCommand(command) {
         this._config.command = command;
         this.clearReload();
-        this.firstTailCall();
-        this.fetchContent(this.job, {command: this.actualCommand, type: this._config.type});
+        this.fetchContent(this.job, {command: this._config.command, type: this._config.type});
         this.setReloadInterval();
     }
 
     setType(type) {
         this._config.type = type;
         this.clearReload();
-        this.firstTailCall();
-        this.fetchContent(this.job, {command: this.actualCommand, type: this._config.type});
-    }
-
-    firstTailCall() {
-        this.actualCommand = this._config.command === "tail" ? "head" : this._config.command;
-    }
-
-    setAutoreload(e) {
-        if (this._config.autoreload) {
-            this._config.autoreload = false;
-            $(e.currentTarget).removeClass("active");
-            this.clearReload();
-        } else {
-            this._config.autoreload = true;
-            $(e.currentTarget).addClass("active");
-            this.setReloadInterval();
-        }
-        // this._config.autoreload = e.target.value === "true";
-        // this.clearReload();
-
+        this.fetchContent(this.job, {command: this._config.command, type: this._config.type});
+        this.setReloadInterval();
     }
 
     // setInterval makes sense only in case of Tail log
     setReloadInterval() {
-        if (this.active && this._config.autoreload && this._config.command === "tail") {
-            //console.log("setting interval");
+        console.log(this.job)
+        if (this.active && this._config.command === "tail" && this.job.internal.status.name === "RUNNING") {
+            console.log("setting interval");
             this.requestUpdate();
             this.interval = setInterval(() => {
                 // this.content += "\n" + Utils.randomString(6);
-                if ($(".jobs-details-log").is(":visible")) {
-                    this.fetchContent(this.job, {offset: this.contentOffset}, true);
+                if ($(".jobs-details-log", this).is(":visible")) {
+                    // tail call is actually head (after the first tail call)
+                    this.fetchContent(this.job, {command: "head", offset: this.contentOffset}, true);
                 } else {
                     this.clearReload();
                 }
@@ -131,7 +112,7 @@ export default class OpencgaJobsDetailsLog extends LitElement {
     }
 
     clearReload() {
-        this._config.autoreload = false;
+        this.contentOffset = 0;
         clearInterval(this.interval);
         this.requestUpdate();
         console.log("cleared")
@@ -156,18 +137,19 @@ export default class OpencgaJobsDetailsLog extends LitElement {
             offset
         }).then( restResponse => {
             const result = restResponse.getResult(0);
-            //console.log("response ", result);
-            //console.log("OFFSET old/new", this.contentOffset, result.offset);
             if (result.content) {
-                // append is true only in case of tail command
+                // if command=tail this is the first tail call (the subsequents will be head)
+                if (command === "tail") {
+                    this.contentOffset = result.offset;
+                }
+                // append is true only in case of tail command (it has been kept as separate param to quickly have one-shot Tail call button (not live), just in case)
                 if (append) {
                     if (this.contentOffset !== result.offset) {
-                        this.content = this.content + result.content + "\n";
+                        this.content = this.content + result.content;
                         this.contentOffset = result.offset;
                     }
-                    // console.log("appended");
                 } else {
-                    this.content = result.content;
+                    this.content = result.content + "\n";
                 }
             } else {
                 // this.content = "No content";
@@ -188,8 +170,7 @@ export default class OpencgaJobsDetailsLog extends LitElement {
         return {
             command: "head",
             type: "stderr",
-            lines: 1,
-            autoreload: false
+            lines: 5
         };
     }
 
@@ -207,12 +188,6 @@ export default class OpencgaJobsDetailsLog extends LitElement {
             .wrapper {
                 height: 35px;
                 margin-top: 5px;
-            }
-            
-            .wrapper fieldset.autoreload {
-                float: right;
-                width: 150px;
-
             }
             
             .wrapper fieldset.log-type {
@@ -240,6 +215,14 @@ export default class OpencgaJobsDetailsLog extends LitElement {
                 animation: blink 1s infinite;
             }
             
+            .jobs-details-log .fa-sync-alt {
+                margin-left: 10px;
+            }
+            
+            .jobs-details-log .fa-sync-alt.disabled {
+                color: #c5c5c5;
+            }
+            
             @keyframes blink {
               0% {
                 opacity: 0;
@@ -256,13 +239,10 @@ export default class OpencgaJobsDetailsLog extends LitElement {
             <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
                 <div class="btn-group command-buttons" role="group">
                     <button type="button" class="btn btn-default btn-small ripple ${this._config.command === "head" ? "active" : ""}" @click="${() => this.setCommand("head")}">
-                        <i class="fa fa-table icon-padding" aria-hidden="true"></i> Head
+                        <i class="fas fa-align-left"></i> Head
                     </button>
                     <button type="button" class="btn btn-default btn-small ripple ${this._config.command === "tail" ? "active" : ""}" @click="${() => this.setCommand("tail")}">
-                        <i class="fa fa-table icon-padding" aria-hidden="true"></i> Tail
-                    </button>
-                    <button type="button" class="btn btn-default btn-small ripple ${this._config.command === "tail-f" ? "active" : ""}" @click="${() => this.setCommand("tail-f")}">
-                        <i class="fa fa-table icon-padding" aria-hidden="true"></i> Tail live
+                        <i class="fas fa-align-left"></i> Tail <i class="fas fa-sync-alt ${this._config.command === "tail" && this.job.internal.status.name === "RUNNING" ? "anim-rotate" : "disabled"}"></i> 
                     </button>
                 </div>
             </div>
@@ -270,23 +250,16 @@ export default class OpencgaJobsDetailsLog extends LitElement {
                 <div class="btn-group" role="group" style="margin-left: 0px">
 
                     <button type="button" class="btn btn-default btn-small ripple ${this._config.type === "stderr" ? "active" : ""}" @click="${() => this.setType("stderr")}">
-                        <i class="fa fa-table icon-padding" aria-hidden="true"></i> Stderr
+                        <i class="fas fa-exclamation"></i> Stderr
                     </button>
                     <button type="button" class="btn btn-default btn-small ripple ${this._config.type === "stdout" ? "active" : ""}" @click="${() => this.setType("stdout")}">
-                        <i class="fa fa-table icon-padding" aria-hidden="true"></i> Stout
+                        <i class="fas fa-info"></i> Stout
                     </button>
                 </div>
-            </div>    
-           
-            <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
-                <button type="button" class="btn btn-default btn-small ripple ${this._config.autoreload ? "active" : ""} ${this._config.command !== "tail" ? "disabled" : ""}" @click="${this.setAutoreload}" ?disabled = ${this._config.command !== "tail"}>
-                       <i class="fas fa-sync-alt ${this._config.autoreload ? "anim-rotate" : ""}"></i> Autoreload
-                </button>
-            </div>
-                 
+            </div>                    
         </div>
-        command ${this._config.command} - type ${this._config.type} - autoreload ${this._config.autoreload}
-        <pre class="cmd ${this._config.command}">${this.content}\n${this.loading || (this.content && this._config.command === "tail" && this._config.autoreload) ? html`<div class="cursor"></div>` : ""}</pre>
+        command ${this._config.command} - type ${this._config.type}
+        <pre class="cmd ${this._config.command}">${this.content}\n${this.loading || (this.content && this._config.command === "tail") ? html`<div class="cursor"></div>` : ""}</pre>
         `;
     }
 

@@ -41,6 +41,9 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             analyses: {
                 type: Array
             },
+            query: {
+                type: Object
+            },
             search: {
                 type: Object
             },
@@ -48,9 +51,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 type: Boolean
             },
             config: {
-                type: Object
-            },
-            query: {
                 type: Object
             }
         };
@@ -63,7 +63,9 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession") ||
+            changedProperties.has("search") ||
             changedProperties.has("query") ||
+            changedProperties.has("config") ||
             changedProperties.has("active")) {
             this.propertyObserver();
         }
@@ -108,7 +110,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
         this.analyses = [];
 
-        let filters = Object.assign({}, this.query);
+        const filters = Object.assign({}, this.query);
 
         // Initialise the counters
         this.from = 1;
@@ -148,13 +150,13 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 pageList: _this._config.pageList,
                 showExport: _this._config.showExport,
                 detailView: _this._config.detailView,
-                //detailFormatter: _this._config.detailFormatter,
+                // detailFormatter: _this._config.detailFormatter,
 
                 // Make Polymer components available to table formatters
                 gridContext: _this,
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
-                    let filters = {
+                    const filters = {
                         ...this.query,
                         exclude: "files",
                         limit: 10,
@@ -438,7 +440,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
      * DEPRECATED.
      * @param index
      * @param row
-     * @return {HTMLElement}
+     * @returns {HTMLElement}
      */
     detailFormatter(index, row) {
         const clinicalAnalysisView = document.createElement("clinical-analysis-view");
@@ -524,20 +526,20 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             const styles = ["color: white", "border-radius: 5px", "padding: 3px", "width: 65px", "display: block",
                 "margin: auto"];
             switch (value) {
-            case "URGENT":
-                styles.push("background: #ef6363", "border: 1px solid red");
-                return "<span style='color: #ef6363; font-weight: bold'>Urgent</span>";
-            case "HIGH":
-                styles.push("background: #ffb42b", "border: 1px solid orange");
-                return "<span style='color: #ffb42b; font-weight: bold'>High</span>";
-            case "MEDIUM":
-                styles.push("background: #237afb", "border: 1px solid blue");
-                return "<span style='color: #237afb; font-weight: bold'>Medium</span>";
-            case "LOW":
-                styles.push("background: #1bb31b", "border: 1px solid green");
-                return "<span style='color: #1bb31b; font-weight: bold'>Low</span>";
-            default:
-                return "<span>-</span>";
+                case "URGENT":
+                    styles.push("background: #ef6363", "border: 1px solid red");
+                    return "<span style='color: #ef6363; font-weight: bold'>Urgent</span>";
+                case "HIGH":
+                    styles.push("background: #ffb42b", "border: 1px solid orange");
+                    return "<span style='color: #ffb42b; font-weight: bold'>High</span>";
+                case "MEDIUM":
+                    styles.push("background: #237afb", "border: 1px solid blue");
+                    return "<span style='color: #237afb; font-weight: bold'>Medium</span>";
+                case "LOW":
+                    styles.push("background: #1bb31b", "border: 1px solid green");
+                    return "<span style='color: #1bb31b; font-weight: bold'>Low</span>";
+                default:
+                    return "<span>-</span>";
             }
         }
     }
@@ -601,7 +603,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     onClick(e, value, row) {
-        console.log(e.target, value, row)
+        console.log(e.target, value, row);
     }
 
     _initTableColumns() {
@@ -722,14 +724,14 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
                     {
                         title: "Manage",
-                        //field: "id",
+                        // field: "id",
                         formatter: "<button class='btn btn-small btn-primary ripple'><i class=\"fas fa-edit\"></i> Edit</button><button class='btn btn-small btn-danger ripple'><i class=\"fas fa-times\"></i> Delete</button>",
                         valign: "middle",
                         events: {
-                            'click button': this.onClick.bind(this)
+                            "click button": this.onClick.bind(this)
                         },
                         visible: !this._config.columns.hidden.includes("manage")
-                    },
+                    }
                 ])
         ];
 
@@ -762,9 +764,9 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 let mimeType = "";
                 let extension = "";
 
-                //TODO evaluate webworker with Transferable Objects (it shares objects, not copy like classical WebWorker)
+                // TODO evaluate webworker with Transferable Objects (it shares objects, not copy like classical WebWorker)
                 if (result) {
-                    console.log("result",result)
+                    console.log("result", result);
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toLowerCase() === "tab") {
                         dataString = [
@@ -781,7 +783,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                                 _.analyst.assignee,
                                 _.creationDate
                             ].join("\t"))];
-                        //console.log(dataString);
+                        // console.log(dataString);
                         mimeType = "text/plain";
                         extension = ".txt";
                     } else {
@@ -808,13 +810,13 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 }
             })
             .then(function() {
-                //this.downloadRefreshIcon.css("display", "none");
-                //this.downloadIcon.css("display", "inline-block");
+                // this.downloadRefreshIcon.css("display", "none");
+                // this.downloadIcon.css("display", "inline-block");
             });
     }
 
     onShare() {
-        //TODO
+        // TODO
     }
 
     getDefaultConfig() {

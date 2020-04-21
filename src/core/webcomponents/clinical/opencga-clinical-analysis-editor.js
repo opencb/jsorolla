@@ -322,6 +322,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     }
 
     onFamilySelect(e) {
+        //console.log("onFamilySelect")
         this._clinicalAnalysis.family = e.detail.family;
 
         const individualIds = [];
@@ -1090,16 +1091,6 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                     </div>
                 </div>
         </div>
-
-        <!--<table id="${this._prefix}IndividualBrowserGrid">-->
-        <!--<thead style="background-color: #eee"></thead>-->
-        <!--</table>-->
-
-        <!-- Same window: Family editor -->
-        <!--<template is="dom-if" if="{{createFamily}}">-->
-        <!--<button type="button" style="float: right; margin: 30px 30px 0px 0px;" class="btn btn-success" on-click="backToClinicalView">BACK</button>-->
-        <!--<opencga-family-editor opencga-session="{{opencgaSession}}" config="[[familyBrowserConfig]]"></opencga-family-editor>-->
-        <!--</template>-->
         `;
     }
 

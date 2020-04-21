@@ -118,6 +118,8 @@ export default class OpencgaJobsBrowser extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
+
+        //this.query = {"internal.status.name": "PENDING,QUEUED,RUNNING" }
     }
 
     getDefaultConfig() {
