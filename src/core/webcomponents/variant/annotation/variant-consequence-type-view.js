@@ -67,36 +67,41 @@ export default class VariantConsequenceTypeView extends LitElement {
         let detailHtml = "";
 
         // Transcript Section
-        detailHtml += "<div style='padding: 20px 0px 10px 25px'><h4>Transcript Annotation</h4></div>";
-        let exonOverlap = "NA";
-        if (row.exonOverlap) {
-            let exons = [];
-            for (let exon in row.exonOverlap) {
-                exons.push(`${row.exonOverlap[exon].number} (${row.exonOverlap[exon].percentage})`);
+        detailHtml += `<div style='padding: 20px 0px 10px 25px'><h4>Transcript Annotation</h4></div>
+                            <div style='padding: 0px 40px'>`;
+        if (row.ensemblTranscriptId) {
+            let exonOverlap = "NA";
+            if (row.exonOverlap) {
+                let exons = [];
+                for (let exon in row.exonOverlap) {
+                    exons.push(`${row.exonOverlap[exon].number} (${row.exonOverlap[exon].percentage})`);
+                }
+                exonOverlap = exons.join(", ");
             }
-            exonOverlap = exons.join(", ");
+            detailHtml += `<label style="padding-right: 10px">Ensembl Transcript ID:</label><a href="https://www.ensembl.org/Homo_sapiens/Transcript/Idhistory?t=${row.ensemblTranscriptId}" target="_blank">${row.ensemblTranscriptId || "NA"}</a><br>
+                           <label style="padding-right: 10px">Strand:</label>${row.strand || "NA"}<br>
+                           <label style="padding-right: 10px">cDNA Position:</label>${row.cdnaPosition || "NA"}<br>
+                           <label style="padding-right: 10px">CDS Position:</label>${row.cdsPosition || "NA"}<br>
+                           <label style="padding-right: 10px">Codon:</label>${row.codon || "NA"}<br>
+                           <label style="padding-right: 10px">Exon Overlap (%):</label>${exonOverlap}`;
+        } else {
+            detailHtml += "No Transcript Data Available";
         }
-        detailHtml += `<div style='padding: 0px 40px'>
-                                <label style="padding-right: 10px">Ensembl Transcript ID:</label>${row.ensemblTranscriptId || "NA"}<br>
-                                <label style="padding-right: 10px">Strand:</label>${row.strand || "NA"}<br>
-                                <label style="padding-right: 10px">cDNA Position:</label>${row.cdnaPosition || "NA"}<br>
-                                <label style="padding-right: 10px">CDS Position:</label>${row.cdsPosition || "NA"}<br>
-                                <label style="padding-right: 10px">Codon:</label>${row.codon || "NA"}<br>
-                                <label style="padding-right: 10px">Exon Overlap (%):</label>${exonOverlap}
-                       </div>`;
+        detailHtml += "</div>";
 
         // Protein Section
         detailHtml += `<div style='padding: 20px 0px 10px 25px'><h4>Protein Annotation</h4></div>
                             <div style='padding: 0px 40px'>`;
         if (row.proteinVariantAnnotation) {
             let protAnnot = row.proteinVariantAnnotation;
+            let uniprotAcc = protAnnot.uniprotAccession ? `<a href="https://www.uniprot.org/uniprot/${protAnnot.uniprotAccession}" target="_blank">${protAnnot.uniprotAccession}</a>` : "NA";
             let keywords = protAnnot.keywords ? protAnnot.keywords.join(", ") : "NA";
             let domains = protAnnot.features ? protAnnot.features.map(v => {if (v.id) {return " " + v.id}}) : "NA";
-            detailHtml += `<label style="padding-right: 10px">UniProt Accession:</label>${protAnnot.uniprotAccession || "NA"}<br>
+            detailHtml += `<label style="padding-right: 10px">UniProt Accession:</label>${uniprotAcc}<br>
                            <label style="padding-right: 10px">UniProt Variant ID:</label>${protAnnot.uniprotVariantId || "NA"}<br>
                            <label style="padding-right: 10px">Functional Description:</label>${protAnnot.functionalDescription || "NA"}<br>
                            <label style="padding-right: 10px">Keywords:</label>${keywords}<br>
-                           <label style="padding-right: 10px">Features:</label>${domains}`;
+                           <label style="padding-right: 10px">Features:</label>${domains} (check all protein domains at <a href="https://www.ebi.ac.uk/interpro/protein/reviewed/${protAnnot.uniprotAccession}" target="_blank">InterPro</a>)`;
         } else {
             detailHtml += "No Uniprot Data Available";
         }
@@ -131,8 +136,8 @@ export default class VariantConsequenceTypeView extends LitElement {
     }
 
     transcriptFlagFormatter(value, row, index) {
-        if (value) {
-            return value.join(", ");
+        if (row.ensemblTranscriptId) {
+            return row.transcriptAnnotationFlags && row.transcriptAnnotationFlags.length ? row.transcriptAnnotationFlags.join(", ") : "NA";
         } else {
             return "-";
         }
@@ -290,7 +295,6 @@ export default class VariantConsequenceTypeView extends LitElement {
                         rowspan: 1,
                         colspan: 1,
                         formatter: this.siftScoreFormatter,
-                        align: "right",
                         halign: "center"
                     },
                     {
@@ -299,7 +303,6 @@ export default class VariantConsequenceTypeView extends LitElement {
                         rowspan: 1,
                         colspan: 1,
                         formatter: this.polyphenScoreFormatter,
-                        align: "right",
                         halign: "center"
                     }
                 ]

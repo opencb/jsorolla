@@ -307,13 +307,12 @@ export default class VariantGridFormatter {
                                         <th rowspan="2">Biotype</th>
                                         <th rowspan="2">Transcript Flags</th>
                                         <th rowspan="2">Consequence Types (SO Term)</th>
-                                        <th rowspan="1" colspan="4" style="text-align: center">Protein Variant Annotation</th>
+                                        <th rowspan="1" colspan="3" style="text-align: center">Protein Variant Annotation</th>
                                     </tr>
                                     <tr>
                                         <th rowspan="1">UniProt Acc</th>
                                         <th rowspan="1">Position</th>
                                         <th rowspan="1">Ref/Alt</th>
-                                        <th rowspan="1">Sift/Polyphen</th>
                                     </tr>
                                 </thead>
                                 <tbody>`;
@@ -337,31 +336,13 @@ export default class VariantGridFormatter {
 
             for (let ct of row.annotation.consequenceTypes) {
                 // Prepare data info for columns
+                let geneName = ct.geneName ? `<a href="https://www.genenames.org/tools/search/#!/all?query=${ct.geneName}" target="_blank">${ct.geneName}</a>` : "-";
+                let geneId = ct.ensemblGeneId ? `<a href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${ct.ensemblGeneId}" target="_blank">${ct.ensemblGeneId}</a>` : "-";
+                let transcriptId = ct.ensemblTranscriptId ? `<a href="http://www.ensembl.org/Homo_sapiens/Transcript/Idhistory?t=${ct.ensemblTranscriptId}" target="_blank">${ct.ensemblTranscriptId}</a>` : "-";
 
-                let geneName = "NA";
-                if (UtilsNew.isNotEmpty(ct.geneName)) {
-                    geneName = `<a href="https://www.genenames.org/tools/search/#!/all?query=${ct.geneName}" target="_blank">
-                                ${ct.geneName}
-                              </a>`;
-                }
-
-                let geneId = "NA";
-                if (UtilsNew.isNotEmpty(ct.ensemblGeneId)) {
-                    geneId = `<a href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${ct.ensemblGeneId}" target="_blank">
-                                ${ct.ensemblGeneId}
-                              </a>`;
-                }
-
-                let transcriptId = "NA";
-                if (UtilsNew.isNotEmpty(ct.ensemblTranscriptId)) {
-                    transcriptId = `<a href="http://www.ensembl.org/Homo_sapiens/Transcript/Idhistory?t=${ct.ensemblTranscriptId}" target="_blank">
-                                        ${ct.ensemblTranscriptId}
-                                    </a>`;
-                }
-
-                let pva = {};
-                if (UtilsNew.isNotUndefinedOrNull(ct.proteinVariantAnnotation)) {
-                    pva = ct.proteinVariantAnnotation;
+                let transcriptAnnotationFlags = "-";
+                if (ct.ensemblTranscriptId) {
+                    transcriptAnnotationFlags = ct.transcriptAnnotationFlags && ct.transcriptAnnotationFlags.length ? ct.transcriptAnnotationFlags.join(", ") : "NA";
                 }
 
                 let soArray = [];
@@ -376,38 +357,20 @@ export default class VariantGridFormatter {
                                   </div>`);
                 }
 
-                let uniprotAccession = "-";
-                if (UtilsNew.isNotUndefinedOrNull(pva.uniprotAccession)) {
-                    uniprotAccession = `<a href="https://www.uniprot.org/uniprot/${pva.uniprotAccession}" target="_blank">${pva.uniprotAccession}</a>`;
-                }
-
-                let deleteriousness = "-/-";
-                if (UtilsNew.isNotEmptyArray(pva.substitutionScores)) {
-                    let sift = "-";
-                    let polyphen = "-";
-                    for (let score of pva.substitutionScores) {
-                        if (score.source === "sift") {
-                            sift = score.description;
-                        }
-                        if (score.source === "polyphen") {
-                            polyphen = score.description;
-                        }
-                    }
-                    deleteriousness = sift + "/" + polyphen;
-                }
+                let pva = ct.proteinVariantAnnotation ? ct.proteinVariantAnnotation : {};
+                let uniprotAccession = pva.uniprotAccession ? `<a href="https://www.uniprot.org/uniprot/${pva.uniprotAccession}" target="_blank">${pva.uniprotAccession}</a>` : "-";
 
                 // Create the table row
                 ctHtml += `<tr class="detail-view-row">
-                            <td>${geneName}</td>
-                            <td>${geneId}</td>
-                            <td>${transcriptId}</td>
-                            <td>${UtilsNew.isNotEmpty(ct.biotype) ? ct.biotype : "NA"}</td>
-                            <td>${UtilsNew.isNotEmptyArray(ct.transcriptAnnotationFlags) ? ct.transcriptAnnotationFlags.join(", ") : "NA"}</td>
-                            <td>${soArray.join("")}</td>
-                            <td>${uniprotAccession}</td>
-                            <td>${pva.position !== undefined ? pva.position : "-"}</td>
-                            <td>${pva.reference !== undefined ? pva.reference + "/" + pva.alternate : "-"}</td>
-                            <td>${deleteriousness}</td>
+                                <td>${geneName}</td>
+                                <td>${geneId}</td>
+                                <td>${transcriptId}</td>
+                                <td>${UtilsNew.isNotEmpty(ct.biotype) ? ct.biotype : "-"}</td>
+                                <td>${transcriptAnnotationFlags}</td>
+                                <td>${soArray.join("")}</td>
+                                <td>${uniprotAccession}</td>
+                                <td>${pva.position !== undefined ? pva.position : "-"}</td>
+                                <td>${pva.reference !== undefined ? pva.reference + "/" + pva.alternate : "-"}</td>
                            </tr>`;
             }
             ctHtml += "</tbody></table>";
@@ -415,7 +378,6 @@ export default class VariantGridFormatter {
         }
         return "-";
     }
-
 
 
     addCohortStatsInfoTooltip(div, populationFrequencies) {

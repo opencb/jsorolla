@@ -64,7 +64,11 @@ export default class VariantAnnotationClinicalView extends LitElement {
         if (row) {
             switch(row.source.name.toLowerCase()) {
                 case "clinvar":
-                    html = `<a href="https://www.ncbi.nlm.nih.gov/clinvar/${row.id}" target="_blank">${row.id}</a>`;
+                    if (row.id.startsWith("RCV")) {
+                        html = `<a href="https://www.ncbi.nlm.nih.gov/clinvar/${row.id}" target="_blank">${row.id}</a>`;
+                    } else {
+                        html = `<a href="https://www.ncbi.nlm.nih.gov/clinvar/variation/${row.id}" target="_blank">${row.id}</a>`;
+                    }
                     break;
                 case "cosmic":
                     html = `<a href="https://cancer.sanger.ac.uk/cosmic/search?q=${row.id}" target="_blank">${row.id}</a>`;

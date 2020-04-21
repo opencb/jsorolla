@@ -828,6 +828,10 @@ class VariantCancerInterpreter extends LitElement {
                             title: "Population Frequencies"
                         },
                         {
+                            id: "annotationClinical",
+                            title: "Clinical"
+                        },
+                        {
                             id: "fileMetrics",
                             title: "File Metrics"
                         },

@@ -20,6 +20,7 @@ import UtilsNew from "../../../utilsNew.js";
 import "./opencga-interpretation-variant-review.js";
 import "../annotation/cellbase-variantannotation-view.js";
 import "../annotation/variant-consequence-type-view.js";
+import "../annotation/variant-annotation-clinical-view.js";
 import "../opencga-variant-file-metrics.js";
 import "../variant-beacon-network.js";
 
@@ -223,6 +224,14 @@ export default class OpencgaVariantInterpretationDetail extends LitElement {
                                 </cellbase-population-frequency-grid>
                             </div>
                          </div>
+                         
+                              <div id="${this._prefix}annotationClinical" role="tabpanel" class="tab-pane">
+                                            <div style="width: 90%;padding-top: 8px">
+                                                <variant-annotation-clinical-view   .traitAssociation="${this.variant.annotation.traitAssociation}"
+                                                                                    .geneTraitAssociation="${this.variant.annotation.geneTraitAssociation}">
+                                                </variant-annotation-clinical-view>
+                                            </div>
+                                        </div>
                                         
                         <!-- Cohort Stats Tab -->
                         <div id="${this._prefix}fileMetrics" role="tabpanel" class="tab-pane">
