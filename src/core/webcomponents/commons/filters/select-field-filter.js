@@ -89,6 +89,8 @@ export default class SelectFieldFilter extends LitElement {
             $(".selectpicker", this).selectpicker("refresh");
         }
         if (_changedProperties.has("value")) {
+            //console.log("this.value", this.value)
+            //console.trace()
             $(".selectpicker", this).selectpicker("val", this.value ? (this.multiple ? this.value.split(",") : this.value) : "");
         }
         if (_changedProperties.has("disabled")) {
