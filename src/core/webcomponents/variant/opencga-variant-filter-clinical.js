@@ -248,11 +248,10 @@ export default class OpencgaVariantFilterClinical extends LitElement {
     onModeOfInheritance(e) {
         this.modeOfInheritance = e.target.value;
         const _this = this;
-        this.opencgaSession.opencgaClient.variants().genotypesFamily({
+        this.opencgaSession.opencgaClient.variants().genotypesFamily(this.modeOfInheritance, {
             study: this.opencgaSession.study.fqn,
             family: this.clinicalAnalysis.family.id,
             disorder: this.clinicalAnalysis.disorder.id,
-            modeOfInheritance: this.modeOfInheritance,
             completePenetrance: true
         }).then(function(response) {
             const genotypeResults = response.response[0].result[0];
@@ -309,31 +308,8 @@ export default class OpencgaVariantFilterClinical extends LitElement {
         }
 
         console.log("sampleFilters after", this.sampleFilters);
-        /*        for (const row of table.rows) {
-            if (row.dataset.sample !== undefined) {
-                // Set GT values reading columns 5, 6 and 7
-                this.sampleFilters[counter].genotypes = [];
-                for (let i = 5; i <= 7; i++) {
-                    if (row.children[i].children[0].checked) {
-                        this.sampleFilters[counter].genotypes.push(row.children[i].children[0].dataset.gt);
-                    } else {
-                        //console.log("Check", row.children[i].children[0].checked)
-                    }
-
-                }
-
-                // Set DP value
-                this.sampleFilters[counter].dp = row.children[8].children[0].value;
-
-                counter++;
-            }
-        }*/
-
-        console.log("this.sampleFilters", this.sampleFilters);
         this.sampleFilters = [...this.sampleFilters];
         // this.sampleFilters = $.extend(true, [], this.sampleFilters);
-
-        // console.log("this.sampleFilters", this.sampleFilters);
         // this.requestUpdate();
 
         // Set MoI select to 'none' when clicked in GT
@@ -414,7 +390,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                         </div>
                         <div>
                             <button class="btn btn-default ripple ${this.mode === "segregation" ? "active" : ""}" value="segregation" @click="${this.setSample}">Segregation</button>
-                            <div class="select-field-filter-wrapper"><select-field-filter ?disabled="${this.mode !== "segregation"}" .data="${[{id: "MONOALLELIC", name: "Autosomal Dominant"}, {id: "BIALLELIC", name: "Autosomal Recessive"}, {id: "XLINKED_MONOALLELIC", name: "X-linked Dominant"}, {id: "XLINKED_BIALLELIC", name: "X-linked Recessive"}, {id: "YLINKED", name: "Y-linked"}]}" .value=${"A"} @filterChange="${e => console.log(e)}"></select-field-filter></div>
+                            <div class="select-field-filter-wrapper"><select-field-filter ?disabled="${this.mode !== "segregation"}" .data="${[{id: "MONOALLELIC", name: "Autosomal Dominant"}, {id: "BIALLELIC", name: "Autosomal Recessive"}, {id: "XLINKED_MONOALLELIC", name: "X-linked Dominant"}, {id: "XLINKED_BIALLELIC", name: "X-linked Recessive"}, {id: "YLINKED", name: "Y-linked"}]}" .value=${"A"} @filterChange="${e => this.onModeOfInheritance(e)}"></select-field-filter></div>
                         </div>
                         <div>
                             <button class="btn btn-default ripple ${this.mode === "ch" ? "active" : ""}" value="ch" @click="${this.setSample}">Compound Heterozygous</button>
@@ -476,15 +452,15 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                                     </td>
                                     <td style="padding-left: 20px">
                                         <input id="${this._prefix}${sampleFilter.id}00" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/0" data-sample-id="${sampleFilter.id}"
-                                               .checked="${sampleFilter.genotypes.includes("0/0")}" @change="${this.onSampleTableChange}">
+                                               .checked="${sampleFilter.genotypes.includes("0/0")}" ?disabled="${this.mode !== "custom"}" @change="${this.onSampleTableChange}">
                                     </td>
                                     <td style="padding-left: 20px">
                                         <input id="${this._prefix}${sampleFilter.id}01" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/1" data-sample-id="${sampleFilter.id}"
-                                               .checked="${sampleFilter.genotypes.includes("0/1")}" @change="${this.onSampleTableChange}">
+                                               .checked="${sampleFilter.genotypes.includes("0/1")}" ?disabled="${this.mode !== "custom"}" @change="${this.onSampleTableChange}">
                                     </td>
                                     <td style="padding-left: 20px">
                                         <input id="${this._prefix}${sampleFilter.id}11" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="1/1" data-sample-id="${sampleFilter.id}"
-                                               .checked="${sampleFilter.genotypes.includes("1/1")}" @change="${this.onSampleTableChange}">
+                                               .checked="${sampleFilter.genotypes.includes("1/1")}" ?disabled="${this.mode !== "custom"}" @change="${this.onSampleTableChange}">
                                     </td>
                                     <td style="padding-left: 10px">
                                         <input id="${this._prefix}${sampleFilter.id}DP" type="text" value="${sampleFilter.dp !== undefined && sampleFilter.dp > 0 ? sampleFilter.dp : ""}"
@@ -501,38 +477,21 @@ export default class OpencgaVariantFilterClinical extends LitElement {
 
             ${this.showModeOfInheritance ? html`
                 <div class="col-md-12" style="padding: 10px 20px">
-                    <div class="col-md-2" style="padding: 10px 25px 5px 25px">
-                        <label>Mode of Inheritance</label>
-                    </div>
-                    <div class="col-md-3">
-                        <select class="selectpicker" id="${this._prefix}ModeOfInheritance" data-size="8" style="font-size: 12px"
-                                @change="${this.onModeOfInheritance}">
-                            <option value="none">None</option>
-                            <option value="MONOALLELIC">Autosomal Dominant</option>
-                            <option value="BIALLELIC">Autosomal Recessive</option>
-                            <!--<option value="COMPOUND_HETEROZYGOUS">Compound Heterozygous (AR) </option>-->
-                            <option value="XLINKED_MONOALLELIC">X-linked Dominant</option>
-                            <option value="XLINKED_BIALLELIC">X-linked Recessive</option>
-                            <option value="YLINKED">Y-linked</option>
-                        </select>
-                    </div>
-                    <div class="col-md-7">
-                        <div class="alert alert-warning" role="alert" id="${this._prefix}Warning" style="display: none;padding: 10px">
-                            <span style="font-weight: bold;font-size: 1.20em">Warning:</span>&nbsp;The selected Mode of Inheritance is not compatible with the family pedigree .
-                        </div>
+                    <div class="alert alert-warning" role="alert" id="${this._prefix}Warning" style="display: none;padding: 10px">
+                        <span style="font-weight: bold;font-size: 1.20em">Warning:</span>&nbsp;The selected Mode of Inheritance is not compatible with the family pedigree .
                     </div>
                 </div>    
             ` : null}
             
             
-            <div class="col-md-12" style="padding: 10px 20px">
+            <!-- <div class="col-md-12" style="padding: 10px 20px">
                 <div style="padding: 0 25px">
                     <label>Other options</label>
                 </div>
                 <div style="padding: 5px 30px">
                     <input id="${this._prefix}MissingCheckbox" type="checkbox" @click="${this.sampleFiltersChange}"><span style="padding-left: 5px">Include parent missing (non-ref) allele calls</span>
                 </div>
-            </div>
+            </div> -->
         </div>
         `;
     }

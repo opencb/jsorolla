@@ -405,29 +405,6 @@ export default class OpencgaPanelGrid extends LitElement {
                 margin-top: 20px;
             }
         </style>
-
-        <!--<div class="col-md-2 div-margin">-->
-            <!--<div style="width: 60%;margin: 0 auto">-->
-                <!--<button type="button" class="btn btn-lg btn-primary" style="width: 100%" on-click="onSearch">-->
-                    <!--<i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px"></i> Search-->
-                <!--</button>-->
-            <!--</div>-->
-            <!--<div class="form-group has-feedback">-->
-                <!--<label for="${this._prefix}NamePanel" class="col-label">Name</label>-->
-                <!--<input id="${this._prefix}NamePanel" type="text" class="form-control"-->
-                       <!--placeholder="Search for" value="{{namePanel::input}}">-->
-            <!--</div>-->
-            <!--<div class="form-group has-feedback">-->
-                <!--<label for="${this._prefix}AuthorPanel" class="col-label">Author</label>-->
-                <!--<input id="${this._prefix}AuthorPanel" type="text" class="form-control"-->
-                       <!--placeholder="Search for" value="{{authorPanel::input}}">-->
-            <!--</div>-->
-            <!--<div class="form-group has-feedback">-->
-                <!--<label for="${this._prefix}VersionPanel" class="col-label">Version</label>-->
-                <!--<input id="${this._prefix}VersionPanel" type="text" class="form-control"-->
-                       <!--placeholder="Search for" value="{{versionPanel::input}}">-->
-            <!--</div>-->
-        <!--</div>-->
         <div id="${this._prefix}PanelsDiv">
             <h2>Panels</h2>
             <table id="${this._prefix}PanelsGrid" data-pagination="true" data-page-list="[5, 10, 25, 50]" data-show-refresh="true">

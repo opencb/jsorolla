@@ -20,6 +20,7 @@ import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "./opencga-clinical-review-cases.js";
 import "./opencga-clinical-analysis-editor.js";
+import "./../opencga/catalog/panel/opencga-panel-browser.js";
 
 
 export default class OpencgaClinicalPortal extends LitElement {

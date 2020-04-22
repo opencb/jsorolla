@@ -219,6 +219,12 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
         this.requestUpdate();
     }
 
+/*    onSampleChange(e) {
+        console.error("onSampleChange")
+        this.samples = e.detail.samples;
+        this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
+    }*/
+
     onSelectVariant(e) {
         this.variant = e.detail.variant;
     }
