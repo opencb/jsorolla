@@ -155,24 +155,25 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
             });
             switch (this.mode) {
                 case "interactive":
-                    const _genotypes = [];
-                    for (const sampleId of this._sampleIds) {
+                    const _genotypes = this._sampleIds.map( id => this.clinicalAnalysis.proband.samples[0].id === id ? id + ":0/1,1/1" : id + ":0/0,0/1,1/1");
+                    /*for (const sampleId of this._sampleIds) {
                         if (this.clinicalAnalysis.proband.samples[0].id === sampleId) {
                             _genotypes.push(sampleId + ":0/1,1/1");
                         } else {
                             _genotypes.push(sampleId + ":0/0,0/1,1/1");
                         }
-                    }
+                    }*/
                     _query.genotype = _genotypes.join(";");
                     break;
-                case "compoundHeterozygous":
+                /*case "compoundHeterozygous":
                 // _query.biotype = "protein_coding";
                     _query.ct = "missense_variant," + this._config.filter.lof.join(",");
-                    break;
+                    break;*/
             }
 
             // Reset query when new session or clinical analysis is provided
             this.query = {...this.query, ..._query};
+            //console.log("query Updated")
         }
         console.log(this.clinicalAnalysis);
         //debugger;
@@ -183,7 +184,8 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
             this.preparedQuery = this._prepareQuery(this.query);
             this.executedQuery = {...this.preparedQuery};
         }
-        this.requestUpdate();
+        //console.log("queryObserver")
+        this.requestUpdate(); // TODO apparently commenting this line and refreshing rd-interpreter sometimes causes the grid to not work.
     }
 
     activeObserver() {
@@ -430,6 +432,9 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
                     </div>
 
                     <div class="col-md-10">
+                    
+                    
+                    
                         <opencga-active-filters .opencgaSession="${this.opencgaSession}"
                                                 .clinicalAnalysis="${this.clinicalAnalysis}"
                                                 .defaultStudy="${this.opencgaSession.study.alias}"

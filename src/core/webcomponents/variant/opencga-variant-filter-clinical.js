@@ -63,10 +63,19 @@ export default class OpencgaVariantFilterClinical extends LitElement {
             {id: "XLINKED_MONOALLELIC", name: "X-linked Dominant"},
             {id: "XLINKED_BIALLELIC", name: "X-linked Recessive"},
             {id: "YLINKED", name: "Y-linked"},
-            {id: "ch", name: "Compound Heterozygous"},
-            {id: "denovo", name: "De Novo"}
+            {id: "COMPOUND_HETEROZYGOUS", name: "Compound Heterozygous"},
+            {id: "DE_NOVO", name: "De Novo"}
+        ];
+        this.modeOfInheritanceSelectToRemove = [
+            {id: "MONOALLELIC", name: "Autosomal Dominant"},
+            {id: "BIALLELIC", name: "Autosomal Recessive"},
+            {id: "XLINKED_MONOALLELIC", name: "X-linked Dominant"},
+            {id: "XLINKED_BIALLELIC", name: "X-linked Recessive"},
+            {id: "YLINKED", name: "Y-linked"}
         ];
         this.showModeOfInheritance = true;
+
+        this.mode = "CUSTOM";
 
         this._query = {};
     }
@@ -242,7 +251,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
 
         const _sampleFilters = this.sampleFilters;
         console.log("sampleFiltersChange", this.sampleFilters);
-        if (this.mode === "ch" || this.mode === "denovo") {
+        if (this.mode === "COMPOUND_HETEROZYGOUS" || this.mode === "DE_NOVO") {
             // _sampleFilters = this.sampleFilters.filter( sample => sample.proband);
             // _sampleFilters.genotype = [this.mode]
         }
@@ -356,11 +365,11 @@ export default class OpencgaVariantFilterClinical extends LitElement {
             this.onModeOfInheritance(e);
         }
 
-        if (this.mode === "ch") {
+        if (this.mode === "COMPOUND_HETEROZYGOUS") {
             this.sampleFiltersChange();
         }
 
-        if (this.mode === "denovo") {
+        if (this.mode === "DE_NOVO") {
             this.sampleFiltersChange();
         }
         this.requestUpdate();
@@ -411,13 +420,6 @@ export default class OpencgaVariantFilterClinical extends LitElement {
 
         <div id="opencga-variant-filter-clinical" class="row">
 
-
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label>Select a Mode of Inheritance:</label>
-                    <select-field-filter .data="${this.modeOfInheritanceSelect}" .value=${"CUSTOM"} @filterChange="${this.setMode}"></select-field-filter>
-                </div>
-            </div>
             <div class="col-md-12">
                 <!--<h4>Select Sample Filters</h4>
                 <div style="padding: 5px 20px">
@@ -429,7 +431,11 @@ export default class OpencgaVariantFilterClinical extends LitElement {
 
                 <div class="form-check">
                     <div class="form-check-label mode-button">
-<!--                        <select-field-filter .data="${this.modeOfInheritanceSelect}" .value=${"CUSTOM"} @filterChange="${this.setMode}"></select-field-filter>-->
+                    
+                        <select-field-filter .data="${this.modeOfInheritanceSelect}" .value=${this.mode} @filterChange="${this.setMode}"></select-field-filter>
+
+                        <select-field-filter .data="${[{id: "CUSTOM", name: "Custom", selected: true}, {name: "Segregation", fields: this.modeOfInheritanceSelectToRemove}, {id: "COMPOUND_HETEROZYGOUS", name: "Compound Heterozygous"}, {id: "DE_NOVO", name: "De Novo"}]}" value="${this.mode}" @filterChange="${this.setMode}"></select-field-filter>
+                        
                         <!--<div>
                             <button class="btn btn-default ripple ${this.mode === "custom" ? "active" : ""}" value="custom" @click="${this.setSample}">Custom</button>
                         </div>
@@ -438,10 +444,10 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                             <div class="select-field-filter-wrapper"><select-field-filter ?disabled="${this.mode !== "segregation"}" .data="${[{id: "MONOALLELIC", name: "Autosomal Dominant"}, {id: "BIALLELIC", name: "Autosomal Recessive"}, {id: "XLINKED_MONOALLELIC", name: "X-linked Dominant"}, {id: "XLINKED_BIALLELIC", name: "X-linked Recessive"}, {id: "YLINKED", name: "Y-linked"}]}" .value=${"A"} @filterChange="${e => this.onModeOfInheritance(e)}"></select-field-filter></div>
                         </div>
                         <div>
-                            <button class="btn btn-default ripple ${this.mode === "ch" ? "active" : ""}" value="ch" @click="${this.setSample}">Compound Heterozygous</button>
+                            <button class="btn btn-default ripple ${this.mode === "COMPOUND_HETEROZYGOUS" ? "active" : ""}" value="ch" @click="${this.setSample}">Compound Heterozygous</button>
                         </div>
                         <div>
-                            <button class="btn btn-default ripple ${this.mode === "denovo" ? "active" : ""}" value="denovo" @click="${this.setSample}">De Novo</button>
+                            <button class="btn btn-default ripple ${this.mode === "DE_NOVO" ? "active" : ""}" value="denovo" @click="${this.setSample}">De Novo</button>
                         </div> -->
                     </div>
                 </div>
@@ -487,7 +493,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                                         ${sampleFilter.affected ? html`
                                             <span data-toggle="tooltip" data-placement="bottom" title="Affected"><i class='fa fa-check' style='color: green'></i></span>` : html`
                                             <span><i class='fa fa-times' style='color: red'></i></span>`
-}
+        }
                                     </td>
                                     <td style="padding-left: 20px">
                                         <span>${sampleFilter.father}</span>

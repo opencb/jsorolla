@@ -61,7 +61,9 @@ export default class SampleFilter extends LitElement {
 
     firstUpdated(_changedProperties) {
         //this.renderClinicalQuerySummary();
-        this.updateClinicalQueryTable();
+
+        // TODO recheck if it is necessary (it is called by queryObserver already)
+        //this.updateClinicalQueryTable();
     }
 
 /*
@@ -78,7 +80,7 @@ export default class SampleFilter extends LitElement {
 */
 
     queryObserver(){
-        this.updateClinicalQueryTable();
+        this.updateClinicalQueryTable(); //TODO recheck if this needs to be executed on clinicalAnalysis update
         //this.clinicalFilterQuery = $.extend(true, {}, this.query);  //updates the table opencga-variant-filter-clinical (in the modal)
 
         //console.warn("query changed", this.query)
@@ -102,24 +104,29 @@ export default class SampleFilter extends LitElement {
         let _genotypeFilters = [];
         let _sampleIds = [];
         let _dpFormatFilter = [];
-        for (let sampleFilter of e.detail.sampleFilters) {
-            // let color = (sampleFilter.affected) ? "red" : "black";
-            let genotypes = (sampleFilter.genotypes.length > 0) ? sampleFilter.genotypes.join(",") : "none";
+        if (e.detail.mode === "COMPOUND_HETEROZYGOUS" || e.detail.mode === "DE_NOVO") {
+            const proband = e.detail.sampleFilters.filter( sample => sample.proband);
+            console.log("proband", proband)
+            _genotypeFilters.push(proband[0].id + ":" + e.detail.mode);
+        } else {
+            for (let sampleFilter of e.detail.sampleFilters) {
+                // let color = (sampleFilter.affected) ? "red" : "black";
+                let genotypes = (sampleFilter.genotypes.length > 0) ? sampleFilter.genotypes.join(",") : "none";
 
-            console.log("genotypes",genotypes)
-            let dp = (UtilsNew.isNotEmpty(sampleFilter.dp)) ? Number(sampleFilter.dp) : -1;
+                console.log("genotypes",genotypes)
+                let dp = (UtilsNew.isNotEmpty(sampleFilter.dp)) ? Number(sampleFilter.dp) : -1;
 
-            //TODO this keeps adding missing gt, if you keep clicking
-            if (genotypes !== "none") {
-                if (e.detail.missing && !sampleFilter.proband) {
-                    genotypes += ",./0,./1,./.";
+                if (genotypes !== "none") {
+                    if (e.detail.missing && !sampleFilter.proband) {
+                        genotypes += ",./0,./1,./.";
+                    }
+                    _genotypeFilters.push(sampleFilter.id + ":" + genotypes);
                 }
-                _genotypeFilters.push(sampleFilter.id + ":" + genotypes);
+                if (dp !== -1) {
+                    _dpFormatFilter.push(sampleFilter.id + ":DP>=" + dp);
+                }
+                _sampleIds.push(sampleFilter.id)
             }
-            if (dp !== -1) {
-                _dpFormatFilter.push(sampleFilter.id + ":DP>=" + dp);
-            }
-            _sampleIds.push(sampleFilter.id)
         }
 
         //debugger

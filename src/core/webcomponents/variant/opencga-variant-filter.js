@@ -137,7 +137,7 @@ export default class OpencgaVariantFilter extends LitElement {
 
         this._initialised = true;
 
-        this.opencgaSessionObserver();
+        //this.opencgaSessionObserver();
         // this.queryObserver();
         // this.setQueryFilters();
         // this.clinicalObserver();
@@ -148,11 +148,11 @@ export default class OpencgaVariantFilter extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-        if (changedProperties.has("query")) {
-            this.queryObserver();
-        }
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalObserver();
+        }
+        if (changedProperties.has("query")) {
+            this.queryObserver();
         }
         // if (changedProperties.has("samples")) {
         // this.samplesObserver();
@@ -183,12 +183,13 @@ export default class OpencgaVariantFilter extends LitElement {
         } else {
             this.skipClinicalFilterQueryUpdate = true;
         }
-        if (this._reset) {
+        /*if (this._reset) {
             // console.trace(this.query)
             this.setQueryFilters();
         } else {
             this._reset = true;
-        }
+        }*/
+
         this.requestUpdate();
     }
 
@@ -408,7 +409,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 content = html`<cohort-stats-filter .opencgaSession="${this.opencgaSession}" .cohorts="${subsection.cohorts}" .cohortStatsAlt="${this.preparedQuery.cohortStatsAlt}" @filterChange="${e => this.onFilterChange("cohortStatsAlt", e.detail.value)}"></cohort-stats-filter>`;
                 break;
             case "sample":
-                content = html`<sample-filter ?enabled="${subsection.showSelectSamples}" .opencgaSession="${this.opencgaSession}" .clinicalAnalysis="${this.clinicalAnalysis}" .query="${this.query}" @sampleFilterChange="${e => this.onSampleFilterChange(e.detail.value)}"></sample-filter>`;
+                content = html`<sample-filter ?enabled="${subsection.showSelectSamples}" .opencgaSession="${this.opencgaSession}" .clinicalAnalysis="${this.clinicalAnalysis}" .query="${this.preparedQuery}" @sampleFilterChange="${e => this.onSampleFilterChange(e.detail.value)}"></sample-filter>`;
                 break;
             case "file":
             /** @deprecated */
@@ -425,7 +426,7 @@ export default class OpencgaVariantFilter extends LitElement {
                                            @filterChange="${e => this.onFilterChange("region", e.detail.value)}"></region-filter>`;
                 break;
             case "feature":
-                content = html`<feature-filter .cellbaseClient="${this.cellbaseClient}" .query=${this.query}
+                content = html`<feature-filter .cellbaseClient="${this.cellbaseClient}" .query=${this.preparedQuery}
                                             @filterChange="${e => this.onFilterChange("xref", e.detail.value)}"></feature-filter>`;
                 break;
             case "diseasePanels":
@@ -460,7 +461,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 content = html`<conservation-filter .conservation="${this.preparedQuery.conservation}" @filterChange="${e => this.onFilterChange("conservation", e.detail.value)}"></conservation-filter>`;
                 break;
             case "go":
-                content = html`<go-accessions-filter .go="${this.go}" @ontologyModalOpen="${this.onOntologyModalOpen}" @filterChange="${e => this.onFilterChange("go", e.detail.value)}"></go-accessions-filter>`;
+                content = html`<go-accessions-filter .go="${this.preparedQuery.go}" @ontologyModalOpen="${this.onOntologyModalOpen}" @filterChange="${e => this.onFilterChange("go", e.detail.value)}"></go-accessions-filter>`;
                 break;
             case "hpo":
                 content = html`<hpo-accessions-filter .annot-hpo="${this.preparedQuery["annot-hpo"]}" @ontologyModalOpen="${this.onOntologyModalOpen}" @filterChange="${e => this.onFilterChange("annot-hpo", e.detail.value)}"></hpo-accessions-filter>`;

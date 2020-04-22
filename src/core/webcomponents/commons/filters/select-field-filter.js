@@ -90,8 +90,13 @@ export default class SelectFieldFilter extends LitElement {
         }
         if (_changedProperties.has("value")) {
             //console.log("this.value", this.value)
-            //console.trace()
+            //debugger
+
+            // TODO FIXME force null to "CUSTOM" works in 1 case out of 2 in variant-filter-clinical..
+            //$(".selectpicker", this).selectpicker("val", this.value ? (this.multiple ? this.value.split(",") : this.value) : "CUSTOM");
             $(".selectpicker", this).selectpicker("val", this.value ? (this.multiple ? this.value.split(",") : this.value) : "");
+            //this.requestUpdate()
+            //$(".selectpicker", this).selectpicker("refresh");
         }
         if (_changedProperties.has("disabled")) {
             $(".selectpicker", this).selectpicker("refresh");
@@ -99,16 +104,17 @@ export default class SelectFieldFilter extends LitElement {
     }
 
     filterChange(e) {
+        //debugger
         const selection = $(".selectpicker", this).selectpicker("val");
         let val;
         if (selection && selection.length) {
             val = this.multiple ? selection.join(",") : selection[0];
         }
-        this.value = val ? val : null; // this allow users to get the selected values using DOMElement.value
+        //this.value = val ? val : null; // this allow users to get the selected values using DOMElement.value
         console.log("select filterChange", val);
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: this.value
+                value: val ? val : null
             }
         });
         this.dispatchEvent(event);

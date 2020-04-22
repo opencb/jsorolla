@@ -323,13 +323,14 @@ export class OpenCGAClient {
                                             }
                                         }
                                     }
+
+                                    // this sets the current active project and study (commented as application.defaultStudy is used now)
+                                    session.project = session.project ?? session.projects[0];
+                                    session.study = session.study ?? session.projects[0].studies[0];
+
                                     if (!session.project || !session.study) {
                                         throw new Error("Default study not found");
                                     }
-
-                                    // this sets the current active project and study (commented as application.defaultStudy is used now)
-                                    // session.project = session.projects[1];
-                                    // session.study = session.projects[1].studies[0];
 
                                     // Fetch the Disease Panels for each Study
                                     const panelPromises = [];

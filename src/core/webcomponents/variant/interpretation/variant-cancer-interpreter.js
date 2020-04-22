@@ -1078,6 +1078,20 @@ class VariantCancerInterpreter extends LitElement {
                                 </div>
             
                                 <div class="col-md-10">
+                                
+                                    <!-- TODO continue
+                                    <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
+                                        <div class="btn-group" role="group" style="margin-left: 0px">
+                                            <button type="button" class="btn btn-success ripple content-pills variant-interpretation-view-buttons active" @click="${this.onChangeView}" data-view="Interactive" >
+                                                    <i class="fa fa-table icon-padding" aria-hidden="true"></i> Table Result
+                                            </button>
+                                            <button type="button" class="btn btn-success ripple content-pills variant-interpretation-view-buttons" @click="${this.onChangeView}" data-view="Interactive">
+                                                    <i class="fa fa-table icon-padding" aria-hidden="true"></i> Summary Report
+                                            </button>                                            
+                                        </div>
+                                    </div> -->
+                    
+                    
                                     <opencga-active-filters .opencgaSession="${this.opencgaSession}"
                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                                             .defaultStudy="${this.opencgaSession.study.id}"

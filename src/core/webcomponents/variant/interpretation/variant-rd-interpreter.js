@@ -210,7 +210,9 @@ class VariantRdInterpreter extends LitElement {
                         _this.clinicalAnalysis = response.responses[0].results[0];
 
                         console.log("clinicalAnalysisIdObserver _this.clinicalAnalysis", _this.clinicalAnalysis);
-                        _this.requestUpdate();
+
+                        //TODO requestUpdate is done in clinicalAnalysisObserver()
+                        //_this.requestUpdate();
                     })
                     .catch(response => {
                         console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -684,7 +686,7 @@ class VariantRdInterpreter extends LitElement {
     }
     render() {
         return html`
-            <style include="jso-styles">
+            <style>
                 opencga-variant-intepretation {
                     font-size: 12px;
                 }
@@ -754,12 +756,12 @@ class VariantRdInterpreter extends LitElement {
                             <button id="${this._prefix}InteractiveButton" type="button" class="btn btn-success variant-interpretation-view-buttons active ripple" data-view="Interactive" @click="${this.onChangeView}">
                                 <i class="fa fa-filter icon-padding" aria-hidden="true" data-view="Interactive" @click="${this.onChangeView}"></i>Interactive Analysis ${this.counterTitles.rv}
                             </button>
-                            <button id="${this._prefix}CompoundHeterozygousButton" type="button" class="btn btn-success variant-interpretation-view-buttons ripple" data-view="CompoundHeterozygous" @click="${this.onChangeView}">
+                            <!-- <button id="${this._prefix}CompoundHeterozygousButton" type="button" class="btn btn-success variant-interpretation-view-buttons ripple" data-view="CompoundHeterozygous" @click="${this.onChangeView}">
                                 <i class="fas fa-random icon-padding" aria-hidden="true" data-view="CompoundHeterozygous" @click="${this.onChangeView}"></i>Compound Heterozygous ${this.counterTitles.ch}
                             </button>
                             <button id="${this._prefix}DeNovoButton" type="button" class="btn btn-success variant-interpretation-view-buttons ripple" data-view="DeNovo" @click="${this.onChangeView}">
                                 <i class="fa fa-divide icon-padding" aria-hidden="true" data-view="DeNovo" @click="${this.onChangeView}"></i>de Novo ${this.counterTitles.dn}
-                            </button>
+                            </button> -->
                         </div>
     
                         ${this._config.showOtherTools ? html`
@@ -841,7 +843,7 @@ class VariantRdInterpreter extends LitElement {
                             </div>
                         </div>
     
-                        <!-- COMPOUND HETEROZYGOUS -->
+                        <!-- COMPOUND HETEROZYGOUS 
                         <div id="${this._prefix}CompoundHeterozygous" class="variant-interpretation-content" style="display: none">
                             <div style="padding: 10px 10px">
                                 <opencga-variant-family-analysis .opencgaSession="${this.opencgaSession}"
@@ -858,8 +860,8 @@ class VariantRdInterpreter extends LitElement {
                                 </opencga-variant-family-analysis>
                             </div>
                         </div>
-    
-                        <!-- DE NOVO -->
+                        -->
+                        <!-- DE NOVO 
                         <div id="${this._prefix}DeNovo" class="variant-interpretation-content" style="display: none">
                             <div style="padding: 10px 10px">
                                 <opencga-variant-family-analysis .opencgaSession="${this.opencgaSession}"
@@ -876,7 +878,8 @@ class VariantRdInterpreter extends LitElement {
                                 </opencga-variant-family-analysis>
                             </div>
                         </div>
-    
+                        -->
+                        
                         <!-- PANEL LOW COVERAGE VIEW -->
                         <div id="${this._prefix}LowCoverage" class="variant-interpretation-content" style="display: none">
                             <opencga-panel-transcript-view .opencgaSession="${this.opencgaSession}"
