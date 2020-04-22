@@ -96,12 +96,19 @@ export default class VariantConsequenceTypeView extends LitElement {
             let protAnnot = row.proteinVariantAnnotation;
             let uniprotAcc = protAnnot.uniprotAccession ? `<a href="https://www.uniprot.org/uniprot/${protAnnot.uniprotAccession}" target="_blank">${protAnnot.uniprotAccession}</a>` : "NA";
             let keywords = protAnnot.keywords ? protAnnot.keywords.join(", ") : "NA";
-            let domains = protAnnot.features ? protAnnot.features.map(v => {if (v.id) {return " " + v.id}}) : "NA";
+            let domains = "NA";
+            if (protAnnot.features && protAnnot.features.length) {
+                let _domains = [];
+                for (let domainIndex in protAnnot.features) {
+                    _domains.push(protAnnot.features[domainIndex].id);
+                }
+                domains = `${_domains.join(", ")} (check all protein domains at <a href="https://www.ebi.ac.uk/interpro/protein/reviewed/${protAnnot.uniprotAccession}" target="_blank">InterPro</a>)`;
+            }
             detailHtml += `<label style="padding-right: 10px">UniProt Accession:</label>${uniprotAcc}<br>
                            <label style="padding-right: 10px">UniProt Variant ID:</label>${protAnnot.uniprotVariantId || "NA"}<br>
                            <label style="padding-right: 10px">Functional Description:</label>${protAnnot.functionalDescription || "NA"}<br>
                            <label style="padding-right: 10px">Keywords:</label>${keywords}<br>
-                           <label style="padding-right: 10px">Features:</label>${domains} (check all protein domains at <a href="https://www.ebi.ac.uk/interpro/protein/reviewed/${protAnnot.uniprotAccession}" target="_blank">InterPro</a>)`;
+                           <label style="padding-right: 10px">Domains:</label>${domains}`;
         } else {
             detailHtml += "No Uniprot Data Available";
         }
@@ -115,7 +122,7 @@ export default class VariantConsequenceTypeView extends LitElement {
         if (value) {
             return `<a href="https://www.genenames.org/tools/search/#!/all?query=${value}" target="_blank">${value}</a>`;
         } else {
-            return "";
+            return "-";
         }
     }
 

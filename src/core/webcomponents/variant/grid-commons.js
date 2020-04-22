@@ -15,8 +15,6 @@
  */
 
 
-import Utils from "../../utils.js";
-
 export default class GridCommons {
 
     constructor(gridId, context, config) {
@@ -49,8 +47,7 @@ export default class GridCommons {
             from = 1;
             to = numMatches;
         }
-        // debugger
-        // approximateCountResult = response.getResponse().attributes.approximateCount;
+        approximateCountResult = response.getResponse().attributes.approximateCount;
 
         return {
             numMatches: numMatches,
@@ -60,8 +57,7 @@ export default class GridCommons {
             approximateCountResult: approximateCountResult,
             response: {
                 total: numMatches,
-                // rows: response.getResults()
-                rows: response.getResponse()
+                rows: response.getResults()
             }
         };
     }
@@ -70,7 +66,6 @@ export default class GridCommons {
         $("#" + this.gridId + " tr").removeClass("success");
         $(selectedElement).addClass("success");
 
-        // this.onSelectVariant(row, this.context);
         this.context.dispatchEvent(new CustomEvent("selectrow", {
             detail: {
                 id: rowId,
@@ -80,34 +75,45 @@ export default class GridCommons {
     }
 
     onCheck(rowId, row) {
-        // let rowId = this._getVariantId(variant);
         this.context.dispatchEvent(new CustomEvent("checkrow", {
             detail: {
                 id: rowId,
                 row: row,
                 checked: true,
-                rows: $("#" + this.gridId).bootstrapTable("getAllSelections") || []
+                rows: $("#" + this.gridId).bootstrapTable("getAllSelections")
             }
         }));
     }
 
-    onSelectVariant(variant, event) {
-        let variantId = this._getVariantId(variant);
-        this.context.dispatchEvent(new CustomEvent(event, {
+    onCheckAll(rows) {
+        this.context.dispatchEvent(new CustomEvent("checkrow", {
             detail: {
-                id: variantId,
-                variant: variant
+                rows: $("#" + this.gridId).bootstrapTable("getAllSelections")
             }
         }));
     }
 
-    _getVariantId(variant) {
-        let variantId = null;
-        if (typeof variant !== "undefined") {
-            const reference = variant.reference !== "" ? variant.reference : "-";
-            const alternate = variant.alternate !== "" ? variant.alternate : "-";
-            variantId = variant.chromosome + ":" + variant.start + ":" + reference + ":" + alternate;
-        }
-        return variantId;
+    onUncheck(rowId, row) {
+        _this.dispatchEvent(new CustomEvent("checkrow", {
+            detail: {
+                id: rowId,
+                row: row,
+                checked: false,
+                rows: $("#" + this.gridId).bootstrapTable("getAllSelections")
+            }
+        }));
     }
+
+    onLoadSuccess(data, rowId, firstRowIndex = 2) {
+        if (data.rows && data.rows.length > firstRowIndex) {
+            $("#" + this.gridId)[0].rows[firstRowIndex].setAttribute("class", "success");
+            this.context.dispatchEvent(new CustomEvent("selectrow", {
+                detail: {
+                    id: rowId,
+                    row: data.rows[0]
+                }
+            }));
+        }
+    }
+
 }
