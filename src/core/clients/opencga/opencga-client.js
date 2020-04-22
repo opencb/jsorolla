@@ -338,7 +338,7 @@ export class OpenCGAClient {
                                             study: study,
                                             include: "id,name,stats,source,genes.id,genes.name,regions.id"
                                         }).then(function(response) {
-                                            return new RestResponse(response).getResult(0);
+                                            return new RestResponse(response).getResults();
                                         });
                                         panelPromises.push(promise);
                                     }
