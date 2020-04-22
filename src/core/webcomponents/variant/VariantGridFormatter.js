@@ -782,7 +782,8 @@ export default class VariantGridFormatter {
 
                 let roleInCancer = "-";
                 if (UtilsNew.isNotUndefinedOrNull(re.roleInCancer)) {
-                    roleInCancer = re.roleInCancer;
+                    roleInCancer = re.roleInCancer === "TUMOR_SUPRESSOR_GENE" || re.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : re.roleInCancer;
+                    // roleInCancer = re.roleInCancer;
                 }
 
                 let actionable = "-";
@@ -805,26 +806,28 @@ export default class VariantGridFormatter {
                 }
 
                 let clinicalSignificance = "-";
-                if (UtilsNew.isNotEmptyArray(re.classification.clinicalSignificance)) {
+                if (re.classification.clinicalSignificance) {
                     clinicalSignificance = re.classification.clinicalSignificance;
-                    switch (re.classification.clinicalSignificance) {
+                    switch (clinicalSignificance) {
+                        case "PATHOGENIC":
                         case "PATHOGENIC_VARIANT":
-                            clinicalSignificance = "<span style='color: red'>Pathogenic</span>";
-                            break;
+                        case "LIKELY_PATHOGENIC":
                         case "LIKELY_PATHOGENIC_VARIANT":
-                            clinicalSignificance = "<span style='color: red'>Likely Pathogenic</span>";
+                            clinicalSignificance = `<span style='color: red'>${clinicalSignificance.replace("_", " ")}</span>`;
                             break;
+                        case "UNCERTAIN_SIGNIFICANCE":
                         case "VARIANT_OF_UNKNOWN_CLINICAL_SIGNIFICANCE":
-                            clinicalSignificance = "<span style='color: darkorange'>VUS</span>";
+                            clinicalSignificance = `<span style='color: darkorange'>${clinicalSignificance.replace("_", " ")}</span>`;
                             break;
-                        case "LINKELY_BENIGN_VARIANT":
-                            clinicalSignificance = "<span style='color: blue'>Likely Benign</span>";
-                            break;
+                        case "LIKELY_BENIGN":
+                        case "LIKELY_BENIGN_VARIANT":
+                        case "BENIGN":
                         case "BENIGN_VARIANT":
-                            clinicalSignificance = "<span style='color: blue'>Benign</span>";
+                            clinicalSignificance = `<span style='color: blue'>${clinicalSignificance.replace("_", " ")}</span>`;
                             break;
-                        case "UNKNOWN":
                         case "NOT_ASSESSED":
+                            clinicalSignificance = `<span style='color: black'>${clinicalSignificance.replace("_", " ")}</span>`;
+                            break;
                         default:
                             clinicalSignificance = "NA";
                             break;
