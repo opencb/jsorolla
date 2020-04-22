@@ -432,6 +432,8 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                 <div class="form-check">
                     <div class="form-check-label mode-button">
                     
+                        <select-field-filter ?multiple="${true}" ?disabled=${false} ?required=${true} .data="${["GT", "LT"]}" .value="${"LT"}" maxOptions="2" @filterChange="${e => console.log("ID", e.detail.value)}"></select-field-filter>
+
                         <select-field-filter .data="${this.modeOfInheritanceSelect}" .value=${this.mode} @filterChange="${this.setMode}"></select-field-filter>
 
                         <select-field-filter .data="${[{id: "CUSTOM", name: "Custom", selected: true}, {name: "Segregation", fields: this.modeOfInheritanceSelectToRemove}, {id: "COMPOUND_HETEROZYGOUS", name: "Compound Heterozygous"}, {id: "DE_NOVO", name: "De Novo"}]}" value="${this.mode}" @filterChange="${this.setMode}"></select-field-filter>

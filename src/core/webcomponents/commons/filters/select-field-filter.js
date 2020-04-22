@@ -104,7 +104,7 @@ export default class SelectFieldFilter extends LitElement {
     }
 
     filterChange(e) {
-        //debugger
+        debugger
         const selection = $(".selectpicker", this).selectpicker("val");
         let val;
         if (selection && selection.length) {
