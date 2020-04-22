@@ -222,7 +222,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !$(this.table).bootstrapTable("getOptions").pageNumber || $(this.table).bootstrapTable("getOptions").pageNumber === 1,
-                        includeSampleId: true,
+                        includeSampleId: "true",
                         // skipCount: skipCount,
                         // include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
                         ...this.query

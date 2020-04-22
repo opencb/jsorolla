@@ -37,18 +37,13 @@ export default class OpencgaVariantFileMetrics extends LitElement {
             variant: {
                 type: Object
             },
-            files: {
-                type: Object
-            },
             config: {
                 type: Object
             }
         };
     }
 
-    // This is executed before the actual Polymer properties exist
     _init() {
-        // All id fields in the template must start with prefix, this allows components to be instantiated more than once
         this._prefix = "ovfm" + UtilsNew.randomString(6) + "_";
         this._config = this.getDefaultConfig();
     }
@@ -84,51 +79,98 @@ export default class OpencgaVariantFileMetrics extends LitElement {
         const attributesArray = Array.from(attributesSet.values()).sort();
         attributesArray.unshift("QUAL", "FILTER");
 
-        // We store the values as: result = [{name: "AC", values: [1, 2, 3, 4]}]
-        const result = [];
+        // We store the values as: result = [{id: "AC", file1: 1, file2: 2}]
+        let data = [];
         for (const attr of attributesArray) {
-            const tmp = {name: attr, values: []};
+            let tmp = {id: attr};
             for (const file of files) {
-                tmp.values.push(file.data[attr]);
+                tmp[file.fileId] = file.data[attr];
             }
-            result.push(tmp);
+            data.push(tmp);
         }
-        this._attributes = result;
 
-        this.requestUpdate();
+        $('#' + this._prefix + 'FileMetrics').bootstrapTable('destroy');
+        $('#' + this._prefix + 'FileMetrics').bootstrapTable({
+            data: data,
+            pagination: false,
+            columns: this._getColumns()
+        });
+    }
+
+    _getColumns() {
+        // This methods calculates dynamically the columns from te variant files and samples.
+        // Files must be grouped by the samples it contains.
+        let files = this.variant.studies[0].files;
+        let samples = this.variant.studies[0].samples;
+
+        // 1. Get the samples for each file
+        let fileToSamples = new Map();
+        for (let sample of samples) {
+            let file = files[0];
+            let sampleId = sample.sampleId ? sample.sampleId : "NA";
+            if (!fileToSamples.has(file.fileId)) {
+                fileToSamples.set(file.fileId, []);
+            }
+            fileToSamples.get(file.fileId).push(sampleId);
+        }
+
+        // 2. Group files for the samples it contains
+        let samplesToFiles = {};
+        for (let fileId of fileToSamples.keys()) {
+            let sampleListId = fileToSamples.get(fileId).join(", ");
+            if (!samplesToFiles[sampleListId]) {
+                samplesToFiles[sampleListId] = [];
+            }
+            samplesToFiles[sampleListId].push({fileId: fileId, samples: fileToSamples.get(fileId)});
+        }
+
+        // 3. Create the Boostrap columns
+        let columns = [
+            [
+                {
+                    title: 'File Attributes',
+                    field: "id",
+                    rowspan: 2,
+                    colspan: 1,
+                    halign: "center"
+                }
+            ],
+            []
+        ];
+        for (let sampleColumnKey of Object.keys(samplesToFiles)) {
+            let sampleColumns = samplesToFiles[sampleColumnKey];
+            columns[0].push(
+                {
+                    title: sampleColumnKey,
+                    rowspan: 1,
+                    colspan: sampleColumns.length,
+                    halign: "center"
+                }
+            );
+            for (let sampleColumn of sampleColumns) {
+                columns[1].push(
+                    {
+                        title: sampleColumn.fileId,
+                        field: sampleColumn.fileId,
+                        rowspan: 1,
+                        colspan: 1,
+                        halign: "center"
+                    }
+                );
+            }
+        }
+        return columns;
     }
 
     getDefaultConfig() {
         return {
-        };
+        }
     }
 
     render() {
         return html`
-            <div id="${this._prefix}FileMetrics">
-                <div class="col-md-10 col-md-offset-1" style="padding-top: 20px;overflow: auto;">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>File Attributes</th>
-                                ${this.variant.studies[0].files && this.variant.studies[0].files.length 
-                                    ? this.variant.studies[0].files.map( member => html`<th>${member.fileId}</th>`) 
-                                    : null
-                                }
-                            </tr>
-                        </thead>
-                        <tbody id="${this._prefix}TableTBody">
-                            ${this._attributes && this._attributes.length ? this._attributes.map(attribute => html`
-                                <tr id="${attribute.name}" class="file-metrics-table-${attribute.name}">
-                                    <td><span style="font-weight: bold">${attribute.name}</span></td>
-                                    ${attribute.values && attribute.values.length ? attribute.values.map(attr => html`
-                                        <td>${attr}</td>
-                                    `) : null}                            
-                                </tr>
-                            `) : null}
-                        </tbody>
-                    </table>
-                </div>
+            <div style="padding: 20px">
+                <table id="${this._prefix}FileMetrics"></table>
             </div>
         `;
     }
