@@ -20,6 +20,7 @@ import PolymerUtils from "../../PolymerUtils.js";
 import "./opencga-variant-interpretation-editor.js";
 import "./variant-cancer-interpreter-grid.js";
 import "./variant-cancer-interpreter-summary.js";
+import "./variant-cancer-interpreter-landing.js";
 import "./opencga-variant-interpretation-detail.js";
 import "./opencga-variant-interpreter-genome-browser.js";
 import "../opencga-variant-filter.js";
@@ -278,13 +279,17 @@ class VariantCancerInterpreter extends LitElement {
             // this._samples = _samples;
             // this._sampleIds = _sampleIds;
 
-            this.hasClinicalAnalysis = true;
-            this.requestUpdate();
+            // this.hasClinicalAnalysis = true;
+            // this.requestUpdate();
         } else {
             this.missingMembersMessage = "Missing clinical analysis";
         }
     }
 
+
+    onCLinicalAnalysis(e) {
+        this.clinicalAnalysis = e.detail.clinicalAnalysis;
+    }
 
     onClinicalAnalysisEditor(e) {
         // console.warn("onClinicalAnalysisEditor commented")
@@ -323,10 +328,10 @@ class VariantCancerInterpreter extends LitElement {
         }
     }
 
-    setClinicalAnalysisId() {
-        console.log($("#clinicalAnalysisIdText").val());
-        this.clinicalAnalysisId = $("#clinicalAnalysisIdText").val();
-    }
+    // setClinicalAnalysisId() {
+    //     console.log($("#clinicalAnalysisIdText").val());
+    //     this.clinicalAnalysisId = $("#clinicalAnalysisIdText").val();
+    // }
 
     unsetClinicalAnalysis() {
         this.clinicalAnalysisId = null;
@@ -456,7 +461,6 @@ class VariantCancerInterpreter extends LitElement {
     }
 
     _changeView(view) {
-        debugger
         if (UtilsNew.isNotUndefinedOrNull(view)) {
             // Hide all views and show the requested one
             PolymerUtils.hideByClass("variant-interpretation-content");
@@ -599,9 +603,9 @@ class VariantCancerInterpreter extends LitElement {
         }
     }
 
-    onFilterChange(name, value) {
-        this.clinicalAnalysisId = value;
-    }
+    // onFilterChange(name, value) {
+    //     this.clinicalAnalysisId = value;
+    // }
 
     onVariantFilterChange(e) {
         this.preparedQuery = e.detail.query;
@@ -928,6 +932,7 @@ class VariantCancerInterpreter extends LitElement {
             }
         };
     }
+
     render() {
         // Check Project exists
         if (!this.checkProjects) {
@@ -941,18 +946,10 @@ class VariantCancerInterpreter extends LitElement {
 
         if (!this.clinicalAnalysis) {
             return html`
-                <div class="container">
-                    <div class="row">
-                        <div class="clinical-analysis-id-wrapper col-md-6 col-md-offset-3 shadow">
-                            <h3>Clinical Analysis</h3>
-                            <div class="text-filter-wrapper">
-                                <!--<input type="text" name="clinicalAnalysisText" id="clinicalAnalysisIdText" value="AN-3">-->
-                                <select-field-filter-autocomplete-simple .fn="${true}" resource="clinical-analysis" .value="${"AN-3"}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("clinicalAnalysisId", e.detail.value)}"></select-field-filter-autocomplete-simple>
-                            </div>
-                            <button class="btn btn-default ripple" @click="${this.setClinicalAnalysisId}">Search</button>
-                        </div>
-                    </div>
-                </div>
+                <variant-cancer-interpreter-landing .opencgaSession="${this.opencgaSession}"
+                                                    .config="${this.config}"
+                                                    @selectclinicalnalysis="${this.onCLinicalAnalysis}">
+                </variant-cancer-interpreter-landing>
             `;
         }
 
