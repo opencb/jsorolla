@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import GridCommons from "../../../variant/grid-commons.js";
 import Utils from "./../../../../utils.js";
 import UtilsNew from "./../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
@@ -55,6 +56,9 @@ export default class OpencgaSampleGrid extends LitElement {
 
     _init() {
         this._prefix = "VarSampleGrid" + Utils.randomString(6) + "_";
+        this.gridId = this._prefix + "SampleBrowserGrid";
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
     }
 
     connectedCallback() {
@@ -122,7 +126,7 @@ export default class OpencgaSampleGrid extends LitElement {
                 this._samples = [];
             }
 
-            const _table = $("#" + this._prefix + "SampleBrowserGrid");
+            const _table = $("#" + this.gridId);
 
             const _this = this;
             _table.bootstrapTable("destroy");
@@ -179,7 +183,8 @@ export default class OpencgaSampleGrid extends LitElement {
                         rows: response.getResults()
                     };
                 },
-                onClickRow: function(row, element, field) {
+                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                /* onClickRow: function(row, element, field) {
                     if (_this._config.multiSelection) {
                         $(element).toggleClass("success");
                         const index = element[0].getAttribute("data-index");
@@ -194,8 +199,9 @@ export default class OpencgaSampleGrid extends LitElement {
                         $(element).addClass("success");
                     }
 
-                    _this._onSelectSample(row);
-                },
+                    //_this._onSelectSample(row);
+                    this.dispatchEvent(new CustomEvent("clickRow", {detail: {resource: "sample", data: row}}));
+                },*/
                 onCheck: function(row, elem) {
                     // check sample is not already selected
                     for (const i in _this._samples) {
@@ -259,7 +265,9 @@ export default class OpencgaSampleGrid extends LitElement {
 
 
                 },
-                onLoadSuccess: function(data) {
+                //TODO recheck multiSelection
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, data.rows[0].id, 1),
+                /*onLoadSuccess: function(data) {
                     // Check all already selected rows. Selected samples are stored in this.samples array
                     if (UtilsNew.isNotUndefinedOrNull(_table)) {
                         if (!_this._config.multiSelection) {
@@ -278,7 +286,7 @@ export default class OpencgaSampleGrid extends LitElement {
                             }
                         }
                     }
-                },
+                },*/
                 onPageChange: function(page, size) {
                     _this.from = (page - 1) * size + 1;
                     _this.to = page * size;
@@ -294,7 +302,8 @@ export default class OpencgaSampleGrid extends LitElement {
 
     _onSelectSample(row) {
         if (typeof row !== "undefined") {
-            this.dispatchEvent(new CustomEvent("selectsample", {detail: {id: row.id, sample: row}}));
+            //this.dispatchEvent(new CustomEvent("selectsample", {detail: {id: row.id, sample: row}}));
+            this.dispatchEvent(new CustomEvent("selectrow", {detail: {resource: "sample", data: row}}));
         }
     }
 

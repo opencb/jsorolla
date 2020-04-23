@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import GridCommons from "../../../variant/grid-commons.js";
 import Utils from "./../../../../utils.js";
 import UtilsNew from "./../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
@@ -61,6 +62,9 @@ export default class OpencgaIndividualGrid extends LitElement {
         this._prefix = "VarIndividualGrid" + Utils.randomString(6);
         this.catalogUiUtils = new CatalogUIUtils();
         this.active = false;
+        this.gridId = this._prefix + "IndividualBrowserGrid";
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
     }
 
     connectedCallback() {
@@ -137,10 +141,7 @@ export default class OpencgaIndividualGrid extends LitElement {
             opencgaHostUrl += "/webservices/rest/v1/individuals/search";
             */
 
-            let count = false;
-
-            const _table = $("#" + this._prefix + "IndividualBrowserGrid");
-
+            const _table = $("#" + this.gridId);
             const _this = this;
             _table.bootstrapTable("destroy");
             _table.bootstrapTable({
@@ -222,7 +223,8 @@ export default class OpencgaIndividualGrid extends LitElement {
                         rows: response.getResults()
                     };
                 },
-                onClickRow: function(row, element, field) {
+                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                /*onClickRow: function(row, element, field) {
                     if (_this._config.multiSelection) {
                         // Check and uncheck when clicking in the checkbox TD cell
                         if (field === "state") {
@@ -252,7 +254,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                     }
 
                     _this._onSelectIndividual(row);
-                },
+                },*/
                 onDblClickRow: function(row, element, field) {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.

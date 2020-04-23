@@ -66,13 +66,6 @@ export default class OpencgaVariantFilterClinical extends LitElement {
             {id: "COMPOUND_HETEROZYGOUS", name: "Compound Heterozygous"},
             {id: "DE_NOVO", name: "De Novo"}
         ];
-        this.modeOfInheritanceSelectToRemove = [
-            {id: "MONOALLELIC", name: "Autosomal Dominant"},
-            {id: "BIALLELIC", name: "Autosomal Recessive"},
-            {id: "XLINKED_MONOALLELIC", name: "X-linked Dominant"},
-            {id: "XLINKED_BIALLELIC", name: "X-linked Recessive"},
-            {id: "YLINKED", name: "Y-linked"}
-        ];
         this.showModeOfInheritance = true;
 
         this.mode = "CUSTOM";
@@ -432,12 +425,9 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                 <div class="form-check">
                     <div class="form-check-label mode-button">
                     
-                        <select-field-filter ?multiple="${true}" ?disabled=${false} ?required=${true} .data="${["GT", "LT"]}" .value="${"LT"}" maxOptions="2" @filterChange="${e => console.log("ID", e.detail.value)}"></select-field-filter>
+                        <!--<select-field-filter ?multiple="${true}" ?disabled=${false} ?required=${true} .data="${["GT", "LT"]}" .value="${"LT"}" maxOptions="2" @filterChange="${e => console.log("ID", e.detail.value)}"></select-field-filter>-->
+                        <select-field-filter .data="${this.modeOfInheritanceSelect}" value=${this.mode} @filterChange="${this.setMode}"></select-field-filter>
 
-                        <select-field-filter .data="${this.modeOfInheritanceSelect}" .value=${this.mode} @filterChange="${this.setMode}"></select-field-filter>
-
-                        <select-field-filter .data="${[{id: "CUSTOM", name: "Custom", selected: true}, {name: "Segregation", fields: this.modeOfInheritanceSelectToRemove}, {id: "COMPOUND_HETEROZYGOUS", name: "Compound Heterozygous"}, {id: "DE_NOVO", name: "De Novo"}]}" value="${this.mode}" @filterChange="${this.setMode}"></select-field-filter>
-                        
                         <!--<div>
                             <button class="btn btn-default ripple ${this.mode === "custom" ? "active" : ""}" value="custom" @click="${this.setSample}">Custom</button>
                         </div>

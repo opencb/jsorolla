@@ -20,6 +20,7 @@ import UtilsNew from "./../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 import "../../../commons/opencb-grid-toolbar.js";
 import "../../../../loading-spinner.js";
+import GridCommons from "../../../variant/grid-commons.js";
 
 
 // todo check functionality and notify usage
@@ -63,6 +64,9 @@ export default class OpencgaJobsGrid extends LitElement {
     _init() {
         this._prefix = "jbgrid" + Utils.randomString(6) + "_";
         this.eventNotifyName = "messageevent";
+        this.gridId = this._prefix + "FileBrowserGrid";
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
     }
 
     connectedCallback() {
@@ -172,7 +176,8 @@ export default class OpencgaJobsGrid extends LitElement {
                         rows: response.getResults()
                     };
                 },
-                onClickRow: (row, element, field) => {
+                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                /*onClickRow: (row, element, field) => {
                     if (this._config.multiselection) {
                         $(element).toggleClass("success");
                         const index = element[0].getAttribute("data-index");
@@ -189,7 +194,7 @@ export default class OpencgaJobsGrid extends LitElement {
 
                     this.dispatchEvent(new CustomEvent("clickRow", {detail: {resource: "job", data: row}}));
                     //_this._onSelectFile(row);
-                },
+                },*/
                 onCheck: function(row, elem) {
                     // check file is not already selected
                     for (const i in _this._files) {

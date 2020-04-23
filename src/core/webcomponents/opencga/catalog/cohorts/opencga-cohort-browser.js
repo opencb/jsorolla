@@ -194,7 +194,14 @@ export default class OpencgaCohortBrowser extends LitElement {
                         }
                     }
                 ],
-                grid: {}
+                grid: {},
+                detail: [
+                    {
+                        id: "cohort-view",
+                        title: "Cohort detail",
+                        active: true
+                    }
+                ]
             },
             aggregation: {
                 default: ["name"],

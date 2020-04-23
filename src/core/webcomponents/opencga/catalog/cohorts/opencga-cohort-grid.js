@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import GridCommons from "../../../variant/grid-commons.js";
 import Utils from "./../../../../utils.js";
 import UtilsNew from "./../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
@@ -51,6 +52,9 @@ export default class OpencgaCohortGrid extends LitElement {
     _init() {
         this._prefix = "VarCohortGrid" + Utils.randomString(6) + "_";
         this.active = false;
+        this.gridId = this._prefix + "CohortBrowserGrid";
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
     }
 
     updated(changedProperties) {
@@ -120,13 +124,11 @@ export default class OpencgaCohortGrid extends LitElement {
             }
             opencgaHostUrl += "/webservices/rest/v1/cohorts/search";*/
 
-            let skipCount = false;
-
-            const _table = $("#" + this._prefix + "CohortBrowserGrid");
+            const _table = $("#" + this.gridId);
 
             const _this = this;
-            $("#" + this._prefix + "CohortBrowserGrid").bootstrapTable("destroy");
-            $("#" + this._prefix + "CohortBrowserGrid").bootstrapTable({
+            _table.bootstrapTable("destroy");
+            _table.bootstrapTable({
                 //url: opencgaHostUrl,
                 columns: _this._columns,
                 method: "get",
@@ -183,7 +185,8 @@ export default class OpencgaCohortGrid extends LitElement {
                         rows: response.getResults()
                     };
                 },
-                onClickRow: function(row, element, field) {
+                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                /*onClickRow: function(row, element, field) {
                     let checked = true;
                     if (_this._config.multiSelection) {
                         // Check and uncheck when clicking in the checkbox TD cell
@@ -215,7 +218,7 @@ export default class OpencgaCohortGrid extends LitElement {
                         $(element).addClass("success");
                     }
                     _this._onSelectCohort(row, checked);
-                },
+                },*/
                 onDblClickRow: function(row, element, field) {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.

@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import GridCommons from "../../../variant/grid-commons.js";
 import Utils from "./../../../../utils.js";
 import UtilsNew from "./../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
@@ -68,6 +69,9 @@ export default class OpencgaFileGrid extends LitElement {
 
         this._config = this.getDefaultConfig();
         this.eventNotifyName = "messageevent";
+
+        this.gridId = this._prefix + "FileBrowserGrid";
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     connectedCallback() {
@@ -119,7 +123,7 @@ export default class OpencgaFileGrid extends LitElement {
                 this._files = [];
             }
 
-            const _table = $("#" + this._prefix + "FileBrowserGrid");
+            const _table = $("#" + this.gridId);
 
             const _this = this;
             _table.bootstrapTable("destroy");
@@ -179,23 +183,25 @@ export default class OpencgaFileGrid extends LitElement {
                         rows: response.getResults()
                     };
                 },
-                onClickRow: function(row, element, field) {
-                    if (_this._config.multiSelection) {
-                        $(element).toggleClass("success");
-                        const index = element[0].getAttribute("data-index");
-                        // Check and uncheck actions trigger events that are captured below
-                        if ("selected" === element[0].className) {
-                            $(PolymerUtils.getElementById(_this._prefix + "FileBrowserGrid")).bootstrapTable("uncheck", index);
-                        } else {
-                            $(PolymerUtils.getElementById(_this._prefix + "FileBrowserGrid")).bootstrapTable("check", index);
-                        }
-                    } else {
-                        $(".success").removeClass("success");
-                        $(element).addClass("success");
-                    }
+                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                /*
+                                onClickRow: function(row, element, field) {
+                                    if (_this._config.multiSelection) {
+                                        $(element).toggleClass("success");
+                                        const index = element[0].getAttribute("data-index");
+                                        // Check and uncheck actions trigger events that are captured below
+                                        if ("selected" === element[0].className) {
+                                            $(PolymerUtils.getElementById(_this._prefix + "FileBrowserGrid")).bootstrapTable("uncheck", index);
+                                        } else {
+                                            $(PolymerUtils.getElementById(_this._prefix + "FileBrowserGrid")).bootstrapTable("check", index);
+                                        }
+                                    } else {
+                                        $(".success").removeClass("success");
+                                        $(element).addClass("success");
+                                    }
 
-                    _this._onSelectFile(row);
-                },
+                                    _this._onSelectFile(row);
+                                },*/
                 onCheck: function(row, elem) {
                     // check file is not already selected
                     for (const i in _this._files) {

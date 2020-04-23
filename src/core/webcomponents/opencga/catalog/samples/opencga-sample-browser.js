@@ -214,7 +214,18 @@ export default class OpencgaSampleBrowser extends LitElement {
                     sampleDetail: {
                         showTitle: false
                     }
-                }
+                },
+                detail: [
+                    {
+                        id: "sample-view",
+                        title: "Sample detail",
+                        active: true
+                    },
+                    {
+                        id: "individual-view",
+                        title: "Individual"
+                    }
+                ]
             },
             aggregation: {
                 default: [],

@@ -487,7 +487,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                                         .query="${this._query}" style="font-size: 12px"
                                                         .active="${this.active}"
                                                         .config="${this._config.grid}"
-                                                        @selectanalysis="${this.onSelectClinicalAnalysis}">
+                                                        @selectrow="${this.onSelectClinicalAnalysis}">
                         </opencga-clinical-analysis-grid>
 
                         <!-- Bottom tabs with specific variant information -->

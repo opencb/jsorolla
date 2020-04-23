@@ -94,7 +94,7 @@ export default class GridCommons {
     }
 
     onUncheck(rowId, row) {
-        _this.dispatchEvent(new CustomEvent("checkrow", {
+        this.context.dispatchEvent(new CustomEvent("checkrow", {
             detail: {
                 id: rowId,
                 row: row,
