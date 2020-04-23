@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html, css} from "/web_modules/lit-element.js";
-import Utils from "../../../utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import "./opencga-variant-interpretation-editor.js";
 import "./variant-cancer-interpreter-grid.js";
+import "./variant-cancer-interpreter-summary.js";
 import "./opencga-variant-interpretation-detail.js";
 import "./opencga-variant-interpreter-genome-browser.js";
 import "../opencga-variant-filter.js";
@@ -82,7 +82,7 @@ class VariantCancerInterpreter extends LitElement {
     }
 
     _init() {
-        this._prefix = "vci-" + Utils.randomString(6);
+        this._prefix = "vci-" + UtilsNew.randomString(6);
 
         this.diseasePanelIds = [];
         this.hasClinicalAnalysis = false;
@@ -1039,10 +1039,10 @@ class VariantCancerInterpreter extends LitElement {
                     <div class="btn-toolbar " role="toolbar" aria-label="..." style="padding-bottom: 20px">
                         <!-- Left buttons -->
                         <div class="btn-group" role="group" aria-label="...">
-                            <button id="${this._prefix}InteractiveButton" type="button" class="btn btn-success variant-interpretation-view-buttons active ripple" data-view="TableResult" @click="${this.onChangeView}">
+                            <button id="${this._prefix}TableResultButton" type="button" class="btn btn-success variant-interpretation-view-buttons active ripple" data-view="TableResult" @click="${this.onChangeView}">
                                 <i class="fa fa-filter icon-padding" aria-hidden="true" data-view="TableResult" @click="${this.onChangeView}"></i>Table Result
                             </button>
-                            <button id="${this._prefix}CompoundHeterozygousButton" type="button" class="btn btn-success variant-interpretation-view-buttons ripple" data-view="SummaryReport" @click="${this.onChangeView}">
+                            <button id="${this._prefix}SummaryReportButton" type="button" class="btn btn-success variant-interpretation-view-buttons ripple" data-view="SummaryReport" @click="${this.onChangeView}">
                                 <i class="fas fa-random icon-padding" aria-hidden="true" data-view="SummaryReport" @click="${this.onChangeView}"></i>Summary Report
                             </button>
                         </div>
@@ -1141,6 +1141,13 @@ class VariantCancerInterpreter extends LitElement {
                                                                        .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                                                        .config=${this._config.filter.detail}>
                                 </opencga-variant-interpretation-detail>
+                            </div>
+                             
+                             <!-- SUMMARY REPORT VIEW -->
+                            <div id="${this._prefix}SummaryReport" class="variant-interpretation-content" style="display: none">
+                                <variant-cancer-interpreter-summary .opencgaSession="${this.opencgaSession}"
+                                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                                </variant-cancer-interpreter-summary>
                             </div>
                             
                             <!-- PANEL LOW COVERAGE VIEW -->
