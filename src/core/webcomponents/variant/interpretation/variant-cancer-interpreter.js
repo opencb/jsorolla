@@ -979,8 +979,8 @@ class VariantCancerInterpreter extends LitElement {
                 }
     
                 .icon-padding {
-                    padding-left: 4px;
-                    padding-right: 8px;
+                    padding-left: 0px;
+                    padding-right: 5px;
                 }
     
                 .form-section-title {
@@ -1068,29 +1068,36 @@ class VariantCancerInterpreter extends LitElement {
                         ` : null}
         
                         <!-- Right buttons -->
-                        ${this.hasClinicalAnalysis ? html`
-                            <div class="btn-group" role="group" aria-label="..." style="float: right">
-                                <button id="${this._prefix}ClinicalAnalysisButton" type="button" class="btn btn-primary variant-interpretation-view-buttons" data-view="ClinicalAnalysis" @click="${this.onChangeView}">
-                                    <i class="fa fa-user-md icon-padding" aria-hidden="true" data-view="ClinicalAnalysis" @click="${this.onChangeView}"></i>Case Summary
-                                </button>
+                        <div class="btn-toolbar" role="toolbar" aria-label="..." style="float: right">
+                            <div class="btn-group">
                                 <button id="${this._prefix}InterpretationEditorButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
-                                        data-view="InterpretationEditor" @click="${this.onChangeView}" .disabled="${this._config.disableSaveInterpretation}">
-                                    <i class="fa fa-save icon-padding" aria-hidden="true" data-view="InterpretationEditor" @click="${this.onChangeView}"></i>Review and Save ${this.counterTitles.total}
+                                            data-view="InterpretationEditor" @click="${this.onChangeView}" .disabled="${this._config.disableSaveInterpretation}">
+                                        <i class="fa fa-save icon-padding" aria-hidden="true" data-view="InterpretationEditor" @click="${this.onChangeView}"></i>Review
                                 </button>
-                                
-                                <button class="btn btn-primary variant-interpretation-view-buttons" @click="${this.unsetClinicalAnalysis}"> <i class="fas fa-window-close"></i> Close Case</button>
-                            </div>
-                        ` : html`
-                            <div class="btn-group" role="group" aria-label="..." style="float: right">
-                                <button id="${this._prefix}ClinicalAnalysisEditorButton" class="btn btn-primary variant-interpretation-view-buttons" data-view="ClinicalAnalysisEditor" @click="${this.onChangeView}" >
-                                    <i class="fa fa-edit icon-padding" aria-hidden="true" data-view="ClinicalAnalysisEditor" @click="${this.onChangeView}"></i>Clinical Analysis Definition
-                                </button>
-                                <button id="${this._prefix}InterpretationEditorButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
-                                        data-view="InterpretationEditor" @click="${this.onChangeView}" .disabled="${this._config.disableSaveInterpretation}">
-                                    <i class="fa fa-save icon-padding" aria-hidden="true" data-view="InterpretationEditor" @click="${this.onChangeView}"></i>Review and Save ${this.counterTitles.total}
+                                 <button id="${this._prefix}InterpretationEditorButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
+                                            data-view="InterpretationEditor" @click="${this.onChangeView}" .disabled="${this._config.disableSaveInterpretation}">
+                                        <i class="fa fa-save icon-padding" aria-hidden="true" data-view="InterpretationEditor" @click="${this.onChangeView}"></i>Save
                                 </button>
                             </div>
-                        `}
+                            
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa fa-cog icon-padding" aria-hidden="true"></i>Clinical Analysis <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a href="#" data-view="ClinicalAnalysis" @click="${this.onChangeView}"><i class="fa fa-user-md icon-padding" aria-hidden="true" data-view="ClinicalAnalysis" @click="${this.onChangeView}"></i>View</a>
+                                    </li>
+                                    <li class="disabled">
+                                        <a href="#" data-view="ClinicalAnalysis" @click="${this.onChangeView}"><i class="fa fa-user-md icon-padding" aria-hidden="true" data-view="ClinicalAnalysis" @click="${this.onChangeView}"></i>Create</a>
+                                    </li>
+                                    <li>
+                                        <a @click="${this.unsetClinicalAnalysis}" style="cursor: pointer"><i class="fas fa-window-close icon-padding" @click="${this.unsetClinicalAnalysis}"></i>Close</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
                     </div>  <!-- Close toolbar -->
                 
                     <div id="${this._prefix}MainContent">
