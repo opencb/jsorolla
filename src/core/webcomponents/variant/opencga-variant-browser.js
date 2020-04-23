@@ -742,7 +742,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                 </h2>
             </div>
             
-            <div class="row" style="padding: 0px 10px">
+            <div class="row" style="padding: 5px 10px">
                 <div class="col-md-2 left-menu">
                 
                     <div class="search-button-wrapper">

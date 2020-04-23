@@ -312,7 +312,7 @@ export class OpenCGAClient {
                                                     } else {
                                                         study.alias = study.fqn;
                                                     }
-                                                    //default study from config
+                                                    // default study from config
                                                     if (study.alias === application.defaultStudy) {
                                                         session.project = project;
                                                         session.study = study;

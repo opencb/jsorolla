@@ -193,7 +193,7 @@ class VariantCancerInterpreter extends LitElement {
 
     /**
      * Fetch the CinicalAnalysis object from REST and trigger the observer call.
-    */
+     */
     clinicalAnalysisIdObserver() {
 
         // TODO tempfix check for clinicalAnalysisId undefined
@@ -222,7 +222,7 @@ class VariantCancerInterpreter extends LitElement {
 
     clinicalAnalysisObserver() {
         if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
-            this._changeView("Interactive");
+            // this._changeView("TableResult");
             // let _individuals = [];
             // let _samples = [];
             // let _sampleIds = [];
@@ -456,10 +456,17 @@ class VariantCancerInterpreter extends LitElement {
     }
 
     _changeView(view) {
+        debugger
         if (UtilsNew.isNotUndefinedOrNull(view)) {
             // Hide all views and show the requested one
             PolymerUtils.hideByClass("variant-interpretation-content");
             PolymerUtils.show(this._prefix + view);
+
+            if (view === "TableResult" || view === "SummaryReport") {
+                PolymerUtils.show(this._prefix + "ActiveFilters");
+            } else {
+                PolymerUtils.hide(this._prefix + "ActiveFilters");
+            }
 
             // Show the active button
             // $(e.target).addClass("active");
@@ -922,6 +929,33 @@ class VariantCancerInterpreter extends LitElement {
         };
     }
     render() {
+        // Check Project exists
+        if (!this.checkProjects) {
+            return html`
+                <div class="guard-page">
+                    <i class="fas fa-lock fa-5x"></i>
+                    <h3>No public projects available to browse. Please login to continue</h3>
+                </div>
+            `;
+        }
+
+        if (!this.clinicalAnalysis) {
+            return html`
+                <div class="container">
+                    <div class="row">
+                        <div class="clinical-analysis-id-wrapper col-md-6 col-md-offset-3 shadow">
+                            <h3>Clinical Analysis</h3>
+                            <div class="text-filter-wrapper">
+                                <!--<input type="text" name="clinicalAnalysisText" id="clinicalAnalysisIdText" value="AN-3">-->
+                                <select-field-filter-autocomplete-simple .fn="${true}" resource="clinical-analysis" .value="${"AN-3"}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("clinicalAnalysisId", e.detail.value)}"></select-field-filter-autocomplete-simple>
+                            </div>
+                            <button class="btn btn-default ripple" @click="${this.setClinicalAnalysisId}">Search</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         return html`
             <style include="jso-styles">
                 opencga-variant-intepretation {
@@ -974,10 +1008,9 @@ class VariantCancerInterpreter extends LitElement {
                 }
             </style>
 
-        ${this.checkProjects ? html`
             <div class="page-title">
                 <h2>
-                    ${this.clinicalAnalysis ? html`
+                    ${this.clinicalAnalysis && this.clinicalAnalysis.id ? html`
                         <i class="fa fa-filter" aria-hidden="true" style="padding-left: 10px;padding-right: 10px"></i>&nbsp;${this._config.title} - Case ${this.clinicalAnalysis.id}
                     ` : html`
                         <i class="fa fa-filter" aria-hidden="true"></i>&nbsp; ${this._config.title}
@@ -985,19 +1018,35 @@ class VariantCancerInterpreter extends LitElement {
                 </h2>
             </div>
 
-            ${this.clinicalAnalysis ? html`
-                <div class="col-md-12" style="padding: 10px 25px 25px 25px">
-                    <div class="btn-toolbar " role="toolbar" aria-label="..." >
+            <div class="row" style="padding: 5px 10px">
+            
+                <div class="col-md-2">
+                    <opencga-variant-filter .opencgaSession="${this.opencgaSession}"
+                                            .query="${this.query}"
+                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                            .cellbaseClient="${this.cellbaseClient}"
+                                            .populationFrequencies="${this.populationFrequencies}"
+                                            .consequenceTypes="${this.consequenceTypes}"
+                                            .config="${this._config.filter}"
+                                            @queryChange="${this.onVariantFilterChange}"
+                                            @querySearch="${this.onVariantFilterSearch}"
+                                            @samplechange="${this.onSampleChange}"
+                                            @inheritancemode="${this._onInheritanceMode}">
+                    </opencga-variant-filter>
+                </div> <!-- Close col-md-2 -->
+                
+                <div class="col-md-10">
+                    <div class="btn-toolbar " role="toolbar" aria-label="..." style="padding-bottom: 20px">
                         <!-- Left buttons -->
-                        <div class="btn-group" role="group" aria-label="..." >
-                            <button id="${this._prefix}InteractiveButton" type="button" class="btn btn-success variant-interpretation-view-buttons active ripple" data-view="Interactive" @click="${this.onChangeView}">
-                                <i class="fa fa-filter icon-padding" aria-hidden="true" data-view="Interactive" @click="${this.onChangeView}"></i>Table Result
+                        <div class="btn-group" role="group" aria-label="...">
+                            <button id="${this._prefix}InteractiveButton" type="button" class="btn btn-success variant-interpretation-view-buttons active ripple" data-view="TableResult" @click="${this.onChangeView}">
+                                <i class="fa fa-filter icon-padding" aria-hidden="true" data-view="TableResult" @click="${this.onChangeView}"></i>Table Result
                             </button>
-                            <button id="${this._prefix}CompoundHeterozygousButton" type="button" class="btn btn-success variant-interpretation-view-buttons ripple" data-view="CompoundHeterozygous" @click="${this.onChangeView}">
-                                <i class="fas fa-random icon-padding" aria-hidden="true" data-view="CompoundHeterozygous" @click="${this.onChangeView}"></i>Summary Report
+                            <button id="${this._prefix}CompoundHeterozygousButton" type="button" class="btn btn-success variant-interpretation-view-buttons ripple" data-view="SummaryReport" @click="${this.onChangeView}">
+                                <i class="fas fa-random icon-padding" aria-hidden="true" data-view="SummaryReport" @click="${this.onChangeView}"></i>Summary Report
                             </button>
                         </div>
-    
+        
                         ${this._config.showOtherTools ? html`
                             <div class="btn-group">
                                 <button type="button" class="btn btn-success dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -1017,7 +1066,7 @@ class VariantCancerInterpreter extends LitElement {
                                 </ul>
                             </div>
                         ` : null}
-    
+        
                         <!-- Right buttons -->
                         ${this.hasClinicalAnalysis ? html`
                             <div class="btn-group" role="group" aria-label="..." style="float: right">
@@ -1042,200 +1091,131 @@ class VariantCancerInterpreter extends LitElement {
                                 </button>
                             </div>
                         `}
-                    </div>
-                </div>
-    
-    
-                <!--<div class="row">-->
-                <div class="" style="padding: 0px 10px">
-    
-                    <!-- SEARCH TABLE RESULT -->
-                    <div id="${this._prefix}MainContent" class="">
-                        <!--<template is="dom-if" if="{{interactive}}">-->
-                        <!--                    <div class="col-md-12">-->
-                        <!--                        <h4 id="${this._prefix}Title" class="form-section-title" style="margin: 5px 0px;padding: 0px 10px">-->
-                        <!--                            Interactive Variant Analysis-->
-                        <!--                            <span class='denovo-info-icon' style="color: #337ab7; padding-left: 20px">-->
-                        <!--                        <i class='fa fa-info-circle' aria-hidden='true'></i>-->
-                        <!--                    </span>-->
-                        <!--                        </h4>-->
-                        <!--                    </div>-->
-                        <div id="${this._prefix}Interactive" class="variant-interpretation-content">
-                            <div style="padding: 10px 10px">
-                                <div class="col-md-2">
-                                    <opencga-variant-filter .opencgaSession="${this.opencgaSession}"
-                                                            .query="${this.query}"
-                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            .cellbaseClient="${this.cellbaseClient}"
-                                                            .populationFrequencies="${this.populationFrequencies}"
-                                                            .consequenceTypes="${this.consequenceTypes}"
-                                                            .config="${this._config.filter}"
-                                                            @queryChange="${this.onVariantFilterChange}"
-                                                            @querySearch="${this.onVariantFilterSearch}"
-                                                            @samplechange="${this.onSampleChange}"
-                                                            @inheritancemode="${this._onInheritanceMode}">
-                                    </opencga-variant-filter>
-                                </div>
-            
-                                <div class="col-md-10">
-                                
-                                    <!-- TODO continue
-                                    <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
-                                        <div class="btn-group" role="group" style="margin-left: 0px">
-                                            <button type="button" class="btn btn-success ripple content-pills variant-interpretation-view-buttons active" @click="${this.onChangeView}" data-view="Interactive" >
-                                                    <i class="fa fa-table icon-padding" aria-hidden="true"></i> Table Result
-                                            </button>
-                                            <button type="button" class="btn btn-success ripple content-pills variant-interpretation-view-buttons" @click="${this.onChangeView}" data-view="Interactive">
-                                                    <i class="fa fa-table icon-padding" aria-hidden="true"></i> Summary Report
-                                            </button>                                            
-                                        </div>
-                                    </div> -->
-                    
-                    
-                                    <opencga-active-filters .opencgaSession="${this.opencgaSession}"
-                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            .defaultStudy="${this.opencgaSession.study.id}"
-                                                            .query="${this.preparedQuery}"
-                                                            .refresh="${this.executedQuery}"
-                                                            .filters="${this._config.filter.examples}"
-                                                            .filterBioformat="VARIANT"
-                                                            .alias="${this._config.activeFilterAlias}"
-                                                            .genotypeSamples="${this.genotypeSamples}"
-                                                            .modeInheritance="${this.modeInheritance}"
-                                                            .config="${this._config.activeFilters}"
-                                                            @activeFilterChange="${this.onActiveFilterChange}"
-                                                            @activeFilterClear="${this.onActiveFilterClear}">
-            
-                                    </opencga-active-filters>
-            
-                                    <div style="padding-top: 5px">
-                                        <variant-cancer-interpreter-grid .opencgaSession="${this.opencgaSession}"
-                                                                             .query="${this.executedQuery}"
-                                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                             .consequenceTypes="${this.consequenceTypes}"
-                                                                             .populationFrequencies="${this.populationFrequencies}"
-                                                                             .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                                             .config="${this._config.filter.result.grid}"
-                                                                             @selected="${this.onSelectedGene}"
-                                                                             @selectrow="${this.onSelectVariant}"
-                                                                             @checkrow="${this.onCheckVariant}"
-                                                                             @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
-                                        </variant-cancer-interpreter-grid>
-            
-                                        <!-- Bottom tabs with detailed variant information -->
-                                        <opencga-variant-interpretation-detail .opencgaSession="${this.opencgaSession}"
-                                                                               .cellbaseClient="${this.cellbaseClient}"
-                                                                               .variant="${this.variant}"
-                                                                               .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                               .consequenceTypes="${this.consequenceTypes}"
-                                                                               .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                                               .config=${this._config.filter.detail}>
-                                        </opencga-variant-interpretation-detail>
-                                    </div>
-                                </div>
-                            </div>
+                    </div>  <!-- Close toolbar -->
+                
+                    <div id="${this._prefix}MainContent">
+                        <div id="${this._prefix}ActiveFilters">
+                            <opencga-active-filters .opencgaSession="${this.opencgaSession}"
+                                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                    .defaultStudy="${this.opencgaSession.study.id}"
+                                                    .query="${this.preparedQuery}"
+                                                    .refresh="${this.executedQuery}"
+                                                    .filters="${this._config.filter.examples}"
+                                                    .filterBioformat="VARIANT"
+                                                    .alias="${this._config.activeFilterAlias}"
+                                                    .genotypeSamples="${this.genotypeSamples}"
+                                                    .modeInheritance="${this.modeInheritance}"
+                                                    .config="${this._config.activeFilters}"
+                                                    @activeFilterChange="${this.onActiveFilterChange}"
+                                                    @activeFilterClear="${this.onActiveFilterClear}">
+                            </opencga-active-filters>
                         </div>
-    
-                        <!-- PANEL LOW COVERAGE VIEW -->
-                        <div id="${this._prefix}LowCoverage" class="variant-interpretation-content" style="display: none">
-                            <opencga-panel-transcript-view .opencgaSession="${this.opencgaSession}"
-                                                           .cellbaseClient="${this.cellbaseClient}"
-                                                           .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                           .geneIds="${this.geneIds}"
-                                                           .panelIds="${this.diseasePanelIds}">
-                            </opencga-panel-transcript-view>
-                        </div>
-    
-                        <!-- GENOME BROWSER VIEW -->
-                        <div id="${this._prefix}GenomeBrowser" class="variant-interpretation-content" style="display: none">
-                            <!--
-                            <opencga-variant-interpreter-genome-browser .opencgaSession="${this.opencgaSession}"
-                                                                        .cellbaseClient="${this.cellbaseClient}"
-                                                                        .samples="${this.samples}"
-                                                                        .query="${this.query}"
-                                                                        .search="${this.search}"
-                                                                        .region="${this.search.region}"
-                                                                        .geneIds="${this.geneIds}"
-                                                                        .panelIds="${this.diseasePanelIds}"
-                                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                        .active="${this._genomeBrowserActive}"
-                                                                        .fullScreen="${this.fullScreen}"
-                                                                        .config="${this._config.genomeBrowser}">
-                            </opencga-variant-interpreter-genome-browser>
-                            -->
-                        </div>
-    
-    
-                        <!-- CLINICAL ANALYSIS VIEW -->
-                        <div id="${this._prefix}ClinicalAnalysis" class="variant-interpretation-content" style="padding: 0px 20px;display: none">
-                            <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
-                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            style="font-size: 12px"
-                                                            .config="${this._config}">
-                            </opencga-clinical-analysis-view>
-                        </div>
-    
-                        <!-- CREATE CLINICAL ANALYSIS TAB -->
-                        <div id="${this._prefix}ClinicalAnalysisEditor" class="variant-interpretation-content" style="display: none">
-                            <!--<div id="${this._prefix}ClinicalAnalysisCreatorWarning" class="col-md-10 col-md-offset-2" style="padding: 20px 10px">-->
-                            <!--<span class="alert alert-warning" role="alert" style="padding: 10px 10px;font-weight: bold;font-size: 1.2em">-->
-                            <!--No valid Clinical Analysis found, please fill the form below to define one case. You can also save it.-->
-                            <!--</span>-->
-                            <!--</div>-->
-                            <div style="padding: 10px 20px">
-                                <opencga-clinical-analysis-editor .opencgaSession="${this.opencgaSession}"
-                                                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                    .config="${this._config.clinicalAnalysisBrowser}"
-                                                                    @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
-                                </opencga-clinical-analysis-editor>
-                            </div>
-                        </div>
-    
-                        <!-- SAVE INTERPRETATION TAB -->
-                        <div id="${this._prefix}InterpretationEditor" class="variant-interpretation-content" style="display: none">
-                            <div style="padding: 10px 20px">
-                                <!--                                clinical-analysis="{{clinicalAnalysis}}"-->
-                                <!--                                reported-variants="{{checkedVariants}}"-->
-                                <opencga-variant-interpretation-editor .opencgaSession="${this.opencgaSession}"
+                        <div class="main-view" style="padding-top: 5px">
+                            <div id="${this._prefix}TableResult" class="variant-interpretation-content active">
+                                <variant-cancer-interpreter-grid .opencgaSession="${this.opencgaSession}"
+                                                                 .query="${this.executedQuery}"
+                                                                 .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                 .consequenceTypes="${this.consequenceTypes}"
+                                                                 .populationFrequencies="${this.populationFrequencies}"
+                                                                 .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                                 .config="${this._config.filter.result.grid}"
+                                                                 @selected="${this.onSelectedGene}"
+                                                                 @selectrow="${this.onSelectVariant}"
+                                                                 @checkrow="${this.onCheckVariant}"
+                                                                 @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
+                                </variant-cancer-interpreter-grid>
+                
+                                <!-- Bottom tabs with detailed variant information -->
+                                <opencga-variant-interpretation-detail .opencgaSession="${this.opencgaSession}"
                                                                        .cellbaseClient="${this.cellbaseClient}"
+                                                                       .variant="${this.variant}"
                                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                       .interpretation="${this.interpretation}"
-                                                                       .populationFrequencies="${this.populationFrequencies}"
-                                                                       .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                                                        .consequenceTypes="${this.consequenceTypes}"
-                                                                       .config="${this._config}"
-                                                                       @gene="${this.geneSelected}"
-                                                                       @samplechange="${this.onSampleChange}"
-                                                                       style="font-size: 12px" >
-                                </opencga-variant-interpretation-editor>
+                                                                       .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                                       .config=${this._config.filter.detail}>
+                                </opencga-variant-interpretation-detail>
                             </div>
-                        </div>
-    
-                    </div>
-                </div>
-            ` : html`
-                <div class="container">
-                    <div class="row">
-                        <div class="clinical-analysis-id-wrapper col-md-6 col-md-offset-3 shadow">
-                            <h3>Clinical Analysis</h3>
-                            <div class="text-filter-wrapper">
-                                <!--<input type="text" name="clinicalAnalysisText" id="clinicalAnalysisIdText" value="AN-3">-->
-                                <select-field-filter-autocomplete-simple .fn="${true}" resource="clinical-analysis" .value="${"AN-3"}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("clinicalAnalysisId", e.detail.value)}"></select-field-filter-autocomplete-simple>
-                                    
+                            
+                            <!-- PANEL LOW COVERAGE VIEW -->
+                            <div id="${this._prefix}LowCoverage" class="variant-interpretation-content" style="display: none">
+                                <opencga-panel-transcript-view .opencgaSession="${this.opencgaSession}"
+                                                               .cellbaseClient="${this.cellbaseClient}"
+                                                               .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                               .geneIds="${this.geneIds}"
+                                                               .panelIds="${this.diseasePanelIds}">
+                                </opencga-panel-transcript-view>
                             </div>
-                            <button class="btn btn-default ripple" @click="${this.setClinicalAnalysisId}">Search</button>
+            
+                            <!-- GENOME BROWSER VIEW -->
+                            <div id="${this._prefix}GenomeBrowser" class="variant-interpretation-content" style="display: none">
+                                <!--
+                                <opencga-variant-interpreter-genome-browser .opencgaSession="${this.opencgaSession}"
+                                                                            .cellbaseClient="${this.cellbaseClient}"
+                                                                            .samples="${this.samples}"
+                                                                            .query="${this.query}"
+                                                                            .search="${this.search}"
+                                                                            .region="${this.search.region}"
+                                                                            .geneIds="${this.geneIds}"
+                                                                            .panelIds="${this.diseasePanelIds}"
+                                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                            .active="${this._genomeBrowserActive}"
+                                                                            .fullScreen="${this.fullScreen}"
+                                                                            .config="${this._config.genomeBrowser}">
+                                </opencga-variant-interpreter-genome-browser>
+                                -->
+                            </div>
+        
+        
+                            <!-- CLINICAL ANALYSIS VIEW -->
+                            <div id="${this._prefix}ClinicalAnalysis" class="variant-interpretation-content" style="padding: 0px 20px;display: none">
+                                <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
+                                                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                style="font-size: 12px"
+                                                                .config="${this._config}">
+                                </opencga-clinical-analysis-view>
+                            </div>
+            
+                            <!-- CREATE CLINICAL ANALYSIS TAB -->
+                            <div id="${this._prefix}ClinicalAnalysisEditor" class="variant-interpretation-content" style="display: none">
+                                <!--<div id="${this._prefix}ClinicalAnalysisCreatorWarning" class="col-md-10 col-md-offset-2" style="padding: 20px 10px">-->
+                                <!--<span class="alert alert-warning" role="alert" style="padding: 10px 10px;font-weight: bold;font-size: 1.2em">-->
+                                <!--No valid Clinical Analysis found, please fill the form below to define one case. You can also save it.-->
+                                <!--</span>-->
+                                <!--</div>-->
+                                <div style="padding: 10px 20px">
+                                    <opencga-clinical-analysis-editor .opencgaSession="${this.opencgaSession}"
+                                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                        .config="${this._config.clinicalAnalysisBrowser}"
+                                                                        @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
+                                    </opencga-clinical-analysis-editor>
+                                </div>
+                            </div>
+            
+                            <!-- SAVE INTERPRETATION TAB -->
+                            <div id="${this._prefix}InterpretationEditor" class="variant-interpretation-content" style="display: none">
+                                <div style="padding: 10px 20px">
+                                    <!--                                clinical-analysis="{{clinicalAnalysis}}"-->
+                                    <!--                                reported-variants="{{checkedVariants}}"-->
+                                    <opencga-variant-interpretation-editor .opencgaSession="${this.opencgaSession}"
+                                                                           .cellbaseClient="${this.cellbaseClient}"
+                                                                           .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                           .interpretation="${this.interpretation}"
+                                                                           .populationFrequencies="${this.populationFrequencies}"
+                                                                           .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                                           .consequenceTypes="${this.consequenceTypes}"
+                                                                           .config="${this._config}"
+                                                                           @gene="${this.geneSelected}"
+                                                                           @samplechange="${this.onSampleChange}"
+                                                                           style="font-size: 12px" >
+                                    </opencga-variant-interpretation-editor>
+                                </div>
+                            </div>   
                         </div>
-                    </div>
-                </div>
-
-            `}
-        ` : html`
-             <div class="guard-page">
-                <i class="fas fa-lock fa-5x"></i>
-                <h3>No public projects available to browse. Please login to continue</h3>
-            </div>
-        `}
-    `;
+                    </div> <!-- Close MainContent -->
+                </div> <!-- Close col-md-10 -->
+            </div> <!-- Close col-md-12 -->
+            }
+        }`;
     }
 
 }
