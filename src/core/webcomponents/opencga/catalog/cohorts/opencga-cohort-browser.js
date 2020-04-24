@@ -37,9 +37,6 @@ export default class OpencgaCohortBrowser extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            opencgaClient: {
-                type: Object
-            },
             cellbaseClient: {
                 type: Object
             },

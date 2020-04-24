@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-// import {LitElement, html} from "/test/lit-element.js";
-// import {Utils} from "./../../../utils.js"; //this cannot be a plain script and a module at the same time
-
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../utils.js";
 import "./opencga-analysis-tool-form-field.js";
@@ -71,6 +68,18 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                 }
             });
         }
+    }
+
+    firstUpdated(_changedProperties) {
+        $("#analysis-form").validator().on("submit", e => {
+            if (e.isDefaultPrevented()) {
+                // handle the invalid form...
+            } else {
+                // everything looks good!
+                const params = this._config.sections.reduce( (acc, curr) => [...acc, ...curr.parameters], []);
+                console.log(params);
+            }
+        });
     }
 
     updated(changedProperties) {
@@ -160,18 +169,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
     }
 
     onRun() {
-        $('#analysis-form').validator().on('submit', e => {
-            if (e.isDefaultPrevented()) {
-                // handle the invalid form...
-            } else {
-                // everything looks good!
 
-                const params = this._config.sections.reduce( (acc, curr) => [...acc, ...curr.parameters], []);
-                console.log(params)
-
-
-            }
-        })
 
     }
 

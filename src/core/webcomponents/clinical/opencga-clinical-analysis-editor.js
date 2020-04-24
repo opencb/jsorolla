@@ -107,6 +107,11 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         //console.log("this._config",this._config)
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession") ||
             changedProperties.has("clinicalAnalysis") ||
@@ -156,19 +161,12 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     }
     // TODO recheck functionality
     propertyObserver() {
-        this._config = Object.assign(this.getDefaultConfig(), this.config);
-
         //console.log("this._config",this._config)
         // Set a private variable with all the users in this study: owner + @members group.
         // By default, the user creating the Case is selected as default
         if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study) &&
             UtilsNew.isNotEmptyArray(this.opencgaSession.study.groups)) {
-            // let _studyUsers = [opencgaSession.user.id];
-            for (const group of this.opencgaSession.study.groups) {
-                if (group.id === "@members" || group.name === "@members") {
-                    this._studyUsers = group.userIds;
-                }
-            }
+            this._studyUsers = this.opencgaSession.study.groups.find(group => group.id === "@members" || group.name === "@members").userIds || [this.opencgaSession.user.id];
         }
 
         if (UtilsNew.isNotUndefinedOrNull(this.mode)) {
@@ -186,7 +184,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         }
 
         //this.renderTable();
-        //this.requestUpdate();
+        this.requestUpdate();
     }
 
     onSelectChange(e) {
@@ -868,6 +866,12 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
             }
         </style>
 
+        <div class="page-title">
+            <h2>
+                <i class="${this._config.icon}" aria-hidden="true"></i>&nbsp;${this._config.title}
+            </h2>
+        </div>
+            
         <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-12">
@@ -888,7 +892,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                     <div class="col-md-3">
                                         ${this.isCreate ? html`
                                             <input type="text" id="${this._prefix}Id" class="${this._prefix}Input form-control"
-                                                   placeholder="ID of the case" data-field="id" @input="${this.onInputChange}" value="${this._clinicalAnalysis.id}">
+                                                   placeholder="ID of the case" data-field="id" @input="${this.onInputChange}" value="${this._clinicalAnalysis.id || ""}">
                                         ` : html`
                                             <div class="input-group">
                                                 <input type="text" id="${this._prefix}Id" class="${this._prefix}Input form-control"
@@ -920,11 +924,10 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                 <div class="form-group">
                                     <label class="control-label col-md-1 jso-label-title">Interpretation Flags</label>
                                     <div class="col-md-3">
-                                        <!-- TODO CHECK on-dom-change="renderDomRepeat"-->
                                         <select class="selectpicker" data-width="100%" id="${this._prefix}Flags" data-field="flags" data-field-type="array"
-                                                @change="${this.onSelectChange}" on-dom-change="renderDomRepeat" multiple data-selected-text-format="count > 2">
+                                                @change="${this.onSelectChange}" multiple data-selected-text-format="count > 2">
                                             ${this._config.flags && this._config.flags.length ? this._config.flags.map( item => html`
-                                                <option value="${item}">${item}</option>
+                                                <option>${item}</option>
                                             `) : null }
                                         </select>
                                     </div>
@@ -946,11 +949,10 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                 <div class="form-group">
                                     <label class="control-label col-md-1 jso-label-title">Assigned To</label>
                                     <div class="col-md-3">
-                                        <!-- TODO CHECK on-dom-change="renderDomRepeat"-->
-                                        <select class="selectpicker" data-width="100%" id="${this._prefix}Assigned" data-field="assigned" data-field-type="object"
-                                                @change="${this.onSelectChange}" on-dom-change="renderDomRepeat">
+                                        <select class="selectpicker" data-width="100%" id="${this._prefix}Assigned" data-field="assigned" data-field-type="string"
+                                                @change="${this.onSelectChange}">
                                             ${this._studyUsers && this._studyUsers.length ? this._studyUsers.map( item => html`
-                                                <option value="${item}" data-value="${item}">${item}</option>
+                                                <option>${item}</option>
                                             `) : null}
                                         </select>
                                     </div>

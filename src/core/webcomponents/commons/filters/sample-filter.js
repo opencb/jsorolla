@@ -93,7 +93,7 @@ export default class SampleFilter extends LitElement {
         $("#" + this._prefix + "SampleFilterModal").modal("show");
     }
 
-    //TODO needs refactor. it comes from variant-filter
+    //TODO needs refactor
     onClinicalFilterChange(e) {
 
         console.log("sample-filter onClinicalFilterChange", e)
@@ -104,6 +104,8 @@ export default class SampleFilter extends LitElement {
         let _genotypeFilters = [];
         let _sampleIds = [];
         let _dpFormatFilter = [];
+
+        //TODO FIX empty _genotypeFilters (keeping the proband only) is a problem rendering sample-filter table
         if (e.detail.mode === "COMPOUND_HETEROZYGOUS" || e.detail.mode === "DE_NOVO") {
             const proband = e.detail.sampleFilters.filter( sample => sample.proband);
             console.log("proband", proband)
@@ -251,7 +253,6 @@ export default class SampleFilter extends LitElement {
                     </tbody>
                 </table>
             </div>
-            
             <div class="modal fade" id="${this._prefix}SampleFilterModal" data-backdrop="static" data-keyboard="false"
                  tabindex="-1"
                  role="dialog" aria-hidden="true" style="padding-top: 0%; overflow-y: visible">

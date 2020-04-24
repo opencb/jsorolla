@@ -133,7 +133,7 @@ export default class OpencgaGwasAnalysis extends LitElement {
                                 required: true,
                                 defaultValue: "default String",
                                 colspan: 6,
-                                dependsOn: (config) => {console.warn("dependsOn Callback", config); return true}
+                                dependsOn: config => {console.warn("dependsOn Callback", config); return true}
                             }
                         ]
                     }

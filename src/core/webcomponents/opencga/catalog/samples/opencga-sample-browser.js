@@ -37,9 +37,6 @@ export default class OpencgaSampleBrowser extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            opencgaClient: {
-                type: Object
-            },
             cellbaseClient: {
                 type: Object
             },
