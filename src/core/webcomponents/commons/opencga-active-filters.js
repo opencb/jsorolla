@@ -524,7 +524,7 @@ export default class OpencgaActiveFilters extends LitElement {
         `}
         
 
-        <div class="panel panel-default" style="margin-bottom: 5px">
+        <div class="panel panel-default">
             <div class="panel-body" style="padding: 10px">
                 <p class="active-filter-label">Filters</p>
                 

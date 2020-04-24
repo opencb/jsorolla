@@ -64,7 +64,11 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
 
     _init() {
         this._prefix = "ocav-" + Utils.randomString(6);
-        this._config = this.getDefaultConfig();
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
@@ -75,7 +79,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
             changedProperties.has("clinicalAnalysis") ||
             changedProperties.has("mode") ||
             changedProperties.has("config")) {
-            this.propertyObserver(this.opencgaSession, this.clinicalAnalysis, this.config);
+            this.propertyObserver();
         }
     }
 
@@ -83,44 +87,44 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
 
     }
 
-    propertyObserver(opencgaSession, clinicalAnalysis, config) {
+    propertyObserver() {
         this._config = Object.assign(this.getDefaultConfig(), this.config);
 
-        if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis)) {
-            this._flags = (UtilsNew.isNotEmptyArray(clinicalAnalysis.flags)) ? clinicalAnalysis.flags.join(", ") : "-";
-            this._assignee = (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.analyst) && UtilsNew.isNotEmpty(clinicalAnalysis.analyst.assignee)) ?
-                clinicalAnalysis.analyst.assignee :
+        if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
+            this._flags = (UtilsNew.isNotEmptyArray(this.clinicalAnalysis.flags)) ? this.clinicalAnalysis.flags.join(", ") : "-";
+            this._assignee = (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.analyst) && UtilsNew.isNotEmpty(this.clinicalAnalysis.analyst.assignee)) ?
+                this.clinicalAnalysis.analyst.assignee :
                 "-";
-            this._description = (UtilsNew.isNotEmpty(clinicalAnalysis.description)) ? clinicalAnalysis.description : "-";
+            this._description = (UtilsNew.isNotEmpty(this.clinicalAnalysis.description)) ? this.clinicalAnalysis.description : "-";
 
-            this._dueDate = moment(clinicalAnalysis.dueDate, "YYYYMMDDHHmmss").format("D MMM YY");
-            this._creationDate = moment(clinicalAnalysis.creationDate, "YYYYMMDDHHmmss").format("D MMM YY");
+            this._dueDate = moment(this.clinicalAnalysis.dueDate, "YYYYMMDDHHmmss").format("D MMM YY");
+            this._creationDate = moment(this.clinicalAnalysis.creationDate, "YYYYMMDDHHmmss").format("D MMM YY");
 
             this._probandDisorders = "-";
-            if (UtilsNew.isNotEmptyArray(clinicalAnalysis.proband.disorders)) {
+            if (UtilsNew.isNotEmptyArray(this.clinicalAnalysis.proband.disorders)) {
                 const disorders = [];
-                for (const disorder of clinicalAnalysis.proband.disorders) {
+                for (const disorder of this.clinicalAnalysis.proband.disorders) {
                     disorders.push(disorder.name + " (" + disorder.id + ")");
                 }
                 this._probandDisorders = disorders.join(", ");
             }
 
             this._probandPhenotypes= "-";
-            if (UtilsNew.isNotEmptyArray(clinicalAnalysis.proband.phenotypes)) {
+            if (UtilsNew.isNotEmptyArray(this.clinicalAnalysis.proband.phenotypes)) {
                 const phenotypes = [];
-                for (const phenotype of clinicalAnalysis.proband.phenotypes) {
+                for (const phenotype of this.clinicalAnalysis.proband.phenotypes) {
                     phenotypes.push(phenotype.name + " (" + phenotype.id + ")");
                 }
                 this._probandPhenotypes = phenotypes.join(", ");
             }
 
             this._probandFiles= "-";
-            if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.files) && UtilsNew.isNotEmptyArray(clinicalAnalysis.proband.samples)) {
+            if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.files) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.proband.samples)) {
                 const files = [];
 
-                const probandFiles = clinicalAnalysis.files[clinicalAnalysis.proband.samples[0].id];
+                const probandFiles = this.clinicalAnalysis.files[this.clinicalAnalysis.proband.samples[0].id];
                 if (UtilsNew.isNotEmptyArray(probandFiles)) {
-                    for (const file of clinicalAnalysis.files[clinicalAnalysis.proband.samples[0].id]) {
+                    for (const file of this.clinicalAnalysis.files[this.clinicalAnalysis.proband.samples[0].id]) {
                         files.push(file.name);
                     }
                 }
@@ -128,8 +132,8 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
             }
 
             this._memberPhenotypes= [];
-            if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(clinicalAnalysis.family.members)) {
-                for (const member of clinicalAnalysis.family.members) {
+            if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.family.members)) {
+                for (const member of this.clinicalAnalysis.family.members) {
                     const phenotypes = [];
                     for (const phenotype of member.phenotypes) {
                         phenotypes.push(phenotype.name + " (" + phenotype.id + ")");
@@ -313,14 +317,14 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
         
                         <form class="form-horizontal" style="padding: 5px 10px">
         
-                            <div class="form-group" style="margin-bottom: 5px">
+                            <div class="form-group">
                                 <label class="control-label col-md-1 jso-label-title">Analysis ID</label>
                                 <div class="col-md-3 pad-top-5">
                                     <span>${this.clinicalAnalysis.id}</span>
                                 </div>
                             </div>
         
-                            <div class="form-group" style="margin-bottom: 5px">
+                            <div class="form-group">
                                 <label class="control-label col-md-1 jso-label-title pad-top-5">Proband</label>
                                 <div class="col-md-3 pad-top-5">
                                     <span>${this.clinicalAnalysis.proband.id}</span>
@@ -328,63 +332,63 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             </div>
         
                             ${this.clinicalAnalysis.disorder ? html`
-                                <div class="form-group" style="margin-bottom: 5px">
+                                <div class="form-group">
                                     <label class="control-label col-md-1 jso-label-title pad-top-5">Disorder</label>
                                     <div class="col-md-3 pad-top-5">
                                         <span>${this.clinicalAnalysis.disorder.name} (${this.clinicalAnalysis.disorder.id})</span>
                                     </div>
                                 </div>` : null }
         
-                            <div class="form-group" style="margin-bottom: 5px">
+                            <div class="form-group">
                                 <label class="control-label col-md-1 jso-label-title pad-top-5">Analysis Type</label>
                                 <div class="col-md-3 pad-top-5">
                                     <span>${this.clinicalAnalysis.type}</span>
                                 </div>
                             </div>
         
-                            <div class="form-group" style="margin-bottom: 5px">
+                            <div class="form-group">
                                 <label class="control-label col-md-1 jso-label-title pad-top-5">Flags</label>
                                 <div class="col-md-3 pad-top-5">
                                     <span>${this._flags}</span>
                                 </div>
                             </div>
         
-                            <div class="form-group" style="margin-bottom: 5px">
+                            <div class="form-group">
                                 <label class="control-label col-md-1 jso-label-title pad-top-5">Status</label>
                                 <div class="col-md-3 pad-top-5">
                                     <span>${this.clinicalAnalysis.status.name}</span>
                                 </div>
                             </div>
         
-                            <div class="form-group" style="margin-bottom: 5px">
+                            <div class="form-group">
                                 <label class="control-label col-md-1 jso-label-title pad-top-5">Priority</label>
                                 <div class="col-md-3 pad-top-5">
                                     <span class="${this.clinicalAnalysis.priority}-priority">${this.clinicalAnalysis.priority}</span>
                                 </div>
                             </div>
         
-                            <div class="form-group" style="margin-bottom: 5px">
+                            <div class="form-group">
                                 <label class="control-label col-md-1 jso-label-title pad-top-5">Assigned To</label>
                                 <div class="col-md-3 pad-top-5">
                                     <span>${this._assignee}</span>
                                 </div>
                             </div>
         
-                            <div class="form-group" style="margin-bottom: 5px">
+                            <div class="form-group">
                                 <label class="control-label col-md-1 jso-label-title pad-top-5">Creation Date</label>
                                 <div class="col-md-3 pad-top-5">
                                     <span>${this._creationDate}</span>
                                 </div>
                             </div>
         
-                            <div class="form-group" style="margin-bottom: 5px">
+                            <div class="form-group">
                                 <label class="control-label col-md-1 jso-label-title pad-top-5">Due Date</label>
                                 <div class="col-md-3 pad-top-5">
                                     <span>${this._dueDate}</span>
                                 </div>
                             </div>
         
-                            <div class="form-group" style="margin-bottom: 5px">
+                            <div class="form-group">
                                 <label class="control-label col-md-1 jso-label-title pad-top-5">Description</label>
                                 <div class="col-md-3 pad-top-5">
                                     <span>${this._description}</span>
@@ -399,35 +403,35 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                         </div>
         
                         <form class="form-horizontal" style="padding: 10px 0px 0px 0px;">
-                            <div class="form-group" style="margin-bottom: 5px">
+                            <div class="form-group">
                                 <label class="control-label col-md-1 jso-label-title pad-top-5">Proband</label>
                                 <div class="col-md-3 pad-top-5">
                                     <span>${this.clinicalAnalysis.proband.id}</span>
                                 </div>
                             </div>
         
-                            <div class="form-group" style="margin-bottom: 5px">
+                            <div class="form-group">
                                 <label class="control-label col-md-1 jso-label-title pad-top-5">Sex (karyotype)</label>
                                 <div class="col-md-3 pad-top-5">
                                     <span>${this.clinicalAnalysis.proband.sex} &nbsp;&nbsp; (${this.clinicalAnalysis.proband.karyotypicSex})</span>
                                 </div>
                             </div>
         
-                            <div class="form-group" style="margin-bottom: 5px">
+                            <div class="form-group">
                                 <label class="control-label col-md-1 jso-label-title pad-top-5">Date of Birth</label>
                                 <div class="col-md-3 pad-top-5">
                                     <span>${this.clinicalAnalysis.proband.dateOfBirth} &nbsp;&nbsp; (${this.clinicalAnalysis.proband.lifeStatus})</span>
                                 </div>
                             </div>
         
-                            <div class="form-group" style="margin-bottom: 5px">
+                            <div class="form-group">
                                 <label class="control-label col-md-1 jso-label-title pad-top-5">Disorders</label>
                                 <div class="col-md-3 pad-top-5">
                                     <span>${this._probandDisorders}</span>
                                 </div>
                             </div>
         
-                            <div class="form-group" style="margin-bottom: 5px">
+                            <div class="form-group">
                                 <label class="control-label col-md-1 jso-label-title pad-top-5">Phenotypes</label>
                                 <div class="col-md-3 pad-top-5">
                                     <span>${this._probandPhenotypes}</span>
@@ -478,7 +482,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                         ${this.clinicalAnalysis.family.members ? html`
                         <form class="form-horizontal" style="padding: 10px 0px 0px 0px;">
         
-                                <div class="form-group" style="margin-bottom: 5px">
+                                <div class="form-group">
                                     <label class="control-label col-md-1 jso-label-title pad-top-5">Family</label>
                                     <div class="col-md-3 pad-top-5">
                                         <span>${this.clinicalAnalysis.family.id}</span>
@@ -539,13 +543,6 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
             </div>
         </div>
         ` : null }
-
-        <!--<div id="${this._prefix}Interperetations" class="col-md-12 section-padding">-->
-            <!--<div>-->
-                <!--<h3 class="form-section-title">Interpretation Summary</h3>-->
-            <!--</div>-->
-            <!--<div>No interpretations found.</div>-->
-        <!--</div>-->
         `;
     }
 

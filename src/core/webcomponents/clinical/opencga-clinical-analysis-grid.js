@@ -20,6 +20,7 @@ import Utils from "../../utils.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../commons/opencb-grid-toolbar.js";
+import GridCommons from "../variant/grid-commons.js";
 
 
 export default class OpencgaClinicalAnalysisGrid extends LitElement {
@@ -57,8 +58,11 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     _init() {
-        this._prefix = "VarClinicalAnalysisGrid" + Utils.randomString(6) + "_";
+        this._prefix = "cag" + Utils.randomString(6) + "_";
         this.active = true;
+        this.gridId = this._prefix + "ClinicalAnalysisGrid";
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
     }
 
     updated(changedProperties) {
@@ -134,7 +138,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 this._analyses = [];
             }
 
-            const _table = $("#" + this._prefix + "ClinicalAnalysisBrowserGrid");
+            const _table = $("#" + this.gridId);
 
             const _this = this;
             _table.bootstrapTable("destroy");
@@ -195,6 +199,13 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                         rows: response.getResults()
                     };
                 },
+                onClickRow: (row, selectedElement, field) => {
+                    this.gridCommons.onClickRow(row.id, row, selectedElement);
+
+                    //TODO unify the event name: delete selectanalysis and use selectrow
+                    this._onSelectClinicalAnalysis(row);
+                },
+                /*
                 onClickRow: function(row, element, field) {
                     if (_this._config.multiSelection) {
                         // Check and uncheck when clicking in the checkbox TD cell
@@ -225,15 +236,15 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                     }
 
                     _this._onSelectClinicalAnalysis(row);
-                },
+                },*/
                 onDblClickRow: function(row, element, field) {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (_this._config.detailView) {
                         if (element[0].innerHTML.includes("icon-plus")) {
-                            $(PolymerUtils.getElementById(_this._prefix + "ClinicalAnalysisBrowserGrid")).bootstrapTable("expandRow", element[0].dataset.index);
+                            $(PolymerUtils.getElementById("#" + _this.gridId)).bootstrapTable("expandRow", element[0].dataset.index);
                         } else {
-                            $(PolymerUtils.getElementById(_this._prefix + "ClinicalAnalysisBrowserGrid")).bootstrapTable("collapseRow", element[0].dataset.index);
+                            $(PolymerUtils.getElementById("#" + _this.gridId)).bootstrapTable("collapseRow", element[0].dataset.index);
                         }
                     }
                 },
@@ -285,7 +296,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
                     // We detail view is active we expand the row automatically
                     if (_this._config.detailView) {
-                        $(PolymerUtils.getElementById(_this._prefix + "ClinicalAnalysisBrowserGrid")).bootstrapTable("collapseRow", elem[0].dataset.index);
+                        $(PolymerUtils.getElementById("#" + _this.gridId)).bootstrapTable("collapseRow", elem[0].dataset.index);
                     }
 
                     // We must uncheck nested checked samples
@@ -367,7 +378,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                             for (const idx in _this.analyses) {
                                 for (const j in data.rows) {
                                     if (_this.analyses[idx].id === data.rows[j].id) {
-                                        $(PolymerUtils.getElementById(_this._prefix + "ClinicalAnalysisBrowserGrid")).bootstrapTable("check", j);
+                                        $(PolymerUtils.getElementById("#" + _this.gridId)).bootstrapTable("check", j);
                                         break;
                                     }
                                 }
@@ -411,11 +422,12 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             });
         } else {
             // Delete table
-            $(PolymerUtils.getElementById(this._prefix + "ClinicalAnalysisBrowserGrid")).bootstrapTable("destroy");
+            $(PolymerUtils.getElementById("#" + this.gridId)).bootstrapTable("destroy");
             this.numTotalResults = 0;
         }
     }
 
+    // TODO remove: use gridCommons instead
     _onSelectClinicalAnalysis(row) {
         if (typeof row !== "undefined") {
             this.dispatchEvent(new CustomEvent("selectanalysis", {
@@ -428,7 +440,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     onColumnChange(e) {
-        const table = $("#" + this._prefix + "ClinicalAnalysisBrowserGrid");
+        const table = $("#" + this.gridId);
         if (e.detail.selected) {
             table.bootstrapTable("showColumn", e.detail.id);
         } else {
@@ -879,7 +891,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         </opencb-grid-toolbar>
 
         <div id="${this._prefix}GridTableDiv">
-            <table id="${this._prefix}ClinicalAnalysisBrowserGrid">
+            <table id="${this.gridId}">
             </table>
         </div>
         `;

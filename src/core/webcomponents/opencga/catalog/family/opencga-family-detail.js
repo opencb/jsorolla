@@ -16,10 +16,9 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "../../../../utils.js";
-import "./opencga-jobs-details-log.js";
-import "./opencga-jobs-view.js";
+import "./opencga-family-view.js";
 
-export default class OpencgaJobsDetails extends LitElement {
+export default class OpencgaFamilyDetail extends LitElement {
 
     constructor() {
         super();
@@ -39,10 +38,10 @@ export default class OpencgaJobsDetails extends LitElement {
                 type: Object
             },
             // this is not actually used at the moment
-            jobId: {
+            familyId: {
                 type: Object
             },
-            job: {
+            family: {
                 type: Object
             }
         };
@@ -60,21 +59,21 @@ export default class OpencgaJobsDetails extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.job = null;
+            this.family = null
         }
 
-        if (changedProperties.has("job")) {
+        if (changedProperties.has("family")) {
 
         }
 
         if (changedProperties.has("activeTab")) {
-            console.log("activeTab");
+            console.log("activeTab")
         }
     }
 
     _changeBottomTab(e) {
         const tabId = e.currentTarget.dataset.id;
-        console.log(tabId);
+        console.log(tabId)
         $(".nav-tabs", this).removeClass("active");
         $(".tab-content div[role=tabpanel]", this).hide();
         for (const tab in this.activeTab) this.activeTab[tab] = false;
@@ -83,26 +82,30 @@ export default class OpencgaJobsDetails extends LitElement {
         this.requestUpdate();
     }
 
+    renderHTML(html) {
+        return document.createRange().createContextualFragment(`${html}`);
+    }
+
     getDefaultConfig() {
         return {
-            title: "File",
+            title: "Family",
             showTitle: true
         };
     }
 
     render() {
-        return this.job ? html`
+        return this.family ? html`
             <style>
                 .detail-row{
                     padding: 5px;
                 }
             </style>
-            ${this._config.showTitle ? html`
+            <div>
+                ${this._config.showTitle ? html`
                     <div class="panel" style="margin-bottom: 10px">
-                        <h2 >&nbsp;${this._config.title}: ${this.job.id}</h2>
+                        <h2 >&nbsp;${this._config.title}: ${this.family.id}</h2>
                     </div>
                 ` : null}
-            <div>
                 <ul class="nav nav-tabs" role="tablist">
                     ${this.config.detail.length && this.config.detail.map(item => html`
                         <li role="presentation" class="${item.active ? "active" : ""}">
@@ -113,18 +116,24 @@ export default class OpencgaJobsDetails extends LitElement {
                         </li>
                     `)}
                 </ul>
-                
+               
                 <div class="tab-content">
-                    <div id="job-detail-tab" class="tab-pane active" role="tabpanel">
-                        <opencga-jobs-view .opencgaSession=${this.opencgaSession}
-                                           .job="${this.job}">
-                        </opencga-jobs-view>
+                    <div id="family-view-tab" class="tab-pane active" role="tabpanel">
+                        <div id="${this._prefix}family-view">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group detail-row">
+                                            <opencga-family-view .opencgaSession="${this.opencgaSession}" .family="${this.family}">
+                                            </opencga-family-view>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div id="log-tab" class="tab-pane" role="tabpanel">
-                        <opencga-jobs-details-log .opencgaSession=${this.opencgaSession}
-                                                  .active="${this.activeTab["log"]}"
-                                                  .job="${this.job}">
-                        </opencga-jobs-details-log>
+                        second tab
                     </div>
                 </div>
                 
@@ -134,4 +143,4 @@ export default class OpencgaJobsDetails extends LitElement {
 
 }
 
-customElements.define("opencga-jobs-details", OpencgaJobsDetails);
+customElements.define("opencga-family-detail", OpencgaFamilyDetail);

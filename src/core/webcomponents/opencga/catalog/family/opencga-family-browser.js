@@ -201,9 +201,13 @@ export default class OpencgaFamilyBrowser extends LitElement {
                     detailView: true,
                     multiSelection: false
                 },
-                familyDetail: {
-                    showTitle: false
-                }
+                detail: [
+                    {
+                        id: "family-view",
+                        title: "Family detail",
+                        active: true
+                    }
+                ]
             },
             aggregation: {
                 default: ["study"],

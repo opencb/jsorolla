@@ -214,7 +214,13 @@ export default class OpencgaFileBrowser extends LitElement {
                 result: {
                     grid: {}
                 },
-                detail: []
+                detail: [
+                    {
+                        id: "file-view",
+                        title: "File detail",
+                        active: true
+                    }
+                ]
             },
             aggregation: {
                 default: ["type", "study>>bioformat"],

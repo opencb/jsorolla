@@ -250,9 +250,13 @@ export default class OpencgaIndividualBrowser extends LitElement {
                     detailView: true,
                     multiSelection: true
                 },
-                individualDetail: {
-                    showTitle: false
-                }
+                detail: [
+                    {
+                        id: "individual-view",
+                        title: "Individual detail",
+                        active: true
+                    }
+                ]
             },
             aggregation: {
                 default: ["type", "format", "bioformat"],

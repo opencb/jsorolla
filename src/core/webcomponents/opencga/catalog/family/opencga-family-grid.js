@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import GridCommons from "../../../variant/grid-commons.js";
 import Utils from "./../../../../utils.js";
 import UtilsNew from "./../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
@@ -62,6 +63,9 @@ export default class OpencgaFamilyGrid extends LitElement {
         this._prefix = "VarFamilyGrid" + Utils.randomString(6);
         this.catalogUiUtils = new CatalogUIUtils();
         this.active = false;
+        this.gridId = this._prefix + "FamilyBrowserGrid";
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
     }
 
     updated(changedProperties) {
@@ -113,7 +117,7 @@ export default class OpencgaFamilyGrid extends LitElement {
 
         if (this.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
 
-            filters.study = this.opencgaSession.study.fqn;
+
             if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
                 JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
                 // Abort destroying and creating again the grid. The filters have not changed
@@ -128,10 +132,10 @@ export default class OpencgaFamilyGrid extends LitElement {
             } else {
                 this._families = [];
             }
-            const _table = $("#" + this._prefix + "FamilyBrowserGrid");
+            const _table = $("#" + this.gridId);
             const _this = this;
-            $("#" + this._prefix + "FamilyBrowserGrid").bootstrapTable("destroy");
-            $("#" + this._prefix + "FamilyBrowserGrid").bootstrapTable({
+            _table.bootstrapTable("destroy");
+            _table.bootstrapTable({
                 // url: opencgaHostUrl,
                 columns: _this._columns,
                 method: "get",
@@ -151,7 +155,7 @@ export default class OpencgaFamilyGrid extends LitElement {
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
                     const _filters = {
-                        // study: this.opencgaSession.study.fqn,
+                        study: this.opencgaSession.study.fqn,
                         order: params.data.order,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
@@ -190,7 +194,8 @@ export default class OpencgaFamilyGrid extends LitElement {
                         rows: response.getResults()
                     };
                 },
-                onClickRow: function(row, element, field) {
+                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                /*onClickRow: function(row, element, field) {
                     if (_this._config.multiSelection) {
                         // Check and uncheck when clicking in the checkbox TD cell
                         if (field === "state") {
@@ -220,7 +225,7 @@ export default class OpencgaFamilyGrid extends LitElement {
                     }
 
                     _this._onSelectFamily(row);
-                },
+                },*/
                 onDblClickRow: function(row, element, field) {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.

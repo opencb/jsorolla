@@ -16,10 +16,9 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "../../../../utils.js";
-import "./opencga-jobs-details-log.js";
-import "./opencga-jobs-view.js";
+import "./opencga-sample-view.js";
 
-export default class OpencgaJobsDetails extends LitElement {
+export default class OpencgaSampleDetail extends LitElement {
 
     constructor() {
         super();
@@ -39,10 +38,10 @@ export default class OpencgaJobsDetails extends LitElement {
                 type: Object
             },
             // this is not actually used at the moment
-            jobId: {
+            sampleId: {
                 type: Object
             },
-            job: {
+            sample: {
                 type: Object
             }
         };
@@ -60,21 +59,30 @@ export default class OpencgaJobsDetails extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.job = null;
+            this.sample = null
         }
 
-        if (changedProperties.has("job")) {
-
+        if (changedProperties.has("sample")) {
+            this.sampleObserver();
         }
 
         if (changedProperties.has("activeTab")) {
-            console.log("activeTab");
+            console.log("activeTab")
+        }
+    }
+
+    sampleObserver() {
+        console.log("sampleObserver");
+        console.log("OPENCGA_INDIVIDUAL", this.sample.attributes.OPENCGA_INDIVIDUAL);
+        if (this.sample !== undefined && this.sample.attributes !== undefined) {
+            this.individual = this.sample.attributes.OPENCGA_INDIVIDUAL;
+            this.requestUpdate();
         }
     }
 
     _changeBottomTab(e) {
         const tabId = e.currentTarget.dataset.id;
-        console.log(tabId);
+        console.log(tabId)
         $(".nav-tabs", this).removeClass("active");
         $(".tab-content div[role=tabpanel]", this).hide();
         for (const tab in this.activeTab) this.activeTab[tab] = false;
@@ -83,26 +91,30 @@ export default class OpencgaJobsDetails extends LitElement {
         this.requestUpdate();
     }
 
+    renderHTML(html) {
+        return document.createRange().createContextualFragment(`${html}`);
+    }
+
     getDefaultConfig() {
         return {
-            title: "File",
+            title: "Sample",
             showTitle: true
         };
     }
 
     render() {
-        return this.job ? html`
+        return this.sample ? html`
             <style>
                 .detail-row{
                     padding: 5px;
                 }
             </style>
-            ${this._config.showTitle ? html`
+            <div>
+                ${this._config.showTitle ? html`
                     <div class="panel" style="margin-bottom: 10px">
-                        <h2 >&nbsp;${this._config.title}: ${this.job.id}</h2>
+                        <h2 >&nbsp;${this._config.title}: ${this.sample.id}</h2>
                     </div>
                 ` : null}
-            <div>
                 <ul class="nav nav-tabs" role="tablist">
                     ${this.config.detail.length && this.config.detail.map(item => html`
                         <li role="presentation" class="${item.active ? "active" : ""}">
@@ -113,18 +125,27 @@ export default class OpencgaJobsDetails extends LitElement {
                         </li>
                     `)}
                 </ul>
+               
                 
                 <div class="tab-content">
-                    <div id="job-detail-tab" class="tab-pane active" role="tabpanel">
-                        <opencga-jobs-view .opencgaSession=${this.opencgaSession}
-                                           .job="${this.job}">
-                        </opencga-jobs-view>
+                    <div id="sample-view-tab" class="tab-pane active" role="tabpanel">
+                        <div id="${this._prefix}sample-view">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group detail-row">
+                                            <opencga-sample-view .opencgaSession="${this.opencgaSession}"
+                                                                  .sample="${this.sample}">
+                                            </opencga-sample-view>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div id="log-tab" class="tab-pane" role="tabpanel">
-                        <opencga-jobs-details-log .opencgaSession=${this.opencgaSession}
-                                                  .active="${this.activeTab["log"]}"
-                                                  .job="${this.job}">
-                        </opencga-jobs-details-log>
+                    <div id="individual-view-tab" class="tab-pane" role="tabpanel">
+                        <opencga-individual-view .opencgaSession="${this.opencgaSession}" .individual="${this.individual}">
+                        </opencga-individual-view>
                     </div>
                 </div>
                 
@@ -134,4 +155,4 @@ export default class OpencgaJobsDetails extends LitElement {
 
 }
 
-customElements.define("opencga-jobs-details", OpencgaJobsDetails);
+customElements.define("opencga-sample-detail", OpencgaSampleDetail);
