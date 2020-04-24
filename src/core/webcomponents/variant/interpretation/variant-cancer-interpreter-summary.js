@@ -85,7 +85,6 @@ class VariantCancerInterpreterSummary extends LitElement {
     }
 
     render() {
-        debugger
         // Check Project exists
         if (!this.opencgaSession.project) {
             return html`

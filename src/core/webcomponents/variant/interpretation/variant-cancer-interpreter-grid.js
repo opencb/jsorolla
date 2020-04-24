@@ -17,7 +17,6 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "../../../utils.js"
 import UtilsNew from "../../../utilsNew.js";
-import PolymerUtils from "../../PolymerUtils.js";
 import VariantGridFormatter from "../VariantGridFormatter.js";
 import GridCommons from "../grid-commons.js";
 import VariantUtils from "../variant-utils.js";
@@ -69,7 +68,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
     _init() {
         this._prefix = "ovig-" + Utils.randomString(6) + "_";
 
-        this._initialised = false;
+        // this._initialised = false;
 
         // Config for the grid toolbar
         this.toolbarConfig = {
@@ -88,7 +87,6 @@ export default class VariantCancerInterpreterGrid extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
     }
 
     firstUpdated(_changedProperties) {
@@ -97,13 +95,8 @@ export default class VariantCancerInterpreterGrid extends LitElement {
         this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
         this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
 
-        if (UtilsNew.isUndefinedOrNull(this.reportedVariants)) {
-            this.renderVariantTable();
-        } else {
-            this.renderFromLocal();
-        }
-        this._initialised = true;
-
+        this.renderVariants();
+        // this._initialised = true;
     }
 
     updated(changedProperties) {
@@ -111,59 +104,34 @@ export default class VariantCancerInterpreterGrid extends LitElement {
             this.opencgaSessionObserver();
         }
         if (changedProperties.has("clinicalAnalysis")) {
-            this.clinicalAnalysisObserver(this.clinicalAnalysis);
+            this.clinicalAnalysisObserver();
         }
         if (changedProperties.has("query")) {
-            this.queryObserver();
+            this.renderVariants();
         }
         if (changedProperties.has("reportedVariants")) {
-            this.renderFromLocal();
+            this.renderLocalVariants();
         }
     }
 
     opencgaSessionObserver() {
         this._config = {...this.getDefaultConfig(), ...this.config};
+
         this.variantGridFormatter = new VariantGridFormatter(this.opencgaSession, this._config);
+
         const colors = this.variantGridFormatter.assignColors(this.consequenceTypes, this.proteinSubstitutionScores);
         Object.assign(this, colors);
     }
 
-    queryObserver() {
-        if (UtilsNew.isUndefinedOrNull(this.reportedVariants)) {
-            this.renderVariantTable();
-        } else {
-            this.renderFromLocal();
-        }
-    }
-
-    clinicalAnalysisObserver(clinicalAnalysis) {
-        let _individuals = [];
-        const _samples = [];
-        if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis)) {
-            // let _individuals = [];
-            if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.family) && UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.family.members)) {
-                _individuals = clinicalAnalysis.family.members;
-            } else {
-                if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.proband)) {
-                    _individuals = [clinicalAnalysis.proband];
-                }
-            }
-
-            for (const individual of _individuals) {
-                if (UtilsNew.isNotEmptyArray(individual.samples)) {
-                    _samples.push(individual.samples[0]);
-                }
+    clinicalAnalysisObserver() {
+        // Make sure somatic sample is the first one
+        if (this.clinicalAnalysis && this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples) {
+            if (this.clinicalAnalysis.proband.samples.length === 2 && this.clinicalAnalysis.proband.samples[1].somatic) {
+                this.clinicalAnalysis.proband.samples = this.clinicalAnalysis.proband.samples.reverse();
             }
         }
-        this.samples = _samples;
-        this.individuals = _individuals;
 
-        // We reset the query object when the session is changed
-        if (UtilsNew.isUndefinedOrNull(this.reportedVariants)) {
-            this.renderVariantTable();
-        } else {
-            this.renderFromLocal();
-        }
+        this.renderVariants();
     }
 
     onColumnChange(e) {
@@ -175,27 +143,26 @@ export default class VariantCancerInterpreterGrid extends LitElement {
         }
     }
 
-    renderVariantTable() {
+    renderVariants() {
+        if (this.reportedVariants) {
+            this.renderLocalVariants();
+        } else {
+            this.renderRemoteVariants();
+        }
+    }
+
+    renderRemoteVariants() {
         this.from = 1;
         this.to = 10;
         this.approximateCountResult = false;
 
-        this.table = $("#" + this._prefix + "VariantBrowserGrid");
-        if (typeof this.opencgaSession !== "undefined" && typeof this.opencgaSession.project !== "undefined" &&
-            typeof this.opencgaSession.study !== "undefined") {
+        this.table = $("#" + this.gridId);
+        if (this.opencgaSession && this.opencgaSession.project && this.opencgaSession.study) {
             this._columns = this._createDefaultColumns();
 
-            // const urlQueryParams = this._getUrlQueryParams();
-            // const queryParams = urlQueryParams.queryParams;
-
             const _this = this;
-
-            let skipCount = false;
-
-
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                //url: urlQueryParams.host,
                 columns: _this._columns,
                 method: "get",
                 sidePagination: "server",
@@ -214,53 +181,18 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                 variantGrid: _this,
 
                 ajax: (params) => {
-                    // if (this.pageNumber > 1) {
-                    //     skipCount = true;
-                    // }
+                    let tableOptions = $(this.table).bootstrapTable("getOptions");
                     let filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
-                        count: !$(this.table).bootstrapTable("getOptions").pageNumber || $(this.table).bootstrapTable("getOptions").pageNumber === 1,
+                        count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
                         includeSampleId: "true",
-                        // skipCount: skipCount,
-                        // include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
                         ...this.query
                     };
                     this.opencgaSession.opencgaClient.clinical().primaryFindingsInterpretation(filters)
                         .then( res => params.success(res));
-                    // this.opencgaSession.opencgaClient.variants().query(filters)
-                    //     .then( res => params.success(res));
                 },
-                // ajax: params => {
-                //     let filters = {
-                //         study: this.opencgaSession.study.fqn,
-                //         limit: params.data.limit || this.options.pageSize,
-                //         skip: params.data.offset || 0,
-                //         count: !$(this.table).bootstrapTable("getOptions").pageNumber || $(this.table).bootstrapTable("getOptions").pageNumber === 1,
-                //         // include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
-                //     };
-                //
-                //     if (typeof this.query.genotype === "undefined" && typeof this.query.sample === "undefined" &&
-                //         typeof this.query.family === "undefined") {
-                //         filters.summary = true;
-                //     }
-                //     if (this._config.grid && this._config.grid.queryParams) {
-                //         filters = {...filters, ...this._config.grid.queryParams};
-                //     }
-                //     // We finally overwrite with the query object passed
-                //     filters = {...filters, ...this.query};
-                //
-                //     console.log("variant-grid filters", filters)
-                //     this.opencgaSession.opencgaClient.variants()
-                //         .query(filters)
-                //         .then( res => params.success(res));
-                // },
-                // queryParams: function(params) {
-                //     queryParams.limit = params.limit;
-                //     queryParams.skip = params.offset;
-                //     return queryParams;
-                // },
                 responseHandler: response => {
                     let result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     _this.from = result.from || _this.from;
@@ -271,49 +203,6 @@ export default class VariantCancerInterpreterGrid extends LitElement {
 
                     return result.response;
                 },
-//                 responseHandler: function(response) {
-// //                     let _numTotal = resp.responses[0].numMatches || -1;
-// //                     // if (_numTotal === -1) {
-// //                     //     _numTotal = resp.responses[0].numMatches;
-// //                     //     // _numTotal = resp.response[0].numTotalResults >= 0 && resp.response[0].numTotalResults < this.pageSize
-// //                     //     //     ? resp.response[0].numTotalResults
-// //                     //     //     : 1150;
-// //                     // }
-// //                     // Format the number string with commas
-// //                     _this.to = Math.min(resp.response[0].numResults, this.pageSize);
-// //                     _this.numTotalResultsText = _numTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-// //                     _this.approximateCountResult = resp.response[0].approximateCount;
-// // debugger
-// //                     _this.requestUpdate();
-// //                     return {total: _numTotal, rows: resp.responses[0].results};
-//                     console.log("variant-grid response", response);
-//                     let _numMatches = _this._numMatches || 0;
-//                     if (response.getResponse().numMatches >= 0) {
-//                         _numMatches = response.getResponse().numMatches;
-//                         _this._numMatches = _numMatches;
-//                     }
-//                     // If no variant is returned then we start in 0
-//                     if (response.getResponse(0).numMatches === 0) {
-//                         _this.from = _numMatches;
-//                     }
-//                     // If do not fetch as many variants as requested then to is numMatches
-//                     if (response.getResponse(0).numResults < this.pageSize) {
-//                         _this.to = _numMatches;
-//                     }
-//                     _this.numTotalResultsText = _numMatches.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-//
-//                     if (response.getParams().skip === 0 && _numMatches < response.getParams().limit) {
-//                         _this.from = 1;
-//                         _this.to = _numMatches;
-//                     }
-//                     _this.approximateCountResult = response.getResponse().attributes.approximateCount;
-//                     _this.requestUpdate(); // it is necessary to refresh numTotalResultsText in opencga-grid-toolbar
-//
-//                     return {
-//                         total: _numMatches,
-//                         rows: response.getResults()
-//                     };
-//                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
 //                 onClickRow: function(row, selectedElement, field) {
 //                     $("#" + _this._prefix + "VariantBrowserGrid tr").removeClass("success");
@@ -352,7 +241,11 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                 //         }
                 //     }));
                 // },
-                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, data.rows[0].id, 2),
+                onLoadSuccess: data => {
+                    if (data.rows && data.rows.length > 0) {
+                        this.gridCommons.onLoadSuccess(data, data.rows[0].id, 2)
+                    }
+                },
                 // onLoadSuccess: data => {
                 //     // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
                 //     if (UtilsNew.isNotEmptyArray(data.rows) && UtilsNew.isNotUndefinedOrNull(this.table)) {
@@ -411,12 +304,10 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                     }
                 }
             });
-
-            // $("#" + _this._prefix + "VariantBrowserGrid").bootstrapTable("showLoading");
         }
     }
 
-    renderFromLocal() {
+    renderLocalVariants() {
         this.from = 1;
         this.to = Math.min(this.reportedVariants.length, this._config.pageSize);
         this.numTotalResultsText = this.reportedVariants.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -460,48 +351,6 @@ export default class VariantCancerInterpreterGrid extends LitElement {
         });
     }
 
-    // _onPostBody(data, mode) {
-    //     const removeIndividualButtons = PolymerUtils.querySelectorAll(".removeIndividualButton");
-    //     for (let i = 0; i < removeIndividualButtons.length; i++) {
-    //         removeIndividualButtons[i].addEventListener("click", this.onReviewClick.bind(this));
-    //     }
-    //
-    //     // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
-    //     const _table = $("#" + this._prefix + "VariantBrowserGrid");
-    //     if (UtilsNew.isNotEmptyArray(data) && UtilsNew.isNotUndefinedOrNull(_table)) {
-    //         PolymerUtils.querySelector(_table.selector).rows[2].setAttribute("class", "success");
-    //         if (mode === "remote") {
-    //             this._onSelectVariant(data[0]);
-    //         } else {
-    //             this._onClickSelectedVariant(data[0]);
-    //         }
-    //     }
-    //
-    //     // Add tooltips
-    //     this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
-    //     this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
-    //     this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "File metrics", "", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
-    //     this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", this.populationFrequencies);
-    //     this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("span.pop-preq-info-icon", this.populationFrequencies);
-    //     const predictionTooltipContent = "<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations";
-    //     this.variantGridFormatter.addTooltip("span.interpretation-info-icon", "Interpretation", predictionTooltipContent, {position: {my: "top right"}, style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
-    //     this.variantGridFormatter.addTooltip("div.predictionTooltip", "Classification", "", {position: {my: "top right"}, style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}, width: "360px"});
-    // }
-
-    // _onSelectVariant(row) {
-    //     if (typeof row !== "undefined") {
-    //         const reference = row.reference !== "" ? row.reference : "-";
-    //         const alternate = row.alternate !== "" ? row.alternate : "-";
-    //         const _variant = row.chromosome + ":" + row.start + ":" + reference + ":" + alternate;
-    //         this.dispatchEvent(new CustomEvent("selectrow", {
-    //             detail: {
-    //                 id: _variant,
-    //                 row: row
-    //             }
-    //         }));
-    //     }
-    // }
-
     _onClickSelectedVariant(row) {
         if (typeof row !== "undefined") {
             const _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
@@ -525,7 +374,6 @@ export default class VariantCancerInterpreterGrid extends LitElement {
         }
 
         $("#" + this._prefix + "ReviewSampleModal").modal("show");
-
     }
 
     showGene(geneName) {
@@ -604,7 +452,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
             for (let evidenceIndex in value) {
                 let evidence = value[evidenceIndex];
                 if (evidence.roleInCancer && evidence.genomicFeature.geneName) {
-                    let roleInCancer = evidence.roleInCancer === "TUMOR_SUPRESSOR_GENE" || evidence.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : evidence.roleInCancer;
+                    let roleInCancer = evidence.roleInCancer === "TUMOUR_SUPPRESSOR_GENE" || evidence.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : evidence.roleInCancer;
                     roles.add(`${roleInCancer} (${evidence.genomicFeature.geneName})`);
                 }
             }
@@ -619,19 +467,18 @@ export default class VariantCancerInterpreterGrid extends LitElement {
         let resultHtml = "";
 
         if (UtilsNew.isNotEmptyArray(row.studies)) {
-            if (UtilsNew.isNotUndefinedOrNull(row.studies[0].samples) &&
-                UtilsNew.isNotUndefinedOrNull(row.studies[0].samples[this.field.memberIdx]) &&
-                UtilsNew.isNotUndefinedOrNull(row.studies[0].samples[this.field.memberIdx].data[0])) {
+            if (UtilsNew.isNotUndefinedOrNull(row.studies[0].samples)) {
+                let sampleIndex = row.studies[0].samples[0].sampleId === this.field.sampleId ? 0 : 1;
 
                 // First, get and check info fields QUAL, FILTER; and format fields DP, AD and GQ
                 let qual = "-";
                 let filter = "-";
                 let mutationColor = "black";
-                const sampleFormat = row.studies[0].samples[this.field.memberIdx].data;
+                const sampleFormat = row.studies[0].samples[sampleIndex].data;
 
                 // INFO fields
                 if (row.studies[0].files) {
-                    let fileIdx = row.studies[0].samples[this.field.memberIdx].fileIndex;
+                    let fileIdx = row.studies[0].samples[sampleIndex].fileIndex;
                     let file = row.studies[0].files[fileIdx];
 
                     if (file && file.data) {
@@ -663,11 +510,19 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                 }
 
                 // Second, prepare the visual representation of genotypes
-                let left; let right;
+                let left;
+                let right;
                 let leftRadio = 8;
                 let rightRadio = 8;
                 const genotypeSplitRegExp = new RegExp("[/|]");
-                const sampleGT = row.studies[0].samples[this.field.memberIdx].data[0];
+                let sampleGT;
+                // Make sure we always render somatic sample first
+                if (row.studies[0].samples.length === 2) {
+
+                    sampleGT = row.studies[0].samples[sampleIndex].data[0];
+                } else {
+                    sampleGT = row.studies[0].samples[0].data[0];
+                }
                 if (sampleGT === "0/1" || sampleGT === "1/0") {
                     // If genotype si 0/1 or 1/0 they must be displayed like 0/1 (not phased)
                     left = "white";
@@ -1037,72 +892,26 @@ export default class VariantCancerInterpreterGrid extends LitElement {
             });
         }
 
-        const sampleInfo = {};
-        if (UtilsNew.isNotEmptyArray(this.individuals)) {
-            const probandId = (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.proband)) ? this.clinicalAnalysis.proband.id : "";
-            for (const individual of this.individuals) {
-                if (UtilsNew.isNotEmptyArray(individual.samples)) {
-                    let affected = false;
-                    if (UtilsNew.isNotEmptyArray(individual.disorders)) {
-                        for (const disorder of individual.disorders) {
-                            if (disorder.id === this.clinicalAnalysis.disorder.id) {
-                                affected = true;
-                                break;
-                            }
-                        }
-                    }
-                    let role = "";
-                    for (const ind of this.individuals) {
-                        if (UtilsNew.isNotUndefinedOrNull(ind.father) && ind.father.id === individual.id) {
-                            role = "father";
-                        }
-                        if (UtilsNew.isNotUndefinedOrNull(ind.mother) && ind.mother.id === individual.id) {
-                            role = "mother";
-                        }
-                    }
-
-                    sampleInfo[individual.samples[0].id] = {
-                        proband: individual.id === probandId,
-                        affected: affected,
-                        role: role,
-                        sex: individual.sex
-                    };
-                }
-            }
-        }
-
-        if (typeof this._columns !== "undefined" && UtilsNew.isNotEmptyArray(this.samples)) {
+        // Set sample columns
+        if (typeof this._columns !== "undefined" && this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples) {
             this._columns[0].splice(5, 0, {
-                title: "Sample Genotypes",
-                field: "zygosity",
+                title: `Sample Genotypes (${this.clinicalAnalysis.proband.id})`,
                 rowspan: 1,
-                colspan: this.samples.length,
+                colspan: this.clinicalAnalysis.proband.samples.length,
                 align: "center"
             });
 
-            for (let i = 0; i < this.samples.length; i++) {
-                let color = "black";
-                if (sampleInfo[this.samples[i].id].proband) {
-                    color = "darkred";
-                    if (UtilsNew.isEmpty(sampleInfo[this.samples[i].id].role)) {
-                        sampleInfo[this.samples[i].id].role = "proband";
-                    }
-                }
-
-                let affected = "<span>UnAff.</span>";
-                if (sampleInfo[this.samples[i].id].affected) {
-                    affected = "<span style='color: red'>Aff.</span>";
-                }
+            for (let i = 0; i < this.clinicalAnalysis.proband.samples.length; i++) {
+                let sample = this.clinicalAnalysis.proband.samples[i];
+                let color = sample.somatic ? "darkred" : "black";
 
                 this._columns[1].splice(i, 0, {
-                    title: `<span style="color: ${color}">${this.samples[i].id}</span>
-                                    <br>
-                                    <span style="font-style: italic">${sampleInfo[this.samples[i].id].role}, ${affected}</span>`,
-                    // field: 'samples',
+                    title: `<span>${sample.id}</span><br>
+                            <span style="color: ${color};font-style: italic">${sample.somatic ? "somatic" : "germline"}</span>`,
                     field: {
-                        memberIdx: i,
-                        memberName: this.samples[i].id,
+                        sampleId: sample.id,
                         quality: this._config.quality,
+                        config: this._config,
                         clinicalAnalysis: this.clinicalAnalysis
                     },
                     rowspan: 1,
@@ -1112,15 +921,6 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                     nucleotideGenotype: true
                 });
             }
-
-            // this._columns[0].splice(5, 0, {
-            //     title: "Pathogenicity",
-            //     field: "pathogenicity",
-            //     rowspan: 2,
-            //     colspan: 1,
-            //     formatter: this.pathogeniticyFormatter,
-            //     halign: 'center'
-            // });
         }
     }
 
@@ -1222,7 +1022,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
     }
 
     showLoading(){
-        $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable("showLoading");
+        $("#" + this.gridId).bootstrapTable("showLoading");
     }
 
     render() {

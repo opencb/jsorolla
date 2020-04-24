@@ -289,6 +289,8 @@ class VariantCancerInterpreter extends LitElement {
 
     onCLinicalAnalysis(e) {
         this.clinicalAnalysis = e.detail.clinicalAnalysis;
+        debugger
+        this.requestUpdate();
     }
 
     onClinicalAnalysisEditor(e) {

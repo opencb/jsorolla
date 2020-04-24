@@ -87,13 +87,15 @@ class VariantCancerInterpreterLanding extends LitElement {
     setClinicalAnalysisId() {
         // console.log($("#clinicalAnalysisIdText").val());
         // this.clinicalAnalysisId = $("#clinicalAnalysisIdText").val();
-debugger
-        this.dispatchEvent(new CustomEvent("selectclinicalnalysis", {
-            detail: {
-                id: this.clinicalAnalysis.id,
-                clinicalAnalysis: this.clinicalAnalysis,
-            }
-        }));
+        debugger
+        if (this.clinicalAnalysis) {
+            this.dispatchEvent(new CustomEvent("selectclinicalnalysis", {
+                detail: {
+                    id: this.clinicalAnalysis.id,
+                    clinicalAnalysis: this.clinicalAnalysis,
+                }
+            }));
+        }
     }
 
     onFilterChange(name, value) {
@@ -117,19 +119,13 @@ debugger
 
     onIndividualChange(name, individualId) {
         let _this = this;
-        this.opencgaSession.opencgaClient.individuals().info(this.individualId, {study: this.opencgaSession.study.fqn})
+        this.opencgaSession.opencgaClient.individuals().info(individualId, {study: this.opencgaSession.study.fqn})
             .then(response => {
-                // This triggers the call to clinicalAnalysisObserver function below
-debugger
-
                 // Create a CLinical Analysis object
                 let _clinicalAnalysis = {
-                    proband: {
-                        id: individualId,
-                        samples: response.responses[0].results[0]
-                    }
+                    id: "",
+                    proband: response.responses[0].results[0]
                 };
-
                 _this.clinicalAnalysis = _clinicalAnalysis;
 
                 // _this.requestUpdate();
@@ -141,7 +137,6 @@ debugger
     }
 
     render() {
-        debugger
         // Check Project exists
         if (!this.opencgaSession.project) {
             return html`
