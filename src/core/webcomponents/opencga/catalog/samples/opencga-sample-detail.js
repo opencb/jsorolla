@@ -72,17 +72,14 @@ export default class OpencgaSampleDetail extends LitElement {
     }
 
     sampleObserver() {
-        console.log("sampleObserver");
-        console.log("OPENCGA_INDIVIDUAL", this.sample.attributes.OPENCGA_INDIVIDUAL);
-        if (this.sample !== undefined && this.sample.attributes !== undefined) {
-            this.individual = this.sample.attributes.OPENCGA_INDIVIDUAL;
-            this.requestUpdate();
-        }
+        //console.log("sampleObserver");
+        //console.log("OPENCGA_INDIVIDUAL", this.sample?.attributes?.OPENCGA_INDIVIDUAL);
+        this.individual = this.sample?.attributes?.OPENCGA_INDIVIDUAL;
+        this.requestUpdate();
     }
 
     _changeBottomTab(e) {
         const tabId = e.currentTarget.dataset.id;
-        console.log(tabId)
         $(".nav-tabs", this).removeClass("active");
         $(".tab-content div[role=tabpanel]", this).hide();
         for (const tab in this.activeTab) this.activeTab[tab] = false;

@@ -56,13 +56,18 @@ export default class OpencgaVariantFilterClinical extends LitElement {
         this.sampleFilters = [];
         this.fileFilters = [];
         this.modeOfInheritance = "none";
-        this.modeOfInheritanceSelect = [
-            {id: "CUSTOM", name: "Custom", selected: true},
+        this.modeOfInheritanceList = [
             {id: "MONOALLELIC", name: "Autosomal Dominant"},
             {id: "BIALLELIC", name: "Autosomal Recessive"},
             {id: "XLINKED_MONOALLELIC", name: "X-linked Dominant"},
             {id: "XLINKED_BIALLELIC", name: "X-linked Recessive"},
-            {id: "YLINKED", name: "Y-linked"},
+            {id: "YLINKED", name: "Y-linked"}
+        ];
+        this.modeSelectData = [
+            {id: "CUSTOM", name: "Custom", selected: true},
+            {separator: true},
+            ...this.modeOfInheritanceList,
+            {separator: true},
             {id: "COMPOUND_HETEROZYGOUS", name: "Compound Heterozygous"},
             {id: "DE_NOVO", name: "De Novo"}
         ];
@@ -266,10 +271,10 @@ export default class OpencgaVariantFilterClinical extends LitElement {
         }));
     }
 
-    onModeOfInheritance(e) {
-        this.modeOfInheritance = e.target.value;
+    onModeOfInheritance(mode) {
+        this.modeOfInheritance = mode;
         const _this = this;
-        this.opencgaSession.opencgaClient.variants().genotypesFamily(this.modeOfInheritance, {
+        this.opencgaSession.opencgaClient.variants().genotypesFamily(mode, {
             study: this.opencgaSession.study.fqn,
             family: this.clinicalAnalysis.family.id,
             disorder: this.clinicalAnalysis.disorder.id,
@@ -332,12 +337,12 @@ export default class OpencgaVariantFilterClinical extends LitElement {
         // this.sampleFilters = $.extend(true, [], this.sampleFilters);
         // this.requestUpdate();
 
-        // Set MoI select to 'none' when clicked in GT
+        /*// Set MoI select to 'none' when clicked in GT
         if (UtilsNew.isNotUndefinedOrNull(e.currentTarget.dataset.gt)) {
             this.modeOfInheritance = "none";
             $("#" + this._prefix + "ModeOfInheritance").selectpicker("val", "none");
             PolymerUtils.hide(this._prefix + "Warning");
-        }
+        }*/
 
         // 'console.log("this.sampleFilters",this.sampleFilters);
         await this.requestUpdate();
@@ -348,14 +353,15 @@ export default class OpencgaVariantFilterClinical extends LitElement {
         this.mode = e.detail.value;
 
         if (this.mode === "CUSTOM") {
-            // remove the "segregation" values
             for (const sample of this.sampleFilters) {
+                // remove the "segregation",  "COMPOUND_HETEROZYGOUS", "DE_NOVO" values (all not CUSTOM values)
                 sample.genotypes = sample.genotypes.filter(gt => ~["0/0", "0/1", "1/1"].indexOf(gt));
             }
+            this.sampleFiltersChange();
         }
         // segregation
-        if (this.modeOfInheritanceSelect.map(_ => _.id).includes(this.mode)) {
-            this.onModeOfInheritance(e);
+        if (this.modeOfInheritanceList.map(_ => _.id).includes(this.mode)) {
+            this.onModeOfInheritance(this.mode);
         }
 
         if (this.mode === "COMPOUND_HETEROZYGOUS") {
@@ -426,7 +432,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                     <div class="form-check-label mode-button">
                     
                         <!--<select-field-filter ?multiple="${true}" ?disabled=${false} ?required=${true} .data="${["GT", "LT"]}" .value="${"LT"}" maxOptions="2" @filterChange="${e => console.log("ID", e.detail.value)}"></select-field-filter>-->
-                        <select-field-filter .data="${this.modeOfInheritanceSelect}" value=${this.mode} @filterChange="${this.setMode}"></select-field-filter>
+                        <select-field-filter .data="${this.modeSelectData}" value=${this.mode} @filterChange="${this.setMode}"></select-field-filter>
 
                         <!--<div>
                             <button class="btn btn-default ripple ${this.mode === "custom" ? "active" : ""}" value="custom" @click="${this.setSample}">Custom</button>

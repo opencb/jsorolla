@@ -76,17 +76,19 @@ export default class SelectFieldFilter extends LitElement {
         this._prefix = "sff-" + Utils.randomString(6) + "_";
         this.multiple = false;
         this.data = [];
+        this.elm = this._prefix + "selectpicker";
     }
 
     firstUpdated() {
-        $(".selectpicker", this).selectpicker("val", "");
+        this.selectPicker = $("#" + this.elm, this);
+        this.selectPicker.selectpicker("val", "");
     }
 
     updated(_changedProperties) {
         if (_changedProperties.has("data")) {
             // TODO check why lit-element execute this for all existing select-field-filter instances..wtf
             // console.log("data",this.data)
-            $(".selectpicker", this).selectpicker("refresh");
+            this.selectPicker.selectpicker("refresh");
         }
         if (_changedProperties.has("value")) {
             //console.log("this.value", this.value)
@@ -94,18 +96,18 @@ export default class SelectFieldFilter extends LitElement {
 
             // TODO FIXME force null to "CUSTOM" works in 1 case out of 2 in variant-filter-clinical..
             //$(".selectpicker", this).selectpicker("val", this.value ? (this.multiple ? this.value.split(",") : this.value) : "CUSTOM");
-            $(".selectpicker", this).selectpicker("val", this.value ? (this.multiple ? this.value.split(",") : this.value) : "");
+            this.selectPicker.selectpicker("val", this.value ? (this.multiple ? this.value.split(",") : this.value) : "");
             //this.requestUpdate()
             //$(".selectpicker", this).selectpicker("refresh");
         }
         if (_changedProperties.has("disabled")) {
-            $(".selectpicker", this).selectpicker("refresh");
+            this.selectPicker.selectpicker("refresh");
         }
     }
 
     filterChange(e) {
-        debugger
-        const selection = $(".selectpicker", this).selectpicker("val");
+        //debugger
+        const selection = this.selectPicker.selectpicker("val");
         let val;
         if (selection && selection.length) {
             val = this.multiple ? selection.join(",") : selection[0];
@@ -123,8 +125,8 @@ export default class SelectFieldFilter extends LitElement {
     render() {
         return html`
             <div id="${this._prefix}-select-field-filter-wrapper" class="form-group">
-                <select id="${this._prefix}-select"
-                        class="selectpicker"
+                <select id="${this.elm}"
+                        class="${this.elm}"
                         multiple
                         .disabled=${this.disabled}
                         .required=${this.required}
@@ -132,20 +134,22 @@ export default class SelectFieldFilter extends LitElement {
                         data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}" 
                         @change="${this.filterChange}" data-width="100%">
                     ${this.data.map(opt => html`
-                        ${opt.fields ? html`
-                            <optgroup label="${opt.name}">${opt.fields.map(subopt => html`
-                                ${UtilsNew.isObject(subopt) ? html`
-                                    <option ?disabled="${subopt.disabled}" ?selected="${subopt.selected}" .value="${subopt.id ? subopt.id : subopt.name}">${subopt.name}</option>    
-                                ` : html`
-                                    <option>${subopt}</option>
+                        ${opt.separator ? html`<option data-divider="true"></option>` : html`
+                            ${opt.fields ? html`
+                                <optgroup label="${opt.name}">${opt.fields.map(subopt => html`
+                                    ${UtilsNew.isObject(subopt) ? html`
+                                        <option ?disabled="${subopt.disabled}" ?selected="${subopt.selected}" .value="${subopt.id ? subopt.id : subopt.name}">${subopt.name}</option>    
+                                    ` : html`
+                                        <option>${subopt}</option>
+                                    `}
+                                    `)}
+                                </optgroup>
+                                ` : html` 
+                                    ${UtilsNew.isObject(opt) ? html`
+                                        <option ?disabled="${opt.disabled}" ?selected="${opt.selected}" .value="${opt.id ? opt.id : opt.name}">${opt.name}</option>
+                                    ` : html`
+                                        <option>${opt}</option>
                                 `}
-                                `)}
-                            </optgroup>
-                            ` : html` 
-                                ${UtilsNew.isObject(opt) ? html`
-                                    <option ?disabled="${opt.disabled}" ?selected="${opt.selected}" .value="${opt.id ? opt.id : opt.name}">${opt.name}</option>
-                                ` : html`
-                                    <option>${opt}</option>
                             `}
                         `}
                     `)}
