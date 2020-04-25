@@ -68,8 +68,6 @@ export default class VariantCancerInterpreterGrid extends LitElement {
     _init() {
         this._prefix = "ovig-" + Utils.randomString(6) + "_";
 
-        // this._initialised = false;
-
         // Config for the grid toolbar
         this.toolbarConfig = {
             columns: [
@@ -90,23 +88,21 @@ export default class VariantCancerInterpreterGrid extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        // debugger
-        // TODO Refactor
         this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
         this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
-
-        this.renderVariants();
-        // this._initialised = true;
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
+        // if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
+        //     this.opencgaSessionObserver();
+        // }
+        // if (changedProperties.has("clinicalAnalysis")) {
+        //     this.clinicalAnalysisObserver();
+        // }
+        if (changedProperties.has("opencgaSession") || changedProperties.has("clinicalAnalysis")
+            || changedProperties.has("query") || changedProperties.has("config")) {
             this.opencgaSessionObserver();
-        }
-        if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
-        }
-        if (changedProperties.has("query")) {
             this.renderVariants();
         }
         if (changedProperties.has("reportedVariants")) {
@@ -116,8 +112,8 @@ export default class VariantCancerInterpreterGrid extends LitElement {
 
     opencgaSessionObserver() {
         this._config = {...this.getDefaultConfig(), ...this.config};
-
         this.variantGridFormatter = new VariantGridFormatter(this.opencgaSession, this._config);
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         const colors = this.variantGridFormatter.assignColors(this.consequenceTypes, this.proteinSubstitutionScores);
         Object.assign(this, colors);
@@ -130,8 +126,6 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                 this.clinicalAnalysis.proband.samples = this.clinicalAnalysis.proband.samples.reverse();
             }
         }
-
-        this.renderVariants();
     }
 
     onColumnChange(e) {
@@ -153,7 +147,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
 
     renderRemoteVariants() {
         this.from = 1;
-        this.to = 10;
+        this.to = this._config.pageSize;
         this.approximateCountResult = false;
 
         this.table = $("#" + this.gridId);
@@ -174,7 +168,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                 pageList: _this._config.pageList,
                 showExport: _this._config.showExport,
                 detailView: _this._config.detailView,
-                detailFormatter: _this._config.detailFormatter,
+                detailFormatter: _this.detailFormatter,
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
 
                 // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
@@ -184,7 +178,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                     let tableOptions = $(this.table).bootstrapTable("getOptions");
                     let filters = {
                         study: this.opencgaSession.study.fqn,
-                        limit: params.data.limit,
+                        limit: params.data.limit || tableOptions.pageSize,
                         skip: params.data.offset || 0,
                         count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
                         includeSampleId: "true",
@@ -312,12 +306,11 @@ export default class VariantCancerInterpreterGrid extends LitElement {
         this.to = Math.min(this.reportedVariants.length, this._config.pageSize);
         this.numTotalResultsText = this.reportedVariants.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-        const _table = $("#" + this._prefix + "VariantBrowserGrid");
-
+        this.table = $("#" + this.gridId);
         this._columns = this._createDefaultColumns();
         const _this = this;
-        _table.bootstrapTable("destroy");
-        _table.bootstrapTable({
+        table.bootstrapTable("destroy");
+        table.bootstrapTable({
             data: _this.reportedVariants,
             columns: _this._columns,
             sidePagination: "local",
@@ -610,28 +603,22 @@ export default class VariantCancerInterpreterGrid extends LitElement {
         return val;
     }
 
-    /**
-     * Create a color table with ALL cohort for all studies.
-     * @param value
-     * @param row
-     * @return {*}
-     */
-    studyCohortsFormatter(value, row) {
-        if (typeof row !== "undefined" && typeof row.studies !== "undefined") {
-            const cohorts = [];
-            const cohortMap = new Map();
-            for (const study of row.studies) {
-                const arr = study.studyId.split(":");
-                const s = arr[arr.length - 1] + ":ALL";
-                cohorts.push(s);
-                cohortMap.set(s, Number(study.stats[0].altAlleleFreq).toFixed(4));
-            }
-
-            return this.variantGridFormatter.createPopulationFrequenciesTable(cohorts, cohortMap, this.populationFrequencies.style);
-        } else {
-            return "-";
-        }
-    }
+    // studyCohortsFormatter(value, row) {
+    //     if (typeof row !== "undefined" && typeof row.studies !== "undefined") {
+    //         const cohorts = [];
+    //         const cohortMap = new Map();
+    //         for (const study of row.studies) {
+    //             const arr = study.studyId.split(":");
+    //             const s = arr[arr.length - 1] + ":ALL";
+    //             cohorts.push(s);
+    //             cohortMap.set(s, Number(study.stats[0].altAlleleFreq).toFixed(4));
+    //         }
+    //
+    //         return this.variantGridFormatter.createPopulationFrequenciesTable(cohorts, cohortMap, this.populationFrequencies.style);
+    //     } else {
+    //         return "-";
+    //     }
+    // }
 
     clinicalPopulationFrequenciesFormatter(value, row) {
         if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
@@ -839,7 +826,6 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                     colspan: 1,
                     formatter: this.predictionFormatter,
                     halign: "center"
-                    // formatter: this.predictionFormatter
                 }
                 // {
                 //     title: "Select",
@@ -1000,7 +986,6 @@ export default class VariantCancerInterpreterGrid extends LitElement {
             pageList: [10, 25, 50],
             showExport: false,
             detailView: true,
-            detailFormatter: this.detailFormatter,
 
             showSelectCheckbox: true,
             showStatus: false,
@@ -1017,7 +1002,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                 qual: 30,
                 dp: 20
             },
-            populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"]
+            // populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"]
         };
     }
 

@@ -356,7 +356,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             <div class="form-group">
                                 <label class="control-label col-md-1 jso-label-title pad-top-5">Status</label>
                                 <div class="col-md-3 pad-top-5">
-                                    <span>${this.clinicalAnalysis.status.name}</span>
+                                    <span>${this.clinicalAnalysis.status ? this.clinicalAnalysis.status.name : ""}</span>
                                 </div>
                             </div>
         
@@ -479,7 +479,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             <h4 class="form-section-title">Family</h4>
                         </div>
         
-                        ${this.clinicalAnalysis.family.members ? html`
+                        ${this.clinicalAnalysis.family && this.clinicalAnalysis.family.members ? html`
                         <form class="form-horizontal" style="padding: 10px 0px 0px 0px;">
         
                                 <div class="form-group">

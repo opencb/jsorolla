@@ -84,10 +84,7 @@ class VariantCancerInterpreterLanding extends LitElement {
         // }
     }
 
-    setClinicalAnalysisId() {
-        // console.log($("#clinicalAnalysisIdText").val());
-        // this.clinicalAnalysisId = $("#clinicalAnalysisIdText").val();
-        debugger
+    onClinicalAnalysisChange() {
         if (this.clinicalAnalysis) {
             this.dispatchEvent(new CustomEvent("selectclinicalnalysis", {
                 detail: {
@@ -110,7 +107,7 @@ class VariantCancerInterpreterLanding extends LitElement {
 
                 console.log("clinicalAnalysisIdObserver _this.clinicalAnalysis", _this.clinicalAnalysis);
                 // _this.requestUpdate();
-                _this.setClinicalAnalysisId();
+                // _this.onClinicalAnalysisChange();
             })
             .catch(response => {
                 console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -124,12 +121,13 @@ class VariantCancerInterpreterLanding extends LitElement {
                 // Create a CLinical Analysis object
                 let _clinicalAnalysis = {
                     id: "",
-                    proband: response.responses[0].results[0]
+                    proband: response.responses[0].results[0],
+                    type: "CANCER"
                 };
                 _this.clinicalAnalysis = _clinicalAnalysis;
 
                 // _this.requestUpdate();
-                _this.setClinicalAnalysisId();
+                // _this.onClinicalAnalysisChange();
             })
             .catch(response => {
                 console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -160,10 +158,13 @@ class VariantCancerInterpreterLanding extends LitElement {
                             <h3>Individual</h3>
                             <div class="text-filter-wrapper">
                                 <select-field-filter-autocomplete-simple .fn="${true}" resource="individuals" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onIndividualChange("individualId", e.detail.value)}"></select-field-filter-autocomplete-simple>
+                            
                             </div>
-                            
-                            
-                            <button class="btn btn-default ripple" @click="${this.setClinicalAnalysisId}">Search</button>
+
+                            <div>                            
+                                <button class="btn btn-default ripple" @click="${this.onClinicalAnalysisChange}">Clear</button>
+                                <button class="btn btn-default ripple" @click="${this.onClinicalAnalysisChange}">OK</button>
+                            </div>
                         </div>
                     </div>
                 </div>

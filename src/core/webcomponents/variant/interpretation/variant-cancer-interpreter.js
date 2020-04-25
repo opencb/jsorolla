@@ -822,7 +822,30 @@ class VariantCancerInterpreter extends LitElement {
                     }
                 ],
                 result: {
-                    grid: {}
+                    grid: {
+                        pagination: true,
+                        pageSize: 5,
+                        pageList: [5, 10, 25, 50],
+                        showExport: false,
+                        detailView: true,
+
+                        showSelectCheckbox: true,
+                        showStatus: false,
+                        multiSelection: false,
+                        nucleotideGenotype: true,
+                        alleleStringLengthMax: 10,
+
+                        header: {
+                            horizontalAlign: "center",
+                            verticalAlign: "bottom"
+                        },
+
+                        quality: {
+                            qual: 30,
+                            dp: 20
+                        },
+                        // populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"]
+                    }
                 },
                 detail: {
                     title: "Selected Variant",

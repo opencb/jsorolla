@@ -138,19 +138,26 @@ export default class OpencgaPanelTranscriptView extends LitElement {
             if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis)) {
                 // let result = response.response[0].result[0];
 
-                const disorder = clinicalAnalysis.disorder.id;
+                const disorder = clinicalAnalysis.disorder ? clinicalAnalysis.disorder.id : "";
 
                 const files = [];
 
                 const members = {}; // member_id : member
                 const samples = {}; // sample_id : member
-                for (let i = 0; i < clinicalAnalysis.family.members.length; i++) {
-                    const member = clinicalAnalysis.family.members[i];
-                    members[member.id] = member;
-                    if (UtilsNew.isNotEmptyArray(member.samples)) {
-                        for (let j = 0; j < member.samples.length; j++) {
-                            samples[member.samples[j].id] = member;
+
+                if (clinicalAnalysis.family) {
+                    for (let i = 0; i < clinicalAnalysis.family.members.length; i++) {
+                        const member = clinicalAnalysis.family.members[i];
+                        members[member.id] = member;
+                        if (UtilsNew.isNotEmptyArray(member.samples)) {
+                            for (let j = 0; j < member.samples.length; j++) {
+                                samples[member.samples[j].id] = member;
+                            }
                         }
+                    }
+                } else {
+                    for (let j = 0; j < clinicalAnalysis.proband.samples.length; j++) {
+                        samples[clinicalAnalysis.proband.samples[j].id] = clinicalAnalysis.proband.samples[j];
                     }
                 }
 
