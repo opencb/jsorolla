@@ -38,7 +38,6 @@ export default class GridCommons {
             from = numMatches;
         }
         // If do not fetch as many variants as requested then to is numMatches
-        debugger
         if (response.getResponse(0).numResults < bootstrapTableConfig.pageSize) {
             to = numMatches;
         }

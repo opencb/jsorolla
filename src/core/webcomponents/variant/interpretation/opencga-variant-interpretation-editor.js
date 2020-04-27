@@ -95,6 +95,12 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
 
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+        // console.log("this.interpretation in variant-interpretation-editor", this.interpretation)
+        // this._interpretation = this.interpretation;
+    }
+
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession") ||
             changedProperties.has("mode") ||
@@ -106,18 +112,7 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
         }
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        console.log("this.interpretation in variant-interpretation-editor", this.interpretation)
-        this._interpretation = this.interpretation;
-    }
-
     firstUpdated(_changedProperties) {
-
-        // if (!this.interactive) {
-        //     this.collapseFilter();
-        // }
-
         // CellBase version
         this.cellbaseClient.getMeta("about").then(response => {
             if (UtilsNew.isNotUndefinedOrNull(response) && UtilsNew.isNotEmptyArray(response.response)) {
@@ -149,18 +144,13 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
         if (UtilsNew.isNotUndefinedOrNull(mode)) {
             this.isCreate = mode.toLowerCase() === "create";
         }
-
-        // if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
-        //     this.checkProjects = true;
-        // } else {
-        //     this.checkProjects = false;
-        // }
     }
 
     interpretationObserver() {
         // TODO We need to respect all the changes made in the reported variants
         this._interpretation = this.interpretation;
 
+        debugger
         if (UtilsNew.isNotUndefinedOrNull(this._interpretation)) {
             if (UtilsNew.isNotEmptyArray(this._interpretation.primaryFindings)) {
                 this.isInterpretedVariants = true;

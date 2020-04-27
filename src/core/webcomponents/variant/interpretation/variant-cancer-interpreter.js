@@ -63,16 +63,12 @@ class VariantCancerInterpreter extends LitElement {
             cellbaseClient: {
                 type: Object
             },
-            // diseasePanelId: {
-            //     type: String,
-            //     observer: "diseasePanelIdObserver"
-            // },
             consequenceTypes: {
                 type: Object
             },
-            populationFrequencies: {
-                type: Object
-            },
+            // populationFrequencies: {
+            //     type: Object
+            // },
             proteinSubstitutionScores: {
                 type: Object
             },
@@ -88,7 +84,7 @@ class VariantCancerInterpreter extends LitElement {
         this.diseasePanelIds = [];
         this.hasClinicalAnalysis = false;
 
-        this.checkProjects = false;
+        // this.checkProjects = false;
         this.interactive = true;
         this.filterClass = "col-md-2";
         this.gridClass = "col-md-10";
@@ -105,37 +101,20 @@ class VariantCancerInterpreter extends LitElement {
         this.variant = null;
         this.reportedVariants = [];
 
-        this.counters = {
-            rv: 0,
-            ch: 0,
-            dn: 0,
-            total: 0
-        };
-        this.counterTitles = {
-            rv: "",
-            ch: "",
-            dn: "",
-            total: ""
-        };
-
         // this.lofe = ["missense_variant", "transcript_ablation", "splice_acceptor_variant", "splice_donor_variant", "stop_gained",
         //     "frameshift_variant", "stop_lost", "start_lost", "transcript_amplification", "inframe_insertion", "inframe_deletion"].join(", ");
 
         this.query = {};
         this.search = {};
 
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     firstUpdated(_changedProperties) {
-        // if (!this.interactive) {
-        //     this.collapseFilter();
-        // }
-
         // CellBase version
         this.cellbaseClient.getMeta("about").then(response => {
             if (UtilsNew.isNotUndefinedOrNull(response) && UtilsNew.isNotEmptyArray(response.response)) {
@@ -153,14 +132,13 @@ class VariantCancerInterpreter extends LitElement {
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
-        if (changedProperties.has("clinicalAnalysis")) {
-            this.clinicalAnalysisObserver();
-        }
+        // if (changedProperties.has("clinicalAnalysis")) {
+        //     this.clinicalAnalysisObserver();
+        // }
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
     }
-
 
     opencgaSessionObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
@@ -175,41 +153,27 @@ class VariantCancerInterpreter extends LitElement {
             }
         }
 
-        if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
-            this.checkProjects = true;
-        } else {
-            this.checkProjects = false;
-        }
         this.requestUpdate();
     }
 
     queryObserver() {
-        // debugger
-        // // Query passed is executed and set to variant-filter, active-filters and variant-grid components
-        // if (UtilsNew.isNotUndefinedOrNull(this.query)) {
-        //     this.preparedQuery = this.query;
-        //     this.executedQuery = this.query;
-        // }
+        // Query passed is executed and set to variant-filter, active-filters and variant-grid components
+        if (UtilsNew.isNotUndefinedOrNull(this.query)) {
+            this.preparedQuery = this.query;
+            this.executedQuery = this.query;
+        }
     }
 
     /**
      * Fetch the CinicalAnalysis object from REST and trigger the observer call.
      */
     clinicalAnalysisIdObserver() {
-
-        // TODO tempfix check for clinicalAnalysisId undefined
-        // this.clinicalAnalysisId = "AN-3"; return;
-
-        if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession)) {
-            if (UtilsNew.isNotEmpty(this.clinicalAnalysisId)) {
+        if (this.opencgaSession) {
+            if (this.clinicalAnalysisId) {
                 const _this = this;
                 this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                     .then(response => {
-                        // This triggers the call to clinicalAnalysisObserver function below
-                        console.log("response", response);
                         _this.clinicalAnalysis = response.responses[0].results[0];
-
-                        console.log("clinicalAnalysisIdObserver _this.clinicalAnalysis", _this.clinicalAnalysis);
                         _this.requestUpdate();
                     })
                     .catch(response => {
@@ -221,75 +185,8 @@ class VariantCancerInterpreter extends LitElement {
         }
     }
 
-    clinicalAnalysisObserver() {
-        if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
-            // this._changeView("TableResult");
-            // let _individuals = [];
-            // let _samples = [];
-            // let _sampleIds = [];
-            // let _sampleDefaultGenotypes = [];
-            //
-            // this._checkFullFamily();
-            //
-            // if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotEmptyArray(this.clinicalAnalysis.family.members)) {
-            //     _individuals = this.clinicalAnalysis.family.members;
-            // } else {
-            //     if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.proband)) {
-            //         _individuals = [this.clinicalAnalysis.proband];
-            //     }
-            // }
-            //
-            // if (UtilsNew.isNotEmptyArray(_individuals)) {
-            //     _individuals.forEach(individual => {
-            //         if (UtilsNew.isNotEmptyArray(individual.samples)) {
-            //             individual.samples.map(sample => {
-            //                 _samples.push(sample);
-            //                 _sampleIds.push(sample.id);
-            //                 if (this.clinicalAnalysis.proband.id === individual.id) {
-            //                     _sampleDefaultGenotypes.push(sample.id + ":0/1,1/1");
-            //                 } else {
-            //                     _sampleDefaultGenotypes.push(sample.id + ":0/0,0/1,1/1");
-            //                     // _sampleIds.push(sample.id + ":0/1,1/1");
-            //                 }
-            //             });
-            //         }
-            //     });
-            //
-            //     if (UtilsNew.isNotEmptyArray(_sampleDefaultGenotypes)) {
-            //         if (UtilsNew.isNotUndefinedOrNull(this.query)) {
-            //             this.query = Object.assign({}, this.query, {
-            //                 genotype: _sampleDefaultGenotypes.join(";"),
-            //                 study: this.opencgaSession.study.fqn
-            //             });
-            //         } else {
-            //             this.query = {
-            //                 genotype: _sampleDefaultGenotypes.join(";"),
-            //                 study: this.opencgaSession.study.fqn
-            //             };
-            //         }
-            //
-            //         // Notify to all listeners of the new samples
-            //         this.dispatchEvent(new CustomEvent('samplechange', {detail: {samples: this.samples}}));
-            //     }
-            // } else {
-            //     console.warn("A Clinical Analysis with no proband or family has been passed");
-            // }
-            //
-            // this._individuals = _individuals;
-            // this._samples = _samples;
-            // this._sampleIds = _sampleIds;
-
-            // this.hasClinicalAnalysis = true;
-            // this.requestUpdate();
-        } else {
-            this.missingMembersMessage = "Missing clinical analysis";
-        }
-    }
-
-
-    onCLinicalAnalysis(e) {
+    onClinicalAnalysis(e) {
         this.clinicalAnalysis = e.detail.clinicalAnalysis;
-        debugger
         this.requestUpdate();
     }
 
@@ -301,7 +198,6 @@ class VariantCancerInterpreter extends LitElement {
 
     // interactiveObserver() {
     //     if (!this.interactive) {
-
     //         this.collapseFilter();
     //     } else {
     //         this.unCollapseFilter();
@@ -329,11 +225,6 @@ class VariantCancerInterpreter extends LitElement {
             this._collapsed = false;
         }
     }
-
-    // setClinicalAnalysisId() {
-    //     console.log($("#clinicalAnalysisIdText").val());
-    //     this.clinicalAnalysisId = $("#clinicalAnalysisIdText").val();
-    // }
 
     unsetClinicalAnalysis() {
         this.clinicalAnalysisId = null;
@@ -373,67 +264,13 @@ class VariantCancerInterpreter extends LitElement {
 
     onSelectVariant(e) {
         this.variant = e.detail.row;
-
         this.requestUpdate();
     }
 
     onCheckVariant(e) {
-        this.counters.rv = e.detail.rows.length;
-        this.counterTitles.rv = (e.detail.rows.length > 0) ? "(" + e.detail.rows.length + ")" : "";
-        this.counters.total = this.counters.rv + this.counters.ch + this.counters.dn;
-        this.counterTitles.total = (this.counters.total > 0) ? "(" + this.counters.total + ")" : "";
-        this.counters = Object.assign({}, this.counters);
-        this.counterTitles = Object.assign({}, this.counterTitles);
-
         this.checkedVariants = e.detail.rows;
         this._createInterpretation();
     }
-
-
-    /*
-            * Compound Heterozygous Analysis functions
-            */
-    onCheckCompHetVariant(e) {
-        this.counters.ch = e.detail.variants.length;
-        this.counterTitles.ch = (e.detail.variants.length > 0) ? "(" + e.detail.variants.length + ")" : "";
-        this.counters.total = this.counters.rv + this.counters.ch + this.counters.dn;
-        this.counterTitles.total = (this.counters.total > 0) ? "(" + this.counters.total + ")" : "";
-        this.counters = Object.assign({}, this.counters);
-        this.counterTitles = Object.assign({}, this.counterTitles);
-
-        this.checkedCompHetVariants = e.detail.variants;
-        this._createInterpretation();
-    }
-
-
-    /*
-             * De Novo Analysis functions
-             */
-    onCheckDeNovoVariant(e) {
-        this.counters.dn = e.detail.variants.length;
-        this.counterTitles.dn = (e.detail.variants.length > 0) ? "(" + e.detail.variants.length + ")" : "";
-        this.counters.total = this.counters.rv + this.counters.ch + this.counters.dn;
-        this.counterTitles.total = (this.counters.total > 0) ? "(" + this.counters.total + ")" : "";
-        this.counters = Object.assign({}, this.counters);
-        this.counterTitles = Object.assign({}, this.counterTitles);
-
-        this.checkedDeNovoVariants = e.detail.variants;
-        this._createInterpretation();
-    }
-
-
-    // _changeBottomTab(e) {
-    //     let _activeTabs = {}
-    //     for (let detail of this.config.detail) {
-    //         _activeTabs[detail.id] = (detail.id === e.currentTarget.dataset.id);
-    //     }
-    //     this.set("detailActiveTabs", _activeTabs);
-    // }
-
-    // checkVariant(variant) {
-    //     return variant.split(':').length > 2;
-    // }
-
 
     onSampleChange(e) {
         const _samples = e.detail.samples;
@@ -458,11 +295,8 @@ class VariantCancerInterpreter extends LitElement {
     }
 
     onChangeView(e) {
-        e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-        this._changeView(e.target.dataset.view);
-    }
-
-    _changeView(view) {
+        e.preventDefault();
+        const view = e.target.dataset.view;
         if (UtilsNew.isNotUndefinedOrNull(view)) {
             // Hide all views and show the requested one
             PolymerUtils.hideByClass("variant-interpretation-content");
@@ -482,18 +316,6 @@ class VariantCancerInterpreter extends LitElement {
 
         // Make Genome Browser active
         // this._genomeBrowserActive = (e.target.dataset.view === "GenomeBrowser");
-    }
-
-    _backToSelectAnalysis(e) {
-        this.dispatchEvent(new CustomEvent("backtoselectanalysis", {detail: {idTab: "PrioritizationButton"}}));
-    }
-
-    _goToReport(e) {
-        this.dispatchEvent(new CustomEvent("gotoreport", {detail: {interpretation: this.interpretation}}));
-    }
-
-    triggerBeacon(e) {
-        this.variantToBeacon = this.variant.id;
     }
 
     onViewInterpretation(e) {
@@ -534,12 +356,13 @@ class VariantCancerInterpreter extends LitElement {
         try {
             const userId = this.opencgaSession.opencgaClient._config.userId;
             const interpretation = {};
+            this.clinicalAnalysis.interpretations = this.clinicalAnalysis.interpretations ? this.clinicalAnalysis.interpretations : [];
             interpretation.id = this.clinicalAnalysis.id + "-" + this.clinicalAnalysis.interpretations.length + 1;
             interpretation.clinicalAnalysisId = this.clinicalAnalysis.id;
             // interpretation.description = PolymerUtils.getValue(this._prefix + "DescriptionInterpretation");
             interpretation.software = {
                 name: "IVA",
-                version: "1.0.1",
+                version: "2.0.0-beta",
                 repository: "https://github.com/opencb/iva",
                 commit: "",
                 website: "",
@@ -573,26 +396,12 @@ class VariantCancerInterpreter extends LitElement {
                 delete variant["stateCheckBox"];
                 reportedVariants.push(variant);
             }
-            if (UtilsNew.isNotEmptyArray(this.checkedCompHetVariants)) {
-                for (const i in this.checkedCompHetVariants) {
-                    const variant = Object.assign({}, this.checkedCompHetVariants[i]);
-                    delete variant["stateCheckBox"];
-                    reportedVariants.push(variant);
-                }
-            }
-            if (UtilsNew.isNotEmptyArray(this.checkedDeNovoVariants)) {
-                for (const i in this.checkedDeNovoVariants) {
-                    const variant = Object.assign({}, this.checkedDeNovoVariants[i]);
-                    delete variant["stateCheckBox"];
-                    reportedVariants.push(variant);
-                }
-            }
-
             interpretation.primaryFindings = reportedVariants;
             interpretation.attributes = {};
             // interpretation.creationDate = moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY');
 
             this.interpretation = interpretation;
+            this.requestUpdate();
         } catch (err) {
             this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
                 detail: {
@@ -605,13 +414,9 @@ class VariantCancerInterpreter extends LitElement {
         }
     }
 
-    // onFilterChange(name, value) {
-    //     this.clinicalAnalysisId = value;
-    // }
 
     onVariantFilterChange(e) {
         this.preparedQuery = e.detail.query;
-        // console.log("onVariantFilterChange preparedQuery", this.preparedQuery)
         this.preparedQuery = {...this.preparedQuery};
         this.requestUpdate();
     }
@@ -623,7 +428,6 @@ class VariantCancerInterpreter extends LitElement {
     }
 
     onActiveFilterChange(e) {
-        // console.log("onActiveFilterChange", e.detail)
         this.query = {...e.detail};
         this.preparedQuery = {...e.detail};
         this.requestUpdate();
@@ -641,6 +445,7 @@ class VariantCancerInterpreter extends LitElement {
             title: "Variant Cancer Interpreter",
             icon: "fas fa-search",
             active: false,
+            showOtherTools: true,
             filter: {
                 title: "Filter",
                 searchButtonText: "Run",
@@ -721,18 +526,18 @@ class VariantCancerInterpreter extends LitElement {
                             },
                         ]
                     },
-                    {
-                        title: "Population Frequency",
-                        collapsed: true,
-                        fields: [
-                            {
-                                id: "populationFrequency",
-                                title: "Select Population Frequency",
-                                tooltip: tooltips.populationFrequencies,
-                                showSetAll: true
-                            }
-                        ]
-                    },
+                    // {
+                    //     title: "Population Frequency",
+                    //     collapsed: true,
+                    //     fields: [
+                    //         {
+                    //             id: "populationFrequency",
+                    //             title: "Select Population Frequency",
+                    //             tooltip: tooltips.populationFrequencies,
+                    //             showSetAll: true
+                    //         }
+                    //     ]
+                    // },
                     {
                         title: "Phenotype-Disease",
                         collapsed: true,
@@ -936,23 +741,23 @@ class VariantCancerInterpreter extends LitElement {
                             }
                         ]
                     },
-                    {
-                        name: "Population Frequency",
-                        fields: [
-                            ...this.populationFrequencies.studies.map(study =>
-                                study.populations.map(population => (
-                                        {
-                                            id: `popFreq__${study.id}__${population.id}`,
-                                            // value: `popFreq__${study.id}__${population.id}`,
-                                            name: `${study.id} - ${population.id}`,
-                                            defaultValue: "[0..1]:0.1",
-                                            type: "number"
-                                        }
-                                    )
-                                )
-                            ).flat()
-                        ]
-                    }
+                    // {
+                    //     name: "Population Frequency",
+                    //     fields: [
+                    //         ...this.populationFrequencies.studies.map(study =>
+                    //             study.populations.map(population => (
+                    //                     {
+                    //                         id: `popFreq__${study.id}__${population.id}`,
+                    //                         // value: `popFreq__${study.id}__${population.id}`,
+                    //                         name: `${study.id} - ${population.id}`,
+                    //                         defaultValue: "[0..1]:0.1",
+                    //                         type: "number"
+                    //                     }
+                    //                 )
+                    //             )
+                    //         ).flat()
+                    //     ]
+                    // }
                 ]
             }
         };
@@ -960,11 +765,11 @@ class VariantCancerInterpreter extends LitElement {
 
     render() {
         // Check Project exists
-        if (!this.checkProjects) {
+        if (!this.opencgaSession && !this.opencgaSession.project) {
             return html`
                 <div class="guard-page">
                     <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue</h3>
+                    <h3>No project available to browse. Please login to continue</h3>
                 </div>
             `;
         }
@@ -973,7 +778,7 @@ class VariantCancerInterpreter extends LitElement {
             return html`
                 <variant-cancer-interpreter-landing .opencgaSession="${this.opencgaSession}"
                                                     .config="${this.config}"
-                                                    @selectclinicalnalysis="${this.onCLinicalAnalysis}">
+                                                    @selectclinicalnalysis="${this.onClinicalAnalysis}">
                 </variant-cancer-interpreter-landing>
             `;
         }
