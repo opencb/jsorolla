@@ -1054,9 +1054,8 @@ class VariantCancerInterpreter extends LitElement {
                         </div>
                     </div> <!-- Close MainContent -->
                 </div> <!-- Close col-md-10 -->
-            </div> <!-- Close col-md-12 -->
-            }
-        }`;
+            </div> <!-- Close row -->
+        `;
     }
 
 }
