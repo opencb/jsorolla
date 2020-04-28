@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "../../../../utils.js";
 import "./opencga-file-view.js";
+import "./opencga-file-preview.js";
 
 export default class OpencgaFileDetail extends LitElement {
 
@@ -59,7 +60,6 @@ export default class OpencgaFileDetail extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.file = null
         }
 
         if (changedProperties.has("file")) {
@@ -132,8 +132,11 @@ export default class OpencgaFileDetail extends LitElement {
                             </div>
                         </div>
                     </div>
-                    <div id="log-tab" class="tab-pane" role="tabpanel">
-                        second tab
+                    <div id="file-preview-tab" class="tab-pane" role="tabpanel">
+                        <opencga-file-preview .opencgaSession=${this.opencgaSession}
+                                                  .active="${this.activeTab["file-preview"]}"
+                                                  .file="${this.file}">
+                        </opencga-file-preview>
                     </div>
                 </div>
                 

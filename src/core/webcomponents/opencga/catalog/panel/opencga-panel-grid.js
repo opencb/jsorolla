@@ -20,7 +20,7 @@ import UtilsNew from "./../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 import "./opencga-panel-summary.js";
 
-
+// TODO bootstraptable urgent refactor
 export default class OpencgaPanelGrid extends LitElement {
 
     constructor() {

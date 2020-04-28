@@ -64,9 +64,6 @@ export default class OpencgaSampleView extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaClient")) {
-            this.renderAnalysisTable();
-        }
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
         }

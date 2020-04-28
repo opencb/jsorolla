@@ -249,6 +249,17 @@ class VariantRdInterpreter extends LitElement {
         }
     }
 
+    onVariantFilterChange(e) {
+        this.preparedQuery = {...e.detail.query};
+        this.preparedQuery = {...this.preparedQuery};
+        this.requestUpdate();
+    }
+
+    onVariantFilterSearch(e) {
+        this.preparedQuery = {...e.detail.query};
+        this.executedQuery = {...this.preparedQuery};
+        this.requestUpdate();
+    }
 
     onClear() {
         const _search = {};
@@ -276,7 +287,6 @@ class VariantRdInterpreter extends LitElement {
 
     onSampleChange(e) {
         const _samples = e.detail.samples;
-        // this.set("samples", _samples.slice());
         this.samples =_samples.slice();
         this.dispatchEvent(new CustomEvent("samplechange", {detail: e.detail, bubbles: true, composed: true}));
         // this._initGenotypeSamples(this.samples);

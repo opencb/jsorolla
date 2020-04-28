@@ -28,10 +28,10 @@ export default class GridCommons {
 
     responseHandler(response, bootstrapTableConfig) {
         let numMatches, from, to, numTotalResultsText, approximateCountResult;
-        // let _numMatches = _this._numMatches || 0;
-        numMatches = 0;
+        numMatches = this.context.numMatches || 0;
         if (response.getResponse().numMatches >= 0) {
             numMatches = response.getResponse().numMatches;
+            this.context.numMatches = numMatches;
         }
         // If no variant is returned then we start in 0
         if (response.getResponse(0).numMatches === 0) {
@@ -42,7 +42,6 @@ export default class GridCommons {
             to = numMatches;
         }
         numTotalResultsText = numMatches.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
         if (response.getParams().skip === 0 && numMatches < response.getParams().limit) {
             from = 1;
             to = numMatches;
@@ -105,7 +104,7 @@ export default class GridCommons {
     }
 
     onLoadSuccess(data, rowId, firstRowIndex = 2) {
-        if (data.rows && data.rows.length > firstRowIndex) {
+        if (data.rows && data.rows.length >= firstRowIndex) {
             $("#" + this.gridId)[0].rows[firstRowIndex].setAttribute("class", "success");
             this.context.dispatchEvent(new CustomEvent("selectrow", {
                 detail: {
@@ -114,6 +113,11 @@ export default class GridCommons {
                 }
             }));
         }
+    }
+
+    onPageChange(page, size) {
+        this.context.from = (page - 1) * size + 1;
+        this.context.to = page * size;
     }
 
 }

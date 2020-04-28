@@ -63,9 +63,6 @@ export default class OpencgaIndividualView extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaClient")) {
-            this.renderAnalysisTable();
-        }
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }

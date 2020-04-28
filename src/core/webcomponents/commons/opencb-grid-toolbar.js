@@ -126,12 +126,18 @@ export default class OpencbGridToolbar extends LitElement {
                     margin-top: 5px;
                 }
                 
+                .pagination-info {
+                    line-height: 34px;
+                    margin-right: 5px;
+                    font-size: 12px;
+                }
+                
             </style>
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-12" style="padding: 5px 0px 0px 0px">
                         <div id="${this._prefix}ToolbarLeft" class="col-md-6" style="padding: 15px 0px 0px 0px">
-                                <span style="padding: 0px">
+                                <span class="pagination-info">
                                     Showing <label>${this.from}-${this.to}</label> of <label>${this.numTotalResultsText}</label> ${this._config.label}
                                 </span>
                         </div>

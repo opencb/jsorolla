@@ -64,9 +64,6 @@ export default class OpencgaCohortView extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaClient")) {
-            this.renderAnalysisTable();
-        }
         if (changedProperties.has("cohortId")) {
             this.cohortIdObserver();
         }

@@ -63,17 +63,17 @@ export default class OpencgaIndividualGrid extends LitElement {
         this.catalogUiUtils = new CatalogUIUtils();
         this.active = false;
         this.gridId = this._prefix + "IndividualBrowserGrid";
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
     }
 
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     firstUpdated(_changedProperties) {
-        // this.renderTable(this.active);
+        this.table = this.querySelector("#" + this.gridId);
     }
 
     updated(changedProperties) {
@@ -197,6 +197,16 @@ export default class OpencgaIndividualGrid extends LitElement {
                         .then( res => params.success(res))
                         .catch( e => console.error(e));
                 },
+
+                responseHandler: response => {
+                    const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                    this.from = result.from || this.from;
+                    this.to = result.to || this.to;
+                    this.numTotalResultsText = result.numTotalResultsText || this.numTotalResultsText;
+                    this.approximateCountResult = result.approximateCountResult;
+                    this.requestUpdate();
+                    return result.response;
+                },/*
                 responseHandler: function(response) {
                     let _numMatches = _this._numMatches || 0;
                     if (response.getResponse().numMatches >= 0) {
@@ -222,7 +232,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                         total: _numMatches,
                         rows: response.getResults()
                     };
-                },
+                },*/
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 /*onClickRow: function(row, element, field) {
                     if (_this._config.multiSelection) {
@@ -376,26 +386,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                         }
                     }
                 },
-                onLoadSuccess: function(data) {
-                    // Check all already selected rows. Selected individuals are stored in this.individuals array
-                    if (UtilsNew.isNotUndefinedOrNull(_table)) {
-                        if (!_this._config.multiSelection) {
-                            PolymerUtils.querySelector(_table.selector).rows[1].setAttribute("class", "success");
-                            _this._onSelectIndividual(data.rows[0], "onLoad");
-                        }
-
-                        if (_this.individuals !== "undefined") {
-                            for (const idx in _this.individuals) {
-                                for (const j in data.rows) {
-                                    if (_this.individuals[idx].id === data.rows[j].id) {
-                                        $(PolymerUtils.getElementById(_this._prefix + "IndividualBrowserGrid")).bootstrapTable("check", j);
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, data.rows[0].id, 1),
                 onPageChange: function(page, size) {
                     _this.from = (page - 1) * size + 1;
                     _this.to = page * size;

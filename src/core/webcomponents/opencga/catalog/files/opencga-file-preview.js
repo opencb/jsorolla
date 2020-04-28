@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../../utils.js";
 
 
-export default class OpencgaFileView extends LitElement {
+export default class OpencgaFilePreview extends LitElement {
 
     constructor() {
         super();
@@ -37,10 +37,10 @@ export default class OpencgaFileView extends LitElement {
             opencgaClient: {
                 type: Object
             },
-            fileId: {
-                type: String
-            },
             file: {
+                type: Object
+            },
+            active: {
                 type: Object
             },
             config: {
@@ -52,6 +52,7 @@ export default class OpencgaFileView extends LitElement {
     _init() {
         // this.prefix = "osv" + Utils.randomString(6);
         this._config = this.getDefaultConfig();
+        this.file = {};
     }
 
     connectedCallback() {
@@ -64,13 +65,7 @@ export default class OpencgaFileView extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-
-        }
-        if (changedProperties.has("fileId")) {
-            this.fileIdObserver();
-        }
-        if (changedProperties.has("file")) {
+        if ((changedProperties.has("file") || changedProperties.has("active")) && this.active) {
             this.fileObserver();
         }
         if (changedProperties.has("config")) {
@@ -81,32 +76,50 @@ export default class OpencgaFileView extends LitElement {
     configObserver() {
     }
 
-    // TODO recheck
-    fileIdObserver() {
-        console.warn("fileIdObserver");
-        if (this.file !== undefined && this.file !== "") {
-            const params = {
-                study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
-                includeIndividual: true
-            };
-            const _this = this;
-            this.opencgaSession.opencgaClient.files().info(this.file, params)
-                .then(function(response) {
-                    if (response.response[0].id === undefined) {
-                        response.response[0].id = response.response[0].name;
-                    }
-                    _this.file = response.response[0].result[0];
-                    console.log("_this.file", _this.file);
-                    _this.requestUpdate();
-                })
-                .catch(function(reason) {
-                    console.error(reason);
-                });
-        }
+    fileObserver() {
+        const params = {
+            study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
+            includeIndividual: true
+        };
 
+        const extension = this.file.id.split(".").pop();
+        switch (extension) {
+            case "log":
+            case "err":
+                this.opencgaSession.opencgaClient.files().head(this.file.id, params)
+                    .then( response => {
+                        const {format, content} = response.getResult(0);
+                        this.format = format;
+                        this.content = content ?? "No content";
+                        this.requestUpdate();
+                    })
+                    .catch( response => {
+                        console.error(response);
+                        this.content = response.getEvents("ERROR").map( _ => _.message).join("\n");
+                        this.requestUpdate();
+                    });
+                break;
+            case "png":
+                this.opencgaSession.opencgaClient.files().download(this.file.id, params)
+                    .then( response => {
+                        console.log("blob", response);
+                        //const fr = new FileReader();
+                        const data = response;
+                        const bytes = new Uint8Array(data);
+                        console.log(bytes);
+                    })
+                    .catch( response => {
+                        console.error(response);
+                        //this.content = response.getEvents("ERROR").map( _ => _.message).join("\n");
+                        this.requestUpdate();
+                    });
+                break;
+            default:
+                this.content = "Extension not recognized";
+        }
     }
 
-    fileObserver() {
+    fileIdObserver() {
         console.log("fileObserver");
 
     }
@@ -127,14 +140,25 @@ export default class OpencgaFileView extends LitElement {
                 padding-left: 5px;
                 padding-right: 10px;
             }
+            
+            pre.cmd {
+                background: black;
+                font-family: "Courier New", monospace;
+                padding: 15px;
+                color: #a5a5a5;
+                font-size: .9em;
+                min-height: 150px;
+            }            
         </style>
 
         ${this.file ? html`
             <div class="row" style="padding: 0px 10px">
                 <div class="col-md-12">
-                    <h3 class="section-title">Summary</h3>
+                    <h3 class="section-title">Head</h3>
 
-                    <div class="col-md-12">
+                    <pre class="cmd">${this.content}</pre>
+
+                    <!--<div class="col-md-12">
                         <form class="form-horizontal">
                             <div class="form-group">
                                 <label class="col-md-3 label-title">Id</label>
@@ -145,12 +169,8 @@ export default class OpencgaFileView extends LitElement {
                                 <span class="col-md-9">${this.file.name}</span>
                             </div>
                         </form>
-                    </div>
+                    </div>-->
                 </div>
-                <!--<div class="col-md-12">
-                    <h3 class="section-title">Annotations</h3>
-    
-                </div> -->
             </div>
         ` : null }
         `;
@@ -158,5 +178,5 @@ export default class OpencgaFileView extends LitElement {
 
 }
 
-customElements.define("opencga-file-view", OpencgaFileView);
+customElements.define("opencga-file-preview", OpencgaFilePreview);
 

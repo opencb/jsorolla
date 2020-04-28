@@ -77,19 +77,19 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                 {title: "Gene Annotations", field: "consequenceType"}
             ]
         };
-
-        this._config = this.getDefaultConfig();
         this.gridId = this._prefix + "VariantBrowserGrid";
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     connectedCallback() {
         super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     firstUpdated(_changedProperties) {
         this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
         this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
+        this.table = this.querySelector("#" + this.gridId);
     }
 
     updated(changedProperties) {
@@ -188,13 +188,12 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                         .then( res => params.success(res));
                 },
                 responseHandler: response => {
-                    let result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
-                    _this.from = result.from || _this.from;
-                    _this.to = result.to || _this.to;
-                    _this.numTotalResultsText = result.numTotalResultsText;
-                    _this.approximateCountResult = result.approximateCountResult;
-                    _this.requestUpdate();
-
+                    const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                    this.from = result.from || this.from;
+                    this.to = result.to || this.to;
+                    this.numTotalResultsText = result.numTotalResultsText;
+                    this.approximateCountResult = result.approximateCountResult;
+                    this.requestUpdate();
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
@@ -309,8 +308,8 @@ export default class VariantCancerInterpreterGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this._columns = this._createDefaultColumns();
         const _this = this;
-        table.bootstrapTable("destroy");
-        table.bootstrapTable({
+        this.table.bootstrapTable("destroy");
+        this.table.bootstrapTable({
             data: _this.reportedVariants,
             columns: _this._columns,
             sidePagination: "local",

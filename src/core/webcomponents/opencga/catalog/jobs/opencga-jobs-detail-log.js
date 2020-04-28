@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "../../../../utils.js";
 
-export default class OpencgaJobsDetailsLog extends LitElement {
+export default class OpencgaJobsDetailLog extends LitElement {
 
     constructor() {
         super();
@@ -185,6 +185,7 @@ export default class OpencgaJobsDetailsLog extends LitElement {
                 font-size: .9em;
                 min-height: 150px;
             }
+            
             .wrapper {
                 height: 35px;
                 margin-top: 5px;
@@ -265,4 +266,4 @@ export default class OpencgaJobsDetailsLog extends LitElement {
 
 }
 
-customElements.define("opencga-jobs-details-log", OpencgaJobsDetailsLog);
+customElements.define("opencga-jobs-detail-log", OpencgaJobsDetailLog);

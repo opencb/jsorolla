@@ -64,8 +64,12 @@ export default class OpencgaFamilyGrid extends LitElement {
         this.catalogUiUtils = new CatalogUIUtils();
         this.active = false;
         this.gridId = this._prefix + "FamilyBrowserGrid";
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+    }
 
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     updated(changedProperties) {
@@ -77,14 +81,9 @@ export default class OpencgaFamilyGrid extends LitElement {
         }
     }
 
-    /* connectedCallback() {
-        super.connectedCallback();
-
-        this.renderTable(this.active);
-    }*/
-
     firstUpdated(_changedProperties) {
         // this.renderTable(this.active);
+        this.table = this.querySelector("#" + this.gridId);
     }
 
     propertyObserver() {
@@ -166,33 +165,14 @@ export default class OpencgaFamilyGrid extends LitElement {
                         .then( res => params.success(res))
                         .catch( e => console.error(e));
                 },
-                responseHandler: function(response) {
-                    let _numMatches = _this._numMatches || 0;
-                    if (response.getResponse().numMatches >= 0) {
-                        _numMatches = response.getResponse().numMatches;
-                        _this._numMatches = _numMatches;
-                    }
-                    // If no variant is returned then we start in 0
-                    if (response.getResponse(0).numMatches === 0) {
-                        _this.from = _numMatches;
-                    }
-                    // If do not fetch as many variants as requested then to is numMatches
-                    if (response.getResponse(0).numResults < this.pageSize) {
-                        _this.to = _numMatches;
-                    }
-                    _this.numTotalResultsText = _numMatches.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-                    if (response.getParams().skip === 0 && _numMatches < response.getParams().limit) {
-                        _this.from = 1;
-                        _this.to = _numMatches;
-                    }
-                    _this.approximateCountResult = response.getResponse().attributes.approximateCount;
-                    _this.requestUpdate(); // it is necessary to refresh numTotalResultsText in opencga-grid-toolbar
-
-                    return {
-                        total: _numMatches,
-                        rows: response.getResults()
-                    };
+                responseHandler: response => {
+                    const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                    this.from = result.from || this.from;
+                    this.to = result.to || this.to;
+                    this.numTotalResultsText = result.numTotalResultsText || this.numTotalResultsText;
+                    this.approximateCountResult = result.approximateCountResult;
+                    this.requestUpdate();
+                    return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 /*onClickRow: function(row, element, field) {
@@ -343,30 +323,8 @@ export default class OpencgaFamilyGrid extends LitElement {
                         }
                     }
                 },
-                onLoadSuccess: function(data) {
-                    // Check all already selected rows. Selected families are stored in this.families array
-                    if (UtilsNew.isNotUndefinedOrNull(_table)) {
-                        if (_this._config.detailView) {
-                            PolymerUtils.querySelector(_table.selector).rows[1].setAttribute("class", "success");
-                            _this._onSelectFamily(data.rows[0]);
-                        }
-
-                        if (_this.families !== "undefined") {
-                            for (const idx in _this.families) {
-                                for (const j in data.rows) {
-                                    if (_this.families[idx].id === data.rows[j].id) {
-                                        $(PolymerUtils.getElementById(_this._prefix + "FamilyBrowserGrid")).bootstrapTable("check", j);
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                onPageChange: function(page, size) {
-                    _this.from = (page - 1) * size + 1;
-                    _this.to = page * size;
-                },
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, data.rows[0].id, 1),
+                onPageChange: (page, size) => this.gridCommons.onPageChange(page, size),
                 onPostBody: function(data) {
                     // Add tooltips
                     _this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");

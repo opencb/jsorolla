@@ -64,9 +64,6 @@ export default class OpencgaJobsView extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaClient")) {
-            this.renderAnalysisTable();
-        }
         if (changedProperties.has("jobId")) {
             this.jobIdObserver();
         }

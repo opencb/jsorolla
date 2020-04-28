@@ -133,11 +133,11 @@ export default class OpencgaFamilyBrowser extends LitElement {
                 {
                     id: "facet-tab",
                     name: "Aggregation stats"
-                },
+                },/*
                 {
                     id: "comparator-tab",
                     name: "Comparator"
-                }
+                }*/
             ],
             filter: {
                 sections: [

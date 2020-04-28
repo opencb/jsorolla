@@ -138,11 +138,11 @@ export default class OpencgaJobsBrowser extends LitElement {
                 {
                     id: "facet-tab",
                     name: "Aggregation stats"
-                },
+                },/*
                 {
                     id: "comparator-tab",
                     name: "Comparator"
-                },
+                },*/
                 {
                     id: "visual-browser-tab",
                     name: "Visual browser"

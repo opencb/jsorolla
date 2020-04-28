@@ -63,9 +63,6 @@ export default class OpencgaFamilyView extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaClient")) {
-            this.renderAnalysisTable();
-        }
         if (changedProperties.has("familyId")) {
             this.familyIdObserver();
         }

@@ -59,7 +59,6 @@ export default class OpencgaIndividualDetail extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.individual = null
         }
 
         if (changedProperties.has("individual")) {

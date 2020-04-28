@@ -64,15 +64,20 @@ export default class OpencgaJobsGrid extends LitElement {
     _init() {
         this._prefix = "jbgrid" + Utils.randomString(6) + "_";
         this.eventNotifyName = "messageevent";
-        this.gridId = this._prefix + "FileBrowserGrid";
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
-
+        this.gridId = this._prefix + "JobBrowserGrid";
     }
 
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+    }
 
+    firstUpdated(_changedProperties) {
+        this._initTableColumns();
+        this.dispatchEvent(new CustomEvent("clear", {detail: {}, bubbles: true, composed: true}));
+        this.table = this.querySelector("#" + this.gridId);
+        this.query = {};
     }
 
     updated(changedProperties) {
@@ -89,13 +94,6 @@ export default class OpencgaJobsGrid extends LitElement {
         if (changedProperties.has("filteredVariables")) {
             //this.calculateFilters(); // TODO whats this?
         }
-    }
-
-    firstUpdated(_changedProperties) {
-        this.table = this.querySelector("#" + this._prefix + "jobs-browser-grid");
-        this._initTableColumns();
-        this.dispatchEvent(new CustomEvent("clear", {detail: {}, bubbles: true, composed: true}));
-        this.query = {};
     }
 
     configObserver() {
@@ -132,7 +130,7 @@ export default class OpencgaJobsGrid extends LitElement {
                         deleted: false,
                         count: !$(this.table).bootstrapTable("getOptions").pageNumber || $(this.table).bootstrapTable("getOptions").pageNumber === 1,
                         order: params.data.order,
-                        limit: params.data.limit,
+                        limit: params.data.limit || $(this.table).bootstrapTable("getOptions").pageSize,
                         skip: params.data.offset || 0,
                         //include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid", TODO include only the column I show
                         exclude: "execution",
@@ -147,9 +145,17 @@ export default class OpencgaJobsGrid extends LitElement {
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 detailFormatter: this._config.detailFormatter,
-                //TODO recheck and refactor to ALL handlers!
+                responseHandler: response => {
+                    const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                    this.from = result.from || this.from;
+                    this.to = result.to || this.to;
+                    this.numTotalResultsText = result.numTotalResultsText || this.numTotalResultsText;
+                    this.approximateCountResult = result.approximateCountResult;
+                    this.requestUpdate();
+                    return result.response;
+                },
+                /*
                 responseHandler: function(response) {
-                    console.log("response", response);
                     let _numMatches = _this._numMatches || 0;
                     if (response.getResponse().numMatches >= 0) {
                         _numMatches = response.getResponse().numMatches;
@@ -159,6 +165,7 @@ export default class OpencgaJobsGrid extends LitElement {
                     if (response.getResponse(0).numMatches === 0) {
                         _this.from = _numMatches;
                     }
+                    // If do not fetch as many variants as requested then to is numMatches
                     if (response.getResponse(0).numResults < this.pageSize) {
                         _this.to = _numMatches;
                     }
@@ -175,7 +182,7 @@ export default class OpencgaJobsGrid extends LitElement {
                         total: _numMatches,
                         rows: response.getResults()
                     };
-                },
+                },*/
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 /*onClickRow: (row, element, field) => {
                     if (this._config.multiselection) {
@@ -258,7 +265,9 @@ export default class OpencgaJobsGrid extends LitElement {
                     _this.files = _this._files.slice();
 
                 },
-                onLoadSuccess: function(data) {
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, data.rows[0].id, 1),
+                /*onLoadSuccess: function(data) {
+                    console.log("onLoadSuccess")
                     // Check all already selected rows. Selected files are stored in this.files array
                     if (UtilsNew.isNotUndefinedOrNull(this.table)) {
                         if (!_this._config.multiselection) {
@@ -277,11 +286,8 @@ export default class OpencgaJobsGrid extends LitElement {
                             }
                         }
                     }
-                },
-                onPageChange: function(page, size) {
-                    _this.from = (page - 1) * size + 1;
-                    _this.to = page * size;
-                }
+                },*/
+                onPageChange: (page, size) => this.gridCommons.onPageChange(page, size)
             });
 
 
@@ -589,7 +595,7 @@ export default class OpencgaJobsGrid extends LitElement {
                             @download="${this.onDownload}">
         </opencb-grid-toolbar>
         <div>
-            <table id="${this._prefix}jobs-browser-grid">
+            <table id="${this.gridId}">
             </table>
         </div>
         `;

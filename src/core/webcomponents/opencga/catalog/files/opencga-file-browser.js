@@ -132,11 +132,11 @@ export default class OpencgaFileBrowser extends LitElement {
                 {
                     id: "facet-tab",
                     name: "Aggregation stats"
-                },
+                },/*
                 {
                     id: "comparator-tab",
                     name: "Comparator"
-                }
+                }*/
             ],
             filter: {
                 sections: [
@@ -216,11 +216,15 @@ export default class OpencgaFileBrowser extends LitElement {
                         id: "file-view",
                         title: "File detail",
                         active: true
+                    },
+                    {
+                        id: "file-preview",
+                        title: "Preview"
                     }
                 ]
             },
             aggregation: {
-                default: ["type", "study>>bioformat"],
+                default: ["type", "format"],
                 result: {
                     numColumns: 2
                 },
@@ -340,12 +344,6 @@ export default class OpencgaFileBrowser extends LitElement {
                                 name: "annotation",
                                 type: "string",
                                 description: "Annotation, e.g: key1=value(,key2=value)"
-                            },
-                            {
-                                id: "field",
-                                name: "field",
-                                type: "string",
-                                description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
                             }
                         ]
                     },

@@ -61,8 +61,12 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         this._prefix = "cag" + Utils.randomString(6) + "_";
         this.active = true;
         this.gridId = this._prefix + "ClinicalAnalysisGrid";
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+    }
 
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     updated(changedProperties) {
@@ -76,14 +80,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        // this.renderTable(this.active);
+        this.table = this.querySelector("#" + this.gridId);
     }
-
-    /* connectedCallback() {
-        super.connectedCallback();
-
-        this.renderTable(this.active);
-    }*/
 
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
@@ -141,8 +139,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             const _table = $("#" + this.gridId);
 
             const _this = this;
-            _table.bootstrapTable("destroy");
-            _table.bootstrapTable({
+            this.table.bootstrapTable("destroy");
+            this.table.bootstrapTable({
                 columns: _this._columns,
                 method: "get",
                 sidePagination: "server",
@@ -173,31 +171,14 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                     };
                     this.opencgaSession.opencgaClient.clinical().search(filters).then( res => params.success(res));
                 },
-                responseHandler: function(response) {
-                    let _numMatches = _this._numMatches || 0;
-                    if (response.getResponse().numMatches >= 0) {
-                        _numMatches = response.getResponse().numMatches;
-                        _this._numMatches = _numMatches;
-                    }
-                    // If no variant is returned then we start in 0
-                    if (response.getResponse(0).numMatches === 0) {
-                        _this.from = _numMatches;
-                    }
-                    // If do not fetch as many variants as requested then to is numMatches
-                    if (response.getResponse(0).numResults < this.pageSize) {
-                        _this.to = _numMatches;
-                    }
-                    _this.numTotalResultsText = _numMatches.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                    if (response.getParams().skip === 0 && _numMatches < response.getParams().limit) {
-                        _this.from = 1;
-                        _this.to = _numMatches;
-                    }
-                    _this.approximateCountResult = response.getResponse().attributes.approximateCount;
-                    _this.requestUpdate(); // it is necessary to refresh numTotalResultsText in opencga-grid-toolbar
-                    return {
-                        total: _numMatches,
-                        rows: response.getResults()
-                    };
+                responseHandler: response => {
+                    const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                    this.from = result.from || this.from;
+                    this.to = result.to || this.to;
+                    this.numTotalResultsText = result.numTotalResultsText || this.numTotalResultsText;
+                    this.approximateCountResult = result.approximateCountResult;
+                    this.requestUpdate();
+                    return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => {
                     this.gridCommons.onClickRow(row.id, row, selectedElement);
