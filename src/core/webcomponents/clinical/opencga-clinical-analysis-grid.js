@@ -69,6 +69,10 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
+    firstUpdated(_changedProperties) {
+        this.table = this.querySelector("#" + this.gridId);
+    }
+
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession") ||
             changedProperties.has("search") ||
@@ -77,10 +81,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             changedProperties.has("active")) {
             this.propertyObserver();
         }
-    }
-
-    firstUpdated(_changedProperties) {
-        this.table = this.querySelector("#" + this.gridId);
     }
 
     propertyObserver() {
@@ -139,8 +139,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             const _table = $("#" + this.gridId);
 
             const _this = this;
-            this.table.bootstrapTable("destroy");
-            this.table.bootstrapTable({
+            $(this.table).bootstrapTable("destroy");
+            $(this.table).bootstrapTable({
                 columns: _this._columns,
                 method: "get",
                 sidePagination: "server",
@@ -403,7 +403,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             });
         } else {
             // Delete table
-            $(PolymerUtils.getElementById("#" + this.gridId)).bootstrapTable("destroy");
+            $("#" + this.gridId).bootstrapTable("destroy");
             this.numTotalResults = 0;
         }
     }
