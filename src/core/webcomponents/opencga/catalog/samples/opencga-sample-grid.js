@@ -389,7 +389,7 @@ export default class OpencgaSampleGrid extends LitElement {
                 },
                 {
                     title: "Status",
-                    field: "status.name"
+                    field: "internal.status.name"
                 }
             ])
         ];
