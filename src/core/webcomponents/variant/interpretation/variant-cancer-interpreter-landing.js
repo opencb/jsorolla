@@ -36,15 +36,15 @@ class VariantCancerInterpreterLanding extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            clinicalAnalysisId: {
-                type: String
-            },
+            // clinicalAnalysisId: {
+            //     type: String
+            // },
             clinicalAnalysis: {
                 type: Object
             },
-            query: {
-                type: Object
-            },
+            // query: {
+            //     type: Object
+            // },
             config: {
                 type: Object
             }
@@ -53,9 +53,6 @@ class VariantCancerInterpreterLanding extends LitElement {
 
     _init() {
         this._prefix = "vcis-" + UtilsNew.randomString(6);
-
-        this.query = {};
-        this.search = {};
     }
 
     connectedCallback() {
@@ -84,34 +81,37 @@ class VariantCancerInterpreterLanding extends LitElement {
         // }
     }
 
+    onCloseClinicalAnalysis() {
+        this.clinicalAnalysis = null;
+        this.dispatchEvent(new CustomEvent("selectclinicalnalysis", {
+            detail: {
+                id: null,
+                clinicalAnalysis: null,
+            }
+        }));
+    }
+
     onClinicalAnalysisChange() {
-        if (this.clinicalAnalysis) {
-            this.dispatchEvent(new CustomEvent("selectclinicalnalysis", {
-                detail: {
-                    id: this.clinicalAnalysis.id,
-                    clinicalAnalysis: this.clinicalAnalysis,
-                }
-            }));
+        if (this.clinicalAnalysisId) {
+            let _this = this;
+            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    _this.clinicalAnalysis = response.responses[0].results[0];
+                    _this.dispatchEvent(new CustomEvent("selectclinicalnalysis", {
+                        detail: {
+                            id: _this.clinicalAnalysis.id,
+                            clinicalAnalysis: _this.clinicalAnalysis,
+                        }
+                    }));
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                });
         }
     }
 
     onFilterChange(name, value) {
         this.clinicalAnalysisId = value;
-        let _this = this;
-        debugger
-        this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-            .then(response => {
-                // This triggers the call to clinicalAnalysisObserver function below
-                console.log("response", response);
-                _this.clinicalAnalysis = response.responses[0].results[0];
-
-                console.log("clinicalAnalysisIdObserver _this.clinicalAnalysis", _this.clinicalAnalysis);
-                // _this.requestUpdate();
-                // _this.onClinicalAnalysisChange();
-            })
-            .catch(response => {
-                console.error("An error occurred fetching clinicalAnalysis: ", response);
-            });
     }
 
     onIndividualChange(name, individualId) {
@@ -145,20 +145,41 @@ class VariantCancerInterpreterLanding extends LitElement {
             `;
         }
 
-        return html`
-                <div class="container">
+        if (this.clinicalAnalysis) {
+            return html`
                     <div class="row">
-                        <div class="clinical-analysis-id-wrapper col-md-6 col-md-offset-3 shadow">
-                            <h3>Clinical Analysis</h3>
+                        <div class="col-md-10 col-md-offset-1">
+                            <div style="float: right">
+                                <button class="btn btn-default" @click="${this.onCloseClinicalAnalysis}">Close</button>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-10 col-md-offset-1">
+                            <h2>Case ${this.clinicalAnalysis.id}</h2>
+                            <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
+                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                            style="font-size: 12px"
+                                                            .config="${this._config}">
+                            </opencga-clinical-analysis-view>
+                        </div>
+                    </div>`;
+        }
+
+        return html`
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-2">
+                        <div>
+                            <h2>Search Clinical Analysis</h2>
+                            
+                            <h4>Clinical Analysis ID</h4>
                             <div class="text-filter-wrapper">
                                 <!--<input type="text" name="clinicalAnalysisText" id="clinicalAnalysisIdText" value="AN-3">-->
                                 <select-field-filter-autocomplete-simple .fn="${true}" resource="clinical-analysis" .value="${"AN-3"}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("clinicalAnalysisId", e.detail.value)}"></select-field-filter-autocomplete-simple>
                             </div>
                             
-                            <h3>Individual</h3>
+                            <h4>Proband ID</h4>
                             <div class="text-filter-wrapper">
                                 <select-field-filter-autocomplete-simple .fn="${true}" resource="individuals" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onIndividualChange("individualId", e.detail.value)}"></select-field-filter-autocomplete-simple>
-                            
                             </div>
 
                             <div>                            

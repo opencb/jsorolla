@@ -30,7 +30,7 @@ import "../../clinical/opencga-clinical-analysis-view.js";
 import "../../clinical/clinical-interpretation-view.js";
 import "../../commons/opencga-active-filters.js";
 import "../../commons/filters/select-field-filter-autocomplete-simple.js";
-import {biotypes, tooltips} from "../../commons/opencga-variant-contants.js";
+import {biotypes, tooltips, consequenceTypes, populationFrequencies} from "../../commons/opencga-variant-contants.js";
 
 
 class VariantCancerInterpreter extends LitElement {
@@ -66,9 +66,9 @@ class VariantCancerInterpreter extends LitElement {
             consequenceTypes: {
                 type: Object
             },
-            // populationFrequencies: {
-            //     type: Object
-            // },
+            populationFrequencies: {
+                type: Object
+            },
             proteinSubstitutionScores: {
                 type: Object
             },
@@ -116,13 +116,13 @@ class VariantCancerInterpreter extends LitElement {
 
     firstUpdated(_changedProperties) {
         // CellBase version
-        this.cellbaseClient.getMeta("about").then(response => {
-            if (UtilsNew.isNotUndefinedOrNull(response) && UtilsNew.isNotEmptyArray(response.response)) {
-                if (UtilsNew.isNotUndefinedOrNull(response.response[0].result) && UtilsNew.isNotEmptyArray(response.response[0].result)) {
-                    this.cellbaseVersion = response.response[0].result[0]["Version: "];
-                }
-            }
-        });
+        // this.cellbaseClient.getMeta("about").then(response => {
+        //     if (UtilsNew.isNotUndefinedOrNull(response) && UtilsNew.isNotEmptyArray(response.response)) {
+        //         if (UtilsNew.isNotUndefinedOrNull(response.response[0].result) && UtilsNew.isNotEmptyArray(response.response[0].result)) {
+        //             this.cellbaseVersion = response.response[0].result[0]["Version: "];
+        //         }
+        //     }
+        // });
     }
 
     updated(changedProperties) {
@@ -442,10 +442,11 @@ class VariantCancerInterpreter extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Variant Cancer Interpreter",
+            title: "Cancer Variant Interpreter",
             icon: "fas fa-search",
             active: false,
-            showOtherTools: true,
+            showOtherTools: false,
+            showTitle: false,
             filter: {
                 title: "Filter",
                 searchButtonText: "Run",
@@ -774,14 +775,17 @@ class VariantCancerInterpreter extends LitElement {
             `;
         }
 
-        if (!this.clinicalAnalysis) {
-            return html`
-                <variant-cancer-interpreter-landing .opencgaSession="${this.opencgaSession}"
-                                                    .config="${this.config}"
-                                                    @selectclinicalnalysis="${this.onClinicalAnalysis}">
-                </variant-cancer-interpreter-landing>
-            `;
-        }
+        // if (!this.clinicalAnalysis) {
+        //     return html`
+        //         <variant-cancer-interpreter-landing .opencgaSession="${this.opencgaSession}"
+        //                                             .config="${this.config}"
+        //                                             @selectclinicalnalysis="${this.onClinicalAnalysis}">
+        //         </variant-cancer-interpreter-landing>
+        //     `;
+        // }
+
+        // Prepare some variables
+        let title = this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title;
 
         return html`
             <style include="jso-styles">
@@ -837,14 +841,13 @@ class VariantCancerInterpreter extends LitElement {
 
             <div class="page-title">
                 <h2>
-                    ${this.clinicalAnalysis && this.clinicalAnalysis.id ? html`
-                        <i class="fa fa-filter" aria-hidden="true" style="padding-left: 10px;padding-right: 10px"></i>&nbsp;${this._config.title} - Case ${this.clinicalAnalysis.id}
-                    ` : html`
-                        <i class="fa fa-filter" aria-hidden="true"></i>&nbsp; ${this._config.title}
-                    `}
+                    ${this.showTitle
+                        ? html`<i class="fa fa-filter" aria-hidden="true" style="padding-left: 10px;padding-right: 10px"></i>&nbsp;${title}`
+                        : null
+                    }
                 </h2>
             </div>
-
+            
             <div class="row" style="padding: 5px 10px">
             
                 <div class="col-md-2">
@@ -895,7 +898,7 @@ class VariantCancerInterpreter extends LitElement {
                         ` : null}
         
                         <!-- Right buttons -->
-                        <div class="btn-toolbar" role="toolbar" aria-label="..." style="float: right">
+                        <div class="btn-toolbar" role="toolbar" aria-label="..." style="float: right;display: none">
                             <div class="btn-group">
                                 <button id="${this._prefix}InterpretationEditorButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
                                             data-view="InterpretationEditor" @click="${this.onChangeView}" .disabled="${this._config.disableSaveInterpretation}">
@@ -949,8 +952,8 @@ class VariantCancerInterpreter extends LitElement {
                                 <variant-cancer-interpreter-grid .opencgaSession="${this.opencgaSession}"
                                                                  .query="${this.executedQuery}"
                                                                  .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                 .consequenceTypes="${this.consequenceTypes}"
-                                                                 .populationFrequencies="${this.populationFrequencies}"
+                                                                 .consequenceTypes="${consequenceTypes}"
+                                                                 .populationFrequencies="${populationFrequencies}"
                                                                  .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                                                  .config="${this._config.filter.result.grid}"
                                                                  @selected="${this.onSelectedGene}"

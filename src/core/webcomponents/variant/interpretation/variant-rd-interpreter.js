@@ -28,7 +28,7 @@ import "../../clinical/opencga-clinical-analysis-view.js";
 import "../../clinical/clinical-interpretation-view.js";
 import "../../commons/opencga-active-filters.js";
 import "../../commons/filters/select-field-filter-autocomplete-simple.js";
-import {biotypes, tooltips} from "../../commons/opencga-variant-contants.js";
+import {biotypes, tooltips, consequenceTypes, populationFrequencies} from "../../commons/opencga-variant-contants.js";
 
 class VariantRdInterpreter extends LitElement {
 
@@ -79,7 +79,6 @@ class VariantRdInterpreter extends LitElement {
         this._prefix = "ovi-" + UtilsNew.randomString(6);
 
         this.diseasePanelIds = [];
-        this.hasClinicalAnalysis = false;
 
         this.interactive = true;
         this.filterClass = "col-md-2";
@@ -112,13 +111,13 @@ class VariantRdInterpreter extends LitElement {
 
     firstUpdated(_changedProperties) {
         // CellBase version
-        this.cellbaseClient.getMeta("about").then(response => {
-            if (UtilsNew.isNotUndefinedOrNull(response) && UtilsNew.isNotEmptyArray(response.response)) {
-                if (UtilsNew.isNotUndefinedOrNull(response.response[0].result) && UtilsNew.isNotEmptyArray(response.response[0].result)) {
-                    this.cellbaseVersion = response.response[0].result[0]["Version: "];
-                }
-            }
-        });
+        // this.cellbaseClient.getMeta("about").then(response => {
+        //     if (UtilsNew.isNotUndefinedOrNull(response) && UtilsNew.isNotEmptyArray(response.response)) {
+        //         if (UtilsNew.isNotUndefinedOrNull(response.response[0].result) && UtilsNew.isNotEmptyArray(response.response[0].result)) {
+        //             this.cellbaseVersion = response.response[0].result[0]["Version: "];
+        //         }
+        //     }
+        // });
     }
 
     updated(changedProperties) {
@@ -445,21 +444,323 @@ class VariantRdInterpreter extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Variant Interpreter",
+            title: "RD Variant Interpreter",
             showSaveInterpretation: true,
             showOtherTools: true,
-            activeFilters: {
-                alias: {
-                    // Example:
-                    // "region": "Region",
-                    // "gene": "Gene",
-                    // "genotype": "Sample Genotypes",
+            showTitle: false,
+            filter: {
+                title: "Filter",
+                searchButtonText: "Run",
+                activeFilters: {
+                    alias: {
+                        // Example:
+                        // "region": "Region",
+                        // "gene": "Gene",
+                        "ct": "Consequence Types",
+                    },
+                    complexFields: ["genotype"],
+                    hiddenFields: []
                 },
-                complexFields: ["genotype"],
-                hiddenFields: ["study"]
+                sections: [     // sections and subsections, structure and order is respected
+                    {
+                        title: "Study and Cohorts",
+                        collapsed: false,
+                        fields: [
+                            // {
+                            //     id: "study",
+                            //     title: "Studies Filter",
+                            //     tooltip: tooltips.study
+                            // },
+                            {
+                                id: "cohort",
+                                title: "Cohort Alternate Stats",
+                                onlyCohortAll: true,
+                                cohorts: this.cohorts
+                            }
+                        ]
+                    },
+                    {
+                        title: "Genomic",
+                        collapsed: true,
+                        fields: [
+                            {
+                                id: "region",
+                                title: "Genomic Location",
+                                tooltip: tooltips.region
+                            },
+                            {
+                                id: "feature",
+                                title: "Feature IDs (gene, SNPs, ...)",
+                                tooltip: tooltips.feature
+                            },
+                            {
+                                id: "diseasePanels",
+                                title: "Disease Panels",
+                                tooltip: tooltips.diseasePanels
+                            },
+                            {
+                                id: "biotype",
+                                title: "Gene Biotype",
+                                biotypes: biotypes,
+                                tooltip: tooltips.biotype
+                            },
+                            {
+                                id: "type",
+                                title: "Variant Type",
+                                types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION", "MNV"],
+                                tooltip: tooltips.type
+                            }
+                        ]
+                    },
+                    {
+                        title: "Consequence Type",
+                        collapsed: true,
+                        fields: [
+                            // {
+                            //     id: "consequenceType",
+                            //     title: "Select SO terms",
+                            //     tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                            // },
+                            {
+                                id: "consequenceTypeSelect",
+                                title: "Select SO terms",
+                                tooltip: tooltips.consequenceTypeSelect
+                            },
+                        ]
+                    },
+                    // {
+                    //     title: "Population Frequency",
+                    //     collapsed: true,
+                    //     fields: [
+                    //         {
+                    //             id: "populationFrequency",
+                    //             title: "Select Population Frequency",
+                    //             tooltip: tooltips.populationFrequencies,
+                    //             showSetAll: true
+                    //         }
+                    //     ]
+                    // },
+                    {
+                        title: "Phenotype-Disease",
+                        collapsed: true,
+                        fields: [
+
+                            {
+                                id: "go",
+                                title: "GO Accessions (max. 100 terms)",
+                                tooltip: tooltips.go
+                            },
+                            {
+                                id: "hpo",
+                                title: "HPO Accessions",
+                                tooltip: tooltips.hpo
+                            },
+                            {
+                                id: "clinvar",
+                                title: "ClinVar Accessions",
+                                tooltip: tooltips.clinvar
+                            },
+                            {
+                                id: "fullTextSearch",
+                                title: "Full-text search on HPO, ClinVar, protein domains or keywords. Some OMIM and Orphanet IDs are also supported",
+                                tooltip: tooltips.fullTextSearch
+                            }
+                        ]
+                    },
+                    {
+                        title: "Deleteriousness",
+                        collapsed: true,
+                        fields: [
+                            {
+                                id: "proteinSubstitutionScore",
+                                title: "Protein Substitution Score",
+                                tooltip: tooltips.proteinSubstitutionScore
+                            },
+                            {
+                                id: "cadd",
+                                title: "CADD",
+                                tooltip: tooltips.cadd
+                            }
+                        ]
+                    },
+                    {
+                        title: "Conservation",
+                        collapsed: true,
+                        fields: [
+                            {
+                                id: "conservation",
+                                title: "Conservation Score",
+                                tooltip: tooltips.conservation
+                            }
+                        ]
+                    },
+                ],
+                examples: [
+                    {
+                        name: "Example BRCA2",
+                        active: false,
+                        query: {
+                            gene: "BRCA2",
+                            conservation: "phylop<0.001"
+                        }
+                    },
+                    {
+                        name: "Example OR11",
+                        query: {
+                            gene: "OR11H1",
+                            conservation: "phylop<=0.001"
+                        }
+                    },
+                    {
+                        name: "Full Example",
+                        query: {
+                            "region": "1,2,3,4,5",
+                            "studies": "corpasome",
+                            "xref": "BRCA1,TP53",
+                            // "panel": "Albinism_or_congenital_nystagmus-PanelAppId-511,Amyloidosis-PanelAppId-502",
+                            "biotype": "protein_coding",
+                            "type": "INDEL",
+                            "ct": "lof",
+                            "populationFrequencyAlt": "1kG_phase3:ALL<0.1,GNOMAD_GENOMES:ALL<0.1",
+                            "protein_substitution": "sift>5,polyphen>4",
+                            // "functionalScore": "cadd_raw>2,cadd_scaled<4",
+                            "conservation": "phylop>1;phastCons>2;gerp<=3"
+                        }
+                    }
+                ],
+                result: {
+                    grid: {
+                        pagination: true,
+                        pageSize: 5,
+                        pageList: [5, 10, 25, 50],
+                        showExport: false,
+                        detailView: true,
+
+                        showSelectCheckbox: true,
+                        showStatus: false,
+                        multiSelection: false,
+                        nucleotideGenotype: true,
+                        alleleStringLengthMax: 10,
+
+                        header: {
+                            horizontalAlign: "center",
+                            verticalAlign: "bottom"
+                        },
+
+                        quality: {
+                            qual: 30,
+                            dp: 20
+                        },
+                        // populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"]
+                    }
+                },
+                detail: {
+                    title: "Selected Variant",
+                    views: [
+                        {
+                            id: "annotationSummary",
+                            title: "Summary",
+                            active: true
+                        },
+                        {
+                            id: "annotationConsType",
+                            title: "Consequence Type",
+                        },
+                        {
+                            id: "annotationPropFreq",
+                            title: "Population Frequencies"
+                        },
+                        {
+                            id: "annotationClinical",
+                            title: "Clinical"
+                        },
+                        {
+                            id: "fileMetrics",
+                            title: "File Metrics"
+                        },
+                        {
+                            id: "cohortStats",
+                            title: "Cohort Stats",
+                            cohorts: this.cohorts
+                        },
+
+                        {
+                            id: "beacon",
+                            title: "Beacon"
+                            // Uncomment and edit Beacon hosts to change default hosts
+                            // hosts: [
+                            //     "brca-exchange", "cell_lines", "cosmic", "wtsi", "wgs", "ncbi", "ebi", "ega", "broad", "gigascience", "ucsc",
+                            //     "lovd", "hgmd", "icgc", "sahgp"
+                            // ]
+                        }
+                    ]
+                }
             },
-            genomeBrowser: {
-                showTitle: false
+            aggregation: {
+                title: "Aggregation",
+                default: ["chromosome", "type"],
+                sections: [
+                    {
+                        name: "General",
+                        fields: [
+                            {
+                                id: "chromosome", name: "Chromosome", type: "string"
+                            },
+                            {
+                                id: "studies", name: "Studiy", type: "string"
+                            },
+                            {
+                                id: "type", name: "Variant Type", type: "category", allowedValues: ["SNV", "INDEL", "CNV"]
+                            },
+                            {
+                                id: "genes", name: "Gene", type: "string"
+                            },
+                            {
+                                id: "biotypes", name: "Biotype", type: "string"
+                            },
+                            {
+                                id: "soAcc", name: "Consequence Type", type: "string"
+                            }
+                        ]
+                    },
+                    {
+                        name: "Conservation & Deleteriousness",
+                        fields: [
+                            {
+                                id: "phastCons", name: "PhastCons", defaultValue: "[0..1]:0.1", type: "number"
+                            },
+                            {
+                                id: "phylop", name: "PhyloP", defaultValue: "", type: "number"
+                            },
+                            {
+                                id: "gerp", name: "Gerp", defaultValue: "[-12.3..6.17]:2", type: "number"
+                            },
+                            {
+                                id: "sift", name: "Sift", defaultValue: "[0..1]:0.1", type: "number"
+                            },
+                            {
+                                id: "polyphen", name: "Polyphen", defaultValue: "[0..1]:0.1", type: "number"
+                            }
+                        ]
+                    },
+                    // {
+                    //     name: "Population Frequency",
+                    //     fields: [
+                    //         ...this.populationFrequencies.studies.map(study =>
+                    //             study.populations.map(population => (
+                    //                     {
+                    //                         id: `popFreq__${study.id}__${population.id}`,
+                    //                         // value: `popFreq__${study.id}__${population.id}`,
+                    //                         name: `${study.id} - ${population.id}`,
+                    //                         defaultValue: "[0..1]:0.1",
+                    //                         type: "number"
+                    //                     }
+                    //                 )
+                    //             )
+                    //         ).flat()
+                    //     ]
+                    // }
+                ]
             }
         };
     }
@@ -492,6 +793,8 @@ class VariantRdInterpreter extends LitElement {
                 </div>
             `;
         }
+
+        let title = this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title;
 
         return html`
             <style>
@@ -547,11 +850,10 @@ class VariantRdInterpreter extends LitElement {
      
             <div class="page-title">
                 <h2>
-                    ${this.clinicalAnalysis ? html`
-                        <i class="fa fa-filter" aria-hidden="true" style="padding-left: 10px;padding-right: 10px"></i>&nbsp;${this.config.title} - Case ${this.clinicalAnalysis.id}
-                    ` : html`
-                        <i class="fa fa-filter" aria-hidden="true"></i>&nbsp; ${this.config.title}
-                    `}
+                    ${this.showTitle 
+                        ? html`<i class="fa fa-filter" aria-hidden="true" style="padding-left: 10px;padding-right: 10px"></i>&nbsp;${title}` 
+                        : null
+                    }
                 </h2>
             </div>
 
@@ -624,7 +926,7 @@ class VariantRdInterpreter extends LitElement {
                                                         .defaultStudy="${this.opencgaSession.study.id}"
                                                         .query="${this.preparedQuery}"
                                                         .refresh="${this.executedQuery}"
-                                                        .filters="${this._config.filter.examples}"
+                                                        .filters="${this._config.filter ? this._config.filter.examples : null}"
                                                         .filterBioformat="VARIANT"
                                                         .alias="${this._config.activeFilterAlias}"
                                                         .genotypeSamples="${this.genotypeSamples}"
@@ -638,18 +940,32 @@ class VariantRdInterpreter extends LitElement {
                         <!-- SEARCH TABLE RESULT -->
                         <div class="main-view" style="padding-top: 5px">
                             <div id="${this._prefix}Interactive" class="variant-interpretation-content">
+                            <!--
                                 <opencga-variant-interpretation-grid .opencgaSession="${this.opencgaSession}"
-                                                             .query="${this.executedQuery}"
-                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                             .consequenceTypes="${this.consequenceTypes}"
-                                                             .populationFrequencies="${this.populationFrequencies}"
-                                                             .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                             .config="${this._config.grid}"
-                                                             @selected="${this.onSelectedGene}"
-                                                             @selectvariant="${this.onSelectVariant}"
-                                                             @checkvariant="${this.onCheckVariant}"
-                                                             @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
+                                                                     .query="${this.executedQuery}"
+                                                                     .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                     .consequenceTypes="${this.consequenceTypes}"
+                                                                     .populationFrequencies="${this.populationFrequencies}"
+                                                                     .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                                     .config="${this._config.grid}"
+                                                                     @selected="${this.onSelectedGene}"
+                                                                     @selectvariant="${this.onSelectVariant}"
+                                                                     @checkvariant="${this.onCheckVariant}"
+                                                                     @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
                                 </opencga-variant-interpretation-grid>
+                            -->
+                                <variant-cancer-interpreter-grid .opencgaSession="${this.opencgaSession}"
+                                                                 .query="${this.executedQuery}"
+                                                                 .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                 .consequenceTypes="${consequenceTypes}"
+                                                                 .populationFrequencies="${populationFrequencies}"
+                                                                 .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                                 .config="${this._config.filter.result.grid}"
+                                                                 @selected="${this.onSelectedGene}"
+                                                                 @selectrow="${this.onSelectVariant}"
+                                                                 @checkrow="${this.onCheckVariant}"
+                                                                 @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
+                                </variant-cancer-interpreter-grid>
                                                                 <!-- Bottom tabs with detailed variant information -->
                                 <opencga-variant-interpretation-detail .opencgaSession="${this.opencgaSession}"
                                                                        .cellbaseClient="${this.cellbaseClient}"

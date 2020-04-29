@@ -152,12 +152,10 @@ export default class VariantCancerInterpreterGrid extends LitElement {
 
         this.table = $("#" + this.gridId);
         if (this.opencgaSession && this.opencgaSession.project && this.opencgaSession.study) {
-            this._columns = this._createDefaultColumns();
-
             const _this = this;
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                columns: _this._columns,
+                columns: this._createDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
 
@@ -510,11 +508,14 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                 const genotypeSplitRegExp = new RegExp("[/|]");
                 let sampleGT;
                 // Make sure we always render somatic sample first
-                if (row.studies[0].samples.length === 2) {
-
-                    sampleGT = row.studies[0].samples[sampleIndex].data[0];
+                if (this.field.clinicalAnalysis.type.toLowerCase() === "family") {
+                    sampleGT = row.studies[0].samples[this.field.memberIdx].data[0];
                 } else {
-                    sampleGT = row.studies[0].samples[0].data[0];
+                    if (row.studies[0].samples.length === 2) {
+                        sampleGT = row.studies[0].samples[sampleIndex].data[0];
+                    } else {
+                        sampleGT = row.studies[0].samples[0].data[0];
+                    }
                 }
                 if (sampleGT === "0/1" || sampleGT === "1/0") {
                     // If genotype si 0/1 or 1/0 they must be displayed like 0/1 (not phased)
@@ -603,22 +604,22 @@ export default class VariantCancerInterpreterGrid extends LitElement {
         return val;
     }
 
-    // studyCohortsFormatter(value, row) {
-    //     if (typeof row !== "undefined" && typeof row.studies !== "undefined") {
-    //         const cohorts = [];
-    //         const cohortMap = new Map();
-    //         for (const study of row.studies) {
-    //             const arr = study.studyId.split(":");
-    //             const s = arr[arr.length - 1] + ":ALL";
-    //             cohorts.push(s);
-    //             cohortMap.set(s, Number(study.stats[0].altAlleleFreq).toFixed(4));
-    //         }
-    //
-    //         return this.variantGridFormatter.createPopulationFrequenciesTable(cohorts, cohortMap, this.populationFrequencies.style);
-    //     } else {
-    //         return "-";
-    //     }
-    // }
+    studyCohortsFormatter(value, row) {
+        if (typeof row !== "undefined" && typeof row.studies !== "undefined") {
+            const cohorts = [];
+            const cohortMap = new Map();
+            for (const study of row.studies) {
+                const arr = study.studyId.split(":");
+                const s = arr[arr.length - 1] + ":ALL";
+                cohorts.push(s);
+                cohortMap.set(s, Number(study.stats[0].altAlleleFreq).toFixed(4));
+            }
+
+            return this.variantGridFormatter.createPopulationFrequenciesTable(cohorts, cohortMap, this.populationFrequencies.style);
+        } else {
+            return "-";
+        }
+    }
 
     clinicalPopulationFrequenciesFormatter(value, row) {
         if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
@@ -628,8 +629,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                     popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
                 }
             }
-            return this.variantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies,
-                popFreqMap, this.populationFrequencies.style);
+            return this.variantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies, popFreqMap, this.populationFrequencies.style);
         } else {
             return "-";
         }
@@ -722,7 +722,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
             return;
         }
 
-        this._columns = [
+        let _columns = [
             [
                 {
                     title: "Variant",
@@ -759,50 +759,13 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                     halign: "center"
                 },
                 {
-                    title: "Role in Cancer",
-                    field: "evidences",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: this.roleInCancerFormatter.bind(this),
-                    halign: "center"
-                },
-                // {
-                //     title: "Variant Stats <span class='pop-preq-info-icon'><i class='fa fa-info-circle' style='color: #337ab7' aria-hidden='true'></i></span>",
-                //     field: "frequencies",
-                //     rowspan: 1,
-                //     colspan: 2,
-                //     align: "center"
-                // },
-                {
                     title: "Clinical",
-                    // field: "phenotypes",
                     rowspan: 1,
                     colspan: 2,
                     align: "center"
-                }
-                // {
-                //     title: "Interpretation <span class='interpretation-info-icon'><i class='fa fa-info-circle' style='color: #337ab7' aria-hidden='true'></i></span>",
-                //     field: "interpretation",
-                //     rowspan: 1,
-                //     colspan: 2,
-                //     halign: 'center'
-                // },
+                },
             ],
             [
-                // {
-                //     title: "Cohorts",
-                //     field: "cohort",
-                //     colspan: 1,
-                //     rowspan: 1,
-                //     formatter: this.studyCohortsFormatter.bind(this)
-                // },
-                // {
-                //     title: "Population Frequencies",
-                //     field: "populationFrequencies",
-                //     colspan: 1,
-                //     rowspan: 1,
-                //     formatter: this.clinicalPopulationFrequenciesFormatter.bind(this)
-                // },
                 {
                     title: "ClinVar",
                     field: "clinvar",
@@ -827,33 +790,30 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                     formatter: this.predictionFormatter,
                     halign: "center"
                 }
-                // {
-                //     title: "Select",
-                //     field: "selectForInterpretation",
-                //     rowspan: 1,
-                //     colspan: 1,
-                //     align: 'center'
-                // }
             ]
         ];
 
         // update columns dynamically
-        this._updateTableColumns();
-
-        return this._columns;
+        this._updateTableColumns(_columns);
+        return _columns;
     }
 
-    _updateTableColumns() {
+    _updateTableColumns(_columns) {
+        if (!_columns) {
+            return;
+        }
+
         // Add a checkbox column
-        this._columns[0].push({
-            title: "Interpretation <span class='interpretation-info-icon'><i class='fa fa-info-circle' style='color: #337ab7' aria-hidden='true'></i></span>",
-            field: "interpretation",
-            rowspan: 1,
-            colspan: this._config.showSelectCheckbox ? 2 : 1,
-            halign: "center"
+        _columns[0].push(
+            {
+                title: "Interpretation <span class='interpretation-info-icon'><i class='fa fa-info-circle' style='color: #337ab7' aria-hidden='true'></i></span>",
+                field: "interpretation",
+                rowspan: 1,
+                colspan: this._config.showSelectCheckbox ? 2 : 1,
+                halign: "center"
         });
         if (this._config.showSelectCheckbox) {
-            this._columns[1].push({
+            _columns[1].push({
                 // field: "stateCheckBox",
                 checkbox: true,
                 rowspan: 1,
@@ -862,13 +822,13 @@ export default class VariantCancerInterpreterGrid extends LitElement {
         }
 
         if (this._config.showStatus) {
-            // this._columns[1].push({
+            // _columns[1].push({
             //     title: "Status",
             //     field: "status",
             //     rowspan: 1,
             //     colspan: 1
             // });
-            this._columns[0].push({
+            _columns[0].push({
                 title: "Review",
                 // field: "status",
                 rowspan: 2,
@@ -878,34 +838,146 @@ export default class VariantCancerInterpreterGrid extends LitElement {
             });
         }
 
-        // Set sample columns
-        if (typeof this._columns !== "undefined" && this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples) {
-            this._columns[0].splice(5, 0, {
-                title: `Sample Genotypes (${this.clinicalAnalysis.proband.id})`,
-                rowspan: 1,
-                colspan: this.clinicalAnalysis.proband.samples.length,
-                align: "center"
-            });
-
-            for (let i = 0; i < this.clinicalAnalysis.proband.samples.length; i++) {
-                let sample = this.clinicalAnalysis.proband.samples[i];
-                let color = sample.somatic ? "darkred" : "black";
-
-                this._columns[1].splice(i, 0, {
-                    title: `<span>${sample.id}</span><br>
-                            <span style="color: ${color};font-style: italic">${sample.somatic ? "somatic" : "germline"}</span>`,
-                    field: {
-                        sampleId: sample.id,
-                        quality: this._config.quality,
-                        config: this._config,
-                        clinicalAnalysis: this.clinicalAnalysis
-                    },
+        if (this.clinicalAnalysis && this.clinicalAnalysis.type.toUpperCase() === "FAMILY") {
+            // Add Variant Stats
+            _columns[0].splice(4, 0,
+                {
+                    title: "Variant Stats <span class='pop-preq-info-icon'><i class='fa fa-info-circle' style='color: #337ab7' aria-hidden='true'></i></span>",
+                    field: "frequencies",
                     rowspan: 1,
+                    colspan: 2,
+                    align: "center"
+                }
+            );
+            _columns[1].splice(0, 0,
+                {
+                    title: "Cohorts",
+                    field: "cohort",
                     colspan: 1,
-                    formatter: this.zygosityFormatter,
-                    align: "center",
-                    nucleotideGenotype: true
+                    rowspan: 1,
+                    formatter: this.studyCohortsFormatter.bind(this)
+                },
+                {
+                    title: "Population Frequencies",
+                    field: "populationFrequencies",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: this.clinicalPopulationFrequenciesFormatter.bind(this)
+                }
+            );
+
+            // Add Samples
+            let samples = [];
+            let sampleInfo = {};
+            if (this.clinicalAnalysis.family && this.clinicalAnalysis.family.members) {
+                for (const individual of this.clinicalAnalysis.family.members) {
+                    if (individual.samples) {
+                        samples.push(individual.samples[0]);
+                        sampleInfo[individual.samples[0].id] = {
+                            proband: individual.id === this.clinicalAnalysis.proband.id,
+                            affected: individual.disorders && individual.disorders.length > 0 && individual.disorders[0].id === this.clinicalAnalysis.disorder.id,
+                            role: this.clinicalAnalysis.roleToProband[individual.id].toLowerCase(),
+                            sex: individual.sex
+                        };
+                    }
+                }
+            } else {
+                if (this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples) {
+                    samples.push(this.clinicalAnalysis.proband.samples[0]);
+                    sampleInfo[this.clinicalAnalysis.proband.samples[0].id] = {
+                        proband: true,
+                        affected: this.clinicalAnalysis.proband.disorders && this.clinicalAnalysis.proband.disorders.length > 0,
+                        role: "proband",
+                        sex: this.clinicalAnalysis.proband.sex
+                    };
+                }
+            }
+
+            if (samples.length > 0) {
+                _columns[0].splice(4, 0, {
+                    title: "Sample Genotypes",
+                    field: "zygosity",
+                    rowspan: 1,
+                    colspan: samples.length,
+                    align: "center"
                 });
+
+                for (let i = 0; i < samples.length; i++) {
+                    let color = "black";
+                    if (sampleInfo[samples[i].id].proband) {
+                        color = "darkred";
+                        if (UtilsNew.isEmpty(sampleInfo[samples[i].id].role)) {
+                            sampleInfo[samples[i].id].role = "proband";
+                        }
+                    }
+
+                    let affected = "<span>UnAff.</span>";
+                    if (sampleInfo[samples[i].id].affected) {
+                        affected = "<span style='color: red'>Aff.</span>";
+                    }
+
+                    _columns[1].splice(i, 0, {
+                        title: `<span style="color: ${color}">${samples[i].id}</span>
+                                <br>
+                                <span style="font-style: italic">${sampleInfo[samples[i].id].role}, ${affected}</span>`,
+                        field: {
+                            memberIdx: i,
+                            memberName: samples[i].id,
+                            quality: this._config.quality,
+                            clinicalAnalysis: this.clinicalAnalysis
+                        },
+                        rowspan: 1,
+                        colspan: 1,
+                        formatter: this.zygosityFormatter,
+                        align: "center",
+                        nucleotideGenotype: true
+                    });
+                }
+            }
+        }
+
+        if (this.clinicalAnalysis && this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
+            // Add cancer columns
+            _columns[0].splice(4, 0,
+                {
+                    title: "Role in Cancer",
+                    field: "evidences",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: this.roleInCancerFormatter.bind(this),
+                    halign: "center"
+                }
+            );
+
+            // Add sample columns
+            if (this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples) {
+                _columns[0].splice(5, 0, {
+                    title: `Sample Genotypes (${this.clinicalAnalysis.proband.id})`,
+                    rowspan: 1,
+                    colspan: this.clinicalAnalysis.proband.samples.length,
+                    align: "center"
+                });
+
+                for (let i = 0; i < this.clinicalAnalysis.proband.samples.length; i++) {
+                    let sample = this.clinicalAnalysis.proband.samples[i];
+                    let color = sample.somatic ? "darkred" : "black";
+
+                    _columns[1].splice(i, 0, {
+                        title: `<span>${sample.id}</span><br>
+                            <span style="color: ${color};font-style: italic">${sample.somatic ? "somatic" : "germline"}</span>`,
+                        field: {
+                            sampleId: sample.id,
+                            quality: this._config.quality,
+                            config: this._config,
+                            clinicalAnalysis: this.clinicalAnalysis
+                        },
+                        rowspan: 1,
+                        colspan: 1,
+                        formatter: this.zygosityFormatter,
+                        align: "center",
+                        nucleotideGenotype: true
+                    });
+                }
             }
         }
     }
@@ -1002,7 +1074,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                 qual: 30,
                 dp: 20
             },
-            // populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"]
+            populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"]
         };
     }
 

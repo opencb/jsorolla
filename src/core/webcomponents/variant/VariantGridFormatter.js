@@ -391,10 +391,10 @@ export default class VariantGridFormatter {
                                 http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg
                             </a>. Please, leave the cursor over each square to visualize the actual frequency values.
                             <div style="padding: 10px 0px 0px 0px"><label>Legend: </label></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.color.veryRare}" aria-hidden="true"></i> Very rare:  freq < 0.001</span></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.color.rare}" aria-hidden="true"></i> Rare:  freq < 0.005</span></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.color.average}" aria-hidden="true"></i> Average:  freq < 0.05</span></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.color.common}" aria-hidden="true"></i> Common:  freq >= 0.05</span></div>
+                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.veryRare}" aria-hidden="true"></i> Very rare:  freq < 0.001</span></div>
+                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.rare}" aria-hidden="true"></i> Rare:  freq < 0.005</span></div>
+                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.average}" aria-hidden="true"></i> Average:  freq < 0.05</span></div>
+                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.common}" aria-hidden="true"></i> Common:  freq >= 0.05</span></div>
                             <div><span><i class="fa fa-square" style="color: black" aria-hidden="true"></i> Not observed</span></div>`
                 },
             },
@@ -460,10 +460,10 @@ export default class VariantGridFormatter {
                                 https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919
                             </a>. Please, leave the cursor over each square to display the actual frequency value.
                             <div style="padding: 10px 0px 0px 0px"><label>Legend: </label></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.color.veryRare}" aria-hidden="true"></i> Very rare:  freq < 0.001</span></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.color.rare}" aria-hidden="true"></i> Rare:  freq < 0.005</span></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.color.average}" aria-hidden="true"></i> Average:  freq < 0.05</span></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.color.common}" aria-hidden="true"></i> Common:  freq >= 0.05</span></div>
+                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.veryRare}" aria-hidden="true"></i> Very rare:  freq < 0.001</span></div>
+                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.rare}" aria-hidden="true"></i> Rare:  freq < 0.005</span></div>
+                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.average}" aria-hidden="true"></i> Average:  freq < 0.05</span></div>
+                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.common}" aria-hidden="true"></i> Common:  freq >= 0.05</span></div>
                             <div><span><i class="fa fa-square" style="color: black" aria-hidden="true"></i> Not observed</span></div>`
                 },
             },
@@ -533,7 +533,7 @@ export default class VariantGridFormatter {
                     let html = "";
                     for (let popFreq of popFreqs) {
                         let arr = popFreq.split("::");
-                        let color = _this._getPopulationFrequencyColor(arr[1], populationFrequencies.color);
+                        let color = _this._getPopulationFrequencyColor(arr[1], populationFrequencies.style);
                         let freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] : "0.00 (NA)";
                         html += `<div>
                                     <span><i class="fa fa-xs fa-square" style="color: ${color}" aria-hidden="true"></i>
