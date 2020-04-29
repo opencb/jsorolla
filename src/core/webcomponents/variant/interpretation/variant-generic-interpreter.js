@@ -19,6 +19,7 @@ import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import "./opencga-variant-interpretation-editor.js";
 import "./variant-cancer-interpreter.js";
+import "./variant-interpreter-qc.js";
 import "./variant-cancer-interpreter-grid.js";
 import "./variant-cancer-interpreter-summary.js";
 import "./variant-cancer-interpreter-landing.js";
@@ -276,7 +277,22 @@ class VariantGenericInterpreter extends LitElement {
         
                         ${this._config.tools ? html`
                             <div id="${this._prefix}qc" class="clinical-portal-content" style="${this._config.tools[0].id !== "qc" ? "display: none" : ""}">
-                                <about-web version="${this._config.version}"></about-web>
+                                <variant-interpreter-qc .opencgaSession="${this.opencgaSession}"
+                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                        .config="${this._config}"
+                                                        @selectclinicalnalysis="${this.onClinicalAnalysis}">
+                                </variant-interpreter-qc>
+                            </div>
+                        ` : null}
+                        
+                        ${this._config.tools ? html`
+                            <div id="${this._prefix}genome-browser" class="clinical-portal-content" style="${this._config.tools[0].id !== "genome-browser" ? "display: none" : ""}">
+                                <opencga-variant-interpreter-genome-browser .opencgaSession="${this.opencgaSession}"
+                                                                            .cellbaseClient="${this.cellbaseClient}"
+                                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                            .config="${this._config}"
+                                                                            @selectclinicalnalysis="${this.onClinicalAnalysis}">
+                                </opencga-variant-interpreter-genome-browser>
                             </div>
                         ` : null}
                         
