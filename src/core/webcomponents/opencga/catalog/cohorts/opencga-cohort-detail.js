@@ -59,11 +59,10 @@ export default class OpencgaCohortDetail extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.cohort = null
         }
 
         if (changedProperties.has("cohort")) {
-
+            console.log("cohort changed", this.cohort)
         }
 
         if (changedProperties.has("activeTab")) {

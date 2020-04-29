@@ -67,7 +67,7 @@ export default class JobsTimeline extends LitElement {
         }
     }
 
-    fetchContent() {
+    async fetchContent() {
         console.log("query observer");
         this.querySelector("#svg-timeline").innerHTML = "";
         this.querySelector("#loading").style.display = "block";

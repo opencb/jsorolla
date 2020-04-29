@@ -57,18 +57,18 @@ export default class OpencgaSampleGrid extends LitElement {
     _init() {
         this._prefix = "VarSampleGrid" + Utils.randomString(6) + "_";
         this.gridId = this._prefix + "SampleBrowserGrid";
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
-
     }
 
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     firstUpdated() {
         // this.table = PolymerUtils.getElementById(this._prefix + "SampleBrowserGrid");
         this._columns = this._initTableColumns();
+        this.table = this.querySelector("#" + this.gridId);
     }
 
     updated(changedProperties) {
@@ -157,31 +157,14 @@ export default class OpencgaSampleGrid extends LitElement {
                     this.lastFilters = {..._filters};
                     this.opencgaSession.opencgaClient.samples().search(_filters).then( res => params.success(res));
                 },
-                responseHandler: function(response) {
-                    let _numMatches = _this._numMatches || 0;
-                    if (response.getResponse().numMatches >= 0) {
-                        _numMatches = response.getResponse().numMatches;
-                        _this._numMatches = _numMatches;
-                    }
-                    // If no variant is returned then we start in 0
-                    if (response.getResponse(0).numMatches === 0) {
-                        _this.from = _numMatches;
-                    }
-                    // If do not fetch as many variants as requested then to is numMatches
-                    if (response.getResponse(0).numResults < this.pageSize) {
-                        _this.to = _numMatches;
-                    }
-                    _this.numTotalResultsText = _numMatches.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                    if (response.getParams().skip === 0 && _numMatches < response.getParams().limit) {
-                        _this.from = 1;
-                        _this.to = _numMatches;
-                    }
-                    _this.approximateCountResult = response.getResponse().attributes.approximateCount;
-                    _this.requestUpdate(); // it is necessary to refresh numTotalResultsText in opencga-grid-toolbar
-                    return {
-                        total: _numMatches,
-                        rows: response.getResults()
-                    };
+                responseHandler: response => {
+                    const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                    this.from = result.from || this.from;
+                    this.to = result.to || this.to;
+                    this.numTotalResultsText = result.numTotalResultsText || this.numTotalResultsText;
+                    this.approximateCountResult = result.approximateCountResult;
+                    this.requestUpdate();
+                    return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 /* onClickRow: function(row, element, field) {
@@ -287,10 +270,7 @@ export default class OpencgaSampleGrid extends LitElement {
                         }
                     }
                 },*/
-                onPageChange: function(page, size) {
-                    _this.from = (page - 1) * size + 1;
-                    _this.to = page * size;
-                }
+                onPageChange: (page, size) => this.gridCommons.onPageChange(page, size)
             });
         } else {
             // Delete table

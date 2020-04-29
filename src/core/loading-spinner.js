@@ -32,6 +32,7 @@ export default class LoadingSpinner extends LitElement {
             .loading-spinner-wrapper {
                 text-align: center;
                 height: 90px;
+                clear:both;
             }
             
             .DNA_cont {

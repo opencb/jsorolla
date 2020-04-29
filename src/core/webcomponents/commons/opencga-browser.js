@@ -41,7 +41,7 @@ import "../opencga/catalog/cohorts/opencga-cohort-filter.js";
 import "../opencga/catalog/cohorts/opencga-cohort-detail.js";
 import "../opencga/catalog/jobs/opencga-jobs-grid.js";
 import "../opencga/catalog/jobs/opencga-jobs-filter.js";
-import "../opencga/catalog/jobs/opencga-jobs-details.js";
+import "../opencga/catalog/jobs/opencga-jobs-detail.js";
 import "../opencga/catalog/jobs/opencga-jobs-browser.js";
 import "../opencga/catalog/jobs/jobs-timeline.js";
 import "../clinical/opencga-clinical-analysis-grid.js";
@@ -561,11 +561,11 @@ export default class OpencgaBrowser extends LitElement {
                                             .files="${this.files}"
                                             @selectrow="${e => this.onClickRow(e, "job")}">
                             </opencga-jobs-grid>
-                            <opencga-jobs-details .opencgaSession="${this.opencgaSession}"
+                            <opencga-jobs-detail .opencgaSession="${this.opencgaSession}"
                                                   .config="${this._config.filter}"
                                                   .jobId="${this.detail.job?.id}"
                                                   .job="${this.detail.job}">
-                            </opencga-jobs-details>
+                            </opencga-jobs-detail>
                         </div>
                         ${facetView}
                         <div id="visual-browser-tab" class="content-tab">

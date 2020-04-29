@@ -66,24 +66,22 @@ export default class OpencgaFileGrid extends LitElement {
 
     _init() {
         this._prefix = "VarFileGrid" + Utils.randomString(6) + "_";
-
         this._config = this.getDefaultConfig();
         this.eventNotifyName = "messageevent";
-
         this.gridId = this._prefix + "FileBrowserGrid";
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     // todo recheck! it was connectedCallback() and ready()
     firstUpdated(_changedProperties) {
         this._initTableColumns();
         this.dispatchEvent(new CustomEvent("clear", {detail: {}, bubbles: true, composed: true}));
-        this.table = PolymerUtils.getElementById(this._prefix + "FileBrowserGrid");
+        this.table = this.querySelector("#" + this.gridId);
         this.query = {};
     }
 
@@ -123,11 +121,11 @@ export default class OpencgaFileGrid extends LitElement {
                 this._files = [];
             }
 
-            const _table = $("#" + this.gridId);
+            const _table = $(this.table);
 
             const _this = this;
-            _table.bootstrapTable("destroy");
-            _table.bootstrapTable({
+            $(this.table).bootstrapTable("destroy");
+            $(this.table).bootstrapTable({
                 // url: opencgaHostUrl,
                 columns: _this._columns,
                 method: "get",
@@ -148,40 +146,20 @@ export default class OpencgaFileGrid extends LitElement {
                         order: params.data.order,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
-                        count: !_table.bootstrapTable("getOptions").pageNumber || _table.bootstrapTable("getOptions").pageNumber === 1,
+                        count: !$(this.table).bootstrapTable("getOptions").pageNumber || $(this.table).bootstrapTable("getOptions").pageNumber === 1,
                         include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
                         ...this.query
                     };
                     this.opencgaSession.opencgaClient.files().search(filters).then( res => params.success(res));
                 },
-
-                responseHandler: function(response) {
-                    let _numMatches = _this._numMatches || 0;
-                    if (response.getResponse().numMatches >= 0) {
-                        _numMatches = response.getResponse().numMatches;
-                        _this._numMatches = _numMatches;
-                    }
-                    // If no variant is returned then we start in 0
-                    if (response.getResponse(0).numMatches === 0) {
-                        _this.from = _numMatches;
-                    }
-                    // If do not fetch as many variants as requested then to is numMatches
-                    if (response.getResponse(0).numResults < this.pageSize) {
-                        _this.to = _numMatches;
-                    }
-                    _this.numTotalResultsText = _numMatches.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-                    if (response.getParams().skip === 0 && _numMatches < response.getParams().limit) {
-                        _this.from = 1;
-                        _this.to = _numMatches;
-                    }
-                    _this.approximateCountResult = response.getResponse().attributes.approximateCount;
-                    _this.requestUpdate(); // it is necessary to refresh numTotalResultsText in opencga-grid-toolbar
-
-                    return {
-                        total: _numMatches,
-                        rows: response.getResults()
-                    };
+                responseHandler: response => {
+                    const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                    this.from = result.from || this.from;
+                    this.to = result.to || this.to;
+                    this.numTotalResultsText = result.numTotalResultsText || this.numTotalResultsText;
+                    this.approximateCountResult = result.approximateCountResult;
+                    this.requestUpdate();
+                    return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 /*
@@ -267,33 +245,8 @@ export default class OpencgaFileGrid extends LitElement {
                     _this.files = _this._files.slice();
 
                 },
-                onLoadSuccess: function(data) {
-                    // Check all already selected rows. Selected files are stored in this.files array
-                    if (UtilsNew.isNotUndefinedOrNull(_table)) {
-                        if (!_this._config.multiSelection) {
-                            PolymerUtils.querySelector(_table.selector).rows[1].setAttribute("class", "success");
-                            _this._onSelectFile(data.rows[0]);
-                        }
-
-                        if (_this.files !== "undefined") {
-                            for (const idx in _this.files) {
-                                for (const j in data.rows) {
-                                    if (_this.files[idx].id === data.rows[j].id) {
-                                        $(PolymerUtils.getElementById(_this._prefix + "FileBrowserGrid")).bootstrapTable("check", j);
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-
-                },
-                onPageChange: (page, size) => {
-                    this.pageNumber = page;
-                    this.from = (page - 1) * size + 1;
-                    this.to = page * size;
-                }
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, data.rows[0].id, 1),
+                onPageChange: (page, size) => this.gridCommons.onPageChange(page, size)
             });
 
             this.opencgaSession.opencgaClient.studies().info(this.opencgaSession.study.id)

@@ -59,7 +59,6 @@ export default class OpencgaFamilyDetail extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.family = null
         }
 
         if (changedProperties.has("family")) {

@@ -16,10 +16,10 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "../../../../utils.js";
-import "./opencga-jobs-details-log.js";
+import "./opencga-jobs-detail-log.js";
 import "./opencga-jobs-view.js";
 
-export default class OpencgaJobsDetails extends LitElement {
+export default class OpencgaJobsDetail extends LitElement {
 
     constructor() {
         super();
@@ -60,7 +60,6 @@ export default class OpencgaJobsDetails extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.job = null;
         }
 
         if (changedProperties.has("job")) {
@@ -121,10 +120,10 @@ export default class OpencgaJobsDetails extends LitElement {
                         </opencga-jobs-view>
                     </div>
                     <div id="log-tab" class="tab-pane" role="tabpanel">
-                        <opencga-jobs-details-log .opencgaSession=${this.opencgaSession}
+                        <opencga-jobs-detail-log .opencgaSession=${this.opencgaSession}
                                                   .active="${this.activeTab["log"]}"
                                                   .job="${this.job}">
-                        </opencga-jobs-details-log>
+                        </opencga-jobs-detail-log>
                     </div>
                 </div>
                 
@@ -134,4 +133,4 @@ export default class OpencgaJobsDetails extends LitElement {
 
 }
 
-customElements.define("opencga-jobs-details", OpencgaJobsDetails);
+customElements.define("opencga-jobs-detail", OpencgaJobsDetail);
