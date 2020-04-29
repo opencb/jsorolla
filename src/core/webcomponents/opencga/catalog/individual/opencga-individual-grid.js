@@ -386,7 +386,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                         }
                     }
                 },
-                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, data.rows[0].id, 1),
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
                 onPageChange: function(page, size) {
                     _this.from = (page - 1) * size + 1;
                     _this.to = page * size;

@@ -248,8 +248,7 @@ export default class OpencgaSampleGrid extends LitElement {
 
 
                 },
-                //TODO recheck multiSelection
-                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, data.rows[0].id, 1),
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
                 /*onLoadSuccess: function(data) {
                     // Check all already selected rows. Selected samples are stored in this.samples array
                     if (UtilsNew.isNotUndefinedOrNull(_table)) {

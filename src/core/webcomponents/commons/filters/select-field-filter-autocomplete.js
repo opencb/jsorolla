@@ -206,6 +206,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
             maxItems: 0,
             limitToShow: 20,
             fileUpload: true,
+            showList: true,
             fields: item => ({name: item.id}),
             dataSource: (query, process) => {
                 throw new Error("dataSource not defined");
@@ -327,7 +328,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                     </div>
                 ` : null}
                 
-                ${this.selectionList.length ? html`
+                ${this.showList && this.selectionList.length ? html`
                     <div class="selection-list">
                         <ul>
                             ${this.selectionList.slice(0, this._config.limitToShow).map(term => html`<li><span class="badge break-spaces">${term}</span></li>`)}

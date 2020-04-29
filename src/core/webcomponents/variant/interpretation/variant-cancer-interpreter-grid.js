@@ -232,11 +232,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                 //         }
                 //     }));
                 // },
-                onLoadSuccess: data => {
-                    if (data.rows && data.rows.length > 0) {
-                        this.gridCommons.onLoadSuccess(data, data.rows[0].id, 2)
-                    }
-                },
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 2),
                 // onLoadSuccess: data => {
                 //     // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
                 //     if (UtilsNew.isNotEmptyArray(data.rows) && UtilsNew.isNotUndefinedOrNull(this.table)) {

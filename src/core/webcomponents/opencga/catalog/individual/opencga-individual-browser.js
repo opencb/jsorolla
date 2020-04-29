@@ -250,7 +250,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
                 detail: [
                     {
                         id: "individual-view",
-                        title: "Individual detail",
+                        title: "Details",
                         active: true
                     }
                 ]

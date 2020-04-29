@@ -195,7 +195,7 @@ export default class OpencgaCohortBrowser extends LitElement {
                 detail: [
                     {
                         id: "cohort-view",
-                        title: "Cohort detail",
+                        title: "Details",
                         active: true
                     }
                 ]

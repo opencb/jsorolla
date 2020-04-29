@@ -103,12 +103,12 @@ export default class GridCommons {
         }));
     }
 
-    onLoadSuccess(data, rowId, firstRowIndex = 2) {
+    onLoadSuccess(data, firstRowIndex = 2) {
         if (data.rows && data.rows.length >= firstRowIndex) {
             $("#" + this.gridId)[0].rows[firstRowIndex].setAttribute("class", "success");
             this.context.dispatchEvent(new CustomEvent("selectrow", {
                 detail: {
-                    id: rowId,
+                    id: data.rows[0].id,
                     row: data.rows[0]
                 }
             }));

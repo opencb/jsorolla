@@ -231,7 +231,7 @@ export default class OpencgaJobsBrowser extends LitElement {
                 detail: [
                     {
                         id: "job-detail",
-                        title: "Job detail",
+                        title: "Details",
                         active: true
                     },
                     {

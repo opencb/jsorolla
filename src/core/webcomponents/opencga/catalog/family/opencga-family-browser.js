@@ -201,7 +201,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
                 detail: [
                     {
                         id: "family-view",
-                        title: "Family detail",
+                        title: "Details",
                         active: true
                     }
                 ]
