@@ -21,7 +21,7 @@ import PolymerUtils from "../PolymerUtils.js";
 import Region from "../../region.js";
 import "../../../genome-browser/webcomponent/genome-browser.js";
 import "./catalog/samples/opencga-sample-browser.js";
-
+import "../commons/filters/sample-id-autocomplete.js";
 
 export default class OpencgaGenomeBrowser extends LitElement {
 
@@ -139,6 +139,10 @@ export default class OpencgaGenomeBrowser extends LitElement {
         }
     }
 
+    onFilterChange(_, e) {
+        this._addSample(e)
+    }
+
     addSample(e) {
         const sample = PolymerUtils.getElementById(this._prefix + "AutocompleteSearchInput").value;
         this._addSample(sample);
@@ -155,20 +159,20 @@ export default class OpencgaGenomeBrowser extends LitElement {
 
         const queryParams = {
             study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
-            sample: sample,
+            samples: sample,
             format: "VCF,BAM",
             include: "path,name,format,bioformat"
         };
 
-        const _this = this;
         this.opencgaClient.files().search(queryParams)
-            .then(values => {
-                if (values.response[0].result !== undefined && values.response[0].result.length > 0) {
-                    _this.push("_availableFiles", {
-                        name: sample,
-                        files: values.response[0].result
-                    });
-                }
+            .then(response => {
+                //console.log("response", response)
+                const results = response.getResults();
+                this._availableFiles.push({
+                    name: sample,
+                    files: results
+                })
+                this.requestUpdate();
             })
             .catch(function(response) {
                 //_this.showErrorAlert(response.error);
@@ -289,8 +293,11 @@ export default class OpencgaGenomeBrowser extends LitElement {
                             Search samples by ID:
                         </div>
                         <div class="col-md-2">
+                            <sample-id-autocomplete .config="${{showList: false}}" .opencgaSession="${this.opencgaSession}" .value="${true}" @filterChange="${e => this.onFilterChange("samples", e.detail.value)}"></sample-id-autocomplete>
+                        </div>
+                        <div class="col-md-2">
                             <input id="${this._prefix}AutocompleteSearchInput" type="text" class="form-control form-control-sm" placeholder="HG01879..."
-                                   list="${this._prefix}AutocompleteSearchDataList" @keyup="${this._autocompleteSampleSearch}">
+                                   list="${this._prefix}AutocompleteSearchDataList" @input="${this._autocompleteSampleSearch}">
                             <datalist id="${this._prefix}AutocompleteSearchDataList"></datalist>
                         </div>
                         <div class="col-md-2">

@@ -265,7 +265,7 @@ export default class OpencgaJobsGrid extends LitElement {
                     _this.files = _this._files.slice();
 
                 },
-                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, data.rows[0].id, 1),
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
                 /*onLoadSuccess: function(data) {
                     console.log("onLoadSuccess")
                     // Check all already selected rows. Selected files are stored in this.files array

@@ -126,76 +126,63 @@ export default class OpencgaSampleView extends LitElement {
         </style>
 
         ${this.sample ? html`
-            <div class="row" style="padding: 0px 10px">
+            <div class="row">
                 <div class="col-md-12">
                     <h3 class="section-title">Summary</h3>
-
-                    <div class="col-md-6">
-                        <!--<label>Sample</label>-->
-                        <!--<hr style="margin: 2px 0px;border-top: 2px solid #eee">-->
-                        <form class="form-horizontal">
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Sample ID</label>
-                                <span class="col-md-9">${this.sample.id}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Version</label>
-                                <span class="col-md-9">${this.sample.version}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">UUID</label>
-                                <span class="col-md-9">${this.sample.uuid}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Release</label>
-                                <span class="col-md-9">${this.sample.release}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Status</label>
-                                <span class="col-md-9">${this.sample.internal.status.name}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Creation Date</label>
-                                <span class="col-md-9">${this.sample.creationDate}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Modification Date</label>
-                                <span class="col-md-9">${this.sample.modificationDate}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Description</label>
-                                <span class="col-md-9">${this.sample.description}</span>
-                            </div>
-                        </form>
-                    </div>
-
-                    <div class="col-md-6">
-                        <form class="form-horizontal">
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">File</label>
-                                <span class="col-md-9">${this.sample.source}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Type</label>
-                                <span class="col-md-9">${this.sample.type}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Somatic</label>
-                                <span class="col-md-9">${this.sample.somatic}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Phenotypes</label>
-                                <span class="col-md-9">
-                                ${this.sample.phenotypes && this.sample.phenotypes.length ? this.sample.phenotypes.map( item => html`
-                                    <span>${this.item.name} (<a href="http://compbio.charite.de/hpoweb/showterm?id=${this.item.id}" target="_blank">${this.item.id}</a>)</span>
-                                    <br>
-                                `) : null}
-                            </span>
-                            </div>
-                        </form>
-                    </div>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Sample ID</label>
+                            <span class="col-md-9">${this.sample.id}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Version</label>
+                            <span class="col-md-9">${this.sample.version}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">UUID</label>
+                            <span class="col-md-9">${this.sample.uuid}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Release</label>
+                            <span class="col-md-9">${this.sample.release}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Status</label>
+                            <span class="col-md-9">${this.sample.internal.status.name}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Creation Date</label>
+                            <span class="col-md-9">${this.sample.creationDate}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Modification Date</label>
+                            <span class="col-md-9">${this.sample.modificationDate}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Description</label>
+                            <span class="col-md-9">${this.sample.description}</span>
+                        </div>
+                    </form>
                 </div>
-    
+
+                <div class="col-md-12">
+                    <h3 class="section-title">Phenotypes</h3>
+                    <form class="form-horizontal">
+                        <!--<div class="form-group">
+                            <label class="col-md-3 label-title">Type</label>
+                            <span class="col-md-9">${this.sample.type}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Somatic</label>
+                            <span class="col-md-9">${this.sample.somatic}</span>
+                        </div> -->
+                        ${this.sample.phenotypes && this.sample.phenotypes.length ? this.sample.phenotypes.map( item => html`
+                            <span>${item.name} (<a href="http://compbio.charite.de/hpoweb/showterm?id=${item.id}" target="_blank">${item.id}</a>)</span>
+                            <br>
+                        `) : null}
+                    </form>
+                </div>
+                        
                 <div class="col-md-12">
                     <h3 class="section-title">Annotations</h3>
     

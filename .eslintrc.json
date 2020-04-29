@@ -28,5 +28,11 @@
     "object-curly-spacing": 1,
     "valid-jsdoc": [2, {"prefer": {"return": "returns"}}],
     "require-jsdoc": 0
-  }
+  },
+  "plugins": [
+    "cypress"
+  ],
+  "extends": [
+    "plugin:cypress/recommended"
+  ]
 }

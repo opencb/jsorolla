@@ -279,8 +279,6 @@ export default class VariantModalOntology extends LitElement {
                                 <div class="row">
                                     <div class="col-sm-12">
                                         <label>Introduce an ${this.term} term</label>
-                                    </div>
-                                    <div class="col-sm-6" style="overflow-y: auto; height:400px;" id="${this._prefix}divDatalist">
                                         <form>
                                             <fieldset>
                                                 <div class="form-group">
@@ -291,6 +289,12 @@ export default class VariantModalOntology extends LitElement {
                                                 </div>
                                             </fieldset>
                                         </form>
+                                    </div>
+                                    <div class="col-sm-6" style="overflow-y: auto; height:400px;">
+                                        <div id="${this._prefix}TermsTree"></div>
+                                    </div>
+                                    <div class="col-sm-6" style="overflow-y: auto; height:400px;" id="${this._prefix}divDatalist">
+                                        
                                         ${this.selectedTerm ? html`
                                             <ul class="list-group infoHpo">
                                                 <li class="list-group-item"><strong>Label: </strong>${this.selectedTerm.label}</li>
@@ -307,10 +311,6 @@ export default class VariantModalOntology extends LitElement {
                                                 <li class="list-group-item">${item.label}(${item.obo_id}) <button type="button" class="btn danger" @click="${this.deleteTermFromList}" data-selected-term-id="${item.obo_id}">X</button></li>
                                             `) : null}
                                         </ul>
-                                    </div>
-            
-                                    <div class="col-sm-6" style="overflow-y: auto; height:400px;">
-                                        <div id="${this._prefix}TermsTree"></div>
                                     </div>
                                 </div>
                             </div>

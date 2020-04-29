@@ -323,7 +323,7 @@ export default class OpencgaFamilyGrid extends LitElement {
                         }
                     }
                 },
-                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, data.rows[0]?.id, 1),
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
                 onPageChange: (page, size) => this.gridCommons.onPageChange(page, size),
                 onPostBody: function(data) {
                     // Add tooltips

@@ -77,7 +77,6 @@ export default class OpencgaFileGrid extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
-    // todo recheck! it was connectedCallback() and ready()
     firstUpdated(_changedProperties) {
         this._initTableColumns();
         this.dispatchEvent(new CustomEvent("clear", {detail: {}, bubbles: true, composed: true}));
@@ -245,7 +244,7 @@ export default class OpencgaFileGrid extends LitElement {
                     _this.files = _this._files.slice();
 
                 },
-                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, data.rows[0].id, 1),
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
                 onPageChange: (page, size) => this.gridCommons.onPageChange(page, size)
             });
 

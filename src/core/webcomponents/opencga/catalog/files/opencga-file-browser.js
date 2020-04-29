@@ -214,7 +214,7 @@ export default class OpencgaFileBrowser extends LitElement {
                 detail: [
                     {
                         id: "file-view",
-                        title: "File detail",
+                        title: "Details",
                         active: true
                     },
                     {

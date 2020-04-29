@@ -144,6 +144,12 @@ export default class OpencgaSampleDetail extends LitElement {
                         <opencga-individual-view .opencgaSession="${this.opencgaSession}" .individual="${this.individual}">
                         </opencga-individual-view>
                     </div>
+                    <div id="file-view-tab" class="tab-pane" role="tabpanel">
+                        <opencga-file-grid .opencgaSession="${this.opencgaSession}"
+                                           .query="${{samples: this.sample.id}}"
+                                           .search="${{samples: this.sample.id}}">
+                        </opencga-file-grid>
+                    </div>
                 </div>
                 
             </div>
