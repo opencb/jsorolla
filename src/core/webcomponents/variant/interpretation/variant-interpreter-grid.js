@@ -1066,7 +1066,7 @@ export default class VariantInterpreterGrid extends LitElement {
             pageList: [10, 25, 50],
             showExport: false,
             detailView: true,
-            showReview: true,
+            showReview: false,
 
             showSelectCheckbox: true,
             multiSelection: false,

@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-import {LitElement, html, css} from "/web_modules/lit-element.js";
+import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import "./variant-interpreter-grid.js";
-import "./variant-cancer-interpreter-summary.js";
-import "./variant-cancer-interpreter-landing.js";
-import "./opencga-variant-interpretation-editor.js";
-import "./opencga-variant-interpretation-detail.js";
-import "./opencga-variant-interpreter-genome-browser.js";
+import "./variant-interpreter-detail.js";
+// import "./variant-cancer-interpreter-landing.js";
 import "../opencga-variant-filter.js";
 import "../../opencga/alignment/opencga-panel-transcript-view.js";
 import "../../opencga/opencga-genome-browser.js";
@@ -33,7 +30,7 @@ import "../../commons/filters/select-field-filter-autocomplete-simple.js";
 import {biotypes, tooltips, consequenceTypes, populationFrequencies} from "../../commons/opencga-variant-contants.js";
 
 
-class VariantCancerInterpreter extends LitElement {
+class VariantInterpreterCancerBrowser extends LitElement {
 
     constructor() {
         super();
@@ -79,12 +76,10 @@ class VariantCancerInterpreter extends LitElement {
     }
 
     _init() {
-        this._prefix = "vci-" + UtilsNew.randomString(6);
+        this._prefix = "vicb-" + UtilsNew.randomString(6);
 
         this.diseasePanelIds = [];
-        this.hasClinicalAnalysis = false;
 
-        // this.checkProjects = false;
         this.interactive = true;
         this.filterClass = "col-md-2";
         this.gridClass = "col-md-10";
@@ -145,13 +140,13 @@ class VariantCancerInterpreter extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
 
         // Check if Beacon hosts are configured
-        for (const detail of this._config.filter.detail.views) {
-            if (detail.id === "beacon" && UtilsNew.isNotEmptyArray(detail.hosts)) {
-                this.beaconConfig = {
-                    hosts: detail.hosts
-                };
-            }
-        }
+        // for (const detail of this._config.filter.detail.views) {
+        //     if (detail.id === "beacon" && UtilsNew.isNotEmptyArray(detail.hosts)) {
+        //         this.beaconConfig = {
+        //             hosts: detail.hosts
+        //         };
+        //     }
+        // }
 
         this.requestUpdate();
     }
@@ -185,23 +180,9 @@ class VariantCancerInterpreter extends LitElement {
         }
     }
 
-    onClinicalAnalysis(e) {
-        this.clinicalAnalysis = e.detail.clinicalAnalysis;
-        this.requestUpdate();
-    }
-
-    onClinicalAnalysisEditor(e) {
-        // console.warn("onClinicalAnalysisEditor commented")
-        // console.warn(" e.detail.clinicalAnalysis", e.detail.clinicalAnalysis)
-        // this.clinicalAnalysis = Object.assign({}, e.detail.clinicalAnalysis);
-    }
-
-    // interactiveObserver() {
-    //     if (!this.interactive) {
-    //         this.collapseFilter();
-    //     } else {
-    //         this.unCollapseFilter();
-    //     }
+    // onClinicalAnalysis(e) {
+    //     this.clinicalAnalysis = e.detail.clinicalAnalysis;
+    //     this.requestUpdate();
     // }
 
     onCollapse() {
@@ -226,11 +207,6 @@ class VariantCancerInterpreter extends LitElement {
         }
     }
 
-    unsetClinicalAnalysis() {
-        this.clinicalAnalysisId = null;
-        this.clinicalAnalysis = null;
-    }
-
     /**
      * Set properties for LowCoverage tools and others
      */
@@ -246,7 +222,6 @@ class VariantCancerInterpreter extends LitElement {
             this.geneIds = _geneIds;
         }
     }
-
 
     onClear() {
         const _search = {};
@@ -274,7 +249,6 @@ class VariantCancerInterpreter extends LitElement {
 
     onSampleChange(e) {
         const _samples = e.detail.samples;
-        // this.set("samples", _samples.slice());
         this.samples =_samples.slice();
         this.dispatchEvent(new CustomEvent("samplechange", {detail: e.detail, bubbles: true, composed: true}));
         // this._initGenotypeSamples(this.samples);
@@ -297,16 +271,16 @@ class VariantCancerInterpreter extends LitElement {
     onChangeView(e) {
         e.preventDefault();
         const view = e.target.dataset.view;
-        if (UtilsNew.isNotUndefinedOrNull(view)) {
+        if (view) {
             // Hide all views and show the requested one
             PolymerUtils.hideByClass("variant-interpretation-content");
             PolymerUtils.show(this._prefix + view);
 
-            if (view === "TableResult" || view === "SummaryReport") {
-                PolymerUtils.show(this._prefix + "ActiveFilters");
-            } else {
-                PolymerUtils.hide(this._prefix + "ActiveFilters");
-            }
+            // if (view === "TableResult" || view === "SummaryReport") {
+            //     PolymerUtils.show(this._prefix + "ActiveFilters");
+            // } else {
+            //     PolymerUtils.hide(this._prefix + "ActiveFilters");
+            // }
 
             // Show the active button
             // $(e.target).addClass("active");
@@ -318,101 +292,101 @@ class VariantCancerInterpreter extends LitElement {
         // this._genomeBrowserActive = (e.target.dataset.view === "GenomeBrowser");
     }
 
-    onViewInterpretation(e) {
-        this.interpretationView = this._createInterpretation();
-    }
+    // onViewInterpretation(e) {
+    //     this.interpretationView = this._createInterpretation();
+    // }
 
-    onSaveInterpretation(e, obj) {
-        const id = PolymerUtils.getValue(this._prefix + "IDInterpretation");
-        const description = PolymerUtils.getValue(this._prefix + "DescriptionInterpretation");
-        const comment = PolymerUtils.getValue(this._prefix + "CommentInterpretation");
+    // onSaveInterpretation(e, obj) {
+    //     const id = PolymerUtils.getValue(this._prefix + "IDInterpretation");
+    //     const description = PolymerUtils.getValue(this._prefix + "DescriptionInterpretation");
+    //     const comment = PolymerUtils.getValue(this._prefix + "CommentInterpretation");
+    //
+    //     if (UtilsNew.isNotEmpty(id)) {
+    //         if (/\s/.test(id)) {
+    //             this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+    //                 detail: {
+    //                     message: "ID must not contains blanks.",
+    //                     type: UtilsNew.MESSAGE_ERROR
+    //                 },
+    //                 bubbles: true,
+    //                 composed: true
+    //             }));
+    //         } else {
+    //             this.interpretation = this._createInterpretation();
+    //         }
+    //     } else {
+    //         this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+    //             detail: {
+    //                 message: "ID must not be empty.",
+    //                 type: UtilsNew.MESSAGE_ERROR
+    //             },
+    //             bubbles: true,
+    //             composed: true
+    //         }));
+    //     }
+    // }
 
-        if (UtilsNew.isNotEmpty(id)) {
-            if (/\s/.test(id)) {
-                this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-                    detail: {
-                        message: "ID must not contains blanks.",
-                        type: UtilsNew.MESSAGE_ERROR
-                    },
-                    bubbles: true,
-                    composed: true
-                }));
-            } else {
-                this.interpretation = this._createInterpretation();
-            }
-        } else {
-            this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-                detail: {
-                    message: "ID must not be empty.",
-                    type: UtilsNew.MESSAGE_ERROR
-                },
-                bubbles: true,
-                composed: true
-            }));
-        }
-    }
-
-    _createInterpretation() {
-        try {
-            const userId = this.opencgaSession.opencgaClient._config.userId;
-            const interpretation = {};
-            this.clinicalAnalysis.interpretations = this.clinicalAnalysis.interpretations ? this.clinicalAnalysis.interpretations : [];
-            interpretation.id = this.clinicalAnalysis.id + "-" + this.clinicalAnalysis.interpretations.length + 1;
-            interpretation.clinicalAnalysisId = this.clinicalAnalysis.id;
-            // interpretation.description = PolymerUtils.getValue(this._prefix + "DescriptionInterpretation");
-            interpretation.software = {
-                name: "IVA",
-                version: "2.0.0-beta",
-                repository: "https://github.com/opencb/iva",
-                commit: "",
-                website: "",
-                params: {}
-            };
-            interpretation.analyst = {
-                name: userId,
-                email: "",
-                company: ""
-            };
-            interpretation.dependencies = [
-                {
-                    name: "CellBase", repository: "https://github.com/opencb/cellbase", version: this.cellbaseVersion
-                }
-            ];
-            interpretation.filters = this.query;
-            //                interpretation.creationDate = Date();
-            // interpretation.comments = [{
-            //     author: userId,
-            //     type: "comment",
-            //     text: PolymerUtils.getValue(this._prefix + "CommentInterpretation"),
-            //     date: moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY')
-            // }];
-
-            // Remove 'stateCheckbox' from the variant list. When we receive the list from the grid, we are getting
-            // an additional field that should not be present in a reported variant.
-            // let allCheckedVariants = [].concat(this.checkedVariants).concat(this.checkedCompHetVariants).concat(this.checkedDeNovoVariants);
-            const reportedVariants = [];
-            for (const i in this.checkedVariants) {
-                const variant = Object.assign({}, this.checkedVariants[i]);
-                delete variant["stateCheckBox"];
-                reportedVariants.push(variant);
-            }
-            interpretation.primaryFindings = reportedVariants;
-            interpretation.attributes = {};
-            // interpretation.creationDate = moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY');
-
-            this.interpretation = interpretation;
-            this.requestUpdate();
-        } catch (err) {
-            this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-                detail: {
-                    message: err,
-                    type: UtilsNew.MESSAGE_ERROR
-                },
-                bubbles: true,
-                composed: true
-            }));
-        }
-    }
+    // _createInterpretation() {
+    //     try {
+    //         const userId = this.opencgaSession.opencgaClient._config.userId;
+    //         const interpretation = {};
+    //         this.clinicalAnalysis.interpretations = this.clinicalAnalysis.interpretations ? this.clinicalAnalysis.interpretations : [];
+    //         interpretation.id = this.clinicalAnalysis.id + "-" + this.clinicalAnalysis.interpretations.length + 1;
+    //         interpretation.clinicalAnalysisId = this.clinicalAnalysis.id;
+    //         // interpretation.description = PolymerUtils.getValue(this._prefix + "DescriptionInterpretation");
+    //         interpretation.software = {
+    //             name: "IVA",
+    //             version: "2.0.0-beta",
+    //             repository: "https://github.com/opencb/iva",
+    //             commit: "",
+    //             website: "",
+    //             params: {}
+    //         };
+    //         interpretation.analyst = {
+    //             name: userId,
+    //             email: "",
+    //             company: ""
+    //         };
+    //         interpretation.dependencies = [
+    //             {
+    //                 name: "CellBase", repository: "https://github.com/opencb/cellbase", version: this.cellbaseVersion
+    //             }
+    //         ];
+    //         interpretation.filters = this.query;
+    //         //                interpretation.creationDate = Date();
+    //         // interpretation.comments = [{
+    //         //     author: userId,
+    //         //     type: "comment",
+    //         //     text: PolymerUtils.getValue(this._prefix + "CommentInterpretation"),
+    //         //     date: moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY')
+    //         // }];
+    //
+    //         // Remove 'stateCheckbox' from the variant list. When we receive the list from the grid, we are getting
+    //         // an additional field that should not be present in a reported variant.
+    //         // let allCheckedVariants = [].concat(this.checkedVariants).concat(this.checkedCompHetVariants).concat(this.checkedDeNovoVariants);
+    //         const reportedVariants = [];
+    //         for (const i in this.checkedVariants) {
+    //             const variant = Object.assign({}, this.checkedVariants[i]);
+    //             delete variant["stateCheckBox"];
+    //             reportedVariants.push(variant);
+    //         }
+    //         interpretation.primaryFindings = reportedVariants;
+    //         interpretation.attributes = {};
+    //         // interpretation.creationDate = moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY');
+    //
+    //         this.interpretation = interpretation;
+    //         this.requestUpdate();
+    //     } catch (err) {
+    //         this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+    //             detail: {
+    //                 message: err,
+    //                 type: UtilsNew.MESSAGE_ERROR
+    //             },
+    //             bubbles: true,
+    //             composed: true
+    //         }));
+    //     }
+    // }
 
 
     onVariantFilterChange(e) {
@@ -634,9 +608,9 @@ class VariantCancerInterpreter extends LitElement {
                         pageList: [5, 10, 25, 50],
                         showExport: false,
                         detailView: true,
+                        showReview: false,
 
                         showSelectCheckbox: true,
-                        showStatus: false,
                         multiSelection: false,
                         nucleotideGenotype: true,
                         alleleStringLengthMax: 10,
@@ -873,61 +847,9 @@ class VariantCancerInterpreter extends LitElement {
                                 <i class="fa fa-filter icon-padding" aria-hidden="true" data-view="TableResult" @click="${this.onChangeView}"></i>Table Result
                             </button>
                             <button id="${this._prefix}SummaryReportButton" type="button" class="btn btn-success variant-interpretation-view-buttons ripple" data-view="SummaryReport" @click="${this.onChangeView}">
-                                <i class="fas fa-random icon-padding" aria-hidden="true" data-view="SummaryReport" @click="${this.onChangeView}"></i>Summary Report
+                                <i class="fas fa-random icon-padding" aria-hidden="true" data-view="SummaryReport" @click="${this.onChangeView}"></i>Summary Stats
                             </button>
                         </div>
-        
-                        ${this._config.showOtherTools ? html`
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-success dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fa fa-wrench" aria-hidden="true" style="padding-right: 5px"></i> Other Tools <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-right">
-                                    <li>
-                                        <a id="${this._prefix}LowCoverageButton" data-view="LowCoverage" @click="${this.onChangeView}" style="cursor: pointer">
-                                            <i class="fa fa-water icon-padding" aria-hidden="true" data-view="LowCoverage" @click="${this.onChangeView}"></i>Low Coverage Regions
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a id="${this._prefix}GenomeBrowserButton" data-view="GenomeBrowser" @click="${this.onChangeView}" data-view="GenomeBrowser" style="cursor: pointer">
-                                            <i class="fa fa-stream icon-padding" aria-hidden="true" data-view="GenomeBrowser" @click="${this.onChangeView}"></i>Genome Browser (Beta)
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        ` : null}
-        
-                        <!-- Right buttons -->
-                        <div class="btn-toolbar" role="toolbar" aria-label="..." style="float: right;display: none">
-                            <div class="btn-group">
-                                <button id="${this._prefix}InterpretationEditorButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
-                                            data-view="InterpretationEditor" @click="${this.onChangeView}" .disabled="${this._config.disableSaveInterpretation}">
-                                        <i class="fa fa-save icon-padding" aria-hidden="true" data-view="InterpretationEditor" @click="${this.onChangeView}"></i>Review
-                                </button>
-                                 <button id="${this._prefix}InterpretationEditorButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
-                                            data-view="InterpretationEditor" @click="${this.onChangeView}" .disabled="${this._config.disableSaveInterpretation}">
-                                        <i class="fa fa-save icon-padding" aria-hidden="true" data-view="InterpretationEditor" @click="${this.onChangeView}"></i>Save
-                                </button>
-                            </div>
-                            
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fa fa-cog icon-padding" aria-hidden="true"></i>Clinical Analysis <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <a href="#" data-view="ClinicalAnalysis" @click="${this.onChangeView}"><i class="fa fa-user-md icon-padding" aria-hidden="true" data-view="ClinicalAnalysis" @click="${this.onChangeView}"></i>View</a>
-                                    </li>
-                                    <li class="disabled">
-                                        <a href="#" data-view="ClinicalAnalysis" @click="${this.onChangeView}"><i class="fa fa-user-md icon-padding" aria-hidden="true" data-view="ClinicalAnalysis" @click="${this.onChangeView}"></i>Create</a>
-                                    </li>
-                                    <li>
-                                        <a @click="${this.unsetClinicalAnalysis}" style="cursor: pointer"><i class="fas fa-window-close icon-padding" @click="${this.unsetClinicalAnalysis}"></i>Close</a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        
                     </div>  <!-- Close toolbar -->
                 
                     <div id="${this._prefix}MainContent">
@@ -947,6 +869,7 @@ class VariantCancerInterpreter extends LitElement {
                                                     @activeFilterClear="${this.onActiveFilterClear}">
                             </opencga-active-filters>
                         </div>
+                        
                         <div class="main-view" style="padding-top: 5px">
                             <div id="${this._prefix}TableResult" class="variant-interpretation-content active">
                                 <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
@@ -963,104 +886,21 @@ class VariantCancerInterpreter extends LitElement {
                                 </variant-interpreter-grid>
                 
                                 <!-- Bottom tabs with detailed variant information -->
-                                <opencga-variant-interpretation-detail .opencgaSession="${this.opencgaSession}"
-                                                                       .cellbaseClient="${this.cellbaseClient}"
-                                                                       .variant="${this.variant}"
-                                                                       .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                       .consequenceTypes="${this.consequenceTypes}"
-                                                                       .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                                       .config=${this._config.filter.detail}>
-                                </opencga-variant-interpretation-detail>
+                                <variant-interpreter-detail .opencgaSession="${this.opencgaSession}"
+                                                            .cellbaseClient="${this.cellbaseClient}"
+                                                            .variant="${this.variant}"
+                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                            .consequenceTypes="${this.consequenceTypes}"
+                                                            .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                            .config=${this._config.filter.detail}>
+                                </variant-interpreter-detail>
                             </div>
-                             
-                             <!-- SUMMARY REPORT VIEW -->
-                            <div id="${this._prefix}SummaryReport" class="variant-interpretation-content" style="display: none">
-                                <variant-cancer-interpreter-summary .opencgaSession="${this.opencgaSession}"
-                                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
-                                </variant-cancer-interpreter-summary>
-                            </div>
-                            
-                            <!-- PANEL LOW COVERAGE VIEW -->
-                            <div id="${this._prefix}LowCoverage" class="variant-interpretation-content" style="display: none">
-                                <opencga-panel-transcript-view .opencgaSession="${this.opencgaSession}"
-                                                               .cellbaseClient="${this.cellbaseClient}"
-                                                               .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                               .geneIds="${this.geneIds}"
-                                                               .panelIds="${this.diseasePanelIds}">
-                                </opencga-panel-transcript-view>
-                            </div>
-            
-                            <!-- GENOME BROWSER VIEW -->
-                            <div id="${this._prefix}GenomeBrowser" class="variant-interpretation-content" style="display: none">
-                                <!--
-                                <opencga-variant-interpreter-genome-browser .opencgaSession="${this.opencgaSession}"
-                                                                            .cellbaseClient="${this.cellbaseClient}"
-                                                                            .samples="${this.samples}"
-                                                                            .query="${this.query}"
-                                                                            .search="${this.search}"
-                                                                            .region="${this.search.region}"
-                                                                            .geneIds="${this.geneIds}"
-                                                                            .panelIds="${this.diseasePanelIds}"
-                                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                            .active="${this._genomeBrowserActive}"
-                                                                            .fullScreen="${this.fullScreen}"
-                                                                            .config="${this._config.genomeBrowser}">
-                                </opencga-variant-interpreter-genome-browser>
-                                -->
-                            </div>
-        
-        
-                            <!-- CLINICAL ANALYSIS VIEW -->
-                            <div id="${this._prefix}ClinicalAnalysis" class="variant-interpretation-content" style="padding: 0px 20px;display: none">
-                                <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
-                                                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                style="font-size: 12px"
-                                                                .config="${this._config}">
-                                </opencga-clinical-analysis-view>
-                            </div>
-            
-                            <!-- CREATE CLINICAL ANALYSIS TAB -->
-                            <div id="${this._prefix}ClinicalAnalysisEditor" class="variant-interpretation-content" style="display: none">
-                                <!--<div id="${this._prefix}ClinicalAnalysisCreatorWarning" class="col-md-10 col-md-offset-2" style="padding: 20px 10px">-->
-                                <!--<span class="alert alert-warning" role="alert" style="padding: 10px 10px;font-weight: bold;font-size: 1.2em">-->
-                                <!--No valid Clinical Analysis found, please fill the form below to define one case. You can also save it.-->
-                                <!--</span>-->
-                                <!--</div>-->
-                                <div style="padding: 10px 20px">
-                                    <opencga-clinical-analysis-editor .opencgaSession="${this.opencgaSession}"
-                                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                        .config="${this._config.clinicalAnalysisBrowser}"
-                                                                        @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
-                                    </opencga-clinical-analysis-editor>
-                                </div>
-                            </div>
-            
-                            <!-- SAVE INTERPRETATION TAB -->
-                            <div id="${this._prefix}InterpretationEditor" class="variant-interpretation-content" style="display: none">
-                                <div style="padding: 10px 20px">
-                                    <!--                                clinical-analysis="{{clinicalAnalysis}}"-->
-                                    <!--                                reported-variants="{{checkedVariants}}"-->
-                                    <opencga-variant-interpretation-editor .opencgaSession="${this.opencgaSession}"
-                                                                           .cellbaseClient="${this.cellbaseClient}"
-                                                                           .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                           .interpretation="${this.interpretation}"
-                                                                           .populationFrequencies="${this.populationFrequencies}"
-                                                                           .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                                           .consequenceTypes="${this.consequenceTypes}"
-                                                                           .config="${this._config}"
-                                                                           @gene="${this.geneSelected}"
-                                                                           @samplechange="${this.onSampleChange}"
-                                                                           style="font-size: 12px" >
-                                    </opencga-variant-interpretation-editor>
-                                </div>
-                            </div>   
                         </div>
                     </div> <!-- Close MainContent -->
                 </div> <!-- Close col-md-10 -->
             </div> <!-- Close row -->
         `;
     }
-
 }
 
-customElements.define("variant-cancer-interpreter", VariantCancerInterpreter);
+customElements.define("variant-interpreter-cancer-browser", VariantInterpreterCancerBrowser);

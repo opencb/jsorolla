@@ -18,9 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import "./variant-interpreter-grid.js";
-import "./opencga-variant-interpretation-detail.js";
-import "./opencga-variant-interpretation-editor.js";
-import "./opencga-variant-interpreter-genome-browser.js";
+import "./variant-interpreter-detail.js";
 import "../opencga-variant-filter.js";
 import "../../opencga/alignment/opencga-panel-transcript-view.js";
 import "../../opencga/opencga-genome-browser.js";
@@ -30,7 +28,8 @@ import "../../commons/opencga-active-filters.js";
 import "../../commons/filters/select-field-filter-autocomplete-simple.js";
 import {biotypes, tooltips, consequenceTypes, populationFrequencies} from "../../commons/opencga-variant-contants.js";
 
-class VariantRdInterpreter extends LitElement {
+
+class VariantInterpreterRdBrowser extends LitElement {
 
     constructor() {
         super();
@@ -76,7 +75,7 @@ class VariantRdInterpreter extends LitElement {
     }
 
     _init() {
-        this._prefix = "ovi-" + UtilsNew.randomString(6);
+        this._prefix = "virdb-" + UtilsNew.randomString(6);
 
         this.diseasePanelIds = [];
 
@@ -186,20 +185,6 @@ class VariantRdInterpreter extends LitElement {
         }
     }
 
-    onClinicalAnalysisEditor(e) {
-        // console.warn("onClinicalAnalysisEditor commented")
-        // console.warn(" e.detail.clinicalAnalysis", e.detail.clinicalAnalysis)
-        // this.clinicalAnalysis = Object.assign({}, e.detail.clinicalAnalysis);
-    }
-
-    // interactiveObserver() {
-    //     if (!this.interactive) {
-    //         this.collapseFilter();
-    //     } else {
-    //         this.unCollapseFilter();
-    //     }
-    // }
-
     onCollapse() {
         if (this._collapsed) {
             this.unCollapseFilter();
@@ -222,16 +207,6 @@ class VariantRdInterpreter extends LitElement {
         }
     }
 
-    setClinicalAnalysisId() {
-        console.log($("#clinicalAnalysisIdText").val());
-        this.clinicalAnalysisId = $("#clinicalAnalysisIdText").val();
-    }
-
-    unsetClinicalAnalysis() {
-        this.clinicalAnalysisId = null;
-        this.clinicalAnalysis = null;
-    }
-
     /*
      * Set properties for LowCoverage tools and others
      */
@@ -248,17 +223,7 @@ class VariantRdInterpreter extends LitElement {
         }
     }
 
-    onVariantFilterChange(e) {
-        this.preparedQuery = {...e.detail.query};
-        this.preparedQuery = {...this.preparedQuery};
-        this.requestUpdate();
-    }
 
-    onVariantFilterSearch(e) {
-        this.preparedQuery = {...e.detail.query};
-        this.executedQuery = {...this.preparedQuery};
-        this.requestUpdate();
-    }
 
     onClear() {
         const _search = {};
@@ -275,12 +240,12 @@ class VariantRdInterpreter extends LitElement {
     }
 
     onSelectVariant(e) {
-        this.variant = e.detail.variant;
+        this.variant = e.detail.row;
         this.requestUpdate();
     }
 
     onCheckVariant(e) {
-        this.checkedVariants = e.detail.variants;
+        this.checkedVariants = e.detail.rows;
         this._createInterpretation();
     }
 
@@ -304,13 +269,15 @@ class VariantRdInterpreter extends LitElement {
         this.region = e.detail.genomeBrowserPosition;
     }
 
-    onChangeView(e) {
-        e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-        this._changeView(e.target.dataset.view);
-    }
+    // onChangeView(e) {
+    //     e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+    //     this._changeView(e.target.dataset.view);
+    // }
 
-    _changeView(view) {
-        if (UtilsNew.isNotUndefinedOrNull(view)) {
+    onChangeView(e) {
+        e.preventDefault();
+        const view = e.target.dataset.view;
+        if (view) {
             // Hide all views and show the requested one
             PolymerUtils.hideByClass("variant-interpretation-content");
             PolymerUtils.show(this._prefix + view);
@@ -325,132 +292,156 @@ class VariantRdInterpreter extends LitElement {
         // this._genomeBrowserActive = (e.target.dataset.view === "GenomeBrowser");
     }
 
-    _backToSelectAnalysis(e) {
-        this.dispatchEvent(new CustomEvent("backtoselectanalysis", {detail: {idTab: "PrioritizationButton"}}));
+    // _backToSelectAnalysis(e) {
+    //     this.dispatchEvent(new CustomEvent("backtoselectanalysis", {detail: {idTab: "PrioritizationButton"}}));
+    // }
+    //
+    // _goToReport(e) {
+    //     this.dispatchEvent(new CustomEvent("gotoreport", {detail: {interpretation: this.interpretation}}));
+    // }
+    //
+    // triggerBeacon(e) {
+    //     this.variantToBeacon = this.variant.id;
+    // }
+
+    // onViewInterpretation(e) {
+    //     this.interpretationView = this._createInterpretation();
+    // }
+
+    // onSaveInterpretation(e, obj) {
+    //     const id = PolymerUtils.getValue(this._prefix + "IDInterpretation");
+    //     const description = PolymerUtils.getValue(this._prefix + "DescriptionInterpretation");
+    //     const comment = PolymerUtils.getValue(this._prefix + "CommentInterpretation");
+    //
+    //     if (UtilsNew.isNotEmpty(id)) {
+    //         if (/\s/.test(id)) {
+    //             this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+    //                 detail: {
+    //                     message: "ID must not contains blanks.",
+    //                     type: UtilsNew.MESSAGE_ERROR
+    //                 },
+    //                 bubbles: true,
+    //                 composed: true
+    //             }));
+    //         } else {
+    //             this.interpretation = this._createInterpretation();
+    //         }
+    //     } else {
+    //         this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+    //             detail: {
+    //                 message: "ID must not be empty.",
+    //                 type: UtilsNew.MESSAGE_ERROR
+    //             },
+    //             bubbles: true,
+    //             composed: true
+    //         }));
+    //     }
+    // }
+
+    // _createInterpretation() {
+    //     try {
+    //         const userId = this.opencgaSession.opencgaClient._config.userId;
+    //         const interpretation = {};
+    //         interpretation.id = this.clinicalAnalysis.id + "-" + this.clinicalAnalysis.interpretations.length + 1;
+    //         interpretation.clinicalAnalysisId = this.clinicalAnalysis.id;
+    //         // interpretation.description = PolymerUtils.getValue(this._prefix + "DescriptionInterpretation");
+    //         interpretation.software = {
+    //             name: "IVA",
+    //             version: "1.0.1",
+    //             repository: "https://github.com/opencb/iva",
+    //             commit: "",
+    //             website: "",
+    //             params: {}
+    //         };
+    //         interpretation.analyst = {
+    //             name: userId,
+    //             email: "",
+    //             company: ""
+    //         };
+    //         interpretation.dependencies = [
+    //             {
+    //                 name: "CellBase", repository: "https://github.com/opencb/cellbase", version: this.cellbaseVersion
+    //             }
+    //         ];
+    //         interpretation.filters = this.query;
+    //         //                interpretation.creationDate = Date();
+    //         // interpretation.comments = [{
+    //         //     author: userId,
+    //         //     type: "comment",
+    //         //     text: PolymerUtils.getValue(this._prefix + "CommentInterpretation"),
+    //         //     date: moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY')
+    //         // }];
+    //
+    //         // Remove 'stateCheckbox' from the variant list. When we receive the list from the grid, we are getting
+    //         // an additional field that should not be present in a reported variant.
+    //         // let allCheckedVariants = [].concat(this.checkedVariants).concat(this.checkedCompHetVariants).concat(this.checkedDeNovoVariants);
+    //         const reportedVariants = [];
+    //         for (const i in this.checkedVariants) {
+    //             const variant = Object.assign({}, this.checkedVariants[i]);
+    //             delete variant["stateCheckBox"];
+    //             reportedVariants.push(variant);
+    //         }
+    //         if (UtilsNew.isNotEmptyArray(this.checkedCompHetVariants)) {
+    //             for (const i in this.checkedCompHetVariants) {
+    //                 const variant = Object.assign({}, this.checkedCompHetVariants[i]);
+    //                 delete variant["stateCheckBox"];
+    //                 reportedVariants.push(variant);
+    //             }
+    //         }
+    //         if (UtilsNew.isNotEmptyArray(this.checkedDeNovoVariants)) {
+    //             for (const i in this.checkedDeNovoVariants) {
+    //                 const variant = Object.assign({}, this.checkedDeNovoVariants[i]);
+    //                 delete variant["stateCheckBox"];
+    //                 reportedVariants.push(variant);
+    //             }
+    //         }
+    //
+    //         interpretation.primaryFindings = reportedVariants;
+    //         interpretation.attributes = {};
+    //         // interpretation.creationDate = moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY');
+    //
+    //         this.interpretation = interpretation;
+    //
+    //         this.requestUpdate();
+    //     } catch (err) {
+    //         this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+    //             detail: {
+    //                 message: err,
+    //                 type: UtilsNew.MESSAGE_ERROR
+    //             },
+    //             bubbles: true,
+    //             composed: true
+    //         }));
+    //     }
+    // }
+
+    onVariantFilterChange(e) {
+        this.preparedQuery = e.detail.query;
+        this.preparedQuery = {...this.preparedQuery};
+        this.requestUpdate();
     }
 
-    _goToReport(e) {
-        this.dispatchEvent(new CustomEvent("gotoreport", {detail: {interpretation: this.interpretation}}));
+    onVariantFilterSearch(e) {
+        this.preparedQuery = e.detail.query;
+        this.executedQuery = {...this.preparedQuery};
+        this.requestUpdate();
     }
 
-    triggerBeacon(e) {
-        this.variantToBeacon = this.variant.id;
+    onActiveFilterChange(e) {
+        this.query = {...e.detail};
+        this.preparedQuery = {...e.detail};
+        this.requestUpdate();
     }
 
-    onViewInterpretation(e) {
-        this.interpretationView = this._createInterpretation();
+    onActiveFilterClear() {
+        this.query = {study: this.opencgaSession.study.fqn};
+        this.preparedQuery = {...this.query};
+        this.requestUpdate();
     }
 
-    onSaveInterpretation(e, obj) {
-        const id = PolymerUtils.getValue(this._prefix + "IDInterpretation");
-        const description = PolymerUtils.getValue(this._prefix + "DescriptionInterpretation");
-        const comment = PolymerUtils.getValue(this._prefix + "CommentInterpretation");
-
-        if (UtilsNew.isNotEmpty(id)) {
-            if (/\s/.test(id)) {
-                this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-                    detail: {
-                        message: "ID must not contains blanks.",
-                        type: UtilsNew.MESSAGE_ERROR
-                    },
-                    bubbles: true,
-                    composed: true
-                }));
-            } else {
-                this.interpretation = this._createInterpretation();
-            }
-        } else {
-            this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-                detail: {
-                    message: "ID must not be empty.",
-                    type: UtilsNew.MESSAGE_ERROR
-                },
-                bubbles: true,
-                composed: true
-            }));
-        }
-    }
-
-    _createInterpretation() {
-        try {
-            const userId = this.opencgaSession.opencgaClient._config.userId;
-            const interpretation = {};
-            interpretation.id = this.clinicalAnalysis.id + "-" + this.clinicalAnalysis.interpretations.length + 1;
-            interpretation.clinicalAnalysisId = this.clinicalAnalysis.id;
-            // interpretation.description = PolymerUtils.getValue(this._prefix + "DescriptionInterpretation");
-            interpretation.software = {
-                name: "IVA",
-                version: "1.0.1",
-                repository: "https://github.com/opencb/iva",
-                commit: "",
-                website: "",
-                params: {}
-            };
-            interpretation.analyst = {
-                name: userId,
-                email: "",
-                company: ""
-            };
-            interpretation.dependencies = [
-                {
-                    name: "CellBase", repository: "https://github.com/opencb/cellbase", version: this.cellbaseVersion
-                }
-            ];
-            interpretation.filters = this.query;
-            //                interpretation.creationDate = Date();
-            // interpretation.comments = [{
-            //     author: userId,
-            //     type: "comment",
-            //     text: PolymerUtils.getValue(this._prefix + "CommentInterpretation"),
-            //     date: moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY')
-            // }];
-
-            // Remove 'stateCheckbox' from the variant list. When we receive the list from the grid, we are getting
-            // an additional field that should not be present in a reported variant.
-            // let allCheckedVariants = [].concat(this.checkedVariants).concat(this.checkedCompHetVariants).concat(this.checkedDeNovoVariants);
-            const reportedVariants = [];
-            for (const i in this.checkedVariants) {
-                const variant = Object.assign({}, this.checkedVariants[i]);
-                delete variant["stateCheckBox"];
-                reportedVariants.push(variant);
-            }
-            if (UtilsNew.isNotEmptyArray(this.checkedCompHetVariants)) {
-                for (const i in this.checkedCompHetVariants) {
-                    const variant = Object.assign({}, this.checkedCompHetVariants[i]);
-                    delete variant["stateCheckBox"];
-                    reportedVariants.push(variant);
-                }
-            }
-            if (UtilsNew.isNotEmptyArray(this.checkedDeNovoVariants)) {
-                for (const i in this.checkedDeNovoVariants) {
-                    const variant = Object.assign({}, this.checkedDeNovoVariants[i]);
-                    delete variant["stateCheckBox"];
-                    reportedVariants.push(variant);
-                }
-            }
-
-            interpretation.primaryFindings = reportedVariants;
-            interpretation.attributes = {};
-            // interpretation.creationDate = moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY');
-
-            this.interpretation = interpretation;
-
-            this.requestUpdate();
-        } catch (err) {
-            this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-                detail: {
-                    message: err,
-                    type: UtilsNew.MESSAGE_ERROR
-                },
-                bubbles: true,
-                composed: true
-            }));
-        }
-    }
-
-    onFilterChange(name, value) {
-        this.clinicalAnalysisId = value;
-    }
+    // onFilterChange(name, value) {
+    //     this.clinicalAnalysisId = value;
+    // }
 
     getDefaultConfig() {
         return {
@@ -786,23 +777,23 @@ class VariantRdInterpreter extends LitElement {
             `;
         }
 
-        if (!this.clinicalAnalysis) {
-            return html`
-                <div class="container">
-                    <div class="row">
-                        <div class="clinical-analysis-id-wrapper col-md-6 col-md-offset-3 shadow">
-                            <h3>Clinical Analysis</h3>
-                            <div class="text-filter-wrapper">
-                                <!--<input type="text" name="clinicalAnalysisText" id="clinicalAnalysisIdText" value="AN-3">-->
-                                <select-field-filter-autocomplete-simple .fn="${true}" resource="clinical-analysis" .value="${"AN-3"}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("clinicalAnalysisId", e.detail.value)}"></select-field-filter-autocomplete-simple>
-                                    
-                            </div>
-                            <button class="btn btn-default ripple" @click="${this.setClinicalAnalysisId}">Search</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
+        // if (!this.clinicalAnalysis) {
+        //     return html`
+        //         <div class="container">
+        //             <div class="row">
+        //                 <div class="clinical-analysis-id-wrapper col-md-6 col-md-offset-3 shadow">
+        //                     <h3>Clinical Analysis</h3>
+        //                     <div class="text-filter-wrapper">
+        //                         <!--<input type="text" name="clinicalAnalysisText" id="clinicalAnalysisIdText" value="AN-3">-->
+        //                         <select-field-filter-autocomplete-simple .fn="${true}" resource="clinical-analysis" .value="${"AN-3"}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("clinicalAnalysisId", e.detail.value)}"></select-field-filter-autocomplete-simple>
+        //
+        //                     </div>
+        //                     <button class="btn btn-default ripple" @click="${this.setClinicalAnalysisId}">Search</button>
+        //                 </div>
+        //             </div>
+        //         </div>
+        //     `;
+        // }
 
         let title = this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title;
 
@@ -895,75 +886,29 @@ class VariantRdInterpreter extends LitElement {
                                 <i class="fas fa-random icon-padding" aria-hidden="true" data-view="SummaryReport" @click="${this.onChangeView}"></i>Summary Report
                             </button>
                         </div>
-    
-                        ${this._config.showOtherTools ? html`
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-success dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fa fa-wrench" aria-hidden="true" style="padding-right: 5px"></i> Other Tools <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-right">
-                                    <li>
-                                        <a id="${this._prefix}LowCoverageButton" data-view="LowCoverage" @click="${this.onChangeView}" style="cursor: pointer">
-                                            <i class="fa fa-water icon-padding" aria-hidden="true" data-view="LowCoverage" @click="${this.onChangeView}"></i>Low Coverage Regions
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a id="${this._prefix}GenomeBrowserButton" data-view="GenomeBrowser" @click="${this.onChangeView}" data-view="GenomeBrowser" style="cursor: pointer">
-                                            <i class="fa fa-stream icon-padding" aria-hidden="true" data-view="GenomeBrowser" @click="${this.onChangeView}"></i>Genome Browser (Beta)
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        ` : null}
-    
-                        <!-- Right buttons -->
-                        <div class="btn-group" role="group" aria-label="..." style="float: right">
-                            <button id="${this._prefix}ClinicalAnalysisButton" type="button" class="btn btn-primary variant-interpretation-view-buttons" data-view="ClinicalAnalysis" @click="${this.onChangeView}">
-                                <i class="fa fa-user-md icon-padding" aria-hidden="true" data-view="ClinicalAnalysis" @click="${this.onChangeView}"></i>Case Summary
-                            </button>
-                            <button id="${this._prefix}InterpretationEditorButton" type="button" class="btn btn-primary variant-interpretation-view-buttons"
-                                        data-view="InterpretationEditor" @click="${this.onChangeView}" .disabled="${this._config.disableSaveInterpretation}">
-                                <i class="fa fa-save icon-padding" aria-hidden="true" data-view="InterpretationEditor" @click="${this.onChangeView}"></i>Review and Save
-                            </button>
-                            <button class="btn btn-primary variant-interpretation-view-buttons" @click="${this.unsetClinicalAnalysis}"> <i class="fas fa-window-close"></i> Close Case</button>
-                        </div>
                     </div>  <!-- Close toolbar -->
     
                     <div id="${this._prefix}MainContent">
                         <div id="${this._prefix}ActiveFilters">
                             <opencga-active-filters .opencgaSession="${this.opencgaSession}"
-                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                        .defaultStudy="${this.opencgaSession.study.id}"
-                                                        .query="${this.preparedQuery}"
-                                                        .refresh="${this.executedQuery}"
-                                                        .filters="${this._config.filter ? this._config.filter.examples : null}"
-                                                        .filterBioformat="VARIANT"
-                                                        .alias="${this._config.activeFilterAlias}"
-                                                        .genotypeSamples="${this.genotypeSamples}"
-                                                        .modeInheritance="${this.modeInheritance}"
-                                                        .config="${this._config.activeFilters}"
-                                                        @activeFilterChange="${this.onActiveFilterChange}"
-                                                        @activeFilterClear="${this.onActiveFilterClear}">
+                                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                    .defaultStudy="${this.opencgaSession.study.id}"
+                                                    .query="${this.preparedQuery}"
+                                                    .refresh="${this.executedQuery}"
+                                                    .filters="${this._config.filter ? this._config.filter.examples : null}"
+                                                    .filterBioformat="VARIANT"
+                                                    .alias="${this._config.activeFilterAlias}"
+                                                    .genotypeSamples="${this.genotypeSamples}"
+                                                    .modeInheritance="${this.modeInheritance}"
+                                                    .config="${this._config.activeFilters}"
+                                                    @activeFilterChange="${this.onActiveFilterChange}"
+                                                    @activeFilterClear="${this.onActiveFilterClear}">
                             </opencga-active-filters>
                         </div>
                             
                         <!-- SEARCH TABLE RESULT -->
                         <div class="main-view" style="padding-top: 5px">
                             <div id="${this._prefix}Interactive" class="variant-interpretation-content">
-                            <!--
-                                <opencga-variant-interpretation-grid .opencgaSession="${this.opencgaSession}"
-                                                                     .query="${this.executedQuery}"
-                                                                     .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                     .consequenceTypes="${this.consequenceTypes}"
-                                                                     .populationFrequencies="${this.populationFrequencies}"
-                                                                     .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                                     .config="${this._config.grid}"
-                                                                     @selected="${this.onSelectedGene}"
-                                                                     @selectvariant="${this.onSelectVariant}"
-                                                                     @checkvariant="${this.onCheckVariant}"
-                                                                     @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
-                                </opencga-variant-interpretation-grid>
-                            -->
                                 <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
                                                           .clinicalAnalysis="${this.clinicalAnalysis}"
                                                           .query="${this.executedQuery}"
@@ -976,81 +921,16 @@ class VariantRdInterpreter extends LitElement {
                                                           @checkrow="${this.onCheckVariant}"
                                                           @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
                                 </variant-interpreter-grid>
-                                                                <!-- Bottom tabs with detailed variant information -->
-                                <opencga-variant-interpretation-detail .opencgaSession="${this.opencgaSession}"
-                                                                       .cellbaseClient="${this.cellbaseClient}"
-                                                                       .variant="${this.variant}"
-                                                                       .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                       .consequenceTypes="${this.consequenceTypes}"
-                                                                       .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                                       .config=${this._config.detail}>
-                                </opencga-variant-interpretation-detail>
-                            </div>
-        
-                            <!-- PANEL LOW COVERAGE VIEW -->
-                            <div id="${this._prefix}LowCoverage" class="variant-interpretation-content" style="display: none">
-                                <opencga-panel-transcript-view .opencgaSession="${this.opencgaSession}"
-                                                               .cellbaseClient="${this.cellbaseClient}"
-                                                               .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                               .geneIds="${this.geneIds}"
-                                                               .panelIds="${this.diseasePanelIds}">
-                                </opencga-panel-transcript-view>
-                            </div>
-        
-                            <!-- GENOME BROWSER VIEW -->
-                            <div id="${this._prefix}GenomeBrowser" class="variant-interpretation-content" style="display: none">
-                                <opencga-variant-interpreter-genome-browser .opencgaSession="${this.opencgaSession}"
-                                                                            .cellbaseClient="${this.cellbaseClient}"
-                                                                            .samples="${this.samples}"
-                                                                            .query="${this.query}"
-                                                                            .search="${this.search}"
-                                                                            .region="${this.search.region}"
-                                                                            .geneIds="${this.geneIds}"
-                                                                            .panelIds="${this.diseasePanelIds}"
-                                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                            .active="${this._genomeBrowserActive}"
-                                                                            .fullScreen="${this.fullScreen}"
-                                                                            .config="${this._config.genomeBrowser}">
-                                </opencga-variant-interpreter-genome-browser>
-                            </div>
-        
-        
-                            <!-- CLINICAL ANALYSIS VIEW -->
-                            <div id="${this._prefix}ClinicalAnalysis" class="variant-interpretation-content" style="padding: 0px 20px;display: none">
-                                <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
-                                                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                style="font-size: 12px"
-                                                                .config="${this._config}">
-                                </opencga-clinical-analysis-view>
-                            </div>
-        
-                            <!-- CREATE CLINICAL ANALYSIS TAB -->
-                            <div id="${this._prefix}ClinicalAnalysisEditor" class="variant-interpretation-content" style="display: none">
-                                <div style="padding: 10px 20px">
-                                    <opencga-clinical-analysis-editor .opencgaSession="${this.opencgaSession}"
-                                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                        .config="${this._config.clinicalAnalysisBrowser}"
-                                                                        @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
-                                    </opencga-clinical-analysis-editor>
-                                </div>
-                            </div>
-        
-                            <!-- SAVE INTERPRETATION TAB -->
-                            <div id="${this._prefix}InterpretationEditor" class="variant-interpretation-content" style="display: none">
-                                <div style="padding: 10px 20px">
-                                    <opencga-variant-interpretation-editor .opencgaSession="${this.opencgaSession}"
-                                                                           .cellbaseClient="${this.cellbaseClient}"
-                                                                           .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                           .interpretation="${this.interpretation}"
-                                                                           .populationFrequencies="${this.populationFrequencies}"
-                                                                           .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                                           .consequenceTypes="${this.consequenceTypes}"
-                                                                           .config="${this._config}"
-                                                                           @gene="${this.geneSelected}"
-                                                                           @samplechange="${this.onSampleChange}"
-                                                                           style="font-size: 12px" >
-                                    </opencga-variant-interpretation-editor>
-                                </div>
+                                
+                                <!-- Bottom tabs with detailed variant information -->
+                                <variant-interpreter-detail .opencgaSession="${this.opencgaSession}"
+                                                            .cellbaseClient="${this.cellbaseClient}"
+                                                            .variant="${this.variant}"
+                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                            .consequenceTypes="${this.consequenceTypes}"
+                                                            .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                            .config=${this._config.filter.detail}>
+                                </variant-interpreter-detail>
                             </div>
                         </div>
                     </div> <!-- Close MainContent -->
@@ -1058,7 +938,6 @@ class VariantRdInterpreter extends LitElement {
             </div> <!-- Close row -->
         `;
     }
-
 }
 
-customElements.define("variant-rd-interpreter", VariantRdInterpreter);
+customElements.define("variant-interpreter-rd-browser", VariantInterpreterRdBrowser);

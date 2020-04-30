@@ -18,12 +18,11 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import "./opencga-variant-interpretation-editor.js";
-import "./variant-cancer-interpreter.js";
-import "./variant-interpreter-qc.js";
-import "./variant-interpreter-grid.js";
-import "./variant-cancer-interpreter-summary.js";
 import "./variant-cancer-interpreter-landing.js";
-import "./opencga-variant-interpretation-detail.js";
+import "./variant-interpreter-qc.js";
+import "./variant-interpreter-rd-browser.js";
+import "./variant-interpreter-cancer-browser.js";
+import "./variant-cancer-interpreter-summary.js";
 import "./opencga-variant-interpreter-genome-browser.js";
 import "../opencga-variant-filter.js";
 import "../../opencga/alignment/opencga-panel-transcript-view.js";
@@ -293,6 +292,21 @@ class VariantGenericInterpreter extends LitElement {
                                                                             .config="${this._config}"
                                                                             @selectclinicalnalysis="${this.onClinicalAnalysis}">
                                 </opencga-variant-interpreter-genome-browser>
+                                <!--
+                                <opencga-variant-interpreter-genome-browser .opencgaSession="${this.opencgaSession}"
+                                                                            .cellbaseClient="${this.cellbaseClient}"
+                                                                            .samples="${this.samples}"
+                                                                            .query="${this.query}"
+                                                                            .search="${this.search}"
+                                                                            .region="${this.search.region}"
+                                                                            .geneIds="${this.geneIds}"
+                                                                            .panelIds="${this.diseasePanelIds}"
+                                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                            .active="${this._genomeBrowserActive}"
+                                                                            .fullScreen="${this.fullScreen}"
+                                                                            .config="${this._config.genomeBrowser}">
+                                </opencga-variant-interpreter-genome-browser>
+                                -->
                             </div>
                         ` : null}
                         
@@ -301,26 +315,26 @@ class VariantGenericInterpreter extends LitElement {
                                 
                                 ${this.clinicalAnalysis && this.clinicalAnalysis.type.toUpperCase() === "FAMILY" 
                                     ? html`
-                                        <variant-rd-interpreter .opencgaSession="${this.opencgaSession}"
-                                                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                .query="${this.interpretationSearchQuery}"
-                                                                .cellbaseClient="${this.cellbaseClient}"
-                                                                .populationFrequencies="${this._config.populationFrequencies}"
-                                                                .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"
-                                                                .consequenceTypes="${this._config.consequenceTypes}"
-                                                                @gene="${this.geneSelected}"
-                                                                @samplechange="${this.onSampleChange}">
-                                        </variant-rd-interpreter>`
+                                        <variant-interpreter-rd-browser .opencgaSession="${this.opencgaSession}"
+                                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                        .query="${this.interpretationSearchQuery}"
+                                                                        .cellbaseClient="${this.cellbaseClient}"
+                                                                        .populationFrequencies="${this._config.populationFrequencies}"
+                                                                        .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"
+                                                                        .consequenceTypes="${this._config.consequenceTypes}"
+                                                                        @gene="${this.geneSelected}"
+                                                                        @samplechange="${this.onSampleChange}">
+                                        </variant-interpreter-rd-browser>`
                                     : html `
-                                        <variant-cancer-interpreter .opencgaSession="${this.opencgaSession}"
-                                                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                    .query="${this.interpretationSearchQuery}"
-                                                                    .cellbaseClient="${this.cellbaseClient}"
-                                                                    .populationFrequencies="${this._config.populationFrequencies}"
-                                                                    .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"
-                                                                    .consequenceTypes="${this._config.consequenceTypes}"
-                                                                    @gene="${this.geneSelected}">
-                                        </variant-cancer-interpreter>`
+                                        <variant-interpreter-cancer-browser .opencgaSession="${this.opencgaSession}"
+                                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                            .query="${this.interpretationSearchQuery}"
+                                                                            .cellbaseClient="${this.cellbaseClient}"
+                                                                            .populationFrequencies="${this._config.populationFrequencies}"
+                                                                            .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"
+                                                                            .consequenceTypes="${this._config.consequenceTypes}"
+                                                                            @gene="${this.geneSelected}">
+                                        </variant-interpreter-cancer-browser>`
                                 }
                             </div>
                         ` : null}

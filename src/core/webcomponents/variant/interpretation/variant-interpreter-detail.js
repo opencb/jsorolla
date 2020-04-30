@@ -25,7 +25,7 @@ import "../opencga-variant-file-metrics.js";
 import "../variant-beacon-network.js";
 
 
-export default class OpencgaVariantInterpretationDetail extends LitElement {
+export default class VariantInterpreterDetail extends LitElement {
 
     constructor() {
         super();
@@ -41,7 +41,7 @@ export default class OpencgaVariantInterpretationDetail extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            cellbaseClient: {
+            clinicalAnalysis: {
                 type: Object
             },
             variantId: {
@@ -50,7 +50,7 @@ export default class OpencgaVariantInterpretationDetail extends LitElement {
             variant: {
                 type: Object
             },
-            clinicalAnalysis: {
+            cellbaseClient: {
                 type: Object
             },
             config: {
@@ -168,7 +168,7 @@ export default class OpencgaVariantInterpretationDetail extends LitElement {
                     <!-- Dynamically create the Detail Tabs from Browser config -->
                     <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
                         ${this._config.views.map( item => html`
-                            ${this.active ? html`
+                            ${item.active ? html`
                                     <li role="presentation" class="active">
                                         <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}"
                                             class="browser-variant-tab-title" @click="${this._changeBottomTab}">${item.title}
@@ -286,4 +286,4 @@ export default class OpencgaVariantInterpretationDetail extends LitElement {
     }
 }
 
-customElements.define("opencga-variant-interpretation-detail", OpencgaVariantInterpretationDetail);
+customElements.define("variant-interpreter-detail", VariantInterpreterDetail);

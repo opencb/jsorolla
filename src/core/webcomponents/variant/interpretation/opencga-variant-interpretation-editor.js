@@ -15,11 +15,10 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "../../../utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
-import "./opencga-variant-interpretation-grid.js";
-import "./opencga-variant-interpretation-detail.js";
+import "./variant-interpreter-grid.js";
+import "./variant-interpreter-detail.js";
 import "../opencga-variant-filter.js";
 import "../../opencga/opencga-genome-browser.js";
 import "../../clinical/opencga-clinical-analysis-view.js";
@@ -68,7 +67,7 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
     }
 
     _init() {
-        this._prefix = "ovi-" + Utils.randomString(6);
+        this._prefix = "ovi-" + UtilsNew.randomString(6);
 
         //TODO recheck this variant-interpretation-editor doesn't have a "mode" prop in opencga-variant-interpretation
         this.mode = "create";
@@ -596,28 +595,28 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
 
                         <div id="${this._prefix}collapsibleVariants" class="collapse in">
                             ${this.isInterpretedVariants ? html`
-                                <opencga-variant-interpretation-grid .opencgaSession="${this.opencgaSession}"
-                                                                     .reportedVariants="${this._interpretation.primaryFindings}"
-                                                                     .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                     .consequenceTypes="${this.consequenceTypes}"
-                                                                     .populationFrequencies="${this.populationFrequencies}"
-                                                                     .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                                     .config="${this._config.grid}"
-                                                                     @selected="${this.selectedGene}"
-                                                                     @selectvariant2="${this.onSelectVariant2}"
-                                                                     @checkvariant="${this.onCheckVariant}"
-                                                                     @reviewvariant="${this.onReviewVariant}"
-                                                                     @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
-                                </opencga-variant-interpretation-grid>
+                                <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
+                                                          .reportedVariants="${this._interpretation.primaryFindings}"
+                                                          .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                          .consequenceTypes="${this.consequenceTypes}"
+                                                          .populationFrequencies="${this.populationFrequencies}"
+                                                          .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                          .config="${this._config.grid}"
+                                                          @selected="${this.selectedGene}"
+                                                          @selectvariant2="${this.onSelectVariant2}"
+                                                          @checkvariant="${this.onCheckVariant}"
+                                                          @reviewvariant="${this.onReviewVariant}"
+                                                          @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
+                                </variant-interpreter-grid>
 
-                                <opencga-variant-interpretation-detail .opencgaSession="${this.opencgaSession}"
-                                                                       .cellbaseClient="${this.cellbaseClient}"
-                                                                       .variant="${this.selectedVariant}"
-                                                                       .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                       .consequenceTypes="${this.consequenceTypes}"
-                                                                       .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                                       .config="${this._config.detail}">
-                                </opencga-variant-interpretation-detail>
+                                <variant-interpreter-detail .opencgaSession="${this.opencgaSession}"
+                                                            .cellbaseClient="${this.cellbaseClient}"
+                                                            .variant="${this.selectedVariant}"
+                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                            .consequenceTypes="${this.consequenceTypes}"
+                                                            .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                            .config="${this._config.detail}">
+                                </variant-interpreter-detail>
                             ` : html`
                                 <h4 style="padding: 20px">No interpreted variants</h4>
                             ` }
