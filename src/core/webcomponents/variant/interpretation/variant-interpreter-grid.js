@@ -203,6 +203,9 @@ export default class VariantInterpreterGrid extends LitElement {
 //                 },
                 onCheck: (row, $element) => {
                     this.checkedVariants.set(row.id, row);
+                    if (this.clinicalAnalysis && this.clinicalAnalysis.interpretation) {
+                        this.clinicalAnalysis.interpretation.primaryFindings = Array.from(this.checkedVariants.values());
+                    }
                     this.gridCommons.onCheck(row.id, row);
                 },
                 // onCheck: function(row, $element) {
@@ -231,6 +234,9 @@ export default class VariantInterpreterGrid extends LitElement {
                 // },
                 onUncheck: (row, $element) => {
                     this.checkedVariants.delete(row.id);
+                    if (this.clinicalAnalysis && this.clinicalAnalysis.interpretation) {
+                        this.clinicalAnalysis.interpretation.primaryFindings = Array.from(this.checkedVariants.values());
+                    }
                     this.gridCommons.onUncheck(row.id, row);
                 },
                 // onUncheck: function(row, $element) {
@@ -244,7 +250,10 @@ export default class VariantInterpreterGrid extends LitElement {
                 //         }
                 //     }));
                 // },
-                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 2),
+                onLoadSuccess: data => {
+                    // $(this.table).bootstrapTable('check', 1);
+                    this.gridCommons.onLoadSuccess(data, 2)
+                },
                 // onLoadSuccess: data => {
                 //     // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
                 //     if (UtilsNew.isNotEmptyArray(data.rows) && UtilsNew.isNotUndefinedOrNull(this.table)) {
@@ -613,7 +622,7 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     studyCohortsFormatter(value, row) {
-        if (typeof row !== "undefined" && typeof row.studies !== "undefined") {
+        if (typeof row !== "undefined" && typeof row.studies !== "undefined" && this.variantGridFormatter) {
             const cohorts = [];
             const cohortMap = new Map();
             for (const study of row.studies) {
@@ -623,7 +632,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 cohortMap.set(s, Number(study.stats[0].altAlleleFreq).toFixed(4));
             }
 
-            return this.variantGridFormatter.createPopulationFrequenciesTable(cohorts, cohortMap, this.populationFrequencies.style);
+            return this.variantGridFormatter.createPopulationFrequenciesTable(cohorts, cohortMap, this.populationFrequencies?.style);
         } else {
             return "-";
         }
@@ -717,6 +726,10 @@ export default class VariantInterpreterGrid extends LitElement {
         return `<div class='predictionTooltip' data-tooltip-text='${clinicalSignificanceTooltipText}'>
                     ${clinicalSignificanceHtml}
                 </div>`;
+    }
+
+    checkFormatter(value, row, index) {
+        debugger
     }
 
     reviewFormatter(value, row, index) {
@@ -825,7 +838,8 @@ export default class VariantInterpreterGrid extends LitElement {
                 // field: "stateCheckBox",
                 checkbox: true,
                 rowspan: 1,
-                colspan: 1
+                colspan: 1,
+                formatter: this.checkFormatter.bind(this),
             });
         }
 

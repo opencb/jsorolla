@@ -244,7 +244,7 @@ class VariantInterpreterCancerBrowser extends LitElement {
 
     onCheckVariant(e) {
         this.checkedVariants = e.detail.rows;
-        this._createInterpretation();
+        // this._createInterpretation();
     }
 
     onSampleChange(e) {

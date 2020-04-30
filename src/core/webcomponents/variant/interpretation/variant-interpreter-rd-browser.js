@@ -246,7 +246,12 @@ class VariantInterpreterRdBrowser extends LitElement {
 
     onCheckVariant(e) {
         this.checkedVariants = e.detail.rows;
-        this._createInterpretation();
+        // this._createInterpretation();
+        this.dispatchEvent(new CustomEvent("interpretationUpdate", {
+            detail: e.detail.rows,
+            bubbles: true,
+            composed: true
+        }));
     }
 
     onSampleChange(e) {

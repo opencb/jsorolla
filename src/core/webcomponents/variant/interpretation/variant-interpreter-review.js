@@ -19,14 +19,14 @@ import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
-import "../opencga-variant-filter.js";
 import "../../opencga/opencga-genome-browser.js";
 import "../../clinical/opencga-clinical-analysis-view.js";
 import "../../clinical/clinical-interpretation-view.js";
 import "../../commons/opencga-active-filters.js";
+import {biotypes, tooltips, consequenceTypes, populationFrequencies} from "../../commons/opencga-variant-contants.js";
 
 
-export default class OpencgaVariantInterpretationEditor extends LitElement {
+export default class VariantInterpreterReview extends LitElement {
 
     constructor() {
         super();
@@ -40,6 +40,9 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
+                type: Object
+            },
+            clinicalAnalysis: {
                 type: Object
             },
             interpretation: {
@@ -106,20 +109,20 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
             changedProperties.has("config")) {
             this.propertyObserver();
         }
-        if (changedProperties.has("interpretation")) {
-            this.interpretationObserver();
+        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("interpretation")) {
+            this.clinicalAnalysisObserver();
         }
     }
 
     firstUpdated(_changedProperties) {
         // CellBase version
-        this.cellbaseClient.getMeta("about").then(response => {
-            if (UtilsNew.isNotUndefinedOrNull(response) && UtilsNew.isNotEmptyArray(response.response)) {
-                if (UtilsNew.isNotUndefinedOrNull(response.response[0].result) && UtilsNew.isNotEmptyArray(response.response[0].result)) {
-                    this.cellbaseVersion = response.response[0].result[0]["Version: "];
-                }
-            }
-        });
+        // this.cellbaseClient.getMeta("about").then(response => {
+        //     if (UtilsNew.isNotUndefinedOrNull(response) && UtilsNew.isNotEmptyArray(response.response)) {
+        //         if (UtilsNew.isNotUndefinedOrNull(response.response[0].result) && UtilsNew.isNotEmptyArray(response.response[0].result)) {
+        //             this.cellbaseVersion = response.response[0].result[0]["Version: "];
+        //         }
+        //     }
+        // });
     }
 
     propertyObserver(opencgaSession, mode, config) {
@@ -145,11 +148,10 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
         }
     }
 
-    interpretationObserver() {
+    clinicalAnalysisObserver() {
         // TODO We need to respect all the changes made in the reported variants
-        this._interpretation = this.interpretation;
+        this._interpretation = this.clinicalAnalysis.interpretation;
 
-        debugger
         if (UtilsNew.isNotUndefinedOrNull(this._interpretation)) {
             if (UtilsNew.isNotEmptyArray(this._interpretation.primaryFindings)) {
                 this.isInterpretedVariants = true;
@@ -158,6 +160,7 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
             }
         }
         // this.fillForm(this._interpretation);
+        this.requestUpdate();
     }
 
     toggleInterpretationCollapsed(e) {
@@ -172,37 +175,6 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
         // debugger
         this.clinicalAnalysis = Object.assign({}, e.detail.clinicalAnalysis);
     }
-
-    // interactiveObserver() {
-    //     if (!this.interactive) {
-    //         this.collapseFilter();
-    //     } else {
-    //         this.unCollapseFilter();
-    //     }
-    // }
-
-    // onCollapse() {
-    //     if (this._collapsed) {
-    //         this.unCollapseFilter();
-    //     } else {
-    //         this.collapseFilter();
-    //     }
-    // }
-
-    // collapseFilter() {
-    //     this.filterClass = "hidden";
-    //     this.gridClass = "prioritization-center";
-    //     this._collapsed = true;
-    // }
-    //
-    // unCollapseFilter() {
-    //     if (this.interactive) {
-    //         this.filterClass = "col-md-2";
-    //         this.gridClass = "col-md-10";
-    //         this._collapsed = false;
-    //     }
-    // }
-
 
     _changeBottomTab(e) {
         const _activeTabs = {};
@@ -223,7 +195,6 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
     }
 
     onSelectVariant2(e) {
-
         this.selectedVariant = e.detail.variant;
         // this.variant = e.detail.id;
         // this.variantObj = e.detail.variant;
@@ -264,7 +235,7 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
     }
 
     _goToReport(e) {
-        this.dispatchEvent(new CustomEvent("gotoreport", {detail: {interpretation: this.interpretation}}));
+        this.dispatchEvent(new CustomEvent("gotoreport", {detail: {interpretation: this.clinicalAnalysis.interpretation}}));
     }
 
     triggerBeacon(e) {
@@ -444,7 +415,7 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
 
     getAnalysisInterpretations() {
         const params = {
-            study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
+            study: this.opencgaSession.study.fqn
         };
         const _this = this;
         this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, params)
@@ -596,10 +567,10 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
                         <div id="${this._prefix}collapsibleVariants" class="collapse in">
                             ${this.isInterpretedVariants ? html`
                                 <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
-                                                          .reportedVariants="${this._interpretation.primaryFindings}"
+                                                          .variants="${this._interpretation.primaryFindings}"
                                                           .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                          .consequenceTypes="${this.consequenceTypes}"
-                                                          .populationFrequencies="${this.populationFrequencies}"
+                                                          .consequenceTypes="${consequenceTypes}"
+                                                          .populationFrequencies="${populationFrequencies}"
                                                           .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                                           .config="${this._config.grid}"
                                                           @selected="${this.selectedGene}"
@@ -610,8 +581,8 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
                                 </variant-interpreter-grid>
 
                                 <variant-interpreter-detail .opencgaSession="${this.opencgaSession}"
-                                                            .cellbaseClient="${this.cellbaseClient}"
                                                             .variant="${this.selectedVariant}"
+                                                            .cellbaseClient="${this.cellbaseClient}"
                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                                             .consequenceTypes="${this.consequenceTypes}"
                                                             .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
@@ -658,4 +629,4 @@ export default class OpencgaVariantInterpretationEditor extends LitElement {
 
 }
 
-customElements.define("opencga-variant-interpretation-editor", OpencgaVariantInterpretationEditor);
+customElements.define("variant-interpreter-review", VariantInterpreterReview);

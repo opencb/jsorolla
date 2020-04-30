@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
-import "./opencga-variant-interpretation-editor.js";
+import "./variant-interpreter-review.js";
 import "./variant-cancer-interpreter-landing.js";
 import "./variant-interpreter-qc.js";
 import "./variant-interpreter-rd-browser.js";
@@ -31,7 +31,6 @@ import "../../clinical/opencga-clinical-analysis-view.js";
 import "../../clinical/clinical-interpretation-view.js";
 import "../../commons/opencga-active-filters.js";
 import "../../commons/filters/select-field-filter-autocomplete-simple.js";
-import {biotypes, tooltips} from "../../commons/opencga-variant-contants.js";
 
 
 class VariantGenericInterpreter extends LitElement {
@@ -134,8 +133,15 @@ class VariantGenericInterpreter extends LitElement {
         $(e.target).addClass("myactive");
     }
 
+    onInterpretationUpdate (e) {
+        this.clinicalAnalysis.interpretation = {...this.clinicalAnalysis.interpretation};
+        this.requestUpdate();
+    }
     onClinicalAnalysis(e) {
         this.clinicalAnalysis = e.detail.clinicalAnalysis;
+        if (!this.clinicalAnalysis.interpretation) {
+            this.clinicalAnalysis.interpretation = {};
+        }
         // this.clinicalAnalysis.type = "cancer";
         this.requestUpdate();
     }
@@ -322,6 +328,7 @@ class VariantGenericInterpreter extends LitElement {
                                                                         .populationFrequencies="${this._config.populationFrequencies}"
                                                                         .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"
                                                                         .consequenceTypes="${this._config.consequenceTypes}"
+                                                                        @interpretationUpdate="${this.onInterpretationUpdate}"
                                                                         @gene="${this.geneSelected}"
                                                                         @samplechange="${this.onSampleChange}">
                                         </variant-interpreter-rd-browser>`
@@ -341,18 +348,17 @@ class VariantGenericInterpreter extends LitElement {
                     
                         ${this._config.tools ? html`
                             <div id="${this._prefix}review" class="clinical-portal-content" style="${this._config.tools[0].id !== "review" ? "display: none" : ""}">
-                                <opencga-variant-interpretation-editor .opencgaSession="${this.opencgaSession}"
-                                                                       .cellbaseClient="${this.cellbaseClient}"
-                                                                       .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                       .interpretation="${this.interpretation}"
-                                                                       .populationFrequencies="${this.populationFrequencies}"
-                                                                       .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                                       .consequenceTypes="${this.consequenceTypes}"
-                                                                       .config="${this._config}"
-                                                                       @gene="${this.geneSelected}"
-                                                                       @samplechange="${this.onSampleChange}"
-                                                                       style="font-size: 12px" >
-                                 </opencga-variant-interpretation-editor>
+                                <variant-interpreter-review .opencgaSession="${this.opencgaSession}"
+                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                            .interpretation="${this.clinicalAnalysis?.interpretation}"
+                                                            .cellbaseClient="${this.cellbaseClient}"
+                                                            .populationFrequencies="${this._config.populationFrequencies}"
+                                                            .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"
+                                                            .consequenceTypes="${this._config.consequenceTypes}"
+                                                            .config="${this._config}"
+                                                            @gene="${this.geneSelected}"
+                                                            @samplechange="${this.onSampleChange}">
+                                 </variant-interpreter-review>
                             </div>
                         ` : null}
                     </div>

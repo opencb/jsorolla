@@ -165,7 +165,7 @@ export default class VariantGridFormatter {
                 if (UtilsNew.isNotEmpty(geneName) && typeof visited[geneName] === "undefined") {
                     if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study !== "undefined") {
                         let genomeBrowserMenuLink = "";
-                        if (this.config.showGenomeBrowser) {
+                        if (this.config && this.config.showGenomeBrowser) {
                             genomeBrowserMenuLink = `<div>
                                                         <a class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
                                                             Genome Browser
@@ -173,7 +173,7 @@ export default class VariantGridFormatter {
                                                      </div>`;
                         }
 
-                        let tooltipText = `<div style="padding: 5px"><a style="cursor: pointer" href="#gene/${this.opencgaSession.project.alias}/${this.opencgaSession.study.alias}/${geneName}">Gene View</a></div>
+                        let tooltipText = `<div style="padding: 5px"><a style="cursor: pointer" href="#gene/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${geneName}">Gene View</a></div>
                                             ${genomeBrowserMenuLink}
                                             <div class="dropdown-header" style="padding-left: 10px">External Links</div>
                                             <div style="padding: 5px"><a target="_blank" href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneName}">Ensembl</a></div>
