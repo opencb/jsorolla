@@ -17,9 +17,9 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
-import "./opencga-variant-interpretation-editor.js";
-import "./opencga-variant-interpretation-grid.js";
+import "./variant-interpreter-grid.js";
 import "./opencga-variant-interpretation-detail.js";
+import "./opencga-variant-interpretation-editor.js";
 import "./opencga-variant-interpreter-genome-browser.js";
 import "../opencga-variant-filter.js";
 import "../../opencga/alignment/opencga-panel-transcript-view.js";
@@ -964,18 +964,18 @@ class VariantRdInterpreter extends LitElement {
                                                                      @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
                                 </opencga-variant-interpretation-grid>
                             -->
-                                <variant-cancer-interpreter-grid .opencgaSession="${this.opencgaSession}"
-                                                                 .query="${this.executedQuery}"
-                                                                 .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                 .consequenceTypes="${consequenceTypes}"
-                                                                 .populationFrequencies="${populationFrequencies}"
-                                                                 .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                                 .config="${this._config.filter.result.grid}"
-                                                                 @selected="${this.onSelectedGene}"
-                                                                 @selectrow="${this.onSelectVariant}"
-                                                                 @checkrow="${this.onCheckVariant}"
-                                                                 @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
-                                </variant-cancer-interpreter-grid>
+                                <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
+                                                          .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                          .query="${this.executedQuery}"
+                                                          .consequenceTypes="${consequenceTypes}"
+                                                          .populationFrequencies="${populationFrequencies}"
+                                                          .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                          .config="${this._config.filter.result.grid}"
+                                                          @selected="${this.onSelectedGene}"
+                                                          @selectrow="${this.onSelectVariant}"
+                                                          @checkrow="${this.onCheckVariant}"
+                                                          @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
+                                </variant-interpreter-grid>
                                                                 <!-- Bottom tabs with detailed variant information -->
                                 <opencga-variant-interpretation-detail .opencgaSession="${this.opencgaSession}"
                                                                        .cellbaseClient="${this.cellbaseClient}"

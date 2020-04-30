@@ -24,7 +24,7 @@ import "../../commons/opencb-grid-toolbar.js";
 import "../../../loading-spinner.js";
 
 
-export default class VariantCancerInterpreterGrid extends LitElement {
+export default class VariantInterpreterGrid extends LitElement {
 
     constructor() {
         super();
@@ -46,7 +46,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
             query: {
                 type: Object
             },
-            reportedVariants: {
+            variants: {
                 type: Array
             },
             consequenceTypes: {
@@ -106,7 +106,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
             this.clinicalAnalysisObserver();
             this.renderVariants();
         }
-        if (changedProperties.has("reportedVariants")) {
+        if (changedProperties.has("variants")) {
             this.renderLocalVariants();
         }
     }
@@ -139,7 +139,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
     }
 
     renderVariants() {
-        if (this.reportedVariants) {
+        if (this.variants) {
             this.renderLocalVariants();
         } else {
             this.renderRemoteVariants();
@@ -308,15 +308,15 @@ export default class VariantCancerInterpreterGrid extends LitElement {
 
     renderLocalVariants() {
         this.from = 1;
-        this.to = Math.min(this.reportedVariants.length, this._config.pageSize);
-        this.numTotalResultsText = this.reportedVariants.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        this.to = Math.min(this.variants.length, this._config.pageSize);
+        this.numTotalResultsText = this.variants.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
         this.table = $("#" + this.gridId);
         this._columns = this._createDefaultColumns();
         const _this = this;
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            data: _this.reportedVariants,
+            data: _this.variants,
             columns: _this._columns,
             sidePagination: "local",
 
@@ -363,7 +363,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
         //     }
         // }));
 
-        // for (const rv of this.reportedVariants) {
+        // for (const rv of this.variants) {
         //     if (rv.id === e.currentTarget.dataset.variantId) {
         //         this.variantReview = rv;
         //         break;
@@ -1150,4 +1150,4 @@ export default class VariantCancerInterpreterGrid extends LitElement {
 
 }
 
-customElements.define("variant-cancer-interpreter-grid", VariantCancerInterpreterGrid);
+customElements.define("variant-interpreter-grid", VariantInterpreterGrid);

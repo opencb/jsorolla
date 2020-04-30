@@ -20,7 +20,7 @@ import PolymerUtils from "../../PolymerUtils.js";
 import "./opencga-variant-interpretation-editor.js";
 import "./variant-cancer-interpreter.js";
 import "./variant-interpreter-qc.js";
-import "./variant-cancer-interpreter-grid.js";
+import "./variant-interpreter-grid.js";
 import "./variant-cancer-interpreter-summary.js";
 import "./variant-cancer-interpreter-landing.js";
 import "./opencga-variant-interpretation-detail.js";
