@@ -154,7 +154,7 @@ class VariantGenericInterpreter extends LitElement {
             tools: [
                 {
                     id: "select",
-                    title: "Select Sample",
+                    title: "Case Info",
                     acronym: "VB",
                     description: "",
                     icon: "fa fa-list"
@@ -175,7 +175,7 @@ class VariantGenericInterpreter extends LitElement {
                 },
                 {
                     id: "interpretation",
-                    title: "Interpretation",
+                    title: "Interpretation Methods",
                     acronym: "VB",
                     description: "",
                     icon: "fa fa-list"
@@ -196,7 +196,7 @@ class VariantGenericInterpreter extends LitElement {
                 },
                 {
                     id: "report",
-                    title: "Clinical Report",
+                    title: "Report",
                     acronym: "VB",
                     description: "",
                     icon: "fa fa-list"
@@ -230,8 +230,7 @@ class VariantGenericInterpreter extends LitElement {
             </style>
             
             <div class="row">
-            
-            
+       
                 <div class="page-title">
                     <h2>
                         ${this.clinicalAnalysis && this.clinicalAnalysis.id ? html`
@@ -257,8 +256,8 @@ class VariantGenericInterpreter extends LitElement {
                                 <!-- Controls aligned to the LEFT -->
                                 <ul class="nav navbar-nav">
                                     ${this._config.tools && this._config.tools.map(item => html`
-                                        <button type="button" class="btn btn-link clinical-portal-button" style="font-size: 1.1em" 
-                                                data-view="${item.id}" @click="${this._changeView}">
+                                        <button type="button" class="btn btn-link clinical-portal-button ${!this.clinicalAnalysis && item.id !== "select" ? "disabled" : ""}" 
+                                                style="font-size: 1.1em" data-view="${item.id}" @click="${this._changeView}">
                                             ${item.title}
                                         </button>
                                     `)}
