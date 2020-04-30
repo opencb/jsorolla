@@ -337,7 +337,11 @@ export default class OpencgaBrowser extends LitElement {
         console.log(e);
         this.detail = {...this.detail, [resource]: e.detail.row};
         this.requestUpdate();
-        console.log("this.detail", this.detail);
+        //console.log("this.detail", this.detail);
+
+        // todo evaluate to bubble the grid event
+        //this.dispatchEvent(new CustomEvent("clickRow", {detail: e.detail}));
+
     }
 
     renderView(entity) {

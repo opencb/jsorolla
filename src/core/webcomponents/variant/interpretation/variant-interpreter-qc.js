@@ -166,6 +166,29 @@ class VariantInterpreterQc extends LitElement {
         }
 
         return html`
+                <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="active">
+                        <a href="#${this._prefix}-variants" role="tab" data-toggle="tab" data-id="${this._prefix}-variants"
+                            class="browser-variant-tab-title">variants
+                        </a>
+                    </li>
+                    <li role="presentation" class="">
+                        <a href="#${this._prefix}-alignment" role="tab" data-toggle="tab" data-id="${this._prefix}-alignment"
+                            class="browser-variant-tab-title">alignment
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="tab-content">
+                    <div id="${this._prefix}-variants" role="tabpanel" class="tab-pane active">
+                        variants
+                    </div>
+                    <div id="${this._prefix}-alignment" role="tabpanel" class="tab-pane">
+                        alignment
+                    </div>
+                </div>
+                    
+
                 <div class="row">
                     <div class="col-md-4 col-md-offset-2">
                         <div>

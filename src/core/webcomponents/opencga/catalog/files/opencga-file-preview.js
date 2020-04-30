@@ -86,6 +86,7 @@ export default class OpencgaFilePreview extends LitElement {
         switch (extension) {
             case "log":
             case "err":
+                this.contentType = "text";
                 this.opencgaSession.opencgaClient.files().head(this.file.id, params)
                     .then( response => {
                         const {format, content} = response.getResult(0);
@@ -100,47 +101,16 @@ export default class OpencgaFilePreview extends LitElement {
                     });
                 break;
             case "png":
-                this.opencgaSession.opencgaClient.files().download(this.file.id, params)
+                this.contentType = "image";
+                this.opencgaSession.opencgaClient.files().image(this.file.id, params)
                     .then( response => {
-                        console.log(response);
-                        //const fr = new FileReader();
-                        const data = response;
-
-                        var urlCreator = window.URL || window.webkitURL;
-                        //var imageUrl = urlCreator.createObjectURL(response);
-                        //var imageUrl = URL.createObjectURL(response);
-                        document.querySelector("#image").src = imageUrl;
-
-                        var blob = new Blob([response]);
-                        var imageUrl = urlCreator.createObjectURL(blob);
-                        document.querySelector("#image").src = imageUrl;
-
-
-                        /*var myImage = document.querySelector('#image');
-
-                        var byteArray = new Uint8Array(response.match(/.{2}/g)
-                            .map(e => parseInt(e, 16)));
-                        var blob = new Blob([byteArray], {type: "application/octet-stream"});
-                        var objectURL = URL.createObjectURL(blob);
-                        myImage.src = objectURL;*/
-
-
-                        //const bytes = new Uint8Array(data);
-                        //console.log(bytes);
+                        this.requestUpdate().then( () => this.querySelector("#thumbnail").src = "data:image/png;base64, " + response.getResult(0).content);
                     })
                     .catch( response => {
                         console.error(response);
                         //this.content = response.getEvents("ERROR").map( _ => _.message).join("\n");
-                        this.requestUpdate();
+                        //this.requestUpdate();
                     });
-                /*fetch('http://bioinfo.hpc.cam.ac.uk/opencga-prod/webservices/rest/v2/files/AR2.10039966-01:ascat:AR2.10039966-01T.tumour.png/download?study=reference_grch37_test%3Asomatic&includeIndividual=true&sid=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzZXJlbmEiLCJhdWQiOiJPcGVuQ0dBIHVzZXJzIiwiaWF0IjoxNTg4MTU1MDg5LCJleHAiOjE1ODgxNTg2ODl9.j3hDQy_et8p8dY5Had68VN6JiobhyNm3AR2GZ_Msv1g').then(function(response) {
-                    console.log("res", response)
-                    return response.blob();
-                }).then(function(myBlob) {
-                    var objectURL = URL.createObjectURL(myBlob);
-                    var myImage = document.querySelector('img');
-                    myImage.src = objectURL;
-                });*/
                 break;
             default:
                 this.content = "Extension not recognized";
@@ -178,28 +148,17 @@ export default class OpencgaFilePreview extends LitElement {
                 min-height: 150px;
             }            
         </style>
-
-image 
-<img id="image" />
         ${this.file ? html`
             <div class="row" style="padding: 0px 10px">
                 <div class="col-md-12">
-                    <h3 class="section-title">Head</h3>
+                    
 
-                    <pre class="cmd">${this.content}</pre>
-
-                    <!--<div class="col-md-12">
-                        <form class="form-horizontal">
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Id</label>
-                                <span class="col-md-9">${this.file.id}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Name</label>
-                                <span class="col-md-9">${this.file.name}</span>
-                            </div>
-                        </form>
-                    </div>-->
+                    ${this.contentType === "text" ? html`
+                        <h3 class="section-title">Head</h3>
+                        <pre class="cmd">${this.content}</pre>` : null}
+                    ${this.contentType === "image" ? html`
+                        <h3 class="section-title">Image</h3>
+                        <img class="img-thumbnail" id="thumbnail" />` : null}
                 </div>
             </div>
         ` : null }

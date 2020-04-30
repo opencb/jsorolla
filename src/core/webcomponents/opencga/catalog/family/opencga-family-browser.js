@@ -310,7 +310,6 @@ export default class OpencgaFamilyBrowser extends LitElement {
         };
     }
 
-
     render() {
         return this._config ? html`
             <opencga-browser  resource="family"

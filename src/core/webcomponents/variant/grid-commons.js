@@ -69,7 +69,9 @@ export default class GridCommons {
             detail: {
                 id: rowId,
                 row: row
-            }
+            },
+            bubbles: true,
+            composed: true
         }));
     }
 

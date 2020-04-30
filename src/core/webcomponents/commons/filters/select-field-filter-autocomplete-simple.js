@@ -189,7 +189,7 @@ export default class SelectFieldFilterAutocompleteSimple extends LitElement {
             <div class="form-group">
                 <form autocomplete="off" action="javascript:void 0">
                     <div>
-                        <input name="sample" id="sample" type="text" class="form-control typeahead" data-provide="typeahead" autocomplete="off" placeholder="${this.placeholder || "Start typing"}" />
+                        <input type="text" class="form-control typeahead" data-provide="typeahead" autocomplete="off" placeholder="${this.placeholder || "Start typing"}" />
                     </div>
                 </form>
             </div>

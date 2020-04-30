@@ -183,7 +183,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         includeSampleId: "true",
                         ...this.query
                     };
-                    this.opencgaSession.opencgaClient.clinical().primaryFindingsInterpretation(filters)
+                    this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
                         .then( res => params.success(res));
                 },
                 responseHandler: response => {

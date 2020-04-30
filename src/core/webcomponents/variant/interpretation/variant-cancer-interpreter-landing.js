@@ -86,7 +86,7 @@ class VariantCancerInterpreterLanding extends LitElement {
         this.dispatchEvent(new CustomEvent("selectclinicalnalysis", {
             detail: {
                 id: null,
-                clinicalAnalysis: null,
+                clinicalAnalysis: null
             }
         }));
     }
@@ -100,7 +100,7 @@ class VariantCancerInterpreterLanding extends LitElement {
                     _this.dispatchEvent(new CustomEvent("selectclinicalnalysis", {
                         detail: {
                             id: _this.clinicalAnalysis.id,
-                            clinicalAnalysis: _this.clinicalAnalysis,
+                            clinicalAnalysis: _this.clinicalAnalysis
                         }
                     }));
                 })
@@ -166,29 +166,56 @@ class VariantCancerInterpreterLanding extends LitElement {
         }
 
         return html`
-                <div class="row">
-                    <div class="col-md-4 col-md-offset-2">
-                        <div>
-                            <h2>Search Clinical Analysis</h2>
-                            
-                            <h4>Clinical Analysis ID</h4>
-                            <div class="text-filter-wrapper">
-                                <!--<input type="text" name="clinicalAnalysisText" id="clinicalAnalysisIdText" value="AN-3">-->
-                                <select-field-filter-autocomplete-simple .fn="${true}" resource="clinical-analysis" .value="${"AN-3"}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("clinicalAnalysisId", e.detail.value)}"></select-field-filter-autocomplete-simple>
-                            </div>
-                            
-                            <h4>Proband ID</h4>
-                            <div class="text-filter-wrapper">
-                                <select-field-filter-autocomplete-simple .fn="${true}" resource="individuals" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onIndividualChange("individualId", e.detail.value)}"></select-field-filter-autocomplete-simple>
-                            </div>
 
-                            <div>                            
-                                <button class="btn btn-default ripple" @click="${this.onClinicalAnalysisChange}">Clear</button>
-                                <button class="btn btn-default ripple" @click="${this.onClinicalAnalysisChange}">OK</button>
+                <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="active">
+                        <a href="#${this._prefix}-search" role="tab" data-toggle="tab" data-id="${this._prefix}-search"
+                            class="browser-variant-tab-title">Search Case
+                        </a>
+                    </li>
+                    <li role="presentation" class="">
+                        <a href="#${this._prefix}-create" role="tab" data-toggle="tab" data-id="${this._prefix}-create"
+                            class="browser-variant-tab-title">Create Case
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="tab-content">
+
+                    <div id="${this._prefix}-search" role="tabpanel" class="tab-pane active">
+                        <div class="row">
+                            <div class="col-md-4 col-md-offset-2">
+                                <div>
+                                    <h2>Search Clinical Analysis</h2>
+                                    
+                                    <h4>Clinical Analysis ID</h4>
+                                    <div class="text-filter-wrapper">
+                                        <!--<input type="text" name="clinicalAnalysisText" id="clinicalAnalysisIdText" value="AN-3">-->
+                                        <select-field-filter-autocomplete-simple .fn="${true}" resource="clinical-analysis" .value="${"AN-3"}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("clinicalAnalysisId", e.detail.value)}"></select-field-filter-autocomplete-simple>
+                                    </div>
+                                    
+                                    <h4>Proband ID</h4>
+                                    <div class="text-filter-wrapper">
+                                        <select-field-filter-autocomplete-simple .fn="${true}" resource="individuals" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onIndividualChange("individualId", e.detail.value)}"></select-field-filter-autocomplete-simple>
+                                    </div>
+        
+                                    <div>                            
+                                        <button class="btn btn-default ripple" @click="${this.onClinicalAnalysisChange}">Clear</button>
+                                        <button class="btn btn-default ripple" @click="${this.onClinicalAnalysisChange}">OK</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <div id="${this._prefix}-create" role="tabpanel" class="tab-pane">
+                        <opencga-clinical-analysis-editor .opencgaSession="${this.opencgaSession}"
+                                                                  .config="${1 || this._config.clinicalAnalysisBrowser}"
+                                                                  @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
+                         </opencga-clinical-analysis-editor>
+                    </div>
                 </div>
+                    
+                
             `;
     }
 

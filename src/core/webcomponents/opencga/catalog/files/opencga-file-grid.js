@@ -146,7 +146,7 @@ export default class OpencgaFileGrid extends LitElement {
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !$(this.table).bootstrapTable("getOptions").pageNumber || $(this.table).bootstrapTable("getOptions").pageNumber === 1,
-                        include: "name,path,uuid,samples,status,format,bioformat,creationDate,modificationDate,internal",
+                        include: "name,path,uuid,samples,status,format,bioformat,size,creationDate,modificationDate,internal",
                         ...this.query
                     };
                     this.opencgaSession.opencgaClient.files().search(filters).then( res => params.success(res));
@@ -341,7 +341,7 @@ export default class OpencgaFileGrid extends LitElement {
         }
         this.filters = filters;
     }
-/*
+    /*
     onSearch() {
         // Convert the filters to an objectParam that can be directly send to the file search
         const filterParams = {};
@@ -459,6 +459,13 @@ export default class OpencgaFileGrid extends LitElement {
         return (row.somatic) ? "Somatic" : "Germline";
     }
 
+    sizeFormatter(bytes) {
+        const si = true; // international system of units
+        let u, b=bytes, t= si ? 1000 : 1024;
+        ["", si?"k":"K", ..."MGTPEZY"].find(x=> (u=x, b/=t, b**2<1));
+        return `${u ? (t*b).toFixed(1) : bytes} ${u}${!si && u ? "i":""}B`;
+    }
+
     _initTableColumns() {
         const columns = [];
         if (this._config.multiSelection) {
@@ -492,6 +499,11 @@ export default class OpencgaFileGrid extends LitElement {
                 {
                     title: "Bioformat",
                     field: "bioformat"
+                },
+                {
+                    title: "Size",
+                    field: "size",
+                    formatter: this.sizeFormatter
                 },
                 {
                     title: "Creation date",
@@ -541,12 +553,13 @@ export default class OpencgaFileGrid extends LitElement {
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toLowerCase() === "tab") {
                         dataString = [
-                            ["Name", "Path", "Format", "Bioformat", "Creation date", "Modification date", "Status"].join("\t"),
+                            ["Name", "Path", "Format", "Bioformat", "Size", "Creation date", "Modification date", "Status"].join("\t"),
                             ...result.map( _ => [
                                 _.id,
                                 _.path,
                                 _.format,
                                 _.bioformat,
+                                _.size,
                                 _.creationDate,
                                 _.modificationDate,
                                 _.status.name

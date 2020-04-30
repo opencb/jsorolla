@@ -188,7 +188,7 @@ export class OpenCGAClient {
 
     async login(userId, password) {
         try {
-            const response = await this.users().login(userId, password ? {password: password} : null);
+            const response = await this.users().login({user: userId, password: password});
             const restResponse = new RestResponse(response);
 
             // TODO search for Errors in restResponse.events
@@ -221,14 +221,13 @@ export class OpenCGAClient {
     // refresh only works if cookies are enabled
     async refresh() {
         const userId = this._config.userId;
-        const response = await this.users().login(userId, {});
-        const restResponse = new RestResponse(response);
-        this._config.token = restResponse.getResult(0).token;
+        const response = await this.users().login({refreshToken: this._config.token});
+        this._config.token = response.getResult(0).token;
         if (this._config.cookies.active) {
             this.setCookies(userId, this._config.token);
         }
         this.clients.forEach(client => client.setToken(this._config.token));
-        return restResponse;
+        return response;
     }
 
     logout() {
@@ -276,7 +275,6 @@ export class OpenCGAClient {
             // TODO should we check the session has not expired?
             //console.log("_this._config", _this._config); // ------------ TODO refreshing a page userId is empty
             if (UtilsNew.isNotUndefined(_this._config.token)) {
-
                 _this.users().info(_this._config.userId)
                     .then(function(response) {
                         const session = {};

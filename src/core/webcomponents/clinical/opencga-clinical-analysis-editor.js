@@ -320,13 +320,10 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     }
 
     onFamilySelect(e) {
-        //console.log("onFamilySelect")
-        this._clinicalAnalysis.family = e.detail.family;
+        console.log("onFamilySelect", e)
+        this._clinicalAnalysis.family = e.detail.row;
 
-        const individualIds = [];
-        for (const individual of e.detail.family.members) {
-            individualIds.push(individual.id);
-        }
+        const individualIds = e.detail.row.members.map(_ => _.id);
 
         const _this = this;
         this.opencgaSession.opencgaClient.individuals().search({
@@ -639,6 +636,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
             let sampleIdStyle = "color: black";
             if (UtilsNew.isNotEmptyArray(row.disorders)) {
                 for (const disorder of row.disorders) {
+                    //TODO fix here this._clinicalAnalysis.disorder undefined
                     if (disorder.id === this._clinicalAnalysis.disorder.id) {
                         sampleIdStyle = "color: red";
                         break;
@@ -952,7 +950,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                         <select class="selectpicker" data-width="100%" id="${this._prefix}Assigned" data-field="assigned" data-field-type="string"
                                                 @change="${this.onSelectChange}">
                                             ${this._studyUsers && this._studyUsers.length ? this._studyUsers.map( item => html`
-                                                <option>${item}</option>
+                                                <option ?selected=${item === this._clinicalAnalysis?.analyst?.assignee}>${item}</option>
                                             `) : null}
                                         </select>
                                     </div>
@@ -1081,7 +1079,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                             <div class="modal-body" style="height: 780px">
                                 <opencga-family-browser .opencgaSession="${this.opencgaSession}"
                                                         .config="${this.familyBrowserConfig}"
-                                                        @selectfamily="${this.onFamilySelect}">
+                                                        @selectrow="${this.onFamilySelect}">
                                 </opencga-family-browser>
                             </div>
                             <div class="modal-footer">

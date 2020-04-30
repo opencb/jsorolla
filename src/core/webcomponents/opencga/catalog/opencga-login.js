@@ -72,8 +72,8 @@ export default class OpencgaLogin extends LitElement {
         } else {
             // everything looks good!
             e.preventDefault();
-            const user = document.getElementById("opencgaUser").value;
-            const pass = document.getElementById("opencgaPassword").value;
+            const user = this.querySelector("#opencgaUser").value;
+            const pass = this.querySelector("#opencgaPassword").value;
             const _this = this;
             this.opencgaClient.login(user, pass)
                 .then( response => {

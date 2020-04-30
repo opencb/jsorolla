@@ -128,9 +128,9 @@ class VariantGenericInterpreter extends LitElement {
 
         // Show the active button
         // $(".clinical-portal-button").removeClass("active");
-        $(".clinical-portal-button").removeClass("myactive");
+        $(".clinical-portal-button").removeClass("active");
         // $(e.target).addClass("active");
-        $(e.target).addClass("myactive");
+        $(e.target).addClass("active");
     }
 
     onInterpretationUpdate (e) {
@@ -218,14 +218,68 @@ class VariantGenericInterpreter extends LitElement {
 
         return html`
             <style>
-                .clinical-portal-button {
-                    font-size: 1.1em;
+                
+                ul.wizard {
+                    display: flex;
+                    justify-content: space-around;
+                    list-style: none;
                 }
                 
-                .myactive {
-                    color: darkorange !important;
-                    border-bottom-color: darkorange !important;
-                    border-top-width: 1px !important;
+                li.wizard-item {
+                    cursor: pointer;
+                    margin: 15px 30px;
+                    width: 110px;
+                    height: 110px;
+                    border-radius: 50%;
+                    text-align: center;
+                    position: relative;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    background: white;
+                    z-index: 10;
+                }
+                li.wizard-item.active {
+                    font-size: 1.1em;
+                    background: #f1f1f1;
+                }
+                
+                li.wizard-item:before {
+                    content: "";
+                    position: absolute;
+                    height: 3px;
+                    background: #000966;
+                    width: 100%;
+                    top: 50%;
+                    left: 110px;
+                    z-index: 5;
+                }
+                
+                li.wizard-item:last-child:before {
+                    background: transparent;
+                }
+                
+                li.wizard-item:hover:after {
+                    -webkit-transform: scale(0.85);
+                    -moz-transform: scale(0.85);
+                    -ms-transform: scale(0.85);
+                    transform: scale(0.85);
+                    opacity: 0.5;
+                }
+                
+                li.wizard-item:after  {
+                    content: "";
+                    top: 0;
+                    left: 0;
+                    padding: 0;
+                    width: 110px;
+                    height: 110px;
+                    border-radius: 50%;
+                    position: absolute;
+                    box-shadow: 0 0 0 4px #000966;
+                    -webkit-transition: -webkit-transform 0.2s, opacity 0.2s;
+                    -moz-transition: -moz-transform 0.2s, opacity 0.2s;
+                    transition: transform 0.2s, opacity 0.2s;
                 }
             </style>
             
@@ -254,12 +308,11 @@ class VariantGenericInterpreter extends LitElement {
                             </div>
                             <div class="collapse navbar-collapse" style="padding: 0px 20px">
                                 <!-- Controls aligned to the LEFT -->
-                                <ul class="nav navbar-nav">
+                                <ul class="wizard">
                                     ${this._config.tools && this._config.tools.map(item => html`
-                                        <button type="button" class="btn btn-link clinical-portal-button ${!this.clinicalAnalysis && item.id !== "select" ? "disabled" : ""}" 
-                                                style="font-size: 1.1em" data-view="${item.id}" @click="${this._changeView}">
+                                        <li class="wizard-item clinical-portal-button ${!this.clinicalAnalysis && item.id !== "select" ? "disabled" : ""}" data-view="${item.id}" @click="${this._changeView}">
                                             ${item.title}
-                                        </button>
+                                        </li>
                                     `)}
                                 </ul>
                             </div> 
