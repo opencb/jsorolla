@@ -491,7 +491,9 @@ export default class OpencgaJobsGrid extends LitElement {
             {
                 title: "Depends on",
                 field: "dependsOn",
-                formatter: v => v.length ? v.map( dep => `<p>${dep.id} (${this.statusFormatter(dep.internal.status.name)})</p>`).join("") : "-"
+                formatter: v => v.length
+                    ? v.map( dep => `<p>${dep.id}</p>`).join("")
+                    : "-"
             },
             {
                 title: "Out directory",

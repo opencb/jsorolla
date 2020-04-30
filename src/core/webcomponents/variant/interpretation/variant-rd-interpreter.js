@@ -641,13 +641,13 @@ class VariantRdInterpreter extends LitElement {
                 result: {
                     grid: {
                         pagination: true,
-                        pageSize: 5,
-                        pageList: [5, 10, 25, 50],
+                        pageSize: 10,
+                        pageList: [10, 25, 50],
                         showExport: false,
                         detailView: true,
+                        showReview: false,
 
                         showSelectCheckbox: true,
-                        showStatus: false,
                         multiSelection: false,
                         nucleotideGenotype: true,
                         alleleStringLengthMax: 10,

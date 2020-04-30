@@ -140,7 +140,7 @@ export default class VariantGridFormatter {
             the rs in the CellBase XRef annotations. This field is in annotation.xref when source: "dbSNP".
         */
         if (typeof row.id !== "undefined" && row.id.startsWith("rs")) {
-            if (this.opencgaSession.project.organism !== undefined && this.opencgaSession.project.organism.assembly === "GRCh37") {
+            if (this.opencgaSession.project.organism && this.opencgaSession.project.organism.assembly === "GRCh37") {
                 return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + row.id + "'>" + row.id + "</a>";
             } else {
                 return "<a target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + row.id + "'>" + row.id + "</a>";

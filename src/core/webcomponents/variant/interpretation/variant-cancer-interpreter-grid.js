@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "../../../utils.js"
 import UtilsNew from "../../../utilsNew.js";
 import VariantGridFormatter from "../VariantGridFormatter.js";
 import GridCommons from "../grid-commons.js";
@@ -66,7 +65,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
     }
 
     _init() {
-        this._prefix = "ovig-" + Utils.randomString(6) + "_";
+        this._prefix = "ovig-" + UtilsNew.randomString(6) + "_";
 
         // Config for the grid toolbar
         this.toolbarConfig = {
@@ -78,6 +77,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
             ]
         };
         this.gridId = this._prefix + "VariantBrowserGrid";
+        this.checkedVariants = new Map();
     }
 
     connectedCallback() {
@@ -90,6 +90,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
         this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
         this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
         this.table = this.querySelector("#" + this.gridId);
+        this.checkedVariants = new Map();
     }
 
     updated(changedProperties) {
@@ -200,7 +201,10 @@ export default class VariantCancerInterpreterGrid extends LitElement {
 //                     $(selectedElement).addClass("success");
 //                     _this._onSelectVariant(row, "selectvariant");
 //                 },
-                onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
+                onCheck: (row, $element) => {
+                    this.checkedVariants.set(row.id, row);
+                    this.gridCommons.onCheck(row.id, row);
+                },
                 // onCheck: function(row, $element) {
                 //     const _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
                 //     _this.dispatchEvent(new CustomEvent("checkvariant", {
@@ -212,7 +216,12 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                 //         }
                 //     }));
                 // },
-                onCheckAll: rows => this.gridCommons.onCheckAll(rows),
+                onCheckAll: rows => {
+                    for (let row of rows) {
+                        this.checkedVariants.set(row.id, row);
+                    }
+                    this.gridCommons.onCheckAll(rows);
+                },
                 // onCheckAll: function(rows) {
                 //     _this.dispatchEvent(new CustomEvent("checkrow", {
                 //         detail: {
@@ -220,7 +229,10 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                 //         }
                 //     }));
                 // },
-                onUncheck: (row, $element) => this.gridCommons.onUncheck(row.id, row),
+                onUncheck: (row, $element) => {
+                    this.checkedVariants.delete(row.id);
+                    this.gridCommons.onUncheck(row.id, row);
+                },
                 // onUncheck: function(row, $element) {
                 //     const _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
                 //     _this.dispatchEvent(new CustomEvent("checkrow", {
@@ -263,10 +275,10 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                 onPostBody: function(data) {
                     // const _onPostBody = _this._onPostBody.bind(_this, data, "remote");
                     // _this._onPostBody();
-                    // const removeIndividualButtons = PolymerUtils.querySelectorAll(".removeIndividualButton");
-                    // for (let i = 0; i < removeIndividualButtons.length; i++) {
-                    //     removeIndividualButtons[i].addEventListener("click", this.onReviewClick.bind(this));
-                    // }
+                    const reviewButtons = document.querySelectorAll(".reviewButton");
+                    for (let i = 0; i < reviewButtons.length; i++) {
+                        reviewButtons[i].addEventListener("click", _this.onReviewClick.bind(_this));
+                    }
                     //
                     // // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
                     // const _table = $("#" + this._prefix + "VariantBrowserGrid");
@@ -345,21 +357,22 @@ export default class VariantCancerInterpreterGrid extends LitElement {
     }
 
     onReviewClick(e) {
-        // debugger
         // this.dispatchEvent(new CustomEvent('reviewvariant', {
         //     detail: {
         //         variant: e.currentTarget.dataset.variant
         //     }
         // }));
 
-        for (const rv of this.reportedVariants) {
-            if (rv.id === e.currentTarget.dataset.variantId) {
-                this.variantReview = rv;
-                break;
-            }
+        // for (const rv of this.reportedVariants) {
+        //     if (rv.id === e.currentTarget.dataset.variantId) {
+        //         this.variantReview = rv;
+        //         break;
+        //     }
+        // }
+        if (this.checkedVariants) {
+            this.variantReview = this.checkedVariants.get(e.currentTarget.dataset.variantId);
+            $("#" + this._prefix + "ReviewSampleModal").modal("show");
         }
-
-        $("#" + this._prefix + "ReviewSampleModal").modal("show");
     }
 
     showGene(geneName) {
@@ -429,7 +442,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
     variantFormatter(value, row, index) {
         const variantHtmlDiv = this.variantGridFormatter.variantFormatter(value, row, this._config);
         const snptHtmlAnchor = this.variantGridFormatter.snpFormatter(value, row, index);
-        return variantHtmlDiv + "<div style='padding-top: 10px'>" + snptHtmlAnchor + "</div>";
+        return `${variantHtmlDiv}<div style='padding-top: 10px'>${snptHtmlAnchor && snptHtmlAnchor !== "-" ? snptHtmlAnchor : ""}</div>`;
     }
 
     roleInCancerFormatter(value, row, index) {
@@ -707,9 +720,9 @@ export default class VariantCancerInterpreterGrid extends LitElement {
     }
 
     reviewFormatter(value, row, index) {
-        return `<button class="btn btn-link removeIndividualButton" data-variant-id="${row.id}">
-                            <i class="fa fa-edit icon-padding removeIndividualButton" aria-hidden="true"></i> Edit
-                        </button>`;
+        return `<button class="btn btn-link reviewButton" data-variant-id="${row.id}">
+                    <i class="fa fa-edit icon-padding reviewButton" aria-hidden="true" ></i>&nbsp;Edit
+                </button>`;
     }
 
     _createDefaultColumns() {
@@ -816,7 +829,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
             });
         }
 
-        if (this._config.showStatus) {
+        if (this._config.showReview) {
             // _columns[1].push({
             //     title: "Status",
             //     field: "status",
@@ -1053,9 +1066,9 @@ export default class VariantCancerInterpreterGrid extends LitElement {
             pageList: [10, 25, 50],
             showExport: false,
             detailView: true,
+            showReview: true,
 
             showSelectCheckbox: true,
-            showStatus: false,
             multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 10,
@@ -1112,8 +1125,7 @@ export default class VariantCancerInterpreterGrid extends LitElement {
             </opencb-grid-toolbar>
     
             <div id="${this._prefix}GridTableDiv">
-                <table id="${this._prefix}VariantBrowserGrid">
-                </table>
+                <table id="${this._prefix}VariantBrowserGrid"></table>
             </div>
     
             <div class="modal fade" id="${this._prefix}ReviewSampleModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
@@ -1121,13 +1133,11 @@ export default class VariantCancerInterpreterGrid extends LitElement {
                 <div class="modal-dialog" style="width: 1280px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
-                            <h3>Sample and File Filters</h3>
+                            <h3>Review Variant</h3>
                         </div>
-    
                         <opencga-interpretation-variant-review .opencgaSession="${this.opencgaSession}"
                                                                .variant="${this.variantReview}">
                         </opencga-interpretation-variant-review>
-    
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
                             <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
