@@ -1,5 +1,5 @@
-/**
- * Copyright 2015-2019 OpenCB
+/*
+ * Copyright 2015-2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../utils.js";
-import UtilsNew from "../../utilsNew.js";
-import "./opencga-variant-filter.js";
-import "./interpretation/opencga-variant-interpretation-grid.js";
+import Utils from "../../../utils.js";
+import UtilsNew from "../../../utilsNew.js";
+import "../opencga-variant-filter.js";
+import "./deprecated/opencga-variant-interpretation-grid.js";
 import "./interpretation/variant-interpreter-detail.js";
 import "../commons/opencga-active-filters.js";
 
