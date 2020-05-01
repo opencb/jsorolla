@@ -117,6 +117,20 @@ export default class OpencgaFilePreview extends LitElement {
         }
     }
 
+    async download() {
+        // TODO FIXME .gz files are broken
+        console.error()
+        /*let response = await this.opencgaSession.opencgaClient.files().download(this.file.id, {study: this.opencgaSession.study.fqn})
+        console.log("response", response)
+        const blob = new Blob([response]);
+        const downloadUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = downloadUrl;
+        a.download = this.file.name;
+        document.body.appendChild(a);
+        a.click();*/
+    }
+
     fileIdObserver() {
         console.log("fileObserver");
 
@@ -148,11 +162,11 @@ export default class OpencgaFilePreview extends LitElement {
                 min-height: 150px;
             }            
         </style>
+        
+        <a href="${this.url}">Download</a>
         ${this.file ? html`
             <div class="row" style="padding: 0px 10px">
                 <div class="col-md-12">
-                    
-
                     ${this.contentType === "text" ? html`
                         <h3 class="section-title">Head</h3>
                         <pre class="cmd">${this.content}</pre>` : null}

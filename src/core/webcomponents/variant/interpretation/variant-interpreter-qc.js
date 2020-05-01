@@ -148,7 +148,7 @@ class VariantInterpreterQc extends LitElement {
         //             </div>`;
         // }
 
-        return html`
+        return this.clinicalAnalysis ? html`
                 <div>
                     <ul id="${this._prefix}QcTabs" class="nav nav-tabs" role="tablist">
                         <li role="presentation" class="active">
@@ -182,7 +182,7 @@ class VariantInterpreterQc extends LitElement {
                     <div id="${this._prefix}Summary" role="tabpanel" class="tab-pane active">
                         Summary (coming soon)
                     </div>
-                    <div id="${this._prefix}Variants" role="tabpanel" class="tab-pane active">
+                    <div id="${this._prefix}Variants" role="tabpanel" class="tab-pane">
                         <variant-interpreter-qc-variant .opencgaSession="${this.opencgaSession}" 
                                                         .clinicalAnalysis="${this.clinicalAnalysis}">
                         </variant-interpreter-qc-variant>
@@ -200,7 +200,7 @@ class VariantInterpreterQc extends LitElement {
                         : ""
                     }
                 </div>
-            `;
+            ` : null;
     }
 
 }

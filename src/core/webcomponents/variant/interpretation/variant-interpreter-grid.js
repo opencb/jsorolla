@@ -729,7 +729,7 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     checkFormatter(value, row, index) {
-        debugger
+        //debugger
     }
 
     reviewFormatter(value, row, index) {

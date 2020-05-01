@@ -1,10 +1,10 @@
 import UtilsNew from "../../core/utilsNew.js";
-import Rendered from "./renderer.js";
+import Renderer from "./renderer.js";
 import Region from "../../core/region.js";
 import {SVG} from "./../../core/svg.js";
 
 
-export class SequenceRenderer extends Renderer {
+export default class SequenceRenderer extends Renderer {
 
     constructor(args) {
         super(args);

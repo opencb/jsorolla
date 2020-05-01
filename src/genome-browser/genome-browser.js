@@ -1,5 +1,14 @@
+import Region from "../core/region.js";
+import Utils from "../core/utils.js";
+import TrackListPanel from "./tracks/tracklist-panel.js";
+import FeatureTrack from "./tracks/feature-track.js";
+import NavigationBar from "./navigation-bar.js";
+import KaryotypePanel from "./karyotype-panel.js";
+import ChromosomePanel from "./chromosome-panel.js";
+import StatusBar from "./status-bar.js";
+import FeatureRenderer from "./renderers/feature-renderer.js";
 
-class GenomeBrowser {
+export default class GenomeBrowser {
 
     constructor(args) {
         Object.assign(this, Backbone.Events);

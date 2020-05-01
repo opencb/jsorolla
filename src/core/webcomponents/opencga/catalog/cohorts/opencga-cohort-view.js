@@ -127,7 +127,7 @@ export default class OpencgaCohortView extends LitElement {
         </style>
 
         ${this.cohort ? html`
-            <div class="row" style="padding: 0px 10px">
+            <div class="row">
                 <div class="col-md-12">
                     <h3 class="section-title">Summary</h3>
 
@@ -137,7 +137,6 @@ export default class OpencgaCohortView extends LitElement {
                                 <label class="col-md-3 label-title">Cohort Id</label>
                                 <span class="col-md-9">${this.cohort.id}</span>
                             </div>
-                            
                         </form>
                     </div>
                 </div>

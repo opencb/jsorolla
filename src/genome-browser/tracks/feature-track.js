@@ -1,4 +1,10 @@
-class FeatureTrack {
+import Region from "../../core/region.js";
+import Utils from "../../core/utils.js";
+import UtilsNew from "../../core/utilsNew.js";
+import HistogramRenderer from "../renderers/histogram-renderer.js";
+import {SVG} from "../../core/svg.js";
+
+export default class FeatureTrack {
     constructor(args) {
         this.id = Utils.genId("track");
         this.dataAdapter;
