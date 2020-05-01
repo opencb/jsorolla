@@ -324,7 +324,7 @@ class VariantGenericInterpreter extends LitElement {
                     <div style="padding: 10px 10px">
                     
                         ${this._config.tools ? html`
-                            <div id="${this._prefix}select" class="clinical-portal-content">
+                            <div id="${this._prefix}select" class="clinical-portal-content col-md-10 col-md-offset-1">
                                 <variant-cancer-interpreter-landing .opencgaSession="${this.opencgaSession}"
                                                                     .config="${this._config}"
                                                                     @selectclinicalnalysis="${this.onClinicalAnalysis}">
@@ -333,7 +333,8 @@ class VariantGenericInterpreter extends LitElement {
                         ` : null}
         
                         ${this._config.tools ? html`
-                            <div id="${this._prefix}qc" class="clinical-portal-content" style="${this._config.tools[0].id !== "qc" ? "display: none" : ""}">
+                            <div id="${this._prefix}qc" class="clinical-portal-content col-md-10 col-md-offset-1" 
+                                        style="${this._config.tools[0].id !== "qc" ? "display: none" : ""}">
                                 <variant-interpreter-qc .opencgaSession="${this.opencgaSession}"
                                                         .clinicalAnalysis="${this.clinicalAnalysis}"
                                                         .config="${this._config}"
@@ -347,8 +348,7 @@ class VariantGenericInterpreter extends LitElement {
                                 <opencga-variant-interpreter-genome-browser .opencgaSession="${this.opencgaSession}"
                                                                             .cellbaseClient="${this.cellbaseClient}"
                                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                            .config="${this._config}"
-                                                                            @selectclinicalnalysis="${this.onClinicalAnalysis}">
+                                                                            .config="${this._config}">
                                 </opencga-variant-interpreter-genome-browser>
                                 <!--
                                 <opencga-variant-interpreter-genome-browser .opencgaSession="${this.opencgaSession}"

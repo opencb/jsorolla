@@ -16,6 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
+import "./variant-interpreter-qc-variant.js";
+import "./variant-interpreter-qc-alignment.js";
 
 
 class VariantInterpreterQc extends LitElement {
@@ -57,13 +59,9 @@ class VariantInterpreterQc extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
-        // this._config = {...this.getDefaultConfig(), ...this.config};
-        this.requestUpdate();
     }
 
     firstUpdated(_changedProperties) {
-        this.requestUpdate();
     }
 
     updated(changedProperties) {
@@ -138,79 +136,69 @@ class VariantInterpreterQc extends LitElement {
         // Check Project exists
         if (!this.opencgaSession.project) {
             return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue</h3>
-                </div>
-            `;
-        }
-
-        if (this.clinicalAnalysis) {
-            return html`
-                    <div class="row">
-                        <div class="col-md-10 col-md-offset-1">
-                            <div style="float: right">
-                                <button class="btn btn-default" @click="${this.onCloseClinicalAnalysis}">Close</button>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-10 col-md-offset-1">
-                            <h2>Case ${this.clinicalAnalysis.id}</h2>
-                            <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
-                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            style="font-size: 12px"
-                                                            .config="${this._config}">
-                            </opencga-clinical-analysis-view>
-                        </div>
+                    <div>
+                        <h3><i class="fas fa-lock"></i> No public projects available to browse. Please login to continue</h3>
                     </div>`;
         }
 
+        // if (!this.clinicalAnalysis) {
+        //     return html`
+        //             <div>
+        //                 <h3><i class="fas fa-lock"></i> No Case open</h3>
+        //             </div>`;
+        // }
+
         return html`
-                <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
-                    <li role="presentation" class="active">
-                        <a href="#${this._prefix}-variants" role="tab" data-toggle="tab" data-id="${this._prefix}-variants"
-                            class="browser-variant-tab-title">variants
-                        </a>
-                    </li>
-                    <li role="presentation" class="">
-                        <a href="#${this._prefix}-alignment" role="tab" data-toggle="tab" data-id="${this._prefix}-alignment"
-                            class="browser-variant-tab-title">alignment
-                        </a>
-                    </li>
-                </ul>
+                <div>
+                    <ul id="${this._prefix}QcTabs" class="nav nav-tabs" role="tablist">
+                        <li role="presentation" class="active">
+                            <a href="#${this._prefix}Summary" role="tab" data-toggle="tab" data-id="${this._prefix}Summary"
+                                class="browser-variant-tab-title">Summary
+                            </a>
+                        </li>
+                        <li role="presentation">
+                            <a href="#${this._prefix}Variants" role="tab" data-toggle="tab" data-id="${this._prefix}Variants"
+                                class="browser-variant-tab-title">Variant
+                            </a>
+                        </li>
+                        <li role="presentation" class="">
+                            <a href="#${this._prefix}Alignment" role="tab" data-toggle="tab" data-id="${this._prefix}Alignment"
+                                class="browser-variant-tab-title">Alignment
+                            </a>
+                        </li>
+                        ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY" 
+                            ? html`
+                                <li role="presentation" class="disabled">
+                                    <a href="#${this._prefix}Upd" role="tab" data-toggle="tab" data-id="${this._prefix}Upd"
+                                        class="browser-variant-tab-title">UPD (coming soon)
+                                    </a>
+                                </li>` 
+                            : ""
+                        }
+                    </ul>
+                </div>
                 
                 <div class="tab-content">
-                    <div id="${this._prefix}-variants" role="tabpanel" class="tab-pane active">
-                        variants
+                    <div id="${this._prefix}Summary" role="tabpanel" class="tab-pane active">
+                        Summary (coming soon)
                     </div>
-                    <div id="${this._prefix}-alignment" role="tabpanel" class="tab-pane">
-                        alignment
+                    <div id="${this._prefix}Variants" role="tabpanel" class="tab-pane active">
+                        <variant-interpreter-qc-variant .opencgaSession="${this.opencgaSession}" 
+                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
+                        </variant-interpreter-qc-variant>
                     </div>
-                </div>
-                    
-
-                <div class="row">
-                    <div class="col-md-4 col-md-offset-2">
-                        <div>
-                            <h2>Quality Control</h2>
-                            
-                            <h4>Clinical Analysis ID</h4>
-                            <div class="text-filter-wrapper">
-                                <!--<input type="text" name="clinicalAnalysisText" id="clinicalAnalysisIdText" value="AN-3">-->
-                                <select-field-filter-autocomplete-simple .fn="${true}" resource="clinical-analysis" .value="${"AN-3"}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("clinicalAnalysisId", e.detail.value)}"></select-field-filter-autocomplete-simple>
-                            </div>
-                            
-                            <h4>Proband ID</h4>
-                            <div class="text-filter-wrapper">
-                                <select-field-filter-autocomplete-simple .fn="${true}" resource="individuals" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onIndividualChange("individualId", e.detail.value)}"></select-field-filter-autocomplete-simple>
-                            </div>
-
-                            <div>                            
-                                <button class="btn btn-default ripple" @click="${this.onClinicalAnalysisChange}">Clear</button>
-                                <button class="btn btn-default ripple" @click="${this.onClinicalAnalysisChange}">OK</button>
-                            </div>
-                        </div>
+                    <div id="${this._prefix}Alignment" role="tabpanel" class="tab-pane">
+                        <variant-interpreter-qc-alignment   .opencgaSession="${this.opencgaSession}" 
+                                                            .clinicalAnalysis="${this.clinicalAnalysis}">
+                        </variant-interpreter-qc-alignment>
                     </div>
+                    ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
+                        ? html`
+                            <div id="${this._prefix}Upd" role="tabpanel" class="tab-pane">
+                                <h3>Not implemented yet.</h3>
+                            </div>`
+                        : ""
+                    }
                 </div>
             `;
     }
