@@ -243,8 +243,19 @@ class VariantInterpreterCancerBrowser extends LitElement {
     }
 
     onCheckVariant(e) {
-        this.checkedVariants = e.detail.rows;
-        // this._createInterpretation();
+        if (this.clinicalAnalysis && this.clinicalAnalysis.interpretation) {
+            this.clinicalAnalysis.modificationDate = e.detail.timestamp;
+            this.clinicalAnalysis.interpretation.modificationDate = e.detail.timestamp;
+            this.clinicalAnalysis.interpretation.primaryFindings = Array.from(e.detail.rows);
+        }
+
+        this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
+            detail: {
+                clinicalAnalysis: this.clinicalAnalysis
+            },
+            bubbles: true,
+            composed: true
+        }));
     }
 
     onSampleChange(e) {

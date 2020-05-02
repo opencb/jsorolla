@@ -45,9 +45,9 @@ export default class VariantInterpreterReview extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
-            interpretation: {
-                type: Object
-            },
+            // interpretation: {
+            //     type: Object
+            // },
             cellbaseClient: {
                 type: Object
             },
@@ -189,20 +189,13 @@ export default class VariantInterpreterReview extends LitElement {
     }
 
     onSelectVariant(e) {
-        this.variant = e.detail.variant;
-        // this.variant = e.detail.id;
-        // this.variantObj = e.detail.variant;
-    }
-
-    onSelectVariant2(e) {
-        this.selectedVariant = e.detail.variant;
-        // this.variant = e.detail.id;
-        // this.variantObj = e.detail.variant;
+        this.variant = e.detail.row;
+        this.requestUpdate();
     }
 
     onCheckVariant(e) {
         // Alexis: we need to do something like this:
-        this.checkedVariants = e.detail.variants;
+        this.checkedVariants = e.detail.rows;
 
         // We set/remove disable status to Save button
         // if (this.checkedVariants.length > 0 && UtilsNew.isNotEmptyArray(this.samples)) {
@@ -429,18 +422,75 @@ export default class VariantInterpreterReview extends LitElement {
 
     getDefaultConfig() {
         return {
-            activeFilters: {
-                alias: {
-                    // Example:
-                    // "region": "Region",
-                    // "gene": "Gene",
-                    // "genotype": "Sample Genotypes",
-                },
-                complexFields: ["genotype"],
-                hiddenFields: []
+            title: "RD Variant Interpreter",
+            showTitle: false,
+            result: {
+                grid: {
+                    pagination: true,
+                    pageSize: 10,
+                    pageList: [10, 25, 50],
+                    showExport: false,
+                    detailView: true,
+                    showReview: true,
+
+                    showSelectCheckbox: false,
+                    multiSelection: false,
+                    nucleotideGenotype: true,
+                    alleleStringLengthMax: 10,
+
+                    renderLocal: true,
+
+                    header: {
+                        horizontalAlign: "center",
+                        verticalAlign: "bottom"
+                    },
+
+                    quality: {
+                        qual: 30,
+                        dp: 20
+                    },
+                    // populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"]
+                }
             },
-            genomeBrowser: {
-                showTitle: false
+            detail: {
+                title: "Selected Variant",
+                views: [
+                    {
+                        id: "annotationSummary",
+                        title: "Summary",
+                        active: true
+                    },
+                    {
+                        id: "annotationConsType",
+                        title: "Consequence Type",
+                    },
+                    {
+                        id: "annotationPropFreq",
+                        title: "Population Frequencies"
+                    },
+                    {
+                        id: "annotationClinical",
+                        title: "Clinical"
+                    },
+                    {
+                        id: "fileMetrics",
+                        title: "File Metrics"
+                    },
+                    {
+                        id: "cohortStats",
+                        title: "Cohort Stats",
+                        cohorts: this.cohorts
+                    },
+                    {
+                        id: "beacon",
+                        title: "Beacon"
+                        // Uncomment and edit Beacon hosts to change default hosts
+                        // hosts: [
+                        //     "brca-exchange", "cell_lines", "cosmic", "wtsi", "wgs", "ncbi", "ebi", "ega", "broad", "gigascience", "ucsc",
+                        //     "lovd", "hgmd", "icgc", "sahgp"
+                        // ]
+                    }
+                ]
             }
         };
     }
@@ -567,21 +617,20 @@ export default class VariantInterpreterReview extends LitElement {
                         <div id="${this._prefix}collapsibleVariants" class="collapse in">
                             ${this.isInterpretedVariants ? html`
                                 <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
-                                                          .variants="${this._interpretation.primaryFindings}"
                                                           .clinicalAnalysis="${this.clinicalAnalysis}"
                                                           .consequenceTypes="${consequenceTypes}"
                                                           .populationFrequencies="${populationFrequencies}"
                                                           .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                          .config="${this._config.grid}"
+                                                          .config="${this._config.result.grid}"
                                                           @selected="${this.selectedGene}"
-                                                          @selectvariant2="${this.onSelectVariant2}"
+                                                          @selectrow="${this.onSelectVariant}"
                                                           @checkvariant="${this.onCheckVariant}"
                                                           @reviewvariant="${this.onReviewVariant}"
                                                           @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
                                 </variant-interpreter-grid>
 
                                 <variant-interpreter-detail .opencgaSession="${this.opencgaSession}"
-                                                            .variant="${this.selectedVariant}"
+                                                            .variant="${this.variant}"
                                                             .cellbaseClient="${this.cellbaseClient}"
                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                                             .consequenceTypes="${this.consequenceTypes}"

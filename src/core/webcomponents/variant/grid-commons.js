@@ -75,32 +75,35 @@ export default class GridCommons {
         }));
     }
 
-    onCheck(rowId, row) {
+    onCheck(rowId, row, others) {
         this.context.dispatchEvent(new CustomEvent("checkrow", {
             detail: {
                 id: rowId,
                 row: row,
                 checked: true,
-                rows: $("#" + this.gridId).bootstrapTable("getAllSelections")
+                // rows: $("#" + this.gridId).bootstrapTable("getAllSelections"),
+                ...others
             }
         }));
     }
 
-    onCheckAll(rows) {
+    onCheckAll(rows, others) {
         this.context.dispatchEvent(new CustomEvent("checkrow", {
             detail: {
-                rows: $("#" + this.gridId).bootstrapTable("getAllSelections")
+                // rows: $("#" + this.gridId).bootstrapTable("getAllSelections"),
+                ...others
             }
         }));
     }
 
-    onUncheck(rowId, row) {
+    onUncheck(rowId, row, others) {
         this.context.dispatchEvent(new CustomEvent("checkrow", {
             detail: {
                 id: rowId,
                 row: row,
                 checked: false,
-                rows: $("#" + this.gridId).bootstrapTable("getAllSelections")
+                // rows: $("#" + this.gridId).bootstrapTable("getAllSelections"),
+                ...others
             }
         }));
     }

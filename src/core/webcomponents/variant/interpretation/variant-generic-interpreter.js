@@ -133,15 +133,13 @@ class VariantGenericInterpreter extends LitElement {
         $(e.target).addClass("active");
     }
 
-    onInterpretationUpdate (e) {
-        this.clinicalAnalysis.interpretation = {...this.clinicalAnalysis.interpretation};
+    onClinicalAnalysisUpdate (e) {
+        this.clinicalAnalysis = {...e.detail.clinicalAnalysis};
         this.requestUpdate();
     }
+
     onClinicalAnalysis(e) {
         this.clinicalAnalysis = e.detail.clinicalAnalysis;
-        if (!this.clinicalAnalysis.interpretation) {
-            this.clinicalAnalysis.interpretation = {};
-        }
         // this.clinicalAnalysis.type = "cancer";
         this.requestUpdate();
     }
@@ -337,8 +335,7 @@ class VariantGenericInterpreter extends LitElement {
                                         style="${this._config.tools[0].id !== "qc" ? "display: none" : ""}">
                                 <variant-interpreter-qc .opencgaSession="${this.opencgaSession}"
                                                         .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                        .config="${this._config}"
-                                                        @selectclinicalnalysis="${this.onClinicalAnalysis}">
+                                                        .config="${this._config}">
                                 </variant-interpreter-qc>
                             </div>
                         ` : null}
@@ -380,7 +377,7 @@ class VariantGenericInterpreter extends LitElement {
                                                                         .populationFrequencies="${this._config.populationFrequencies}"
                                                                         .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"
                                                                         .consequenceTypes="${this._config.consequenceTypes}"
-                                                                        @interpretationUpdate="${this.onInterpretationUpdate}"
+                                                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
                                                                         @gene="${this.geneSelected}"
                                                                         @samplechange="${this.onSampleChange}">
                                         </variant-interpreter-rd-browser>`
@@ -392,6 +389,7 @@ class VariantGenericInterpreter extends LitElement {
                                                                             .populationFrequencies="${this._config.populationFrequencies}"
                                                                             .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"
                                                                             .consequenceTypes="${this._config.consequenceTypes}"
+                                                                            @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
                                                                             @gene="${this.geneSelected}">
                                         </variant-interpreter-cancer-browser>`
                                 }
@@ -399,10 +397,9 @@ class VariantGenericInterpreter extends LitElement {
                         ` : null}
                     
                         ${this._config.tools ? html`
-                            <div id="${this._prefix}review" class="clinical-portal-content" style="${this._config.tools[0].id !== "review" ? "display: none" : ""}">
+                            <div id="${this._prefix}review" class="clinical-portal-content col-md-10 col-md-offset-1" style="${this._config.tools[0].id !== "review" ? "display: none" : ""}">
                                 <variant-interpreter-review .opencgaSession="${this.opencgaSession}"
                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            .interpretation="${this.clinicalAnalysis?.interpretation}"
                                                             .cellbaseClient="${this.cellbaseClient}"
                                                             .populationFrequencies="${this._config.populationFrequencies}"
                                                             .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"

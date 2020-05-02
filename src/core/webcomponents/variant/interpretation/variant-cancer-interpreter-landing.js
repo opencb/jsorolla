@@ -214,8 +214,6 @@ class VariantCancerInterpreterLanding extends LitElement {
                          </opencga-clinical-analysis-editor>
                     </div>
                 </div>
-                    
-                
             `;
     }
 

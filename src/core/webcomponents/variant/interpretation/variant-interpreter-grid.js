@@ -46,9 +46,9 @@ export default class VariantInterpreterGrid extends LitElement {
             query: {
                 type: Object
             },
-            variants: {
-                type: Array
-            },
+            // variants: {
+            //     type: Array
+            // },
             consequenceTypes: {
                 type: Object
             },
@@ -100,14 +100,11 @@ export default class VariantInterpreterGrid extends LitElement {
         // if (changedProperties.has("clinicalAnalysis")) {
         //     this.clinicalAnalysisObserver();
         // }
-        if (changedProperties.has("opencgaSession") || changedProperties.has("clinicalAnalysis")
+        if (changedProperties.has("opencgaSession") || changedProperties.has("clinicalAnalysis") || changedProperties.has("variants")
             || changedProperties.has("query") || changedProperties.has("config")) {
             this.opencgaSessionObserver();
             this.clinicalAnalysisObserver();
             this.renderVariants();
-        }
-        if (changedProperties.has("variants")) {
-            this.renderLocalVariants();
         }
     }
 
@@ -122,9 +119,15 @@ export default class VariantInterpreterGrid extends LitElement {
 
     clinicalAnalysisObserver() {
         // Make sure somatic sample is the first one
-        if (this.clinicalAnalysis && this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples) {
-            if (this.clinicalAnalysis.proband.samples.length === 2 && this.clinicalAnalysis.proband.samples[1].somatic) {
-                this.clinicalAnalysis.proband.samples = this.clinicalAnalysis.proband.samples.reverse();
+        if (this.clinicalAnalysis) {
+            if (!this.clinicalAnalysis.interpretation) {
+                this.clinicalAnalysis.interpretation = {};
+            }
+            if (this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
+                if (this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples
+                    && this.clinicalAnalysis.proband.samples.length === 2 && this.clinicalAnalysis.proband.samples[1].somatic) {
+                    this.clinicalAnalysis.proband.samples = this.clinicalAnalysis.proband.samples.reverse();
+                }
             }
         }
     }
@@ -139,7 +142,7 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     renderVariants() {
-        if (this.variants) {
+        if (this._config.renderLocal) {
             this.renderLocalVariants();
         } else {
             this.renderRemoteVariants();
@@ -147,6 +150,11 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     renderRemoteVariants() {
+        if (this.clinicalAnalysis && this._timestamp && this.clinicalAnalysis.interpretation
+            && this.clinicalAnalysis.interpretation.modificationDate === this._timestamp) {
+            return;
+        }
+
         this.from = 1;
         this.to = this._config.pageSize;
         this.approximateCountResult = false;
@@ -183,6 +191,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         includeSampleId: "true",
                         ...this.query
                     };
+                    // _this.oldQuery = filters;
                     this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
                         .then( res => params.success(res));
                 },
@@ -192,90 +201,44 @@ export default class VariantInterpreterGrid extends LitElement {
                     this.to = result.to || this.to;
                     this.numTotalResultsText = result.numTotalResultsText;
                     this.approximateCountResult = result.approximateCountResult;
-                    this.requestUpdate();
+                    // this.requestUpdate();
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-//                 onClickRow: function(row, selectedElement, field) {
-//                     $("#" + _this._prefix + "VariantBrowserGrid tr").removeClass("success");
-//                     $(selectedElement).addClass("success");
-//                     _this._onSelectVariant(row, "selectvariant");
-//                 },
                 onCheck: (row, $element) => {
                     this.checkedVariants.set(row.id, row);
-                    if (this.clinicalAnalysis && this.clinicalAnalysis.interpretation) {
-                        this.clinicalAnalysis.interpretation.primaryFindings = Array.from(this.checkedVariants.values());
-                    }
-                    this.gridCommons.onCheck(row.id, row);
+                    this._timestamp = new Date().getTime();
+                    this.gridCommons.onCheck(row.id, row, {rows: Array.from(this.checkedVariants.values()), timestamp: this._timestamp});
                 },
-                // onCheck: function(row, $element) {
-                //     const _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-                //     _this.dispatchEvent(new CustomEvent("checkvariant", {
-                //         detail: {
-                //             id: _variant,
-                //             variant: row,
-                //             checkdVariant: true,
-                //             variants: $("#" + _this._prefix + "VariantBrowserGrid").bootstrapTable("getAllSelections")
-                //         }
-                //     }));
-                // },
                 onCheckAll: rows => {
                     for (let row of rows) {
                         this.checkedVariants.set(row.id, row);
                     }
-                    this.gridCommons.onCheckAll(rows);
+                    this._timestamp = new Date().getTime();
+                    this.gridCommons.onCheckAll(rows, {rows: Array.from(this.checkedVariants.values()), timestamp: this._timestamp});
                 },
-                // onCheckAll: function(rows) {
-                //     _this.dispatchEvent(new CustomEvent("checkrow", {
-                //         detail: {
-                //             variants: $("#" + _this._prefix + "VariantBrowserGrid").bootstrapTable("getAllSelections")
-                //         }
-                //     }));
-                // },
                 onUncheck: (row, $element) => {
                     this.checkedVariants.delete(row.id);
-                    if (this.clinicalAnalysis && this.clinicalAnalysis.interpretation) {
-                        this.clinicalAnalysis.interpretation.primaryFindings = Array.from(this.checkedVariants.values());
+                    this._timestamp = new Date().getTime();
+                    this.gridCommons.onUncheck(row.id, row, {rows: Array.from(this.checkedVariants.values()), timestamp: this._timestamp});
+                },
+                onUncheckAll: rows => {
+                    for (let row of rows) {
+                        this.checkedVariants.delete(row.id);
                     }
-                    this.gridCommons.onUncheck(row.id, row);
+                    this._timestamp = new Date().getTime();
+                    this.gridCommons.onCheckAll(rows, {rows: Array.from(this.checkedVariants.values()), timestamp: this._timestamp});
                 },
-                // onUncheck: function(row, $element) {
-                //     const _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-                //     _this.dispatchEvent(new CustomEvent("checkrow", {
-                //         detail: {
-                //             id: _variant,
-                //             variant: row,
-                //             checkdVariant: false,
-                //             variants: $("#" + _this._prefix + "VariantBrowserGrid").bootstrapTable("getAllSelections")
-                //         }
-                //     }));
-                // },
                 onLoadSuccess: data => {
-                    // $(this.table).bootstrapTable('check', 1);
-                    this.gridCommons.onLoadSuccess(data, 2)
+                    for (let i = 0; i < data.rows.length; i++) {
+                        if (this.checkedVariants.has(data.rows[i].id)) {
+                            $(this.table).bootstrapTable('check', i);
+                        }
+                    }
+                    this.gridCommons.onLoadSuccess(data, 2);
                 },
-                // onLoadSuccess: data => {
-                //     // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
-                //     if (UtilsNew.isNotEmptyArray(data.rows) && UtilsNew.isNotUndefinedOrNull(this.table)) {
-                //         PolymerUtils.querySelector(this.table.selector).rows[2].setAttribute("class", "success");
-                //         _this._onSelectVariant(data.rows[0]);
-                //
-                //         // const elementsByClassName = PolymerUtils.getElementsByClassName("genome-browser-option");
-                //         // for (const elem of elementsByClassName) {
-                //         //     elem.addEventListener("click", function(e) {
-                //         //         // _this.genomeBrowserPosition = e.target.dataset.variantPosition;
-                //         //         _this.dispatchEvent(new CustomEvent("setgenomebrowserposition", {
-                //         //             detail: {
-                //         //                 genomeBrowserPosition: e.target.dataset.variantPosition
-                //         //             }, bubbles: true, composed: true
-                //         //         }));
-                //         //     });
-                //         // }
-                //     }
-                // },
                 onLoadError: function(status, res) {
-                    console.error(res)
-
+                    console.error(res);
                 },
                 onPageChange: function(page, size) {
                     _this.from = (page - 1) * size + 1;
@@ -316,17 +279,18 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     renderLocalVariants() {
+        let _variants = this.clinicalAnalysis.interpretation.primaryFindings;
         this.from = 1;
-        this.to = Math.min(this.variants.length, this._config.pageSize);
-        this.numTotalResultsText = this.variants.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        this.to = Math.min(_variants.length, this._config.pageSize);
+        this.numTotalResultsText = _variants.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-        this.table = $("#" + this.gridId);
-        this._columns = this._createDefaultColumns();
+        // this._columns = this._createDefaultColumns();
         const _this = this;
+        this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            data: _this.variants,
-            columns: _this._columns,
+            data: _variants,
+            columns: _this._createDefaultColumns(),
             sidePagination: "local",
 
             // Set table properties, these are read from config property
@@ -336,24 +300,23 @@ export default class VariantInterpreterGrid extends LitElement {
             pageList: _this._config.pageList,
             showExport: _this._config.showExport,
             detailView: _this._config.detailView,
-            detailFormatter: _this._config.detailFormatter,
+            detailFormatter: _this.detailFormatter,
+            formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
 
             // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
             variantGrid: _this,
 
-            onClickRow: function(row, $element) {
-                $("#" + _this._prefix + "VariantBrowserGrid tr").removeClass("success");
-                $($element).addClass("success");
-
-                _this._onClickSelectedVariant(row);
+            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onLoadSuccess: data => {
+                this.gridCommons.onLoadSuccess(data, 2);
             },
             onPageChange: function(page, size) {
-                _this.from = (page - 1) * size + 1;
-                _this.to = page * size;
+                // _this.from = (page - 1) * size + 1;
+                // _this.to = page * size;
             },
             onPostBody: function(data) {
-                const _onPostBody = _this._onPostBody.bind(_this, data, "local");
-                _this._onPostBody();
+                // const _onPostBody = _this._onPostBody.bind(_this, data, "local");
+                // _this._onPostBody();
             }
         });
     }
@@ -728,9 +691,9 @@ export default class VariantInterpreterGrid extends LitElement {
                 </div>`;
     }
 
-    checkFormatter(value, row, index) {
-        debugger
-    }
+    // checkFormatter(value, row, index) {
+    //
+    // }
 
     reviewFormatter(value, row, index) {
         return `<button class="btn btn-link reviewButton" data-variant-id="${row.id}">
@@ -839,7 +802,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 checkbox: true,
                 rowspan: 1,
                 colspan: 1,
-                formatter: this.checkFormatter.bind(this),
+                // formatter: this.checkFormatter.bind(this),
             });
         }
 

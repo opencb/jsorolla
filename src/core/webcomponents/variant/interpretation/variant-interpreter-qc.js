@@ -79,59 +79,6 @@ class VariantInterpreterQc extends LitElement {
         // }
     }
 
-    onCloseClinicalAnalysis() {
-        this.clinicalAnalysis = null;
-        this.dispatchEvent(new CustomEvent("selectclinicalnalysis", {
-            detail: {
-                id: null,
-                clinicalAnalysis: null,
-            }
-        }));
-    }
-
-    onClinicalAnalysisChange() {
-        if (this.clinicalAnalysisId) {
-            let _this = this;
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    _this.clinicalAnalysis = response.responses[0].results[0];
-                    _this.dispatchEvent(new CustomEvent("selectclinicalnalysis", {
-                        detail: {
-                            id: _this.clinicalAnalysis.id,
-                            clinicalAnalysis: _this.clinicalAnalysis,
-                        }
-                    }));
-                })
-                .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
-                });
-        }
-    }
-
-    onFilterChange(name, value) {
-        this.clinicalAnalysisId = value;
-    }
-
-    onIndividualChange(name, individualId) {
-        let _this = this;
-        this.opencgaSession.opencgaClient.individuals().info(individualId, {study: this.opencgaSession.study.fqn})
-            .then(response => {
-                // Create a CLinical Analysis object
-                let _clinicalAnalysis = {
-                    id: "",
-                    proband: response.responses[0].results[0],
-                    type: "CANCER"
-                };
-                _this.clinicalAnalysis = _clinicalAnalysis;
-
-                // _this.requestUpdate();
-                // _this.onClinicalAnalysisChange();
-            })
-            .catch(response => {
-                console.error("An error occurred fetching clinicalAnalysis: ", response);
-            });
-    }
-
     render() {
         // Check Project exists
         if (!this.opencgaSession.project) {

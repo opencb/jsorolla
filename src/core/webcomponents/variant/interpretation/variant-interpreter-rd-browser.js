@@ -245,10 +245,16 @@ class VariantInterpreterRdBrowser extends LitElement {
     }
 
     onCheckVariant(e) {
-        this.checkedVariants = e.detail.rows;
-        // this._createInterpretation();
-        this.dispatchEvent(new CustomEvent("interpretationUpdate", {
-            detail: e.detail.rows,
+        if (this.clinicalAnalysis && this.clinicalAnalysis.interpretation) {
+            this.clinicalAnalysis.modificationDate = e.detail.timestamp;
+            this.clinicalAnalysis.interpretation.modificationDate = e.detail.timestamp;
+            this.clinicalAnalysis.interpretation.primaryFindings = Array.from(e.detail.rows);
+        }
+
+        this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
+            detail: {
+                clinicalAnalysis: this.clinicalAnalysis
+            },
             bubbles: true,
             composed: true
         }));
@@ -772,6 +778,10 @@ class VariantInterpreterRdBrowser extends LitElement {
     }
 
     render() {
+        // this.r;
+        // this.clinicalAnalysis;
+        // debugger
+
         // Check Project exists
         if (!this.opencgaSession && !this.opencgaSession.project) {
             return html`
