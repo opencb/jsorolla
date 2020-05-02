@@ -1,4 +1,8 @@
-class NavigationBar {
+import Region from "../core/region.js";
+import Utils from "../core/utils.js";
+
+
+export default class NavigationBar {
 
     constructor(args) {
         Object.assign(this, Backbone.Events);

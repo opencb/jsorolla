@@ -119,18 +119,17 @@ class VariantGenericInterpreter extends LitElement {
 
     _changeView(e) {
         e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-
-        $(".clinical-portal-content").hide(); // hides all content divs
-        if (typeof e.target !== "undefined" && typeof e.target.dataset.view !== "undefined") {
+        $(".clinical-portal-content", this).hide(); // hides all content divs
+        if (typeof e.currentTarget !== "undefined" && typeof e.currentTarget.dataset.view !== "undefined") {
             // $("#" + this._prefix + e.target.dataset.view).show(); // get the href and use it find which div to show
-            PolymerUtils.show(this._prefix + e.target.dataset.view);
+            PolymerUtils.show(this._prefix + e.currentTarget.dataset.view);
         }
 
         // Show the active button
         // $(".clinical-portal-button").removeClass("active");
-        $(".clinical-portal-button").removeClass("active");
+        $(".clinical-portal-step").removeClass("active");
         // $(e.target).addClass("active");
-        $(e.target).addClass("active");
+        $(e.currentTarget).addClass("active");
     }
 
     onClinicalAnalysisUpdate (e) {
@@ -216,69 +215,6 @@ class VariantGenericInterpreter extends LitElement {
 
         return html`
             <style>
-                
-                ul.wizard {
-                    display: flex;
-                    justify-content: space-around;
-                    list-style: none;
-                }
-                
-                li.wizard-item {
-                    cursor: pointer;
-                    margin: 15px 30px;
-                    width: 110px;
-                    height: 110px;
-                    border-radius: 50%;
-                    text-align: center;
-                    position: relative;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    background: white;
-                    z-index: 10;
-                }
-                li.wizard-item.active {
-                    font-size: 1.1em;
-                    background: #f1f1f1;
-                }
-                
-                li.wizard-item:before {
-                    content: "";
-                    position: absolute;
-                    height: 3px;
-                    background: #000966;
-                    width: 100%;
-                    top: 50%;
-                    left: 110px;
-                    z-index: 5;
-                }
-                
-                li.wizard-item:last-child:before {
-                    background: transparent;
-                }
-                
-                li.wizard-item:hover:after {
-                    -webkit-transform: scale(0.85);
-                    -moz-transform: scale(0.85);
-                    -ms-transform: scale(0.85);
-                    transform: scale(0.85);
-                    opacity: 0.5;
-                }
-                
-                li.wizard-item:after  {
-                    content: "";
-                    top: 0;
-                    left: 0;
-                    padding: 0;
-                    width: 110px;
-                    height: 110px;
-                    border-radius: 50%;
-                    position: absolute;
-                    box-shadow: 0 0 0 4px #000966;
-                    -webkit-transition: -webkit-transform 0.2s, opacity 0.2s;
-                    -moz-transition: -moz-transform 0.2s, opacity 0.2s;
-                    transition: transform 0.2s, opacity 0.2s;
-                }
             </style>
             
             <div class="row">
@@ -306,13 +242,15 @@ class VariantGenericInterpreter extends LitElement {
                             </div>
                             <div class="collapse navbar-collapse" style="padding: 0px 20px">
                                 <!-- Controls aligned to the LEFT -->
-                                <ul class="wizard">
-                                    ${this._config.tools && this._config.tools.map(item => html`
-                                        <li class="wizard-item clinical-portal-button ${!this.clinicalAnalysis && item.id !== "select" ? "disabled" : ""}" data-view="${item.id}" @click="${this._changeView}">
-                                            ${item.title}
-                                        </li>
-                                    `)}
-                                </ul>
+                                <div class="row hi-icon-wrap wizard hi-icon-animation">
+                                ${this._config.tools && this._config.tools.map( item => html`
+                                    <a class="icon-wrapper clinical-portal-step ${!this.clinicalAnalysis && item.id !== "select" ? "disabled" : ""}" href="javascript: void 0" data-view="${item.id}" @click="${this._changeView}">
+                                        <div class="hi-icon fa fa-arrow-right"></div>
+                                        <p>${item.title}</p>
+                                        <span class="smaller"></span>
+                                    </a>
+                                `)}
+                                </div>
                             </div> 
                         </div> 
                     </nav> 

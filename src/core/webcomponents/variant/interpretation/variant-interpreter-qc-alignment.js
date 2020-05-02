@@ -105,8 +105,50 @@ class VariantInterpreterQcAlignment extends LitElement {
         return html`
                 <div>
                     <h3>Alignment Stats</h3>
-                    <span>We must use the new component alignment-stats for 
-                    <a href="https://github.com/opencb/biodata/blob/develop/biodata-models/src/main/java/org/opencb/biodata/models/alignment/AlignmentStats.java" target="_blank">https://github.com/opencb/biodata/blob/develop/biodata-models/src/main/java/org/opencb/biodata/models/alignment/AlignmentStats.java</a></span>
+                    <!-- <span>We must use the new component alignment-stats for 
+                    <a href="https://github.com/opencb/biodata/blob/develop/biodata-models/src/main/java/org/opencb/biodata/models/alignment/AlignmentStats.java" target="_blank">https://github.com/opencb/biodata/blob/develop/biodata-models/src/main/java/org/opencb/biodata/models/alignment/AlignmentStats.java</a></span> -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-horizontal">
+                                <div class="form-group">
+                                    <label class="col-md-3 label-title">File ID</label>
+                                    <span class="col-md-9">fileId</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-3 label-title">Total Sequences</label>
+                                    <span class="col-md-9">rawTotalSequences</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-3 label-title">Average Length</label>
+                                    <span class="col-md-9">averageLength</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-3 label-title">Average First Fragment Length</label>
+                                    <span class="col-md-9">averageFirstFragmentLength</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-3 label-title">Average Last Fragment Length</label>
+                                    <span class="col-md-9">averageLastFragmentLength</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-3 label-title">Maximum Length</label>
+                                    <span class="col-md-9">maximumLength</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-3 label-title">Maximum First Fragment Length</label>
+                                    <span class="col-md-9">maximumFirstFragmentLength</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-3 label-title">Maximum Last Fragment Length</label>
+                                    <span class="col-md-9">maximumLastFragmentLength</span>
+                                </div>                                
+                                <div class="form-group">
+                                    <label class="col-md-3 label-title">Average Quality</label>
+                                    <span class="col-md-9">averageQuality</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             `;
     }

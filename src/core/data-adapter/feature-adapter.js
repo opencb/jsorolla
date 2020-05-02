@@ -1,5 +1,5 @@
 
-class FeatureAdapter {
+export default class FeatureAdapter {
 
     constructor(options) {
         this.options = options;

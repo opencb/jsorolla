@@ -17,8 +17,9 @@
  * You should have received a copy of the GNU General Public License
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
+import FeatureAdapter from "./feature-adapter.js";
 
-class CellBaseAdapter extends FeatureAdapter {
+export default class CellBaseAdapter extends FeatureAdapter {
 
     constructor (client, category, subcategory, resource, params = {}, options = {}, handlers = {}) {
         super();

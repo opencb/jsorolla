@@ -1,11 +1,11 @@
 import UtilsNew from "../../core/utilsNew.js";
-import Rendered from "./renderer.js";
+import Renderer from "./renderer.js";
 import {SVG} from "./../../core/svg.js";
 
 /**
  * Any object with chromosome, start and end
  */
-export class FeatureRenderer extends Renderer {
+export default class FeatureRenderer extends Renderer {
 
     constructor(args) {
         super(args);

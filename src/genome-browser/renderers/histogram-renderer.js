@@ -1,5 +1,5 @@
 import UtilsNew from "../../core/utilsNew.js";
-import Rendered from "./renderer.js";
+import Renderer from "./renderer.js";
 import {SVG} from "./../../core/svg.js";
 
 

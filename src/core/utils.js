@@ -312,7 +312,7 @@ export default {
     },
     formatNumber(value, decimals) {
         console.warn("formatNumber method is duplicated.");
-        value = Utils.myRound(value, decimals);
+        value = this.myRound(value, decimals);
 
         if (Math.abs(value) > 0 && Math.abs(value) < 0.001) { value = value.toExponential(); }
         return value;

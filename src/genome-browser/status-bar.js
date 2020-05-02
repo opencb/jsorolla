@@ -1,4 +1,7 @@
-class StatusBar {
+import Utils from "../core/utils.js";
+import Region from "../core/region.js";
+
+export default class StatusBar {
 
     constructor(args) {
         Object.assign(this, Backbone.Events);

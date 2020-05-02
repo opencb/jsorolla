@@ -220,22 +220,33 @@ export default class OpencgaGenomeBrowser extends LitElement {
         }
     }
 
+    // TODO urgent refactor
     showSelectionInGenomeBrowser() {
         const genomeBrowser = PolymerUtils.getElementById(this._prefix + "gb");
 
         if (genomeBrowser !== undefined && genomeBrowser !== null) {
-            const inputArray = document.querySelectorAll("input[name=" + this._prefix + "file-checkbox]:checked");
+            const inputArray = this.querySelectorAll("input[name=" + this._prefix + "file-checkbox]:checked");
+            console.log("inputArray",inputArray)
 
             const myVariantFiles = [];
             const myAlignmentFiles = [];
-            inputArray.forEach(function(input) {
-                const file = input.data;
-                if (file.format === "VCF") {
-                    myVariantFiles.push(file);
-                } else if (file.format === "BAM") {
-                    myAlignmentFiles.push(file);
-                }
+            inputArray.forEach(input => {
+                console.log("input", input)
+                const fileId = input.dataset.id;
+                this._availableFiles.forEach( sample => {
+                    sample.files.forEach( file => {
+                        if (file.id === fileId) {
+                            if (file.format === "VCF") {
+                                myVariantFiles.push(file);
+                            } else if (file.format === "VCF") {
+                                myAlignmentFiles.push(file);
+                            }
+                        }
+                    })
+                })
             });
+
+            console.log("my", myVariantFiles, myAlignmentFiles)
 
             // In order to notify of the changes to the genome browser, we make a copy of the tracks object
             const _tracks = this.tracks;
@@ -247,7 +258,10 @@ export default class OpencgaGenomeBrowser extends LitElement {
             // if (myVariantFiles.length > 0 || myAlignmentFiles.length > 0) {
             // Hide Genome Browser initial message
             this.displayGenomeBrowserMessage = "none";
-            genomeBrowser.active = true;
+            //genomeBrowser.active = true;
+            this.genomeBrowserActive = true;
+            this.requestUpdate();
+
             // }
         }
     }
@@ -336,8 +350,8 @@ export default class OpencgaGenomeBrowser extends LitElement {
                                             <i class="fa fa-times" aria-hidden="true"> Delete</i>
                                         </button>
                                     </div>
-                                    ${sample.file && sample.file.length && sample.file.map(file => html`
-                                        <input type="checkbox" style="margin-left: 15px;" name="${this._prefix}file-checkbox" value="${file.name}" data="${file}">
+                                    ${sample.files && sample.files.length && sample.files.map(file => html`
+                                        <input type="checkbox" style="margin-left: 15px;" name="${this._prefix}file-checkbox" value="${file.name}" data-id="${file.id}">
                                         <span style="word-wrap:break-word;">${file.name}</span><br>
                                     `)} 
                                     <br>
@@ -369,7 +383,7 @@ export default class OpencgaGenomeBrowser extends LitElement {
                 </div>
 
                 <div style="padding: 20px 5px">
-                    <genome-browser id="${this._prefix}gb" .opencgaSession=${this.opencgaSession} .cellbaseClient="${this.cellbaseClient}"
+                    <genome-browser id="${this._prefix}gb" .active="${this.genomeBrowserActive}" .opencgaSession=${this.opencgaSession} .cellbaseClient="${this.cellbaseClient}"
                                     .opencgaClient="${this.opencgaClient}" .region="${this.genomeBrowserRegion}" .tracks="${this.tracks}">
                     </genome-browser>
                 </div>

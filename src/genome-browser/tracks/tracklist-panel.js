@@ -1,4 +1,9 @@
-class TrackListPanel { //parent is a DOM div element
+import Region from "../../core/region.js";
+import Utils from "../../core/utils.js";
+import SequenceRenderer from "../renderers/sequence-renderer.js";
+
+export default class TrackListPanel { //parent is a DOM div element
+
     constructor(args){
         let _this = this;
 
@@ -156,16 +161,16 @@ class TrackListPanel { //parent is a DOM div element
             this.div.appendChild(titleDiv);
         }
 
-        let tlHeaderDiv = $('<div id="tl-header" class="unselectable"></div>')[0];
+        let tlHeaderDiv = $("<div id=\"tl-header\" class=\"unselectable\"></div>")[0];
 
-        let panelDiv = $('<div id="tl-panel"></div>')[0];
+        let panelDiv = $("<div id=\"tl-panel\"></div>")[0];
         $(panelDiv).css({
             position: "relative",
             width: "100%"
         });
 
 
-        this.tlTracksDiv = $('<div id="tl-tracks"></div>')[0];
+        this.tlTracksDiv = $("<div id=\"tl-tracks\"></div>")[0];
         $(this.tlTracksDiv).css({
             position: "relative",
             "z-index": 3
@@ -714,8 +719,8 @@ class TrackListPanel { //parent is a DOM div element
 
 
         track.set("trackRegion:change", function(event) {
-          console.log(`trackListPanel trackRegion:change region ------> ${event.region}`);
-          console.log(`trackListPanel trackRegion:change width ------> ${_this.width}`);
+            console.log(`trackListPanel trackRegion:change region ------> ${event.region}`);
+            console.log(`trackListPanel trackRegion:change width ------> ${_this.width}`);
             track.setWidth(_this.width);
             track.set("pixelBase", _this.pixelBase);
             track.set("region", event.region);
