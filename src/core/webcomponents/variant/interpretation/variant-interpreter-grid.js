@@ -743,6 +743,13 @@ export default class VariantInterpreterGrid extends LitElement {
                     halign: "center"
                 },
                 {
+                    title: "Variant Stats <span class='pop-preq-info-icon'><i class='fa fa-info-circle' style='color: #337ab7' aria-hidden='true'></i></span>",
+                    field: "frequencies",
+                    rowspan: 1,
+                    colspan: 1,
+                    align: "center"
+                },
+                {
                     title: "Clinical",
                     rowspan: 1,
                     colspan: 2,
@@ -750,6 +757,13 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
             ],
             [
+                {
+                    title: "Population Frequencies",
+                    field: "populationFrequencies",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: this.clinicalPopulationFrequenciesFormatter.bind(this)
+                },
                 {
                     title: "ClinVar",
                     field: "clinvar",
@@ -824,16 +838,8 @@ export default class VariantInterpreterGrid extends LitElement {
         }
 
         if (this.clinicalAnalysis && this.clinicalAnalysis.type.toUpperCase() === "FAMILY") {
-            // Add Variant Stats
-            _columns[0].splice(4, 0,
-                {
-                    title: "Variant Stats <span class='pop-preq-info-icon'><i class='fa fa-info-circle' style='color: #337ab7' aria-hidden='true'></i></span>",
-                    field: "frequencies",
-                    rowspan: 1,
-                    colspan: 2,
-                    align: "center"
-                }
-            );
+            // Add Cohort to Variant Stats
+            _columns[0][4].colspan = 2;
             _columns[1].splice(0, 0,
                 {
                     title: "Cohorts",
@@ -841,13 +847,6 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: this.studyCohortsFormatter.bind(this)
-                },
-                {
-                    title: "Population Frequencies",
-                    field: "populationFrequencies",
-                    colspan: 1,
-                    rowspan: 1,
-                    formatter: this.clinicalPopulationFrequenciesFormatter.bind(this)
                 }
             );
 
