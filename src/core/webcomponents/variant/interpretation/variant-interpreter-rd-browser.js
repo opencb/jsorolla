@@ -473,16 +473,11 @@ class VariantInterpreterRdBrowser extends LitElement {
                     complexFields: ["genotype"],
                     hiddenFields: []
                 },
-                sections: [     // sections and subsections, structure and order is respected
+                sections: [
                     {
                         title: "Study and Cohorts",
                         collapsed: false,
                         fields: [
-                            // {
-                            //     id: "study",
-                            //     title: "Studies Filter",
-                            //     tooltip: tooltips.study
-                            // },
                             {
                                 id: "cohort",
                                 title: "Cohort Alternate Stats",
@@ -519,7 +514,7 @@ class VariantInterpreterRdBrowser extends LitElement {
                             {
                                 id: "type",
                                 title: "Variant Type",
-                                types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION", "MNV"],
+                                types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION"],
                                 tooltip: tooltips.type
                             }
                         ]
@@ -540,18 +535,18 @@ class VariantInterpreterRdBrowser extends LitElement {
                             },
                         ]
                     },
-                    // {
-                    //     title: "Population Frequency",
-                    //     collapsed: true,
-                    //     fields: [
-                    //         {
-                    //             id: "populationFrequency",
-                    //             title: "Select Population Frequency",
-                    //             tooltip: tooltips.populationFrequencies,
-                    //             showSetAll: true
-                    //         }
-                    //     ]
-                    // },
+                    {
+                        title: "Population Frequency",
+                        collapsed: true,
+                        fields: [
+                            {
+                                id: "populationFrequency",
+                                title: "Select Population Frequency",
+                                tooltip: tooltips.populationFrequencies,
+                                showSetAll: true
+                            }
+                        ]
+                    },
                     {
                         title: "Phenotype-Disease",
                         collapsed: true,
@@ -610,32 +605,21 @@ class VariantInterpreterRdBrowser extends LitElement {
                 examples: [
                     {
                         name: "Example BRCA2",
-                        active: false,
                         query: {
                             gene: "BRCA2",
-                            conservation: "phylop<0.001"
-                        }
-                    },
-                    {
-                        name: "Example OR11",
-                        query: {
-                            gene: "OR11H1",
-                            conservation: "phylop<=0.001"
+                            ct: "missense_variant"
                         }
                     },
                     {
                         name: "Full Example",
                         query: {
                             "region": "1,2,3,4,5",
-                            "studies": "corpasome",
                             "xref": "BRCA1,TP53",
-                            // "panel": "Albinism_or_congenital_nystagmus-PanelAppId-511,Amyloidosis-PanelAppId-502",
                             "biotype": "protein_coding",
                             "type": "INDEL",
                             "ct": "lof",
                             "populationFrequencyAlt": "1kG_phase3:ALL<0.1,GNOMAD_GENOMES:ALL<0.1",
                             "protein_substitution": "sift>5,polyphen>4",
-                            // "functionalScore": "cadd_raw>2,cadd_scaled<4",
                             "conservation": "phylop>1;phastCons>2;gerp<=3"
                         }
                     }
