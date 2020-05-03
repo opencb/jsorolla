@@ -154,49 +154,49 @@ class VariantGenericInterpreter extends LitElement {
                     title: "Case Info",
                     acronym: "VB",
                     description: "",
-                    icon: "fa fa-list"
+                    icon: "fa fa-folder-open"
                 },
                 {
                     id: "qc",
                     title: "Quality Control",
                     acronym: "VB",
                     description: "",
-                    icon: "fa fa-list"
+                    icon: "fa fa-chart-bar"
                 },
                 {
                     id: "genome-browser",
                     title: "Genome Browser",
                     acronym: "VB",
                     description: "",
-                    icon: "fa fa-list"
+                    icon: "fa fa-bars"
                 },
                 {
                     id: "interpretation",
                     title: "Interpretation Methods",
                     acronym: "VB",
                     description: "",
-                    icon: "fa fa-list"
+                    icon: "fa fa-sync"
                 },
                 {
                     id: "variant-browser",
                     title: "Variant Browser",
                     acronym: "VB",
                     description: "",
-                    icon: "fa fa-list"
+                    icon: "fa fa-search"
                 },
                 {
                     id: "review",
                     title: "Review",
                     acronym: "VB",
                     description: "",
-                    icon: "fa fa-list"
+                    icon: "fa fa-edit"
                 },
                 {
                     id: "report",
                     title: "Report",
                     acronym: "VB",
                     description: "",
-                    icon: "fa fa-list"
+                    icon: "fa fa-file-alt"
                 }
             ]
         };
@@ -245,7 +245,7 @@ class VariantGenericInterpreter extends LitElement {
                                 <div class="row hi-icon-wrap wizard hi-icon-animation">
                                 ${this._config.tools && this._config.tools.map( item => html`
                                     <a class="icon-wrapper clinical-portal-step ${!this.clinicalAnalysis && item.id !== "select" ? "disabled" : ""}" href="javascript: void 0" data-view="${item.id}" @click="${this._changeView}">
-                                        <div class="hi-icon fa fa-arrow-right"></div>
+                                        <div class="hi-icon ${item.icon}"></div>
                                         <p>${item.title}</p>
                                         <span class="smaller"></span>
                                     </a>
