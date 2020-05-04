@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import "../../variant/opencga-variant-filter-clinical.js";
 
@@ -24,6 +23,7 @@ export default class SampleFilter extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -36,26 +36,33 @@ export default class SampleFilter extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            enabled: {
-                type: Boolean
-            },
+            // enabled: {
+            //     type: Boolean
+            // },
             clinicalAnalysis: {
                 type: Object
             },
             query: {
+                type: Object
+            },
+            config: {
                 type: Object
             }
         };
     }
 
     _init() {
-        this._prefix = "saf-" + Utils.randomString(6) + "_";
-        this._query = {}; //this refer and it is used just for the 3 fields of sample-filter (sample, genotype, format)
+        this._prefix = "sgf-" + UtilsNew.randomString(6) + "_";
+        // this._query = {}; //this refer and it is used just for the 3 fields of sample-filter (sample, genotype, format)
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
         if (changedProperties.has("query")) {
             this.queryObserver();
+        }
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 
@@ -66,81 +73,53 @@ export default class SampleFilter extends LitElement {
         //this.updateClinicalQueryTable();
     }
 
-/*
-    filterChange(e) {
-        console.log("filterChange", e.target);
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                sample: e.target.value
-
-            }
-        });
-        this.dispatchEvent(event);
-    }
-*/
-
     queryObserver(){
         this.updateClinicalQueryTable(); //TODO recheck if this needs to be executed on clinicalAnalysis update
-        //this.clinicalFilterQuery = $.extend(true, {}, this.query);  //updates the table opencga-variant-filter-clinical (in the modal)
-
-        //console.warn("query changed", this.query)
-        //console.error("renderClinicalQuerySummary is the problem for the not updating sample-filter table after active-filter change")
-        //console.log("clinicalFilterQuery", this.clinicalFilterQuery)
         //this.requestUpdate();
     }
 
     showModal() {
-        $("#" + this._prefix + "SampleFilterModal").modal("show");
+        $("#" + this._prefix + "SampleGenotypeFilterModal").modal("show");
     }
 
     //TODO needs refactor
     onClinicalFilterChange(e) {
-
-        console.log("sample-filter onClinicalFilterChange", e)
-        //console.warn("onClinicalFilterChange is commented")
-        //return;
-
         // Process Sample filters
         let _genotypeFilters = [];
         let _sampleIds = [];
         let _dpFormatFilter = [];
 
         //TODO FIX empty _genotypeFilters (keeping the proband only) is a problem rendering sample-filter table
-        if (e.detail.mode === "COMPOUND_HETEROZYGOUS" || e.detail.mode === "DE_NOVO") {
-            const proband = e.detail.sampleFilters.filter( sample => sample.proband);
-            console.log("proband", proband)
-            _genotypeFilters.push(proband[0].id + ":" + e.detail.mode);
+        if (e.detail.mode === "COMPOUND_HETEROZYGOUS" || e.detail.mode === "DE_NOVO" || e.detail.mode === "MENDELIAN_ERROR") {
+            // const proband = e.detail.sampleFilters.filter( sample => sample.proband);
+            // console.log("proband", proband)
+            let proband = this.clinicalAnalysis.proband.samples[0].id
+            _genotypeFilters.push(proband + ":" + e.detail.mode);
         } else {
             for (let sampleFilter of e.detail.sampleFilters) {
-                // let color = (sampleFilter.affected) ? "red" : "black";
-                let genotypes = (sampleFilter.genotypes.length > 0) ? sampleFilter.genotypes.join(",") : "none";
-
-                console.log("genotypes",genotypes)
-                let dp = (UtilsNew.isNotEmpty(sampleFilter.dp)) ? Number(sampleFilter.dp) : -1;
-
+                let genotypes = (sampleFilter.genotypes && sampleFilter.genotypes.length > 0) ? sampleFilter.genotypes.join(",") : "none";
                 if (genotypes !== "none") {
                     if (e.detail.missing && !sampleFilter.proband) {
                         genotypes += ",./0,./1,./.";
                     }
                     _genotypeFilters.push(sampleFilter.id + ":" + genotypes);
                 }
+
+                let dp = (UtilsNew.isNotEmpty(sampleFilter.dp)) ? Number(sampleFilter.dp) : -1;
                 if (dp !== -1) {
                     _dpFormatFilter.push(sampleFilter.id + ":DP>=" + dp);
                 }
+
                 _sampleIds.push(sampleFilter.id)
             }
         }
 
-        //debugger
         // Add sample filters to query
         let _query = {...this.query};
         if (_genotypeFilters !== undefined && _genotypeFilters.length > 0) {
-            _query.genotype = _genotypeFilters.join(";");
-            delete _query.sample;
+            _query.sample = _genotypeFilters.join(";");
         } else {
-            // debugger
             _query.sample = _sampleIds.join(",");
-            delete _query.genotype;
         }
         if (_dpFormatFilter !== undefined && _dpFormatFilter.length > 0) {
             _query.format = _dpFormatFilter.join(";");
@@ -151,7 +130,6 @@ export default class SampleFilter extends LitElement {
         }
 
         this.query = {...this.query, ..._query};
-        //this.renderClinicalQuerySummary();
         this.updateClinicalQueryTable();
         //this.requestUpdate();
         this.sampleFilterChange(_query);
@@ -199,67 +177,86 @@ export default class SampleFilter extends LitElement {
         }
     }
 
+    getDefaultConfig() {
+        return {
+            text: "Select sample genotype filter (e.g recessive, compound heterozygous, ...):",
+            showSummary: true,
+        };
+    }
+
     render() {
-        return this.enabled ? html`
+        // Check Project exists
+        if (!this.clinicalAnalysis) {
+            return html`
+                <div class="guard-page">
+                    <i class="fas fa-lock fa-5x"></i>
+                    <h3>No Clinical Analysis selected.</h3>
+                </div>
+            `;
+        }
+
+        return html`
             <style>
                 .sample-genotype-table .badge {
                     background-color: #b9b9b9;
                     margin: 0 4px 2px 0;
                 }
             </style>
+            
             <div>
-                <div style="padding: 10px 0px">Select Genotype Filter:</div>
-                <div style="padding-left: 20px">
-                    <button id="${this._prefix}SampleFilterModalButton" type="button" class="btn btn-default" @click="${this.showModal}">
-                        Sample Filters...
+                ${this._config.text 
+                    ? html`<div style="padding: 5px 0px">${this._config.text}</div>` 
+                    : null
+                }
+                <div style="padding: 5px 20px">
+                    <button id="${this._prefix}SampleGenotypeFilterModalButton" type="button" class="btn btn-default" @click="${this.showModal}">
+                        Sample Genotype Filter ...
                     </button>
                 </div>
             </div>
-            <div style="padding: 10px 0px 5px 0px">
-                <div style="padding: 15px 0px;">
-                    <span>Sample Genotype Summary</span>
-                </div>
-                <table class="table sample-genotype-table" style="margin-bottom: 10px">
-                    <thead>
-                    <tr>
-                        <th scope="col">Sample ID</th>
-                        <th scope="col">GT</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        ${this.clinicalAnalysis ? html`
-                            ${this.individuals ? this.individuals.map(individual => {
-                                if (UtilsNew.isNotEmptyArray(individual.samples)) {
-                                    console.log("sampleGenotypeMap", this.sampleGenotypeMap[individual.samples[0].id])
-                                    //const genotype = this.sampleGenotypeMap[individual.samples[0].id] ? this.sampleGenotypeMap[individual.samples[0].id].join(", ") : "any";
-                                    return html`
-                                                <tr data-sample="${individual.samples[0].id}">
-                                                    <td>
-                                                        <span style="color: ${this.clinicalAnalysis.proband && individual.id === this.clinicalAnalysis.proband.id ? "darkred" : "black"}">${individual.samples[0].id}</span>
-                                                    </td>
-                                                    <td>
-                                                        ${this.sampleGenotypeMap[individual.samples[0].id] ? this.sampleGenotypeMap[individual.samples[0].id].map(gt => html`<span class="badge">${gt}</span>`) : "any"}
-                                                    </td>
-                                                </tr>
+            
+            ${this._config.showSummary 
+                ? html`
+                    <div style="padding: 10px 0px 5px 0px">
+                        <div style="padding: 15px 0px;">
+                            <span>Sample Genotype Summary</span>
+                        </div>
+                        <table class="table sample-genotype-table" style="margin-bottom: 10px">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Sample ID</th>
+                                    <th scope="col">GT</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${this.individuals ? this.individuals.map(individual => {
+                                    if (UtilsNew.isNotEmptyArray(individual.samples)) {
+                                        // console.log("sampleGenotypeMap", this.sampleGenotypeMap[individual.samples[0].id])
+                                        // const genotype = this.sampleGenotypeMap[individual.samples[0].id] ? this.sampleGenotypeMap[individual.samples[0].id].join(", ") : "any";
+                                        return html`
+                                            <tr data-sample="${individual.samples[0].id}">
+                                                <td>
+                                                    <span style="color: ${this.clinicalAnalysis.proband && individual.id === this.clinicalAnalysis.proband.id ? "darkred" : "black"}">${individual.samples[0].id}</span>
+                                                </td>
+                                                <td>
+                                                    ${this.sampleGenotypeMap[individual.samples[0].id] ? this.sampleGenotypeMap[individual.samples[0].id].map(gt => html`<span class="badge">${gt}</span>`) : "any"}
+                                                </td>
+                                            </tr>
                                         `;
-                                }
-                            }) : null}
-                        ` : html`
-                            <tr>
-                                <td>No samples selected</td>
-                                <td></td>
-                            </tr>
-                        `}
-                    </tbody>
-                </table>
-            </div>
-            <div class="modal fade" id="${this._prefix}SampleFilterModal" data-backdrop="static" data-keyboard="false"
-                 tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top: 0%; overflow-y: visible">
+                                    }
+                                }) : null}
+                            </tbody>
+                        </table>
+                    </div>` 
+                : null
+            }
+            
+            <div class="modal fade" id="${this._prefix}SampleGenotypeFilterModal" data-backdrop="static" data-keyboard="false"
+                 tabindex="-1" role="dialog" aria-hidden="true" style="padding-top: 0%; overflow-y: visible">
                 <div class="modal-dialog" style="width: 1280px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
-                            <h3>Samples and Genotypes Filter</h3>
+                            <h3>Sample Genotypes Filter</h3>
                         </div>
                         <div class="modal-body">
                             <opencga-variant-filter-clinical .opencgaSession="${this.opencgaSession}"
@@ -274,7 +271,7 @@ export default class SampleFilter extends LitElement {
                     </div>
                 </div>
             </div>
-        ` : "";
+        `;
     }
 
 }

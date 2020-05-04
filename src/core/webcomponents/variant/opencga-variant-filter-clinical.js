@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../utils.js";
+import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../commons/filters/select-field-filter.js";
 
-// TODO complete refactor
 
 export default class OpencgaVariantFilterClinical extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -51,17 +50,17 @@ export default class OpencgaVariantFilterClinical extends LitElement {
     }
 
     _init() {
-        this._prefix = "ovfc" + Utils.randomString(6);
+        this._prefix = "ovfc" + UtilsNew.randomString(6);
 
         this.sampleFilters = [];
-        this.fileFilters = [];
+
         this.modeOfInheritance = "none";
         this.modeOfInheritanceList = [
-            {id: "MONOALLELIC", name: "Autosomal Dominant"},
-            {id: "BIALLELIC", name: "Autosomal Recessive"},
-            {id: "XLINKED_MONOALLELIC", name: "X-linked Dominant"},
-            {id: "XLINKED_BIALLELIC", name: "X-linked Recessive"},
-            {id: "YLINKED", name: "Y-linked"}
+            {id: "AUTOSOMAL_DOMINANT", name: "Autosomal Dominant"},
+            {id: "AUTOSOMAL_RECESSIVE", name: "Autosomal Recessive"},
+            {id: "X_LINKED_DOMINANT", name: "X-linked Dominant"},
+            {id: "X_LINKED_RECESSIVE", name: "X-linked Recessive"},
+            {id: "Y_LINKED", name: "Y-linked"}
         ];
         this.modeSelectData = [
             {id: "CUSTOM", name: "Custom", selected: true},
@@ -69,18 +68,19 @@ export default class OpencgaVariantFilterClinical extends LitElement {
             ...this.modeOfInheritanceList,
             {separator: true},
             {id: "COMPOUND_HETEROZYGOUS", name: "Compound Heterozygous"},
-            {id: "DE_NOVO", name: "De Novo"}
+            {id: "DE_NOVO", name: "De Novo"},
+            {id: "MENDELIAN_ERROR", name: "Mendelian Error"}
         ];
         this.showModeOfInheritance = true;
 
         this.mode = "CUSTOM";
 
-        this._query = {};
+        // this._query = {};
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
@@ -92,6 +92,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
         }
         if (changedProperties.has("config")) {
             // this.configObserver();
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 
@@ -102,8 +103,9 @@ export default class OpencgaVariantFilterClinical extends LitElement {
     }
 
     clinicalAnalysisObserver() {
+        debugger
         console.log("clinicalAnalysisObserver ", this.sampleFilters);
-        if (UtilsNew.isUndefinedOrNull(this.clinicalAnalysis)) {
+        if (!this.clinicalAnalysis) {
             console.log("clinicalAnalysis is undefined or null: ", this.clinicalAnalysis);
             return;
         }
@@ -116,7 +118,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
         // We read Individuals from Clinical Analysis
         let individuals = [];
 
-        if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family) && UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.family.members)) {
+        if (this.clinicalAnalysis.family && this.clinicalAnalysis.family.members) {
             individuals = this.clinicalAnalysis.family.members;
             this.showModeOfInheritance = true;
         } else {
@@ -126,10 +128,10 @@ export default class OpencgaVariantFilterClinical extends LitElement {
             this.showModeOfInheritance = false;
         }
 
-        // Set new individuals setting the previous values selected
-        if (UtilsNew.isNotEmptyArray(individuals)) {
+        // Prepare data to be easier to query
+        if (individuals && individuals.length > 0) {
 
-            // Prepare data to be easier to query
+            // Set new individuals keeping the previous values selected
             const _sampleFiltersMap = {};
             console.log("sampleFilters", this.sampleFilters);
             if (UtilsNew.isNotEmptyArray(this.sampleFilters)) {
@@ -143,9 +145,9 @@ export default class OpencgaVariantFilterClinical extends LitElement {
             for (const individual of individuals) {
                 if (UtilsNew.isNotEmptyArray(individual.samples)) {
                     let fatherId = "-";
-                    // If possible we use sample ID
                     if (individual.father !== undefined && individual.father.id !== undefined) {
                         fatherId = individual.father.id;
+                        // If possible we use sample ID
                         for (const ind of individuals) {
                             if (individual.father.id === ind.id) {
                                 fatherId = UtilsNew.isNotEmptyArray(ind.samples) ? ind.samples[0].id : ind.id;
@@ -155,9 +157,9 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                     }
 
                     let motherId = "-";
-                    // If possible we use sample ID
                     if (individual.mother !== undefined && individual.mother.id !== undefined) {
                         motherId = individual.mother.id;
+                        // If possible we use sample ID
                         for (const ind of individuals) {
                             if (individual.mother.id === ind.id) {
                                 motherId = UtilsNew.isNotEmptyArray(ind.samples) ? ind.samples[0].id : ind.id;
@@ -173,8 +175,6 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                         proband: this.clinicalAnalysis.proband && individual.id === this.clinicalAnalysis.proband.id,
                         affected: this.clinicalAnalysis.disorder && individual.disorders.length ? individual.disorders.some(disorder => disorder.id === this.clinicalAnalysis.disorder.id) : false, // some() returns either true or false, false of the ternary operator is useless
                         sex: individual.sex,
-                        // father: (individual.father !== undefined && individual.father.id !== undefined) ? individual.father.id : "-",
-                        // mother: (individual.mother !== undefined && individual.mother.id !== undefined) ? individual.mother.id : "-",
                         father: fatherId,
                         mother: motherId,
                         genotypes: (UtilsNew.isNotUndefinedOrNull(_sampleFiltersMap[sample.id])) ? _sampleFiltersMap[sample.id].genotypes : this._config.defaultGenotypes,
@@ -195,76 +195,70 @@ export default class OpencgaVariantFilterClinical extends LitElement {
         // this.requestUpdate();
 
         // TODO temp commented
-        console.warn("sampleFiltersChange temp. commented");
+        // console.warn("sampleFiltersChange temp. commented");
         // this.sampleFiltersChange();
     }
 
     /**
-     * This function can not add or remove samples or file, this just changes the filters applied, if not present then is left empty.
+     * This function can not add or remove samples, this just changes the filters applied, if not present then is left empty.
      * @param query
      */
     queryObserver(query) {
-        if (UtilsNew.isEmptyArray(this.sampleFilters) && UtilsNew.isEmptyArray(this.fileFilters)) {
-            console.error("this.sampleFilters or this.fileFilters is empty");
+        debugger
+        if (UtilsNew.isEmptyArray(this.sampleFilters)) {
+            // console.error("this.sampleFilters or this.fileFilters is empty");
             return;
         }
 
-        if (UtilsNew.isNotUndefinedOrNull(this.query)) {
+        if (this.query && this.query.sample) {
             // Reset all genotypes
             for (const sampleFilter of this.sampleFilters) {
                 sampleFilter.genotypes = [];
             }
 
-            if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
-                // Assign new passed genotypes to EXISTING samples
-                const genotypes = this.query.genotype.split(";");
-                for (const genotype of genotypes) {
-                    const sampleAndGenotype = genotype.split(":");
-                    for (const sampleFilter of this.sampleFilters) {
-                        if (sampleFilter.id === sampleAndGenotype[0]) {
+            // Assign new passed genotypes to EXISTING samples
+            const samples = this.query.sample.split(";");
+            for (const sample of samples) {
+                const sampleAndGenotype = sample.split(":");
+                for (const sampleFilter of this.sampleFilters) {
+                    if (sampleFilter.id === sampleAndGenotype[0]) {
+                        // New sample filter makes genotypes optional
+                        if (sampleAndGenotype.length > 1) {
                             sampleFilter.genotypes = sampleAndGenotype[1].split(",");
-                            break;
+                        } else {
+                            sampleFilter.genotypes = this._config.defaultGenotypes;
                         }
+                        break;
                     }
                 }
-                delete this._query.sample;
-            } else {
-                // let _sampleIds = [];
-                // for (let sampleFilter of this.sampleFilters) {
-                //     _sampleIds.push(sampleFilter.id);
-                // }
-                // debugger
-                // this._query.sample = _sampleIds.join(",");
-                // debugger
             }
+            // delete this._query.sample;
+
             this.sampleFilters = $.extend([], this.sampleFilters);
             // console.error("queryObserver in modal", this.sampleFilters)
-            this.requestUpdate();
+            // this.requestUpdate();
         }
     }
 
-    sampleFiltersChange() {
+    notifySampleFilterChange() {
         // let compHet = false;
         // const missing = this.querySelector("#" + this._prefix + "MissingCheckbox").checked;
 
-        const _sampleFilters = this.sampleFilters;
-        console.log("sampleFiltersChange", this.sampleFilters);
-        if (this.mode === "COMPOUND_HETEROZYGOUS" || this.mode === "DE_NOVO") {
+        // const _sampleFilters = this.sampleFilters;
+        // console.log("sampleFiltersChange", this.sampleFilters);
+        // if (this.mode === "COMPOUND_HETEROZYGOUS" || this.mode === "DE_NOVO") {
             // _sampleFilters = this.sampleFilters.filter( sample => sample.proband);
             // _sampleFilters.genotype = [this.mode]
-        }
+        // }
 
         // Notify the sample change
         this.dispatchEvent(new CustomEvent("sampleFiltersChange", {
             detail: {
-                sampleFilters: _sampleFilters,
+                sampleFilters: this.sampleFilters,
                 modeOfInheritance: this.modeOfInheritance,
                 mode: this.mode
                 // compoundHeterozygous: compHet,
                 // missing: missing
-                // fileFilters: this.fileFilters,
-                // qual: _qual,
-                // filter: _filter
             },
             bubbles: true,
             composed: true
@@ -282,17 +276,18 @@ export default class OpencgaVariantFilterClinical extends LitElement {
         }).then(function(response) {
             const genotypeResults = response.response[0].result[0];
             if (UtilsNew.isNotUndefinedOrNull(genotypeResults)) {
-                const individualToSampleMap = {};
+                const sampleToIndividualMap = {};
                 for (const member of _this.clinicalAnalysis.family.members) {
                     if (UtilsNew.isNotEmptyArray(member.samples)) {
-                        individualToSampleMap[member.samples[0].id] = member.id;
+                        sampleToIndividualMap[member.samples[0].id] = member.id;
                     }
                 }
+
                 let countGenoypes = 0;
                 for (const sampleFilter of _this.sampleFilters) {
                     // sampleFilter.genotypes = genotypeResults[sampleFilter.id];
-                    sampleFilter.genotypes = genotypeResults[individualToSampleMap[sampleFilter.id]];
-                    console.log("genotypes", sampleFilter.genotypes);
+                    sampleFilter.genotypes = genotypeResults[sampleToIndividualMap[sampleFilter.id]];
+                    // console.log("genotypes", sampleFilter.genotypes);
                     countGenoypes += sampleFilter.genotypes.length;
                 }
                 // _this.renderSampleTable()
@@ -305,7 +300,7 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                     PolymerUtils.show(_this._prefix + "Warning");
                 }
 
-                _this.sampleFiltersChange();
+                _this.notifySampleFilterChange();
             }
         }).catch(function(response) {
             console.error(response);
@@ -346,38 +341,37 @@ export default class OpencgaVariantFilterClinical extends LitElement {
 
         // 'console.log("this.sampleFilters",this.sampleFilters);
         await this.requestUpdate();
-        this.sampleFiltersChange();
+        this.notifySampleFilterChange();
     }
 
     setMode(e) {
-        this.mode = e.detail.value;
+        this.mode = e.detail.value.toUpperCase();
 
         if (this.mode === "CUSTOM") {
             for (const sample of this.sampleFilters) {
                 // remove the "segregation",  "COMPOUND_HETEROZYGOUS", "DE_NOVO" values (all not CUSTOM values)
                 sample.genotypes = sample.genotypes.filter(gt => ~["0/0", "0/1", "1/1"].indexOf(gt));
             }
-            this.sampleFiltersChange();
+            this.notifySampleFilterChange();
         }
-        // segregation
+
+        // Mode of Inheritance
         if (this.modeOfInheritanceList.map(_ => _.id).includes(this.mode)) {
             this.onModeOfInheritance(this.mode);
         }
 
-        if (this.mode === "COMPOUND_HETEROZYGOUS") {
-            this.sampleFiltersChange();
+        if (this.mode === "COMPOUND_HETEROZYGOUS" || this.mode === "DE_NOVO" || this.mode === "MENDELIAN_ERROR") {
+            this.sampleFilters.sample = this.clinicalAnalysis.proband.samples[0].id + ":" + this.mode;
+            this.notifySampleFilterChange();
         }
 
-        if (this.mode === "DE_NOVO") {
-            this.sampleFiltersChange();
-        }
         this.requestUpdate();
     }
 
     getDefaultConfig() {
         return {
-            // defaultGenotypes: ["0/1", "1/1"],
-            defaultGenotypes: [],
+            defaultGenotypes: ["0/1", "1/1"],
+            // defaultGenotypes: [],
             sexIconMap: {
                 MALE: "fa-mars",
                 FEMALE: "fa-venus",
@@ -388,149 +382,139 @@ export default class OpencgaVariantFilterClinical extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles">
-            #opencga-variant-filter-clinical {
-                font-size: 12px;
-            }
-            
-/*            #opencga-variant-filter-clinical .checkbox-container input[type=radio]:checked ~ label:before {
-                font-family: "Font Awesome 5 Free";
-                content: "\\f111";        
-            }
-            #opencga-variant-filter-clinical .checkbox-container input[type=radio] {
-                display: none;
-            }*/
-            
-            #segregation-select {
-                width: 200px;
-            }
-    
-            #opencga-variant-filter-clinical .mode-button > div {
-                margin-right: 20px;
-                display: inline-block;
-                vertical-align: top;
-            }
-            
-            #opencga-variant-filter-clinical .select-field-filter-wrapper {
-                display: inline-block;
-                width: 180px;
-            }
-        </style>
+            <style>
+                #opencga-variant-filter-clinical {
+                    /*font-size: 12px;*/
+                }
 
-        <div id="opencga-variant-filter-clinical" class="row">
+                #segregation-select {
+                    width: 200px;
+                }
+        
+                #opencga-variant-filter-clinical .mode-button > div {
+                    margin-right: 20px;
+                    display: inline-block;
+                    vertical-align: top;
+                }
+                
+                #opencga-variant-filter-clinical .select-field-filter-wrapper {
+                    display: inline-block;
+                    width: 180px;
+                }
+            </style>
 
-            <div class="col-md-12">
-                <!--<h4>Select Sample Filters</h4>
-                <div style="padding: 5px 20px">
-                    You can select the sample genotypes manually or select a <span style="font-weight: bold;margin: 0px">Mode of Inheritance</span>
-                    in the dropdown below the table, this option is only available for Family analysis. Please, notice that if you want to execute a
-                    <span style="font-weight: bold;margin: 0px">Compound Heterozygous</span> or <span style="font-weight: bold;margin: 0px">de Novo</span>
-                    analysis you can go to the corresponding tools in the analysis toolbar.
-                </div>-->
+            <div id="opencga-variant-filter-clinical" class="row">
 
-                <div class="form-check">
+                <div class="form-check col-md-12">
+                    <div style="padding: 5px 5px">
+                        You can manually select sample genotypes or select a <span style="font-weight: bold;margin: 0px">Mode of Inheritance</span>
+                        such as RECESSIVE OR COMPOUND HETEROZYGOUS.
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
                     <div class="form-check-label mode-button">
-                    
-                        <!--<select-field-filter ?multiple="${true}" ?disabled=${false} ?required=${true} .data="${["GT", "LT"]}" .value="${"LT"}" maxOptions="2" @filterChange="${e => console.log("ID", e.detail.value)}"></select-field-filter>-->
+                                <!--<select-field-filter ?multiple="${true}" ?disabled=${false} ?required=${true} .data="${["GT", "LT"]}" .value="${"LT"}" maxOptions="2" @filterChange="${e => console.log("ID", e.detail.value)}"></select-field-filter>-->
                         <select-field-filter .data="${this.modeSelectData}" value=${this.mode} @filterChange="${this.setMode}"></select-field-filter>
-
-                        <!--<div>
-                            <button class="btn btn-default ripple ${this.mode === "custom" ? "active" : ""}" value="custom" @click="${this.setSample}">Custom</button>
-                        </div>
-                        <div>
-                            <button class="btn btn-default ripple ${this.mode === "segregation" ? "active" : ""}" value="segregation" @click="${this.setSample}">Segregation</button>
-                            <div class="select-field-filter-wrapper"><select-field-filter ?disabled="${this.mode !== "segregation"}" .data="${[{id: "MONOALLELIC", name: "Autosomal Dominant"}, {id: "BIALLELIC", name: "Autosomal Recessive"}, {id: "XLINKED_MONOALLELIC", name: "X-linked Dominant"}, {id: "XLINKED_BIALLELIC", name: "X-linked Recessive"}, {id: "YLINKED", name: "Y-linked"}]}" .value=${"A"} @filterChange="${e => this.onModeOfInheritance(e)}"></select-field-filter></div>
-                        </div>
-                        <div>
-                            <button class="btn btn-default ripple ${this.mode === "COMPOUND_HETEROZYGOUS" ? "active" : ""}" value="ch" @click="${this.setSample}">Compound Heterozygous</button>
-                        </div>
-                        <div>
-                            <button class="btn btn-default ripple ${this.mode === "DE_NOVO" ? "active" : ""}" value="denovo" @click="${this.setSample}">De Novo</button>
-                        </div> -->
+                                <!--<div>
+                                    <button class="btn btn-default ripple ${this.mode === "custom" ? "active" : ""}" value="custom" @click="${this.setSample}">Custom</button>
+                                </div>
+                                <div>
+                                    <button class="btn btn-default ripple ${this.mode === "segregation" ? "active" : ""}" value="segregation" @click="${this.setSample}">Segregation</button>
+                                    <div class="select-field-filter-wrapper"><select-field-filter ?disabled="${this.mode !== "segregation"}" .data="${[{id: "MONOALLELIC", name: "Autosomal Dominant"}, {id: "BIALLELIC", name: "Autosomal Recessive"}, {id: "XLINKED_MONOALLELIC", name: "X-linked Dominant"}, {id: "XLINKED_BIALLELIC", name: "X-linked Recessive"}, {id: "YLINKED", name: "Y-linked"}]}" .value=${"A"} @filterChange="${e => this.onModeOfInheritance(e)}"></select-field-filter></div>
+                                </div>
+                                <div>
+                                    <button class="btn btn-default ripple ${this.mode === "COMPOUND_HETEROZYGOUS" ? "active" : ""}" value="ch" @click="${this.setSample}">Compound Heterozygous</button>
+                                </div>
+                                <div>
+                                    <button class="btn btn-default ripple ${this.mode === "DE_NOVO" ? "active" : ""}" value="denovo" @click="${this.setSample}">De Novo</button>
+                                </div> -->
                     </div>
                 </div>
-                <div>
-                    <table id="${this._prefix}BasicTable" class="table table-hover table-no-bordered">
-                        <thead>
-                        <tr>
-                            <th rowspan="2">Sample</th>
-                            <th rowspan="2">Proband</th>
-                            <th rowspan="2">Affected</th>
-                            <th rowspan="2">Father</th>
-                            <th rowspan="2">Mother</th>
-                            <th rowspan="1" colspan="3" style="text-align: center">Genotypes</th>
-                            <th rowspan="2">Min. Depth</th>
-                        </tr>
-                        <tr>
-                            <th scope="col">HOM_REF</th>
-                            <th scope="col">HET</th>
-                            <th scope="col">HOM_ALT</th>
-                        </tr>
-                        </thead>
-                        <tbody id="${this._prefix}BasicTBody">
-                            ${this.sampleFilters && this.sampleFilters.length ? this.sampleFilters.map(sampleFilter => html`
-                                <tr data-sample="${sampleFilter.id}">
-                                    <td style="vertical-align: middle">
-                                        <div>
-                                            <span style="${(sampleFilter.affected ? "color: darkred;" : "font-weight: normal;")}${sampleFilter.proband ? "font-weight: bold" : ""}"
-                                                  data-toggle="tooltip"
-                                                  data-placement="bottom">
-                                                ${sampleFilter.id} &nbsp; <i class='fa ${this._config.sexIconMap[sampleFilter.sex]} fa-lg'></i>
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td style="padding-left: 20px">
-                                        ${sampleFilter.proband ? html`
-                                            <span data-toggle="tooltip" data-placement="bottom" title="Proband">
-                                                <i class='fa fa-check' style='color: green'></i>
-                                            </span>` : html`
-                                            <span><i class='fa fa-times' style='color: red'></i></span>
-                                        `}
-                                    </td>
-                                    <td style="padding-left: 20px">
-                                        ${sampleFilter.affected ? html`
-                                            <span data-toggle="tooltip" data-placement="bottom" title="Affected"><i class='fa fa-check' style='color: green'></i></span>` : html`
-                                            <span><i class='fa fa-times' style='color: red'></i></span>`
-        }
-                                    </td>
-                                    <td style="padding-left: 20px">
-                                        <span>${sampleFilter.father}</span>
-                                    </td>
-                                    <td style="padding-left: 20px">
-                                        <span>${sampleFilter.mother}</span>
-                                    </td>
-                                    <td style="padding-left: 20px">
-                                        <input id="${this._prefix}${sampleFilter.id}00" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/0" data-sample-id="${sampleFilter.id}"
-                                               .checked="${sampleFilter.genotypes.includes("0/0")}" ?disabled="${this.mode !== "CUSTOM"}" @change="${this.onSampleTableChange}">
-                                    </td>
-                                    <td style="padding-left: 20px">
-                                        <input id="${this._prefix}${sampleFilter.id}01" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/1" data-sample-id="${sampleFilter.id}"
-                                               .checked="${sampleFilter.genotypes.includes("0/1")}" ?disabled="${this.mode !== "CUSTOM"}" @change="${this.onSampleTableChange}">
-                                    </td>
-                                    <td style="padding-left: 20px">
-                                        <input id="${this._prefix}${sampleFilter.id}11" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="1/1" data-sample-id="${sampleFilter.id}"
-                                               .checked="${sampleFilter.genotypes.includes("1/1")}" ?disabled="${this.mode !== "CUSTOM"}" @change="${this.onSampleTableChange}">
-                                    </td>
-                                    <td style="padding-left: 10px">
-                                        <input id="${this._prefix}${sampleFilter.id}DP" type="text" value="${sampleFilter.dp !== undefined && sampleFilter.dp > 0 ? sampleFilter.dp : ""}"
-                                               class="form-control input-sm sample-dp-textbox" aria-label="..." placeholder="e.g. 15"
-                                               style="width: 60px" @input="${this.onSampleTableChange}">
-                                    </td>
-                                </tr>
-                             `) : ""}
-                        </tbody>
-                    </table>
-                </div>
-                <div id="${this._prefix}BasicTableMessage" style="text-align: center"><span style="font-weight: bold">No Samples selected</span></div>
-            </div>
-
-            ${this.showModeOfInheritance ? html`
-                <div class="col-md-12" style="padding: 10px 20px">
-                    <div class="alert alert-warning" role="alert" id="${this._prefix}Warning" style="display: none;padding: 10px">
-                        <span style="font-weight: bold;font-size: 1.20em">Warning:</span>&nbsp;The selected Mode of Inheritance is not compatible with the family pedigree .
+                <div class="col-md-12">
+                    <div>
+                        <h4 style="padding-top: 5px; margin-bottom: 0px">Select Sample Genoypes</h4>
+                        <table id="${this._prefix}BasicTable" class="table table-hover table-no-bordered">
+                            <thead>
+                            <tr>
+                                <th rowspan="2">Sample</th>
+                                <th rowspan="2">Proband</th>
+                                <th rowspan="2">Affected</th>
+                                <th rowspan="2">Father</th>
+                                <th rowspan="2">Mother</th>
+                                <th rowspan="1" colspan="3" style="text-align: center">Genotypes</th>
+                                <th rowspan="2">Min. Depth</th>
+                            </tr>
+                            <tr>
+                                <th scope="col">HOM_REF</th>
+                                <th scope="col">HET</th>
+                                <th scope="col">HOM_ALT</th>
+                            </tr>
+                            </thead>
+                            <tbody id="${this._prefix}BasicTBody">
+                                ${this.sampleFilters && this.sampleFilters.length ? this.sampleFilters.map(sampleFilter => html`
+                                    <tr data-sample="${sampleFilter.id}">
+                                        <td style="vertical-align: middle">
+                                            <div>
+                                                <span style="${(sampleFilter.affected ? "color: darkred;" : "font-weight: normal;")}${sampleFilter.proband ? "font-weight: bold" : ""}"
+                                                      data-toggle="tooltip"
+                                                      data-placement="bottom">
+                                                    ${sampleFilter.id} &nbsp; <i class='fa ${this._config.sexIconMap[sampleFilter.sex]} fa-lg'></i>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td style="padding-left: 20px">
+                                            ${sampleFilter.proband ? html`
+                                                <span data-toggle="tooltip" data-placement="bottom" title="Proband">
+                                                    <i class='fa fa-check' style='color: green'></i>
+                                                </span>` : html`
+                                                <span><i class='fa fa-times' style='color: red'></i></span>
+                                            `}
+                                        </td>
+                                        <td style="padding-left: 20px">
+                                            ${sampleFilter.affected ? html`
+                                                <span data-toggle="tooltip" data-placement="bottom" title="Affected"><i class='fa fa-check' style='color: green'></i></span>` : html`
+                                                <span><i class='fa fa-times' style='color: red'></i></span>`
+                                            }
+                                        </td>
+                                        <td style="padding-left: 20px">
+                                            <span>${sampleFilter.father}</span>
+                                        </td>
+                                        <td style="padding-left: 20px">
+                                            <span>${sampleFilter.mother}</span>
+                                        </td>
+                                        <td style="padding-left: 20px">
+                                            <input id="${this._prefix}${sampleFilter.id}00" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/0" data-sample-id="${sampleFilter.id}"
+                                                   .checked="${sampleFilter.genotypes.includes("0/0")}" ?disabled="${this.mode !== "CUSTOM"}" @change="${this.onSampleTableChange}">
+                                        </td>
+                                        <td style="padding-left: 20px">
+                                            <input id="${this._prefix}${sampleFilter.id}01" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/1" data-sample-id="${sampleFilter.id}"
+                                                   .checked="${sampleFilter.genotypes.includes("0/1")}" ?disabled="${this.mode !== "CUSTOM"}" @change="${this.onSampleTableChange}">
+                                        </td>
+                                        <td style="padding-left: 20px">
+                                            <input id="${this._prefix}${sampleFilter.id}11" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="1/1" data-sample-id="${sampleFilter.id}"
+                                                   .checked="${sampleFilter.genotypes.includes("1/1")}" ?disabled="${this.mode !== "CUSTOM"}" @change="${this.onSampleTableChange}">
+                                        </td>
+                                        <td style="padding-left: 10px">
+                                            <input id="${this._prefix}${sampleFilter.id}DP" type="text" value="${sampleFilter.dp !== undefined && sampleFilter.dp > 0 ? sampleFilter.dp : ""}"
+                                                   class="form-control input-sm sample-dp-textbox" aria-label="..." placeholder="e.g. 15"
+                                                   style="width: 60px" @input="${this.onSampleTableChange}">
+                                        </td>
+                                    </tr>
+                                 `) : ""}
+                            </tbody>
+                        </table>
                     </div>
-                </div>    
-            ` : null}
+                    <div id="${this._prefix}BasicTableMessage" style="text-align: center"><span style="font-weight: bold">No Samples selected</span></div>
+                </div>
+
+                ${this.showModeOfInheritance ? html`
+                    <div class="col-md-12" style="padding: 10px 20px">
+                        <div class="alert alert-warning" role="alert" id="${this._prefix}Warning" style="display: none;padding: 10px">
+                            <span style="font-weight: bold;font-size: 1.20em">Warning:</span>&nbsp;The selected Mode of Inheritance is not compatible with the family pedigree .
+                        </div>
+                    </div>    
+                ` : null}
             
             
             <!-- <div class="col-md-12" style="padding: 10px 20px">
@@ -538,10 +522,10 @@ export default class OpencgaVariantFilterClinical extends LitElement {
                     <label>Other options</label>
                 </div>
                 <div style="padding: 5px 30px">
-                    <input id="${this._prefix}MissingCheckbox" type="checkbox" @click="${this.sampleFiltersChange}"><span style="padding-left: 5px">Include parent missing (non-ref) allele calls</span>
+                    <input id="${this._prefix}MissingCheckbox" type="checkbox" @click="${this.notifySampleFilterChange}"><span style="padding-left: 5px">Include parent missing (non-ref) allele calls</span>
                 </div>
             </div> -->
-        </div>
+            </div>
         `;
     }
 

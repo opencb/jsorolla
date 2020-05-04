@@ -479,6 +479,11 @@ class VariantInterpreterRdBrowser extends LitElement {
                         collapsed: false,
                         fields: [
                             {
+                                id: "sample",
+                                title: "Sample Genotype",
+                                // cohorts: this.cohorts
+                            },
+                            {
                                 id: "cohort",
                                 title: "Cohort Alternate Stats",
                                 onlyCohortAll: true,
@@ -798,9 +803,9 @@ class VariantInterpreterRdBrowser extends LitElement {
 
         return html`
             <style>
-                opencga-variant-intepretation {
-                    font-size: 12px;
-                }
+                /*opencga-variant-intepretation {*/
+                /*    font-size: 12px;*/
+                /*}*/
                 
                 .prioritization-center {
                     margin: auto;

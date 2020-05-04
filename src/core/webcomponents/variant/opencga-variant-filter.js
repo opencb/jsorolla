@@ -267,7 +267,7 @@ export default class OpencgaVariantFilter extends LitElement {
         if (value && value !== "") {
             this.preparedQuery = {...this.preparedQuery, ...{[key]: value}};
         } else {
-            console.log("deleting", key, "from preparedQuery");
+            // console.log("deleting", key, "from preparedQuery");
             delete this.preparedQuery[key];
             this.preparedQuery = {...this.preparedQuery};
         }
@@ -276,10 +276,10 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     onSampleFilterChange(sampleFields) {
-        console.log("onSampleFilterChange in variant-filter", sampleFields);
-        if (!sampleFields.genotype) {
-            delete this.preparedQuery.genotype;
-        }
+        // console.log("onSampleFilterChange in variant-filter", sampleFields);
+        // if (!sampleFields.genotype) {
+        //     delete this.preparedQuery.genotype;
+        // }
         if (!sampleFields.sample) {
             delete this.preparedQuery.sample;
         }
@@ -409,7 +409,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 content = html`<cohort-stats-filter .opencgaSession="${this.opencgaSession}" .cohorts="${subsection.cohorts}" .cohortStatsAlt="${this.preparedQuery.cohortStatsAlt}" @filterChange="${e => this.onFilterChange("cohortStatsAlt", e.detail.value)}"></cohort-stats-filter>`;
                 break;
             case "sample":
-                content = html`<sample-filter ?enabled="${subsection.showSelectSamples}" .opencgaSession="${this.opencgaSession}" .clinicalAnalysis="${this.clinicalAnalysis}" .query="${this.preparedQuery}" @sampleFilterChange="${e => this.onSampleFilterChange(e.detail.value)}"></sample-filter>`;
+                content = html`<sample-filter .opencgaSession="${this.opencgaSession}" .clinicalAnalysis="${this.clinicalAnalysis}" .query="${this.preparedQuery}" @sampleFilterChange="${e => this.onSampleFilterChange(e.detail.value)}"></sample-filter>`;
                 break;
             case "file":
             /** @deprecated */
