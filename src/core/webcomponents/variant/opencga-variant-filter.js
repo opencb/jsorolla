@@ -286,6 +286,9 @@ export default class OpencgaVariantFilter extends LitElement {
         if (!sampleFields.format) {
             delete this.preparedQuery.format;
         }
+        if (!sampleFields.includeSample) {
+            delete this.preparedQuery.includeSample;
+        }
         this.preparedQuery = {...this.preparedQuery, ...sampleFields};
         this.notifyQuery(this.preparedQuery);
         // this.requestUpdate(); // NOTE: this causes the bug in sample-filter / variant-filter-clinical (clicking the checkboxes on variant-filter-clinical)
