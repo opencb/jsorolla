@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import "../../variant/opencga-variant-filter-clinical.js";
+import "../../variant/variant-family-genotype-filter.js";
 
 
 export default class SampleFilter extends LitElement {
@@ -259,11 +259,11 @@ export default class SampleFilter extends LitElement {
                             <h3>Sample Genotypes Filter</h3>
                         </div>
                         <div class="modal-body">
-                            <opencga-variant-filter-clinical .opencgaSession="${this.opencgaSession}"
+                            <variant-family-genotype-filter .opencgaSession="${this.opencgaSession}"
                                                              .clinicalAnalysis="${this.clinicalAnalysis}"
                                                              .query="${this.query}"
                                                              @sampleFiltersChange="${this.onClinicalFilterChange}">
-                            </opencga-variant-filter-clinical>
+                            </variant-family-genotype-filter>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>

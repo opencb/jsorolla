@@ -48,7 +48,7 @@ import "./core/webcomponents/variant/opencga-variant-samples.js";
 import "./core/webcomponents/variant/opencga-variant-detail-template.js";
 import "./core/webcomponents/variant/analysis/opencga-gwas-analysis.js";
 import "./core/webcomponents/variant/variant-sample-selector.js";
-import "./core/webcomponents/variant/opencga-variant-filter-clinical.js";
+import "./core/webcomponents/variant/variant-family-genotype-filter.js";
 import "./core/webcomponents/variant/variant-utils.js";
 import "./core/webcomponents/variant/opencga-variant-interpretation-grid.js";
 import "./core/webcomponents/variant/opencga-variant-detail-view.js";

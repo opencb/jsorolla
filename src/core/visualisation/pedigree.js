@@ -314,7 +314,7 @@ export default class Pedigree {
         return {
             width: 400,
             height: 240,
-            box: 40,
+            box: 60,
             colors: ["black", "red", "blue"]
         };
     }
@@ -322,13 +322,12 @@ export default class Pedigree {
     parseFamilyToPedigree(family){
         let newMembers = family.members.map((member) => {
             let newMember = {};
-            newMember.name = member.name;
+            newMember.name = member.id;
 
             if(typeof member.disorders !== "undefined" && member.disorders.length > 0) {
-                newMember.disorders = member.disorders.map((disease) => {return disease.id});
+                newMember.disorders = member.disorders.map((disorder) => {return disorder.id});
             }
             if(UtilsNew.isNotUndefinedOrNull(member.father) && UtilsNew.isUndefinedOrNull(member.father.id)) {
-
                 newMember.father = member.father;
             }
             if(UtilsNew.isNotUndefinedOrNull(member.mother) && UtilsNew.isUndefinedOrNull(member.mother.id)) {
