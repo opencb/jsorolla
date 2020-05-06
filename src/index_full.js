@@ -136,7 +136,7 @@ import "./core/webcomponents/commons/opencb-grid-toolbar.js";
 import "./core/webcomponents/commons/opencb-facet-query.js";
 import "./core/webcomponents/commons/filters/region-filter.js";
 import "./core/webcomponents/commons/filters/somatic-filter.js";
-import "./core/webcomponents/commons/filters/file-qual-filter.js";
+import "./core/webcomponents/commons/filters/file-quality-filter.js";
 import "./core/webcomponents/commons/filters/select-field-filter.js";
 import "./core/webcomponents/commons/filters/conservation-filter.js";
 import "./core/webcomponents/commons/filters/protein-substitution-score-filter.js";

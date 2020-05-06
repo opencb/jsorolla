@@ -481,7 +481,11 @@ class VariantInterpreterRdBrowser extends LitElement {
                             {
                                 id: "sample",
                                 title: "Sample Genotype",
-                                // cohorts: this.cohorts
+                            },
+                            {
+                                id: "file-qual",
+                                title: "Quality Filters",
+                                tooltip: "VCF file based FILTER and QUAL filters"
                             },
                             {
                                 id: "cohort",

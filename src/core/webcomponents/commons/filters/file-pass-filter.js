@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../utils.js";
 
-
+/** @deprecated */
 export default class FilePassFilter extends LitElement {
 
     constructor() {
@@ -65,8 +65,9 @@ export default class FilePassFilter extends LitElement {
     render() {
         return html`
             <div id="${this._prefix}-wrapper" class="subsection-content form-group">
-                <input id="${this._prefix}FilePassCheckbox" type="checkbox" class="${this._prefix}FilterCheckBox" @change="${this.filterChange}" .checked="${this.filter === "PASS"}"><span
-                        style="padding-left: 5px">Only include <span style="font-weight: bold;">PASS</span> variants</span>
+                <input id="${this._prefix}FilePassCheckbox" type="checkbox" class="${this._prefix}FilterCheckBox" 
+                        @change="${this.filterChange}" .checked="${this.filter === "PASS"}">
+                        <span style="padding-left: 5px">Include only <span style="font-weight: bold;">PASS</span> variants</span>
             </div>
         `;
     }
