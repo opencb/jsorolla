@@ -552,7 +552,7 @@ class VariantInterpreterRdBrowser extends LitElement {
                                 id: "populationFrequency",
                                 title: "Select Population Frequency",
                                 tooltip: tooltips.populationFrequencies,
-                                showSetAll: true
+                                showSetAll: false
                             }
                         ]
                     },
@@ -873,8 +873,8 @@ class VariantInterpreterRdBrowser extends LitElement {
                                             .query="${this.query}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .cellbaseClient="${this.cellbaseClient}"
-                                            .populationFrequencies="${this.populationFrequencies}"
-                                            .consequenceTypes="${this.consequenceTypes}"
+                                            .populationFrequencies="${populationFrequencies}"
+                                            .consequenceTypes="${consequenceTypes}"
                                             .config="${this._config.filter}"
                                             @queryChange="${this.onVariantFilterChange}"
                                             @querySearch="${this.onVariantFilterSearch}"
