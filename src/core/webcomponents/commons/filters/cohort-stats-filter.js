@@ -130,7 +130,6 @@ export default class CohortStatsFilter extends LitElement {
     }
 
     render() {
-        debugger
         return this.cohortsPerStudy ? html`
             ${Object.keys(this.cohortsPerStudy).map(study => html`
                 <div style="padding: 5px 0px">

@@ -138,8 +138,7 @@ export default class OpencgaFileFilter extends LitElement {
     }
 
     onAnnotationChange(e) {
-        console.log(e)
-        if(e.detail.value) {
+        if (e.detail.value) {
             this.preparedQuery.annotation = e.detail.value
         } else {
             delete this.preparedQuery.annotation

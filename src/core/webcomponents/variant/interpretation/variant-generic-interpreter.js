@@ -31,6 +31,7 @@ import "../../clinical/opencga-clinical-analysis-view.js";
 import "../../clinical/clinical-interpretation-view.js";
 import "../../commons/opencga-active-filters.js";
 import "../../commons/filters/select-field-filter-autocomplete-simple.js";
+import "./sample-variant-stats-view.js";
 
 
 class VariantGenericInterpreter extends LitElement {
@@ -77,15 +78,14 @@ class VariantGenericInterpreter extends LitElement {
 
     _init() {
         this._prefix = "vgi-" + UtilsNew.randomString(6);
-
         this.query = {};
         this.search = {};
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     connectedCallback() {
         super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+
     }
 
     firstUpdated(_changedProperties) {
@@ -216,7 +216,7 @@ class VariantGenericInterpreter extends LitElement {
         return html`
             <style>
             </style>
-            
+                    
             <div class="row">
        
                 <div class="page-title">
@@ -257,8 +257,7 @@ class VariantGenericInterpreter extends LitElement {
                 </div>
                 
                 <div id="${this._prefix}MainWindow" class="col-md-12">
-                    <div style="padding: 10px 10px">
-                    
+                    <div>
                         ${this._config.tools ? html`
                             <div id="${this._prefix}select" class="clinical-portal-content col-md-10 col-md-offset-1">
                                 <variant-interpreter-landing .opencgaSession="${this.opencgaSession}"

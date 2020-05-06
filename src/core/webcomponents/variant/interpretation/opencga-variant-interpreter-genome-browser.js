@@ -85,8 +85,6 @@ export default class OpencgaVariantInterpreterGenomeBrowser extends LitElement {
         this._config = this.getDefaultConfig();
         this.tracks = this._config.tracks;
         this.active = false;
-
-        console.error("clinicalAnalysis in this class is not defined. Check if it refers to the WC prop")
     }
 
     updated(changedProperties) {
@@ -107,12 +105,12 @@ export default class OpencgaVariantInterpreterGenomeBrowser extends LitElement {
             changedProperties.has("panelIds") ||
             changedProperties.has("geneIds") ||
             changedProperties.has("config")) {
-            this.propertyObserver(this.opencgaSession, this.clinicalAnalysis, this.panelIds, this.geneIds, this.config);
+            this.propertyObserver();
         }
     }
 
-    propertyObserver(opencgaSession, clinicalAnalysis, panelIds, geneIds, config) {
-        this._config = Object.assign(this.getDefaultConfig(), config);
+    propertyObserver() {
+        this._config = Object.assign(this.getDefaultConfig(), this.config);
 
         this.genomeBrowserFilters = {
             title: "Genome Browser Filters",
@@ -128,7 +126,7 @@ export default class OpencgaVariantInterpreterGenomeBrowser extends LitElement {
             }, {
                 title: "Panel",
                 id: "panel",
-                values: panelIds
+                values: this.panelIds
             }, {
                 title: "Show alignments (BAM)",
                 id: "alignment"
@@ -141,7 +139,7 @@ export default class OpencgaVariantInterpreterGenomeBrowser extends LitElement {
         if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession)) {
             let _this = this;
             if (UtilsNew.isNotEmptyArray(this.panelIds)) {
-                this.opencgaSession.opencgaClient.panels().info(panelIds.join(","),
+                this.opencgaSession.opencgaClient.panels().info(this.panelIds.join(","),
                     {
                         study: _this.opencgaSession.study.fqn,
                         include: "id,name,genes"

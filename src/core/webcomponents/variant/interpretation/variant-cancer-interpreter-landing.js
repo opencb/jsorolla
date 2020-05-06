@@ -162,7 +162,12 @@ class VariantInterpreterLanding extends LitElement {
         }
 
         return html`
-                <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
+                <style>
+                    variant-interpreter-landing .nav-tabs.nav-center {
+                        margin-bottom: 20px;
+                    }
+                </style>
+                <ul id="${this._prefix}ViewTabs" class="nav nav-tabs nav-center" role="tablist">
                     <li role="presentation" class="active">
                         <a href="#${this._prefix}-search" role="tab" data-toggle="tab" data-id="${this._prefix}-search"
                             class="browser-variant-tab-title">Search Case
@@ -178,8 +183,8 @@ class VariantInterpreterLanding extends LitElement {
                 <div class="tab-content">
                     <div id="${this._prefix}-search" role="tabpanel" class="tab-pane active">
                         <div class="row">
-                            <div class="col-md-4 col-md-offset-1">
-                                <div style="padding: 25px">
+                            <div class="col-md-4 col-md-offset-4">
+                                <div>
 <!--                                    <h3>Search Clinical Analysis</h3>-->
                                     <div>
                                         <label>Clinical Analysis ID</label>

@@ -163,7 +163,14 @@ export default class OpencgaCohortFilter extends LitElement {
     }
 
     onAnnotationChange(e) {
-        console.log(e)
+        if (e.detail.value) {
+            this.preparedQuery.annotation = e.detail.value
+        } else {
+            delete this.preparedQuery.annotation
+        }
+        this.preparedQuery = {...this.preparedQuery};
+        this.notifyQuery(this.preparedQuery);
+        this.requestUpdate();
     }
 
     // TODO remove, use onAnnotationChange

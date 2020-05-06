@@ -88,7 +88,9 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
 
     }
 
-    // build the this.selectedVariables from the string this.selectedVariablesText
+    /**
+     * It builds this.selectedVariables from the serialized string this.selectedVariablesText
+     */
     selectedVariablesTextObserver() {
         if (this.selectedVariablesText) {
 
@@ -124,10 +126,12 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
         this.requestUpdate();
     }
 
-    // format this.selectedVariables in a single string and fire the event
+    /**
+     * It serializes this.selectedVariables in a single string and fire the event
+     */
     // fire in case of selectedVariables change
-    selectedVariablesObserver() {
-        console.log("selectedVariableObserver", this.selectedVariables);
+    selectedVariablesSerialize() {
+        //console.log("selectedVariableObserver", this.selectedVariables);
         let selected = [];
         this.selectedVariablesFormatted = "";
         for (let [variableSetId, variables] of Object.entries(this.selectedVariables)) {
@@ -163,11 +167,15 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
             const variable = variableSet.variables.find(variable => variable.id === difference);
 
             //if a variable in the same variableSet has been already selected
-            if (this.selectedVariables[variableSetId] && this.selectedVariables[variableSetId].length) {
+            // there is no need for this check this.selectedVariables[variableSetId] is always defined
+            /*if (this.selectedVariables[variableSetId] && this.selectedVariables[variableSetId].length) {
                 this.selectedVariables[variableSetId] = [...this.selectedVariables[variableSetId], variable];
             } else {
                 this.selectedVariables[variableSetId] = [variable];
-            }
+            }*/
+
+            this.selectedVariables[variableSetId] = [...this.selectedVariables[variableSetId], variable];
+
             //console.log("adding", difference, this.selectedVariables[variableSetId]);
         } else {
             //remove the variable
@@ -195,6 +203,7 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
         console.error("Variable " + variableId + " not found");
     }
 
+    // TODO
     addCategoricalFilter(e) {
         this.lastAnnotationFilter = undefined;
         const values = $(e.target).selectpicker("val");
@@ -215,9 +224,10 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
         this.selectedVariables[variableSetId][indx] = {...this.selectedVariables[variableSetId][indx], value: value};
         this.selectedVariables = {...this.selectedVariables};
 
-        this.selectedVariablesObserver();
+        this.selectedVariablesSerialize();
     }
 
+    // TODO
     addSelectedFilter(e) {
         const value = e.currentTarget.dataset.value;
         const variableSetId = this.singleVariableSet ? this.singleVariableSet : $(`#${this._prefix}-variableSetSelect`).selectpicker("val");
@@ -225,6 +235,7 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
         this.lastAnnotationFilter = `${variableSetId}:${variable}=${value}`;
     }
 
+    // TODO refactor
     opencgaSessionObserver() {
 
         this.variableSets = [];

@@ -39,9 +39,6 @@ export default class SimplePlot extends LitElement {
             data: {
                 type: Object
             },
-            categories: {
-                type: Object
-            },
             type: {
                 type: String
             }
@@ -50,7 +47,6 @@ export default class SimplePlot extends LitElement {
 
     _init(){
         this._prefix = "plot-" + UtilsNew.randomString(6) + "_";
-
     }
 
     connectedCallback() {
@@ -61,17 +57,17 @@ export default class SimplePlot extends LitElement {
     firstUpdated(_changedProperties) {
         switch (this.type) {
             case "column":
-                this.barChart({title: this.title, categories: this.categories, data: this.data});
+                this.barChart({title: this.title, data: this.data});
                 break;
             case "pie":
-                this.pieChart({title: this.title, categories: this.categories, data: this.data});
+                this.pieChart({title: this.title, data: this.data});
                 break;
         }
     }
 
     updated(changedProperties) {
         if(changedProperties.has("property")) {
-            this.propertyObserver();
+            //this.propertyObserver();
         }
     }
 
@@ -84,38 +80,38 @@ export default class SimplePlot extends LitElement {
                 text: param.title
             },
             xAxis: {
-                categories: param.categories,
-                title: {
-                    text: null
-                }
+                //categories: param.categories,
+                label: {
+                    enabled: true
+                },
+                crosshair: true
             },
             yAxis: {
-                min: 0,
+                type: "logarithmic",
                 title: {
-                    text: ""
-                },
-                labels: {
-                    overflow: "justify"
+                    text: ''
                 }
             },
             plotOptions: {
-                bar: {
-                    dataLabels: {
-                        enabled: true
-                    }
+                column: {
+                    pointPadding: 0.2,
+                    borderWidth: 0
                 }
             },
             credits: {
                 enabled: false
             },
-            series: [{
+            series: Object.entries(this.data).map( ([name, data]) => ({name: name, data: [data]}))
+            /*series: [{
                 colorByPoint: true,
+                name: "caca",
                 data: param.data
-            }]
+            }]*/
         });
     }
 
     pieChart(param) {
+        console.error("pie", Object.entries(this.data).map( ([name, data]) => ({name: name, y: data})))
         Highcharts.chart(this._prefix + "chart", {
             chart: {
                 plotBackgroundColor: null,
@@ -128,6 +124,10 @@ export default class SimplePlot extends LitElement {
             },
             tooltip: {
                 //pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            },
+
+            credits: {
+                enabled: false
             },
             accessibility: {
                 point: {
@@ -144,32 +144,12 @@ export default class SimplePlot extends LitElement {
                     showInLegend: true
                 }
             },
-            series: [{
-                name: "Brands",
-                colorByPoint: true,
-                data: [{
-                    name: "Chrome",
-                    y: 61.41,
-                    sliced: true,
-                    selected: true
-                }, {
-                    name: "Internet Explorer",
-                    y: 11.84
-                }, {
-                    name: "Firefox",
-                    y: 10.85
-                }, {
-                    name: "Edge",
-                    y: 4.67
-                }, {
-                    name: "Safari",
-                    y: 4.18
-                }, {
-                    name: "Other",
-                    y: 7.05
-                }]
-            }]
-        });
+            series: [
+                {
+                    data: Object.entries(this.data).map( ([name, data]) => ({name: name, y: data}))
+                }
+            ]
+    });
     }
 
     getDefaultConfig() {

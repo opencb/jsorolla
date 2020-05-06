@@ -99,7 +99,7 @@ class VariantInterpreterQc extends LitElement {
 
         return this.clinicalAnalysis ? html`
             <div>
-                <ul id="${this._prefix}QcTabs" class="nav nav-tabs" role="tablist">
+                <ul id="${this._prefix}QcTabs" class="nav nav-tabs nav-center" role="tablist">
                     <li role="presentation" class="active">
                         <a href="#${this._prefix}Summary" role="tab" data-toggle="tab" data-id="${this._prefix}Summary"
                             class="browser-variant-tab-title">Summary
