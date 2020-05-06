@@ -124,7 +124,7 @@ import "./core/webcomponents/opencga/commons/opencga-facet-result-view.js";
 import "./core/webcomponents/opencga/commons/opencga-facet-view.js";
 import "./core/webcomponents/opencga/commons/opencga-facet.js";
 import "./core/webcomponents/opencga/commons/CatalogUIUtils.js";
-import "./core/webcomponents/opencga/alignment/opencga-panel-transcript-view.js";
+import "./core/webcomponents/opencga/alignment/gene-coverage-view.js";
 import "./core/webcomponents/PolymerUtils.js";
 import "./core/webcomponents/reactome/reactome-variant-network.js";
 import "./core/webcomponents/commons/opencb-facet-results.js";

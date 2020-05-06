@@ -25,7 +25,7 @@ import "./variant-interpreter-cancer-browser.js";
 import "./variant-cancer-interpreter-summary.js";
 import "./opencga-variant-interpreter-genome-browser.js";
 import "../opencga-variant-filter.js";
-import "../../opencga/alignment/opencga-panel-transcript-view.js";
+import "../../alignment/gene-coverage-view.js";
 import "../../opencga/opencga-genome-browser.js";
 import "../../clinical/opencga-clinical-analysis-view.js";
 import "../../clinical/clinical-interpretation-view.js";
@@ -163,13 +163,13 @@ class VariantGenericInterpreter extends LitElement {
                     description: "",
                     icon: "fa fa-chart-bar"
                 },
-                {
-                    id: "genome-browser",
-                    title: "Genome Browser",
-                    acronym: "VB",
-                    description: "",
-                    icon: "fa fa-bars"
-                },
+                // {
+                //     id: "genome-browser",
+                //     title: "Genome Browser",
+                //     acronym: "VB",
+                //     description: "",
+                //     icon: "fa fa-bars"
+                // },
                 {
                     id: "interpretation",
                     title: "Interpretation Methods",
