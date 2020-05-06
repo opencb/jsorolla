@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "../../utils.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import CatalogUIUtils from "../commons/CatalogUIUtils.js";
@@ -56,7 +55,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     }
 
     _init() {
-        this._prefix = "ocab-" + Utils.randomString(6) + "_";
+        this._prefix = "ocab-" + UtilsNew.randomString(6) + "_";
 
         this._config = this.getDefaultConfig();
         this._individuals = [];
@@ -159,6 +158,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
             dueDate: moment().add(7, "days").format("DD/MM/YYYY")
         };
     }
+
     // TODO recheck functionality
     propertyObserver() {
         //console.log("this._config",this._config)
@@ -320,24 +320,23 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     }
 
     onFamilySelect(e) {
-        console.log("onFamilySelect", e)
         this._clinicalAnalysis.family = e.detail.row;
+        this._disorders = e.detail.row.disorders;
 
         const individualIds = e.detail.row.members.map(_ => _.id);
-
         const _this = this;
         this.opencgaSession.opencgaClient.individuals().search({
             id: individualIds.join(","),
             study: this.opencgaSession.study.fqn
         }).then(function(response) {
-            _this._clinicalAnalysis.family.members = response.response[0].result;
-            _this.updateIndividual(response.response[0].result);
-        }
+                _this._clinicalAnalysis.family.members = response.response[0].result;
+                _this.updateIndividual(response.response[0].result);
+            }
         );
     }
 
     updateIndividual(individuals) {
-        this._clinicalAnalysis.files = {};
+        this._clinicalAnalysis.files = [];
         // this._individuals = individuals;
 
         // Set the proband when there is just one individual
@@ -366,38 +365,55 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         }
 
         if (UtilsNew.isNotEmptyArray(sampleIds)) {
-            const promises = [];
-            for (const sampleId of sampleIds) {
-                // We look for the files related to the samples
-                promises.push(this.opencgaSession.opencgaClient.files().search({
-                    samples: sampleId,
-                    format: "BAM,VCF,BIGWIG",
-                    study: this.opencgaSession.study.fqn,
-                    exclude: "samples"
-                    // include: "id,name,format,bioformat,size"
-                }).then(function(response) {
-                    return {
-                        sampleId: sampleId,
-                        files: response.response[0].result
-                    };
-                }));
-            }
-
-            const files = {};
-            Promise.all(promises).then(values => {
-                for (const value of values) {
-                    files[value.sampleId] = value.files;
-                }
-                this._clinicalAnalysis.files = files;
-
-                this.fillForm(this._clinicalAnalysis);
-                this.requestUpdate();
-                this.notifyClinicalAnalysis();
+            let _this = this;
+            this.opencgaSession.opencgaClient.files().search({
+                samples: sampleIds.join(","),
+                format: "VCF,BAM,BIGWIG",
+                study: this.opencgaSession.study.fqn,
+                exclude: "samples.annotations"
+            }).then(function (resp) {
+                _this._clinicalAnalysis.files = resp.responses[0].results;
+                _this.fillForm(_this._clinicalAnalysis);
+                _this.requestUpdate();
+                _this.notifyClinicalAnalysis();
+                // return {
+                //     sampleId: sampleId,
+                //     files: response.response[0].result
+                // };
             });
-        } else {
-            this.fillForm(this._clinicalAnalysis);
-            this.notifyClinicalAnalysis();
         }
+        //     const promises = [];
+        //     for (const sampleId of sampleIds) {
+        //         // We look for the files related to the samples
+        //         promises.push(this.opencgaSession.opencgaClient.files().search({
+        //             samples: sampleId,
+        //             format: "VCF,BAM,BIGWIG",
+        //             study: this.opencgaSession.study.fqn,
+        //             exclude: "samples.annotations"
+        //             // include: "id,name,format,bioformat,size"
+        //         }).then(function(response) {
+        //             return {
+        //                 sampleId: sampleId,
+        //                 files: response.response[0].result
+        //             };
+        //         }));
+        //     }
+        //
+        //     const files = {};
+        //     Promise.all(promises).then(values => {
+        //         for (const value of values) {
+        //             files[value.sampleId] = value.files;
+        //         }
+        //         this._clinicalAnalysis.files = files;
+        //
+        //         this.fillForm(this._clinicalAnalysis);
+        //         this.requestUpdate();
+        //         this.notifyClinicalAnalysis();
+        //     });
+        // } else {
+        //     this.fillForm(this._clinicalAnalysis);
+        //     this.notifyClinicalAnalysis();
+        // }
     }
 
     showIndividualSelector(e) {
@@ -451,7 +467,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     }
 
     isFamilyAnalysis(type) {
-        if (type === "single" || type === "multiple" || type === "somatic") {
+        if (type === "single" || type === "multiple" || type === "cancer") {
             return false;
         }
         return true;
@@ -527,7 +543,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         this.opencgaSession.opencgaClient.clinical().create(_clinicalAnalysis, {study: this.opencgaSession.study.fqn})
             .then(function(response) {
                 _this.onClear();
-                new NotificationQueue().push(`Family ${response.response[0].result[0].id} created successfully`, null,"success");
+                new NotificationQueue().push(`Family ${response.responses[0].results[0].id} created successfully`, null,"success");
             })
             .catch(function(response) {
                 console.error(response);
@@ -637,7 +653,8 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
             if (UtilsNew.isNotEmptyArray(row.disorders)) {
                 for (const disorder of row.disorders) {
                     //TODO fix here this._clinicalAnalysis.disorder undefined
-                    if (disorder.id === this._clinicalAnalysis.disorder.id) {
+                    debugger
+                    if (this._clinicalAnalysis.disorder && disorder.id === this._clinicalAnalysis.disorder.id) {
                         sampleIdStyle = "color: red";
                         break;
                     }

@@ -31,7 +31,7 @@ import "../commons/filters/disease-filter.js";
 import "../commons/filters/feature-filter.js";
 import "../commons/filters/file-filter.js";
 import "../commons/filters/file-pass-filter.js";
-import "../commons/filters/file-qual-filter.js";
+import "../commons/filters/file-quality-filter.js";
 import "../commons/filters/fulltext-search-accessions-filter.js";
 import "../commons/filters/go-accessions-filter.js";
 import "../commons/filters/hpo-accessions-filter.js";
@@ -259,18 +259,38 @@ export default class OpencgaVariantFilter extends LitElement {
 
     /** *
      * Handles filterChange events from all the filter components (this is the new updateQueryFilters)
-     * @param key {string} the name of the property in this.query
-     * @param value {string} the new value of the property
+     * @param key the name of the property in this.query
+     * @param value the new value of the property
      */
     onFilterChange(key, value) {
-        console.log("filterChange", {[key]: value});
-        if (value && value !== "") {
-            this.preparedQuery = {...this.preparedQuery, ...{[key]: value}};
+        /* Some filters may return more than parameter, in this case key and value are objects with all the keys and filters
+             - key: an object mapping filter name with the one returned
+             - value: and object with the filter
+            Example: REST accepts filter and qual while fitler returns FILTER and QUALITY
+             - key: {filter: "FILTER", qual: "QUALITY"}
+             - value: {FILTER: "pass", QUALITY: "25"}
+         */
+        if (key instanceof Object && value instanceof Object) {
+            // this.preparedQuery = {...this.preparedQuery, ...value};
+            for (let k of Object.keys(key)) {
+                let v = value[k];
+                if (v && v !== "") {
+                    this.preparedQuery = {...this.preparedQuery, ...{[k]: v}};
+                } else {
+                    delete this.preparedQuery[k];
+                    this.preparedQuery = {...this.preparedQuery};
+                }
+            }
         } else {
-            // console.log("deleting", key, "from preparedQuery");
-            delete this.preparedQuery[key];
-            this.preparedQuery = {...this.preparedQuery};
+            if (value && value !== "") {
+                this.preparedQuery = {...this.preparedQuery, ...{[key]: value}};
+            } else {
+                // console.log("deleting", key, "from preparedQuery");
+                delete this.preparedQuery[key];
+                this.preparedQuery = {...this.preparedQuery};
+            }
         }
+
         this.notifyQuery(this.preparedQuery);
         this.requestUpdate();
     }
@@ -285,6 +305,9 @@ export default class OpencgaVariantFilter extends LitElement {
         }
         if (!sampleFields.format) {
             delete this.preparedQuery.format;
+        }
+        if (!sampleFields.includeSample) {
+            delete this.preparedQuery.includeSample;
         }
         this.preparedQuery = {...this.preparedQuery, ...sampleFields};
         this.notifyQuery(this.preparedQuery);
@@ -415,11 +438,15 @@ export default class OpencgaVariantFilter extends LitElement {
             /** @deprecated */
                 content = html`<file-filter .query="${this.query}" @filterChange="${e => this.onFilterChange("filter", e.detail.value)}"></file-filter>`;
                 break;
-            case "file-pass":
-                content = html`<file-pass-filter .filter="${this.preparedQuery.filter}" @filterChange="${e => this.onFilterChange("filter", e.detail.value)}"></file-pass-filter>`;
-                break;
+            // case "file-pass":
+            //     content = html`<file-pass-filter .filter="${this.preparedQuery.filter}" @filterChange="${e => this.onFilterChange("filter", e.detail.value)}"></file-pass-filter>`;
+            //     break;
             case "file-qual":
-                content = html`<file-qual-filter .qual="${this.preparedQuery.qual}" @filterChange="${e => this.onFilterChange("qual", e.detail.value)}"></file-qual-filter>`;
+                // content = html`<file-qual-filter .qual="${this.preparedQuery.qual}" @filterChange="${e => this.onFilterChange("qual", e.detail.value)}"></file-qual-filter>`;
+                content = html`<file-quality-filter .filter="${this.preparedQuery.filter}" .qual="${this.preparedQuery.qual}" 
+                                    @filterChange="${e => this.onFilterChange({filter: "filter", qual: "qual"}, e.detail.value)}">
+                               </file-quality-filter>
+                            `;
                 break;
             case "region":
                 content = html`<region-filter .cellbaseClient="${this.cellbaseClient}" .region="${this.preparedQuery.region}" 

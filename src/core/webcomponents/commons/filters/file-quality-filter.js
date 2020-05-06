@@ -18,12 +18,11 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../../utilsNew.js";
 
 
-export default class FileQualFilter extends LitElement {
+export default class FileQualityFilter extends LitElement {
 
     constructor() {
         super();
 
-        // Set status and init private properties
         this._init();
     }
 
@@ -36,6 +35,9 @@ export default class FileQualFilter extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            filter: {
+                type: String
+            },
             qual: {
                 type: String
             }
@@ -43,34 +45,50 @@ export default class FileQualFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "fqf-" + UtilsNew.randomString(6) + "_";
-        this.qual = "";
+        this._prefix = "fqf-" + UtilsNew.randomString(6);
     }
 
     updated(_changedProperties) {
+        if (_changedProperties.has("filter")) {
+            this.querySelector("#" + this._prefix + "FilePassCheckbox").checked = this.filter === "PASS";
+        }
+
         if (_changedProperties.has("qual")) {
-            if(this.qual && this.qual > 0) {
+            if (this.qual && this.qual > 0) {
                 this.querySelector("#" + this._prefix + "FileQualCheckbox").checked = true;
                 this.querySelector("#" + this._prefix + "FileQualInput").value = this.qual;
+                this.qualEnabled = true;
             } else {
                 this.querySelector("#" + this._prefix + "FileQualCheckbox").checked = false;
                 this.querySelector("#" + this._prefix + "FileQualInput").value = "";
                 this.qualEnabled = false;
-                this.requestUpdate();
             }
+            this.requestUpdate();
         }
     }
 
     //NOTE filterChange is called both on checkbox and text field
     filterChange(e) {
-        let checked = this.querySelector("#" + this._prefix + "FileQualCheckbox").checked
-        let value = this.querySelector("#" + this._prefix + "FileQualInput").value
-        const event = new CustomEvent("filterChange", {
+        let _value = {};
+
+        let passChecked = this.querySelector("#" + this._prefix + "FilePassCheckbox").checked;
+        if (passChecked) {
+            _value.filter = "PASS";
+        }
+
+        let qualChecked = this.querySelector("#" + this._prefix + "FileQualCheckbox").checked;
+        let qualValue = this.querySelector("#" + this._prefix + "FileQualInput").value;
+        if (qualChecked && qualValue > 0) {
+            _value.qual = qualValue;
+        }
+
+        this.dispatchEvent(new CustomEvent("filterChange", {
             detail: {
-                value: checked && value > 0 ? value : null
-            }
-        });
-        this.dispatchEvent(event);
+                value: _value
+            },
+            bubbles: true,
+            composed: true
+        }));
     }
 
     onChangeQualCheckBox(e) {
@@ -81,12 +99,17 @@ export default class FileQualFilter extends LitElement {
 
     render() {
         return html`
-                <form class="form-horizontal subsection-content ">
+                <div id="${this._prefix}FilePassCheckboxDiv" class="subsection-content form-group">
+                    <input id="${this._prefix}FilePassCheckbox" type="checkbox" class="${this._prefix}FilterCheckbox" 
+                            @change="${this.filterChange}" .checked="${this.filter === "PASS"}">
+                    <span style="padding-left: 5px">Include only <span style="font-weight: bold;">PASS</span> variants</span>
+                </div>
+                <form class="form-horizontal subsection-content">
                     <div class="form-group row">
                         <div class="col-md-8">
-                            <input id="${this._prefix}FileQualCheckbox" type="checkbox"
-                                   class="${this._prefix}FilterCheckBox" @change="${this.onChangeQualCheckBox}" .checked="${this.qualEnabled}"><span style="padding-left: 5px">Introduce min. <span
-                                style="font-weight: bold;">QUAL</span></span>
+                            <input id="${this._prefix}FileQualCheckbox" type="checkbox" class="${this._prefix}FilterCheckBox" 
+                                    @change="${this.onChangeQualCheckBox}" .checked="${this.qualEnabled}">
+                            <span style="padding-left: 5px">Introduce min. <span style="font-weight: bold;">QUAL</span></span>
                         </div>
                         <div class="col-md-4">
                             <input id="${this._prefix}FileQualInput" type="number" class="form-control input-sm ${this._prefix}FilterTextInput" .disabled="${!this.qualEnabled}" @input="${this.filterChange}">
@@ -98,4 +121,4 @@ export default class FileQualFilter extends LitElement {
 
 }
 
-customElements.define("file-qual-filter", FileQualFilter);
+customElements.define("file-quality-filter", FileQualityFilter);

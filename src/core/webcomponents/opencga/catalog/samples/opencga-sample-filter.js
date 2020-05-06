@@ -22,7 +22,7 @@ import "./../opencga-date-filter.js";
 import "../../../commons/opencga-facet-view.js";
 import "../../../commons/filters/text-field-filter.js";
 import "../../../commons/filters/file-pass-filter.js";
-import "../../../commons/filters/file-qual-filter.js";
+import "../../../commons/filters/file-quality-filter.js";
 import "../../../commons/filters/somatic-filter.js";
 import "../../../commons/filters/section-filter.js";
 import "../../../commons/filters/select-token-filter.js";

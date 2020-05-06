@@ -166,7 +166,6 @@ class VariantCancerInterpreterLanding extends LitElement {
         }
 
         return html`
-
                 <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
                     <li role="presentation" class="active">
                         <a href="#${this._prefix}-search" role="tab" data-toggle="tab" data-id="${this._prefix}-search"
@@ -181,7 +180,6 @@ class VariantCancerInterpreterLanding extends LitElement {
                 </ul>
                 
                 <div class="tab-content">
-
                     <div id="${this._prefix}-search" role="tabpanel" class="tab-pane active">
                         <div class="row">
                             <div class="col-md-4 col-md-offset-2">
@@ -208,9 +206,9 @@ class VariantCancerInterpreterLanding extends LitElement {
                         </div>
                     </div>
                     <div id="${this._prefix}-create" role="tabpanel" class="tab-pane">
-                        <opencga-clinical-analysis-editor .opencgaSession="${this.opencgaSession}"
-                                                                  .config="${1 || this._config.clinicalAnalysisBrowser}"
-                                                                  @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
+                        <opencga-clinical-analysis-editor   .opencgaSession="${this.opencgaSession}"
+                                                            .config="${1 || this._config.clinicalAnalysisBrowser}"
+                                                            @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
                          </opencga-clinical-analysis-editor>
                     </div>
                 </div>
