@@ -429,7 +429,10 @@ export default class OpencgaVariantFilter extends LitElement {
                 content = html`<study-filter .opencgaSession="${this.opencgaSession}" .study="${this.preparedQuery.study}" @filterChange="${e => this.onFilterChange("study", e.detail.value)}"></study-filter>`;
                 break;
             case "cohort":   //._cohorts="${this._cohorts}"
-                content = html`<cohort-stats-filter .opencgaSession="${this.opencgaSession}" .cohorts="${subsection.cohorts}" .cohortStatsAlt="${this.preparedQuery.cohortStatsAlt}" @filterChange="${e => this.onFilterChange("cohortStatsAlt", e.detail.value)}"></cohort-stats-filter>`;
+                content = html`<cohort-stats-filter .opencgaSession="${this.opencgaSession}" 
+                                    .cohorts="${subsection.cohorts}" .onlyCohortAll=${subsection.onlyCohortAll} .cohortStatsAlt="${this.preparedQuery.cohortStatsAlt}" 
+                                    @filterChange="${e => this.onFilterChange("cohortStatsAlt", e.detail.value)}">
+                               </cohort-stats-filter>`;
                 break;
             case "sample":
                 content = html`<sample-filter .opencgaSession="${this.opencgaSession}" .clinicalAnalysis="${this.clinicalAnalysis}" .query="${this.preparedQuery}" @sampleFilterChange="${e => this.onSampleFilterChange(e.detail.value)}"></sample-filter>`;

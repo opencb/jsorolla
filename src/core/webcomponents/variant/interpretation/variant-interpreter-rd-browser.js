@@ -475,7 +475,7 @@ class VariantInterpreterRdBrowser extends LitElement {
                 },
                 sections: [
                     {
-                        title: "Study and Cohorts",
+                        title: "Sample",
                         collapsed: false,
                         fields: [
                             {
@@ -491,7 +491,7 @@ class VariantInterpreterRdBrowser extends LitElement {
                                 id: "cohort",
                                 title: "Cohort Alternate Stats",
                                 onlyCohortAll: true,
-                                cohorts: this.cohorts
+                                // cohorts: this.cohorts
                             }
                         ]
                     },
