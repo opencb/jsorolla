@@ -90,42 +90,34 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
 
     // build the this.selectedVariables from the string this.selectedVariablesText
     selectedVariablesTextObserver() {
-        console.log(this.selectedVariablesText);
-
         if (this.selectedVariablesText) {
 
             this.selectedVariablesFormatted = this.selectedVariablesText;
             //opencga_alignment_stats:percentage_of_properly_paired_reads=sssssff
             const variables = this.selectedVariablesFormatted.split(";");
-
-            //this.selectedVariables = {};
             // reset selectedVariables
-            //this.selectedVariables = Object.assign({}, ...this.variableSets.map(_ => ({[_.id]: []})));
+            this.selectedVariables = Object.assign({}, ...this.variableSets.map(_ => ({[_.id]: []})));
 
             for (let v of variables) {
                 let [, variableSetId, variable, value] = [...v.matchAll(/(\w+):(\w+)=(\w+)/g)][0];
-                //console.log("variableSet", variableSetId, "variable", variable, "value", value);
-                const indx = this.selectedVariables[variableSetId].findIndex(s => s.id === variable);
+                //const indx = this.selectedVariables[variableSetId].findIndex(s => s.id === variable);
                 //console.log("ind", indx);
 
-                //TODO todo cover the case of removing from active-filter (not clear button) from same variableSet and different variableSets
-                if (indx !== -1) {
-                    // update variable with new value
-                    this.selectedVariables[variableSetId][indx].value = value
-                } else {
-                    // add new variable
-                    const variableSet = this.variableSets.find(_ => _.id === variableSetId);
-                    this.selectedVariables[variableSetId] = [{...variableSet, value: value}];
-                }
-                $(this._prefix + "-annotation-picker-" + variableSetId).selectpicker("val", this.selectedVariables[variableSetId].map( _ => _.id));
+                // add new variable
+                const variableSet = this.variableSets.find(_ => _.id === variableSetId);
+                const newvar = variableSet.variables.find(_ => _.id === variable);
+                this.selectedVariables[variableSetId] = [...this.selectedVariables[variableSetId], {...newvar, value: value}];
+            }
 
+            //the update of the select picker cannot be done in the same loop
+            for (let [variableSetId, variables] of Object.entries(this.selectedVariables)) {
+                console.log("VARIABLE", variables)
+                $("#" + this._prefix + "-annotation-picker-" + variableSetId).selectpicker("val", variables.map(_ => _.id));
             }
         } else {
+            // resetting this.selectedVariables and all .selectpicker
             this.selectedVariables = Object.assign({}, ...this.variableSets.map(_ => ({[_.id]: []})));
-            for(let variableSet of this.variableSets) {
-                console.log("resetting picker", variableSet,  $(this._prefix + "-annotation-picker" + variableSet.id))
-                $("#" + this._prefix + "-annotation-picker-" + variableSet.id).selectpicker("deselectAll");
-            }
+            $("." + this._prefix + "-annotation-filter-div .selectpicker").selectpicker("deselectAll");
         }
 
         this.selectedVariables = {...this.selectedVariables};
@@ -136,11 +128,11 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
     // fire in case of selectedVariables change
     selectedVariablesObserver() {
         console.log("selectedVariableObserver", this.selectedVariables);
-        let selected = []
+        let selected = [];
         this.selectedVariablesFormatted = "";
         for (let [variableSetId, variables] of Object.entries(this.selectedVariables)) {
             // avoid adding empty arrays (every value in selectedVariables is init as empty array)
-            if(variables.length) {
+            if (variables.length) {
                 //each variableSet is an item
                 selected.push(variables.filter(variable => !!variable.value).map(variable => `${variableSetId}:${variable.id}=${variable.value}`).join(";"));
             }
@@ -351,7 +343,7 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
                     </div>`;
                 break;
             default:
-                throw new Error("Type not recognized" + variable.type);
+                throw new Error("Type not recognized " + variable.type);
         }
         return html`<div>
             <div class="form-group variable">
@@ -403,7 +395,7 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
             
             
         </style>
-        <div id="${this._prefix}-main-annotation-filter-div" class="annotation-filter-div">
+        <div id="${this._prefix}-main-annotation-filter-div" class="${this._prefix}-annotation-filter-div">
         ${!this.variableSets.length ? html`
             <label>No variableSets defined in the study<label>
         ` : html`
@@ -412,17 +404,17 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
                     <p>${variableSet.description}</p>
                     <select class="selectpicker ovs-list" id="${this._prefix}-annotation-picker-${variableSet.id}" data-live-search="true" data-size="10"
                                 @change="${e => this.onChangeSelectedVariable(e, variableSet.id)}" data-width="100%" ?multiple="${this._config.multiSelection}">
-                            ${variableSet.variables.map((variable, i) => {
-                                return html`
-                                    <option data-tokens="${variable.tags}" data-index="${i}" 
-                                            style="padding-left: ${variable.margin}px; cursor: ${variable.cursor};"
-                                            ?disabled="${variable.disabled}">
-                                        ${variable.id}
-                                    </option>
-                                `;
-                            })}
+                        ${variableSet.variables.map((variable, i) => {
+                            return html`
+                                <option data-tokens="${variable.tags}" data-index="${i}" 
+                                        style="padding-left: ${variable.margin}px; cursor: ${variable.cursor};"
+                                        ?disabled="${variable.disabled}">
+                                    ${variable.id}
+                                </option>
+                            `;
+                        })}
                     </select>
-                    ${this.selectedVariables?.[variableSet.id]?.map(variable => html`${this.renderVariable(variable, variableSet.id)}`)}
+                    ${this.selectedVariables[variableSet.id].map(variable => html`${this.renderVariable(variable, variableSet.id)}`)}
                 </div>
             `)}
     </div>
