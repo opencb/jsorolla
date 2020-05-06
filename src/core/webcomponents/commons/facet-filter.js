@@ -111,6 +111,7 @@ export default class FacetFilter extends LitElement {
     }
 
     async onFacetFieldChange(e) {
+        // since select-field-filter fires a filterChange event with all the selected values while we need here just the new selected (deselected) item, we compute the difference between the 2 sets
         const currentSelectionNames = e.detail.value ? e.detail.value.split(",") : [];
         // compute the symmetric difference between this.selectedFacet and currentSelectionNames
         const differences = Object.keys(this.selectedFacet)

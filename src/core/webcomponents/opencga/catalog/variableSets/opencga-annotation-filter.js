@@ -90,7 +90,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
     }
 
     // TODO FIXME opencga-variable-selector can be configured to be a multiple choice select, but here just the first selection is used
-    async onChangeSelectedVariable(e) {
+    async onChangeSelectedVariable(e, variableSetName) {
         // this.selectedVariable = e.detail.value[0];
         this.selectedVariable = e.detail.value;
         await this.requestUpdate();
@@ -316,7 +316,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
                            placeholder="${this.selectedVariable.id} name" data-variable-name="${this.selectedVariable.id}"
                            pattern="${this.selectedVariable.attributes && this.selectedVariable.attributes.pattern ? this.selectedVariable.attributes.pattern : null}"
                            aria-describedby="basic-addon1" @input="${this.addInputFilter}">
-                ` : this.selectedVariable.type === "NUMERIC" ? html`
+                ` : this.selectedVariable.type === "NUMERIC" || this.selectedVariable.type === "INTEGER" ? html`
                     <!-- NUMERIC type: include an input text and add suitable regular expression for numbers -->
                     <input type="text" class="form-control ${this._prefix}AnnotationTextInput"
                            placeholder="${this.selectedVariable.id} number" data-variable-name="${this.selectedVariable.id}"
@@ -325,10 +325,10 @@ export default class OpencgaAnnotationFilter extends LitElement {
                     <select id="${this._prefix}-categorical-selector" class="selectpicker" multiple @change="${this.addCategoricalFilter}"
                             data-width="100%">
                         ${this.selectedVariable.allowedValues && this.selectedVariable.allowedValues.length && this.selectedVariable.allowedValues.map(item => html`
-                                    <option value="${item}" on-dom-change="renderDomRepeat">${item}</option>F
+                                    <option value="${item}" on-dom-change="renderDomRepeat">${item}</option>
                                 `)}
                     </select>
-                ` : this.selectedVariable.type === "INTEGER" ? html`
+                ` : this.selectedVariable.type === "BOOLEAN" ? html`
                     <!-- BOOLEAN type, 2 values: radio buttons for selection: yes or no -->
                     <div class="form-check form-check-inline">
                         <input id="${this._prefix}${this.selectedVariable.id}yes" class="form-check-input"

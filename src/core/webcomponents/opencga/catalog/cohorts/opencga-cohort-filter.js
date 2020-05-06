@@ -19,6 +19,7 @@ import Utils from "./../../../../utils.js";
 import UtilsNew from "../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 import "../variableSets/opencga-annotation-filter.js";
+import "../variableSets/opencga-annotation-filter-dynamic.js";
 import "../opencga-date-filter.js";
 import "../../../commons/filters/text-field-filter.js";
 import "../../../commons/filters/select-field-filter.js";
@@ -161,6 +162,11 @@ export default class OpencgaCohortFilter extends LitElement {
         });
     }
 
+    onAnnotationChange(e) {
+        console.log(e)
+    }
+
+    // TODO remove, use onAnnotationChange
     addAnnotation(e) {
         if (typeof this._annotationFilter === "undefined") {
             this._annotationFilter = {};
@@ -269,12 +275,19 @@ export default class OpencgaCohortFilter extends LitElement {
                 content = html`<sample-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></sample-id-autocomplete>`;
                 break;
             case "annotations":
-                content = html`<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
+                content = html`
+                            <opencga-annotation-filter-dynamic .opencgaSession="${this.opencgaSession}"
+                                                      .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                                      entity="COHORT"
+                                                      .config="${this.annotationFilterConfig}"
+                                                      @annotationChange="${this.onAnnotationChange}">
+                           </opencga-annotation-filter-dynamic>
+                           <!--<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
                                                       .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                       entity="COHORT"
                                                       .config="${this.annotationFilterConfig}"
                                                       @filterannotation="${this.addAnnotation}">
-                           </opencga-annotation-filter>`;
+                           </opencga-annotation-filter> -->`;
                 break;
             case "type":
                 content = html`<select-field-filter ?multiple="${subsection.multiple}" .data="${subsection.allowedValues}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;

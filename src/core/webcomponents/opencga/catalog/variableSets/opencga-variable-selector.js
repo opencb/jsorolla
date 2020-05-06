@@ -48,13 +48,18 @@ export default class OpencgaVariableSelector extends LitElement {
     }
 
     _init() {
-        this._prefix = "ovs-" + Utils.randomString(6) + "_";
+        this._prefix = "ovs-" + UtilsNew.randomString(6) + "_";
         this.variables = [];
-        this._config = this.getDefaultConfig();
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+
     }
 
     firstUpdated(_changedProperties) {
-        const selectpicker = $(`#${this.prefix}-annotation-picker`);
+        const selectpicker = $(`#${this._prefix}-annotation-picker`);
         selectpicker.selectpicker("refresh");
         selectpicker.selectpicker("deselectAll");
         if (!this._config.multiSelection) {
@@ -84,10 +89,6 @@ export default class OpencgaVariableSelector extends LitElement {
         }
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-    }
-
     async onVariableSetConfigChange() {
         this._config = Object.assign({}, this.getDefaultConfig(), this.config);
 
@@ -99,7 +100,7 @@ export default class OpencgaVariableSelector extends LitElement {
             this.variables = CatalogUIUtils.parseVariableSetVariablesForDisplay(this.variableSet.variables, [], 25, customConfig);
             console.log("onVariableSetConfigChange this.variables ", this.variables)
             //await this.requestUpdate();
-            const selectpicker = $(`#${this.prefix}-annotation-picker`);
+            const selectpicker = $(`#${this._prefix}-annotation-picker`);
             //console.log("selectpicker",selectpicker.val())
             //selectpicker.selectpicker("render");
             await this.requestUpdate();
@@ -128,7 +129,7 @@ export default class OpencgaVariableSelector extends LitElement {
         */
         //let selectedVariable = this.variables[selectedIndex];
 
-        const selectpicker = $(`#${this.prefix}-annotation-picker`);
+        const selectpicker = $(`#${this._prefix}-annotation-picker`);
         let selectedOption = selectpicker.selectpicker("val");
         let selectedVariable = this.variables.find( variable => variable.id === selectedOption);
         selectpicker.selectpicker("refresh");
@@ -138,7 +139,7 @@ export default class OpencgaVariableSelector extends LitElement {
 
     resetSelection(e) {
         const mainDiv = $(`#${this._prefix}-main-div`);
-        const selectpicker = this.querySelector(`#${this.prefix}-annotation-picker`);
+        const selectpicker = this.querySelector(`#${this._prefix}-annotation-picker`);
         //console.log("selectpicker",selectpicker)
         selectpicker.selectpicker("refresh");
         selectpicker.selectpicker("deselectAll");
@@ -165,13 +166,13 @@ export default class OpencgaVariableSelector extends LitElement {
         }
     </style>
 
-        <div id="${this.prefix}-main-div">
+        <div id="${this._prefix}-main-div">
             ${this.variables && this.variables.length ? html`
-                <label for="${this.prefix}-annotation-picker" style="margin-top: 15px;">${this._config.title}</label>
+                <label for="${this._prefix}-annotation-picker" style="margin-top: 15px;">${this._config.title}</label>
 
                 <form>
                     <div class="form-group">
-                        <select class="selectpicker ovs-list" id="${this.prefix}-annotation-picker" data-live-search="true" data-size="10"
+                        <select class="selectpicker ovs-list" id="${this._prefix}-annotation-picker" data-live-search="true" data-size="10"
                                 @change="${this.onChangeSelectedVariable}" data-width="100%" ?multiple="${this._config.multiSelection}">
                             ${this.variables.map( (variable, i) => {
                                 console.log("variable", variable);

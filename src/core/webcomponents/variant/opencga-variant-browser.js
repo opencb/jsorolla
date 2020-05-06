@@ -339,13 +339,13 @@ export default class OpencgaVariantBrowser extends LitElement {
     onActiveFacetChange(e) {
         this.selectedFacet = {...e.detail};
         // console.log("selectedFacet",Object.keys(this.selectedFacet))
-        $("#" + this._prefix + "FacetField", this).selectpicker("val", Object.keys(this.selectedFacet));
+        //$("#" + this._prefix + "FacetField", this).selectpicker("val", Object.keys(this.selectedFacet)); //TODO recheck it seems not necessary (the facet select is now in facet-filter)
         this.requestUpdate();
     }
 
     onActiveFacetClear(e) {
         this.selectedFacet = {};
-        $("#" + this._prefix + "FacetField", this).selectpicker("val", "deselectAll");
+        //$("#" + this._prefix + "FacetField", this).selectpicker("deselectAll"); //TODO recheck it seems not necessary (the facet select is now in facet-filter)
         this.requestUpdate();
     }
 

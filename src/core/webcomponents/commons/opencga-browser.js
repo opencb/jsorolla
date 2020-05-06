@@ -254,34 +254,6 @@ export default class OpencgaBrowser extends LitElement {
         this.search = e.detail;
     }
 
-    onHistogramChart(e) {
-        this.highlightActivePlot(e.target.parentElement);
-        const id = e.target.dataId;
-        // TODO Refactor
-        this.renderHistogramChart("#" + this._prefix + id + "Plot", id);
-
-        PolymerUtils.hide(this._prefix + id + "Table");
-    }
-
-    onPieChart(e) {
-        this.highlightActivePlot(e.target.parentElement);
-        const id = e.target.dataId;
-        this.renderPieChart("#" + this._prefix + id + "Plot", id);
-        PolymerUtils.hide(this._prefix + id + "Table");
-    }
-
-    onTabularView(e) {
-        this.highlightActivePlot(e.target.parentElement);
-        const id = e.target.dataId;
-        PolymerUtils.innerHTML(this._prefix + id + "Plot", "");
-        PolymerUtils.show(this._prefix + id + "Table", "table");
-    }
-
-    highlightActivePlot(button) {
-        // PolymerUtils.removeClass(".plots", "active");
-        // PolymerUtils.addClass(button, "active");
-    }
-
     onClickPill(e) {
         // e.preventDefault();
         this._changeView(e.currentTarget.dataset.id);
@@ -322,14 +294,14 @@ export default class OpencgaBrowser extends LitElement {
 
     onActiveFacetChange(e) {
         this.selectedFacet = {...e.detail};
-        $("#" + this._prefix + "FacetField", this).selectpicker("val", Object.keys(this.selectedFacet));
+        //$("#" + this._prefix + "FacetField", this).selectpicker("val", Object.keys(this.selectedFacet)); //TODO recheck it seems not necessary (the facet select is now in facet-filter)
         this.onRun(); // TODO the query should be repeated every action on active-filter (delete, clear, load from Saved filter)
         this.requestUpdate();
     }
 
     onActiveFacetClear(e) {
         this.selectedFacet = {};
-        $("#" + this._prefix + "FacetField", this).selectpicker("val", "deselectAll");
+        //$("#" + this._prefix + "FacetField", this).selectpicker("deselectAll"); //TODO recheck it seems not necessary (the facet select is now in facet-filter)
         this.requestUpdate();
     }
 

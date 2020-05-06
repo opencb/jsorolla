@@ -373,9 +373,7 @@ export default class OpencgaActiveFilters extends LitElement {
 
                 // in case of annotation
                 if (key === "annotation") {
-                    const [variable, val] = value.split("=");
-                    // filterFields = val.split(",").map( v => variable + "=" + v); // TODO this causes an error on filter delete.
-                    filterFields = [val];
+                    filterFields = value.split(";");
                 } else {
                     // If we find a field with both ; and , or the field has been defined as complex, we will only
                     // separate by ;

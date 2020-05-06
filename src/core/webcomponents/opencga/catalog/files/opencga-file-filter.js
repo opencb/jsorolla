@@ -19,6 +19,7 @@ import Utils from "./../../../../utils.js";
 import UtilsNew from "../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 import "../variableSets/opencga-annotation-filter.js";
+import "../variableSets/opencga-annotation-filter-dynamic.js";
 import "../opencga-date-filter.js";
 import "../../../commons/filters/text-field-filter.js";
 import "../../../commons/filters/select-field-filter.js";
@@ -136,6 +137,19 @@ export default class OpencgaFileFilter extends LitElement {
         });
     }
 
+    onAnnotationChange(e) {
+        console.log(e)
+        if(e.detail.value) {
+            this.preparedQuery.annotation = e.detail.value
+        } else {
+            delete this.preparedQuery.annotation
+        }
+        this.preparedQuery = {...this.preparedQuery};
+        this.notifyQuery(this.preparedQuery);
+        this.requestUpdate();
+    }
+
+    // TODO remove, use onAnnotationChange
     addAnnotation(e) {
         if (typeof this._annotationFilter === "undefined") {
             this._annotationFilter = {};
@@ -224,6 +238,7 @@ export default class OpencgaFileFilter extends LitElement {
         }
         console.log(this.query)
     }*/
+
     onFilterChange(key, value) {
         console.log("filterChange", {[key]: value});
         if (value && value !== "") {
@@ -279,11 +294,18 @@ export default class OpencgaFileFilter extends LitElement {
                 content = html`<select-field-filter multiple .value="${this.preparedQuery.format}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange("format", e.detail.value)}"></select-field-filter>`;
                 break;
             case "annotations":
-                content = html`<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
+                content = html`<opencga-annotation-filter-dynamic .opencgaSession="${this.opencgaSession}"
+                                                      .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                                      entity="FILE"
+                                                      .config="${this.annotationFilterConfig}"
+                                                      .selectedVariablesText="${this.preparedQuery.annotation}"
+                                                      @annotationChange="${this.onAnnotationChange}">
+                           </opencga-annotation-filter-dynamic>
+                           <!--<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
                                                           .config="${this.annotationFilterConfig}"
                                                           entity="FILE"
                                                           @filterannotation="${this.addAnnotation}">
-                                    </opencga-annotation-filter>`;
+                           </opencga-annotation-filter>-->`;
                 break;
             case "date":
                 content = html`<opencga-date-filter .config="${this.dateFilterConfig}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>`;

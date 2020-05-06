@@ -18,6 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./variant-interpreter-qc-variant.js";
 import "./variant-interpreter-qc-alignment.js";
+import "./sample-variant-stats-view.js";
 
 
 class VariantInterpreterQc extends LitElement {
@@ -130,9 +131,12 @@ class VariantInterpreterQc extends LitElement {
                         Summary (coming soon)
                     </div>
                     <div id="${this._prefix}Variants" role="tabpanel" class="tab-pane">
-                        <variant-interpreter-qc-variant .opencgaSession="${this.opencgaSession}" 
+                        <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" 
                                                         .clinicalAnalysis="${this.clinicalAnalysis}">
-                        </variant-interpreter-qc-variant>
+                        </sample-variant-stats-view>
+                        <!--<variant-interpreter-qc-variant .opencgaSession="${this.opencgaSession}" 
+                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
+                        </variant-interpreter-qc-variant> -->
                     </div>
                     <div id="${this._prefix}Alignment" role="tabpanel" class="tab-pane">
                         <variant-interpreter-qc-alignment   .opencgaSession="${this.opencgaSession}" 
