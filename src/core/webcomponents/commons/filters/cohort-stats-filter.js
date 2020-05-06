@@ -15,12 +15,10 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 
 // TODO Refactor needed it needs updated() [never saw how does it looks in IVA]
-
 export default class CohortStatsFilter extends LitElement {
 
     constructor() {
@@ -42,6 +40,9 @@ export default class CohortStatsFilter extends LitElement {
             cohorts: {
                 type: Object
             },
+            onlyCohortAll: {
+                type: Boolean
+            },
             cohortStatsAlt: {
                 type: String
             },
@@ -52,13 +53,13 @@ export default class CohortStatsFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "cf-" + Utils.randomString(6) + "_";
+        this._prefix = "cf-" + UtilsNew.randomString(6);
     }
 
     connectedCallback() {
         super.connectedCallback();
 
-        this.cohortsPerStudy = this.cohorts ? this.cohorts[this.opencgaSession.project.id] : null;
+        this.cohortsPerStudy = this.cohorts ? this.cohorts[this.opencgaSession.study.id] : null;
     }
 
     updated(_changedProperties) {
@@ -79,27 +80,44 @@ export default class CohortStatsFilter extends LitElement {
             }
         }
 
-        if (_changedProperties.has("opencgaSession")) {
-            this.cohortsPerStudy = this.cohorts ? this.cohorts[this.opencgaSession.project.id] : null;
+        if (_changedProperties.has("onlyCohortAll")) {
+            this.cohortsPerStudy = this._getCohortAll();
             this.requestUpdate();
         }
+
+        if (_changedProperties.has("opencgaSession")) {
+            this.cohortsPerStudy = this.cohorts ? this.cohorts[this.opencgaSession.project.id] : this._getCohortAll();
+            this.requestUpdate();
+        }
+    }
+
+    _getCohortAll() {
+        let cohortsPerStudy = {};
+        if (this.opencgaSession && this.onlyCohortAll) {
+            for (let study of this.opencgaSession.project.studies) {
+                cohortsPerStudy[study.id] = [
+                    {id: "ALL", name: "All"}
+                ]
+            }
+        }
+        return cohortsPerStudy;
     }
 
     filterChange(e) {
         let cohortStatsAlt;
         let cohortFreq = [];
-        if (this.cohorts) {
-            for (const studyId in this.cohortsPerStudy) {
-                for (const cohort of this.cohortsPerStudy[studyId]) {
-                    const cohortInput = PolymerUtils.getElementById(this._prefix + studyId + cohort.id + "Cohort");
-                    let operator = PolymerUtils.getElementById(this._prefix + studyId + cohort.id + "CohortOperator");
-                    if (cohortInput !== null && UtilsNew.isNotEmpty(cohortInput.value)) {
-                        // TODO add  this.opencgaSession.project.id + ":" +
-                        cohortFreq.push(studyId + ":" + cohort.id + operator.value + cohortInput.value);
-                    }
+        // if (this.cohorts) {
+        for (const studyId in this.cohortsPerStudy) {
+            for (const cohort of this.cohortsPerStudy[studyId]) {
+                const cohortInput = PolymerUtils.getElementById(this._prefix + studyId + cohort.id + "Cohort");
+                let operator = PolymerUtils.getElementById(this._prefix + studyId + cohort.id + "CohortOperator");
+                if (cohortInput !== null && UtilsNew.isNotEmpty(cohortInput.value)) {
+                    // TODO add  this.opencgaSession.project.id + ":" +
+                    cohortFreq.push(studyId + ":" + cohort.id + operator.value + cohortInput.value);
                 }
             }
         }
+        // }
         if (cohortFreq.length > 0) {
             cohortStatsAlt = cohortFreq.join(";");
         }
@@ -112,6 +130,7 @@ export default class CohortStatsFilter extends LitElement {
     }
 
     render() {
+        debugger
         return this.cohortsPerStudy ? html`
             ${Object.keys(this.cohortsPerStudy).map(study => html`
                 <div style="padding: 5px 0px">

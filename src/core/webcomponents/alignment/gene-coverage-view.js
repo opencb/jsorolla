@@ -15,15 +15,15 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
-import UtilsNew from "./../../../utilsNew.js";
-import "../../cellbase/core/cellbase-gene-filter.js";
+import UtilsNew from "../../utilsNew.js";
+import "../cellbase/core/cellbase-gene-filter.js";
 
 
-export default class OpencgaPanelTranscriptView extends LitElement {
+export default class GeneCoverageView extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -36,13 +36,13 @@ export default class OpencgaPanelTranscriptView extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            cellbaseClient: {
-                type: Object
-            },
             clinicalAnalysisId: {
                 type: String
             },
             clinicalAnalysis: {
+                type: Object
+            },
+            cellbaseClient: {
                 type: Object
             },
             geneIds: {
@@ -58,7 +58,7 @@ export default class OpencgaPanelTranscriptView extends LitElement {
     }
 
     _init() {
-        this._prefix = "PanelTranscriptView" + Utils.randomString(6) + "_";
+        this._prefix = "PanelTranscriptView" + UtilsNew.randomString(6);
 
         this.eraseSearchGene = false;
         this._filtersCollapsed = false;
@@ -273,7 +273,7 @@ export default class OpencgaPanelTranscriptView extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(function(response) {
                     // This will trigger the call clinicalAnalysis observer
-                    _this.clinicalAnalysis = response.response[0].result[0];
+                    _this.clinicalAnalysis = response.responses[0].results[0];
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -817,25 +817,25 @@ export default class OpencgaPanelTranscriptView extends LitElement {
 
     render() {
         return html`
-<style include="jso-styles">
-            .form-section-title {
-                padding: 5px 0px;
-                width: 80%;
-                border-bottom-width: 1px;
-                border-bottom-style: solid;
-                border-bottom-color: #ddd
-            }
-
-            .jso-label-title {
-                width: 15em !important;
-            }
-        </style>
+            <style include="jso-styles">
+                .form-section-title {
+                    padding: 5px 0px;
+                    width: 80%;
+                    border-bottom-width: 1px;
+                    border-bottom-style: solid;
+                    border-bottom-color: #ddd
+                }
+    
+                .jso-label-title {
+                    width: 15em !important;
+                }
+            </style>
 
         <div class="row" style="padding: 0px 10px; margin: 10px 0px;">
 
             ${this._disabled ? html`
                 <h4 style="color: #940303; margin: 20px 0px; text-align: center">
-                    No files available.
+                    No BAM files available.
                 </h4>
             ` : html`
                 <div class="col-md-12">
@@ -998,4 +998,4 @@ export default class OpencgaPanelTranscriptView extends LitElement {
 
 }
 
-customElements.define("opencga-panel-transcript-view", OpencgaPanelTranscriptView);
+customElements.define("gene-coverage-view", GeneCoverageView);

@@ -20,9 +20,6 @@ import PolymerUtils from "../../PolymerUtils.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
 import "../opencga-variant-filter.js";
-import "../../opencga/alignment/opencga-panel-transcript-view.js";
-import "../../opencga/opencga-genome-browser.js";
-import "../../clinical/opencga-clinical-analysis-view.js";
 import "../../clinical/clinical-interpretation-view.js";
 import "../../commons/opencga-active-filters.js";
 import "../../commons/filters/select-field-filter-autocomplete-simple.js";
@@ -475,7 +472,7 @@ class VariantInterpreterRdBrowser extends LitElement {
                 },
                 sections: [
                     {
-                        title: "Study and Cohorts",
+                        title: "Sample",
                         collapsed: false,
                         fields: [
                             {
@@ -491,7 +488,7 @@ class VariantInterpreterRdBrowser extends LitElement {
                                 id: "cohort",
                                 title: "Cohort Alternate Stats",
                                 onlyCohortAll: true,
-                                cohorts: this.cohorts
+                                // cohorts: this.cohorts
                             }
                         ]
                     },
@@ -552,7 +549,7 @@ class VariantInterpreterRdBrowser extends LitElement {
                                 id: "populationFrequency",
                                 title: "Select Population Frequency",
                                 tooltip: tooltips.populationFrequencies,
-                                showSetAll: true
+                                showSetAll: false
                             }
                         ]
                     },
@@ -859,7 +856,7 @@ class VariantInterpreterRdBrowser extends LitElement {
      
             <div class="page-title">
                 <h2>
-                    ${this.showTitle 
+                    ${this._config.showTitle 
                         ? html`<i class="fa fa-filter" aria-hidden="true" style="padding-left: 10px;padding-right: 10px"></i>&nbsp;${title}` 
                         : null
                     }
@@ -873,8 +870,8 @@ class VariantInterpreterRdBrowser extends LitElement {
                                             .query="${this.query}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .cellbaseClient="${this.cellbaseClient}"
-                                            .populationFrequencies="${this.populationFrequencies}"
-                                            .consequenceTypes="${this.consequenceTypes}"
+                                            .populationFrequencies="${populationFrequencies}"
+                                            .consequenceTypes="${consequenceTypes}"
                                             .config="${this._config.filter}"
                                             @queryChange="${this.onVariantFilterChange}"
                                             @querySearch="${this.onVariantFilterSearch}"

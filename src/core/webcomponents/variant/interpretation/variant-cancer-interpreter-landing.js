@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 
 
-class VariantCancerInterpreterLanding extends LitElement {
+class VariantInterpreterLanding extends LitElement {
 
     constructor() {
         super();
@@ -42,9 +42,6 @@ class VariantCancerInterpreterLanding extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
-            // query: {
-            //     type: Object
-            // },
             config: {
                 type: Object
             }
@@ -53,17 +50,20 @@ class VariantCancerInterpreterLanding extends LitElement {
 
     _init() {
         this._prefix = "vcis-" + UtilsNew.randomString(6);
+
+        this.clinicalAnalysisEditorConfig = {
+            showTitle: false
+        }
     }
 
     connectedCallback() {
         super.connectedCallback();
-
         // this._config = {...this.getDefaultConfig(), ...this.config};
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     firstUpdated(_changedProperties) {
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     updated(changedProperties) {
@@ -75,9 +75,6 @@ class VariantCancerInterpreterLanding extends LitElement {
         // }
         // if (changedProperties.has("clinicalAnalysis")) {
         //     this.clinicalAnalysisObserver();
-        // }
-        // if (changedProperties.has("query")) {
-        //     this.queryObserver();
         // }
     }
 
@@ -99,7 +96,22 @@ class VariantCancerInterpreterLanding extends LitElement {
                     _this.clinicalAnalysis = response.responses[0].results[0];
                     _this.dispatchEvent(new CustomEvent("selectclinicalnalysis", {
                         detail: {
-                            id: _this.clinicalAnalysis.id,
+                            id: _this.clinicalAnalysis?.id,
+                            clinicalAnalysis: _this.clinicalAnalysis
+                        }
+                    }));
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                });
+        } else if (this.probandId) {
+            let _this = this;
+            this.opencgaSession.opencgaClient.clinical().search({proband: this.probandId, study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    _this.clinicalAnalysis = response.responses[0].results[0];
+                    _this.dispatchEvent(new CustomEvent("selectclinicalnalysis", {
+                        detail: {
+                            id: _this.clinicalAnalysis?.id,
                             clinicalAnalysis: _this.clinicalAnalysis
                         }
                     }));
@@ -110,28 +122,14 @@ class VariantCancerInterpreterLanding extends LitElement {
         }
     }
 
-    onFilterChange(name, value) {
+    onClinicalAnalysisIdChange(key, value) {
         this.clinicalAnalysisId = value;
+        this.probandId = null;
     }
 
-    onIndividualChange(name, individualId) {
-        let _this = this;
-        this.opencgaSession.opencgaClient.individuals().info(individualId, {study: this.opencgaSession.study.fqn})
-            .then(response => {
-                // Create a CLinical Analysis object
-                let _clinicalAnalysis = {
-                    id: "",
-                    proband: response.responses[0].results[0],
-                    type: "CANCER"
-                };
-                _this.clinicalAnalysis = _clinicalAnalysis;
-
-                // _this.requestUpdate();
-                // _this.onClinicalAnalysisChange();
-            })
-            .catch(response => {
-                console.error("An error occurred fetching clinicalAnalysis: ", response);
-            });
+    onProbandIdChange(key, value) {
+        this.probandId = value;
+        this.clinicalAnalysisId = null;
     }
 
     render() {
@@ -147,22 +145,20 @@ class VariantCancerInterpreterLanding extends LitElement {
 
         if (this.clinicalAnalysis) {
             return html`
-                    <div class="row">
-                        <div class="col-md-10 col-md-offset-1">
-                            <div style="float: right">
-                                <button class="btn btn-default" @click="${this.onCloseClinicalAnalysis}">Close</button>
-                            </div>
+                <div class="row">
+                    <div class="col-md-10 col-md-offset-1">
+                        <h2>Case ${this.clinicalAnalysis.id}</h2>
+
+                        <div style="float: right; padding-right: 20px">
+                            <button class="btn btn-primary" @click="${this.onCloseClinicalAnalysis}">Close</button>
                         </div>
-                        
-                        <div class="col-md-10 col-md-offset-1">
-                            <h2>Case ${this.clinicalAnalysis.id}</h2>
-                            <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
-                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            style="font-size: 12px"
-                                                            .config="${this._config}">
-                            </opencga-clinical-analysis-view>
-                        </div>
-                    </div>`;
+                                                        
+                        <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
+                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                        .config="${this._config}">
+                        </opencga-clinical-analysis-view>
+                    </div>
+                </div>`;
         }
 
         return html`
@@ -182,22 +178,24 @@ class VariantCancerInterpreterLanding extends LitElement {
                 <div class="tab-content">
                     <div id="${this._prefix}-search" role="tabpanel" class="tab-pane active">
                         <div class="row">
-                            <div class="col-md-4 col-md-offset-2">
-                                <div>
-                                    <h2>Search Clinical Analysis</h2>
-                                    
-                                    <h4>Clinical Analysis ID</h4>
-                                    <div class="text-filter-wrapper">
-                                        <!--<input type="text" name="clinicalAnalysisText" id="clinicalAnalysisIdText" value="AN-3">-->
-                                        <select-field-filter-autocomplete-simple .fn="${true}" resource="clinical-analysis" .value="${"AN-3"}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("clinicalAnalysisId", e.detail.value)}"></select-field-filter-autocomplete-simple>
+                            <div class="col-md-4 col-md-offset-1">
+                                <div style="padding: 25px">
+<!--                                    <h3>Search Clinical Analysis</h3>-->
+                                    <div>
+                                        <label>Clinical Analysis ID</label>
+                                        <select-field-filter-autocomplete-simple .fn="${true}" resource="clinical-analysis" .value="${"AN-3"}" 
+                                                .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onClinicalAnalysisIdChange("clinicalAnalysisId", e.detail.value)}">
+                                        </select-field-filter-autocomplete-simple>
                                     </div>
                                     
-                                    <h4>Proband ID</h4>
-                                    <div class="text-filter-wrapper">
-                                        <select-field-filter-autocomplete-simple .fn="${true}" resource="individuals" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onIndividualChange("individualId", e.detail.value)}"></select-field-filter-autocomplete-simple>
+                                    <div>
+                                        <label>Proband ID</label>
+                                        <select-field-filter-autocomplete-simple .fn="${true}" resource="individuals" 
+                                                .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onProbandIdChange("individualId", e.detail.value)}">
+                                        </select-field-filter-autocomplete-simple>
                                     </div>
         
-                                    <div>                            
+                                    <div style="float: right; padding: 10px">                            
                                         <button class="btn btn-default ripple" @click="${this.onClinicalAnalysisChange}">Clear</button>
                                         <button class="btn btn-default ripple" @click="${this.onClinicalAnalysisChange}">OK</button>
                                     </div>
@@ -205,9 +203,10 @@ class VariantCancerInterpreterLanding extends LitElement {
                             </div>
                         </div>
                     </div>
-                    <div id="${this._prefix}-create" role="tabpanel" class="tab-pane">
+                    
+                    <div id="${this._prefix}-create" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1">
                         <opencga-clinical-analysis-editor   .opencgaSession="${this.opencgaSession}"
-                                                            .config="${1 || this._config.clinicalAnalysisBrowser}"
+                                                            .config="${this.clinicalAnalysisEditorConfig}"
                                                             @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
                          </opencga-clinical-analysis-editor>
                     </div>
@@ -217,4 +216,4 @@ class VariantCancerInterpreterLanding extends LitElement {
 
 }
 
-customElements.define("variant-cancer-interpreter-landing", VariantCancerInterpreterLanding);
+customElements.define("variant-interpreter-landing", VariantInterpreterLanding);

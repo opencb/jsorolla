@@ -883,7 +883,10 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
 
         <div class="page-title">
             <h2>
-                <i class="${this._config.icon}" aria-hidden="true"></i>&nbsp;${this._config.title}
+               ${this._config.showTitle 
+                    ? html`<i class="${this._config.icon}" aria-hidden="true"></i>&nbsp;${this._config.title}`
+                    : null
+                }
             </h2>
         </div>
             
