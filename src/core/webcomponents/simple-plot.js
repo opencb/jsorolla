@@ -61,7 +61,11 @@ export default class SimplePlot extends LitElement {
     firstUpdated(_changedProperties) {
         switch (this.type) {
             case "column":
-                this.barChart({title: this.title, categories: this.categories, data: this.data}, this._prefix + "barChart")
+                this.barChart({title: this.title, categories: this.categories, data: this.data});
+                break;
+            case "pie":
+                this.pieChart({title: this.title, categories: this.categories, data: this.data});
+                break;
         }
     }
 
@@ -71,8 +75,8 @@ export default class SimplePlot extends LitElement {
         }
     }
 
-    barChart(param, selector) {
-        Highcharts.chart(selector, {
+    barChart(param) {
+        Highcharts.chart(this._prefix + "chart", {
             chart: {
                 type: "column"
             },
@@ -88,7 +92,7 @@ export default class SimplePlot extends LitElement {
             yAxis: {
                 min: 0,
                 title: {
-                    text: "",
+                    text: ""
                 },
                 labels: {
                     overflow: "justify"
@@ -111,6 +115,63 @@ export default class SimplePlot extends LitElement {
         });
     }
 
+    pieChart(param) {
+        Highcharts.chart(this._prefix + "chart", {
+            chart: {
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false,
+                type: "pie"
+            },
+            title: {
+                text: param.title
+            },
+            tooltip: {
+                //pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            },
+            accessibility: {
+                point: {
+                    valueSuffix: "%"
+                }
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: "pointer",
+                    dataLabels: {
+                        enabled: false
+                    },
+                    showInLegend: true
+                }
+            },
+            series: [{
+                name: "Brands",
+                colorByPoint: true,
+                data: [{
+                    name: "Chrome",
+                    y: 61.41,
+                    sliced: true,
+                    selected: true
+                }, {
+                    name: "Internet Explorer",
+                    y: 11.84
+                }, {
+                    name: "Firefox",
+                    y: 10.85
+                }, {
+                    name: "Edge",
+                    y: 4.67
+                }, {
+                    name: "Safari",
+                    y: 4.18
+                }, {
+                    name: "Other",
+                    y: 7.05
+                }]
+            }]
+        });
+    }
+
     getDefaultConfig() {
         return {
         }
@@ -118,7 +179,7 @@ export default class SimplePlot extends LitElement {
 
     render() {
         return html`
-        <div id="${this._prefix}barChart"></div>
+        <div id="${this._prefix}chart"></div>
         `;
     }
 
