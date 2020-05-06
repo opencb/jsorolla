@@ -263,8 +263,13 @@ export default class OpencgaVariantFilter extends LitElement {
      * @param value the new value of the property
      */
     onFilterChange(key, value) {
-        // Some filters may return more than parameter, in this case value is an object with all the filters,
-        // these are NOT allowed to be null.
+        /* Some filters may return more than parameter, in this case key and value are objects with all the keys and filters
+             - key: an object mapping filter name with the one returned
+             - value: and object with the filter
+            Example: REST accepts filter and qual while fitler returns FILTER and QUALITY
+             - key: {filter: "FILTER", qual: "QUALITY"}
+             - value: {FILTER: "pass", QUALITY: "25"}
+         */
         if (key instanceof Object && value instanceof Object) {
             // this.preparedQuery = {...this.preparedQuery, ...value};
             for (let k of Object.keys(key)) {
