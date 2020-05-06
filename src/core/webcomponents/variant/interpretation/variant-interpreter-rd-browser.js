@@ -859,7 +859,7 @@ class VariantInterpreterRdBrowser extends LitElement {
      
             <div class="page-title">
                 <h2>
-                    ${this.showTitle 
+                    ${this._config.showTitle 
                         ? html`<i class="fa fa-filter" aria-hidden="true" style="padding-left: 10px;padding-right: 10px"></i>&nbsp;${title}` 
                         : null
                     }

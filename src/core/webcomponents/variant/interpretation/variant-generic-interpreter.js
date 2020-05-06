@@ -261,10 +261,10 @@ class VariantGenericInterpreter extends LitElement {
                     
                         ${this._config.tools ? html`
                             <div id="${this._prefix}select" class="clinical-portal-content col-md-10 col-md-offset-1">
-                                <variant-cancer-interpreter-landing .opencgaSession="${this.opencgaSession}"
-                                                                    .config="${this._config}"
-                                                                    @selectclinicalnalysis="${this.onClinicalAnalysis}">
-                                </variant-cancer-interpreter-landing>
+                                <variant-interpreter-landing .opencgaSession="${this.opencgaSession}"
+                                                             .config="${this._config}"
+                                                             @selectclinicalnalysis="${this.onClinicalAnalysis}">
+                                </variant-interpreter-landing>
                             </div>
                         ` : null}
         

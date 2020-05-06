@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 
 
-class VariantCancerInterpreterLanding extends LitElement {
+class VariantInterpreterLanding extends LitElement {
 
     constructor() {
         super();
@@ -50,6 +50,10 @@ class VariantCancerInterpreterLanding extends LitElement {
 
     _init() {
         this._prefix = "vcis-" + UtilsNew.randomString(6);
+
+        this.clinicalAnalysisEditorConfig = {
+            showTitle: false
+        }
     }
 
     connectedCallback() {
@@ -141,22 +145,20 @@ class VariantCancerInterpreterLanding extends LitElement {
 
         if (this.clinicalAnalysis) {
             return html`
-                    <div class="row">
-                        <div class="col-md-10 col-md-offset-1">
-                            <div style="float: right">
-                                <button class="btn btn-default" @click="${this.onCloseClinicalAnalysis}">Close</button>
-                            </div>
+                <div class="row">
+                    <div class="col-md-10 col-md-offset-1">
+                        <h2>Case ${this.clinicalAnalysis.id}</h2>
+
+                        <div style="float: right; padding-right: 20px">
+                            <button class="btn btn-primary" @click="${this.onCloseClinicalAnalysis}">Close</button>
                         </div>
-                        
-                        <div class="col-md-10 col-md-offset-1">
-                            <h2>Case ${this.clinicalAnalysis.id}</h2>
-                            <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
-                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            style="font-size: 12px"
-                                                            .config="${this._config}">
-                            </opencga-clinical-analysis-view>
-                        </div>
-                    </div>`;
+                                                        
+                        <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
+                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                        .config="${this._config}">
+                        </opencga-clinical-analysis-view>
+                    </div>
+                </div>`;
         }
 
         return html`
@@ -202,9 +204,9 @@ class VariantCancerInterpreterLanding extends LitElement {
                         </div>
                     </div>
                     
-                    <div id="${this._prefix}-create" role="tabpanel" class="tab-pane">
+                    <div id="${this._prefix}-create" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1">
                         <opencga-clinical-analysis-editor   .opencgaSession="${this.opencgaSession}"
-                                                            .config="${1 || this._config.clinicalAnalysisBrowser}"
+                                                            .config="${this.clinicalAnalysisEditorConfig}"
                                                             @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
                          </opencga-clinical-analysis-editor>
                     </div>
@@ -214,4 +216,4 @@ class VariantCancerInterpreterLanding extends LitElement {
 
 }
 
-customElements.define("variant-cancer-interpreter-landing", VariantCancerInterpreterLanding);
+customElements.define("variant-interpreter-landing", VariantInterpreterLanding);
