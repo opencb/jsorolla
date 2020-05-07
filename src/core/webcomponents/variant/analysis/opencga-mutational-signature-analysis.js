@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
+import UtilsNew from "./../../../utilsNew.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
 
 
-export default class OpencgaVariantStatsAnalysis extends LitElement {
+export default class OpencgaMutationalSignatureAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -43,32 +43,35 @@ export default class OpencgaVariantStatsAnalysis extends LitElement {
     }
 
     _init() {
-        this._prefix = "oga-" + Utils.randomString(6);
+        this._prefix = "oga-" + UtilsNew.randomString(6);
+
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.fieldMap = {};
+        // this._config = {...this.getDefaultConfig(), ...this.config};
+        // this.fieldMap = {};
     }
 
     updated(changedProperties) {
         if (changedProperties.has("config")) {
-            //this._config = Object.assign(this.getDefaultConfig(), this.config);
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
         }
     }
 
     getDefaultConfig() {
         return {
-            id: "cohort-stats",
-            title: "Cohort variant statistics",
+            id: "mutational-signature",
+            title: "Mutational Signature Analysis",
             icon: "",
             requires: "2.0.0",
-            description: "Compute cohort variant stats for the selected list of samples..",
+            description: "Sample Variant Stats description",
             links: [
                 {
-                    title: "Wikipedia",
-                    url: "",
+                    title: "OpenCGA",
+                    url: "http://docs.opencb.org/display/opencga/Sample+Stats",
                     icon: ""
                 }
             ],
@@ -79,29 +82,9 @@ export default class OpencgaVariantStatsAnalysis extends LitElement {
                         collapsed: false,
                         parameters: [
                             {
-                                id: "study",
-                                title: "Study where all the samples belong to",
-                                type: "text",
-                            },
-                            {
-                                id: "cohort",
-                                title: "Cohort name",
-                                type: "text",
-                            },
-                            {
                                 id: "sample",
-                                title: "List of samples",
-                                type: "SAMPLE_FILTERt",
-                            },
-                            {
-                                id: "sampleAnnotation",
-                                title: "Samples query selecting samples of the control cohort, e.g.: age>30;gender=FEMALE",
-                                type: "text",
-                            },
-                            {
-                                id: "index",
-                                title: "Index results in catalog (it requires a cohort)",
-                                type: "boolean",
+                                title: "Select somatic sample",
+                                type: "SAMPLE_FILTER",
                             }
                         ]
                     }
@@ -117,11 +100,12 @@ export default class OpencgaVariantStatsAnalysis extends LitElement {
                         validation: function(params) {
                             alert("test:" + params);
                         },
-                        button: "Run",
+                        button: "Run"
                     }
                 }
             },
-            result: {}
+            result: {
+            }
         };
     }
 
@@ -132,4 +116,4 @@ export default class OpencgaVariantStatsAnalysis extends LitElement {
     }
 }
 
-customElements.define("opencga-variant-stats-analysis", OpencgaVariantStatsAnalysis);
+customElements.define("opencga-mutational-signature-analysis", OpencgaMutationalSignatureAnalysis);

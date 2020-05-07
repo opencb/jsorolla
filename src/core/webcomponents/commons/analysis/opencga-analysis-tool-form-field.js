@@ -52,7 +52,6 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
     }
 
     onFilterChange(fieldId, value) {
-        // console.log("fieldId, value", fieldId, value)
         this.dispatchEvent(new CustomEvent("fieldChange", {
             detail: {
                 [fieldId]: value
@@ -62,8 +61,8 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
         }));
     }
 
-    renderField(field) {
-        // console.log(field)
+    renderField() {
+        let field = this.config;
         switch (field.type) {
             case "category":
                 return html`<select-field-filter ?multiple="${field.multiple}" ?disabled=${this.config.disabled} ?required=${this.config.required} .data="${field.allowedValues}" .value="${field.defaultValue}" maxOptions="2" @filterChange="${e => this.onFilterChange(field.id, e.detail.value)}"></select-field-filter>`;
@@ -83,12 +82,20 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
                 return html`<text-field-filter placeholder="${field.placeholder || ""}" ?disabled=${this.config.disabled} ?required=${this.config.required} .value="${field.defaultValue || ""}" @filterChange="${e => this.onFilterChange(field.id, e.detail.value)}"></text-field-filter>`;
         }
     }
+
     render() {
+            // <div class="${this.config.colspan ? "col-md-" + this.config.colspan : "col-md-6"}">
+        let width = "480px";
+        let padding = "2px 20px";
+        if (this.config.type === "category" || this.config.type === "string" || this.config.type === "number") {
+            width = "320px";
+            padding = "4px 20px";
+        }
         return html`
-            <div class="${this.config.colspan ? "col-md-" + this.config.colspan : "col-md-12"}">
-                ${this.config.title || this.config.id}
+            <div style="padding: ${padding}; width: ${width}">
+                <label>${this.config.title ? this.config.title : this.config.id}</label>
                 <div id="${this.config.id}-wrapper">
-                    ${this.renderField(this.config)}
+                    ${this.renderField()}
                 </div>
             </div>
         `;

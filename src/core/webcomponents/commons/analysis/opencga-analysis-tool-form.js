@@ -180,28 +180,60 @@ export default class OpencgaAnalysisToolForm extends LitElement {
             ${JSON.stringify(this._config.sections, null, "\t")}
             </pre> -->
                 <form id="analysis-form" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
-                ${this._config.sections && this._config.sections.length ? this._config.sections.map( (section, i) => html`
-                     <div class="panel panel-default filter-section shadow-sm">
-                         <div class="panel-heading" role="tab" id="${this._prefix}Heading${i}">
-                             <h4 class="panel-title">
-                                 <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
-                                    href="#${this._prefix}section-${i}" aria-expanded="true" aria-controls="${this._prefix}-${i}">
-                                    ${section.title}
-                                 </a>
-                             </h4>
-                         </div>
-                         <div id="${this._prefix}section-${i}" class="panel-collapse ${!section.collapsed ? "in" : ""}" role="tabpanel" aria-labelledby="${this._prefix}${i}Heading">
-                             <div class="panel-body">
+                    ${this._config.sections && this._config.sections.length ? this._config.sections.map( (section, i) => html`
+                         <div class="panel panel-default shadow-sm">
+                             <div class="panel-heading" role="tab" id="${this._prefix}Heading${i}">
+                                 <h4 class="panel-title">
+                                     <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
+                                        href="#${this._prefix}section-${i}" aria-expanded="true" aria-controls="${this._prefix}-${i}">
+                                        ${section.title}
+                                     </a>
+                                 </h4>
+                             </div>
+                             <div id="${this._prefix}section-${i}" class="panel-collapse ${!section.collapsed ? "in" : ""}" role="tabpanel" aria-labelledby="${this._prefix}${i}Heading">
+                                 <div class="panel-body">
+                                    <div class="row">
+                                        ${section.parameters && section.parameters.length ? section.parameters.map( param => html`
+                                            <opencga-analysis-tool-form-field .opencgaSession="${this.opencgaSession}" .config="${param}" @fieldChange="${this.onFieldChange}"> </opencga-analysis-tool-form-field>
+                                        `) : null }
+                                 </div>
+                                 </div>
+                            </div>
+                        </div>
+                    `) : null }
+                    
+                    <div class="panel panel-default shadow-sm">
+                        <div class="panel-heading" role="tab" id="${this._prefix}HeadingJob">
+                            <h4 class="panel-title">
+                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
+                                        href="#${this._prefix}section-job" aria-expanded="true">
+                                    ${this._config.run.title}
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="${this._prefix}section-job" class="panel-collapse" role="tabpanel">
+                            <div class="panel-body">
                                 <div class="row">
-                                    ${section.parameters && section.parameters.length ? section.parameters.map( param => html`
-                                        <opencga-analysis-tool-form-field .opencgaSession="${this.opencgaSession}" .config="${param}" @fieldChange="${this.onFieldChange}"> </opencga-analysis-tool-form-field>
-                                    `) : null }
-                             </div>
-                             </div>
+                                    <div style="padding: 4px 20px; width: 480px">
+                                        <label>Job ID</label>
+                                        <text-field-filter placeholder="job ID" .value="${this._config.id}" @filterChange="${e => this.onFilterChange("jobId", e.detail.value)}"></text-field-filter>
+                                    </div>
+                                    <div style="padding: 4px 20px; width: 480px">
+                                        <label>Job tags</label>
+                                        <text-field-filter placeholder="job tags" .value="" @filterChange="${e => this.onFilterChange("jobTags", e.detail.value)}"></text-field-filter>
+                                    </div>
+                                    <div style="padding: 4px 20px; width: 480px">
+                                        <label>Job Description</label>
+                                        <text-field-filter placeholder="job description" .value="" @filterChange="${e => this.onFilterChange("jobDescription", e.detail.value)}"></text-field-filter>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                `) : null }
-                <button type="submit" class="ripple btn btn-primary btn-lg" @click="${this.onRun}">Run</button>
+                        
+                    <div style="padding: 20px; float: right">
+                        <button type="submit" class="ripple btn btn-primary btn-lg" @click="${this.onRun}">Run</button>
+                    </div>
                 </form>
            </div>
         `;

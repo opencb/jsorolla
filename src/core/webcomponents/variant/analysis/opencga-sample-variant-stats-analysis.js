@@ -19,7 +19,7 @@ import UtilsNew from "./../../../utilsNew.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
 
 
-export default class OpencgaGwasAnalysis extends LitElement {
+export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -63,15 +63,15 @@ export default class OpencgaGwasAnalysis extends LitElement {
 
     getDefaultConfig() {
         return {
-            id: "gwas",
-            title: "GWAS",
+            id: "sample-variant-stats",
+            title: "Sample Variant Stats",
             icon: "",
             requires: "2.0.0",
-            description: "GWAS description",
+            description: "Sample Variant Stats description",
             links: [
                 {
                     title: "OpenCGA",
-                    url: "http://docs.opencb.org/display/opencga/Genome-Wide+Association+Study",
+                    url: "http://docs.opencb.org/display/opencga/Sample+Stats",
                     icon: ""
                 }
             ],
@@ -85,65 +85,12 @@ export default class OpencgaGwasAnalysis extends LitElement {
                                 id: "sample",
                                 title: "Select samples",
                                 type: "SAMPLE_FILTER",
-                                // colspan: 6
                             },
                             {
-                                id: "cohort",
-                                title: "Select cohort",
-                                type: "COHORT_FILTER",
-                                // colspan: 6
-                            },
-                            {
-                                id: "phenotype",
-                                title: "Select phenotype",
-                                type: "string",
-                                // colspan: 6
+                                id: "family",
+                                title: "Select family",
+                                type: "FAMILY_FILTER",
                             }
-                        ]
-                    },
-                    {
-                        title: "Configuration Parameters",
-                        collapsed: false,
-                        parameters: [
-                            {
-                                id: "assoc",
-                                title: "Select association test",
-                                type: "category",
-                                required: true,
-                                defaultValue: "Fisher",
-                                allowedValues: ["Fisher", "Chi", "LR"],
-                                multiple: false,
-                                // colspan: 6
-                                //maxOptions: 1 //you don't need to define maxOptions if multiple=false
-                            },
-                            {
-                                id: "fisher-test",
-                                title: "Select Fisher mode",
-                                type: "category",
-                                defaultValue: "GT",
-                                allowedValues: ["GT", "LT"],
-                                multiple: false,
-                                // colspan: 6,
-                                dependsOn: "assoc == Fisher"
-                            },
-                            // {
-                            //     id: "freq",
-                            //     title: "Filter by frequency",
-                            //     type: "number",
-                            //     required: true,
-                            //     defaultValue: "0.01",
-                            //     allowedValues: [0, 1],
-                            //     colspan: 6
-                            // },
-                            // {
-                            //     id: "gene",
-                            //     title: "Filter by Genes",
-                            //     type: "string",
-                            //     required: true,
-                            //     defaultValue: "default String",
-                            //     // colspan: 6,
-                            //     dependsOn: config => {console.warn("dependsOn Callback", config); return true}
-                            // }
                         ]
                     }
                 ],
@@ -174,4 +121,4 @@ export default class OpencgaGwasAnalysis extends LitElement {
     }
 }
 
-customElements.define("opencga-gwas-analysis", OpencgaGwasAnalysis);
+customElements.define("opencga-sample-variant-stats-analysis", OpencgaSampleVariantStatsAnalysis);

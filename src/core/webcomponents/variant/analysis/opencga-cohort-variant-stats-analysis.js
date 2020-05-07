@@ -19,7 +19,7 @@ import Utils from "./../../../utils.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
 
 
-export default class OpencgaVariantEligibilityAnalysis extends LitElement {
+export default class OpencgaCohortVariantStatsAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -60,11 +60,11 @@ export default class OpencgaVariantEligibilityAnalysis extends LitElement {
 
     getDefaultConfig() {
         return {
-            id: "sample-eligibility",
-            title: "Sample eligibility analysis",
+            id: "cohort-variant-stats",
+            title: "Cohort Variant Stats",
             icon: "",
             requires: "2.0.0",
-            description: "Filter samples by a complex query involving metadata and variants data.",
+            description: "Compute cohort variant stats for the selected list of samples..",
             links: [
                 {
                     title: "Wikipedia",
@@ -79,24 +79,24 @@ export default class OpencgaVariantEligibilityAnalysis extends LitElement {
                         collapsed: false,
                         parameters: [
                             {
-                                id: "study",
-                                title: "Study [[user@]project:]study where study and project can be either the ID or UUID",
-                                type: "text",
+                                id: "cohort",
+                                title: "Cohort name",
+                                type: "COHORT_FILTER",
                             },
                             {
-                                id: "query",
-                                title: "Election query. e.g. ((gene=A AND ct=lof) AND (NOT (gene=B AND ct=lof)))",
+                                id: "sample",
+                                title: "List of samples",
+                                type: "SAMPLE_FILTER",
+                            },
+                            {
+                                id: "sampleAnnotation",
+                                title: "Samples query selecting samples of the control cohort, e.g.: age>30;gender=FEMALE",
                                 type: "text",
                             },
                             {
                                 id: "index",
-                                title: "Create a cohort with the resulting set of samples (if any)",
+                                title: "Index results in catalog (it requires a cohort)",
                                 type: "boolean",
-                            },
-                            {
-                                id: "cohortId",
-                                title: "ID for the cohort to be created if index",
-                                type: "text",
                             }
                         ]
                     }
@@ -127,4 +127,4 @@ export default class OpencgaVariantEligibilityAnalysis extends LitElement {
     }
 }
 
-customElements.define("opencga-variant-eligibility-analysis", OpencgaVariantEligibilityAnalysis);
+customElements.define("opencga-cohort-variant-stats-analysis", OpencgaCohortVariantStatsAnalysis);
