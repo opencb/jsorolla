@@ -29,8 +29,6 @@ import "../commons/filters/consequence-type-select-filter.js";
 import "../commons/filters/conservation-filter.js";
 import "../commons/filters/disease-filter.js";
 import "../commons/filters/feature-filter.js";
-import "../commons/filters/file-filter.js";
-import "../commons/filters/file-pass-filter.js";
 import "../commons/filters/file-quality-filter.js";
 import "../commons/filters/fulltext-search-accessions-filter.js";
 import "../commons/filters/go-accessions-filter.js";
@@ -437,14 +435,7 @@ export default class OpencgaVariantFilter extends LitElement {
             case "sample":
                 content = html`<sample-filter .opencgaSession="${this.opencgaSession}" .clinicalAnalysis="${this.clinicalAnalysis}" .query="${this.preparedQuery}" @sampleFilterChange="${e => this.onSampleFilterChange(e.detail.value)}"></sample-filter>`;
                 break;
-            case "file":
-            /** @deprecated */
-                content = html`<file-filter .query="${this.query}" @filterChange="${e => this.onFilterChange("filter", e.detail.value)}"></file-filter>`;
-                break;
-            // case "file-pass":
-            //     content = html`<file-pass-filter .filter="${this.preparedQuery.filter}" @filterChange="${e => this.onFilterChange("filter", e.detail.value)}"></file-pass-filter>`;
-            //     break;
-            case "file-qual":
+            case "file-quality":
                 // content = html`<file-qual-filter .qual="${this.preparedQuery.qual}" @filterChange="${e => this.onFilterChange("qual", e.detail.value)}"></file-qual-filter>`;
                 content = html`<file-quality-filter .filter="${this.preparedQuery.filter}" .qual="${this.preparedQuery.qual}" 
                                     @filterChange="${e => this.onFilterChange({filter: "filter", qual: "qual"}, e.detail.value)}">

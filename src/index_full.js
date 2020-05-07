@@ -55,7 +55,7 @@ import "./core/webcomponents/variant/opencga-variant-detail-view.js";
 import "./core/webcomponents/variant/opencga-variant-cohort-stats.js";
 import "./core/webcomponents/variant/opencga-variant-grid.js";
 import "./core/webcomponents/variant/variant-genome-browser.js";
-import "./core/webcomponents/variant/VariantGridFormatter.js";
+import "./core/webcomponents/variant/variant-grid-formatter.js";
 import "./core/webcomponents/variant/variant-protein-view.js";
 import "./core/webcomponents/variant/opencga-variant-facet.js";
 import "./core/webcomponents/variant/variant-beacon.js";

@@ -19,7 +19,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import {CellBaseClient} from "../../clients/cellbase/cellbase-client.js";
 import Utils from "./../../utils.js";
 import UtilsNew from "./../../utilsNew.js";
-import VariantGridFormatter from "./VariantGridFormatter.js";
+import VariantGridFormatter from "./variant-grid-formatter.js";
 import VariantUtils from "./variant-utils.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../commons/opencb-grid-toolbar.js";
