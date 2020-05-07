@@ -33,17 +33,21 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
         return {
             populationFrequencies: {
                 type: Array
+            },
+            active: {
+                type: Boolean
             }
         }
     }
 
     _init() {
         this._prefix = "cpfg-" + Utils.randomString(6) + "_";
-        // this.populationFrequencies = [];
+        this.populationFrequencies = [];
+        this.gridId = this._prefix + "populationFreqTable"
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("populationFrequencies")) {
+        if ((changedProperties.has("populationFrequencies") || changedProperties.has("active")) && this.active) {
             this.update2();
         }
     }
@@ -59,12 +63,12 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
             }
         }
 
-        $('#' + this._prefix + 'Container').highcharts({
+        $("#" + this._prefix + "Container").highcharts({
             chart: {
-                type: 'bar'
+                type: "bar"
             },
             title: {
-                text: 'Population Frequencies'
+                text: "Population Frequencies"
             },
             xAxis: {
                 categories: popArray,
@@ -75,17 +79,17 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
             yAxis: {
                 min: 0,
                 title: {
-                    text: 'Minor Allele Frequency (MAF)',
-                    align: 'high'
+                    text: "Minor Allele Frequency (MAF)",
+                    align: "high"
                 },
                 labels: {
-                    overflow: 'justify'
+                    overflow: "justify"
                 },
                 max: 0.5
             },
-//                        tooltip: {
-//                            valueSuffix: ' millions'
-//                        },
+            //                        tooltip: {
+            //                            valueSuffix: ' millions'
+            //                        },
             plotOptions: {
                 bar: {
                     dataLabels: {
@@ -94,55 +98,62 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
                 }
             },
             legend: {
-                layout: 'vertical',
-                align: 'right',
-                verticalAlign: 'top',
+                layout: "vertical",
+                align: "right",
+                verticalAlign: "top",
                 x: -40,
                 y: 80,
                 floating: true,
                 borderWidth: 1,
-                backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || "#FFFFFF"),
                 shadow: true
             },
             credits: {
                 enabled: false
             },
             series: [{
-                name: 'Minor Allele Frequency (MAF)',
+                name: "Minor Allele Frequency (MAF)",
                 data: mafArray
             }]
         });
 
         // Population grid definition
         let _this = this;
-        $('#' + this._prefix + 'populationFreqTable').bootstrapTable('destroy');
-        $('#' + this._prefix + 'populationFreqTable').bootstrapTable({
+        console.log("_this.populationFrequencies",_this.populationFrequencies)
+        $("#" + this.gridId).bootstrapTable("destroy");
+        $("#" + this.gridId).bootstrapTable({
             data: _this.populationFrequencies,
             pageSize: 5,
+            showPaginationSwitch: true,
+            search: true,
+            showColumns: true,
+            pagination: true,
+            pageList: [5, 15, 30],
+            showExport: true,
             columns: [
                 [
                     {
-                        title: 'Study',
-                        field: 'study',
+                        title: "Study",
+                        field: "study",
                         sortable: true
                     },
                     {
-                        title: 'Population',
-                        field: 'population'
+                        title: "Population",
+                        field: "population"
                     },
                     {
-                        title: 'Ref/Alt',
+                        title: "Ref/Alt",
                         formatter: _this.alleleFormatter
                     },
                     {
-                        title: 'RefAlleleFreq',
-                        field: 'refAlleleFreq',
+                        title: "RefAlleleFreq",
+                        field: "refAlleleFreq",
                         sortable: true,
                         formatter: _this.numFormatter
                     },
                     {
-                        title: 'AltAlleleFreq',
-                        field: 'altAlleleFreq',
+                        title: "AltAlleleFreq",
+                        field: "altAlleleFreq",
                         sortable: true,
                         formatter: _this.numFormatter
                     }
@@ -170,13 +181,13 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
         }
         return html`
             <div style="padding: 10px;">
-                <table id="${this._prefix}populationFreqTable" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[5, 15, 30]"
-                       data-show-pagination-switch="true" data-show-export="true" data-icons-prefix="fa" data-icons="icons">
+                <table id="${this.gridId}">
                 </table>
                 <div id="${this._prefix}Container"></div>
             </div>
         `;
     }
+
 }
 
-customElements.define('cellbase-population-frequency-grid', CellbasePopulationFrequencyGrid);
+customElements.define("cellbase-population-frequency-grid", CellbasePopulationFrequencyGrid);

@@ -33,6 +33,9 @@ export default class VariantConsequenceTypeView extends LitElement {
         return {
             consequenceTypes: {
                 type: Array
+            },
+            active: {
+                type: Boolean
             }
         }
     }
@@ -44,7 +47,7 @@ export default class VariantConsequenceTypeView extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("consequenceTypes")) {
+        if ((changedProperties.has("consequenceTypes") || changedProperties.has("active")) && this.active) {
             this.renderTable();
         }
     }
@@ -208,8 +211,9 @@ export default class VariantConsequenceTypeView extends LitElement {
     }
 
     renderTable() {
-        $('#' + this._prefix + 'ConsequenceTypeTable').bootstrapTable('destroy');
-        $('#' + this._prefix + 'ConsequenceTypeTable').bootstrapTable({
+
+        $("#" + this._prefix + "ConsequenceTypeTable").bootstrapTable("destroy");
+        $("#" + this._prefix + "ConsequenceTypeTable").bootstrapTable({
             data: this.consequenceTypes,
             pagination: false,
             showExport: true,
@@ -218,46 +222,46 @@ export default class VariantConsequenceTypeView extends LitElement {
             columns: [
                 [
                     {
-                        title: 'Gene',
-                        field: 'geneName',
+                        title: "Gene",
+                        field: "geneName",
                         rowspan: 2,
                         colspan: 1,
                         formatter: this.geneNameFormatter,
                         halign: "center"
                     },
                     {
-                        title: 'Ensembl Gene',
-                        field: 'ensemblGeneId',
+                        title: "Ensembl Gene",
+                        field: "ensemblGeneId",
                         rowspan: 2,
                         colspan: 1,
                         formatter: this.ensemblGeneFormatter,
                         halign: "center"
                     },
                     {
-                        title: 'Ensembl Transcript',
-                        field: 'ensemblTranscriptId',
+                        title: "Ensembl Transcript",
+                        field: "ensemblTranscriptId",
                         rowspan: 2,
                         colspan: 1,
                         formatter: this.ensemblTranscriptFormatter,
                         halign: "center"
                     },
                     {
-                        title: 'Biotype',
-                        field: 'biotype',
+                        title: "Biotype",
+                        field: "biotype",
                         rowspan: 2,
                         colspan: 1,
                         halign: "center"
                     },
                     {
-                        title: 'Transcript Flag',
-                        field: 'transcriptAnnotationFlags',
+                        title: "Transcript Flag",
+                        field: "transcriptAnnotationFlags",
                         colspan: 1,
                         rowspan: 2,
                         formatter: this.transcriptFlagFormatter,
                         halign: "center"
                     },
                     {
-                        title: 'Consequence Types (SO Term)',
+                        title: "Consequence Types (SO Term)",
                         field: "sequenceOntologyTerms",
                         rowspan: 2,
                         colspan: 1,
@@ -265,15 +269,15 @@ export default class VariantConsequenceTypeView extends LitElement {
                         halign: "center"
                     },
                     {
-                        title: 'Protein Variant Annotation',
+                        title: "Protein Variant Annotation",
                         rowspan: 1,
-                        colspan: 6,
+                        colspan: 5,
                         halign: "center"
                     }
                 ],
                 [
                     {
-                        title: 'UniProt Accession',
+                        title: "UniProt Accession",
                         field: "proteinVariantAnnotation",
                         formatter: this.uniprotAccessionFormatter,
                         rowspan: 1,
@@ -281,23 +285,23 @@ export default class VariantConsequenceTypeView extends LitElement {
                         halign: "center"
                     },
                     {
-                        title: 'Position',
-                        field: 'proteinVariantAnnotation.position',
+                        title: "Position",
+                        field: "proteinVariantAnnotation.position",
                         rowspan: 1,
                         colspan: 1,
                         align: "right",
                         halign: "center"
                     },
                     {
-                        title: 'Ref/Alt',
-                        field: 'proteinVariantAnnotation',
+                        title: "Ref/Alt",
+                        field: "proteinVariantAnnotation",
                         rowspan: 1,
                         colspan: 1,
                         formatter: this.proteinAlleleFormatter,
                         halign: "center"
                     },
                     {
-                        title: 'Sift',
+                        title: "Sift",
                         field: "proteinVariantAnnotation.substitutionScores",
                         rowspan: 1,
                         colspan: 1,
@@ -305,7 +309,7 @@ export default class VariantConsequenceTypeView extends LitElement {
                         halign: "center"
                     },
                     {
-                        title: 'Polyphen',
+                        title: "Polyphen",
                         field: "proteinVariantAnnotation.substitutionScores",
                         rowspan: 1,
                         colspan: 1,
@@ -324,6 +328,7 @@ export default class VariantConsequenceTypeView extends LitElement {
             </div>
         `;
     }
+
 }
 
-customElements.define('variant-consequence-type-view', VariantConsequenceTypeView);
+customElements.define("variant-consequence-type-view", VariantConsequenceTypeView);

@@ -181,6 +181,12 @@ export default class OpencgaFileBrowser extends LitElement {
                                 description: ""
                             },
                             {
+                                id: "internal.index.status.name",
+                                name: "Index Status",
+                                allowedValues: ["READY", "DELETED", "TRASHED", "STAGE", "MISSING", "PENDING_DELETE", "DELETING", "REMOVED", "NONE"],
+                                type: "category"
+                            },
+                            {
                                 id: "annotations",
                                 name: "File annotations",
                                 description: ""

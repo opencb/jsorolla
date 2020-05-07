@@ -33,8 +33,12 @@ export class NotificationQueue {
     }
 
     async push(title, details = "", severity = "info", dismissible = true, autoDismiss = true) {
+
+
+        //console.log("title", title)
         const id = Utils.randomString(6);
-        const msg = {id, title, details, severity, dismissible, autoDismiss};
+        const msg = {id: id, title: title, details: details, severity: severity, dismissible: dismissible, autoDismiss: autoDismiss};
+        //const msg = {id, title, details, severity, dismissible, autoDismiss};
         this.queue = [...this.queue, msg];
         await this.context.requestUpdate();
         if (autoDismiss) {
@@ -46,7 +50,7 @@ export class NotificationQueue {
             await this.context.requestUpdate();
             await this.sleep(500);
             */
-            this.remove(id);
+            //this.remove(id);
             await this.context.requestUpdate();
         }
     }
@@ -93,20 +97,24 @@ export class NotificationElement extends LitElement {
             danger: "fa ffa fa-exclamation-circle fa-2x",
             error: "fa ffa fa-exclamation-circle fa-2x"
         };
+
     }
 
     render() {
         return html`
-                <div id="notifications-queue" class="col-xs-11 col-sm-4">
-                ${this.queue.map( item => html`
+            <div id="notifications-queue" class="col-xs-11 col-sm-4">
+            ${this.queue.map( item => {
+                return html`
                     <div class="alert animated slideInDown alert-${item.severity.toLowerCase()} ${item.dismissible ? "alert-dismissible" : ""}" data-id="${item.id}">
                         <p class="title"><i class="${this.iconMap[item.severity]}"></i> ${item.title}</p>
-                        <p>${item.details}</p>
+                        
                         ${item.dismissible ? html`<span class="close" data-dismiss="alert"><i class="fa fa-times-circle"></i></span>` : null}
                     </div>
-                `)}
-                </div>`;
+                `
+            })}
+            </div>`;
     }
+
 }
 
 customElements.define("notification-element", NotificationElement);

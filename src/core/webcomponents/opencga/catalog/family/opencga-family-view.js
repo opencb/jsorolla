@@ -126,7 +126,7 @@ export default class OpencgaFamilyView extends LitElement {
                     <h3 class="section-title">Summary</h3>
 
                     <div class="col-md-12">
-                        <form class="form-horizontal">
+                        <div class="form-horizontal">
                             <div class="form-group">
                                 <label class="col-md-3 label-title">Family Id</label>
                                 <span class="col-md-9">${this.family.id}</span>
@@ -135,13 +135,9 @@ export default class OpencgaFamilyView extends LitElement {
                                 <label class="col-md-3 label-title">TODO</label>
                                 <span class="col-md-9">${this.family.sex}</span>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
-                <!--<div class="col-md-12">
-                    <h3 class="section-title">Annotations</h3>
-    
-                </div> -->
             </div>
         ` : null }
         `;

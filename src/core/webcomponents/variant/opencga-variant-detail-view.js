@@ -203,14 +203,14 @@ export default class OpenCGAVariantDetailView extends LitElement {
                                         
                                         <div id="${this._prefix}annotationConsType" role="tabpanel" class="tab-pane">
                                             <div style="width: 90%;padding-top: 8px">
-                                                <variant-consequence-type-view  .consequenceTypes="${this.variant.annotation.consequenceTypes}">
+                                                <variant-consequence-type-view  .consequenceTypes="${this.variant.annotation.consequenceTypes}" .active="${this.detailActiveTabs["annotationConsType"]}">
                                                 </variant-consequence-type-view>
                                             </div>
                                         </div>
                                         
                                         <div id="${this._prefix}annotationPropFreq" role="tabpanel" class="tab-pane">
                                             <div style="width: 90%;padding-top: 8px">
-                                                <cellbase-population-frequency-grid .populationFrequencies="${this.variant.annotation.populationFrequencies}">
+                                                <cellbase-population-frequency-grid .populationFrequencies="${this.variant.annotation.populationFrequencies}" .active="${this.detailActiveTabs["annotationPropFreq"]}">
                                                 </cellbase-population-frequency-grid>
                                             </div>
                                         </div>

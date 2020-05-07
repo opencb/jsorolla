@@ -111,7 +111,6 @@ export default class SimplePlot extends LitElement {
     }
 
     pieChart(param) {
-        console.error("pie", Object.entries(this.data).map( ([name, data]) => ({name: name, y: data})))
         Highcharts.chart(this._prefix + "chart", {
             chart: {
                 plotBackgroundColor: null,

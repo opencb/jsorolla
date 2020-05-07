@@ -223,103 +223,101 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                     }
                 </style>
             
-                <div>
-                    <div class="block">
-                        <label class="align-left">ID</label>
-                        <div class="align-right"><a target="_blank"
-                                                    href="http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${this.variantAnnotation.id}">${this.variantAnnotation.id}</a>
-                        </div>
-                        <br>
-                    </div>
-                    ${this.variantAnnotation.hgvs && this.variantAnnotation.hgvs.length ? html`
-                            <div class="block">
-                                <label class="align-left">HGVS</label>
-                                <div class="align-right">
-                                    ${this.variantAnnotation.hgvs.map(item => html`
-                                        ${item}<br>
-                                    `)}
-                                </div> <br>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3 class="section-title">Summary</h3>
+    
+                        <div class="col-md-12">
+                            <div class="form-horizontal">
+                                <div class="form-group">
+                                    <label class="col-md-3 label-title">Id</label>
+                                    <span class="col-md-9"><a target="_blank" href="http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${this.variantAnnotation.id}">${this.variantAnnotation.id}</a></span>
+                                </div>
+                                
+                                    ${this.variantAnnotation?.hgvs.length ? html`
+                                    <div class="form-group">
+                                        <label class="col-md-3 label-title">HGVS</label>
+                                        <span class="col-md-9">${this.variantAnnotation.hgvs.map(item => html` ${item}<br> `)}</span>
+                                    </div>
+                                    ` : null}
+                                    
+                                    <div class="form-group">
+                                        <label class="col-md-3 label-title">Alleles</label>
+                                        <span class="col-md-9">${this.variantAnnotation.reference}/${this.variantAnnotation.alternate}</span>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="col-md-3 label-title">Location</label>
+                                        <span class="col-md-9">
+                                            <a target="_blank" href="http://genomemaps.org/?region=${this.variantAnnotation.chromosome}:${this.variantAnnotation.start}">
+                                                ${this.variantAnnotation.chromosome}:${this.variantAnnotation.start}
+                                                ${this.variantAnnotation.end ? html`
+                                                    <div>-${this.variantAnnotation.end}</div>
+                                                `: null}
+                                            </a>
+                                        </span>
+                                    </div>
+                                    
+                                    ${this.variantAnnotation.type ? html`
+                                        <div class="form-group">
+                                            <label class="col-md-3 label-title">Type</label>
+                                            <span class="col-md-9">${this.variantAnnotation.type}</span>
+                                        </div>
+                                    ` : null }
+                                    
+                                    ${this.variantAnnotation.ancestralAllele ? html`
+                                        <div class="form-group">
+                                            <label class="col-md-3 label-title">Ancestral Allele</label>
+                                            <span class="col-md-9">${this.variantAnnotation.ancestralAllele}</span>
+                                        </div>
+                                    ` : null}
+                                    
+                                    ${this.variantAnnotation.minorAlleleFreq ? html`
+                                        <div class="form-group">
+                                            <label class="col-md-3 label-title">MAF</label>
+                                            <span class="col-md-9">${this.variantAnnotation.minorAlleleFreq} (${this.variantAnnotation.minorAllele})</span>
+                                        </div>
+                                    ` : null}
+                                    
+                                    <div class="form-group">
+                                        <label class="col-md-3 label-title">Most Severe Consequence Type</label>
+                                        <span class="col-md-9">
+                                            <span id="${this._prefix}CT">${this.variantAnnotation.displayConsequenceType}</span>
+                                            ${this.ctGene ? html`
+                                            <span>(<b>Gene</b> : ${this.ctGene}, <b>Transcript</b> : ${this.ctTranscript})</span>
+                                            ` : null }
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="col-md-3 label-title">Most Severe Deleterious Score</label>
+                                        <span class="col-md-9">
+                                            <span id="${this._prefix}Sift" title="${this.proteinSubScore.sift.score}">
+                                                ${this.proteinSubScore.sift.description}
+                                            </span>
+                                            ${this.isTranscriptAvailable(this.proteinSubScore.sift.transcript) ? html`
+                                                (<b>Gene:</b>{{proteinSubScore.sift.gene}, <b>Transcript: </b>{{proteinSubScore.sift.transcript})
+                                            ` : null }
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="col-md-3 label-title">Polyphen</label>
+                                        <span class="col-md-9">
+                                            <span id="${this._prefix}Polyphen" title="${this.proteinSubScore.polyphen.score}">${this.proteinSubScore.polyphen.description}</span>
+                                            ${this.isTranscriptAvailable(this.proteinSubScore.polyphen.transcript) ? html`
+                                                (<b>Gene:</b>${this.proteinSubScore.polyphen.gene}, <b>Transcript: </b>${this.proteinSubScore.polyphen.transcript})
+                                            ` : null}
+                                        </span>
+                                    </div>
+                                                                        
+                                    <div class="form-group">
+                                        <label class="col-md-3 label-title">CADD Scaled</label>
+                                        <span class="col-md-9"><span id="${this._prefix}Cadd">${this.caddScaled}</span></span>
+                                    </div>
                             </div>
-                        ` : null}
-                    <div class="block">
-                        <label class="align-left">Alleles</label>
-                        <div class="align-right">${this.variantAnnotation.reference}/${this.variantAnnotation.alternate}</div>
-                        <br>
-                    </div>
-                    <div class="block">
-                        <label class="align-left">Location</label>
-                        <div class="align-right">
-                            <a target="_blank" href="http://genomemaps.org/?region=${this.variantAnnotation.chromosome}:${this.variantAnnotation.start}">
-                                ${this.variantAnnotation.chromosome}:${this.variantAnnotation.start}
-                                ${this.variantAnnotation.end ? html`
-                                <div>-${this.variantAnnotation.end}</div>
-                            ` : null}
-                            </a>
                         </div>
-                        <br>
                     </div>
-                    ${this.isDataEmpty(this.variantAnnotation.type) ? html`
-                            <div class="block">
-                                <label class="align-left">Type</label>
-                                <div class="align-right">${this.variantAnnotation.type}</div>
-                                <br>
-                            </div>
-                    ` : null }
-                    ${this.isDataEmpty(this.variantAnnotation.ancestralAllele) ? html`
-                        <div class="block">
-                            <label class="align-left">Ancestral Allele</label>
-                            <div class="align-right">${this.variantAnnotation.ancestralAllele}</div>
-                            <br>
-                        </div>
-                    ` : null }
-                    ${this.isDataEmpty(this.variantAnnotation.minorAlleleFreq) ? html`
-                        <div class="block">
-                            <label class="align-left">MAF</label>
-                            <div class="align-right">${this.variantAnnotation.minorAlleleFreq} (${this.variantAnnotation.minorAllele})</div>
-                            <br>
-                         </div>
-                    ` : null }
-                    <div class="block">
-                        <label class="align-left">Most Severe Consequence Type</label>
-                        <div class="align-right"><span id="${this._prefix}CT">${this.variantAnnotation.displayConsequenceType}</span>
-                            ${this.isDataEmpty(this.ctGene) ? html`
-                                    <span>(<b>Gene</b> : ${this.ctGene}, <b>Transcript</b> : ${this.ctTranscript})</span>
-                                ` : null }
-                        </div>
-                        <br>
-                    </div>
-                    <div class="block">
-                        <label class="align-left">Most Severe Deleterious Score</label>
-                        <div class="align-right">
-                            <!-- Sift -->
-                            <div class="row" style="padding-left: 12px">
-                                <label style="width:10%">Sift</label>
-                                <span id="${this._prefix}Sift"
-                                      title="${this.proteinSubScore.sift.score}">${this.proteinSubScore.sift.description}</span>
-                                ${this.isTranscriptAvailable(this.proteinSubScore.sift.transcript) ? html`
-                                    (<b>Gene:</b>{{proteinSubScore.sift.gene}, <b>Transcript: </b>{{proteinSubScore.sift.transcript})
-                                ` : null }
-                                <br>
-                            </div>
-                            <!-- Polyphen -->
-                            <div class="row" style="padding-left: 12px">
-                                <label style="width:10%">Polyphen</label>
-                                <span id="${this._prefix}Polyphen" title="${this.proteinSubScore.polyphen.score}">${this.proteinSubScore.polyphen.description}</span>
-                                ${this.isTranscriptAvailable(this.proteinSubScore.polyphen.transcript) ? html`
-                                    (<b>Gene:</b>${this.proteinSubScore.polyphen.gene}, <b>Transcript: </b>${this.proteinSubScore.polyphen.transcript})
-                                ` : null}
-                                <br>
-                            </div>
-                            <!--CADD-->
-                            <div class="row" style="padding-left: 12px">
-                                <label style="width:10%">CADD Scaled</label>
-                                <span id="${this._prefix}Cadd">${this.caddScaled}</span>
-                                <br>
-                            </div>
-                        </div>
-                        <br>
-                    </div>
-            
                 </div>
                 <div id="${this._prefix}Traits"></div>
             </div>

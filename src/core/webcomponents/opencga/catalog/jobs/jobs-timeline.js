@@ -88,7 +88,6 @@ export default class JobsTimeline extends LitElement {
         };
         this.opencgaSession.opencgaClient.jobs().search(filters).then( restResponse => {
             const results = restResponse.getResults();
-            console.log(results);
             if (!results.length) {
                 this.querySelector("#svg-timeline").innerHTML = "No matching records found";
                 return;
@@ -185,6 +184,7 @@ export default class JobsTimeline extends LitElement {
         this.intervals.forEach((target, i) => {
             if (target.dependsOn && target.dependsOn.length) {
                 target.dependsOn.forEach(dep => {
+                    if (!dep || !dep.id) console.error("Dependant Job ID not defined dep", target)
                     const source = this.intervals.find(c => c.id === dep.id);
                     if (source) {
                         this.draw.line(source.end, source.y, target.start, target.y).stroke({
@@ -224,7 +224,7 @@ export default class JobsTimeline extends LitElement {
     drawTicks(num, height) {
         const minorTickSize = this.tick / this._config.minorTicks;
         for (let i = 0; i <= num; i++) {
-            for (let j = 1; j < this._config.minorTicks; j++) {
+            for (let j = 1; j <= this._config.minorTicks; j++) {
                 this.draw.line(this._config.board.originX + this.tick * i + minorTickSize * j, this._config.board.originY + 35, this._config.board.originX + this.tick * i + minorTickSize * j, height).stroke({
                     color: "#e0e0e0",
                     width: 1

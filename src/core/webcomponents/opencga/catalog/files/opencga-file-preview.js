@@ -163,7 +163,7 @@ export default class OpencgaFilePreview extends LitElement {
             }            
         </style>
         
-        <a href="${this.url}">Download</a>
+        <!--<a href="${this.url}">Download</a>-->
         ${this.file ? html`
             <div class="row" style="padding: 0px 10px">
                 <div class="col-md-12">
