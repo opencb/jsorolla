@@ -135,22 +135,39 @@ export default class VariantGridFormatter {
 
     snpFormatter(value, row, index) {
         /*
-            We try first to read SNP ID from the identifier of the variant (this identifier comes from the file).
-            If this ID is not a "rs..." (it is a variant with the format: "13:20277279:-:T") then we search
-            the rs in the CellBase XRef annotations. This field is in annotation.xref when source: "dbSNP".
+            We try first to read SNP ID from the 'names' of the variant (this identifier comes from the file).
+            If this ID is not a "rs..." then we search the rs in the CellBase XRef annotations.
+            This field is in annotation.xref when source: "dbSNP".
         */
-        if (typeof row.id !== "undefined" && row.id.startsWith("rs")) {
-            if (this.opencgaSession.project.organism && this.opencgaSession.project.organism.assembly === "GRCh37") {
-                return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + row.id + "'>" + row.id + "</a>";
-            } else {
-                return "<a target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + row.id + "'>" + row.id + "</a>";
+        let snpId = null;
+        if (row.names) {
+            for (let name of row.names) {
+                if (name.startsWith("rs")) {
+                    snpId = name;
+                    break;
+                }
             }
-        } else if (typeof row.annotation !== "undefined" && typeof row.annotation.xrefs !== "undefined" && row.annotation.xrefs.length > 0) {
-            let annotation = row.annotation.xrefs.find(function (element) {
-                return element.source === "dbSNP";
-            });
-            if (typeof annotation !== "undefined") {
-                return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + annotation.id + "'>" + annotation.id + "</a>";
+        } else {
+            if (row.annotation) {
+                if (row.annotation.id && row.annotation.id.startsWith("rs")) {
+                    snpId = row.annotation.id;
+                } else {
+                    if (row.annotation.xrefs) {
+                        for (let xref of row.annotation.xrefs) {
+                            if (xref.source === "dbSNP") {
+                                snpId = xref.id;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (snpId) {
+            if (this.opencgaSession.project.organism && this.opencgaSession.project.organism.assembly.toUpperCase() === "GRCH37") {
+                return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
+            } else {
+                return "<a target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
             }
         }
         return "-";
