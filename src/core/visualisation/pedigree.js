@@ -15,7 +15,7 @@
  */
 
 import UtilsNew from "../utilsNew.js";
-import {SVG} from "./../../core/svg.js";
+import {SVG} from "../svg.js";
 
 
 export default class Pedigree {
