@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
+import UtilsNew from "./../../../utilsNew.js";
 import "./select-field-filter.js";
 
 
@@ -23,6 +23,7 @@ export default class StudyFilter extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -34,47 +35,27 @@ export default class StudyFilter extends LitElement {
         return {
             opencgaSession: {
                 type: Object
-            },
-            // part of the query object
-            study: {
-                type: Object
             }
         };
     }
 
     _init() {
-        this._prefix = "sf-" + Utils.randomString(6) + "_";
+        this._prefix = "sf-" + UtilsNew.randomString(6);
+
         this.operator = ",";
+        this.selectedStudies = [];
         this.differentStudies = [];
-        this._studies = [];
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-    }
-
-
-    updated(_changedProperties) {
-        if (_changedProperties.has("opencgaSession")) {
-            this.primaryProject = this.opencgaSession.study.fqn;
-            this._studies = [this.primaryProject];
+    updated(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.selectedStudies = [this.opencgaSession.study.fqn];
             if (this.opencgaSession.project.studies.length) {
-                this.differentStudies = this.opencgaSession.project.studies.filter( study => this.opencgaSession.study.alias !== study.alias);
+                this.differentStudies = this.opencgaSession.project.studies.filter(study => this.opencgaSession.study.id !== study.id);
             }
             this.requestUpdate().then( () => {
                 $(".selectpicker", this).selectpicker("refresh");
-                //$(".selectpicker", this).selectpicker("val", this.opencgaSession.study.fqn);
             });
-
-        }
-
-        if (_changedProperties.has("study")) {
-            this._studies = this.study ? this.study.split(new RegExp("[,;]")) : [this.primaryProject];
-            $(".selectpicker", this).selectpicker("val", this._studies);
-            this.requestUpdate();
-            // this shouldn't be necessary since this.study is being updated..
-            // this.requestUpdate();
-            // NOTE Do NOT fire filterChange in updated(), it would interferes with other filters changes and active-filters
         }
     }
 
@@ -82,10 +63,10 @@ export default class StudyFilter extends LitElement {
         let querystring;
         // AND or OR operators
         if (this.operator !== "!") {
-            querystring = [...this._studies.map(study => `${study}`)].join(this.operator);
+            querystring = [...this.selectedStudies.map(study => `${study}`)].join(this.operator);
         } else {
             // NOT operator (not visible/not implemented)
-            querystring = [...this._studies.map(study => `${this.operator}${study}`)].join(";");
+            querystring = [...this.selectedStudies.map(study => `${this.operator}${study}`)].join(";");
         }
         const event = new CustomEvent("filterChange", {
             detail: {
@@ -100,64 +81,69 @@ export default class StudyFilter extends LitElement {
         this.filterChange();
     }
 
-    onChangeStudy(e) {
-        console.log(e);
-        console.log($(".selectpicker", this).selectpicker("val"));
-
-        const study = e.target.dataset.id;
-        if (e.target.checked) {
-            this._studies.push(study);
-        } else {
-            const indx = this._studies.indexOf(study);
-            if (!~indx) {
-                console.error("Trying to remove non active study");
-            } else {
-                this._studies.splice(indx);
-            }
-        }
-        this.filterChange();
-    }
+    // onChangeStudy(e) {
+    //     const study = e.target.dataset.id;
+    //     if (e.target.checked) {
+    //         this.selectedStudies.push(study);
+    //     } else {
+    //         const indx = this.selectedStudies.indexOf(study);
+    //         if (!~indx) {
+    //             console.error("Trying to remove non active study");
+    //         } else {
+    //             this.selectedStudies.splice(indx);
+    //         }
+    //     }
+    //     this.filterChange();
+    // }
 
     onChangeSelectedStudy() {
         const selected = $(".selectpicker", this).selectpicker("val");
-        this._studies = [this.primaryProject, ...selected];
+        // Active study is always the first element
+        this.selectedStudies = [this.opencgaSession.study.fqn, ...selected];
         this.requestUpdate();
         this.filterChange();
     }
 
     render() {
+        // Check Project exists
+        if (!this.opencgaSession && !this.opencgaSession.project) {
+            return html`
+                <div class="guard-page">
+                    <i class="fas fa-lock fa-5x"></i>
+                    <h3>No project available to browse. Please login to continue</h3>
+                </div>
+            `;
+        }
+
         return html`
            <!-- <select class="form-control input-sm ${this._prefix}FilterSelect" id="${this._prefix}includeOtherStudy"
                     @change="${this.onChangeOperator}">
                     <option value="in" selected>In all (AND)</option>
                     <option value="atleast">In any of (OR)</option>
                 </select>
-            
                 <input type="checkbox" value="${this.opencgaSession.study.alias}" data-id="${this.opencgaSession.study.id}" checked disabled>
                 <span style="font-weight: bold;font-style: italic;color: darkred">${this.opencgaSession.study.alias}</span>
                 ${this.differentStudies && this.differentStudies.length ? this.differentStudies.map(study => html`
-                    <br>
-                    <input id="${this._prefix}${study.alias}Checkbox" type="checkbox" @change="${this.onChangeStudy}" value="${study.alias}" data-id="${study.fqn}" class="${this._prefix}FilterCheckBox" .checked="${~this._studies.indexOf(study.fqn)}" >
+                    <input id="${this._prefix}${study.alias}Checkbox" type="checkbox" @change="${this.onChangeStudy}" value="${study.alias}" data-id="${study.fqn}" class="${this._prefix}FilterCheckBox" .checked="${~this.selectedStudies.indexOf(study.fqn)}" >
                      ${study.alias}
                  `) : null}
-                
            --> 
                 
-                
             <div id="${this._prefix}DifferentStudies" class="form-group">
-                <br>
                 <select multiple class="form-control input-sm selectpicker" id="${this._prefix}includeOtherStudy"
                     @change="${this.onChangeSelectedStudy}">
                     <option value="${this.opencgaSession.study.fqn}" selected="selected" disabled>${this.opencgaSession.study.name}</option>
-                    ${this.differentStudies.length ? this.differentStudies.map(study => html`
-                        <option value="${study.fqn}">${study.name}</option>
-                    `) : null }
+                    ${this.differentStudies.length > 0 
+                        ? this.differentStudies.map(study => html`
+                            <option value="${study.fqn}">${study.name}</option>`) 
+                        : null
+                    }
                 </select>
                 <fieldset class="switch-toggle-wrapper">
                     <div class="switch-toggle text-white alert alert-light">
-                        <input id="${this._prefix}orInput" name="pss" type="radio" value="," checked ?disabled="${this._studies.length < 2}" @change="${this.onChangeOperator}" />
+                        <input id="${this._prefix}orInput" name="pss" type="radio" value="," checked ?disabled="${this.selectedStudies.length < 2}" @change="${this.onChangeOperator}" />
                         <label for="${this._prefix}orInput" class="rating-label rating-label-or">In any of (OR)</label>
-                        <input id="${this._prefix}andInput" name="pss" type="radio" value=";" ?disabled="${this._studies.length < 2}" @change="${this.onChangeOperator}"/>
+                        <input id="${this._prefix}andInput" name="pss" type="radio" value=";" ?disabled="${this.selectedStudies.length < 2}" @change="${this.onChangeOperator}"/>
                         <label for="${this._prefix}andInput" class="rating-label rating-label-and">In all (AND)</label>
                         <a class="btn btn-primary ripple btn-small"></a>
                     </div>
@@ -165,7 +151,6 @@ export default class StudyFilter extends LitElement {
             </div>
         `;
     }
-
 }
 
 customElements.define("study-filter", StudyFilter);

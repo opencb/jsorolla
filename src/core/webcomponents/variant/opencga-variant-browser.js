@@ -433,7 +433,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                         fields: [
                             {
                                 id: "study",
-                                title: "Studies Filter",
+                                title: "Study Filter",
                                 tooltip: tooltips.study
                             },
                             {

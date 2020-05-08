@@ -404,14 +404,14 @@ export default class OpencgaVariantFilter extends LitElement {
                                 <!--TODO verify if cadd condition works-->
                                 
                                 ${section.fields && section.fields.length && section.fields.map(field => html`
-                                    ${this.config.skipSubsections && this.config.skipSubsections.length && !!~this.config.skipSubsections.indexOf(field.id) ? null : this._createSubSection(field)}
+                                    ${this.config.skipSubsections && this.config.skipSubsections.length && !!~this.config.skipSubsections.indexOf(field.id) 
+                                        ? null 
+                                        : this._createSubSection(field)}
                                 `)}
-                            
                              </div>
                         </div>
                     </div>
                 `;
-
     }
 
     _createSubSection(subsection) {
@@ -421,10 +421,9 @@ export default class OpencgaVariantFilter extends LitElement {
         let content = "";
         switch (subsection.id) {
             case "study":
-                /*if (this.opencgaSession.project.studies.length < 2) {
-                    return "";
-                }*/
-                content = html`<study-filter .opencgaSession="${this.opencgaSession}" .study="${this.preparedQuery.study}" @filterChange="${e => this.onFilterChange("study", e.detail.value)}"></study-filter>`;
+                if (this.opencgaSession.project.studies.length > 1) {
+                    content = html`<study-filter .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("study", e.detail.value)}"></study-filter>`;
+                }
                 break;
             case "cohort":   //._cohorts="${this._cohorts}"
                 content = html`<cohort-stats-filter .opencgaSession="${this.opencgaSession}" 
@@ -497,18 +496,22 @@ export default class OpencgaVariantFilter extends LitElement {
                 console.error("Filter component not found");
         }
 
-        return html`
-                    <div class="form-group">
-                        <div class="browser-subsection" id="${subsection.id}">${subsection.title}
-                            <div class="tooltip-div pull-right">
-                                <a><i class="fa fa-info-circle" aria-hidden="true" id="${this._prefix}${subsection.id}Tooltip"></i></a>
-                            </div>
+        // In some rare cases the filter might empty, for instance study-filter is empty if ONLY on study exist in that study.
+        // We need to avoid rendering empty filters.
+        if (content !== "") {
+            return html`
+                <div class="form-group">
+                    <div class="browser-subsection" id="${subsection.id}">${subsection.title}
+                        <div class="tooltip-div pull-right">
+                            <a><i class="fa fa-info-circle" aria-hidden="true" id="${this._prefix}${subsection.id}Tooltip"></i></a>
                         </div>
-                        <div id="${this._prefix}${subsection.id}" class="subsection-content ${ctScroll}">
-                            ${content}
-                         </div>
                     </div>
-                `;
+                    <div id="${this._prefix}${subsection.id}" class="subsection-content ${ctScroll}">
+                        ${content}
+                     </div>
+                </div>
+             `;
+        }
     }
 
     _addAllTooltips() {
