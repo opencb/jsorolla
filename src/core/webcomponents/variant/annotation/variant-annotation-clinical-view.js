@@ -269,8 +269,7 @@ export default class VariantAnnotationClinicalView extends LitElement {
 
     render() {
         return html`
-            <div style="padding: 10px 20px">
-                <h3>Variant Trait Associations</h3>
+            <div style="padding: 20px">
                 <table id="${this._prefix}ConsequenceTypeTable"></table>
             </div>
         `;

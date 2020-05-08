@@ -312,7 +312,7 @@ export default class OpenCGAVariantDetailView extends LitElement {
                 },
                 {
                     id: "annotationClinical",
-                    title: "Clinical"
+                    title: "Clinical Info"
                 },
                 {
                     id: "cohortStats",

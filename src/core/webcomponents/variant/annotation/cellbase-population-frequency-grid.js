@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
+import {html, LitElement} from "/web_modules/lit-element.js";
+import UtilsNew from "./../../../utilsNew.js";
 
 export default class CellbasePopulationFrequencyGrid extends LitElement {
 
@@ -41,19 +41,27 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
     }
 
     _init() {
-        this._prefix = "cpfg-" + Utils.randomString(6) + "_";
+        this._prefix = "cpfg-" + UtilsNew.randomString(6);
         this.populationFrequencies = [];
         this.gridId = this._prefix + "populationFreqTable"
     }
 
     updated(changedProperties) {
         if ((changedProperties.has("populationFrequencies") || changedProperties.has("active")) && this.active) {
-            this.update2();
+            this.renderPlot();
+            this.renderTable();
         }
     }
 
-    //it was render();
-    update2() {
+    alleleFormatter(value, row, index) {
+        return row.refAllele + "/" + row.altAllele;
+    }
+
+    freqFormatter(value, row, index) {
+        return (value !== 0 && value !== 1) ? Number(value).toFixed(4) : value;
+    }
+
+    renderPlot() {
         let popArray = [];
         let mafArray = [];
         if (typeof this.populationFrequencies !== "undefined") {
@@ -116,63 +124,110 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
                 data: mafArray
             }]
         });
+    }
 
-        // Population grid definition
+    renderTable() {
         let _this = this;
-        console.log("_this.populationFrequencies",_this.populationFrequencies)
         $("#" + this.gridId).bootstrapTable("destroy");
         $("#" + this.gridId).bootstrapTable({
             data: _this.populationFrequencies,
             pageSize: 5,
             showPaginationSwitch: true,
             search: true,
-            showColumns: true,
+            showColumns: false,
             pagination: true,
-            pageList: [5, 15, 30],
+            pageList: [5, 10, 25],
             showExport: true,
             columns: [
                 [
                     {
                         title: "Study",
                         field: "study",
+                        rowspan: 2,
+                        colspan: 1,
                         sortable: true
                     },
                     {
                         title: "Population",
-                        field: "population"
+                        field: "population",
+                        rowspan: 2,
+                        colspan: 1,
                     },
                     {
                         title: "Ref/Alt",
-                        formatter: _this.alleleFormatter
+                        formatter: _this.alleleFormatter,
+                        rowspan: 2,
+                        colspan: 1,
                     },
                     {
-                        title: "RefAlleleFreq",
+                        title: "Allele Frequency",
+                        rowspan: 1,
+                        colspan: 2,
+                        formatter: _this.alleleFormatter,
+                        halign: "center"
+                    },
+                    {
+                        title: "Genotype Frequency",
+                        rowspan: 1,
+                        colspan: 3,
+                        formatter: _this.alleleFormatter,
+                        halign: "center"
+                    },
+                ],
+                [
+                    {
+                        title: "Reference",
                         field: "refAlleleFreq",
+                        rowspan: 1,
+                        colspan: 1,
                         sortable: true,
-                        formatter: _this.numFormatter
+                        formatter: _this.freqFormatter,
+                        halign: "center",
+                        align: "right"
                     },
                     {
-                        title: "AltAlleleFreq",
+                        title: "Alternate",
                         field: "altAlleleFreq",
+                        rowspan: 1,
+                        colspan: 1,
                         sortable: true,
-                        formatter: _this.numFormatter
+                        formatter: _this.freqFormatter,
+                        halign: "center",
+                        align: "right"
+                    },
+                    {
+                        title: "Ref/Ref",
+                        field: "refHomGenotypeFreq",
+                        rowspan: 1,
+                        colspan: 1,
+                        sortable: true,
+                        formatter: _this.freqFormatter,
+                        halign: "center",
+                        align: "right"
+                    },
+                    {
+                        title: "Ref/Alt",
+                        field: "hetGenotypeFreq",
+                        rowspan: 1,
+                        colspan: 1,
+                        sortable: true,
+                        formatter: _this.freqFormatter,
+                        halign: "center",
+                        align: "right"
+                    },
+                    {
+                        title: "Alt/Alt",
+                        field: "altHomGenotypeFreq",
+                        rowspan: 1,
+                        colspan: 1,
+                        sortable: true,
+                        formatter: _this.freqFormatter,
+                        halign: "center",
+                        align: "right"
                     }
                 ]
             ]
         });
-
-    }
-
-    alleleFormatter(value, row, index) {
-        return row.refAllele + "/" + row.altAllele;
-    }
-
-    numFormatter(value, row, index) {
-        if (this.field === "refAlleleFreq") {
-            return Number(row.refAlleleFreq).toFixed(4);
-        } else if (this.field === "altAlleleFreq") {
-            return Number(row.altAlleleFreq).toFixed(4);
-        }
     }
 
     render() {
@@ -180,14 +235,12 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
             return;
         }
         return html`
-            <div style="padding: 10px;">
-                <table id="${this.gridId}">
-                </table>
+            <div style="padding: 20px">
+                <table id="${this.gridId}"></table>
                 <div id="${this._prefix}Container"></div>
             </div>
         `;
     }
-
 }
 
 customElements.define("cellbase-population-frequency-grid", CellbasePopulationFrequencyGrid);
