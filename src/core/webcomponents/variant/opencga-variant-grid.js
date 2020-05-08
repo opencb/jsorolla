@@ -692,9 +692,8 @@ export default class OpencgaVariantGrid extends LitElement {
             const cohortStats = new Map();
             for (const study of row.studies) {
                 if (study.studyId === this.field.study) {
-                    for (const cohortId in study.stats) {
-                        const cohortStat = study.stats[cohortId];
-                        cohortStats.set(cohortId, Number(cohortStat.maf).toFixed(4));
+                    for (const cohortStat of study.stats) {
+                        cohortStats.set(cohortStat.cohortId, Number(cohortStat.altAlleleFreq).toFixed(4));
                     }
                     break;
                 }
@@ -715,7 +714,6 @@ export default class OpencgaVariantGrid extends LitElement {
                     popFreqMap.set(popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
                 }
             }
-
             return this.field.context.variantGridFormatter.createPopulationFrequenciesTable(this.field.populations,
                 popFreqMap, this.field.context.populationFrequencies.style);
         } else {
