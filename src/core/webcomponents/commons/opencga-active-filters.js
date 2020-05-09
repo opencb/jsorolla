@@ -512,11 +512,11 @@ export default class OpencgaActiveFilters extends LitElement {
         </style>
         ${ this.facetActive ? html`
             <div class="alert alert-warning filter-warning" role="alert" id="${this._prefix}Warning" style="">
-                <span style="font-weight: bold;font-size: 1.20em">Warning!</span>&nbsp;&nbsp;Filters or Facet has changed, please click on <button type="button" class="btn btn-primary ripple ripple-disabled">
-                    <i class="fa arrow-circle-right" aria-hidden="true"></i> Run </button> to update the results.
+                <span><strong>Warning!</strong></span>&nbsp;&nbsp;Filters or Facet has changed, please click on <button type="button" class="btn btn-primary btn-small ripple ripple-disabled">
+                    <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> Run </button> to update the results.
             </div>` : html`
             <div class="alert alert-warning filter-warning" role="alert" id="${this._prefix}Warning" style="">
-                <span style="font-weight: bold;font-size: 1.20em">Warning!</span>&nbsp;&nbsp;Filters changed, please click on <button type="button" class="btn btn-primary ripple ripple-disabled">
+                <span><strong>Warning!</strong></span>&nbsp;&nbsp;Filters changed, please click on <button type="button" class="btn btn-primary btn-small ripple ripple-disabled">
                     <i class="fa fa-search" aria-hidden="true"></i> Search </button> to update the results.
             </div>
         `}
