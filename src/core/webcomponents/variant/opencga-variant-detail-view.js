@@ -15,13 +15,13 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../utils.js";
 import UtilsNew from "./../../utilsNew.js";
 import "./annotation/cellbase-variant-annotation-summary.js";
 import "./annotation/variant-consequence-type-view.js";
-import "./annotation/variant-annotation-clinical-view.js";
 import "./annotation/cellbase-population-frequency-grid.js";
+import "./annotation/variant-annotation-clinical-view.js";
 import "./opencga-variant-cohort-stats.js";
+import "./opencga-variant-samples.js";
 
 export default class OpenCGAVariantDetailView extends LitElement {
 
@@ -57,7 +57,7 @@ export default class OpenCGAVariantDetailView extends LitElement {
     }
 
     _init() {
-        this._prefix = "ovdv-" + Utils.randomString(6) + "_";
+        this._prefix = "ovdv-" + UtilsNew.randomString(6);
         // FIXME in case of region as a prop (with value = this.query.region from variant-filter) in case opencga-active-filter deletes a region filter this component is not updated.
         // A temp solution is to add query as prop and watch for its edits in updated() [this.region as prop is not used anymore].
         this.detailActiveTabs = {};
@@ -189,7 +189,6 @@ export default class OpenCGAVariantDetailView extends LitElement {
                                         </div>
              -->
                                         
-                                        
                                          <!-- Annotation Tab -->
                                         <div id="${this._prefix}annotationSummary" role="tabpanel" class="tab-pane active">
                                             <div style="width: 90%;padding-top: 8px">
@@ -203,14 +202,16 @@ export default class OpenCGAVariantDetailView extends LitElement {
                                         
                                         <div id="${this._prefix}annotationConsType" role="tabpanel" class="tab-pane">
                                             <div style="width: 90%;padding-top: 8px">
-                                                <variant-consequence-type-view  .consequenceTypes="${this.variant.annotation.consequenceTypes}" .active="${this.detailActiveTabs["annotationConsType"]}">
+                                                <variant-consequence-type-view  .consequenceTypes="${this.variant.annotation.consequenceTypes}" 
+                                                                                .active="${this.detailActiveTabs["annotationConsType"]}">
                                                 </variant-consequence-type-view>
                                             </div>
                                         </div>
                                         
                                         <div id="${this._prefix}annotationPropFreq" role="tabpanel" class="tab-pane">
                                             <div style="width: 90%;padding-top: 8px">
-                                                <cellbase-population-frequency-grid .populationFrequencies="${this.variant.annotation.populationFrequencies}" .active="${this.detailActiveTabs["annotationPropFreq"]}">
+                                                <cellbase-population-frequency-grid .populationFrequencies="${this.variant.annotation.populationFrequencies}" 
+                                                                                    .active="${this.detailActiveTabs["annotationPropFreq"]}">
                                                 </cellbase-population-frequency-grid>
                                             </div>
                                         </div>
@@ -239,7 +240,7 @@ export default class OpenCGAVariantDetailView extends LitElement {
                                         <div id="${this._prefix}samples" role="tabpanel" class="tab-pane">
                                             <div style="width: 75%;padding-top: 8px">
                                                 <opencga-variant-samples .opencgaSession="${this.opencgaSession}"
-                                                                         variant="${this.variant.id}"
+                                                                         variantId="${this.variant.id}"
                                                                          .active="${this.detailActiveTabs.samples}">
                                                 </opencga-variant-samples>
                                             </div>

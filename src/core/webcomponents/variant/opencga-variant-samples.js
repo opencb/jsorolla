@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../utils.js";
+import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import PolymerUtils from "../PolymerUtils.js";
 
 
 export default class OpencgaVariantSamples extends LitElement {
@@ -28,261 +26,39 @@ export default class OpencgaVariantSamples extends LitElement {
         this._init();
     }
 
+    createRenderRoot() {
+        return this;
+    }
+
     static get properties() {
         return {
             opencgaSession: {
                 type: Object
             },
-            variant: {
+            variantId: {
                 type: String,
-                //observer: "variantObserver"
             },
             active: {
                 type: Boolean,
-                //observer: "activeObserver"
             }
         };
     }
 
     _init() {
-        this._prefix = "ovcs" + Utils.randomString(6);
-        this.catalogUiUtils = new CatalogUIUtils();
+        this._prefix = "ovcs" + UtilsNew.randomString(6);
+
         this.active = false;
+        this.gridId = this._prefix + "SampleTable";
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("variant") || changedProperties.has("active")) {
-            this.activeObserver();
+        if ((changedProperties.has("variantId") || changedProperties.has("active")) && this.active) {
+            this.renderTable();
         }
     }
 
-    activeObserver(e) {
-        this._querySamples(e);
-    }
-
-    variantObserver(e) {
-        this._querySamples(e);
-    }
-
-    _querySamples(e) {
-        if (UtilsNew.isNotUndefinedOrNull(this.variant) && this.variant.split(":").length > 2 && this.active) {
-            let params = {
-                id: this.variant,
-                study: this.opencgaSession.study.fqn,
-                // genotype: "0/1,0|1",
-                sid: this.opencgaSession.opencgaClient._config.sessionId,
-                limit: 100
-            };
-
-            // this.samplesHet = [];
-            // this.samplesHomAlt = [];
-
-            // shows loading modal
-            $(PolymerUtils.getElementById(this._prefix + "LoadingModal")).modal("show");
-
-            let _this = this;
-            setTimeout(() => {
-                PolymerUtils.hide(_this._prefix + "Warning");
-                this.opencgaSession.opencgaClient.variants().sampleData(_this.variant, params)
-                    .then(function(response) {
-                        let result = response.response[0].result[0];
-
-                        // Clear everything
-                        _this.samplesHet = [];
-                        _this.samplesHetSize = 0;
-                        _this.showSamplesHetTable = false;
-                        PolymerUtils.innerHTML(_this._prefix + "HetTBody", "");
-                        _this.samplesHomAlt = [];
-                        _this.samplesHomAltSize = 0;
-                        _this.showSamplesHomAltTable = false;
-                        PolymerUtils.innerHTML(_this._prefix + "HomAltTBody", "");
-                        _this.samplesNA = [];
-                        _this.samplesNASize = 0;
-                        _this.showSamplesNATable = false;
-                        PolymerUtils.innerHTML(_this._prefix + "NATBody", "");
-
-                        // For each genotype in the response.samples
-                        for (let gt in result.samples) {
-                            let sampleInfo = [];
-                            let sampleIds = [];
-                            for (let sample of result.samples[gt]) {
-                                sampleInfo.push(sample);
-                                sampleIds.push(sample.id);
-                            }
-
-                            // Fetch INDIVIDUAL information from samples
-                            if (UtilsNew.isNotEmptyArray(sampleIds)) {
-                                _this.opencgaSession.opencgaClient.samples().info(sampleIds.join(","),
-                                    {
-                                        study: _this.opencgaSession.study.fqn,
-                                        includeIndividual: true
-                                    })
-                                    .then(function(response) {
-                                        let tr = "";
-                                        for (let i = 0; i < response.response.length; i++) {
-                                            let individual = response.response[i].result[0].attributes.OPENCGA_INDIVIDUAL;
-
-                                            if (UtilsNew.isEmpty(individual)) {
-                                                individual = {
-                                                    id: "Not found",
-                                                    disorders: undefined,
-                                                    phenotypes: undefined
-                                                };
-                                            }
-
-                                            if (UtilsNew.isNotEmpty(individual)) {
-                                                sampleInfo[i].individualId = individual.id;
-
-                                                let disordersHtml = "";
-                                                sampleInfo[i].disorders = [];
-                                                if (UtilsNew.isNotEmptyArray(individual.disorders)) {
-                                                    for (let disorder of individual.disorders) {
-                                                        let disorderHtmlContent = "-";
-                                                        if (UtilsNew.isNotUndefinedOrNull(disorder)) {
-                                                            sampleInfo[i].disorders.push(disorder.id);
-                                                            disorderHtmlContent = disorder.name + " (" + disorder.id + ")";
-                                                        }
-                                                        disordersHtml += "<div>" + disorderHtmlContent + "</div>";
-                                                    }
-                                                }
-
-                                                let phenotypeTooltipText = "";
-                                                sampleInfo[i].phenotypes = [];
-                                                if (UtilsNew.isNotEmptyArray(individual.phenotypes)) {
-                                                    for (let phenotype of individual.phenotypes) {
-                                                        sampleInfo[i].phenotypes.push(phenotype.id);
-                                                        phenotypeTooltipText += `<div style="padding: 5px">`;
-                                                        if (UtilsNew.isNotUndefinedOrNull(phenotype.source) && phenotype.source.toUpperCase() === "HPO") {
-                                                            phenotypeTooltipText += `<span>
-                                                                                                <a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})
-                                                                                            </span>
-                                                                        `;
-                                                        } else {
-                                                            phenotypeTooltipText += `<span>${phenotype.id} (${phenotype.status})</span>`;
-                                                        }
-                                                        phenotypeTooltipText += "</div>";
-                                                    }
-                                                }
-
-                                                let phenotypes = `<div class="phenotypesTooltip" data-tooltip-text='${phenotypeTooltipText}' align="center">
-                                                                            <a style="cursor: pointer">
-                                                                                ${individual.phenotypes !== undefined ? individual.phenotypes.length : 0} terms found
-                                                                            </a>
-                                                                        </div>
-                                                            `;
-
-                                                let variantDataFields = [];
-                                                let attributes = result.files[sampleInfo[i].fileId].attributes;
-                                                variantDataFields.push(`<div class="col-md-12" style="padding: 5px 5px">
-                                                                            <form class="form-horizontal">
-                                                                                <label>File Info Data</label>`);
-                                                for (let formatField in attributes) {
-                                                    let html = `<div class="form-group" style="margin: 0px 2px">
-                                                                            <label class="col-md-5">${formatField}</label>
-                                                                            <div class="col-md-7">${attributes[formatField]}</div>
-                                                                        </div>`;
-                                                    variantDataFields.push(html);
-                                                }
-                                                variantDataFields.push("</form></div>");
-
-                                                variantDataFields.push(`<div class="col-md-12" style="padding: 5px 5px">
-                                                                            <form class="form-horizontal">
-                                                                                <label>Sample Format Data</label>`);
-                                                for (let formatField in sampleInfo[i].sampleData) {
-                                                    let html = `<div class="form-group" style="margin: 0px 2px">
-                                                                        <label class="col-md-5">${formatField}</label>
-                                                                        <div class="col-md-7">${sampleInfo[i].sampleData[formatField]}</div>
-                                                                    </div>`;
-                                                    variantDataFields.push(html);
-                                                }
-                                                variantDataFields.push("</form></div>");
-
-                                                let variantDataHtml = `<div class="formatTooltip" data-tooltip-text='${variantDataFields.join("")}' align="center">
-                                                                            <a style="cursor: pointer">
-                                                                                View fields
-                                                                            </a>
-                                                                        </div>
-                                                            `;
-                                                tr += `<tr class="detail-view-row">
-                                                                            <td>${sampleInfo[i].id}</td>
-                                                                            <td>${sampleInfo[i].individualId}</td>
-                                                                            <td>${disordersHtml !== "" ? disordersHtml : "-"}</td>
-                                                                            <td>${phenotypes}</td>
-                                                                            <td>${variantDataHtml}</td>
-                                                                            <td>${sampleInfo[i].fileId}</td>
-                                                                       </tr>`;
-                                            }
-                                        }
-
-                                        switch (gt) {
-                                        case "0/1":
-                                            _this.showSamplesHetTable = true;
-                                            _this.samplesHetSize = sampleInfo.length;
-                                            _this.samplesHet = sampleInfo;
-                                            PolymerUtils.innerHTML(_this._prefix + "HetTBody", tr);
-                                            break;
-                                        case "1/1":
-                                            _this.showSamplesHomAltTable = true;
-                                            _this.samplesHomAltSize = sampleInfo.length;
-                                            _this.samplesHomAlt = sampleInfo;
-                                            PolymerUtils.innerHTML(_this._prefix + "HomAltTBody", tr);
-                                            break;
-                                        case "NA":
-                                            _this.showSamplesNATable = true;
-                                            _this.samplesNASize = sampleInfo.length;
-                                            _this.samplesNA = sampleInfo;
-                                            PolymerUtils.innerHTML(_this._prefix + "NATBody", tr);
-                                            break;
-                                        }
-                                        if (response.response.length === 100) {
-                                            PolymerUtils.show(_this._prefix + "Warning");
-                                        }
-                                        _this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
-                                        _this.catalogUiUtils.addTooltip("div.formatTooltip", "Variant Data");
-                                        _this.catalogUiUtils.addTooltip("div.infoTooltip", "File Info Fields");
-                                    });
-                            } else {
-                                switch (gt) {
-                                case "0/1":
-                                    _this.showSamplesHetTable = false;
-                                    _this.samplesHetSize = sampleInfo.length;
-                                    _this.samplesHet = [];
-                                    PolymerUtils.innerHTML(_this._prefix + "HetTBody", "");
-                                    break;
-                                case "1/1":
-                                    _this.showSamplesHomAltTable = false;
-                                    _this.samplesHomAltSize = sampleInfo.length;
-                                    _this.samplesHomAlt = [];
-                                    PolymerUtils.innerHTML(_this._prefix + "HomAltTBody", "");
-                                    break;
-                                case "NA":
-                                    _this.showSamplesNATable = false;
-                                    _this.samplesNASize = sampleInfo.length;
-                                    _this.samplesNA = [];
-                                    PolymerUtils.innerHTML(_this._prefix + "NATBody", "");
-                                    break;
-                                }
-                            }
-                        }
-                        $(PolymerUtils.getElementById(_this._prefix + "LoadingModal")).modal("hide");
-                    })
-                    .catch(function(reason) {
-                        console.error(reason);
-                        $(PolymerUtils.getElementById(_this._prefix + "LoadingModal")).modal("hide");
-                    });
-            }, 200);
-        }
-    }
-
-    handleCollapseAction(e) {
-        let id = e.target.dataset.id;
-        let elem = $("#" + this._prefix + id)[0];
-        elem.hidden = !elem.hidden;
-        if (elem.hidden) {
-            e.target.className = "fa fa-plus-circle";
-        } else {
-            e.target.className = "fa fa-minus-circle";
-        }
+    firstUpdated(_changedProperties) {
+        this.table = this.querySelector("#" + this.gridId);
     }
 
     _downloadSamples() {
@@ -311,45 +87,244 @@ export default class OpencgaVariantSamples extends LitElement {
 
     }
 
-    _createDefaultColumns() {
-        let columns = [
+    genoypeFormatter(value, row, index) {
+        if (value && value.data && value.data.length > 0) {
+            let gt = value.data[0];
+            let color = gt === "0/1" || gt === "0|1" || gt === "1|0" ? "darkorange" : "red";
+            return `<span style="color: ${color}">${value.data[0]}</span>`;
+        } else {
+            return "-";
+        }
+    }
+
+    variantFormatter(value, row, index) {
+        if (value && value.file && value.dataKeys && value.data && value.dataKeys.length === value.data.length) {
+            let fileInfo = `Filter: ${value.file.data["FILTER"]}; Qual: ${value.file.data["QUAL"]}`;
+            let sampleFormat = [];
+            for (let i = 0; i < value.dataKeys.length; i++) {
+                if (value.dataKeys[i].toUpperCase() !== "GT") {
+                    sampleFormat.push(`${value.dataKeys[i]}=${value.data[i]}`);
+                }
+            }
+            return fileInfo + "<br>" + sampleFormat.join("; ");
+        } else {
+            return "-";
+        }
+    }
+
+    individualFormatter(value, row, index) {
+        if (value) {
+            return value;
+        } else {
+            return "-";
+        }
+    }
+
+    sexFormatter(value, row, index) {
+        if (value) {
+            return `${value.sex} (${value.karyotypicSex})`;
+        } else {
+            return "-";
+        }
+    }
+
+    phenotypeFormatter(value, row, index) {
+        if (value && value.phenotypes) {
+            let phenotypeTooltipText = "";
+            for (const phenotype of value.phenotypes) {
+                phenotypeTooltipText += "<div style=\"padding: 5px\">";
+                if (UtilsNew.isNotUndefinedOrNull(phenotype.source) && phenotype.source.toUpperCase() === "HPO") {
+                    phenotypeTooltipText += `<span>
+                                                <a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})
+                                             </span>`;
+                } else {
+                    phenotypeTooltipText += `<span>${phenotype.id} (${phenotype.status})</span>`;
+                }
+                phenotypeTooltipText += "</div>";
+            }
+
+            return `<div class="phenotypesTooltip" data-tooltip-text='${phenotypeTooltipText}' align="center">
+                        <a style="cursor: pointer">${value.phenotypes.length} terms found</a>
+                    </div>`;
+        } else {
+            return "-";
+        }
+    }
+
+    disorderFormatter(value, row, index) {
+        if (value) {
+            let disordersHtml = "<div>";
+            for (const disorder of value.disorders) {
+                disordersHtml += `<span>${disorder.id}</span>`;
+            }
+            disordersHtml += "</div>";
+            return disordersHtml;
+        } else {
+            return "-";
+        }
+    }
+
+    renderTable() {
+        if (!this.opencgaSession) {
+            return;
+        }
+
+        $("#" + this.gridId).bootstrapTable("destroy");
+        $("#" + this.gridId).bootstrapTable({
+            pagination: true,
+            sidePagination: "server",
+            columns: this.getColumns(),
+            ajax: params => {
+                let tableOptions = $(this.table).bootstrapTable("getOptions");
+                let limit = tableOptions.pageSize || 10;
+                let skip = tableOptions.pageNumber ? tableOptions.pageNumber * limit - limit :  0;
+                let query = {
+                    variant: this.variantId,
+                    study: this.opencgaSession.study.fqn,
+                    // genotype: "0/1,0|1",
+                    skip: skip,
+                    limit: limit
+                };
+
+                let _this = this;
+                this.opencgaSession.opencgaClient.variants().querySample(query)
+                    .then(function(response) {
+                        let result = response.responses[0].results[0];
+
+                        // Get the total number of samples
+                        // TODO count only the genotypes filtered
+                        _this.numSamples = 0;
+                        let stats = result.studies[0].stats;
+                        for (let stat of stats) {
+                            if (stat.cohortId === "ALL") {
+                                for (let gt of Object.keys(stat.genotypeCount)) {
+                                    if (gt !== "0/0" && gt !== "./.") {
+                                        _this.numSamples += stat.genotypeCount[gt];
+                                    }
+                                }
+                                // _this.numSamples = stat.genotypeCount["0/1"] + stat.genotypeCount["1/1"]
+                                // _this.numSamples = stat.sampleCount - stat.genotypeCount["0/0"]
+                                break;
+                            }
+                        }
+
+                        // Prepare sample variant data for next query
+                        let variantSamples = result.studies[0].samples;
+                        let variantSampleInfo = {};
+                        let sampleIds = [];
+                        if (variantSamples) {
+                            for (let variantSample of variantSamples) {
+                                sampleIds.push(variantSample.sampleId);
+                                variantSampleInfo[variantSample.sampleId] = {
+                                    id: variantSample.sampleId,
+                                    file: result.studies[0].files[variantSample.fileIndex],
+                                    dataKeys: result.studies[0].sampleDataKeys,
+                                    data: variantSample.data,
+                                };
+                            }
+                        }
+
+                        _this.opencgaSession.opencgaClient.samples().info(sampleIds.join(","),
+                            {
+                                study: _this.opencgaSession.study.fqn,
+                                includeIndividual: true
+                            })
+                            .then(function (resp) {
+                                let samples = resp.responses[0].results;
+                                for (let sample of samples) {
+                                    sample.attributes.OPENCGA_VARIANT = variantSampleInfo[sample.id];
+                                }
+                                params.success(samples);
+                            })
+                            .catch(function (reason) {
+                                console.error(reason);
+                            });
+                    });
+            },
+            responseHandler: response => {
+                let tableOptions = $(this.table).bootstrapTable("getOptions");
+                this.from = tableOptions.pageNumber * tableOptions.pageSize - tableOptions.pageSize + 1;
+                this.to = Math.min(tableOptions.pageNumber * tableOptions.pageSize, this.numSamples);
+                this.numTotalResultsText = this.numSamples;
+                this.requestUpdate();
+                return {
+                    total: this.numSamples,
+                    rows: response
+                }
+            },
+        });
+    }
+
+    getColumns() {
+        return [
+            [
+                {
+                    title: "Sample ID",
+                    field: "id",
+                    rowspan: 2,
+                    colspan: 1,
+                    // formatter: this.variantFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Genotype",
+                    field: "attributes.OPENCGA_VARIANT",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: this.genoypeFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Variant Data",
+                    field: "attributes.OPENCGA_VARIANT",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: this.variantFormatter,
+                    halign: "center"
+                },
+                {
+                    title: "Individual",
+                    rowspan: 1,
+                    colspan: 4,
+                    formatter: this.variantFormatter,
+                    halign: "center"
+                }
+            ],
             [
                 {
                     title: "ID",
-                    field: "id",
+                    field: "individualId",
                     colspan: 1,
                     rowspan: 1,
-                    // formatter: this.variantFormatter,
-                    align: "center"
+                    formatter: this.individualFormatter,
+                    halign: "center"
                 },
                 {
-                    title: "phenotypes",
-                    field: "phenotypes",
+                    title: "Sex",
+                    field: "attributes.OPENCGA_INDIVIDUAL",
                     colspan: 1,
                     rowspan: 1,
-                    // formatter: this.snpFormatter,
-                    align: "center"
+                    formatter: this.sexFormatter,
+                    halign: "center"
                 },
                 {
-                    title: "File",
-                    field: "source",
+                    title: "Phenotypes",
+                    field: "attributes.OPENCGA_INDIVIDUAL",
                     colspan: 1,
                     rowspan: 1,
-                    // formatter: this.geneFormatter,
-                    align: "center"
+                    formatter: this.phenotypeFormatter,
+                    halign: "center"
                 },
                 {
-                    title: "Description",
-                    field: "description",
+                    title: "Disorders",
+                    field: "attributes.OPENCGA_INDIVIDUAL",
                     colspan: 1,
                     rowspan: 1,
-                    // formatter: this.geneFormatter,
-                    align: "center"
+                    formatter: this.disorderFormatter,
+                    halign: "center"
                 }
             ]
         ];
-
-        return columns;
     }
 
     getDefaultConfig() {
@@ -358,140 +333,24 @@ export default class OpencgaVariantSamples extends LitElement {
             pageSize: 10,
             pageList: [10, 25, 50],
             showExport: false
-            // detailView: true,
-            // detailFormatter: this.detailFormatter,
         };
     }
 
     render() {
         return html`
-    <div>
-        <style include="jso-styles"></style>
-    
-        <div class="col-md-10 col-md-offset-1" style="margin-bottom: 10px">
-            <div class="alert alert-warning" role="alert" id="${this._prefix}Warning" style="display: none;padding: 10px">
-                <span style="font-weight: bold;font-size: 1.20em">Warning:</span>&nbsp;&nbsp;At this moment the number of
-                samples returned is limited to 100 for each genotype (0/1, 1/1 or no-call).
-                This limit will be removed shortly.
-            </div>
-        </div>
-    
-        <div class="col-md-12 col-md-offset-10" style="padding: 20px 0px 10px 0px">
-            <button type="button" class="btn btn-primary btn-sm" data-toggle="popover" data-placement="bottom"
-                    @click="${this._downloadSamples}">
-                <i class="fa fa-download" aria-hidden="true"></i> Download
-            </button>
-        </div>
-    
-        <div class="col-md-12">
-            <h4 style="font-weight: bold;padding: 20px 0px 0px 0px">
-                <i class="fa fa-minus-circle" @click="${this.handleCollapseAction}" data-id="Het" style="cursor: pointer"></i>
-                &nbsp;Heterozygous (0/1) <span class="badge">${this.samplesHetSize}</span>
-            </h4>
-    
-            <div id="${this._prefix}Het">
-                <div style="padding: 5px 20px">
-                    <table class="table table-bordered">
-                        <thead>
-                        <tr>
-                            <th scope="col" rowspan="2">Sample ID</th>
-                            <th scope="col" rowspan="2">Individual ID</th>
-                            <th scope="col" rowspan="2">Disorders</th>
-                            <th scope="col" rowspan="2">Phenotypes</th>
-                            <th scope="col" rowspan="2">Variant Data</th>
-                            <th scope="col" rowspan="2">File Info</th>
-                        </tr>
-                        </thead>
-                        <tbody id="${this._prefix}HetTBody"></tbody>
-                    </table>
-                </div>
-    
-                ${!this.showSamplesHetTable ? html`
-                    <div style="padding: 0px 20px 5px 25px">
-                        No samples found
-                    </div>
-                ` : null }
-            </div>
-        </div>
-    
-        <div class="col-md-12">
-            <h4 style="font-weight: bold;padding: 20px 0px 0px 0px">
-                <i class="fa fa-minus-circle" @click="${this.handleCollapseAction}" data-id="HomAlt" style="cursor: pointer"></i>
-                &nbsp;Alternate Homozygous (1/1) <span class="badge">${this.samplesHomAltSize}</span>
-            </h4>
-    
-            <div id="${this._prefix}HomAlt">
-                <div style="padding: 5px 20px">
-                    <table class="table table-bordered">
-                        <thead>
-                        <tr>
-                            <th scope="col" rowspan="2">Sample ID</th>
-                            <th scope="col" rowspan="2">Individual ID</th>
-                            <th scope="col" rowspan="2">Disorders</th>
-                            <th scope="col" rowspan="2">Phenotypes</th>
-                            <th scope="col" rowspan="2">Variant Data</th>
-                            <th scope="col" rowspan="2">File Info</th>
-                        </tr>
-                        </thead>
-                        <tbody id="${this._prefix}HomAltTBody"></tbody>
-                    </table>
-                </div>
-    
-                ${!this.showSamplesHomAltTable ? html`
-                    <div style="padding: 0px 20px 5px 25px">
-                        No samples found
-                    </div>
-                ` : null }
-            </div>
-        </div>
-    
-        <div class="col-md-12">
-            <h4 style="font-weight: bold;padding: 20px 0px 0px 0px">
-                <i class="fa fa-minus-circle" @click="${this.handleCollapseAction}" data-id="NA" style="cursor: pointer"></i>
-                &nbsp;No Variant Call (NA) <span class="badge">${this.samplesNASize}</span>
-            </h4>
-    
-            <div id="${this._prefix}NA">
-                <div style="padding: 5px 20px">
-                    <table class="table table-bordered">
-                        <thead>
-                        <tr>
-                            <th scope="col" rowspan="2">Sample ID</th>
-                            <th scope="col" rowspan="2">Individual ID</th>
-                            <th scope="col" rowspan="2">Disorders</th>
-                            <th scope="col" rowspan="2">Phenotypes</th>
-                            <th scope="col" rowspan="2">Variant Data</th>
-                            <th scope="col" rowspan="2">File Info</th>
-                        </tr>
-                        </thead>
-                        <tbody id="${this._prefix}NATBody"></tbody>
-                    </table>
-                </div>
-    
-                ${!this.showSamplesNATable ? html`
-                    <div style="padding: 0px 20px 5px 25px">
-                        No samples found
-                    </div>
-                ` : null }
-            </div>
-        </div>
-    
-        <div class="modal fade" id="${this._prefix}LoadingModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
-             role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4>Fetching samples...</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="progress progress-striped active">
-                            <div class="progress-bar progress-bar-success" style="width: 100%"></div>
-                        </div>
-                    </div>
+            <div style="padding: 20px">
+                <opencb-grid-toolbar .from="${this.from}"
+                                     .to="${this.to}"
+                                     .numTotalResultsText="${this.numTotalResultsText}"
+                                     .config="${this.toolbarConfig}"
+                                     @columnchange="${this.onColumnChange}"
+                                     @download="${this._downloadSamples}"
+                                     @sharelink="${this.onShare}">
+                </opencb-grid-toolbar>
+                <div>
+                    <table id="${this._prefix}SampleTable"></table>
                 </div>
             </div>
-        </div>
-    </div>
         `;
     }
 }

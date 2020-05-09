@@ -43,7 +43,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
     _init() {
         this._prefix = "cpfg-" + UtilsNew.randomString(6);
         this.populationFrequencies = [];
-        this.gridId = this._prefix + "populationFreqTable"
+        this.gridId = this._prefix + "populationFreqTable";
     }
 
     updated(changedProperties) {
