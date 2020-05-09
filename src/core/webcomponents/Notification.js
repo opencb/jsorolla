@@ -46,7 +46,7 @@ export class NotificationQueue {
             await this.context.requestUpdate();
             await this.sleep(500);
             */
-            //this.remove(id);
+            this.remove(id);
             await this.context.requestUpdate();
         }
     }
