@@ -100,8 +100,8 @@ export default class VariantInterpreterGrid extends LitElement {
         // if (changedProperties.has("clinicalAnalysis")) {
         //     this.clinicalAnalysisObserver();
         // }
-        if (changedProperties.has("opencgaSession") || changedProperties.has("clinicalAnalysis") || changedProperties.has("variants")
-            || changedProperties.has("query") || changedProperties.has("config")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("clinicalAnalysis") || changedProperties.has("query")
+            || changedProperties.has("config")) {
             this.opencgaSessionObserver();
             this.clinicalAnalysisObserver();
             this.renderVariants();
@@ -191,7 +191,6 @@ export default class VariantInterpreterGrid extends LitElement {
                         includeSampleId: "true",
                         ...this.query
                     };
-                    // _this.oldQuery = filters;
                     this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
                         .then( res => params.success(res));
                 },
@@ -238,11 +237,11 @@ export default class VariantInterpreterGrid extends LitElement {
                     this.gridCommons.onLoadSuccess(data, 2);
                 },
                 onLoadError: function(status, res) {
-                    console.error(res);
+                    console.trace(res);
                 },
-                onPageChange: function(page, size) {
-                    _this.from = (page - 1) * size + 1;
-                    _this.to = page * size;
+                onPageChange: (page, size) => {
+                    this.from = (page - 1) * size + 1;
+                    this.to = page * size;
                 },
                 onPostBody: function(data) {
                     // const _onPostBody = _this._onPostBody.bind(_this, data, "remote");

@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-
-import {LitElement, html} from "/web_modules/lit-element.js";
-import {CellBaseClient} from "../../clients/cellbase/cellbase-client.js";
-import Utils from "./../../utils.js";
+import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import VariantGridFormatter from "./variant-grid-formatter.js";
+import GridCommons from "./grid-commons.js";
 import VariantUtils from "./variant-utils.js";
-import PolymerUtils from "../PolymerUtils.js";
 import "../commons/opencb-grid-toolbar.js";
+import "../../loading-spinner.js";
 
 
 export default class OpencgaVariantGrid extends LitElement {
 
     constructor() {
         super();
-        // Set status and init private properties
         this._init();
     }
 
@@ -39,16 +36,13 @@ export default class OpencgaVariantGrid extends LitElement {
 
     static get properties() {
         return {
-            _prefix: {
-                type: Object
-            },
             opencgaSession: {
                 type: Object
             },
-            query: {
+            cellbaseClient: {
                 type: Object
             },
-            cellbaseClient: {
+            query: {
                 type: Object
             },
             data: {
@@ -66,9 +60,6 @@ export default class OpencgaVariantGrid extends LitElement {
             proteinSubstitutionScores: {
                 type: Object
             },
-            queryCellbase: {
-                type: Boolean
-            },
             config: {
                 type: Object
             }
@@ -77,9 +68,8 @@ export default class OpencgaVariantGrid extends LitElement {
 
 
     _init() {
-        this._prefix = "VarBrowserGrid-" + Utils.randomString(6) + "_";
-        this.data = [];
-        this.queryCellbase = false;
+        this._prefix = "vbg-" + UtilsNew.randomString(6);
+
         // Config for the grid toolbar
         this.toolbarConfig = {
             columns: [
@@ -100,78 +90,57 @@ export default class OpencgaVariantGrid extends LitElement {
                 }
             ]
         };
+
+        this.gridId = this._prefix + "VariantBrowserGrid";
+        this.checkedVariants = new Map();
     }
 
     connectedCallback() {
         super.connectedCallback();
 
-        // TODO Refactor
-        this.table = $("#" + this._prefix + "VariantBrowserGrid");
         this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
         this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
-
-        // this._updateTableColumns();
-        // this._columns = this._createDefaultColumns();
-        // this.renderVariantTable();
-        // this.config = this.getDefaultConfig();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-
     }
 
     firstUpdated(_changedProperties) {
-        this._createDefaultColumns();
-        this.query = {};
+        // this._createDefaultColumns();
+        // this.query = {};
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+        this.table = this.querySelector("#" + this.gridId);
+        // this.checkedVariants = new Map();
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("query") ||
-            changedProperties.has("consequenceTypes") ||
-            changedProperties.has("populationFrequencies") ||
-            changedProperties.has("opencgaSession") ||
-            changedProperties.has("proteinSubstitutionScores")) {
+        if (changedProperties.get("opencgaSession") || changedProperties.get("query") || changedProperties.get("config") || changedProperties.get("data")) {
             this.propertyObserver();
-        }
-        if (changedProperties.has("data")) {
-            this.renderFromLocal();
+            this.renderVariants();
         }
     }
 
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = Object.assign(this.getDefaultConfig(), this.config);
-        // this._columns = this._createDefaultColumns();
+        this.variantGridFormatter = new VariantGridFormatter(this.opencgaSession, this._config);
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         // We check query.sample and query.genotype to check if samples exist.
         // We parse query fields and store a samples object array for convenience
         const _samples = [];
-        if (this.query !== undefined) {
-            // FIXME remove this line
-            // this.query["sample"] = "ISDBM322015";
-
-            if (UtilsNew.isNotUndefinedOrNull(this.query.sample)) {
-                for (const sampleId of this.query.sample.split(",")) {
+        if (this.query) {
+            if (this.query.sample) {
+                for (const sampleId of this.query.sample.split("[,;]")) {
                     _samples.push({
-                        id: sampleId
-                    });
-                }
-            }
-            if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
-                for (const genotype of this.query.genotype.split(";")) {
-                    _samples.push({
-                        id: genotype.split(":")[0]
+                        id: sampleId.split(":")[0]
                     });
                 }
             }
         }
         this.samples = _samples;
 
-        this.variantGridFormatter = new VariantGridFormatter(this.opencgaSession, this._config);
-
         // Set colors
         const colors = this.variantGridFormatter.assignColors(this.consequenceTypes, this.proteinSubstitutionScores);
         Object.assign(this, colors);
-
-        this.renderVariantTable();
     }
 
     onColumnChange(e) {
@@ -183,47 +152,32 @@ export default class OpencgaVariantGrid extends LitElement {
         }
     }
 
-    renderFromLocal() {
-        const _this = this;
-        $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable("destroy");
-        $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable({
-            data: this.data,
-            columns: this.cols,
-            onClickRow: function(row, $element) {
-                _this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-                $(".success").removeClass("success");
-                $($element).addClass("success");
-            }
-        });
+    renderVariants() {
+        this.renderVariantTable();
+        // if (this._config.renderLocal) {
+        //     this.renderFromLocal();
+        // } else {
+        //     this.renderVariantTable();
+        // }
     }
 
-
     renderVariantTable() {
-        this.variant = ""; // Empty the variant every time the grid is loaded
-
         this.from = 1;
         this.to = 10;
         this.approximateCountResult = false;
 
-        const _table = $("#" + this._prefix + "VariantBrowserGrid");
-
         // TODO quickfix. The check on query is required because the study is in the query object. A request without the study returns the error "Multiple projects found"
-        if (this.query &&
-            typeof this.opencgaSession !== "undefined" &&
-            typeof this.opencgaSession.project !== "undefined" &&
-            typeof this.opencgaSession.study !== "undefined" &&
-            typeof this.opencgaSession.study.alias !== "undefined") {
+        if (this.opencgaSession && this.opencgaSession.project && this.opencgaSession.study) {
             this._columns = this._createDefaultColumns();
 
-            // const queryParams = this._getUrlQueryParams;
-            // const _numTotal = -1;
             const _this = this;
-            _table.bootstrapTable("destroy");
-            _table.bootstrapTable({
-                // url: urlQueryParams.host,
+            this.table = $("#" + this.gridId);
+            this.table.bootstrapTable("destroy");
+            this.table.bootstrapTable({
                 columns: _this._columns,
                 method: "get",
                 sidePagination: "server",
+
                 // Set table properties, these are read from config property
                 uniqueId: "id",
                 pagination: _this._config.pagination,
@@ -233,140 +187,90 @@ export default class OpencgaVariantGrid extends LitElement {
                 detailView: _this._config.detailView,
                 detailFormatter: _this._config.detailFormatter,
                 formatLoadingMessage: () =>"<loading-spinner></loading-spinner>",
+
                 // this makes the opencga-variant-grid properties available in the bootstrap-table formatters
                 variantGrid: _this,
                 ajax: params => {
+                    // TODO We must decide i this component support a porperty:  mode = {opencga | cellbase}
+                    let tableOptions = $(this.table).bootstrapTable("getOptions");
                     let filters = {
                         study: this.opencgaSession.study.fqn,
-                        limit: params.data.limit || this.options.pageSize,
+                        summary: !this.query.sample && !this.query.family,
+                        limit: params.data.limit || tableOptions.pageSize,
                         skip: params.data.offset || 0,
-                        count: !$(this.table).bootstrapTable("getOptions").pageNumber || $(this.table).bootstrapTable("getOptions").pageNumber === 1,
+                        count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
                         // include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
+                        ...this.query
                     };
 
-                    if (typeof this.query.genotype === "undefined" && typeof this.query.sample === "undefined" &&
-                        typeof this.query.family === "undefined") {
-                        filters.summary = true;
-                    }
-                    if (this._config.grid && this._config.grid.queryParams) {
-                        filters = {...filters, ...this._config.grid.queryParams};
-                    }
-                    // We finally overwrite with the query object passed
-                    filters = {...filters, ...this.query};
+                    // if (!this.query.sample && !this.query.family) {
+                    //     filters.summary = true;
+                    // }
+                    // if (this._config.grid && this._config.grid.queryParams) {
+                    //     filters = {...filters, ...this._config.grid.queryParams};
+                    // }
 
-                    console.log("variant-grid filters", filters)
-                    this.opencgaSession.opencgaClient.variants()
-                        .query(filters)
+                    this.opencgaSession.opencgaClient.variants().query(filters)
                         .then( res => params.success(res));
                 },
-                responseHandler: function(response) {
-                    console.log("variant-grid response", response);
-                    let _numMatches = _this._numMatches || 0;
-                    if (response.getResponse().numMatches >= 0) {
-                        _numMatches = response.getResponse().numMatches;
-                        _this._numMatches = _numMatches;
-                    }
-                    // If no variant is returned then we start in 0
-                    if (response.getResponse(0).numMatches === 0) {
-                        _this.from = _numMatches;
-                    }
-                    // If do not fetch as many variants as requested then to is numMatches
-                    if (response.getResponse(0).numResults < this.pageSize) {
-                        _this.to = _numMatches;
-                    }
-                    _this.numTotalResultsText = _numMatches.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-                    if (response.getParams().skip === 0 && _numMatches < response.getParams().limit) {
-                        _this.from = 1;
-                        _this.to = _numMatches;
-                    }
-                    _this.approximateCountResult = response.getResponse().attributes.approximateCount;
-                    _this.requestUpdate(); // it is necessary to refresh numTotalResultsText in opencga-grid-toolbar
-
-                    return {
-                        total: _numMatches,
-                        rows: response.getResults()
-                    };
+                responseHandler: response => {
+                    const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                    this.from = result.from || this.from;
+                    this.to = result.to || this.to;
+                    this.numTotalResultsText = result.numTotalResultsText;
+                    this.approximateCountResult = result.approximateCountResult;
+                    this.requestUpdate();
+                    return result.response;
                 },
-                onClickRow: function(row, $element, field) {
-                    $("#" + _this._prefix + "VariantBrowserGrid tr").removeClass("success");
-                    $($element).addClass("success");
-
-                    _this._onSelectVariant(row);
-                },
+                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onDblClickRow: function(row, element, field) {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (_this._config.detailView) {
                         // TODO refactor this omg!
                         if (element[0].innerHTML.includes("icon-plus")) {
-                            $(PolymerUtils.getElementById(_this._prefix + "VariantBrowserGrid")).bootstrapTable("expandRow", element[0].dataset.index);
+                            $("#" + _this.gridId).bootstrapTable("expandRow", element[0].dataset.index);
                         } else {
-                            $(PolymerUtils.getElementById(_this._prefix + "VariantBrowserGrid")).bootstrapTable("collapseRow", element[0].dataset.index);
+                            $("#" + _this.gridId).bootstrapTable("collapseRow", element[0].dataset.index);
                         }
                     }
                 },
-                onCheck: function(row, $element) {
-                    //                            $('.success').removeClass('success');
-                    //                            $($element).addClass('success');
-
-                    const _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-                    _this.dispatchEvent(new CustomEvent("checkvariant", {
-                        detail: {
-                            id: _variant,
-                            variant: row,
-                            checkdVariant: true,
-                            variants: $("#" + _this._prefix + "VariantBrowserGrid").bootstrapTable("getAllSelections")
-                        }
-                    }));
+                onCheck: (row, $element) => {
+                    this.checkedVariants.set(row.id, row);
+                    this._timestamp = new Date().getTime();
+                    this.gridCommons.onCheck(row.id, row, {rows: Array.from(this.checkedVariants.values()), timestamp: this._timestamp});
                 },
-                onCheckAll: function(rows) {
-                    _this.dispatchEvent(new CustomEvent("checkvariant", {
-                        detail: {
-                            variants: $("#" + _this._prefix + "VariantBrowserGrid").bootstrapTable("getAllSelections")
-                        }
-                    }));
+                onCheckAll: rows => {
+                    for (let row of rows) {
+                        this.checkedVariants.set(row.id, row);
+                    }
+                    this._timestamp = new Date().getTime();
+                    this.gridCommons.onCheckAll(rows, {rows: Array.from(this.checkedVariants.values()), timestamp: this._timestamp});
                 },
-                onUncheck: function(row, $element) {
-                    //                            $('.success').removeClass('success');
-                    //                            $($element).addClass('success');
-
-                    const _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-                    _this.dispatchEvent(new CustomEvent("checkvariant", {
-                        detail: {
-                            id: _variant,
-                            variant: row,
-                            checkdVariant: false,
-                            variants: $("#" + _this._prefix + "VariantBrowserGrid").bootstrapTable("getAllSelections")
-                        }
-                    }));
+                onUncheck: (row, $element) => {
+                    this.checkedVariants.delete(row.id);
+                    this._timestamp = new Date().getTime();
+                    this.gridCommons.onUncheck(row.id, row, {rows: Array.from(this.checkedVariants.values()), timestamp: this._timestamp});
                 },
-                onLoadSuccess: function(data) {
-                    // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
-                    if (_table) {
-                        _table[0].rows[2].setAttribute("class", "success");
-                        _this._onSelectVariant(data.rows[0]);
-
-                        const elementsByClassName = PolymerUtils.getElementsByClassName("genome-browser-option");
-                        for (const elem of elementsByClassName) {
-                            elem.addEventListener("click", function(e) {
-                                // _this.genomeBrowserPosition = e.target.dataset.variantPosition;
-                                _this.dispatchEvent(new CustomEvent("setgenomebrowserposition", {
-                                    detail: {
-                                        genomeBrowserPosition: e.target.dataset.variantPosition
-                                    }, bubbles: true, composed: true
-                                }));
-                            });
+                onUncheckAll: rows => {
+                    for (let row of rows) {
+                        this.checkedVariants.delete(row.id);
+                    }
+                    this._timestamp = new Date().getTime();
+                    this.gridCommons.onCheckAll(rows, {rows: Array.from(this.checkedVariants.values()), timestamp: this._timestamp});
+                },
+                onLoadSuccess: data => {
+                    for (let i = 0; i < data.rows.length; i++) {
+                        if (this.checkedVariants.has(data.rows[i].id)) {
+                            $(this.table).bootstrapTable('check', i);
                         }
                     }
+                    this.gridCommons.onLoadSuccess(data, 2);
                 },
                 onLoadError: function(status, res) {
-                    console.trace();
-                    debugger;
+                    console.trace(res);
                 },
                 onPageChange: (page, size) => {
-                    // this.pageNumber = page;
-                    // this._config.pageSize = size;
                     this.from = (page - 1) * size + 1;
                     this.to = page * size;
                 },
@@ -408,58 +312,20 @@ export default class OpencgaVariantGrid extends LitElement {
                 }
             });
         }
+    }
 
-        // To query from cellbase, 'queryCellbase' property must be set to true explicitly
-        // if (typeof this.queryCellbase !== "undefined" && this.queryCellbase && this.cellbaseClient instanceof CellBaseClient) {
-        //     $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable("destroy");
-        //     let _numTotal = -1;
-        //
-        //     let url = "";
-        //     if (this.cellbaseClient._config.hosts[0].startsWith("https://")) {
-        //         url = this.cellbaseClient._config.hosts[0];
-        //     } else {
-        //         url = "http://" + this.cellbaseClient._config.hosts[0];
-        //     }
-        //
-        //     const queryParams = {
-        //         timeout: 20000
-        //     };
-        //
-        //     Object.assign(queryParams, this.query); // Important : Adding the query object contents to queryParams
-        //
-        //     url = url + "/webservices/rest/v4/" + this.cellbaseClient._config.species + "/feature/variation/search";
-        //     const _this = this;
-        //     $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable({
-        //         url: url,
-        //         method: "get",
-        //         sidePagination: "server",
-        //         queryParams: function(params) {
-        //             queryParams.limit = params.limit;
-        //             queryParams.skip = params.offset;
-        //             //                            queryParams.summary = true;
-        //
-        //             return queryParams;
-        //         },
-        //         responseHandler: function(res) {
-        //             if (_numTotal === -1) {
-        //                 _numTotal = res.response[0].numTotalResults;
-        //                 _this.count = _numTotal;
-        //
-        //                 // updates numTotalResultsText
-        //                 _this.requestUpdate();
-        //             }
-        //             return {total: _numTotal, rows: res.response[0].result};
-        //         },
-        //         columns: _this.cols,
-        //         onClickRow: function(row, $element) {
-        //             _this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-        //             $(".success").removeClass("success");
-        //             $($element).addClass("success");
-        //         }
-        //     });
-        //     $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable("showLoading");
-        // }
-
+    renderFromLocal() {
+        const _this = this;
+        $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable("destroy");
+        $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable({
+            data: this.data,
+            columns: this.cols,
+            onClickRow: function(row, $element) {
+                _this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+                $(".success").removeClass("success");
+                $($element).addClass("success");
+            }
+        });
     }
 
     // TODO refactor using bootstrap table ajax
@@ -482,8 +348,7 @@ export default class OpencgaVariantGrid extends LitElement {
             // queryParams.exclude = "annotation.geneExpression";
         } else {
             queryParams.summary = false;
-            // queryParams.approximateCount = true;
-            queryParams.exclude = "annotation.geneExpression";
+            // queryParams.exclude = "annotation.geneExpression";
         }
 
         if (typeof this.config !== "undefined" && UtilsNew.isNotUndefinedOrNull(this.config.grid) &&
@@ -500,36 +365,6 @@ export default class OpencgaVariantGrid extends LitElement {
         }
 
         return queryParams;
-    }
-
-    _onSelectVariant(row) {
-        if (typeof row !== "undefined") {
-            const reference = row.reference !== "" ? row.reference : "-";
-            const alternate = row.alternate !== "" ? row.alternate : "-";
-            const id = row.chromosome + ":" + row.start + ":" + reference + ":" + alternate;
-            this.dispatchEvent(new CustomEvent("selectvariant", {
-                detail: {
-                    id: id,
-                    variant: row
-                },
-                bubbles: true,
-                composed: true
-            }));
-        }
-    }
-
-    renderFromLocal() {
-        const _this = this;
-        $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable("destroy");
-        $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable({
-            data: this.data,
-            columns: this.cols,
-            onClickRow: function(row, $element) {
-                _this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-                $(".success").removeClass("success");
-                $($element).addClass("success");
-            }
-        });
     }
 
     showGene(geneName) {
@@ -590,8 +425,7 @@ export default class OpencgaVariantGrid extends LitElement {
     }
 
     variantFormatter(value, row, index) {
-        const variantHtmlDiv = this.variantGridFormatter.variantFormatter(value, row, this._config);
-        return variantHtmlDiv;
+        return this.variantGridFormatter.variantFormatter(value, row, this._config);
     }
 
     // TODO refactor this to make it more clear (polyphenProteinScoreFormatter too)
@@ -843,7 +677,6 @@ export default class OpencgaVariantGrid extends LitElement {
                             }
                             colText = referenceValueColText + " / " + alternateValueColText;
                             res = "<span class='sampleGenotype' data-text='" + tooltipText + "'> " + colText + " </span>";
-                            return;
                         }
                     }
                 });
@@ -853,7 +686,6 @@ export default class OpencgaVariantGrid extends LitElement {
                         const currentGenotype = study.samplesData[this.fieldIndex - 4];
                         if (UtilsNew.isNotUndefinedOrNull(currentGenotype)) {
                             res = currentGenotype[0];
-                            return;
                         }
                     }
                 });
@@ -1211,56 +1043,54 @@ export default class OpencgaVariantGrid extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles">
-            #opencga-variant-grid {
-                font-size: 12px;
-            }
+            <style>
+                #opencga-variant-grid {
+                    font-size: 12px;
+                }
+                
+                span.redText, span.orangeText {
+                    margin-left: 0;
+                }
+    
+                span.redText {
+                    color: red;
+                }
+    
+                span.orangeText {
+                    color: orange;
+                }
+    
+                .detail-view :hover {
+                    background-color: white;
+                }
+    
+                .detail-view-row :hover {
+                    background-color: #f5f5f5;
+                }
+    
+                .variant-link-dropdown:hover .dropdown-menu {
+                    display: block;
+                }
+    
+                .qtip-custom-class .qtip-content{
+                    font-size: 12px;
+                }
+            </style>
             
-            span.redText, span.orangeText {
-                margin-left: 0;
-            }
-
-            span.redText {
-                color: red;
-            }
-
-            span.orangeText {
-                color: orange;
-            }
-
-            .detail-view :hover {
-                background-color: white;
-            }
-
-            .detail-view-row :hover {
-                background-color: #f5f5f5;
-            }
-
-            .variant-link-dropdown:hover .dropdown-menu {
-                display: block;
-            }
-
-            .qtip-custom-class .qtip-content{
-                font-size: 12px;
-            }
-        </style>
-        
-        <div id="opencga-variant-grid">
-            <opencb-grid-toolbar from="${this.from}"
-                                to="${this.to}"
-                                numTotalResultsText="${this.numTotalResultsText}"
-                                .config="${this.toolbarConfig}"
-                                @columnchange="${this.onColumnChange}"
-                                @download="${this.onDownload}"
-                                @sharelink="${this.onShare}">
-            </opencb-grid-toolbar>
-    
-    
-            <div id="${this._prefix}GridTableDiv">
-                <table id="${this._prefix}VariantBrowserGrid">
-                </table>
+            <div>
+                <opencb-grid-toolbar    .from="${this.from}"
+                                        .to="${this.to}"
+                                        .numTotalResultsText="${this.numTotalResultsText}"
+                                        .config="${this.toolbarConfig}"
+                                        @columnchange="${this.onColumnChange}"
+                                        @download="${this.onDownload}"
+                                        @sharelink="${this.onShare}">
+                </opencb-grid-toolbar>
+                
+                <div>
+                    <table id="${this._prefix}VariantBrowserGrid"></table>
+                </div>
             </div>
-        </div>
         `;
     }
 }

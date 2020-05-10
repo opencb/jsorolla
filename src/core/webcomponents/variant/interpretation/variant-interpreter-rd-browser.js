@@ -105,57 +105,56 @@ class VariantInterpreterRdBrowser extends LitElement {
         super.connectedCallback();
     }
 
-    firstUpdated(_changedProperties) {
-        // CellBase version
-        // this.cellbaseClient.getMeta("about").then(response => {
-        //     if (UtilsNew.isNotUndefinedOrNull(response) && UtilsNew.isNotEmptyArray(response.response)) {
-        //         if (UtilsNew.isNotUndefinedOrNull(response.response[0].result) && UtilsNew.isNotEmptyArray(response.response[0].result)) {
-        //             this.cellbaseVersion = response.response[0].result[0]["Version: "];
-        //         }
-        //     }
-        // });
-    }
+    // firstUpdated(_changedProperties) {
+    //     // CellBase version
+    //     this.cellbaseClient.getMeta("about").then(response => {
+    //         if (UtilsNew.isNotUndefinedOrNull(response) && UtilsNew.isNotEmptyArray(response.response)) {
+    //             if (UtilsNew.isNotUndefinedOrNull(response.response[0].result) && UtilsNew.isNotEmptyArray(response.response[0].result)) {
+    //                 this.cellbaseVersion = response.response[0].result[0]["Version: "];
+    //             }
+    //         }
+    //     });
+    // }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
-
-            /* TODO temp hack for autoselecting (comment prop as well)
-            this.clinicalAnalysisId = "AN-3";
-            this.clinicalAnalysisIdObserver()*/
-
+        if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            // this.requestUpdate();
         }
+
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
+
         // if (changedProperties.has("clinicalAnalysis")) {
         //     this.clinicalAnalysisObserver();
         // }
+
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
     }
 
 
-    opencgaSessionObserver() {
-        // With each property change we must updated config and create the columns again. No extra checks are needed.
-        this._config = {...this.getDefaultConfig(), ...this.config};
-
-        // // Check if Beacon hosts are configured
-        // for (const detail of this._config.detail) {
-        //     if (detail.id === "beacon" && UtilsNew.isNotEmptyArray(detail.hosts)) {
-        //         this.beaconConfig = {
-        //             hosts: detail.hosts
-        //         };
-        //     }
-        // }
-
-        this.requestUpdate();
-    }
+    // opencgaSessionObserver() {
+    //     // With each property change we must updated config and create the columns again. No extra checks are needed.
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    //
+    //     // // Check if Beacon hosts are configured
+    //     // for (const detail of this._config.detail) {
+    //     //     if (detail.id === "beacon" && UtilsNew.isNotEmptyArray(detail.hosts)) {
+    //     //         this.beaconConfig = {
+    //     //             hosts: detail.hosts
+    //     //         };
+    //     //     }
+    //     // }
+    //
+    //     this.requestUpdate();
+    // }
 
     queryObserver() {
         // Query passed is executed and set to variant-filter, active-filters and variant-grid components
-        if (UtilsNew.isNotUndefinedOrNull(this.query)) {
+        if (this.query) {
             this.preparedQuery = this.query;
             this.executedQuery = this.query;
         }
@@ -220,21 +219,6 @@ class VariantInterpreterRdBrowser extends LitElement {
         }
     }
 
-
-
-    onClear() {
-        const _search = {};
-        for (const hiddenField of this._config.activeFilters.hiddenFields) {
-            if (UtilsNew.isNotUndefinedOrNull(this.query[hiddenField])) {
-                _search[hiddenField] = this.query[hiddenField];
-            }
-        }
-
-        // this.search = _search;
-        this.query = {
-            study: this.opencgaSession.study.fqn
-        };
-    }
 
     onSelectVariant(e) {
         this.variant = e.detail.row;
@@ -434,6 +418,7 @@ class VariantInterpreterRdBrowser extends LitElement {
         this.executedQuery = {...this.preparedQuery};
         this.requestUpdate();
     }
+
 
     onActiveFilterChange(e) {
         this.query = {...e.detail};
@@ -768,10 +753,6 @@ class VariantInterpreterRdBrowser extends LitElement {
     }
 
     render() {
-        // this.r;
-        // this.clinicalAnalysis;
-        // debugger
-
         // Check Project exists
         if (!this.opencgaSession && !this.opencgaSession.project) {
             return html`
