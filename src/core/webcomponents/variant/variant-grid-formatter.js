@@ -140,7 +140,7 @@ export default class VariantGridFormatter {
             This field is in annotation.xref when source: "dbSNP".
         */
         let snpId = null;
-        if (row.names) {
+        if (row.names && row.names.length > 0) {
             for (let name of row.names) {
                 if (name.startsWith("rs")) {
                     snpId = name;

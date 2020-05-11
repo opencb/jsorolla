@@ -421,14 +421,16 @@ class VariantInterpreterRdBrowser extends LitElement {
 
 
     onActiveFilterChange(e) {
-        this.query = {...e.detail};
+        // this.query = {...e.detail};
         this.preparedQuery = {...e.detail};
+        this.executedQuery = {...e.detail};
         this.requestUpdate();
     }
 
     onActiveFilterClear() {
-        this.query = {study: this.opencgaSession.study.fqn};
-        this.preparedQuery = {...this.query};
+        // this.query = {study: this.opencgaSession.study.fqn};
+        this.preparedQuery = {study: this.opencgaSession.study.fqn};
+        this.executedQuery = {...this.preparedQuery};
         this.requestUpdate();
     }
 

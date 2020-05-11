@@ -108,9 +108,9 @@ export default class OpencgaVariantBrowser extends LitElement {
 
         this.facetConfig = {a: 1};
         this.facetActive = true;
-        this.query = {
-            sample: "ISDBM322015"
-        };
+        // this.query = {
+        //     sample: "ISDBM322015"
+        // };
         this.preparedQuery = {};
         this.executedQuery = {};
         this.selectedFacet = {};
@@ -232,11 +232,11 @@ export default class OpencgaVariantBrowser extends LitElement {
         //     this.executedQuery = {..._query, ...this.query};
         // }
 
-        // // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
-        // this.dispatchEvent(new CustomEvent("queryChange", {
-        //         detail: this.preparedQuery
-        //     }
-        // ));
+        // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
+        this.dispatchEvent(new CustomEvent("queryChange", {
+                detail: this.preparedQuery
+            }
+        ));
         this.requestUpdate();
     }
 
@@ -279,18 +279,6 @@ export default class OpencgaVariantBrowser extends LitElement {
         }
     }
 
-    // onFilterChange(e) {
-    //     this.query = e.detail;
-    //     // TODO remove search field everywhere. use query instead
-    //     this.search = e.detail;
-    //     this.requestUpdate();
-    // }
-
-    // onClickPill(e){
-    //     //e.preventDefault();
-    //     this._changeView(e.currentTarget.dataset.id);
-    // }
-
     changeView(e) {
         e.preventDefault();
         let tabId = e.currentTarget.dataset.id;
@@ -305,20 +293,15 @@ export default class OpencgaVariantBrowser extends LitElement {
         // this.requestUpdate();
     }
 
-    // onVariantFilterChange(e) {
-    //     this.preparedQuery = e.detail.query;
-    //     this.requestUpdate();
-    // }
 
     onVariantFilterChange(e) {
         this.preparedQuery = e.detail.query;
-        this.preparedQuery = {...this.preparedQuery};
         this.requestUpdate();
     }
 
     onVariantFilterSearch(e) {
         this.preparedQuery = e.detail.query;
-        this.executedQuery = {...this.preparedQuery};
+        this.executedQuery = e.detail.query;
         this.requestUpdate();
     }
 
@@ -331,14 +314,11 @@ export default class OpencgaVariantBrowser extends LitElement {
     onActiveFilterChange(e) {
         this.query = {...e.detail};
         this.preparedQuery = {...e.detail};
-        this.requestUpdate();
     }
 
     onActiveFilterClear() {
-        debugger
         this.query = {study: this.opencgaSession.study.fqn};
         this.preparedQuery = {...this.query};
-        this.requestUpdate();
     }
 
 
@@ -798,7 +778,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                         <opencga-active-filters facetActive
                                                 filterBioformat="VARIANT"
                                                 .opencgaSession="${this.opencgaSession}"
-                                                .defaultStudy="${this.opencgaSession.study.id}"
+                                                .defaultStudy="${this.opencgaSession.study.fqn}"
                                                 .query="${this.preparedQuery}"
                                                 .refresh="${this.executedQuery}"
                                                 .facetQuery="${this.selectedFacetFormatted}"
