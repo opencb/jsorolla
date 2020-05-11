@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../utils.js";
 import UtilsNew from "./../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../commons/variant-modal-ontology.js";
@@ -87,7 +86,7 @@ export default class OpencgaVariantFilter extends LitElement {
 
 
     _init() {
-        this._prefix = `ovf${Utils.randomString(6)}_`;
+        this._prefix = `ovf${UtilsNew.randomString(6)}_`;
 
         this._initialised = false;
         // this._reset = true;

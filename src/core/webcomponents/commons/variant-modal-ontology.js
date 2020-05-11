@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../utils.js";
 import UtilsNew from "./../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 
@@ -83,7 +82,7 @@ export default class VariantModalOntology extends LitElement {
     }
 
     _init() {
-        // this._prefix = "vmo-" + Utils.randomString(6) + "_";
+        // this._prefix = "vmo-" + UtilsNew.randomString(6) + "_";
         this.ebiConfig = {
             root: "https://www.ebi.ac.uk/ols/api",
             tree: {

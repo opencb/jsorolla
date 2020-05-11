@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../../utils.js";
 import UtilsNew from "../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 
@@ -48,7 +47,7 @@ export default class OpencgaPanelFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "panelFilter" + Utils.randomString(6) + "_";
+        this._prefix = "panelFilter" + UtilsNew.randomString(6) + "_";
         this.dateFilterConfig = {
             recentDays: 10
         };

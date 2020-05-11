@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "../../utils.js";
 import UtilsNew from "../../utilsNew.js";
 import "./opencga-cohort-variant-stats.js";
 
@@ -49,7 +48,7 @@ export default class OpencgaVariantCohortStats extends LitElement {
     }
 
     _init() {
-        this._prefix = "ovcs-" + Utils.randomString(6);
+        this._prefix = "ovcs-" + UtilsNew.randomString(6);
         this.active = false;
     }
 

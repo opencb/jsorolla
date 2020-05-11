@@ -50,7 +50,7 @@ export default class ConsequenceTypeFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "ctf-" + Utils.randomString(6) + "_";
+        this._prefix = "ctf-" + UtilsNew.randomString(6) + "_";
         this.selectedCt = [];
         $("select.selectpicker", this).selectpicker("render");
         $('.select.selectpicker', this).on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {

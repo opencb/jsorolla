@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
 import UtilsNew from "./../../../utilsNew.js";
 
 
@@ -73,7 +72,7 @@ export default class SelectFieldFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "sff-" + Utils.randomString(6) + "_";
+        this._prefix = "sff-" + UtilsNew.randomString(6) + "_";
         this.multiple = false;
         this.data = [];
         this.elm = this._prefix + "selectpicker";

@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../utils.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "./opencb-facet-results.js";
@@ -66,7 +65,7 @@ class OpencbFacetQuery extends LitElement {
     }
 
     _init() {
-        this._prefix = "facet" + Utils.randomString(6);
+        this._prefix = "facet" + UtilsNew.randomString(6);
 
         // this.checkProjects = true;
 

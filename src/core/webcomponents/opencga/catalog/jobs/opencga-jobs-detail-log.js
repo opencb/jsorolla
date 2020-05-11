@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "../../../../utils.js";
+import UtilsNew from "../../../../utilsNew.js";
 
 export default class OpencgaJobsDetailLog extends LitElement {
 
@@ -46,7 +46,7 @@ export default class OpencgaJobsDetailLog extends LitElement {
     }
 
     _init() {
-        this._prefix = "sf-" + Utils.randomString(6) + "_";
+        this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
         this.content = null;
     }
 
@@ -99,7 +99,7 @@ export default class OpencgaJobsDetailLog extends LitElement {
             console.log("setting interval");
             this.requestUpdate();
             this.interval = setInterval(() => {
-                // this.content += "\n" + Utils.randomString(6);
+                // this.content += "\n" + UtilsNew.randomString(6);
                 if ($(".jobs-details-log", this).is(":visible")) {
                     // tail call is actually head (after the first tail call)
                     this.fetchContent(this.job, {command: "head", offset: this.contentOffset}, true);

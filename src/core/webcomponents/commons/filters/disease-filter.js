@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
+import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 
 // TODO proper functionality check
@@ -50,7 +50,7 @@ export default class DiseaseFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "ff-" + Utils.randomString(6) + "_";
+        this._prefix = "ff-" + UtilsNew.randomString(6) + "_";
         this._panel = [];
     }
 

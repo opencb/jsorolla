@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../../utils.js";
+import UtilsNew from "../../../../utilsNew.js";
 import "../../../commons/opencga-browser.js";
 
 // TODO this component will be the new opencga-file-browser and this configuration will be for browser and facet both
@@ -75,7 +75,7 @@ export default class OpencgaJobsBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = "facet" + Utils.randomString(6);
+        this._prefix = "facet" + UtilsNew.randomString(6);
 
         this.checkProjects = false;
 

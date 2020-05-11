@@ -50,7 +50,7 @@ export default class OpencgaFamilyView extends LitElement {
     }
 
     _init() {
-        // this.prefix = "osv" + Utils.randomString(6);
+        // this.prefix = "osv" + UtilsNew.randomString(6);
     }
 
     connectedCallback() {

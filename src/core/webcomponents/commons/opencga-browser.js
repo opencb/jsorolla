@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "../../utils.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "./opencga-facet-result-view.js";
@@ -93,7 +92,7 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = "facet" + Utils.randomString(6);
+        this._prefix = "facet" + UtilsNew.randomString(6);
 
         this.checkProjects = false;
 

@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
 import UtilsNew from "../../../utilsNew.js";
 
 export default class CellbaseVariantAnnotationSummary extends LitElement {
@@ -47,7 +46,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
     }
 
     _init() {
-        this._prefix = "sf-" + Utils.randomString(6) + "_";
+        this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
         this.variantAnnotation = {};
     }
 
@@ -64,7 +63,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
     //     super.ready();
     //
     //     if (typeof this._prefix === "undefined" || this._prefix === "") {
-    //         this._prefix = "annotation" + Utils.randomString(6);
+    //         this._prefix = "annotation" + UtilsNew.randomString(6);
     //     }
     // }
 

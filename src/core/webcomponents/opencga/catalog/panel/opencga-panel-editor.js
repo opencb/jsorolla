@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../../utils.js";
 import UtilsNew from "../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 
@@ -52,7 +51,7 @@ export default class OpencgaPanelEditor extends LitElement {
     }
 
     _init() {
-        this._prefix = "OpencgaPanelEditor" + Utils.randomString(6);
+        this._prefix = "OpencgaPanelEditor" + UtilsNew.randomString(6);
         this.genesPanelEditor = [];
         this.mutationsPanelEditor = [];
         this.eventNotifyName = "messageevent";

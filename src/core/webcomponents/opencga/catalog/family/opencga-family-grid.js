@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import GridCommons from "../../../variant/grid-commons.js";
-import Utils from "./../../../../utils.js";
 import UtilsNew from "./../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 import CatalogUIUtils from "../../../commons/CatalogUIUtils.js";
@@ -60,7 +59,7 @@ export default class OpencgaFamilyGrid extends LitElement {
     }
 
     _init() {
-        this._prefix = "VarFamilyGrid" + Utils.randomString(6);
+        this._prefix = "VarFamilyGrid" + UtilsNew.randomString(6);
         this.catalogUiUtils = new CatalogUIUtils();
         this.active = false;
         this.gridId = this._prefix + "FamilyBrowserGrid";

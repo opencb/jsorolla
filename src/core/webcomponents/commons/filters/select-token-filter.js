@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
+import UtilsNew from "../../../utilsNew.js";
 
 
 export default class SelectTokenFilter extends LitElement {
@@ -50,7 +50,7 @@ export default class SelectTokenFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "tk-" + Utils.randomString(6) + "_";
+        this._prefix = "tk-" + UtilsNew.randomString(6) + "_";
     }
 
     connectedCallback() {

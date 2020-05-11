@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
 import UtilsNew from "./../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 
@@ -42,7 +41,7 @@ export default class OpencgaDateFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "odf-" + Utils.randomString(6) + "_";
+        this._prefix = "odf-" + UtilsNew.randomString(6) + "_";
         this._config = this.getDefaultConfig();
 
         this.activatedRanges = false;

@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../../utils.js";
 import UtilsNew from "./../../../../utilsNew.js";
 import "./opencga-panel-editor.js";
 import "./opencga-panel-grid.js";
@@ -63,7 +62,7 @@ export default class OpencgaPanelBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = "OpencgaPanel" + Utils.randomString(6) + "_";
+        this._prefix = "OpencgaPanel" + UtilsNew.randomString(6) + "_";
         this.panelDefaultQuery = {sort: "id"};
         this.search = Object.assign({}, this.panelDefaultQuery);
         this._config = this.getDefaultConfig();

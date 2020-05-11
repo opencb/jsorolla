@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
+import UtilsNew from "../../../utilsNew.js";
 
 /*
 * TODO handle GENES
@@ -46,7 +46,7 @@ export default class FeatureFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "feaf-" + Utils.randomString(6) + "_";
+        this._prefix = "feaf-" + UtilsNew.randomString(6) + "_";
         this.featureDatalist = [];
         // TODO check why there are 2 fields in query object..
         // this.featureIds = this.query && this.query.ids || [];

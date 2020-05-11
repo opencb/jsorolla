@@ -1,4 +1,6 @@
-class AlignmentTrack extends FeatureTrack {
+import UtilsNew from "../../core/utilsNew.js";
+
+export default class AlignmentTrack extends FeatureTrack {
 
     constructor(args) {
         super(args);

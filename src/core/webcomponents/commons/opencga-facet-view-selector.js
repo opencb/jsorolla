@@ -20,7 +20,7 @@
  * @deprecated
  **/
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "../../utils.js";
+import UtilsNew from "../../utilsNew.js";
 
 export default class OpencgaFacetViewSelector extends LitElement {
 
@@ -53,7 +53,7 @@ export default class OpencgaFacetViewSelector extends LitElement {
     }
 
     _init() {
-        this._prefix = "ofvs-" + Utils.randomString(6) + "_";
+        this._prefix = "ofvs-" + UtilsNew.randomString(6) + "_";
         this._showInitMessage = true;
         this.facets = new Set();
         this.facetFilters = [];

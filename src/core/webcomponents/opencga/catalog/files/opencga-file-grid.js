@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import GridCommons from "../../../variant/grid-commons.js";
-import Utils from "./../../../../utils.js";
 import UtilsNew from "./../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 import "../../../commons/opencb-grid-toolbar.js";
@@ -65,7 +64,7 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     _init() {
-        this._prefix = "VarFileGrid" + Utils.randomString(6) + "_";
+        this._prefix = "VarFileGrid" + UtilsNew.randomString(6) + "_";
         this._config = this.getDefaultConfig();
         this.eventNotifyName = "messageevent";
         this.gridId = this._prefix + "FileBrowserGrid";

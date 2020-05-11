@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../utils.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 
@@ -73,9 +72,9 @@ export default class VariantGenomeBrowser extends LitElement {
     }
 
     _init() {
-        //this._prefix = "sf-" + Utils.randomString(6) + "_";
+        //this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
         if (UtilsNew.isEmpty(this._prefix)) {
-            this._prefix = `VarGenBrowser${Utils.randomString(6)}`;
+            this._prefix = `VarGenBrowser${UtilsNew.randomString(6)}`;
         }
     }
 

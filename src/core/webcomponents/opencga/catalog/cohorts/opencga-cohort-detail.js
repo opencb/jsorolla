@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "../../../../utils.js";
+import UtilsNew from "../../../../utilsNew.js";
 import "./opencga-cohort-view.js";
 
 export default class OpencgaCohortDetail extends LitElement {
@@ -48,7 +48,7 @@ export default class OpencgaCohortDetail extends LitElement {
     }
 
     _init() {
-        this._prefix = "sf-" + Utils.randomString(6) + "_";
+        this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
         this.activeTab = {};
     }
 

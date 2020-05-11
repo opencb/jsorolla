@@ -8,6 +8,8 @@
 <link rel="import" href="../../opencga-message-dialog.html">
 <link rel="import" href="../opencga-clinical-analysis-grid.html">*/
 
+import UtilsNew from "../../../utilsNew.js";
+
 
 class OpencgaVariantClinical extends LitElement {
 
@@ -87,7 +89,7 @@ class OpencgaVariantClinical extends LitElement {
     }
 
             _init() {
-                this.prefix = "clinical-analysis-view-" + Utils.randomString(6) + "_";
+                this.prefix = "clinical-analysis-view-" + UtilsNew.randomString(6) + "_";
 
                 this.toolTitle = "Clinical Analysis";
                 this.mode = "clinical";

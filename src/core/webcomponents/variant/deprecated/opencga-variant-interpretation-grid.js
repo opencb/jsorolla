@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "../../../utils.js"
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
@@ -66,7 +65,7 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
     }
 
     _init() {
-        this._prefix = "ovig-" + Utils.randomString(6) + "_";
+        this._prefix = "ovig-" + UtilsNew.randomString(6) + "_";
 
         this._initialised = false;
 

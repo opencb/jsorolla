@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "../../utils.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import {OpenCGAClient} from "../../clients/opencga/opencga-client.js";
@@ -88,7 +87,7 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     init() {
-        this._prefix = "oaf" + Utils.randomString(6) + "_";
+        this._prefix = "oaf" + UtilsNew.randomString(6) + "_";
         this._config = this.getDefaultConfig();
         this.filters = [];
 

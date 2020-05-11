@@ -1,5 +1,4 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "../../../../utils.js";
 import UtilsNew from "../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 import {NotificationQueue} from "../../../Notification.js";
@@ -43,7 +42,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "oaf-" + Utils.randomString(6);
+        this._prefix = "oaf-" + UtilsNew.randomString(6);
         this.multipleVariableSets = false;
         this._config = this.getDefaultConfig();
 

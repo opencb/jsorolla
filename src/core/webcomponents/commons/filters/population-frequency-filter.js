@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
+import UtilsNew from "../../../utilsNew.js";
 
 /*
 * UX improvement: mouse drag for the numeric fields (e.g. jquery.stepper.js)
@@ -49,7 +49,7 @@ export default class PopulationFrequencyFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "pff-" + Utils.randomString(6) + "_";
+        this._prefix = "pff-" + UtilsNew.randomString(6) + "_";
         this.populationFrequenciesQuery = [];
     }
 

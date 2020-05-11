@@ -16,7 +16,7 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "../utils.js";
+import UtilsNew from "../utilsNew.js";
 
 export class NotificationQueue {
 
@@ -33,7 +33,7 @@ export class NotificationQueue {
     }
 
     async push(title, details = "", severity = "info", dismissible = true, autoDismiss = true) {
-        const id = Utils.randomString(6);
+        const id = UtilsNew.randomString(6);
         const msg = {id, title, details, severity, dismissible, autoDismiss};
         this.queue = [...this.queue, msg];
         await this.context.requestUpdate();

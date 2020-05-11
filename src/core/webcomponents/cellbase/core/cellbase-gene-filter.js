@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 
@@ -45,7 +44,7 @@ export default class CellbaseGeneFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "CellbaseGeneFilter" + Utils.randomString(6) + "_";
+        this._prefix = "CellbaseGeneFilter" + UtilsNew.randomString(6) + "_";
 
         // Initially we set the default config, this will be overridden if 'config' is passed
         this._config = this.getDefaultConfig();

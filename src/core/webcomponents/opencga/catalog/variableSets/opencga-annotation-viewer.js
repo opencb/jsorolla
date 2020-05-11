@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../../utils.js";
 import UtilsNew from "../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 
@@ -51,7 +50,7 @@ export default class OpencgaAnnotationViewer extends LitElement {
 
     _init() {
         // super.ready();
-        this._prefix = "oac-" + Utils.randomString(6);
+        this._prefix = "oac-" + UtilsNew.randomString(6);
 
         this.selectedVariables = [];
 

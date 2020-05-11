@@ -15,8 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import {RestResponse} from "../../../clients/rest-response.js";
-import Utils from "./../../../utils.js";
 import UtilsNew from "./../../../utilsNew.js";
 
 

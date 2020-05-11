@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "../../../utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import "../opencga-variant-filter.js";
 import "./deprecated/opencga-variant-interpretation-grid.js";
@@ -70,7 +69,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
 
     _init() {
         // All id fields in the template must start with prefix, this allows components to be instantiated more than once
-        this._prefix = "ovdna" + Utils.randomString(6) + "_";
+        this._prefix = "ovdna" + UtilsNew.randomString(6) + "_";
 
         this.existParent = true;
         this._samples = [];

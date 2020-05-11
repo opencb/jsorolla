@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "../../../utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import Region from "../../../region.js";
@@ -72,7 +71,7 @@ export default class OpencgaVariantInterpreterGenomeBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = "OpencgaVariantInterpreterGenomeBrowser" + Utils.randomString(6) + "_";
+        this._prefix = "OpencgaVariantInterpreterGenomeBrowser" + UtilsNew.randomString(6) + "_";
         this._availableFiles = [];
         if (!UtilsNew.isNotEmpty(this.region)) {
             this.genomeBrowserRegion = new Region({chromosome: "11", start: 68177378, end: 68177510});

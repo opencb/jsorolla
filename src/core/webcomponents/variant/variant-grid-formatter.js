@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import Utils from "../../utils.js";
 import UtilsNew from "../../utilsNew.js";
 import {consequenceTypes as CT} from "../commons/opencga-variant-contants.js";
+
 
 //TODO urgent review of the whole class
 
@@ -26,7 +26,7 @@ export default class VariantGridFormatter {
         this.opencgaSession = opencgaSession;
         this.config = config;
 
-        this.prefix = "VarBrowserGrid-" + Utils.randomString(6);
+        this.prefix = "VarBrowserGrid-" + UtilsNew.randomString(6);
     }
 
     assignColors(consequenceTypes, proteinSubstitutionScores) {

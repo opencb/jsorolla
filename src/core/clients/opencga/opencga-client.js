@@ -386,5 +386,3 @@ export class OpenCGAClient {
     }
 
 }
-// TODO OpenCGAClient maybe should be a singleton exported module..
-// Object.freeze(OpenCGAClient);

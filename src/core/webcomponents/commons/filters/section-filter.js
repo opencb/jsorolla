@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
+import UtilsNew from "../../../utilsNew.js";
 
 /**
  * This is a wrapper component of a group of filters
@@ -43,7 +43,7 @@ export default class SectionFilter extends LitElement {
     }
 
     _init(){
-        this._prefix = "sf-" + Utils.randomString(6) + "_";
+        this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
     }
 
     connectedCallback() {

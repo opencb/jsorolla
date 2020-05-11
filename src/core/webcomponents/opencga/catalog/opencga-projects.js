@@ -49,7 +49,7 @@ export default class OpencgaProjects extends LitElement {
     }
 
     _init() {
-        this._prefix = "sf-" + Utils.randomString(6) + "_";
+        this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
         this._studies = [];
         this.requestDone = false;
 

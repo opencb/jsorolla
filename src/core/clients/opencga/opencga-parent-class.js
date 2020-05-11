@@ -140,7 +140,7 @@ export default class OpenCGAParentClass {
 
     _createQueryParam(params) {
         // Do not remove the sort! we need to sort the array to ensure that the key of the cache will be correct
-        const keyArray = _.keys(params);
+        const keyArray = Object.keys(params);
         const keyValueArray = [];
         for (const i in keyArray) {
             // Whatever it is inside body will be sent hidden via POST

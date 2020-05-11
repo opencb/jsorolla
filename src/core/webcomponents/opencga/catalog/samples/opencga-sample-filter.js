@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../../utils.js";
 import UtilsNew from "../../../../utilsNew.js";
 import "./../variableSets/opencga-annotation-filter.js";
 import "./../opencga-date-filter.js";
@@ -77,7 +76,7 @@ export default class OpencgaSampleFilter extends LitElement {
 
     _init() {
         // super.ready();
-        this._prefix = "osf-" + Utils.randomString(6) + "_";
+        this._prefix = "osf-" + UtilsNew.randomString(6) + "_";
 
         this.annotationFilterConfig = {
             class: "small",

@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../../utils.js";
 import UtilsNew from "./../../../../utilsNew.js";
 
 
@@ -45,7 +44,7 @@ export default class OpencgaPanelSummary extends LitElement {
     }
 
     _init() {
-        this._prefix = "PanelSummary" + Utils.randomString(6) + "_";
+        this._prefix = "PanelSummary" + UtilsNew.randomString(6) + "_";
     }
 
     updated(changedProperties) {

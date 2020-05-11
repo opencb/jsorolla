@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Util from "../../utils.js";
 import UtilsNew from "../../utilsNew.js";
 
 
@@ -51,7 +50,7 @@ export default class ReactomeVariantNetwork extends LitElement {
     }
 
     _init() {
-        this._prefix = "ReactomeVariantNetwork-" + Utils.randomString(6) + "_";
+        this._prefix = "ReactomeVariantNetwork-" + UtilsNew.randomString(6) + "_";
         this.active = true;
     }
     static get observers() {

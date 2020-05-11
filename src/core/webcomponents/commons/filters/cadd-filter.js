@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 
@@ -44,7 +43,7 @@ export default class CaddFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "caddf-" + Utils.randomString(6) + "_";
+        this._prefix = "caddf-" + UtilsNew.randomString(6) + "_";
     }
 
     updated(_changedProperties) {

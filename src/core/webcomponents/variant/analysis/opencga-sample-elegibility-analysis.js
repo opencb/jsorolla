@@ -43,7 +43,7 @@ export default class OpencgaSampleEligibilityAnalysis extends LitElement {
     }
 
     _init() {
-        this._prefix = "oga-" + Utils.randomString(6);
+        this._prefix = "oga-" + UtilsNew.randomString(6);
 
         this._config = this.getDefaultConfig();
     }

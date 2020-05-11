@@ -1,4 +1,7 @@
-class VariantTrack extends FeatureTrack {
+import UtilsNew from "../../core/utilsNew.js";
+
+
+export default class VariantTrack extends FeatureTrack {
 
     constructor(args) {
         super(args);

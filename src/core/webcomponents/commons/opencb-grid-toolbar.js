@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from '/web_modules/lit-element.js';
-import Utils from "./../../utils.js";
 import UtilsNew from "./../../utilsNew.js";
 
 
@@ -58,7 +57,7 @@ export default class OpencbGridToolbar extends LitElement {
     }
 
     _init() {
-        this._prefix = "dialog" + Utils.randomString(6);
+        this._prefix = "dialog" + UtilsNew.randomString(6);
         this._config = this.getDefaultConfig();
         this.numTotalResultsText = "0"
     }

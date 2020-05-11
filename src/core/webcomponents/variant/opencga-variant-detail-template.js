@@ -15,9 +15,8 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../utils.js";
 import UtilsNew from "../../utilsNew.js";
-import Region from './../../region.js';
+import Region from "./../../region.js";
 
 class OpencgaVariantDetailTemplate extends LitElement {
 
@@ -57,7 +56,7 @@ class OpencgaVariantDetailTemplate extends LitElement {
      */
     _init() {
         // All id fields in the template must start with prefix, this allows components to be instantiated more than once
-        this._prefix = "ovdt" + Utils.randomString(6) + "_";
+        this._prefix = "ovdt" + UtilsNew.randomString(6) + "_";
 
         this.active = false;
         // Initially we set the default config, this will be overridden if 'config' is passed
@@ -123,6 +122,7 @@ class OpencgaVariantDetailTemplate extends LitElement {
         </div>
         `;
     }
+
 };
 
 customElements.define("opencga-variant-detail-template", OpencgaVariantDetailTemplate);

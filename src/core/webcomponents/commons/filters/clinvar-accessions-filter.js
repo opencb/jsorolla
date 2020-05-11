@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 
@@ -47,7 +46,7 @@ export default class ClinvarAccessionsFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "cvaf-" + Utils.randomString(6) + "_";
+        this._prefix = "cvaf-" + UtilsNew.randomString(6) + "_";
         this.placeholder = "RCV000058226";
     }
 

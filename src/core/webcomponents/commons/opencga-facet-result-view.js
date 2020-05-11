@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import UtilsNew from "../../utilsNew.js";
+
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "../../utils.js";
+import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
+
 
 // TODO fixbug querying opencga-client PhastCons - 1kG_phase3_EAS
 
@@ -55,7 +56,7 @@ export default class OpencgaFacetResultView extends LitElement {
      */
     _init() {
         // All id fields in the template must start with prefix, this allows components to be instantiated more than once
-        this._prefix = "ofv" + Utils.randomString(6);
+        this._prefix = "ofv" + UtilsNew.randomString(6);
 
         this.plotDiv = "#" + this._prefix + "Plot";
 

@@ -17,7 +17,6 @@
 // todo check functionality (there is a _render() method and explicit calls to render())
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "../../utils.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 
@@ -67,7 +66,7 @@ export default class ClinicalInterpretationView extends LitElement {
     }
 
     _init() {
-        this._prefix = "clinical-interpretation-" + Utils.randomString(6) + "_";
+        this._prefix = "clinical-interpretation-" + UtilsNew.randomString(6) + "_";
         this.tracks = {
             sequence: {type: "sequence"},
             gene: {type: "gene"}

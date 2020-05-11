@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import UtilsNew from "../../../utilsNew.js";
 
 /*
 * TODO handle GENES
@@ -45,7 +46,7 @@ export default class SampleFilterSimple extends LitElement {
     }
 
     _init() {
-        this._prefix = "feaf-" + Utils.randomString(6);
+        this._prefix = "feaf-" + UtilsNew.randomString(6);
 
         this.featureDatalist = [];
         // TODO check why there are 2 fields in query object..

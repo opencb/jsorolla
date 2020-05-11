@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "../../../../utils.js";
+import UtilsNew from "../../../../utilsNew.js";
 import "./opencga-file-view.js";
 import "./opencga-file-preview.js";
 
@@ -49,7 +49,7 @@ export default class OpencgaFileDetail extends LitElement {
     }
 
     _init() {
-        this._prefix = "sf-" + Utils.randomString(6) + "_";
+        this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
         this.activeTab = {};
     }
 

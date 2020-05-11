@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "../../utils.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import Pedigree from "../../visualisation/pedigree.js";
@@ -63,7 +62,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
     }
 
     _init() {
-        this._prefix = "ocav-" + Utils.randomString(6);
+        this._prefix = "ocav-" + UtilsNew.randomString(6);
     }
 
     connectedCallback() {

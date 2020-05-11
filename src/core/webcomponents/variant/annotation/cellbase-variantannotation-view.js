@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./cellbase-variant-annotation-summary.js";
 import "./variant-consequence-type-view.js";
@@ -63,7 +62,7 @@ export default class CellbaseVariantAnnotationView extends LitElement {
     }
 
     _init() {
-        this._prefix = "cbvav-" + Utils.randomString(6) + "_";
+        this._prefix = "cbvav-" + UtilsNew.randomString(6) + "_";
         window.icons = {
             refresh: "fa-refresh",
             columns: "fa-th",

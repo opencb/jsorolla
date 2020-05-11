@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../utils.js";
 import UtilsNew from "./../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import Region from "../../region.js";
@@ -63,7 +62,7 @@ export default class OpencgaGenomeBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = "OpencgaGenomeBrowser" + Utils.randomString(6) + "_";
+        this._prefix = "OpencgaGenomeBrowser" + UtilsNew.randomString(6) + "_";
 
         this._availableFiles = [];
         if (!UtilsNew.isNotUndefinedOrNull(this.region)) {

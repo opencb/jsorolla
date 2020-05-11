@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../../utils.js";
 import UtilsNew from "../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 import "../variableSets/opencga-annotation-filter.js";
@@ -73,7 +72,7 @@ export default class OpencgaFamilyFilter extends LitElement {
 
     _init() {
         // super.ready();
-        this._prefix = "osf-" + Utils.randomString(6) + "_";
+        this._prefix = "osf-" + UtilsNew.randomString(6) + "_";
 
         this.minYear = 1920;
 

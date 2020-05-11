@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "../../../utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./opencga-interpretation-variant-review.js";
 import "../annotation/cellbase-variantannotation-view.js";
@@ -61,7 +60,7 @@ export default class VariantInterpreterDetail extends LitElement {
 
     _init() {
         // All id fields in the template must start with prefix, this allows components to be instantiated more than once
-        this._prefix = "oivd" + Utils.randomString(6);
+        this._prefix = "oivd" + UtilsNew.randomString(6);
         this.detailActiveTabs = {};
 
         // Initially we set the default config, this will be overridden if 'config' is passed

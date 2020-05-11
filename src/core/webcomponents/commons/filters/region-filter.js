@@ -16,7 +16,7 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "../../../utils.js";
+import UtilsNew from "../../../utilsNew.js";
 
 
 export default class RegionFilter extends LitElement {
@@ -47,7 +47,7 @@ export default class RegionFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "crf-" + Utils.randomString(6) + "_";
+        this._prefix = "crf-" + UtilsNew.randomString(6) + "_";
         // FIXME in case of region as a prop (with value = this.query.region from variant-filter) in case opencga-active-filter deletes a region filter this component is not updated.
         // A temp solution is to add query as prop and watch for its edits in updated() [this.region as prop is not used anymore].
         // this.region = "";

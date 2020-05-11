@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "../../utils.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "./opencga-clinical-analysis-grid.js";
@@ -48,7 +47,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     _init() {
-        this._prefix = "ocrc-" + Utils.randomString(6) + "_";
+        this._prefix = "ocrc-" + UtilsNew.randomString(6) + "_";
         this._config = this.getDefaultConfig();
     }
 

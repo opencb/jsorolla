@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
+import UtilsNew from "../../../utilsNew.js";
 
 export default class ConsequenceTypeSelectFilter extends LitElement {
 
@@ -42,7 +42,7 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "crf-" + Utils.randomString(6) + "_";
+        this._prefix = "crf-" + UtilsNew.randomString(6) + "_";
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 

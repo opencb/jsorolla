@@ -17,7 +17,6 @@
 // TODO check functionality and on-dom-repeat
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../../utils.js";
 import UtilsNew from "../../../../utilsNew.js";
 import CatalogUIUtils from "../../../commons/CatalogUIUtils.js";
 

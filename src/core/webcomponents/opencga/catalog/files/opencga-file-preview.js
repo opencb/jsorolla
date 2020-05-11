@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../../utils.js";
+import UtilsNew from "../../../../utilsNew.js";
 
 
 export default class OpencgaFilePreview extends LitElement {
@@ -50,7 +50,7 @@ export default class OpencgaFilePreview extends LitElement {
     }
 
     _init() {
-        // this.prefix = "osv" + Utils.randomString(6);
+        // this.prefix = "osv" + UtilsNew.randomString(6);
         this._config = this.getDefaultConfig();
         this.file = {};
     }

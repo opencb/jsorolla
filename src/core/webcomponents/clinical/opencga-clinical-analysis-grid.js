@@ -15,8 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import {RestResponse} from "../../clients/rest-response.js";
-import Utils from "../../utils.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../commons/opencb-grid-toolbar.js";
@@ -58,7 +56,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     _init() {
-        this._prefix = "cag" + Utils.randomString(6) + "_";
+        this._prefix = "cag" + UtilsNew.randomString(6) + "_";
         this.active = true;
         this.gridId = this._prefix + "ClinicalAnalysisGrid";
     }

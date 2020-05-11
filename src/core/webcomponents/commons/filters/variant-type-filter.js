@@ -16,8 +16,8 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
-import {types} from "../../commons/opencga-variant-contants.js";
+import UtilsNew from "../../../utilsNew.js";
+import {types} from "../opencga-variant-contants.js";
 
 export default class VariantTypeFilter extends LitElement {
 
@@ -47,7 +47,7 @@ export default class VariantTypeFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "crf-" + Utils.randomString(6) + "_";
+        this._prefix = "crf-" + UtilsNew.randomString(6) + "_";
         this._config = this.getDefaultConfig();
         this.selectedVariantTypes = [];
         this.requestUpdate();
