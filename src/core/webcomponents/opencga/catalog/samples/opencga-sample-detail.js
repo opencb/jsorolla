@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../../utilsNew.js";
 import "./opencga-sample-view.js";
+import "../../../variant/interpretation/sample-variant-stats-view.js";
 
 export default class OpencgaSampleDetail extends LitElement {
 
@@ -149,6 +150,11 @@ export default class OpencgaSampleDetail extends LitElement {
                                            .query="${{samples: this.sample.id}}"
                                            .search="${{samples: this.sample.id}}">
                         </opencga-file-grid>
+                    </div>
+                    <div id="sample-variant-stats-view-tab" class="tab-pane" role="tabpanel">
+                        <sample-variant-stats-view .opencgaSession="${this.opencgaSession}"
+                                           .sampleId="${this.sample.id}">
+                        </sample-variant-stats-view>
                     </div>
                 </div>
                 

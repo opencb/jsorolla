@@ -208,7 +208,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
      * @param query
      */
     queryObserver(query) {
-        debugger
+        //debugger
         if (UtilsNew.isEmptyArray(this.sampleFilters)) {
             // console.error("this.sampleFilters or this.fileFilters is empty");
             return;

@@ -161,30 +161,26 @@ export default class OpencgaAnalysisToolForm extends LitElement {
     onFieldChange(e) {
         if (e.detail.value) {
             this.data[e.detail.param] = e.detail.value;
+            const {param: paramId, value: value} = e.detail;
+            const param = this.findParam(this._config, paramId);
+            param.value = value;
+
+            if (this._config.sections && this._config.sections.length) {
+                this._config.sections.forEach(section => {
+                    if (section.parameters && section.parameters.length) {
+                        section.parameters.forEach(param => {
+                            if (param.dependsOn) {
+                                param.disabled = !this.checkDependency(param.dependsOn);
+                            }
+                        });
+                    }
+                });
+            }
+            this._config.sections = $.extend( true, [], this._config.sections); // god save the queen
+            this.requestUpdate();
         } else {
             delete this.data[e.detail.param];
         }
-
-        // console.log(e.detail);
-        // if (e.detail) {
-        //     const [paramId, value] = Object.entries(e.detail)[0];
-        //     const param = this.findParam(this._config, paramId);
-        //     param.value = value;
-        //
-        //     if (this._config.sections && this._config.sections.length) {
-        //         this._config.sections.forEach(section => {
-        //             if (section.parameters && section.parameters.length) {
-        //                 section.parameters.forEach(param => {
-        //                     if (param.dependsOn) {
-        //                         param.disabled = !this.checkDependency(param.dependsOn);
-        //                     }
-        //                 });
-        //             }
-        //         });
-        //     }
-        //     this._config.sections = $.extend( true, [], this._config.sections); // god save the queen
-        //     this.requestUpdate();
-        // }
     }
 
     // This function fills job 'params' which contains study, jobId, jobTags and jobDescription. This is common for all OpenCGA Analysis.
@@ -197,7 +193,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
     }
 
     onRun() {
-        this.dispatchEvent(new CustomEvent('analysisRun', {
+        this.dispatchEvent(new CustomEvent("analysisRun", {
             detail: {
                 data: this.data,
                 params: this.params
@@ -266,7 +262,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                         </div>
                     </div>
                         
-                    <div style="padding: 20px; float: right">
+                    <div class="pull-right button-wrapper">
                         <button type="submit" class="ripple btn btn-primary btn-lg" @click="${this.onRun}">Run</button>
                     </div>
                 </form>

@@ -67,6 +67,7 @@ class VariantInterpreterQc extends LitElement {
     }
 
     updated(changedProperties) {
+
         // if (changedProperties.has("opencgaSession")) {
         //     this.opencgaSessionObserver();
         // }
@@ -142,8 +143,7 @@ class VariantInterpreterQc extends LitElement {
                     Summary (coming soon)
                 </div>
                 <div id="${this._prefix}Variants" role="tabpanel" class="tab-pane">
-                    <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" 
-                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                    <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" .sampleId="${null}">
                     </sample-variant-stats-view>
                     <!--<variant-interpreter-qc-variant .opencgaSession="${this.opencgaSession}" 
                                                     .clinicalAnalysis="${this.clinicalAnalysis}">
