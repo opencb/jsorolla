@@ -160,7 +160,8 @@ export default class OpencgaAnalysisToolForm extends LitElement {
     // This function fills 'data' which contains the specific params for the analysis.
     onFieldChange(e) {
         if (e.detail.value) {
-            this.data[e.detail.param] = e.detail.value;
+            // TODO is this needed? e.detail.value.separator
+            this.data[e.detail.param] = e.detail.value.split(",");
         } else {
             delete this.data[e.detail.param];
         }
@@ -210,9 +211,11 @@ export default class OpencgaAnalysisToolForm extends LitElement {
     render() {
         return html`
             <div class="panel-group">
-            <!--<pre style="font-size: 10px;height: 25vh;">
-            ${JSON.stringify(this._config.sections, null, "\t")}
-            </pre> -->
+            <!--
+                <pre style="font-size: 10px;height: 25vh;">
+                    ${JSON.stringify(this._config.sections, null, "\t")}
+                </pre>
+            -->
                 <form id="analysis-form" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
                     ${this._config.sections && this._config.sections.length ? this._config.sections.map( (section, i) => html`
                          <div class="panel panel-default shadow-sm">

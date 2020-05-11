@@ -116,7 +116,12 @@ export default class OpencgaCohortVariantStatsAnalysis extends LitElement {
             execute: (opencgaSession, data, params) => {
                 opencgaSession.opencgaClient.variants().runCohortStats(data, params);
             },
-            result: {}
+            result: {
+                // mode: "file",
+                // render: (oencgaSession, jobId) => {
+                //
+                // }
+            }
         };
     }
 

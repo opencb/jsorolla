@@ -51,20 +51,51 @@ export default class OpencgaAnalysisTool extends LitElement {
     }
 
     onAnalysisRun(e) {
-        this.config.execute(this.opencgaSession, e.detail.data, e.detail.params);
+        // Execute function provided in the configuration
+        if (this.config.execute) {
+            this.config.execute(this.opencgaSession, e.detail.data, e.detail.params);
+        } else {
+            console.error(`No execute() function provided for analysis: ${this.config.id}`)
+        }
     }
 
     render() {
-        return this.config ? html`
+        // Check Project exists
+        if (!this.opencgaSession || !this.opencgaSession.study) {
+            return html`
+                <div class="guard-page">
+                    <i class="fas fa-lock fa-5x"></i>
+                    <h3>No OpenCGA study available to run an analysis. Please login to continue.</h3>
+                </div>
+            `;
+        }
+
+        // Check Analysis tool configuration
+        if (!this.config || !this.config.id || !this.config.form) {
+            return html`
+                <div class="guard-page">
+                    <i class="fas fa-exclamation fa-5x"></i>
+                    <h3>No valid Analysis tool configuration provided. Please check configuration:</h3>
+                    <div style="padding: 10px">
+                        <pre>${JSON.stringify(this.config, null, 2)}</pre>              
+                    </div>
+                </div>
+            `;
+        }
+
+        return html`
             <div class="container">
-                <h2>${this.config.title}</h2>
+                <!-- Header -->
+                <div style="padding: 20px">
+                    <h2>${this.config.title}</h2>
+                </div>
+                
                 <opencga-analysis-tool-form .opencgaSession=${this.opencgaSession} 
                                             .config="${this.config.form}"
                                             @analysisRun="${this.onAnalysisRun}">
                 </opencga-analysis-tool-form>
             </div>
-            
-        ` : null;
+        `;
     }
 
 }

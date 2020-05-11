@@ -79,9 +79,9 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
             case "COHORT_FILTER":
                 return html`<cohort-id-autocomplete .config="${field}" .opencgaSession="${this.opencgaSession}" .value="${field.defaultValue}" @filterChange="${e => this.onFilterChange("cohort", e.detail.value)}"></cohort-id-autocomplete>`;
             case "SAMPLE_FILTER":
-                return html`<sample-id-autocomplete .config="${field}" .opencgaSession="${this.opencgaSession}" .value="${field.defaultValue}" @filterChange="${e => this.onFilterChange("sample", [e.detail.value])}"></sample-id-autocomplete>`;
+                return html`<sample-id-autocomplete .config="${field}" .opencgaSession="${this.opencgaSession}" .value="${field.defaultValue}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></sample-id-autocomplete>`;
             case "FAMILY_FILTER":
-                return html`<family-id-autocomplete .config="${field}" .opencgaSession="${this.opencgaSession}" .value="${field.defaultValue}" @filterChange="${e => this.onFilterChange("family", [e.detail.value])}"></family-id-autocomplete>`;
+                return html`<family-id-autocomplete .config="${field}" .opencgaSession="${this.opencgaSession}" .value="${field.defaultValue}" @filterChange="${e => this.onFilterChange("family", e.detail.value)}"></family-id-autocomplete>`;
             default:
                 console.warn("field type "+field.type+" not implemented. String type fallback");
                 return html`<text-field-filter placeholder="${field.placeholder || ""}" ?disabled=${this.config.disabled} ?required=${this.config.required} .value="${field.defaultValue || ""}" @filterChange="${e => this.onFilterChange(field.id, e.detail.value)}"></text-field-filter>`;

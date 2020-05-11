@@ -204,14 +204,14 @@ class VariantGenericInterpreter extends LitElement {
 
     render() {
         // Check Project exists
-        // if (!this.opencgaSession && !this.opencgaSession.project) {
-        //     return html`
-        //         <div class="guard-page">
-        //             <i class="fas fa-lock fa-5x"></i>
-        //             <h3>No project available to browse. Please login to continue</h3>
-        //         </div>
-        //     `;
-        // }
+        if (!this.opencgaSession || !this.opencgaSession.project) {
+            return html`
+                <div class="guard-page">
+                    <i class="fas fa-lock fa-5x"></i>
+                    <h3>No project available to browse. Please login to continue</h3>
+                </div>
+            `;
+        }
 
         return html`
             <style>

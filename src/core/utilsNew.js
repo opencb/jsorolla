@@ -129,11 +129,13 @@ export default class UtilsNew {
     }
 
     getDiskUsage(bytes) {
-        if (bytes === 0) return '0 Byte';
-        var k = 1000;
-        var dm = 3;
-        var sizes = [' Bytes', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB'];
-        var i = Math.floor(Math.log(bytes) / Math.log(k));
+        if (bytes === 0) {
+            return '0 Byte';
+        }
+        let k = 1000;
+        let dm = 3;
+        let sizes = [' Bytes', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB'];
+        let i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + sizes[i];
     }
 
