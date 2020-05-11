@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
+import UtilsNew from "../../../utilsNew.js";
 import "./opencga-analysis-tool-form-field.js";
 
 
@@ -43,8 +43,13 @@ export default class OpencgaAnalysisToolForm extends LitElement {
     }
 
     _init() {
-        this._prefix = "oatf-";
-        this._config = {};
+        this._prefix = "oatf-" + UtilsNew.randomString(6);
+
+        // OpenCGA Analysis use 2 different set of parameters: 'data' and 'params':
+        //  - data: contains the specific params for the analysis
+        //  - params: contains study, jobId, jobTags and jobDescription
+        this.data = {};
+        this.params = {};
     }
 
     connectedCallback() {
@@ -68,6 +73,8 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                 }
             });
         }
+
+
     }
 
     firstUpdated(_changedProperties) {
@@ -80,10 +87,16 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                 console.log(params);
             }
         });
+
+        // Init the default jobId, if $DATE exist in the default ID then is replaced by YYYYMMDDhhmmss
+        this.jobId = this.config.job.id ? this.config.job.id.replace("$DATE", UtilsNew.getDatetime()) : "none";
+        this.params["jobId"] = this.jobId;
     }
 
     updated(changedProperties) {
-
+        if (changedProperties.has("opencgaSession")) {
+            this.params["study"] = this.opencgaSession.study.fqn;
+        }
     }
 
     checkDependency(dependsOn) {
@@ -144,33 +157,54 @@ export default class OpencgaAnalysisToolForm extends LitElement {
 
     }*/
 
-    // this method is in charge of update this._config with new value of "actuator" and update "target" visible prop
+    // This function fills 'data' which contains the specific params for the analysis.
     onFieldChange(e) {
-        console.log(e.detail);
-        if (e.detail) {
-            const [paramId, value] = Object.entries(e.detail)[0];
-            const param = this.findParam(this._config, paramId);
-            param.value = value;
+        if (e.detail.value) {
+            this.data[e.detail.param] = e.detail.value;
+        } else {
+            delete this.data[e.detail.param];
+        }
 
-            if (this._config.sections && this._config.sections.length) {
-                this._config.sections.forEach(section => {
-                    if (section.parameters && section.parameters.length) {
-                        section.parameters.forEach(param => {
-                            if (param.dependsOn) {
-                                param.disabled = !this.checkDependency(param.dependsOn);
-                            }
-                        });
-                    }
-                });
-            }
-            this._config.sections = $.extend( true, [], this._config.sections); // god save the queen
-            this.requestUpdate();
+        // console.log(e.detail);
+        // if (e.detail) {
+        //     const [paramId, value] = Object.entries(e.detail)[0];
+        //     const param = this.findParam(this._config, paramId);
+        //     param.value = value;
+        //
+        //     if (this._config.sections && this._config.sections.length) {
+        //         this._config.sections.forEach(section => {
+        //             if (section.parameters && section.parameters.length) {
+        //                 section.parameters.forEach(param => {
+        //                     if (param.dependsOn) {
+        //                         param.disabled = !this.checkDependency(param.dependsOn);
+        //                     }
+        //                 });
+        //             }
+        //         });
+        //     }
+        //     this._config.sections = $.extend( true, [], this._config.sections); // god save the queen
+        //     this.requestUpdate();
+        // }
+    }
+
+    // This function fills job 'params' which contains study, jobId, jobTags and jobDescription. This is common for all OpenCGA Analysis.
+    onJobFieldChange(param, value) {
+        if (value) {
+            this.params[param] = value;
+        } else {
+            delete this.params[param];
         }
     }
 
     onRun() {
-
-
+        this.dispatchEvent(new CustomEvent('analysisRun', {
+            detail: {
+                data: this.data,
+                params: this.params
+            },
+            bubbles: true,
+            composed: true
+        }));
     }
 
     render() {
@@ -202,12 +236,13 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                         </div>
                     `) : null }
                     
+                    <!-- Job Info section -->
                     <div class="panel panel-default shadow-sm">
                         <div class="panel-heading" role="tab" id="${this._prefix}HeadingJob">
                             <h4 class="panel-title">
                                 <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
                                         href="#${this._prefix}section-job" aria-expanded="true">
-                                    ${this._config.run.title}
+                                    ${this._config.job.title}
                                 </a>
                             </h4>
                         </div>
@@ -216,15 +251,15 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                                 <div class="row">
                                     <div style="padding: 4px 20px; width: 480px">
                                         <label>Job ID</label>
-                                        <text-field-filter placeholder="job ID" .value="${this._config.id}" @filterChange="${e => this.onFilterChange("jobId", e.detail.value)}"></text-field-filter>
+                                        <text-field-filter placeholder="job ID" .value="${this.jobId}" @filterChange="${e => this.onJobFieldChange("jobId", e.detail.value)}"></text-field-filter>
                                     </div>
                                     <div style="padding: 4px 20px; width: 480px">
                                         <label>Job tags</label>
-                                        <text-field-filter placeholder="job tags" .value="" @filterChange="${e => this.onFilterChange("jobTags", e.detail.value)}"></text-field-filter>
+                                        <text-field-filter placeholder="job tags" .value="" @filterChange="${e => this.onJobFieldChange("jobTags", e.detail.value)}"></text-field-filter>
                                     </div>
                                     <div style="padding: 4px 20px; width: 480px">
                                         <label>Job Description</label>
-                                        <text-field-filter placeholder="job description" .value="" @filterChange="${e => this.onFilterChange("jobDescription", e.detail.value)}"></text-field-filter>
+                                        <text-field-filter placeholder="job description" .value="" @filterChange="${e => this.onJobFieldChange("jobDescription", e.detail.value)}"></text-field-filter>
                                     </div>
                                 </div>
                             </div>

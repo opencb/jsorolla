@@ -170,7 +170,7 @@ export default class OpencgaJobsDetailLog extends LitElement {
         return {
             command: "head",
             type: "stderr",
-            lines: 5
+            lines: 50
         };
     }
 

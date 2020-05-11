@@ -45,13 +45,11 @@ export default class OpencgaGwasAnalysis extends LitElement {
     _init() {
         this._prefix = "oga-" + UtilsNew.randomString(6);
 
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
         super.connectedCallback();
-        // this._config = {...this.getDefaultConfig(), ...this.config};
-        // this.fieldMap = {};
     }
 
     updated(changedProperties) {
@@ -147,20 +145,19 @@ export default class OpencgaGwasAnalysis extends LitElement {
                         ]
                     }
                 ],
-                run: {
+                job: {
                     title: "Job Info",
-                    job: {
-                        id: "$ID-$DATE-$RANDOM",
-                        tags: "",
-                        description: ""
+                    id: "gwas-$DATE",
+                    tags: "",
+                    description: "",
+                    validation: function(params) {
+                        alert("test:" + params);
                     },
-                    execute: {
-                        validation: function(params) {
-                            alert("test:" + params);
-                        },
-                        button: "Run"
-                    }
+                    button: "Run"
                 }
+            },
+            execute: (opencgaSession, data, params) => {
+                opencgaSession.opencgaClient.variants().runGwas(data, params);
             },
             result: {
             }

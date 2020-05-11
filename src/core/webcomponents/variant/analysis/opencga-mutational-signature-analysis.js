@@ -50,8 +50,6 @@ export default class OpencgaMutationalSignatureAnalysis extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        // this._config = {...this.getDefaultConfig(), ...this.config};
-        // this.fieldMap = {};
     }
 
     updated(changedProperties) {
@@ -89,20 +87,19 @@ export default class OpencgaMutationalSignatureAnalysis extends LitElement {
                         ]
                     }
                 ],
-                run: {
+                job: {
                     title: "Job Info",
-                    job: {
-                        id: "$ID-$DATE-$RANDOM",
-                        tags: "",
-                        description: ""
+                    id: "mutational-signature-$DATE",
+                    tags: "",
+                    description: "",
+                    validation: function(params) {
+                        alert("test:" + params);
                     },
-                    execute: {
-                        validation: function(params) {
-                            alert("test:" + params);
-                        },
-                        button: "Run"
-                    }
+                    button: "Run"
                 }
+            },
+            execute: (opencgaSession, data, params) => {
+                opencgaSession.opencgaClient.variants().runMutationalSignature(data, params);
             },
             result: {
             }

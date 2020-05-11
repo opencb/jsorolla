@@ -137,4 +137,16 @@ export default class UtilsNew {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + sizes[i];
     }
 
+    static getDatetime() {
+        function pad2(n) {  // always returns a string
+            return (n < 10 ? '0' : '') + n;
+        }
+        let date = new Date();
+        return date.getFullYear() +
+            pad2(date.getMonth() + 1) +
+            pad2(date.getDate()) +
+            pad2(date.getHours()) +
+            pad2(date.getMinutes()) +
+            pad2(date.getSeconds());
+    }
 }

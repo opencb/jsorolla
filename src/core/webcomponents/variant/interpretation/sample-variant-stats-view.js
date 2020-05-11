@@ -16,8 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import "../../simple-plot.js";
 import {types} from "../../commons/opencga-variant-contants.js";
+import "../../simple-plot.js";
 
 class SampleVariantStatsView extends LitElement {
 

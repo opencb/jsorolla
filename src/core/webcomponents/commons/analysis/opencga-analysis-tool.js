@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
+import UtilsNew from "../../../utilsNew.js";
 import "./opencga-analysis-tool-form.js";
 
 
@@ -43,19 +43,25 @@ export default class OpencgaAnalysisTool extends LitElement {
     }
 
     _init() {
-        // this._prefix = "oat-" + Utils.randomString(6);
-        this._prefix = "oat-";
+        this._prefix = "oat-" + UtilsNew.randomString(6);
     }
 
     updated(changedProperties) {
 
     }
 
+    onAnalysisRun(e) {
+        this.config.execute(this.opencgaSession, e.detail.data, e.detail.params);
+    }
+
     render() {
         return this.config ? html`
             <div class="container">
                 <h2>${this.config.title}</h2>
-                <opencga-analysis-tool-form .opencgaSession=${this.opencgaSession} .config="${this.config.form}"></opencga-analysis-tool-form>
+                <opencga-analysis-tool-form .opencgaSession=${this.opencgaSession} 
+                                            .config="${this.config.form}"
+                                            @analysisRun="${this.onAnalysisRun}">
+                </opencga-analysis-tool-form>
             </div>
             
         ` : null;

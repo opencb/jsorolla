@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
+import UtilsNew from "./../../../utilsNew.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
 
 
@@ -44,17 +44,18 @@ export default class OpencgaSampleEligibilityAnalysis extends LitElement {
 
     _init() {
         this._prefix = "oga-" + Utils.randomString(6);
+
+        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.fieldMap = {};
     }
 
     updated(changedProperties) {
         if (changedProperties.has("config")) {
-            //this._config = Object.assign(this.getDefaultConfig(), this.config);
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
         }
     }
 
@@ -96,20 +97,19 @@ export default class OpencgaSampleEligibilityAnalysis extends LitElement {
                         ]
                     }
                 ],
-                run: {
+                job: {
                     title: "Job Info",
-                    job: {
-                        id: "$ID-$DATE-$RANDOM",
-                        tags: "",
-                        description: ""
+                    id: "sample-eligibility-$DATE",
+                    tags: "",
+                    description: "",
+                    validation: function(params) {
+                        alert("test:" + params);
                     },
-                    execute: {
-                        validation: function(params) {
-                            alert("test:" + params);
-                        },
-                        button: "Run",
-                    }
+                    button: "Run",
                 }
+            },
+            execute: (opencgaSession, data, params) => {
+                opencgaSession.opencgaClient.variants().runSampleEligibility(data, params);
             },
             result: {}
         };

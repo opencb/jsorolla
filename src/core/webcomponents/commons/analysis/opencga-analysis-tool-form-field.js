@@ -15,11 +15,12 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
+import UtilsNew from "../../../utilsNew.js";
 import "../filters/select-field-filter.js";
 import "../filters/text-field-filter.js";
 import "../filters/cohort-id-autocomplete.js";
 import "../filters/sample-id-autocomplete.js";
+import "../filters/family-id-autocomplete.js";
 
 export default class OpencgaAnalysisToolFormField extends LitElement {
 
@@ -44,7 +45,7 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
     }
 
     _init() {
-        this._prefix = "oatff-" + Utils.randomString(6) + "_";
+        this._prefix = "oatff-" + UtilsNew.randomString(6);
     }
 
     connectedCallback() {
@@ -54,7 +55,9 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
     onFilterChange(fieldId, value) {
         this.dispatchEvent(new CustomEvent("fieldChange", {
             detail: {
-                [fieldId]: value
+                // [fieldId]: value,
+                param: fieldId,
+                value: value
             },
             bubbles: true,
             composed: true
@@ -76,7 +79,9 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
             case "COHORT_FILTER":
                 return html`<cohort-id-autocomplete .config="${field}" .opencgaSession="${this.opencgaSession}" .value="${field.defaultValue}" @filterChange="${e => this.onFilterChange("cohort", e.detail.value)}"></cohort-id-autocomplete>`;
             case "SAMPLE_FILTER":
-                return html`<sample-id-autocomplete .config="${field}" .opencgaSession="${this.opencgaSession}" .value="${field.defaultValue}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></sample-id-autocomplete>`;
+                return html`<sample-id-autocomplete .config="${field}" .opencgaSession="${this.opencgaSession}" .value="${field.defaultValue}" @filterChange="${e => this.onFilterChange("sample", [e.detail.value])}"></sample-id-autocomplete>`;
+            case "FAMILY_FILTER":
+                return html`<family-id-autocomplete .config="${field}" .opencgaSession="${this.opencgaSession}" .value="${field.defaultValue}" @filterChange="${e => this.onFilterChange("family", [e.detail.value])}"></family-id-autocomplete>`;
             default:
                 console.warn("field type "+field.type+" not implemented. String type fallback");
                 return html`<text-field-filter placeholder="${field.placeholder || ""}" ?disabled=${this.config.disabled} ?required=${this.config.required} .value="${field.defaultValue || ""}" @filterChange="${e => this.onFilterChange(field.id, e.detail.value)}"></text-field-filter>`;
