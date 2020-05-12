@@ -115,6 +115,9 @@ export default class OpencgaFilePreview extends LitElement {
             default:
                 this.content = "Extension not recognized";
         }
+
+        this.url = this.opencgaSession.server.host + "/webservices/rest/" + this.opencgaSession.server.version + "/files/" + this.file.id + "/download?study=" + this.opencgaSession.study.fqn + "&sid=" + this.opencgaSession.token;
+        this.requestUpdate();
     }
 
     async download() {
@@ -160,10 +163,13 @@ export default class OpencgaFilePreview extends LitElement {
                 color: #a5a5a5;
                 font-size: .9em;
                 min-height: 150px;
-            }            
+            }
+                             
         </style>
         
-        <!--<a href="${this.url}">Download</a>-->
+        <div class="button-wrapper">
+            <a class="btn btn-primary ripple" href="${this.url}">Download</a>
+        </div>
         ${this.file ? html`
             <div class="row" style="padding: 0px 10px">
                 <div class="col-md-12">

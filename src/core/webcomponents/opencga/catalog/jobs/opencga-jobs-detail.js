@@ -84,7 +84,7 @@ export default class OpencgaJobsDetail extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "File",
+            title: "Job",
             showTitle: true
         };
     }

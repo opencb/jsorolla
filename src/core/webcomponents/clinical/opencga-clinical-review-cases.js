@@ -112,7 +112,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     onSelectClinicalAnalysis(e) {
-        this.clinicalAnalysis = e.detail.analysis;
+        this.clinicalAnalysis = e.detail.row;
         this.requestUpdate();
     }
 

@@ -51,7 +51,6 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
     _init() {
         this._prefix = "sff-" + UtilsNew.randomString(6) + "_";
         this.selectionList = [];
-        this.showAll = false;
     }
 
     connectedCallback() {
@@ -114,6 +113,11 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                 console.log("NO match", this.input.val());
             }
             //this.addTerm();
+        });
+        this.input.on("keypress", e => {
+            if (e.which === 13) {
+                this.addTerm();
+            }
         });
     }
 
@@ -198,14 +202,21 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
         $(e.currentTarget).removeClass("dragover");
     }
 
+    remove(e) {
+        const term = e.currentTarget.dataset.term;
+        this.selectionList.splice(this.selectionList.indexOf(term), 1);
+        this.filterChange();
+        this.requestUpdate();
+    }
+
     getDefaultConfig() {
         return {
             limit: 10,
             searchMinLength: 1,
             maxItems: 0,
-            limitToShow: 20,
+            limitToShow: 3,
             fileUpload: true,
-            showList: true,
+            showList: false,
             fields: item => ({name: item.id}),
             dataSource: (query, process) => {
                 throw new Error("dataSource not defined");
@@ -292,7 +303,16 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                     white-space: break-spaces;
                     word-break: break-all;
                     padding: 3px 4px;
-                    border-radius: 5px;
+                    border-radius: 5px;    
+                    margin: 0 0 2px 0;
+                }
+                
+                .blue-badge .badge{
+                    background: #337ab7;
+                }
+                
+                .blue-badge .badge .close-icon{
+                    cursor:pointer;
                 }
 
             </style>
@@ -327,11 +347,11 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                     </div>
                 ` : null}
                 
-                ${this.showList && this.selectionList.length ? html`
-                    <div class="selection-list">
+                ${this._config.showList && this.selectionList.length ? html`
+                    <div class="selection-list blue-badge">
                         <ul>
-                            ${this.selectionList.slice(0, this._config.limitToShow).map(term => html`<li><span class="badge break-spaces">${term}</span></li>`)}
-                            ${this.showAll ? this.selectionList.slice(this._config.limitToShow).map(term => html`<li><span class="badge break-spaces">${term}</span></li>`) : ""}
+                            ${this.selectionList.slice(0, this._config.limitToShow).map(term => html`<li><span class="badge break-spaces">${term} <span class="close-icon" data-term=${term} @click="${this.remove}"><i class="fas fa-times"></i></span></span></li>`)}
+                            ${this.showAll ? this.selectionList.slice(this._config.limitToShow).map(term => html`<li><span class="badge break-spaces">${term} <span class="close-icon"><i class="fas fa-times"></i></span></span></li>`) : ""}
                         </ul>
                         ${this.selectionList.length > this._config.limitToShow ? html`<button class="btn btn-small ripple" @click="${this.toggleList}">Show ${this.showAll ? "less" : "all"}</button>` : ""}
                     </div>` : null}

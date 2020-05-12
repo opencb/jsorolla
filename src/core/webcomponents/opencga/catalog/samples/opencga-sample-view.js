@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../../utils.js";
+import UtilsNew from "./../../../../utilsNew.js";
 
 
 export default class OpencgaSampleView extends LitElement {
@@ -50,7 +50,7 @@ export default class OpencgaSampleView extends LitElement {
     }
 
     _init() {
-        // this.prefix = "osv" + UtilsNew.randomString(6);
+        this._prefix = "osv" + UtilsNew.randomString(6);
         this._config = this.getDefaultConfig();
     }
 
@@ -165,28 +165,18 @@ export default class OpencgaSampleView extends LitElement {
                     </form>
                 </div>
 
-                <div class="col-md-12">
-                    <h3 class="section-title">Phenotypes</h3>
-                    <form class="form-horizontal">
-                        <!--<div class="form-group">
-                            <label class="col-md-3 label-title">Type</label>
-                            <span class="col-md-9">${this.sample.type}</span>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 label-title">Somatic</label>
-                            <span class="col-md-9">${this.sample.somatic}</span>
-                        </div> -->
-                        ${this.sample.phenotypes && this.sample.phenotypes.length ? this.sample.phenotypes.map( item => html`
-                            <span>${item.name} (<a href="http://compbio.charite.de/hpoweb/showterm?id=${item.id}" target="_blank">${item.id}</a>)</span>
-                            <br>
-                        `) : null}
-                    </form>
-                </div>
+                ${this.sample.phenotypes && this.sample.phenotypes.length ? html`
+                    <div class="col-md-12">
+                        <h3 class="section-title">Phenotypes</h3>
+                        <form class="form-horizontal">
+                            ${this.sample.phenotypes.map( item => html`
+                                <span>${item.name} (<a href="http://compbio.charite.de/hpoweb/showterm?id=${item.id}" target="_blank">${item.id}</a>)</span>
+                                <br>
+                            `)}
+                        </form>
+                    </div>
+                ` : null }
                         
-                <div class="col-md-12">
-                    <h3 class="section-title">Annotations</h3>
-    
-                </div>
             </div>
         ` : null }
         `;

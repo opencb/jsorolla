@@ -83,12 +83,14 @@ export default class OpencgaGwasAnalysis extends LitElement {
                                 id: "sample",
                                 title: "Select samples",
                                 type: "SAMPLE_FILTER",
+                                showList: true
                                 // colspan: 6
                             },
                             {
                                 id: "cohort",
                                 title: "Select cohort",
                                 type: "COHORT_FILTER",
+                                showList: true
                                 // colspan: 6
                             },
                             {

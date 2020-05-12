@@ -130,8 +130,7 @@ export default class OpencgaJobsGrid extends LitElement {
                         order: params.data.order,
                         limit: params.data.limit || $(this.table).bootstrapTable("getOptions").pageSize,
                         skip: params.data.offset || 0,
-                        //include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid", TODO include only the column I show
-                        exclude: "execution",
+                        include: "id,userId,tool,priority,tags,creationDate,visited,dependsOn,outDir,internal,execution,params",
                         ...this.query
                     };
                     this.opencgaSession.opencgaClient.jobs().search(filters).then( res => params.success(res));
@@ -287,18 +286,6 @@ export default class OpencgaJobsGrid extends LitElement {
                 },*/
                 onPageChange: (page, size) => this.gridCommons.onPageChange(page, size)
             });
-
-
-            /*  TODO recheck if needed
-            this.opencgaSession.opencgaClient.studies().info(this.opencgaSession.study.id)
-                .then(function(response) {
-                    _this.variableSets = response.response[0].result[0].variableSets;
-                })
-                .catch(function() {
-                    console.log("Could not obtain the variable sets of the study " + _this.opencgaSession.study.id);
-                });
-            */
-
         } else {
             // Delete table
             this.table.bootstrapTable("destroy");
@@ -462,11 +449,20 @@ export default class OpencgaJobsGrid extends LitElement {
             {
                 title: "ID",
                 field: "id"
-                // visible: false
             },
             {
                 title: "Tool",
                 field: "tool.id"
+            },
+            {
+                title: "Status",
+                field: "internal.status.name",
+                formatter: this.statusFormatter
+            },
+            {
+                title: "Creation",
+                field: "creationDate",
+                formatter: this.creationDateFormatter
             },
             {
                 title: "Priority",
@@ -475,12 +471,17 @@ export default class OpencgaJobsGrid extends LitElement {
             {
                 title: "Tags",
                 field: "tags",
-                formatter: v => v && v.length ? v.map( tag => `<span class="badge badge-secondary">${v}</span>`).join(" ") : "-"
-            },
+                formatter: v => v && v.length ? v.map( tag => `<span class="badge badge-secondary">${tag}</span>`).join(" ") : "-"
+            },/*
             {
-                title: "Date",
-                field: "creationDate",
-                formatter: date => moment(date, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")
+                title: "Running time",
+                field: "execution",
+                formatter: execution => execution?.start ? moment.duration(moment().subtract(moment(execution.start))) : ""
+            },*/
+            {
+                title: "Start/End Date",
+                field: "execution",
+                formatter: execution => execution?.start ? moment(execution.start).format("D MMM YYYY, h:mm:ss a") + " / " + (execution?.end ? moment(execution.end).format("D MMM YYYY, h:mm:ss a") : "-"): "-"
             },
             {
                 title: "Visited",
@@ -489,26 +490,55 @@ export default class OpencgaJobsGrid extends LitElement {
             {
                 title: "Depends on",
                 field: "dependsOn",
-                formatter: v => v.length
-                    ? v.map( dep => `<p>${dep.id}</p>`).join("")
-                    : "-"
+                formatter: v => v.length > 0 ? v.length + " job" + (v.length > 1 ? "s" : "") : "-"
             },
             {
                 title: "Out directory",
                 field: "outdir"
-            },
-            {
-                title: "Status",
-                field: "internal.status.name",
-                formatter: this.statusFormatter
             },
         ];
 
         return this._columns;
     }
 
-    detailFormatter() {
-        return "details";
+    detailFormatter(value, row) {
+        return row.dependsOn && row.dependsOn.length ? `
+            <div class='row' style="padding: 5px 10px 20px 10px">
+                <div class='col-md-12'>
+                    <h5 style="font-weight: bold">Dependencies</h5>
+                    <div>
+                        <table class="table table-hover table-no-bordered">
+                            <thead>
+                                <tr class="table-header">
+                                    <th>ID</th>
+                                    <th>Tool</th>
+                                    <th>Status</th>
+                                    <th>Priority</th>
+                                    <th>Creation Date</th>
+                                    <th>Visited</th>
+                                </tr>
+                            </thead>                    
+                            <tbody>
+                                ${row.dependsOn.map(job => `
+                                    <tr class="detail-view-row">
+                                        <td>${job.id}</td>
+                                        <td>${job.tool.id}</td>
+                                        <td>${job.internal.status.name}</td>
+                                        <td>${job.priority}</td>
+                                        <td>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</td>
+                                        <td>${job.visited}</td>
+                                   </tr>
+                                `)}
+                            </tbody>
+                        </table>
+                    </div>
+            </div>
+        </div>` : "No dependencies";
+    }
+
+    creationDateFormatter(date) {
+        //return moment(date, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")
+        return moment(date, "YYYYMMDDHHmmss").fromNow()
     }
 
     statusFormatter(status) {

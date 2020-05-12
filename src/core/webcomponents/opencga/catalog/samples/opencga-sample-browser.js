@@ -156,7 +156,8 @@ export default class OpencgaSampleBrowser extends LitElement {
                                 id: "individual",
                                 name: "Individual",
                                 placeholder: "LP-1234, LP-4567...",
-                                description: ""
+                                description: "",
+                                showList: true
                             },/*
                             {
                                 id: "source",
@@ -217,6 +218,10 @@ export default class OpencgaSampleBrowser extends LitElement {
                         id: "sample-view",
                         title: "Details",
                         active: true
+                    },
+                    {
+                        id: "sample-variant-stats-view",
+                        title: "Variant Stats"
                     },
                     {
                         id: "individual-view",

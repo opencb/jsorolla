@@ -78,34 +78,26 @@ export default class OpencgaJobsView extends LitElement {
     configObserver() {
     }
 
-    // TODO recheck
     jobIdObserver() {
-        console.warn("jobIdObserver");
-        if (this.job !== undefined && this.job !== "") {
-            const params = {
-                study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
-                includeIndividual: true
-            };
-            const _this = this;
-            this.opencgaSession.opencgaClient.jobs().info(this.job, params)
-                .then(function(response) {
-                    if (response.response[0].id === undefined) {
-                        response.response[0].id = response.response[0].name;
-                    }
-                    _this.job = response.response[0].result[0];
-                    console.log("_this.job", _this.job);
-                    _this.requestUpdate();
-                })
-                .catch(function(reason) {
-                    console.error(reason);
-                });
-        }
+        const params = {
+            study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
+            includeIndividual: true
+        };
+        this.opencgaSession.opencgaClient.jobs().info(this.jobId, params)
+            .then( response => {
+                this.job = response.getResult(0);
+                this.job.id = this.job.id ?? this.job.name;
+                this.requestUpdate();
+            })
+            .catch(function(reason) {
+                console.error(reason);
+            });
+
 
     }
 
     jobObserver() {
         console.log("jobObserver");
-
     }
 
     statusFormatter(status) {
@@ -144,12 +136,10 @@ export default class OpencgaJobsView extends LitElement {
                 padding-right: 10px;
             }
         </style>
-
         ${this.job ? html`
-            <div class="row" style="padding: 0px 10px">
-                <div class="col-md-12">
-                    <h3 class="section-title">Summary</h3>
-
+            <div>
+                <h3 class="section-title">Summary</h3>
+                <div class="row">
                     <div class="col-md-12">
                         <form class="form-horizontal">
                             <div class="form-group">
@@ -172,6 +162,11 @@ export default class OpencgaJobsView extends LitElement {
                                 <label class="col-md-3 label-title">Output Dir</label>
                                 <span class="col-md-9">${this.job.outDir?.uri || "-"}</span>
                             </div>
+                            
+                            <div class="form-group">
+                                <label class="col-md-3 label-title">Parameters</label>
+                                <span class="col-md-9">${Object.entries(this.job.params).map( ([param, value]) => html`<p><strong>${param}</strong>: ${value ? value : "-"}</p>`)}</span>
+                            </div>                            
                             
                             ${this.job.dependsOn && this.job.dependsOn.length ? html`
                                 <div class="form-group">

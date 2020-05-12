@@ -74,7 +74,14 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
             case "number":
                 const [min = "", max = ""] = field.allowedValues || [];
                 return html`<div id="${this._prefix}-wrapper" class="subsection-content form-group">
-                                <input type="number" min=${min} max=${max} step="0.01" .disabled=${this.config.disabled} ?required=${this.config.required} value="${field.defaultValue || ""}" id="${this._prefix}-input-${field.id}" class="input form-control input-sm ${this._prefix}FilterTextInput" placeholder="${field.placeholder || ""}" @input="${e => this.onFilterChange(field.id, e.target.value)}">
+                                <input type="number" min=${min} max=${max} step="0.01" .disabled=${this.config.disabled} ?required=${this.config.required} value="${field.defaultValue || ""}" id="${this._prefix}-input-${field.id}" class="form-control input-sm ${this._prefix}FilterTextInput" placeholder="${field.placeholder || ""}" @input="${e => this.onFilterChange(field.id, e.target.value)}">
+                            </div>`;
+            case "boolean":
+                return html`<div class="form-horizontal">
+                                <div class="from-group form-inline">
+                                    <input class="magic-radio" type="radio" name="${field.id}" id="${field.id}yes" ?checked=${field.value === "yes"} value="yes" @change="${e => this.onFilterChange(field.id, "yes")}"><label class="magic-horizontal-label" for="${field.id}yes"> Yes </label>
+                                    <input class="magic-radio" type="radio" name="${field.id}" id="${field.id}no" ?checked=${field.value === "no"} value="no" @change="${e => this.onFilterChange(field.id, "yes")}"> <label class="magic-horizontal-label" for="${field.id}no"> No </label>
+                                </div>
                             </div>`;
             case "COHORT_FILTER":
                 return html`<cohort-id-autocomplete .config="${field}" .opencgaSession="${this.opencgaSession}" .value="${field.defaultValue}" @filterChange="${e => this.onFilterChange("cohort", e.detail.value)}"></cohort-id-autocomplete>`;

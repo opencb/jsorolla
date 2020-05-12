@@ -31,7 +31,7 @@ export default class LoadingSpinner extends LitElement {
         <style>
             .loading-spinner-wrapper {
                 text-align: center;
-                height: 90px;
+                height: 100px;
                 clear:both;
             }
             
