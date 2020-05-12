@@ -109,7 +109,7 @@ export default class GridCommons {
     }
 
     onLoadSuccess(data, firstRowIndex = 2) {
-        if (data.rows && data.rows.length >= firstRowIndex) {
+        if (data.rows && data.rows.length > 0) {
             $("#" + this.gridId)[0].rows[firstRowIndex].setAttribute("class", "success");
             this.context.dispatchEvent(new CustomEvent("selectrow", {
                 detail: {

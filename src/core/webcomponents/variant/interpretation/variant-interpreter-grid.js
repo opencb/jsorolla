@@ -46,9 +46,6 @@ export default class VariantInterpreterGrid extends LitElement {
             query: {
                 type: Object
             },
-            // variants: {
-            //     type: Array
-            // },
             consequenceTypes: {
                 type: Object
             },
@@ -82,15 +79,17 @@ export default class VariantInterpreterGrid extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
+        this.table = this.querySelector("#" + this.gridId);
     }
 
     firstUpdated(_changedProperties) {
         this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
         this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
-        this.table = this.querySelector("#" + this.gridId);
-        this.checkedVariants = new Map();
+        // this.table = this.querySelector("#" + this.gridId);
+        // this.checkedVariants = new Map();
     }
 
     updated(changedProperties) {
@@ -113,6 +112,7 @@ export default class VariantInterpreterGrid extends LitElement {
         this.variantGridFormatter = new VariantGridFormatter(this.opencgaSession, this._config);
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
+        // FIXME Re-think this code
         const colors = this.variantGridFormatter.assignColors(this.consequenceTypes, this.proteinSubstitutionScores);
         Object.assign(this, colors);
     }
@@ -244,34 +244,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     this.to = page * size;
                 },
                 onPostBody: function(data) {
-                    // const _onPostBody = _this._onPostBody.bind(_this, data, "remote");
-                    // _this._onPostBody();
-                    const reviewButtons = document.querySelectorAll(".reviewButton");
-                    for (let i = 0; i < reviewButtons.length; i++) {
-                        reviewButtons[i].addEventListener("click", _this.onReviewClick.bind(_this));
-                    }
-                    //
-                    // // The first time we mark as selected the first row that is rows[2] since the first two rows are the header
-                    // const _table = $("#" + this._prefix + "VariantBrowserGrid");
-                    // if (UtilsNew.isNotEmptyArray(data) && UtilsNew.isNotUndefinedOrNull(_table)) {
-                    //     PolymerUtils.querySelector(_table.selector).rows[2].setAttribute("class", "success");
-                    //     if (mode === "remote") {
-                    //         this._onSelectVariant(data[0]);
-                    //     } else {
-                    //         this._onClickSelectedVariant(data[0]);
-                    //     }
-                    // }
-
-                    if (_this.variantGridFormatter) {
-                        _this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
-                        _this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
-                        _this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "File metrics", "", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
-                        _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", _this.populationFrequencies);
-                        _this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("span.pop-preq-info-icon", _this.populationFrequencies);
-                        const predictionTooltipContent = "<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations";
-                        _this.variantGridFormatter.addTooltip("span.interpretation-info-icon", "Interpretation", predictionTooltipContent, {position: {my: "top right"}, style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
-                        _this.variantGridFormatter.addTooltip("div.predictionTooltip", "Classification", "", {position: {my: "top right"}, style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}, width: "360px"});
-                    }
+                    _this._onPostBody();
                 }
             });
         }
@@ -279,11 +252,11 @@ export default class VariantInterpreterGrid extends LitElement {
 
     renderLocalVariants() {
         let _variants = this.clinicalAnalysis.interpretation.primaryFindings;
+
         this.from = 1;
         this.to = Math.min(_variants.length, this._config.pageSize);
         this.numTotalResultsText = _variants.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-        // this._columns = this._createDefaultColumns();
         const _this = this;
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
@@ -306,24 +279,35 @@ export default class VariantInterpreterGrid extends LitElement {
             variantGrid: _this,
 
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            onLoadSuccess: data => {
-                this.gridCommons.onLoadSuccess(data, 2);
-            },
             onPageChange: function(page, size) {
                 // _this.from = (page - 1) * size + 1;
                 // _this.to = page * size;
             },
             onPostBody: function(data) {
-                // const _onPostBody = _this._onPostBody.bind(_this, data, "local");
-                // _this._onPostBody();
+                // We call onLoadSuccess to select first row
+                _this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
+                _this._onPostBody();
             }
         });
     }
 
-    _onClickSelectedVariant(row) {
-        if (typeof row !== "undefined") {
-            const _variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-            this.dispatchEvent(new CustomEvent("selectvariant2", {detail: {id: _variant, variant: row}}));
+    _onPostBody() {
+        // Add review button listener
+        const reviewButtons = document.querySelectorAll(".reviewButton");
+        for (let i = 0; i < reviewButtons.length; i++) {
+            reviewButtons[i].addEventListener("click", this.onReviewClick.bind(this));
+        }
+
+        // Add tooltips
+        if (this.variantGridFormatter) {
+            this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
+            this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
+            this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "File metrics", "", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
+            this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", this.populationFrequencies);
+            this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("span.pop-preq-info-icon", this.populationFrequencies);
+            const predictionTooltipContent = "<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations";
+            this.variantGridFormatter.addTooltip("span.interpretation-info-icon", "Interpretation", predictionTooltipContent, {position: {my: "top right"}, style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
+            this.variantGridFormatter.addTooltip("div.predictionTooltip", "Classification", "", {position: {my: "top right"}, style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}, width: "360px"});
         }
     }
 
@@ -334,12 +318,6 @@ export default class VariantInterpreterGrid extends LitElement {
         //     }
         // }));
 
-        // for (const rv of this.variants) {
-        //     if (rv.id === e.currentTarget.dataset.variantId) {
-        //         this.variantReview = rv;
-        //         break;
-        //     }
-        // }
         if (this.checkedVariants) {
             this.variantReview = this.checkedVariants.get(e.currentTarget.dataset.variantId);
             $("#" + this._prefix + "ReviewSampleModal").modal("show");
@@ -462,7 +440,8 @@ export default class VariantInterpreterGrid extends LitElement {
                             mutationColor = "silver";
                         }
                     } else {
-                        console.warn("file is undefined")
+                        // This can happen when no ref/ref calls are loaded
+                        console.warn("file is undefined");
                     }
                 }
 

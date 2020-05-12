@@ -543,19 +543,26 @@ export default class VariantInterpreterReview extends LitElement {
                     ` : null}
                 </div>
 
+                
+
+                
                 <div class="col-md-12">
+                
+                    
                     <div>
                         <!-- <h3 class="form-section-title" style="margin-top: 10px">Interpretation</h3> -->
                         <div style="display: inline; cursor:pointer" @click="toggleInterpretationCollapsed"
                              data-toggle="collapse" href="#${this._prefix}collapsibleInterpretation">
-                            <h3 class="form-section-title">
-                                ${this.interpretationCollapsed ? html`
-                                    <i class="fa fa-caret-right" aria-hidden="true" style="width: 20px;padding-left: 5px;padding-right: 5px"></i>
-                                ` : html`
-                                <i class="fa fa-caret-down" aria-hidden="true" style="width: 20px;padding-left: 5px;padding-right: 5px"></i>
-                                `}
-                                Interpretation
-                            </h3>
+                            <h4 class="form-section-title">
+                                <!--
+                                    ${this.interpretationCollapsed ? html`
+                                        <i class="fa fa-caret-right" aria-hidden="true" style="width: 20px;padding-left: 5px;padding-right: 5px"></i>
+                                    ` : html`
+                                    <i class="fa fa-caret-down" aria-hidden="true" style="width: 20px;padding-left: 5px;padding-right: 5px"></i>
+                                    `}
+                                -->
+                                Interpretation Info
+                            </h4>
                         </div>
 
                         <div id="${this._prefix}collapsibleInterpretation" class="form-horizontal collapse in" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
@@ -604,14 +611,16 @@ export default class VariantInterpreterReview extends LitElement {
                         <!--                        <h3 class="form-section-title">Edit Reported Variants</h3>-->
                         <div style="display: inline; cursor:pointer" @click="${this.toggleVariantsCollapsed}"
                              data-toggle="collapse" href="#${this._prefix}collapsibleVariants">
-                            <h3 class="form-section-title">
-                                ${this.variantsCollapsed ? html`
-                                    <i class="fa fa-caret-right" aria-hidden="true" style="width: 20px;padding-left: 5px;padding-right: 5px"></i>
-                                ` : html`
-                                    <i class="fa fa-caret-down" aria-hidden="true" style="width: 20px;padding-left: 5px;padding-right: 5px"></i>
-                                `}
+                            <h4 class="form-section-title">
+                                <!--
+                                    ${this.variantsCollapsed ? html`
+                                        <i class="fa fa-caret-right" aria-hidden="true" style="width: 20px;padding-left: 5px;padding-right: 5px"></i>
+                                    ` : html`
+                                        <i class="fa fa-caret-down" aria-hidden="true" style="width: 20px;padding-left: 5px;padding-right: 5px"></i>
+                                    `}
+                                -->
                                 Primary Findings
-                            </h3>
+                            </h4>
                         </div>
 
                         <div id="${this._prefix}collapsibleVariants" class="collapse in">
@@ -643,12 +652,12 @@ export default class VariantInterpreterReview extends LitElement {
 
                         </div>
                     </div>
-                </div>
-
-                <div class="col-md-12">
-                    <div class="col-md-4 col-md-offset-8" style="padding: 0px 20px;">
-                        <button type="button" class="btn btn-primary" @click="${this.onViewInterpretation}">View</button>
-                        <button type="button" class="btn btn-primary" @click="${this.onSaveInterpretation}">Save</button>
+                    
+                    <div>
+                        <div class="col-md-4 col-md-offset-8" style="padding: 0px 20px;">
+                            <button type="button" class="btn btn-primary" @click="${this.onViewInterpretation}">Preview</button>
+                            <button type="button" class="btn btn-primary" @click="${this.onSaveInterpretation}">Save</button>
+                        </div>
                     </div>
                 </div>
 

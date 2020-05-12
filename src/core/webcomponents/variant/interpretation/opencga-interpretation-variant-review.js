@@ -48,7 +48,7 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
     }
 
     _init(){
-        this._prefix = "ovcs" + UtilsNew.randomString(6) + "_";
+        this._prefix = "ovcs" + UtilsNew.randomString(6);
     }
 
     updated(changedProperties) {
