@@ -22,10 +22,12 @@ import "../filters/cohort-id-autocomplete.js";
 import "../filters/sample-id-autocomplete.js";
 import "../filters/family-id-autocomplete.js";
 
+
 export default class OpencgaAnalysisToolFormField extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -55,7 +57,6 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
     onFilterChange(fieldId, value) {
         this.dispatchEvent(new CustomEvent("fieldChange", {
             detail: {
-                // [fieldId]: value,
                 param: fieldId,
                 value: value
             },
@@ -65,44 +66,44 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
     }
 
     renderField() {
-        let field = this.config;
-        switch (field.type) {
+        let fieldConfig = this.config;
+        switch (fieldConfig.type) {
             case "category":
-                return html`<select-field-filter ?multiple="${field.multiple}" ?disabled=${this.config.disabled} ?required=${this.config.required} .data="${field.allowedValues}" .value="${field.defaultValue}" maxOptions="2" @filterChange="${e => this.onFilterChange(field.id, e.detail.value)}"></select-field-filter>`;
+                return html`<select-field-filter ?multiple="${fieldConfig.multiple}" ?disabled=${this.config.disabled} ?required=${this.config.required} .data="${fieldConfig.allowedValues}" .value="${fieldConfig.defaultValue}" maxOptions="2" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></select-field-filter>`;
             case "string":
-                return html`<text-field-filter placeholder="${field.placeholder || ""}" ?disabled=${this.config.disabled} ?required=${this.config.required} .value="${field.defaultValue || ""}" @filterChange="${e => this.onFilterChange(field.id, e.detail.value)}"></text-field-filter>`;
+                return html`<text-field-filter placeholder="${fieldConfig.placeholder || ""}" ?disabled=${this.config.disabled} ?required=${this.config.required} .value="${fieldConfig.defaultValue || ""}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></text-field-filter>`;
             case "number":
-                const [min = "", max = ""] = field.allowedValues || [];
+                const [min = "", max = ""] = fieldConfig.allowedValues || [];
                 return html`<div id="${this._prefix}-wrapper" class="subsection-content form-group">
-                                <input type="number" min=${min} max=${max} step="0.01" .disabled=${this.config.disabled} ?required=${this.config.required} value="${field.defaultValue || ""}" id="${this._prefix}-input-${field.id}" class="form-control input-sm ${this._prefix}FilterTextInput" placeholder="${field.placeholder || ""}" @input="${e => this.onFilterChange(field.id, e.target.value)}">
+                                <input type="number" min=${min} max=${max} step="0.01" .disabled=${this.config.disabled} ?required=${this.config.required} value="${fieldConfig.defaultValue || ""}" id="${this._prefix}-input-${fieldConfig.id}" class="form-control input-sm ${this._prefix}FilterTextInput" placeholder="${fieldConfig.placeholder || ""}" @input="${e => this.onFilterChange(fieldConfig.id, e.target.value)}">
                             </div>`;
             case "boolean":
                 return html`<div class="form-horizontal">
                                 <div class="from-group form-inline">
-                                    <input class="magic-radio" type="radio" name="${field.id}" id="${field.id}yes" ?checked=${field.value === "yes"} value="yes" @change="${e => this.onFilterChange(field.id, "yes")}"><label class="magic-horizontal-label" for="${field.id}yes"> Yes </label>
-                                    <input class="magic-radio" type="radio" name="${field.id}" id="${field.id}no" ?checked=${field.value === "no"} value="no" @change="${e => this.onFilterChange(field.id, "yes")}"> <label class="magic-horizontal-label" for="${field.id}no"> No </label>
+                                    <input class="magic-radio" type="radio" name="${fieldConfig.id}" id="${fieldConfig.id}yes" ?checked=${fieldConfig.value === "yes"} value="yes" @change="${e => this.onFilterChange(fieldConfig.id, "yes")}"><label class="magic-horizontal-label" for="${fieldConfig.id}yes"> Yes </label>
+                                    <input class="magic-radio" type="radio" name="${fieldConfig.id}" id="${fieldConfig.id}no" ?checked=${fieldConfig.value === "no"} value="no" @change="${e => this.onFilterChange(fieldConfig.id, "yes")}"> <label class="magic-horizontal-label" for="${fieldConfig.id}no"> No </label>
                                 </div>
                             </div>`;
-            case "COHORT_FILTER":
-                return html`<cohort-id-autocomplete .config="${field}" .opencgaSession="${this.opencgaSession}" .value="${field.defaultValue}" @filterChange="${e => this.onFilterChange("cohort", e.detail.value)}"></cohort-id-autocomplete>`;
             case "SAMPLE_FILTER":
-                return html`<sample-id-autocomplete .config="${field}" .opencgaSession="${this.opencgaSession}" .value="${field.defaultValue}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></sample-id-autocomplete>`;
+                return html`<sample-id-autocomplete .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" .value="${fieldConfig.defaultValue}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></sample-id-autocomplete>`;
+            case "COHORT_FILTER":
+                return html`<cohort-id-autocomplete .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" .value="${fieldConfig.defaultValue}" @filterChange="${e => this.onFilterChange("cohort", e.detail.value)}"></cohort-id-autocomplete>`;
             case "FAMILY_FILTER":
-                return html`<family-id-autocomplete .config="${field}" .opencgaSession="${this.opencgaSession}" .value="${field.defaultValue}" @filterChange="${e => this.onFilterChange("family", e.detail.value)}"></family-id-autocomplete>`;
+                return html`<family-id-autocomplete .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" .value="${fieldConfig.defaultValue}" @filterChange="${e => this.onFilterChange("family", e.detail.value)}"></family-id-autocomplete>`;
             default:
-                console.warn("field type "+field.type+" not implemented. String type fallback");
-                return html`<text-field-filter placeholder="${field.placeholder || ""}" ?disabled=${this.config.disabled} ?required=${this.config.required} .value="${field.defaultValue || ""}" @filterChange="${e => this.onFilterChange(field.id, e.detail.value)}"></text-field-filter>`;
+                console.warn("field type "+fieldConfig.type+" not implemented. String type fallback");
+                return html`<text-field-filter placeholder="${fieldConfig.placeholder || ""}" ?disabled=${this.config.disabled} ?required=${this.config.required} .value="${fieldConfig.defaultValue || ""}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></text-field-filter>`;
         }
     }
 
     render() {
-            // <div class="${this.config.colspan ? "col-md-" + this.config.colspan : "col-md-6"}">
         let width = "480px";
         let padding = "2px 20px";
         if (this.config.type === "category" || this.config.type === "string" || this.config.type === "number") {
             width = "320px";
             padding = "4px 20px";
         }
+
         return html`
             <div style="padding: ${padding}; width: ${width}">
                 <label>${this.config.title ? this.config.title : this.config.id}</label>

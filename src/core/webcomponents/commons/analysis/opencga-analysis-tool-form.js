@@ -58,7 +58,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
         // deep copy
         // this._config = $.extend( true, {}, this.config);
 
-        // this should be executed on change of each field (or better just on actuator param change)
+        // This should be executed on change of each field (or better just on actuator param change)
         if (this.config.sections && this.config.sections.length) {
             this.config.sections.forEach( section => {
                 if (section.parameters && section.parameters.length) {
@@ -103,10 +103,12 @@ export default class OpencgaAnalysisToolForm extends LitElement {
             const [actuatorId, operator, value] = dependsOn.split(/  *(!*==?|===?)  */); // draft
             const actuator = this.findParam(this.config, actuatorId);
             return this._operatorExec(actuator.value, value, operator);
-        } else if (typeof dependsOn === "function") {
-            return dependsOn(this.config);
         } else {
-            console.error("Rule not found. Stop messing up with the configuration please.");
+            if (typeof dependsOn === "function") {
+                return dependsOn(this.config);
+            } else {
+                console.error("Rule not found. Stop messing up with the configuration please.");
+            }
         }
     }
 
@@ -204,15 +206,28 @@ export default class OpencgaAnalysisToolForm extends LitElement {
     }
 
     render() {
+        // Check Analysis tool configuration
+        if (!this.config.sections || this.config.sections.length === 0 || !this.config.job) {
+            return html`
+                <div class="guard-page">
+                    <i class="fas fa-exclamation fa-5x"></i>
+                    <h3>No valid Analysis form configuration provided. Please check form configuration:</h3>
+                    <div style="padding: 10px">
+                        <pre>${JSON.stringify(this.config, null, 2)}</pre>              
+                    </div>
+                </div>
+            `;
+        }
+
         return html`
             <div class="panel-group">
-            <!--
-                <pre style="font-size: 10px;height: 25vh;">
-                    ${JSON.stringify(this.config.sections, null, "\t")}
-                </pre>
-            -->
+                <!--
+                    <pre style="font-size: 10px;height: 25vh;">
+                        ${JSON.stringify(this.config.sections, null, "\t")}
+                    </pre>
+                -->
                 <form id="analysis-form" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
-                    ${this.config.sections && this.config.sections.length ? this.config.sections.map( (section, i) => html`
+                    ${this.config.sections.map( (section, i) => html`
                          <div class="panel panel-default shadow-sm">
                              <div class="panel-heading" role="tab" id="${this._prefix}Heading${i}">
                                  <h4 class="panel-title">
@@ -224,15 +239,15 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                              </div>
                              <div id="${this._prefix}section-${i}" class="panel-collapse ${!section.collapsed ? "in" : ""}" role="tabpanel" aria-labelledby="${this._prefix}${i}Heading">
                                  <div class="panel-body">
-                                    <div class="row">
-                                        ${section.parameters && section.parameters.length ? section.parameters.map( param => html`
-                                            <opencga-analysis-tool-form-field .opencgaSession="${this.opencgaSession}" .config="${param}" @fieldChange="${this.onFieldChange}"> </opencga-analysis-tool-form-field>
-                                        `) : null }
-                                 </div>
+                                     <div class="row">
+                                         ${section.parameters && section.parameters.length ? section.parameters.map( param => html`
+                                             <opencga-analysis-tool-form-field .opencgaSession="${this.opencgaSession}" .config="${param}" @fieldChange="${this.onFieldChange}"> </opencga-analysis-tool-form-field>
+                                         `) : null }
+                                     </div>
                                  </div>
                             </div>
                         </div>
-                    `) : null }
+                    `)}
                     
                     <!-- Job Info section -->
                     <div class="panel panel-default shadow-sm">
