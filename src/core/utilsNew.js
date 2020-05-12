@@ -130,18 +130,18 @@ export default class UtilsNew {
 
     getDiskUsage(bytes) {
         if (bytes === 0) {
-            return '0 Byte';
+            return "0 Byte";
         }
         let k = 1000;
         let dm = 3;
-        let sizes = [' Bytes', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB'];
+        let sizes = [" Bytes", " KB", " MB", " GB", " TB", " PB", " EB", " ZB", " YB"];
         let i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + sizes[i];
     }
 
     static getDatetime() {
         function pad2(n) {  // always returns a string
-            return (n < 10 ? '0' : '') + n;
+            return (n < 10 ? "0" : "") + n;
         }
         let date = new Date();
         return date.getFullYear() +
@@ -151,4 +151,20 @@ export default class UtilsNew {
             pad2(date.getMinutes()) +
             pad2(date.getSeconds());
     }
+
+    static initTooltip(scope) {
+        $("a[tooltip-title]", scope).each(function() {
+            $(this).qtip({
+                content: {
+                    title: $(this).attr("tooltip-title"),
+                    text: $(this).attr("tooltip-text")
+                },
+                position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
+                style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
+                show: {delay: 200},
+                hide: {fixed: true, delay: 300}
+            });
+        });
+    }
+
 }

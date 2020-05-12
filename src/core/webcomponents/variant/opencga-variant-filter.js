@@ -39,7 +39,6 @@ import "../commons/filters/study-filter.js";
 import "../commons/filters/variant-type-filter.js";
 
 
-// TODO complete lit-html refactor
 export default class OpencgaVariantFilter extends LitElement {
 
     constructor() {
@@ -130,7 +129,8 @@ export default class OpencgaVariantFilter extends LitElement {
         // this now returns html
         // this._renderFilterMenu();
 
-        this._addAllTooltips();
+        //this._addAllTooltips();
+        UtilsNew.initTooltip(this);
 
         this._initialised = true;
 
@@ -502,7 +502,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 <div class="form-group">
                     <div class="browser-subsection" id="${subsection.id}">${subsection.title}
                         <div class="tooltip-div pull-right">
-                            <a><i class="fa fa-info-circle" aria-hidden="true" id="${this._prefix}${subsection.id}Tooltip"></i></a>
+                            <a tooltip-title="${subsection.title}" tooltip-text="${subsection.tooltip}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                         </div>
                     </div>
                     <div id="${this._prefix}${subsection.id}" class="subsection-content ${ctScroll}">
@@ -513,7 +513,7 @@ export default class OpencgaVariantFilter extends LitElement {
         }
     }
 
-    _addAllTooltips() {
+/*    _addAllTooltips() {
         for (const section of this.config.sections) {
             console.log(section)
             for (const subsection of section.fields) {
@@ -525,7 +525,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 }
             }
         }
-    }
+    }*/
 
     _addTooltip(div, title, content) {
         div.qtip({

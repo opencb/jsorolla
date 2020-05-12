@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import UtilsNew from "../../utilsNew.js";
+
 
 export default class GridCommons {
 
@@ -118,6 +120,19 @@ export default class GridCommons {
                 }
             }));
         }
+        UtilsNew.initTooltip(this);
+        /*$("a[tooltip-title]", this.context).each(function() {
+            $(this).qtip({
+                content: {
+                    title: $(this).attr("tooltip-title"),
+                    text: $(this).attr("tooltip-text")
+                },
+                position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
+                style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
+                show: {delay: 200},
+                hide: {fixed: true, delay: 300}
+            });
+        });*/
     }
 
     onPageChange(page, size) {

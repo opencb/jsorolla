@@ -16,7 +16,7 @@
 
 import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-
+import "../../loading-spinner.js";
 
 export default class OpencgaVariantSamples extends LitElement {
 
@@ -174,6 +174,7 @@ export default class OpencgaVariantSamples extends LitElement {
             pagination: true,
             sidePagination: "server",
             columns: this.getColumns(),
+            formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
             ajax: params => {
                 let tableOptions = $(this.table).bootstrapTable("getOptions");
                 let limit = tableOptions.pageSize || 10;

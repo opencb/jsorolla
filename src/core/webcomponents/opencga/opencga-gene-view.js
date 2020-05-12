@@ -280,8 +280,7 @@ export default class OpencgaGeneView extends LitElement {
                                       .consequenceTypes="${this.consequenceTypes}"
                                       .summary="${this.summary}"
                                       .config="${this.config}"
-                                      style="font-size: 12px"
-                                      @selectvariant="${this.onSelectVariant}">
+                                      @selectrow="${this.onSelectVariant}">
                 </opencga-variant-grid>
 
                 ${this.checkVariant(this.variant) ? html`

@@ -141,7 +141,7 @@ export default class OpencgaJobsGrid extends LitElement {
                 pageList: this._config.pageList,
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
-                detailFormatter: this._config.detailFormatter,
+                detailFormatter: this._config.detailFormatter.bind(this),
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     this.from = result.from || this.from;
@@ -328,73 +328,6 @@ export default class OpencgaJobsGrid extends LitElement {
         }
     }
 
-    /*updateForms(filters) {
-        // This is just to avoid entering here when it has just been initialized
-        if (UtilsNew.isUndefined(this._prefix)) {
-            return;
-        }
-
-        const fileName = PolymerUtils.getValue(this._prefix + "NameTextarea");
-        if (!filters.hasOwnProperty("name") && UtilsNew.isNotUndefined(fileName) && fileName.length > 0) {
-            PolymerUtils.getElementById(this._prefix + "NameTextarea").value = "";
-        }
-
-        const individual = PolymerUtils.getValue(this._prefix + "IndividualTextarea");
-        if (!filters.hasOwnProperty("individual.id") && UtilsNew.isNotUndefined(individual) && individual.length > 0) {
-
-            PolymerUtils.setValue(this._prefix + "IndividualTextarea", "");
-        }
-
-        if (this.filteredVariables.variables.length > 0) {
-            if (!filters.hasOwnProperty("annotation")) {
-                // Remove the filter variableSetId as it won't make more sense.
-                this.filteredVariables.variables = [];
-
-            } else if (filters.annotation.length < this.filteredVariables.variables.length) {
-                const tmpVariables = [];
-                filters.annotation.forEach(function(variable) {
-                    tmpVariables.push(variable);
-                });
-
-                this.filteredVariables.variables = tmpVariables;
-            }
-        }
-    }
-*/
-    /**
-     * Read from the values in the forms, and sets the filters.
-     */
-    /*calculateFilters() {
-        const filters = {};
-        let fileName = "";
-        let individual = "";
-
-        if (PolymerUtils.getElementById(this._prefix + "NameTextarea") !== null) {
-            fileName = PolymerUtils.getElementById(this._prefix + "NameTextarea").value;
-        }
-        if (PolymerUtils.getElementById(this._prefix + "IndividualTextarea") !== null) {
-            individual = PolymerUtils.getElementById(this._prefix + "IndividualTextarea").value;
-        }
-
-        if (UtilsNew.isNotUndefined(fileName) && fileName.length > 0) {
-            filters["name"] = "~" + fileName;
-        }
-
-        if (UtilsNew.isNotUndefined(individual) && individual.length > 0) {
-            filters["individual.id"] = "~" + individual;
-        }
-
-        if (UtilsNew.isNotUndefined(this.filteredVariables.variables) && this.filteredVariables.variables.length > 0) {
-            //                    filters["variableSetId"] = this.filteredVariables.variableSet;
-            const annotations = [];
-            this.filteredVariables.variables.forEach(function(variable) {
-                annotations.push(variable);
-            });
-            filters["annotation"] = annotations;
-        }
-        this.filters = filters;
-    }*/
-
     // TODO adapct to jobs
     onSearch() {
         // Convert the filters to an objectParam that can be directly send to the file search
@@ -472,30 +405,44 @@ export default class OpencgaJobsGrid extends LitElement {
                 title: "Tags",
                 field: "tags",
                 formatter: v => v && v.length ? v.map( tag => `<span class="badge badge-secondary">${tag}</span>`).join(" ") : "-"
-            },/*
+            },
             {
                 title: "Running time",
                 field: "execution",
-                formatter: execution => execution?.start ? moment.duration(moment().subtract(moment(execution.start))) : ""
-            },*/
+                formatter: execution => {
+                    const pad2 = int => int.toString().padStart(2, "0");
+                    if(execution?.start) {
+                        const duration = moment.duration((execution.end ? execution.end : moment().valueOf()) - execution.start)
+                        const [seconds, minutes, hours] = [duration.seconds(), duration.minutes(), duration.hours()];
+                        if (hours > 0) {
+                            return `${pad2(hours)}:${pad2(minutes)}:${pad2(seconds)}`;
+                        }
+                        if (minutes > 0) {
+                            return `${pad2(minutes)}:${pad2(seconds)}`;
+                        }
+                        return `00:${pad2(seconds)}`;
+                    }
+                }
+
+            },
             {
                 title: "Start/End Date",
                 field: "execution",
                 formatter: execution => execution?.start ? moment(execution.start).format("D MMM YYYY, h:mm:ss a") + " / " + (execution?.end ? moment(execution.end).format("D MMM YYYY, h:mm:ss a") : "-"): "-"
             },
             {
-                title: "Visited",
-                field: "visited"
-            },
-            {
                 title: "Depends on",
                 field: "dependsOn",
-                formatter: v => v.length > 0 ? v.length + " job" + (v.length > 1 ? "s" : "") : "-"
+                formatter: v => v.length > 0 ?
+                    `<div class="tooltip-div">
+                            <a tooltip-title="Dependencies" tooltip-text="${v.map(job => `<p>${job.id}</p>`).join("<br>")}"> ${v.length} job${v.length > 1 ? "s" : ""}</a>
+                    </div>
+                    ` : "-"
             },
             {
-                title: "Out directory",
-                field: "outdir"
-            },
+                title: "Visited",
+                field: "visited"
+            }
         ];
 
         return this._columns;
@@ -523,12 +470,12 @@ export default class OpencgaJobsGrid extends LitElement {
                                     <tr class="detail-view-row">
                                         <td>${job.id}</td>
                                         <td>${job.tool.id}</td>
-                                        <td>${job.internal.status.name}</td>
+                                        <td>${this.statusFormatter(job.internal.status.name)}</td>
                                         <td>${job.priority}</td>
                                         <td>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</td>
                                         <td>${job.visited}</td>
                                    </tr>
-                                `)}
+                                `).join("")}
                             </tbody>
                         </table>
                     </div>

@@ -419,7 +419,8 @@ export const tooltips = {
     fullTextSearch: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
     cadd: "Raw values have relative meaning, with higher values indicating that a variant is more likely to be " +
         "simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants " +
-        "within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended"
+        "within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended",
+    cohort: "-" //TODO add tooltip
 };
 
 export const beacon = {

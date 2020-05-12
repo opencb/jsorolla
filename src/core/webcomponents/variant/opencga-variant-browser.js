@@ -424,6 +424,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                                 id: "cohort",
                                 title: "Cohort Alternate Stats",
                                 onlyCohortAll: true,
+                                tooltip: tooltips.cohort,
                                 cohorts: this.cohorts
                             }
                         ]

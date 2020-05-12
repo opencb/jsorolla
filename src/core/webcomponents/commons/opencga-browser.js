@@ -141,7 +141,7 @@ export default class OpencgaBrowser extends LitElement {
     firstUpdated(_changedProperties) {
         // this.renderView(this.resource);
         $(".bootstrap-select", this).selectpicker();
-        this._initTooltip();
+        UtilsNew.initTooltip(this);
     }
 
     updated(changedProperties) {
@@ -231,8 +231,8 @@ export default class OpencgaBrowser extends LitElement {
         }
     }
 
-    _initTooltip() {
-        // TODO move to Utils
+    /*_initTooltip() {
+        // TODO - DONE move to Utils
         $("a[tooltip-title]", this).each(function() {
             $(this).qtip({
                 content: {
@@ -245,7 +245,7 @@ export default class OpencgaBrowser extends LitElement {
                 hide: {fixed: true, delay: 300}
             });
         });
-    }
+    }*/
 
     onFilterChange(e) {
         this.query = e.detail;
