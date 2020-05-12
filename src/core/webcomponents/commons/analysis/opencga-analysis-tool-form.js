@@ -54,17 +54,18 @@ export default class OpencgaAnalysisToolForm extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+
         // deep copy
-        this._config = $.extend( true, {}, this.config);
+        // this._config = $.extend( true, {}, this.config);
 
         // this should be executed on change of each field (or better just on actuator param change)
-        if (this._config.sections && this._config.sections.length) {
-            this._config.sections.forEach( section => {
+        if (this.config.sections && this.config.sections.length) {
+            this.config.sections.forEach( section => {
                 if (section.parameters && section.parameters.length) {
                     section.parameters.forEach(param => {
                         param.value = param.defaultValue; // TODO change defaultValue to value in config?
                         if (param.dependsOn) {
-                            // since we use this._config as unique source of truth we can imagine to change any other prop here (like allowedValues)
+                            // since we use this.config as unique source of truth we can imagine to change any other prop here (like allowedValues)
                             param.disabled = !this.checkDependency(param.dependsOn);
                         } else {
                             param.disabled = false;
@@ -73,8 +74,6 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                 }
             });
         }
-
-
     }
 
     firstUpdated(_changedProperties) {
@@ -83,7 +82,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                 // handle the invalid form...
             } else {
                 // everything looks good!
-                const params = this._config.sections.reduce( (acc, curr) => [...acc, ...curr.parameters], []);
+                const params = this.config.sections.reduce( (acc, curr) => [...acc, ...curr.parameters], []);
                 console.log(params);
             }
         });
@@ -102,10 +101,10 @@ export default class OpencgaAnalysisToolForm extends LitElement {
     checkDependency(dependsOn) {
         if (typeof dependsOn === "string") {
             const [actuatorId, operator, value] = dependsOn.split(/  *(!*==?|===?)  */); // draft
-            const actuator = this.findParam(this._config, actuatorId);
+            const actuator = this.findParam(this.config, actuatorId);
             return this._operatorExec(actuator.value, value, operator);
         } else if (typeof dependsOn === "function") {
-            return dependsOn(this._config);
+            return dependsOn(this.config);
         } else {
             console.error("Rule not found. Stop messing up with the configuration please.");
         }
@@ -157,16 +156,17 @@ export default class OpencgaAnalysisToolForm extends LitElement {
 
     }*/
 
-    // This function fills 'data' which contains the specific params for the analysis.
     onFieldChange(e) {
         if (e.detail.value) {
+            // This fills 'data' which contains the specific params for the analysis.
             this.data[e.detail.param] = e.detail.value.split(",");
+
             const {param: paramId, value: value} = e.detail;
-            const param = this.findParam(this._config, paramId);
+            const param = this.findParam(this.config, paramId);
             param.value = value;
 
-            if (this._config.sections && this._config.sections.length) {
-                this._config.sections.forEach(section => {
+            if (this.config.sections && this.config.sections.length) {
+                this.config.sections.forEach(section => {
                     if (section.parameters && section.parameters.length) {
                         section.parameters.forEach(param => {
                             if (param.dependsOn) {
@@ -176,7 +176,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                     }
                 });
             }
-            this._config.sections = $.extend( true, [], this._config.sections); // god save the queen
+            this.config.sections = $.extend(true, [], this.config.sections); // god save the queen
             this.requestUpdate();
         } else {
             delete this.data[e.detail.param];
@@ -208,11 +208,11 @@ export default class OpencgaAnalysisToolForm extends LitElement {
             <div class="panel-group">
             <!--
                 <pre style="font-size: 10px;height: 25vh;">
-                    ${JSON.stringify(this._config.sections, null, "\t")}
+                    ${JSON.stringify(this.config.sections, null, "\t")}
                 </pre>
             -->
                 <form id="analysis-form" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
-                    ${this._config.sections && this._config.sections.length ? this._config.sections.map( (section, i) => html`
+                    ${this.config.sections && this.config.sections.length ? this.config.sections.map( (section, i) => html`
                          <div class="panel panel-default shadow-sm">
                              <div class="panel-heading" role="tab" id="${this._prefix}Heading${i}">
                                  <h4 class="panel-title">
@@ -240,7 +240,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                             <h4 class="panel-title">
                                 <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
                                         href="#${this._prefix}section-job" aria-expanded="true">
-                                    ${this._config.job.title}
+                                    ${this.config.job.title}
                                 </a>
                             </h4>
                         </div>
