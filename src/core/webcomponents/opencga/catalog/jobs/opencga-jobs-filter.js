@@ -39,9 +39,9 @@ export default class OpencgaJobsFilter extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            opencgaClient: {
-                type: Object
-            },
+            // opencgaClient: {
+            //     type: Object
+            // },
             query: {
                 type: Object
             },
@@ -52,18 +52,18 @@ export default class OpencgaJobsFilter extends LitElement {
             variables: {
                 type: Array
             },
-            minYear: {
-                type: Number
-            },
-            compact: {
-                type: Boolean
-            },
+            // minYear: {
+            //     type: Number
+            // },
+            // compact: {
+            //     type: Boolean
+            // },
             config: {
                 type: Object
             },
-            discriminator: {
-                type: String
-            }
+            // discriminator: {
+            //     type: String
+            // }
         };
     }
 
@@ -80,7 +80,6 @@ export default class OpencgaJobsFilter extends LitElement {
         this.query = {};
         this.preparedQuery = {};
         this.searchButton = true;
-
     }
 
     connectedCallback() {
@@ -177,6 +176,9 @@ export default class OpencgaJobsFilter extends LitElement {
         switch (subsection.id) {
             case "id":
                 content = html`<jobs-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></jobs-id-autocomplete>`;
+                break;
+            case "input":
+                content = html`<file-name-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></file-name-autocomplete>`;
                 break;
             case "tool":
             case "tags":

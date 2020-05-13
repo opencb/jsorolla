@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
+import UtilsNew from "../../../utilsNew.js";
 import "../../commons/filters/select-field-filter-autocomplete.js";
 
 
@@ -60,11 +60,12 @@ export default class FileNameAutocomplete extends LitElement {
     getDefaultConfig() {
         return {
             // template: item => item.id + "<p class=\"dropdown-item-extra\"><label>Individual ID</label>" + (item.attributes && item.attributes.OPENCGA_INDIVIDUAL ? item.attributes.OPENCGA_INDIVIDUAL.id : "") + "</p>",
-            placeholder: "samples.tsv, phenotypes.vcf...",
+            placeholder: "eg. samples.tsv, phenotypes.vcf...",
             fields: item => ({
                 name: item.name,
                 secondary: {
-                    "Format": item.format || ""
+                    "Format": item.format || "",
+                    "Size": UtilsNew.getDiskUsage(item.size)
                 }
             }),
             dataSource: (query, process) => {
@@ -74,7 +75,7 @@ export default class FileNameAutocomplete extends LitElement {
                     count: false,
                     type: "FILE",
                     // include: "id,individual.id",
-                    name: "^" + query.toUpperCase()
+                    name: "^" + query
                 };
                 this.opencgaSession.opencgaClient.files().search(filters).then(restResponse => {
                     const results = restResponse.getResults();

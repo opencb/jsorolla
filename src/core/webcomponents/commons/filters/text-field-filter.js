@@ -82,7 +82,7 @@ export default class TextFieldFilter extends LitElement {
 
     render() {
         return html`
-            <div id="${this._prefix}-wrapper" class="subsection-content form-group">
+            <div id="${this._prefix}-wrapper" class="subsection-content form-group" style="margin-left: 0px">
                 <input type="text" id="${this._prefix}-input" class="form-control input-sm ${this._prefix}FilterTextInput" ?disabled=${this.disabled} .required=${this.required} placeholder="${this.placeholder}" @input="${this.filterChange}">
             </div>
         `;
