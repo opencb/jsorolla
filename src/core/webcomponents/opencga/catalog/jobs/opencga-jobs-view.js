@@ -84,7 +84,7 @@ export default class OpencgaJobsView extends LitElement {
             includeIndividual: true
         };
         this.opencgaSession.opencgaClient.jobs().info(this.jobId, params)
-            .then( response => {
+            .then(response => {
                 this.job = response.getResult(0);
                 this.job.id = this.job.id ?? this.job.name;
                 this.requestUpdate();
@@ -101,18 +101,26 @@ export default class OpencgaJobsView extends LitElement {
     }
 
     statusFormatter(status) {
-        return {
-            "PENDING": `<span class="text-primary"><i class="far fa-clock"></i> ${status}</span>`,
-            "QUEUED": `<span class="text-primary"><span class=""> <i class="far fa-clock"></i> ${status}</span>`,
-            "RUNNING": `<span class="text-primary"><i class="fas fa-sync-alt anim-rotate"></i> ${status}</span>`,
-            "DONE": `<span class="text-success"><i class="fas fa-check-circle"></i> ${status}</span>`,
-            "ERROR": `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status}</span>`,
-            "UNKNOWN": `<span class="text-warning"><i class="fas fa-question-circle"></i> ${status}</span>`,
-            "REGISTERING": `<span class="text-info"><i class="far fa-clock"></i> ${status}</span>`,
-            "UNREGISTERED": `<span class="text-muted"><i class="far fa-clock"></i> ${status}</span>`,
-            "ABORTED": `<span class="text-warning"><i class="fas fa-ban"></i> ${status}</span>`,
-            "DELETED": `<span class="text-primary"><i class="fas fa-trash-alt"></i> ${status}</span>`
-        }[status];
+        switch (status) {
+            case "PENDING":
+            case "QUEUED":
+            case "REGISTERING":
+            case "UNREGISTERED":
+                return `<span class="text-primary"><i class="far fa-clock"></i> ${status}</span>`
+            case "RUNNING":
+                return `<span class="text-primary"><i class="fas fa-sync-alt anim-rotate"></i> ${status}</span>`
+            case "DONE":
+                return `<span class="text-success"><i class="fas fa-check-circle"></i> ${status}</span>`
+            case "ERROR":
+                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status}</span>`;
+            case "UNKNOWN":
+                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status}</span>`;
+            case "ABORTED":
+                return `<span class="text-warning"><i class="fas fa-ban"></i> ${status}</span>`;
+            case "DELETED":
+                return `<span class="text-primary"><i class="fas fa-trash-alt"></i> ${status}</span>`;
+        }
+        return "-";
     }
 
     renderHTML(html) {
@@ -120,8 +128,7 @@ export default class OpencgaJobsView extends LitElement {
     }
 
     getDefaultConfig() {
-        return {
-        };
+        return {};
     }
 
     render() {
@@ -152,7 +159,43 @@ export default class OpencgaJobsView extends LitElement {
                             </div>
                             <div class="form-group">
                                 <label class="col-md-3 label-title">Creation Date</label>
-                                <span class="col-md-9">${this.job.creationDate}</span>
+                                <span class="col-md-9">${moment(this.job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-3 label-title">Tool</label>
+                                <span class="col-md-9">${this.job.tool.id}</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-3 label-title">Input files</label>
+                                <span class="col-md-9">${this.job.input.map(file => html`<p>${file.name}</p>`)}</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-3 label-title">Parameters</label>
+                                <span class="col-md-9">${Object.entries(this.job.params).map(([param, value]) => html`<p><strong>${param}</strong>: ${value ? value : "-"}</p>`)}</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-3 label-title">Status</label>
+                                <span class="col-md-9">${this.renderHTML(this.statusFormatter(this.job.internal.status.name))}</span>
+                            </div>
+                            ${this.job.execution?.start ? html`
+                                <div class="form-group">
+                                    <label class="col-md-3 label-title">Execution Start</label>
+                                    <span class="col-md-9">
+                                        ${moment(this.job.execution.start).format("D MMM YYYY, h:mm:ss a")} <br>
+                                    </span>
+                                </div> 
+                            ` : null}
+                            ${this.job.execution?.end ? html`
+                                <div class="form-group">
+                                    <label class="col-md-3 label-title">Execution End</label>
+                                    <span class="col-md-9">
+                                        ${moment(this.job.execution.end).format("D MMM YYYY, h:mm:ss a")} <br>
+                                    </span>
+                                </div> 
+                            ` : null}                            
+                            <div class="form-group">
+                                <label class="col-md-3 label-title">Tags</label>
+                                <span class="col-md-9">${this.job.tags}</span>
                             </div>
                             <div class="form-group">
                                 <label class="col-md-3 label-title">Priority</label>
@@ -163,27 +206,22 @@ export default class OpencgaJobsView extends LitElement {
                                 <span class="col-md-9">${this.job.outDir?.uri || "-"}</span>
                             </div>
                             
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Parameters</label>
-                                <span class="col-md-9">${Object.entries(this.job.params).map( ([param, value]) => html`<p><strong>${param}</strong>: ${value ? value : "-"}</p>`)}</span>
-                            </div>                            
-                            
                             ${this.job.dependsOn && this.job.dependsOn.length ? html`
                                 <div class="form-group">
                                     <label class="col-md-3 label-title">Dependencies</label>
                                     <span class="col-md-9">
                                         <ul>
-                                            ${this.job.dependsOn.map( job => html`
+                                            ${this.job.dependsOn.map(job => html`
                                                 <li>${job.id} (${job.uuid}) (${this.renderHTML(this.statusFormatter(job.internal.status.name))})</li>
-                                            `) }
+                                            `)}
                                         </ul>
                                     </span>
-                                </div>` : null }
+                                </div>` : null}
                         </form>
                     </div>
                 </div>
             </div>
-        ` : null }
+        ` : null}
         `;
     }
 

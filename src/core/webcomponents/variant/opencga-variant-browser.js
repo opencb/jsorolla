@@ -279,20 +279,15 @@ export default class OpencgaVariantBrowser extends LitElement {
         }
     }
 
-    changeView(e) {
-        e.preventDefault();
-        let tabId = e.currentTarget.dataset.id;
+    _changeView(tabId) {
         $(".content-pills", this).removeClass("active");
         $(".content-tab", this).removeClass("active");
-        for (const tab in this.activeTab) {
-            this.activeTab[tab] = false;
-        }
+        for (const tab in this.activeTab) this.activeTab[tab] = false;
         $(`button.content-pills[data-id=${tabId}]`, this).addClass("active");
         $("#" + tabId, this).addClass("active");
         this.activeTab[tabId] = true;
-        // this.requestUpdate();
+        this.requestUpdate();
     }
-
 
     onVariantFilterChange(e) {
         this.preparedQuery = e.detail.query;
@@ -634,7 +629,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                                 id: "chromosome", name: "Chromosome", type: "string"
                             },
                             {
-                                id: "studies", name: "Studiy", type: "string"
+                                id: "studies", name: "Study", type: "string"
                             },
                             {
                                 id: "type", name: "Variant Type", type: "category", allowedValues: ["SNV", "INDEL", "CNV"]
@@ -765,10 +760,10 @@ export default class OpencgaVariantBrowser extends LitElement {
                     <div>
                         <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
                             <div class="btn-group" role="group" style="margin-left: 0px">
-                                <button type="button" class="btn btn-success active ripple content-pills" @click="${this.changeView}" data-id="table-tab">
+                                <button type="button" class="btn btn-success active ripple content-pills" @click="${e => this._changeView(e.currentTarget.dataset.id)}" data-id="table-tab">
                                     <i class="fa fa-table icon-padding" aria-hidden="true"></i> Table Result
                                 </button>
-                                <button type="button" class="btn btn-success ripple content-pills" @click="${this.changeView}" data-id="facet-tab">
+                                <button type="button" class="btn btn-success ripple content-pills" @click="${e => this._changeView(e.currentTarget.dataset.id)}" data-id="facet-tab">
                                     <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i> Aggregation Stats
                                 </button>
                             </div>
