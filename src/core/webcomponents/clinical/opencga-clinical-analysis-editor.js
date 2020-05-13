@@ -323,13 +323,14 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         this._clinicalAnalysis.family = e.detail.row;
         this._disorders = e.detail.row.disorders;
 
-        const individualIds = e.detail.row.members.map(_ => _.id);
+        const individualIds = e.detail.row.members.map(member => member.id);
         const _this = this;
         this.opencgaSession.opencgaClient.individuals().search({
             id: individualIds.join(","),
             study: this.opencgaSession.study.fqn
         }).then(function(response) {
                 _this._clinicalAnalysis.family.members = response.response[0].result;
+
                 _this.updateIndividual(response.response[0].result);
             }
         );
@@ -367,12 +368,13 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         if (UtilsNew.isNotEmptyArray(sampleIds)) {
             let _this = this;
             this.opencgaSession.opencgaClient.files().search({
+                study: this.opencgaSession.study.fqn,
                 samples: sampleIds.join(","),
                 format: "VCF,BAM,BIGWIG",
-                study: this.opencgaSession.study.fqn,
                 exclude: "samples.annotations"
             }).then(function (resp) {
                 _this._clinicalAnalysis.files = resp.responses[0].results;
+                debugger
                 _this.fillForm(_this._clinicalAnalysis);
                 _this.requestUpdate();
                 _this.notifyClinicalAnalysis();
@@ -437,7 +439,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
 
     getIndividualsFromClinicalAnalysis(clinicalAnalysis) {
         let individuals = [];
-        if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis)) {
+        if (clinicalAnalysis) {
             if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.family)) {
                 individuals = clinicalAnalysis.family.members;
             } else {
@@ -451,9 +453,9 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
 
     getDisordersFromIndividuals(individuals) {
         const disorders = [];
-        if (UtilsNew.isNotEmptyArray(individuals)) {
+        if (individuals && individuals.length > 0) {
             for (const individual of individuals) {
-                if (UtilsNew.isNotEmptyArray(individual.disorders)) {
+                if (individual.disorders) {
                     for (const disorder of individual.disorders) {
                         // disorders array does not contain the element we're looking for
                         if (disorders.filter(e => e.id === disorder.id).length === 0) {
@@ -744,12 +746,20 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         if (UtilsNew.isNotUndefinedOrNull(this._clinicalAnalysis.files)) {
             let html = "<div>";
             if (UtilsNew.isNotEmptyArray(row.samples)) {
-                const files = this._clinicalAnalysis.files[row.samples[0].id];
-                if (UtilsNew.isNotEmptyArray(files)) {
-                    for (const file of files) {
-                        html += `<div>${file.name}</div>`;
+                // const files = this._clinicalAnalysis.files[row.samples[0].id];
+                for (let file of this._clinicalAnalysis.files) {
+                    for (let sample of file.samples) {
+                        if (sample.id === row.samples[0].id) {
+                            html += `<div>${file.name}</div>`;
+                        }
                     }
                 }
+                debugger
+                // if (UtilsNew.isNotEmptyArray(files)) {
+                //     for (const file of files) {
+                //         html += `<div>${file.name}</div>`;
+                //     }
+                // }
             }
             html += "</div>";
             return html;
