@@ -161,10 +161,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                         exclude: "files",
                         limit: 10,
                         // order: "asc",
-                        // sid: this.opencgaSession.opencgaClient._config.token,
                         // skip: 0,
-                        // count: !_table.bootstrapTable("getOptions").pageNumber || _table.bootstrapTable("getOptions").pageNumber === 1,
-                        // count: true,
+                        count: !_table.bootstrapTable("getOptions").pageNumber || _table.bootstrapTable("getOptions").pageNumber === 1,
                         study: this.opencgaSession.study.fqn
                     };
                     this.opencgaSession.opencgaClient.clinical().search(filters).then( res => params.success(res));

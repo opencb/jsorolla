@@ -37,8 +37,7 @@ export default class CellbaseVariantAnnotationView extends LitElement {
                 type: Object
             },
             data: {
-                type: String,
-                value: ""
+                type: String
             },
             assembly: {
                 type: String
@@ -71,7 +70,7 @@ export default class CellbaseVariantAnnotationView extends LitElement {
         };
         this.data = "";
         this.mode = "horizontal";
-        this.assembly = "GRCh37";
+        //this.assembly = "GRCh37";
     }
 
     updated(_changedProperties) {

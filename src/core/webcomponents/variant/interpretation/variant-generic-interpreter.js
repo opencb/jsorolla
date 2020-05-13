@@ -119,17 +119,19 @@ class VariantGenericInterpreter extends LitElement {
 
     _changeView(e) {
         e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-        $(".clinical-portal-content", this).hide(); // hides all content divs
-        if (typeof e.currentTarget !== "undefined" && typeof e.currentTarget.dataset.view !== "undefined") {
-            // $("#" + this._prefix + e.target.dataset.view).show(); // get the href and use it find which div to show
-            PolymerUtils.show(this._prefix + e.currentTarget.dataset.view);
-        }
 
-        // Show the active button
-        // $(".clinical-portal-button").removeClass("active");
-        $(".clinical-portal-step").removeClass("active");
-        // $(e.target).addClass("active");
-        $(e.currentTarget).addClass("active");
+        if (typeof e.currentTarget !== "undefined" &&
+            typeof e.currentTarget.dataset.view !== "undefined" &&
+            !e.currentTarget.className.includes("disabled")) {
+            $(".clinical-portal-content", this).hide(); // hides all content divs
+            // $("#" + this._prefix + e.target.dataset.view).show(); // get the href and use it find which div to show
+            this.querySelector("#" + this._prefix + e.currentTarget.dataset.view).style.display = "block";
+            // Show the active button
+            // $(".clinical-portal-button").removeClass("active");
+            $(".clinical-portal-step").removeClass("active");
+            // $(e.target).addClass("active");
+            $(e.currentTarget).addClass("active");
+        }
     }
 
     onClinicalAnalysisUpdate (e) {
@@ -240,7 +242,7 @@ class VariantGenericInterpreter extends LitElement {
                                     </a>
                                  -->
                             </div>
-                            <div class="collapse navbar-collapse" style="padding: 0px 20px">
+                            <div>
                                 <!-- Controls aligned to the LEFT -->
                                 <div class="row hi-icon-wrap wizard hi-icon-animation">
                                 ${this._config.tools && this._config.tools.map( item => html`

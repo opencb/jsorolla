@@ -112,7 +112,7 @@ export default class OpencgaVariantGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.get("opencgaSession") || changedProperties.get("query") || changedProperties.get("config") || changedProperties.get("data")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") || changedProperties.has("data")) {
             this.propertyObserver();
             this.renderVariants();
         }
@@ -144,7 +144,7 @@ export default class OpencgaVariantGrid extends LitElement {
     }
 
     onColumnChange(e) {
-        const table = $("#" + this._prefix + "VariantBrowserGrid");
+        const table = $("#" + this.gridId);
         if (e.detail.selected) {
             table.bootstrapTable("showColumn", e.detail.id);
         } else {
@@ -316,8 +316,8 @@ export default class OpencgaVariantGrid extends LitElement {
 
     renderFromLocal() {
         const _this = this;
-        $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable("destroy");
-        $("#" + this._prefix + "VariantBrowserGrid").bootstrapTable({
+        $("#" + this.gridId).bootstrapTable("destroy");
+        $("#" + this.gridId).bootstrapTable({
             data: this.data,
             columns: this.cols,
             onClickRow: function(row, $element) {
@@ -1088,7 +1088,7 @@ export default class OpencgaVariantGrid extends LitElement {
                 </opencb-grid-toolbar>
                 
                 <div>
-                    <table id="${this._prefix}VariantBrowserGrid"></table>
+                    <table id="${this.gridId}"></table>
                 </div>
             </div>
         `;

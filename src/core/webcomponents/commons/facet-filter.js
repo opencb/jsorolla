@@ -99,12 +99,12 @@ export default class FacetFilter extends LitElement {
                 console.log("nestedFacet", nestedFacet);
                 this.selectedFacet[facet[0]] = {
                     ...mainFacet,
-                    value: mainFacet && mainFacet.defaultValue ? mainFacet.defaultValue : "",
+                    value: mainFacet?.defaultValue ?? "",
                     nested: {...nestedFacet, facet: facet[1], value: nestedFacet.defaultValue || ""}
                 };
             } else {
                 const mainFacet = this._recFind(this.config.sections, facet[0]);
-                this.selectedFacet[defaultFacetId] = {...mainFacet, value: mainFacet && mainFacet.defaultValue ? mainFacet.defaultValue : ""};
+                this.selectedFacet[defaultFacetId] = {...mainFacet, value: mainFacet?.defaultValue ?? ""};
             }
         }
         this.selectedFacet = {...this.selectedFacet};

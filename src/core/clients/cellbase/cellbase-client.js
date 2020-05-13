@@ -102,6 +102,8 @@ export class CellBaseClient {
         let version = options.version || this._config.version;
         let species = options.species || this._config.species;
 
+        // TODO fixme count is not defined
+        debugger
         let url = `http://${hosts[count]}/webservices/rest/${version}/${species}/` + "files";
 
         if (typeof folderId !== "undefined" && folderId !== null && folderId !== "") {

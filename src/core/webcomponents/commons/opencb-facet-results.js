@@ -105,9 +105,9 @@ class OpencbFacetResults extends LitElement {
         this.errorState = false;
         this.requestUpdate();
         this.endpoint(this.resource).aggregationStats(this.query, {})
-            .then(queryResponse => {
+            .then(restResponse => {
                 this.errorState = false;
-                this.facetResults = queryResponse.getResults() || [];
+                this.facetResults = restResponse.getResults() || [];
                 console.log("this.facetResults", this.facetResults);
             })
             .catch(e => {

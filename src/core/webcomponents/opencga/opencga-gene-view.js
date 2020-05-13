@@ -106,7 +106,7 @@ export default class OpencgaGeneView extends LitElement {
             const _this = this;
             this.cellbaseClient.getGeneClient(this.gene, "info", {exclude: "annotation"}, {})
                 .then(function(response) {
-                    _this.geneObj = response.response[0].result[0];
+                    _this.geneObj = response.getResult(0);
                     _this.requestUpdate();
                 });
         }
