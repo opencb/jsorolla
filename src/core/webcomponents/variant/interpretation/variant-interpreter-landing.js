@@ -207,7 +207,7 @@ class VariantInterpreterLanding extends LitElement {
                             </a>
                         </li>
                     </div>                
-                <div class="">
+                <div class="content-tab-wrapper">
                     <div id="${this._prefix}-search" role="tabpanel" class="tab-pane active content-tab">
                         <div class="row">
                             <div class="col-md-4 col-md-offset-4">

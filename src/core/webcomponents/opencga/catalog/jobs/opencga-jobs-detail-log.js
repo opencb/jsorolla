@@ -259,7 +259,6 @@ export default class OpencgaJobsDetailLog extends LitElement {
                 </div>
             </div>                    
         </div>
-        command ${this._config.command} - type ${this._config.type}
         <pre class="cmd ${this._config.command}">${this.content}\n${this.loading || (this.content && this._config.command === "tail") ? html`<div class="cursor"></div>` : ""}</pre>
         `;
     }
