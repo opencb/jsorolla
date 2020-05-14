@@ -75,9 +75,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
     async selectedVariablesTextObserver() {
         this.selectedVariables = {};
         if (this.selectedVariablesText) {
-
-            this.selectedVariablesFormatted = this.selectedVariablesText;
-            const variables = this.selectedVariablesFormatted.split(";");
+            const variables = this.selectedVariablesText.split(";");
             await this.requestUpdate();
             for (let v of variables) {
                 let [, variableSetId, variableId, value] = [...v.matchAll(/(\w+):(\w+)=(\w+)/g)][0];
@@ -95,15 +93,10 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
      */
     // fire in case of selectedVariables change
     selectedVariablesSerializer() {
-        //console.log("selectedVariableObserver", this.selectedVariables);
         let selected = [];
-        this.selectedVariablesFormatted = "";
         for (let [variableSetId, variables] of Object.entries(this.selectedVariables)) {
-            // avoid adding empty arrays (every value in selectedVariables is init as empty array)
-            console.log(Object.entries(variables).map( ([variableId, value]) => `${variableSetId}:${variableId}=${value}`))
             selected.push(Object.entries(variables).map( ([variableId, value]) => `${variableSetId}:${variableId}=${value}`).join(";"));
         }
-        console.log("SERIALIZED", selected.join(";"))
         const event = new CustomEvent("annotationChange", {
             detail: {
                 value: selected.join(";")
@@ -146,7 +139,6 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
             const _variableSets = [];
             for (const variableSet of study.variableSets) {
                 if (UtilsNew.isEmpty(this.entity) || variableSet.entities.includes(this.entity)) {
-                    console.error("updating")
                     //moving OBJECT type variables at the end of the list
                     variableSet.variables.sort( (a, b) => a.type === "OBJECT" ? 1 : -1)
                     _variableSets.push({
@@ -162,31 +154,14 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
 
     addInputFilter(e) {
         const {variableId, variableSetId} = e.target.dataset;
-        console.log(variableId, variableSetId)
         const value = e.target.value.trim();
-        //this.lastAnnotationFilter = `${variableSetId}:${variableId}=${value}`;
-        //const variable = this.variableSets[variableSetId].findIndex(variable => variable.id === variableId);
         if (value) {
             this.selectedVariables[variableSetId] = {...this.selectedVariables[variableSetId] ?? {}, [variableId]: value};
         } else {
             delete this.selectedVariables[variableSetId][variableId];
         }
         this.selectedVariables = {...this.selectedVariables};
-        console.log("this.selectedVariables",this.selectedVariables)
         this.selectedVariablesSerializer();
-    }
-
-    renderTextVariable(variable, variableSet) {
-        return html`
-                <label>${variable.id}</label>
-                <div class="tooltip-div pull-right">
-                    <a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
-                </div>
-                <input type="text" class="form-control"
-                    placeholder="${variable.id} name" data-variable-id="${variable.id}" data-variable-set-id="${variableSet}"
-                    pattern="${variable?.attributes?.pattern ?? null}"
-                    aria-describedby="basic-addon1" @input="${this.addInputFilter}" value="${variable.value || ""}"/>
-        `;
     }
 
     renderVariable(variable, variableSet) {
@@ -302,9 +277,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                                 ${this.variableSets.map( (variableSet, i) => html`
                                     <div role="tabpanel" class="tab-pane ${classMap({"active" : i === 0})}" id="${variableSet.id}_tab">
                                     <div class="row">
-                                    ${variableSet.variables.map((variable, i) => {
-                                            return html`<div> ${this.renderVariable(variable, variableSet)}</div>`;
-                                    })}
+                                    ${variableSet.variables.map(variable => html`<div> ${this.renderVariable(variable, variableSet)}</div>`)}
                                     </div>
                                 </div>
                                 `)}
@@ -317,7 +290,6 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                     </div>
                 </div>
             </div>
-            
             ` : null} 
         `;
     }
