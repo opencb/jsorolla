@@ -4,8 +4,9 @@ import PolymerUtils from "../../../PolymerUtils.js";
 import {NotificationQueue} from "../../../Notification.js";
 import "./opencga-variable-selector.js";
 
-// TODO replicate and check on-dom-change behaviour
-
+/**
+ * @deprecated
+ */
 
 export default class OpencgaAnnotationFilter extends LitElement {
 

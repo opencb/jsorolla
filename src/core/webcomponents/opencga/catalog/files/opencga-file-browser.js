@@ -145,6 +145,11 @@ export default class OpencgaFileBrowser extends LitElement {
                         collapsed: false,
                         fields: [
                             {
+                                id: "annotations",
+                                name: "File annotations",
+                                description: ""
+                            },
+                            {
                                 id: "name",
                                 name: "Name",
                                 type: "string",
@@ -185,11 +190,6 @@ export default class OpencgaFileBrowser extends LitElement {
                                 name: "Index Status",
                                 allowedValues: ["READY", "DELETED", "TRASHED", "STAGE", "MISSING", "PENDING_DELETE", "DELETING", "REMOVED", "NONE"],
                                 type: "category"
-                            },
-                            {
-                                id: "annotations",
-                                name: "File annotations",
-                                description: ""
                             },
                             {
                                 id: "date",

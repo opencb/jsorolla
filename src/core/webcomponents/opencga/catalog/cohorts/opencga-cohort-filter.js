@@ -281,19 +281,13 @@ export default class OpencgaCohortFilter extends LitElement {
                 content = html`<sample-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></sample-id-autocomplete>`;
                 break;
             case "annotations":
-                content = html`
-                            <opencga-annotation-filter-dynamic .opencgaSession="${this.opencgaSession}"
+                content = html`<opencga-annotation-filter-modal .opencgaSession="${this.opencgaSession}"
                                                       .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                       entity="COHORT"
                                                       .config="${this.annotationFilterConfig}"
+                                                      .selectedVariablesText="${this.preparedQuery.annotation}"
                                                       @annotationChange="${this.onAnnotationChange}">
-                           </opencga-annotation-filter-dynamic>
-                           <!--<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
-                                                      .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                      entity="COHORT"
-                                                      .config="${this.annotationFilterConfig}"
-                                                      @filterannotation="${this.addAnnotation}">
-                           </opencga-annotation-filter> -->`;
+                        </opencga-annotation-filter-modal>`;
                 break;
             case "type":
                 content = html`<select-field-filter ?multiple="${subsection.multiple}" .data="${subsection.allowedValues}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;

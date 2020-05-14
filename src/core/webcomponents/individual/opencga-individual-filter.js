@@ -297,19 +297,13 @@ export default class OpencgaIndividualFilter extends LitElement {
                 content = html`<select-field-filter ?multiple="${subsection.multiple}" .data="${subsection.allowedValues}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
                 break;
             case "annotations":
-                content = html`<opencga-annotation-filter-dynamic .opencgaSession="${this.opencgaSession}"
+                content = html`<opencga-annotation-filter-modal .opencgaSession="${this.opencgaSession}"
                                                       .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                       entity="INDIVIDUAL"
                                                       .config="${this.annotationFilterConfig}"
                                                       .selectedVariablesText="${this.preparedQuery.annotation}"
                                                       @annotationChange="${this.onAnnotationChange}">
-                           </opencga-annotation-filter-dynamic>
-                            <!--<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
-                                                      .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                      entity="SAMPLE"
-                                                      .config="${this.annotationFilterConfig}"
-                                                      @filterannotation="${this.addAnnotation}">
-                           </opencga-annotation-filter>-->`;
+                        </opencga-annotation-filter-modal>`;
                 break;
             case "date":
                 content = html`<opencga-date-filter .config="${this.dateFilterConfig}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>`;

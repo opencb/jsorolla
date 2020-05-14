@@ -5,6 +5,10 @@ import {NotificationQueue} from "../../../Notification.js";
 import "./opencga-variable-selector.js";
 import "./../../../commons/filters/select-field-filter.js";
 
+/**
+ * @deprecated
+ */
+
 export default class OpencgaAnnotationFilterDynamic extends LitElement {
 
     constructor() {
@@ -84,7 +88,6 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
         if (changedProperties.has("selectedVariablesText")) {
             this.selectedVariablesTextObserver();
         }
-
     }
 
     /**

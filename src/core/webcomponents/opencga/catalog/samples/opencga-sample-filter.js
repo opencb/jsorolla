@@ -265,19 +265,13 @@ export default class OpencgaSampleFilter extends LitElement {
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;
             case "annotations":
-                content = html`<opencga-annotation-filter-dynamic .opencgaSession="${this.opencgaSession}"
+                content = html`<opencga-annotation-filter-modal .opencgaSession="${this.opencgaSession}"
                                                       .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                       entity="SAMPLE"
                                                       .config="${this.annotationFilterConfig}"
                                                       .selectedVariablesText="${this.preparedQuery.annotation}"
                                                       @annotationChange="${this.onAnnotationChange}">
-                           </opencga-annotation-filter-dynamic>
-                            <!--<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
-                                                      .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                      entity="SAMPLE"
-                                                      .config="${this.annotationFilterConfig}"
-                                                      @filterannotation="${this.addAnnotation}">
-                           </opencga-annotation-filter>-->`;
+                        </opencga-annotation-filter-modal>`;
                 break;
             case "somatic":
                 content = html`<somatic-filter .value="${this.preparedQuery.somatic}" @filterChange="${e => this.onFilterChange("somatic", e.detail.value)}"></somatic-filter>`;

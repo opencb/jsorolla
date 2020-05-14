@@ -580,7 +580,7 @@ export default class OpencgaBrowser extends LitElement {
             </div>
 
             <div class="row" style="padding: 0px 10px">
-                <div class="col-md-2 left-menu">
+                <div class="col-md-2">
                 
                     <div class="search-button-wrapper">
                         <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">

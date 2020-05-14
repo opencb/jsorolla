@@ -19,6 +19,7 @@ import UtilsNew from "../../../../utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 import "../variableSets/opencga-annotation-filter.js";
 import "../variableSets/opencga-annotation-filter-dynamic.js";
+import "../variableSets/opencga-annotation-filter-modal.js";
 import "../../../commons/filters/opencga-date-filter.js";
 import "../../../commons/filters/text-field-filter.js";
 import "../../../commons/filters/select-field-filter.js";
@@ -293,13 +294,14 @@ export default class OpencgaFileFilter extends LitElement {
                 content = html`<select-field-filter multiple .value="${this.preparedQuery[subsection.id]}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
                 break;
             case "annotations":
-                content = html`<opencga-annotation-filter-dynamic .opencgaSession="${this.opencgaSession}"
+                content = html`
+                        <opencga-annotation-filter-modal .opencgaSession="${this.opencgaSession}"
                                                       .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                       entity="FILE"
                                                       .config="${this.annotationFilterConfig}"
                                                       .selectedVariablesText="${this.preparedQuery.annotation}"
                                                       @annotationChange="${this.onAnnotationChange}">
-                           </opencga-annotation-filter-dynamic>
+                        </opencga-annotation-filter-modal>
                            <!--<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
                                                           .config="${this.annotationFilterConfig}"
                                                           entity="FILE"

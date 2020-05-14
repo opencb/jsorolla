@@ -262,7 +262,6 @@ export default class VariantModalOntology extends LitElement {
 
     render() {
         return html`
-            <style include="jso-styles"></style>
             <div class="modal fade" id="${this._prefix}ontologyModal" tabindex="-1" role="dialog"
                  aria-labelledby="ontologyLabel" data-backdrop="static" data-keyboard="false">
                 <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
