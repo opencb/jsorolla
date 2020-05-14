@@ -120,7 +120,7 @@ export default class GridCommons {
                 }
             }));
         }
-        UtilsNew.initTooltip(this);
+        UtilsNew.initTooltip(this.context);
         /*$("a[tooltip-title]", this.context).each(function() {
             $(this).qtip({
                 content: {

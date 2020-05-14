@@ -74,6 +74,10 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                 }
             });
         }
+        // Init the default jobId, if $DATE exist in the default ID then is replaced by YYYYMMDDhhmmss
+        this.jobId = this.config.job.id ? this.config.job.id.replace("$DATE", UtilsNew.getDatetime()) : "none";
+        this.params["jobId"] = this.jobId;
+
     }
 
     firstUpdated(_changedProperties) {
@@ -86,10 +90,8 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                 console.log(params);
             }
         });
+        UtilsNew.initTooltip(this);
 
-        // Init the default jobId, if $DATE exist in the default ID then is replaced by YYYYMMDDhhmmss
-        this.jobId = this.config.job.id ? this.config.job.id.replace("$DATE", UtilsNew.getDatetime()) : "none";
-        this.params["jobId"] = this.jobId;
     }
 
     updated(changedProperties) {
@@ -113,12 +115,15 @@ export default class OpencgaAnalysisToolForm extends LitElement {
     }
 
     _operatorExec(a, b, operator) {
-        if (operator === "==" || operator === "===") {
-            return a === b;
-        } else if (operator === "!=" || operator === "!==") {
-            return a !== b;
-        } else {
-            throw new Error("Operator not found");
+        switch(operator) {
+            case "==":
+            case "===":
+                return a === b;
+            case "!=":
+            case "!==":
+                return a !== b;
+            default:
+                throw new Error("Operator not found");
         }
     }
 
@@ -135,28 +140,6 @@ export default class OpencgaAnalysisToolForm extends LitElement {
         console.error(paramId, "not found");
         return null;
     }
-
-    // DOM manipulation version
-    /*    checkDependency2(parent, field) {
-        console.log("parent, field", parent, field);
-        console.log("dependsOn", field.dependsOn);
-        if (field.dependsOn) {
-            const [fieldId, value] = field.dependsOn.split(/  *===?  *!/); // draft
-            console.log(fieldId, value);
-            if (!fieldId || !value) {
-                console.error("dependsOn parse failed");
-            } else {
-                console.log("selector", parent.querySelector("#" + fieldId));
-
-                if (parent.querySelector("#" + fieldId).value === value) {
-                    console.log("value OK", parent.querySelector("#" + fieldId).value);
-                }
-                this.visible = parent.querySelector("#" + fieldId).value === value;
-            }
-        }
-        this.requestUpdate();
-
-    }*/
 
     onFieldChange(e) {
         if (e.detail.value) {
@@ -280,7 +263,11 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                     </div>
                         
                     <div class="pull-right button-wrapper">
-                        <button type="submit" class="ripple btn btn-primary btn-lg" @click="${this.onRun}">Run</button>
+                        ${this.opencgaSession.study.acl.includes("EXECUTE_JOB") ? html`
+                            <button type="button" class="ripple btn btn-primary btn-lg" @click="${this.onRun}">Run</button>
+                        ` : html`
+                            <button type="button" class="ripple btn btn-primary btn-lg disabled" @click="${this.onRun}" disabled tooltip-title="Permission denied" tooltip-text="EXECUTE_JOB action not available">Run</button>
+                        `}
                     </div>
                 </form>
            </div>

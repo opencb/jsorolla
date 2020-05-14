@@ -292,9 +292,7 @@ export class OpenCGAClient {
 
                         // Fetch authorised Projects and Studies
                         _this.projects().search({})
-                            .then(function(response) {
-                                console.log("response", response);
-                                const res = new RestResponse(response);
+                            .then(async function(response) {
                                 session.projects = response.response[0].result;
                                 if (UtilsNew.isNotEmptyArray(session.projects) && UtilsNew.isNotEmptyArray(session.projects[0].studies)) {
                                     const studies = [];
@@ -310,6 +308,9 @@ export class OpenCGAClient {
                                                     } else {
                                                         study.alias = study.fqn;
                                                     }
+                                                    const acl = await _this.studies().acl(study.fqn, {member:session.user.id});
+                                                    study.acl = acl.getResult(0)[session.user.id];
+
                                                     // default study from config
                                                     if (study.alias === application.defaultStudy) {
                                                         session.project = project;

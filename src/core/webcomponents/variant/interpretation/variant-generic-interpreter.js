@@ -18,7 +18,7 @@ import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import "./variant-interpreter-review.js";
-import "./variant-cancer-interpreter-landing.js";
+import "./variant-interpreter-landing.js";
 import "./variant-interpreter-qc.js";
 import "./variant-interpreter-rd-browser.js";
 import "./variant-interpreter-cancer-browser.js";

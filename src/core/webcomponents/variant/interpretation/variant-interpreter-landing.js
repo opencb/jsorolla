@@ -15,6 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import {classMap} from "/web_modules/lit-html/directives/class-map.js";
+import {ifDefined} from "/web_modules/lit-html/directives/if-defined.js";
+
 import UtilsNew from "../../../utilsNew.js";
 
 
@@ -58,6 +61,7 @@ class VariantInterpreterLanding extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+        this.activeTab = {};
         // this._config = {...this.getDefaultConfig(), ...this.config};
         // this.requestUpdate();
     }
@@ -67,15 +71,41 @@ class VariantInterpreterLanding extends LitElement {
     }
 
     updated(changedProperties) {
-        // if (changedProperties.has("opencgaSession")) {
-        //     this.opencgaSessionObserver();
-        // }
+        if (changedProperties.has("opencgaSession")) {
+             this.opencgaSessionObserver();
+        }
         // if (changedProperties.has("clinicalAnalysisId")) {
         //     this.clinicalAnalysisIdObserver();
         // }
         // if (changedProperties.has("clinicalAnalysis")) {
         //     this.clinicalAnalysisObserver();
         // }
+    }
+
+    opencgaSessionObserver() {
+        // that's how the bitwise management of permissions would look like
+        // this.opencgaSession.study.acl would be an integer
+        // ACL would be a map in UtilsNew
+        //this.editMode = this.opencgaSession.study.acl & ACL["WRITE_CLINICAL_ANALYSIS"];
+
+        this.editMode = this.opencgaSession.study.acl.includes("WRITE_CLINICAL_ANALYSIS");
+    }
+
+    // non-bootstrap tabs
+    _changeTab(e) {
+        e.preventDefault();
+
+        const tabId = e.currentTarget.dataset.id;
+
+        $(".content-pills", this).removeClass("active");
+        $(".content-tab", this).hide();
+
+        $(`.${tabId}-tab`).addClass("active");
+        $("#" + tabId, this).show();
+
+        for (const tab in this.activeTab) this.activeTab[tab] = false;
+        this.activeTab[tabId] = true;
+        this.requestUpdate();
     }
 
     onCloseClinicalAnalysis() {
@@ -167,35 +197,32 @@ class VariantInterpreterLanding extends LitElement {
                         margin-bottom: 20px;
                     }
                 </style>
-                <ul id="${this._prefix}ViewTabs" class="nav nav-tabs nav-center" role="tablist">
-                    <li role="presentation" class="active">
-                        <a href="#${this._prefix}-search" role="tab" data-toggle="tab" data-id="${this._prefix}-search"
-                            class="browser-variant-tab-title">Search Case
-                        </a>
-                    </li>
-                    <li role="presentation" class="">
-                        <a href="#${this._prefix}-create" role="tab" data-toggle="tab" data-id="${this._prefix}-create"
-                            class="browser-variant-tab-title">Create Case
-                        </a>
-                    </li>
-                </ul>
-                
-                <div class="tab-content">
-                    <div id="${this._prefix}-search" role="tabpanel" class="tab-pane active">
+                <div class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
+                        <li role="presentation" class="content-pills active ${this._prefix}-search-tab">
+                            <a href="javascript: void 0" role="tab" data-id="${this._prefix}-search" @click="${this._changeTab}" class="tab-title">Search Case
+                            </a>
+                        </li>
+                        <li role="presentation" class="content-pills ${this._prefix}-create-tab">
+                            <a href="javascript: void 0" role="tab" data-id="${this._prefix}-create" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Create Case
+                            </a>
+                        </li>
+                    </div>                
+                <div class="">
+                    <div id="${this._prefix}-search" role="tabpanel" class="tab-pane active content-tab">
                         <div class="row">
                             <div class="col-md-4 col-md-offset-4">
                                 <div>
 <!--                                    <h3>Search Clinical Analysis</h3>-->
                                     <div>
                                         <label>Clinical Analysis ID</label>
-                                        <select-field-filter-autocomplete-simple .fn="${true}" resource="clinical-analysis" .value="${"AN-3"}" 
+                                        <select-field-filter-autocomplete-simple resource="clinical-analysis" .value="${"AN-3"}" 
                                                 .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onClinicalAnalysisIdChange("clinicalAnalysisId", e.detail.value)}">
                                         </select-field-filter-autocomplete-simple>
                                     </div>
                                     
                                     <div>
                                         <label>Proband ID</label>
-                                        <select-field-filter-autocomplete-simple .fn="${true}" resource="individuals" 
+                                        <select-field-filter-autocomplete-simple resource="individuals" 
                                                 .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onProbandIdChange("individualId", e.detail.value)}">
                                         </select-field-filter-autocomplete-simple>
                                     </div>
@@ -209,7 +236,7 @@ class VariantInterpreterLanding extends LitElement {
                         </div>
                     </div>
                     
-                    <div id="${this._prefix}-create" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1">
+                    <div id="${this._prefix}-create" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
                         <opencga-clinical-analysis-editor   .opencgaSession="${this.opencgaSession}"
                                                             .config="${this.clinicalAnalysisEditorConfig}"
                                                             @clinicalanalysischange="${this.onClinicalAnalysisEditor}">

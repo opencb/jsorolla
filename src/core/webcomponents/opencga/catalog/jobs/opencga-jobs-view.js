@@ -193,10 +193,12 @@ export default class OpencgaJobsView extends LitElement {
                                     </span>
                                 </div> 
                             ` : null}                            
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Tags</label>
-                                <span class="col-md-9">${this.job.tags}</span>
-                            </div>
+                            ${this.job.tags?.length ? html`
+                                <div class="form-group">
+                                    <label class="col-md-3 label-title">Tags</label>
+                                    <span class="col-md-9">${this.job.tags}</span>
+                                </div>
+                            ` : null}
                             <div class="form-group">
                                 <label class="col-md-3 label-title">Priority</label>
                                 <span class="col-md-9">${this.job.priority}</span>

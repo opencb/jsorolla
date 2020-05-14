@@ -512,7 +512,7 @@ export default class OpencgaJobsGrid extends LitElement {
 
     creationDateFormatter(date) {
         //return moment(date, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")
-        return moment(date, "YYYYMMDDHHmmss").fromNow()
+        return `<a tooltip-title="Creation date"  tooltip-text="${moment(date, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}"> ${moment(date, "YYYYMMDDHHmmss").fromNow()} </a>`
     }
 
     statusFormatter(status) {

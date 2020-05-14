@@ -90,14 +90,14 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
     /**
      * It builds this.selectedVariables from the serialized string this.selectedVariablesText
      */
-    selectedVariablesTextObserver() {
+    async selectedVariablesTextObserver() {
         if (this.selectedVariablesText) {
 
             this.selectedVariablesFormatted = this.selectedVariablesText;
-            //opencga_alignment_stats:percentage_of_properly_paired_reads=sssssff
             const variables = this.selectedVariablesFormatted.split(";");
             // reset selectedVariables
             this.selectedVariables = Object.assign({}, ...this.variableSets.map(_ => ({[_.id]: []})));
+            await this.requestUpdate();
 
             for (let v of variables) {
                 let [, variableSetId, variable, value] = [...v.matchAll(/(\w+):(\w+)=(\w+)/g)][0];
@@ -129,7 +129,7 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
      * It serializes this.selectedVariables in a single string and fire the event
      */
     // fire in case of selectedVariables change
-    selectedVariablesSerialize() {
+    selectedVariablesSerializer() {
         //console.log("selectedVariableObserver", this.selectedVariables);
         let selected = [];
         this.selectedVariablesFormatted = "";
@@ -223,7 +223,7 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
         this.selectedVariables[variableSetId][indx] = {...this.selectedVariables[variableSetId][indx], value: value};
         this.selectedVariables = {...this.selectedVariables};
 
-        this.selectedVariablesSerialize();
+        this.selectedVariablesSerializer();
     }
 
     // TODO
@@ -321,21 +321,21 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
             case "TEXT":
             case "STRING":
                 content = html`<label>${variable.description}</label>
-                            <input type="text" class="form-control ${this._prefix}AnnotationTextInput"
+                            <input type="text" class="form-control"
                                 placeholder="${variable.id} name" data-variable-id="${variable.id}" data-variable-set-id="${variableSet}"
                                 pattern="${variable.attributes && variable.attributes.pattern ? variable.attributes.pattern : null}"
-                                aria-describedby="basic-addon1" @input="${this.addInputFilter}" />`;
+                                aria-describedby="basic-addon1" @input="${this.addInputFilter}" value="${variable.value || ""}" />`;
                 break;
             case "NUMERIC":
             case "INTEGER":
             case "DOUBLE":
                 content = html`<label>${variable.description}</label>
-                            <input type="text" class="form-control ${this._prefix}AnnotationTextInput"
+                            <input type="text" class="form-control"
                                 placeholder="${variable.id} number" data-variable-id="${variable.id}" data-variable-set-id="${variableSet}"
-                                pattern="^[0-9]+$" @input="${this.addInputFilter}">`;
+                                pattern="^[0-9]+$" @input="${this.addInputFilter}" value="${variable.value || ""}">`;
                 break;
             case "CATEGORICAL":
-                content = `<select id="${this._prefix}-categorical-selector" class="selectpicker" multiple @change="${this.addCategoricalFilter}" data-variable-set-id="${variableSet}" data-width="100%">
+                content = `<select id="${this._prefix}-categorical-selector" class="selectpicker ${variable.id}" multiple @change="${this.addCategoricalFilter}" data-variable-set-id="${variableSet}" data-width="100%">
                 ${variable.allowedValues && variable.allowedValues.length && variable.allowedValues.map(item => html`
                     <option value="${item}">${item}</option>
                     `)}

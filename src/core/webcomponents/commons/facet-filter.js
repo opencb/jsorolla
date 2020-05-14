@@ -91,12 +91,12 @@ export default class FacetFilter extends LitElement {
     addDefaultFacet() {
         for (const defaultFacetId of this.config.default) {
             const facet = defaultFacetId.split(">>");
-            console.log(facet);
+            //console.log(facet);
             // in case of nested facets
             if (facet.length > 1) {
                 const mainFacet = this._recFind(this.config.sections, facet[0]);
                 const nestedFacet = this._recFind(this.config.sections, facet[1]);
-                console.log("nestedFacet", nestedFacet);
+                //console.log("nestedFacet", nestedFacet);
                 this.selectedFacet[facet[0]] = {
                     ...mainFacet,
                     value: mainFacet?.defaultValue ?? "",
@@ -288,7 +288,7 @@ export default class FacetFilter extends LitElement {
 
     renderNestedField(facet, parent) {
         if (!facet || !facet.type) return null;
-        console.log("renderNestedField", facet);
+        //console.log("renderNestedField", facet);
         switch (facet.type) {
             case "category":
                 return html`
