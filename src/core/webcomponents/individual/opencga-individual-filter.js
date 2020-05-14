@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "./../../../../utilsNew.js";
-import PolymerUtils from "../../../PolymerUtils.js";
-import "../variableSets/opencga-annotation-filter.js";
-import "../opencga-date-filter.js";
-import "../../../commons/filters/text-field-filter.js";
-import "../../../commons/filters/select-field-filter.js";
-import "../../../commons/filters/individual-id-autocomplete.js";
+import UtilsNew from "../../utilsNew.js";
+import PolymerUtils from "../PolymerUtils.js";
+import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
+import "../commons/filters/text-field-filter.js";
+import "../commons/filters/select-field-filter.js";
+import "../commons/filters/individual-id-autocomplete.js";
+import "../commons/filters/opencga-date-filter.js";
 
 
 export default class OpencgaIndividualFilter extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -36,17 +36,10 @@ export default class OpencgaIndividualFilter extends LitElement {
         return this;
     }
 
-
     static get properties() {
         return {
             opencgaSession: {
                 type: Object
-            },
-            opencgaClient: {
-                type: Object
-            },
-            individuals: {
-                type: Array
             },
             query: {
                 type: Object
@@ -60,12 +53,12 @@ export default class OpencgaIndividualFilter extends LitElement {
             variables: {
                 type: Array
             },
-            minYear: {
-                type: Number
-            },
-            compact: {
-                type: Boolean
-            },
+            // minYear: {
+            //     type: Number
+            // },
+            // compact: {
+            //     type: Boolean
+            // },
             config: {
                 type: Object
             }
@@ -94,6 +87,7 @@ export default class OpencgaIndividualFilter extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+
         this.preparedQuery = {...this.query}; // propagates here the iva-app query object
     }
 
@@ -284,6 +278,8 @@ export default class OpencgaIndividualFilter extends LitElement {
         let content = "";
         switch (subsection.id) {
             case "id":
+            case "father":
+            case "mother":
                 content = html`<individual-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></individual-id-autocomplete>`
                 break;
             case "samples":

@@ -13,7 +13,7 @@ export OpencgaGeneView from "./core/webcomponents/opencga/opencga-gene-view.js";
 export OpencgaSampleView from "./core/webcomponents/opencga/catalog/samples/opencga-sample-view.js";
 export OpencgaProteinView from "./core/webcomponents/opencga/opencga-protein-view.js";
 export OpencgaLogin from "./core/webcomponents/opencga/catalog/opencga-login.js";
-export OpencgaIndividualBrowser from "./core/webcomponents/opencga/catalog/individual/opencga-individual-browser.js";
+export OpencgaIndividualBrowser from "./core/webcomponents/individual/opencga-individual-browser.js";
 export OpencgaFamilyBrowser from "./core/webcomponents/opencga/catalog/family/opencga-family-browser.js";
 export OpencgaCohortBrowser from "./core/webcomponents/opencga/catalog/cohorts/opencga-cohort-browser.js";
 export OpencgaClinicalAnalysisBrowser from "./core/webcomponents/clinical/opencga-clinical-analysis-browser.js";

@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../../utilsNew.js";
+import UtilsNew from "../../utilsNew.js";
 
 
 export default class OpencgaIndividualView extends LitElement {

@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../../utilsNew.js";
 import "./../variableSets/opencga-annotation-filter.js";
-import "./../opencga-date-filter.js";
+import "../../../commons/filters/opencga-date-filter.js";
 import "../../../commons/opencga-facet-view.js";
 import "../../../commons/filters/text-field-filter.js";
 import "../../../commons/filters/file-quality-filter.js";

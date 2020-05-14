@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../../utilsNew.js";
-import "../../../commons/opencga-browser.js";
+import UtilsNew from "../../utilsNew.js";
+import "../commons/opencga-browser.js";
 
 
 export default class OpencgaIndividualBrowser extends LitElement {
@@ -157,6 +157,32 @@ export default class OpencgaIndividualBrowser extends LitElement {
                                 description: ""
                             },
                             {
+                                id: "father",
+                                name: "Father ID",
+                                type: "string",
+                                placeholder: "LP-1234,LP-2345...",
+                                description: ""
+                            },
+                            {
+                                id: "mother",
+                                name: "Mother ID",
+                                type: "string",
+                                placeholder: "LP-1234,LP-2345...",
+                                description: ""
+                            },
+                            {
+                                id: "phenotypes",
+                                name: "Phenotype",
+                                placeholder: "Full-text search, e.g. *melanoma*",
+                                description: ""
+                            },
+                            {
+                                id: "disorder",
+                                name: "Disorder",
+                                placeholder: "Intellectual disability,Arthrogryposis...",
+                                description: ""
+                            },
+                            {
                                 id: "sex",
                                 name: "Sex",
                                 allowedValues: ["MALE", "FEMALE", "UNKNOWN", "UNDETERMINED"],
@@ -167,7 +193,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
                                 id: "karyotypicSex",
                                 name: "Karyotypic Sex",
                                 type: "category",
-                                allowedValues: ["VCF", "BCF", "GVCF", "TBI", "BIGWIG", "SAM", "BAM", "BAI", "CRAM", "CRAI", "FASTQ", "FASTA", "PED", "TAB_SEPARATED_VALUES", "COMMA_SEPARATED_VALUES", "XML", "PROTOCOL_BUFFER", "JSON", "AVRO", "PARQUET", "IMAGE", "PLAIN", "BINARY", "EXECUTABLE", "GZIP", "NONE", "UNKNOWN"],
+                                allowedValues: ["XX", "XY", "XO", "XXY", "XXX", "XXYY", "XXXY", "XXXX", "XYY", "OTHER", "UNKNOWN"],
                                 multiple: true,
                                 description: ""
                             },
@@ -179,29 +205,10 @@ export default class OpencgaIndividualBrowser extends LitElement {
                                 description: ""
                             },
                             {
-                                id: "disorder",
-                                name: "Disorder",
-                                placeholder: "Intellectual disability,Arthrogryposis...",
-                                description: ""
-                            },
-                            {
-                                id: "affectationStatus",
-                                name: "Affectation Status",
-                                allowedValues: ["CONTROL", "AFFECTED", "UNAFFECTED", "UNKNOWN"],
-                                multiple: true,
-                                description: ""
-                            },
-                            {
                                 id: "lifeStatus",
                                 name: "Life Status",
                                 allowedValues: ["ALIVE", "ABORTED", "DECEASED", "UNBORN", "STILLBORN", "MISCARRIAGE", "UNKNOWN"],
                                 multiple: true,
-                                description: ""
-                            },
-                            {
-                                id: "phenotypes",
-                                name: "Phenotypes",
-                                placeholder: "Full-text search, e.g. *melanoma*",
                                 description: ""
                             },
                             {
