@@ -62,7 +62,6 @@ export default class OpencgaIndividualGrid extends LitElement {
         this.catalogUiUtils = new CatalogUIUtils();
         this.active = false;
         this.gridId = this._prefix + "IndividualBrowserGrid";
-        this.checkedRows = new Map();
     }
 
     connectedCallback() {
@@ -189,31 +188,18 @@ export default class OpencgaIndividualGrid extends LitElement {
                     }
                 },
                 onCheck: (row, $element) => {
-                    this.checkedRows.set(row.id, row);
-                    this.gridCommons.onCheck(row.id, row, {rows: Array.from(this.checkedRows.values())});
+                    this.gridCommons.onCheck(row.id, row);
                 },
                 onCheckAll: rows => {
-                    for (let row of rows) {
-                        this.checkedRows.set(row.id, row);
-                    }
-                    this.gridCommons.onCheckAll(rows, {rows: Array.from(this.checkedRows.values())});
+                    this.gridCommons.onCheckAll(rows);
                 },
                 onUncheck: (row, $element) => {
-                    this.checkedRows.delete(row.id);
-                    this.gridCommons.onUncheck(row.id, row, {rows: Array.from(this.checkedRows.values())});
+                    this.gridCommons.onUncheck(row.id, row);
                 },
                 onUncheckAll: rows => {
-                    for (let row of rows) {
-                        this.checkedRows.delete(row.id);
-                    }
-                    this.gridCommons.onCheckAll(rows, {rows: Array.from(this.checkedRows.values())});
+                    this.gridCommons.onUncheckAll(rows);
                 },
                 onLoadSuccess: data => {
-                    for (let i = 0; i < data.rows.length; i++) {
-                        if (this.checkedRows.has(data.rows[i].id)) {
-                            $(this.table).bootstrapTable('check', i);
-                        }
-                    }
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
                 // onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),

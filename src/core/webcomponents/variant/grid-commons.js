@@ -24,6 +24,7 @@ export default class GridCommons {
         this.context = context;
         this.config = config;
 
+        this.checkedRows = new Map();
         // this.bootstrapTable = $("#" + this.gridId);
         // this.bootstrapTableConfig = this.bootstrapTable.bootstrapTable("getOptions");
     }
@@ -78,33 +79,50 @@ export default class GridCommons {
     }
 
     onCheck(rowId, row, others) {
+        this.checkedRows.set(rowId, row);
         this.context.dispatchEvent(new CustomEvent("checkrow", {
             detail: {
                 id: rowId,
                 row: row,
                 checked: true,
-                // rows: $("#" + this.gridId).bootstrapTable("getAllSelections"),
+                rows: Array.from(this.checkedRows.values()),
                 ...others
             }
         }));
     }
 
     onCheckAll(rows, others) {
+        for (let row of rows) {
+            this.checkedRows.set(row.id, row);
+        }
         this.context.dispatchEvent(new CustomEvent("checkrow", {
             detail: {
-                // rows: $("#" + this.gridId).bootstrapTable("getAllSelections"),
+                rows: Array.from(this.checkedRows.values()),
                 ...others
             }
         }));
     }
 
     onUncheck(rowId, row, others) {
+        this.checkedRows.delete(rowId);
         this.context.dispatchEvent(new CustomEvent("checkrow", {
             detail: {
                 id: rowId,
                 row: row,
                 checked: false,
-                // rows: $("#" + this.gridId).bootstrapTable("getAllSelections"),
+                rows: Array.from(this.checkedRows.values()),
+                ...others
+            }
+        }));
+    }
+
+    onUncheckAll(rows, others) {
+        for (let row of rows) {
+            this.checkedRows.delete(row.id);
+        }
+        this.context.dispatchEvent(new CustomEvent("checkrow", {
+            detail: {
+                rows: Array.from(this.checkedRows.values()),
                 ...others
             }
         }));
@@ -112,7 +130,15 @@ export default class GridCommons {
 
     onLoadSuccess(data, firstRowIndex = 2) {
         if (data.rows && data.rows.length > 0) {
-            $("#" + this.gridId)[0].rows[firstRowIndex].setAttribute("class", "success");
+
+            let table = $("#" + this.gridId);
+            for (let i = 0; i < data.rows.length; i++) {
+                if (this.checkedRows.has(data.rows[i].id)) {
+                    table.bootstrapTable('check', i);
+                }
+            }
+            
+            table[0].rows[firstRowIndex].setAttribute("class", "success");
             this.context.dispatchEvent(new CustomEvent("selectrow", {
                 detail: {
                     id: data.rows[0].id,
