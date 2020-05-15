@@ -6,11 +6,11 @@ export OpencgaVariantBrowser from "./core/webcomponents/variant/opencga-variant-
 export PpencgaClinicalPortal from "./core/webcomponents/clinical/opencga-clinical-portal.js";
 export VariantBeacon from "./core/webcomponents/variant/variant-beacon.js";
 export OpencgaProjects from "./core/webcomponents/opencga/catalog/opencga-projects.js";
-export OpencgaSampleBrowser from "./core/webcomponents/opencga/catalog/samples/opencga-sample-browser.js";
+export OpencgaSampleBrowser from "./core/webcomponents/samples/opencga-sample-browser.js";
 export OpencgaFileBrowser from "./core/webcomponents/opencga/catalog/files/opencga-file-browser.js";
 export OpencgaTranscriptView from "./core/webcomponents/opencga/opencga-transcript-view.js";
 export OpencgaGeneView from "./core/webcomponents/opencga/opencga-gene-view.js";
-export OpencgaSampleView from "./core/webcomponents/opencga/catalog/samples/opencga-sample-view.js";
+export OpencgaSampleView from "./core/webcomponents/samples/opencga-sample-view.js";
 export OpencgaProteinView from "./core/webcomponents/opencga/opencga-protein-view.js";
 export OpencgaLogin from "./core/webcomponents/opencga/catalog/opencga-login.js";
 export OpencgaIndividualBrowser from "./core/webcomponents/individual/opencga-individual-browser.js";

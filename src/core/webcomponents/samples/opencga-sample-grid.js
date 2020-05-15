@@ -15,10 +15,10 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import GridCommons from "../../../variant/grid-commons.js";
-import UtilsNew from "./../../../../utilsNew.js";
-import CatalogUIUtils from "../../../commons/CatalogUIUtils.js";
-import "../../../commons/opencb-grid-toolbar.js";
+import GridCommons from "../variant/grid-commons.js";
+import UtilsNew from "../../utilsNew.js";
+import CatalogUIUtils from "../commons/CatalogUIUtils.js";
+import "../commons/opencb-grid-toolbar.js";
 
 
 export default class OpencgaSampleGrid extends LitElement {

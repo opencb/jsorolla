@@ -15,18 +15,18 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../../utilsNew.js";
-import "./../variableSets/opencga-annotation-filter.js";
-import "../../../commons/filters/opencga-date-filter.js";
-import "../../../commons/opencga-facet-view.js";
-import "../../../commons/filters/text-field-filter.js";
-import "../../../commons/filters/file-quality-filter.js";
-import "../../../commons/filters/somatic-filter.js";
-import "../../../commons/filters/section-filter.js";
-import "../../../commons/filters/select-token-filter.js";
-import "../../../commons/filters/select-field-filter-autocomplete.js";
-import "../../../commons/filters/sample-id-autocomplete.js";
-import "../../../commons/filters/individual-id-autocomplete.js";
+import UtilsNew from "../../utilsNew.js";
+import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
+import "../commons/filters/opencga-date-filter.js";
+import "../commons/opencga-facet-view.js";
+import "../commons/filters/text-field-filter.js";
+import "../commons/filters/file-quality-filter.js";
+import "../commons/filters/somatic-filter.js";
+import "../commons/filters/section-filter.js";
+import "../commons/filters/select-token-filter.js";
+import "../commons/filters/select-field-filter-autocomplete.js";
+import "../commons/filters/sample-id-autocomplete.js";
+import "../commons/filters/individual-id-autocomplete.js";
 
 
 export default class OpencgaSampleFilter extends LitElement {

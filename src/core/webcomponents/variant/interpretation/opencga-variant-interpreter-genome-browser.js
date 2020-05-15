@@ -19,7 +19,7 @@ import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import Region from "../../../region.js";
 import "../../../../genome-browser/webcomponent/genome-browser.js";
-import "../../opencga/catalog/samples/opencga-sample-browser.js";
+import "../../samples/opencga-sample-browser.js";
 
 
 export default class OpencgaVariantInterpreterGenomeBrowser extends LitElement {

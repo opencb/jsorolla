@@ -530,7 +530,7 @@ export default class VariantGridFormatter {
                 let freq = populationFrequenciesMap.get(population);
                 color = this._getPopulationFrequencyColor(freq, populationFrequenciesColor);
             }
-            htmlPopFreqTable += `<td style="width: 15px; background: ${color}">&nbsp;</td>`;
+            htmlPopFreqTable += `<td style="width: 15px; background: ${color}; border-right: 1px solid white;">&nbsp;</td>`;
         }
         htmlPopFreqTable += "</tr></table>";
         return htmlPopFreqTable;
