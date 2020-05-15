@@ -148,23 +148,23 @@ export default class OpencgaSampleBrowser extends LitElement {
                         fields: [
                             {
                                 id: "id",
-                                name: "Id",
+                                name: "Sample ID",
                                 placeholder: "HG01879, HG01880, HG01881...",
                                 description: ""
                             },
                             {
                                 id: "individual",
-                                name: "Individual",
+                                name: "Individual ID",
                                 placeholder: "LP-1234, LP-4567...",
                                 description: "",
-                                showList: true
-                            },/*
+                                showList: false
+                            },
                             {
-                                id: "source",
-                                name: "Source",
-                                placeholder: "LP-1234, LP-4567...",
+                                id: "file",
+                                name: "File Name",
+                                placeholder: "file.vcf, ...",
                                 description: ""
-                            },*/
+                            },
                             {
                                 id: "annotations",
                                 name: "Sample annotations",

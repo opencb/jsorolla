@@ -33,6 +33,7 @@ export default class OpencgaSampleFilter extends LitElement {
 
     constructor() {
         super();
+
         this._init();
 
     }
@@ -45,13 +46,6 @@ export default class OpencgaSampleFilter extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            opencgaClient: {
-                type: Object
-            },
-            samples: {
-                type: Array
-                // notify: true //todo check notify and replace with _didRender() if necessary https://github.com/Polymer/lit-element/issues/81
-            },
             query: {
                 type: Object
             },
@@ -61,12 +55,6 @@ export default class OpencgaSampleFilter extends LitElement {
             variables: {
                 type: Array
             },
-            minYear: {
-                type: Number
-            },
-            compact: {
-                type: Boolean
-            },
             config: {
                 type: Object
             },
@@ -75,8 +63,7 @@ export default class OpencgaSampleFilter extends LitElement {
 
 
     _init() {
-        // super.ready();
-        this._prefix = "osf-" + UtilsNew.randomString(6) + "_";
+        this._prefix = "osf-" + UtilsNew.randomString(6);
 
         this.annotationFilterConfig = {
             class: "small",
@@ -257,8 +244,10 @@ export default class OpencgaSampleFilter extends LitElement {
                 `;
                 break;
             case "individual":
-                content = html`<individual-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></individual-id-autocomplete>
-                `;
+                content = html`<individual-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></individual-id-autocomplete>`;
+                break;
+            case "file":
+                content = html`<file-name-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></file-name-autocomplete>`;
                 break;
             case "source":
             case "phenotypes":
@@ -374,7 +363,6 @@ export default class OpencgaSampleFilter extends LitElement {
                 .notbold {
                     font-weight: normal;
                 }
-
             </style>
             
             ${this.searchButton ? html`
