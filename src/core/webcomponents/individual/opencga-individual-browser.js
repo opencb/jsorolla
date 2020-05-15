@@ -177,7 +177,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
                                 description: ""
                             },
                             {
-                                id: "disorder",
+                                id: "disorders",
                                 name: "Disorder",
                                 placeholder: "Intellectual disability,Arthrogryposis...",
                                 description: ""

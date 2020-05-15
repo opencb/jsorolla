@@ -37,20 +37,14 @@ export default class OpencgaFamilyFilter extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            opencgaClient: {
-                type: Object
-            },
-            families: {
-                type: Array,
-                notify: true
-            },
+            // families: {
+            //     type: Array,
+            // },
             query: {
                 type: Object,
-                notify: true
             },
             search: {
                 type: Object,
-                notify: true
             },
             variableSets: {
                 type: Array
@@ -58,12 +52,12 @@ export default class OpencgaFamilyFilter extends LitElement {
             variables: {
                 type: Array
             },
-            minYear: {
-                type: Number
-            },
-            compact: {
-                type: Boolean
-            },
+            // minYear: {
+            //     type: Number
+            // },
+            // compact: {
+            //     type: Boolean
+            // },
             config: {
                 type: Object
             }
@@ -74,7 +68,6 @@ export default class OpencgaFamilyFilter extends LitElement {
         // super.ready();
         this._prefix = "osf-" + UtilsNew.randomString(6) + "_";
 
-        this.minYear = 1920;
 
         this.annotationFilterConfig = {
             class: "small",
@@ -85,6 +78,7 @@ export default class OpencgaFamilyFilter extends LitElement {
         this.dateFilterConfig = {
             recentDays: 10
         };
+        this.minYear = 1920;
 
         this.query = {};
         this.preparedQuery = {};
@@ -256,6 +250,9 @@ export default class OpencgaFamilyFilter extends LitElement {
                 content = html`<family-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></family-id-autocomplete>`;
                 break;
             case "members":
+                content = html`<individual-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></individual-id-autocomplete>`
+                break;
+            case "disorders":
             case "phenotypes":
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;

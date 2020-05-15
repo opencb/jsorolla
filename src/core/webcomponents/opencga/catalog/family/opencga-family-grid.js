@@ -356,7 +356,7 @@ export default class OpencgaFamilyGrid extends LitElement {
         if (UtilsNew.isNotEmpty(value)) {
             let disordersHtml = "<div>";
             for (const disorder of value) {
-                disordersHtml += `<span>${disorder.id}</span>`;
+                disordersHtml += `<span>${disorder.id}</span><br>`;
             }
             disordersHtml += "</div>";
             return disordersHtml;
