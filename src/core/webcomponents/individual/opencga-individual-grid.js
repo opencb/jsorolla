@@ -84,7 +84,7 @@ export default class OpencgaIndividualGrid extends LitElement {
 
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
-        this._config = Object.assign(this.getDefaultConfig(), this.config);
+        this._config = {...this.getDefaultConfig(), ...this.config};
 
         // Config for the grid toolbar
         // this.toolbarConfig = {

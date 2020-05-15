@@ -17,16 +17,16 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import GridCommons from "../../../variant/grid-commons.js";
 import UtilsNew from "./../../../../utilsNew.js";
-import PolymerUtils from "../../../PolymerUtils.js";
 import CatalogUIUtils from "../../../commons/CatalogUIUtils.js";
-import "../../../commons/opencb-grid-toolbar.js";
 import "./opencga-family-filter.js";
+import "../../../commons/opencb-grid-toolbar.js";
 
 
 export default class OpencgaFamilyGrid extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -39,20 +39,16 @@ export default class OpencgaFamilyGrid extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            query: {
+                type: Object
+            },
             families: {
                 type: Array
-            },
-            // TODO remove
-            search: {
-                type: Object
             },
             active: {
                 type: Boolean
             },
             config: {
-                type: Object
-            },
-            query: {
                 type: Object
             }
         };
@@ -60,6 +56,7 @@ export default class OpencgaFamilyGrid extends LitElement {
 
     _init() {
         this._prefix = "VarFamilyGrid" + UtilsNew.randomString(6);
+
         this.catalogUiUtils = new CatalogUIUtils();
         this.active = false;
         this.gridId = this._prefix + "FamilyBrowserGrid";
@@ -67,6 +64,7 @@ export default class OpencgaFamilyGrid extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
@@ -87,34 +85,38 @@ export default class OpencgaFamilyGrid extends LitElement {
 
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
-        this._config = Object.assign(this.getDefaultConfig(), this.config);
-        this._columns = this._initTableColumns();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        // this._columns = this._initTableColumns();
 
         // Config for the grid toolbar
-        this.toolbarConfig = {
-            columns: this._columns[0]
-        };
+        // this.toolbarConfig = {
+        //     columns: this._columns[0]
+        // };
 
-        this.renderTable(this.active);
+        this.renderTable();
     }
 
-    renderTable(active) {
-        if (!active) {
-            return;
+    renderTable() {
+        // If this.individuals is provided as property we render the array directly
+        if (this.families && this.families.length > 0) {
+            this.renderLocalTable();
+        } else {
+            this.renderRemoteTable();
         }
+        this.requestUpdate();
+    }
 
-        this.opencgaClient = this.opencgaSession.opencgaClient;
-
-        this.families = [];
-
-        const filters = {...this.query};
+    renderRemoteTable(active) {
+        // if (!active) {
+        //     return;
+        // }
 
         // Initialise the counters
         this.from = 1;
         this.to = this._config.pageSize;
 
-        if (this.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
-
+        if (this.opencgaSession.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
+            const filters = {...this.query};
 
             if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
                 JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
@@ -124,40 +126,32 @@ export default class OpencgaFamilyGrid extends LitElement {
             // Store the current filters
             this.lastFilters = {...filters};
 
-            // Make a copy of the families (if they exist), we will use this private copy until it is assigned to this.families
-            if (UtilsNew.isNotUndefined(this.families)) {
-                this._families = this.families;
-            } else {
-                this._families = [];
-            }
-            const _table = $("#" + this.gridId);
-            const _this = this;
-            _table.bootstrapTable("destroy");
-            _table.bootstrapTable({
-                // url: opencgaHostUrl,
-                columns: _this._columns,
+            this.table = $("#" + this.gridId);
+            this.table.bootstrapTable("destroy");
+            this.table.bootstrapTable({
+                columns: this._getDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
                 uniqueId: "id",
 
                 // Table properties
-                pagination: _this._config.pagination,
-                pageSize: _this._config.pageSize,
-                pageList: _this._config.pageList,
-                showExport: _this._config.showExport,
-                detailView: _this._config.detailView,
-                detailFormatter: _this._config.detailFormatter,
+                pagination: this._config.pagination,
+                pageSize: this._config.pageSize,
+                pageList: this._config.pageList,
+                showExport: this._config.showExport,
+                detailView: this._config.detailView,
+                detailFormatter: this._config.detailFormatter,
 
-                // Make Polymer components avalaible to table formatters
-                gridContext: _this,
+                // Make Polymer components available to table formatters
+                gridContext: this,
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+
                 ajax: params => {
                     const _filters = {
                         study: this.opencgaSession.study.fqn,
-                        order: params.data.order,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
-                        count: !_table.bootstrapTable("getOptions").pageNumber || _table.bootstrapTable("getOptions").pageNumber === 1,
+                        count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         ...filters
                     };
                     this.opencgaSession.opencgaClient.families().search(_filters)
@@ -174,178 +168,80 @@ export default class OpencgaFamilyGrid extends LitElement {
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                /*onClickRow: function(row, element, field) {
-                    if (_this._config.multiSelection) {
-                        // Check and uncheck when clicking in the checkbox TD cell
-                        if (field === "state") {
-                            const index = element[0].dataset.index;
-                            if (element[0].className.includes("selected")) {
-                                $(PolymerUtils.getElementById(_this._prefix + "FamilyBrowserGrid")).bootstrapTable("uncheck", index);
-                            } else {
-                                $(PolymerUtils.getElementById(_this._prefix + "FamilyBrowserGrid")).bootstrapTable("check", index);
-
-                                $(".success").removeClass("success");
-                                $(element).addClass("success");
-                            }
-                        } else {
-                            // If user has clicked in the row
-                            const index = element[0].dataset.index;
-                            if (element[0].className.includes("selected")) {
-                                $(PolymerUtils.getElementById(_this._prefix + "FamilyBrowserGrid")).bootstrapTable("uncheck", index);
-                                $(element).removeClass("success");
-                            } else {
-                                $(PolymerUtils.getElementById(_this._prefix + "FamilyBrowserGrid")).bootstrapTable("check", index);
-                            }
-                        }
-                    } else {
-                        // If not checkboxes exist
-                        $(".success").removeClass("success");
-                        $(element).addClass("success");
-                    }
-
-                    _this._onSelectFamily(row);
-                },*/
-                onDblClickRow: function(row, element, field) {
+                onDblClickRow: (row, element, field) => {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (_this._config.detailView) {
+                    if (this._config.detailView) {
                         if (element[0].innerHTML.includes("icon-plus")) {
-                            $(PolymerUtils.getElementById(_this._prefix + "FamilyBrowserGrid")).bootstrapTable("expandRow", element[0].dataset.index);
+                            this.table.bootstrapTable("expandRow", element[0].dataset.index);
                         } else {
-                            $(PolymerUtils.getElementById(_this._prefix + "FamilyBrowserGrid")).bootstrapTable("collapseRow", element[0].dataset.index);
+                            this.table.bootstrapTable("collapseRow", element[0].dataset.index);
                         }
                     }
                 },
-                onCheck: function(row, element) {
-                    // check family is not already selected
-                    for (const i in _this._families) {
-                        if (_this._families[i].id === row.id) {
-                            return;
-                        }
-                    }
-
-                    // we add families to selected families
-                    _this._families.push(row);
-                    _this.families = _this._families.slice();
-
-                    // We only activate the row when checking
-                    if (_this._config.detailView) {
-                        $(".success").removeClass("success");
-                    }
-                    $(element[0].parentElement.parentElement).addClass("success");
-
-                    // If exist on single nested sample we must check it
-                    if (row.members.length === 1) {
-                        const checkbox = PolymerUtils.getElementById(_this._prefix + row.members[0].id + "Checkbox");
-                        if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
-                            checkbox.checked = true;
-                        }
-                    }
+                onCheck: (row, $element) => {
+                    this.gridCommons.onCheck(row.id, row);
                 },
-                onUncheck: function(row, elem) {
-                    let familyToDeleteIdx = -1;
-                    for (const i in _this.families) {
-                        if (_this.families[i].id === row.id) {
-                            familyToDeleteIdx = i;
-                            break;
-                        }
-                    }
-
-                    if (familyToDeleteIdx === -1) {
-                        return;
-                    }
-
-                    _this._families = _this._families.splice(familyToDeleteIdx, 1);
-                    _this.families = this._families.slice();
-
-                    // We detail view is active we expand the row automatically
-                    if (_this._config.detailView) {
-                        $(PolymerUtils.getElementById(_this._prefix + "FamilyBrowserGrid")).bootstrapTable("collapseRow", elem[0].dataset.index);
-                    }
-
-                    // We must uncheck nested checked samples
-                    if (row.members.length > 0) {
-                        for (const sample of row.members) {
-                            const checkbox = PolymerUtils.getElementById(_this._prefix + sample.id + "Checkbox");
-                            if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
-                                checkbox.checked = false;
-                            }
-                        }
-                    }
+                onCheckAll: rows => {
+                    this.gridCommons.onCheckAll(rows);
                 },
-                onCheckAll: function(rows) {
-                    const newFamilies = _this._families.slice();
-                    // check family is not already selected
-                    rows.forEach(family => {
-                        const existsNewSelected = _this._families.some(familySelected => {
-                            return familySelected.id === family.id;
-                        });
-
-                        if (!existsNewSelected) {
-                            newFamilies.push(family);
-                        }
-                    });
-
-                    // we add families to selected families
-                    _this._families = newFamilies;
-                    _this.families = newFamilies.slice();
-
-                    // We must uncheck nested checked samples
-                    for (const row of rows) {
-                        if (row.members.length === 1) {
-                            const checkbox = PolymerUtils.getElementById(_this._prefix + row.members[0].id + "Checkbox");
-                            if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
-                                checkbox.checked = true;
-                            }
-                        }
-                    }
+                onUncheck: (row, $element) => {
+                    this.gridCommons.onUncheck(row.id, row);
                 },
-                onUncheckAll: function(rows) {
-                    // check family is not already selected
-                    rows.forEach(family => {
-                        _this._families = _this._families.filter(familySelected => {
-                            return familySelected.id !== family.id;
-                        });
-                    });
-
-                    // we add families to selected families
-                    //                            _this.push("_families", row);
-                    _this.families = _this._families.slice();
-
-                    // We must uncheck nested checked samples
-                    for (const row of rows) {
-                        for (const sample of row.members) {
-                            const checkbox = PolymerUtils.getElementById(_this._prefix + sample.id + "Checkbox");
-                            if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
-                                checkbox.checked = false;
-                            }
-                        }
-                    }
+                onUncheckAll: rows => {
+                    this.gridCommons.onUncheckAll(rows);
                 },
-                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
-                onPageChange: (page, size) => this.gridCommons.onPageChange(page, size),
-                onPostBody: function(data) {
+                onLoadSuccess: data => {
+                    this.gridCommons.onLoadSuccess(data, 1);
+                },
+                onPageChange: (page, size) => {
+                    const result = this.gridCommons.onPageChange(page, size);
+                    this.from = result.from || this.from;
+                    this.to = result.to || this.to;
+                },
+                onPostBody: (data) => {
                     // Add tooltips
-                    _this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
-                    _this.catalogUiUtils.addTooltip("div.membersTooltip", "Members");
+                    this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
+                    this.catalogUiUtils.addTooltip("div.membersTooltip", "Members");
                 }
             });
-        } else {
-            // Delete table
-            $("#" + this.gridId).bootstrapTable("destroy");
-            this.numTotalResults = 0;
         }
     }
 
-    _onSelectFamily(row) {
-        if (typeof row !== "undefined") {
-            this.dispatchEvent(new CustomEvent("selectfamily", {
-                detail: {
-                    id: row.id,
-                    family: row
-                }
-            }));
-        }
+    renderLocalTable() {
+        this.from = 1;
+        this.to = Math.min(this.individuals.length, this._config.pageSize);
+        this.numTotalResultsText = this.individuals.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+        this.table = $("#" + this.gridId);
+        this.table.bootstrapTable("destroy");
+        this.table.bootstrapTable({
+            columns: this._getDefaultColumns(),
+            data: this.families,
+            sidePagination: "local",
+
+            // Set table properties, these are read from config property
+            uniqueId: "id",
+            pagination: this._config.pagination,
+            pageSize: this._config.pageSize,
+            pageList: this._config.pageList,
+            showExport: this._config.showExport,
+            detailView: this._config.detailView,
+            detailFormatter: this.detailFormatter,
+            formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+
+            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onPageChange: (page, size) => {
+                const result = this.gridCommons.onPageChange(page, size);
+                this.from = result.from || this.from;
+                this.to = result.to || this.to;
+            },
+            onPostBody: (data) => {
+                // We call onLoadSuccess to select first row
+                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
+                this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
+                this.catalogUiUtils.addTooltip("div.membersTooltip", "Members");            }
+        });
     }
 
     onColumnChange(e) {
@@ -356,7 +252,6 @@ export default class OpencgaFamilyGrid extends LitElement {
             table.bootstrapTable("hideColumn", e.detail.id);
         }
     }
-
 
     detailFormatter(value, row) {
         let result = `<div class='row' style="padding: 5px 10px 20px 10px">
@@ -508,14 +403,59 @@ export default class OpencgaFamilyGrid extends LitElement {
         return moment(value, "YYYYMMDDHHmmss").format("D MMM YYYY");
     }
 
-    _initTableColumns() {
+    _getDefaultColumns() {
         // Check column visibility
         const customAnnotationVisible = (UtilsNew.isNotUndefinedOrNull(this._config.customAnnotations) &&
             UtilsNew.isNotEmptyArray(this._config.customAnnotations.fields));
 
-        const columns = [];
-        if (this._config.multiSelection) {
-            columns.push({
+        let _columns = [
+            {
+                title: "Family",
+                field: "id",
+                sortable: true,
+                halign: this._config.header.horizontalAlign
+            },
+            {
+                title: "Members",
+                field: "members",
+                formatter: this.membersFormatter.bind(this),
+                halign: this._config.header.horizontalAlign
+            },
+            {
+                title: "Disorders",
+                field: "disorders",
+                formatter: this.disordersFormatter.bind(this),
+                halign: this._config.header.horizontalAlign
+            },
+            {
+                title: "Phenotypes",
+                field: "phenotypes",
+                formatter: this.phenotypesFormatter.bind(this),
+                halign: this._config.header.horizontalAlign
+            },
+            {
+                title: "Custom Annotations",
+                field: "customAnnotation",
+                formatter: this.customAnnotationFormatter,
+                visible: customAnnotationVisible,
+                halign: this._config.header.horizontalAlign
+            },
+            {
+                title: "Creation Date",
+                field: "creationDate",
+                formatter: this.dateFormatter,
+                sortable: true,
+                halign: this._config.header.horizontalAlign
+            },
+            {
+                title: "Status",
+                field: "status.name",
+                halign: this._config.header.horizontalAlign
+            }
+        ];
+
+        if (this._config.showSelectCheckbox) {
+            _columns.push({
                 field: "state",
                 checkbox: true,
                 // formatter: this.stateFormatter,
@@ -524,56 +464,7 @@ export default class OpencgaFamilyGrid extends LitElement {
             });
         }
 
-        this._columns = [
-            columns.concat(
-                [
-                    {
-                        title: "Family",
-                        field: "id",
-                        sortable: true,
-                        halign: this._config.header.horizontalAlign
-                    },
-                    {
-                        title: "Members",
-                        field: "members",
-                        formatter: this.membersFormatter.bind(this),
-                        halign: this._config.header.horizontalAlign
-                    },
-                    {
-                        title: "Disorders",
-                        field: "disorders",
-                        formatter: this.disordersFormatter.bind(this),
-                        halign: this._config.header.horizontalAlign
-                    },
-                    {
-                        title: "Phenotypes",
-                        field: "phenotypes",
-                        formatter: this.phenotypesFormatter.bind(this),
-                        halign: this._config.header.horizontalAlign
-                    },
-                    {
-                        title: "Custom Annotations",
-                        field: "customAnnotation",
-                        formatter: this.customAnnotationFormatter,
-                        visible: customAnnotationVisible,
-                        halign: this._config.header.horizontalAlign
-                    },
-                    {
-                        title: "Creation Date",
-                        field: "creationDate",
-                        formatter: this.dateFormatter,
-                        sortable: true,
-                        halign: this._config.header.horizontalAlign
-                    },
-                    {
-                        title: "Status",
-                        field: "status.name",
-                        halign: this._config.header.horizontalAlign
-                    }
-                ])
-        ];
-
-        return this._columns;
+        return _columns;
     }
 
     _getUrlQueryParams() {
@@ -654,6 +545,7 @@ export default class OpencgaFamilyGrid extends LitElement {
             detailView: true,
             detailFormatter: this.detailFormatter, // function with the detail formatter
             multiSelection: false,
+            showSelectCheckbox: true,
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
@@ -668,44 +560,42 @@ export default class OpencgaFamilyGrid extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles">
-            .detail-view :hover {
-                background-color: white;
-            }
-
-            .detail-view-row :hover {
-                background-color: #f5f5f5;
-            }
-
-            .cursor-pointer {
-                cursor: pointer;
-            }
-
-            .members-link-dropdown:hover .dropdown-menu {
-                display: block;
-            }
-
-            .phenotypes-link-dropdown:hover .dropdown-menu {
-                display: block;
-            }
-        </style>
-
-        <opencb-grid-toolbar .from="${this.from}"
-                             .to="${this.to}"
-                             .numTotalResultsText="${this.numTotalResultsText}"
-                             .config="${this.toolbarConfig}"
-                             @columnchange="${this.onColumnChange}"
-                             @download="${this.onDownload}">
-        </opencb-grid-toolbar>
-
-        <div id="${this._prefix}GridTableDiv">
-            <table id="${this._prefix}FamilyBrowserGrid">
-            </table>
-        </div>
+            <style include="jso-styles">
+                .detail-view :hover {
+                    background-color: white;
+                }
+    
+                .detail-view-row :hover {
+                    background-color: #f5f5f5;
+                }
+    
+                .cursor-pointer {
+                    cursor: pointer;
+                }
+    
+                .members-link-dropdown:hover .dropdown-menu {
+                    display: block;
+                }
+    
+                .phenotypes-link-dropdown:hover .dropdown-menu {
+                    display: block;
+                }
+            </style>
+    
+            <opencb-grid-toolbar .from="${this.from}"
+                                 .to="${this.to}"
+                                 .numTotalResultsText="${this.numTotalResultsText}"
+                                 .config="${this.toolbarConfig}"
+                                 @columnchange="${this.onColumnChange}"
+                                 @download="${this.onDownload}">
+            </opencb-grid-toolbar>
+    
+            <div id="${this._prefix}GridTableDiv">
+                <table id="${this._prefix}FamilyBrowserGrid"></table>
+            </div>
         `;
     }
 
 }
 
 customElements.define("opencga-family-grid", OpencgaFamilyGrid);
-
