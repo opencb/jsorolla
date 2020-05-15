@@ -40,7 +40,7 @@ export default class OpencgaSampleDetail extends LitElement {
             },
             // this is not actually used at the moment
             sampleId: {
-                type: Object
+                type: String
             },
             sample: {
                 type: Object
