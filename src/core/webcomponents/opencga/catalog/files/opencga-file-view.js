@@ -113,6 +113,7 @@ export default class OpencgaFileView extends LitElement {
 
     getDefaultConfig() {
         return {
+            showTitle: false
         };
     }
 
@@ -130,27 +131,38 @@ export default class OpencgaFileView extends LitElement {
         </style>
 
         ${this.file ? html`
-            <div class="row" style="padding: 0px 10px">
+            <div>
+                ${this._config.showTitle ? html`<h3 class="section-title">Summary</h3>` : null}
                 <div class="col-md-12">
-                    <h3 class="section-title">Summary</h3>
-
-                    <div class="col-md-12">
-                        <form class="form-horizontal">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Id</label>
+                            <span class="col-md-9">${this.file.id}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Name</label>
+                            <span class="col-md-9">${this.file.name}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Creation Date</label>
+                            <span class="col-md-9">${UtilsNew.dateFormatter(this.file.creationDate)}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Format</label>
+                            <span class="col-md-9">${this.file.format}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Bioformat</label>
+                            <span class="col-md-9">${this.file.bioformat}</span>
+                        </div>
+                        ${this.file?.internal?.status ? html`
                             <div class="form-group">
-                                <label class="col-md-3 label-title">Id</label>
-                                <span class="col-md-9">${this.file.id}</span>
+                                <label class="col-md-3 label-title">Status</label>
+                                <span class="col-md-9">${this.file.internal.status.name} (${UtilsNew.dateFormatter(this.file.internal.status.date)})</span>
                             </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Name</label>
-                                <span class="col-md-9">${this.file.name}</span>
-                            </div>
-                        </form>
-                    </div>
+                        ` : null}
+                    </form>
                 </div>
-                <!--<div class="col-md-12">
-                    <h3 class="section-title">Annotations</h3>
-    
-                </div> -->
             </div>
         ` : null }
         `;

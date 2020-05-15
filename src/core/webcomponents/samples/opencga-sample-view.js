@@ -100,6 +100,7 @@ export default class OpencgaSampleView extends LitElement {
 
     getDefaultConfig() {
         return {
+            showTitle: false
         };
     }
 
@@ -127,9 +128,9 @@ export default class OpencgaSampleView extends LitElement {
             </style>
     
             ${this.sample ? html`
-                <div class="row">
+                <div>
+                    ${this._config.showTitle ? html`<h3 class="section-title">Summary</h3>` : null}
                     <div class="col-md-12">
-<!--                        <h3 class="section-title">Summary</h3>-->
                         <form class="form-horizontal" style="padding: 20px">
                             <div class="form-group">
                                 <label class="col-md-3 label-title">Sample ID</label>
@@ -178,7 +179,6 @@ export default class OpencgaSampleView extends LitElement {
                             </form>
                         </div>
                     ` : null }
-                            
                 </div>
             ` : null }
         `;

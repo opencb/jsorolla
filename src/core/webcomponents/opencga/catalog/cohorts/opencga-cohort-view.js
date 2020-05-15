@@ -110,6 +110,7 @@ export default class OpencgaCohortView extends LitElement {
 
     getDefaultConfig() {
         return {
+            showTitle: false
         };
     }
 
@@ -127,23 +128,20 @@ export default class OpencgaCohortView extends LitElement {
         </style>
 
         ${this.cohort ? html`
-            <div class="row">
+            <div class="">
+                ${this._config.showTitle ? html`<h3 class="section-title">Summary</h3>` : null}
                 <div class="col-md-12">
-                    <h3 class="section-title">Summary</h3>
-
-                    <div class="col-md-12">
-                        <form class="form-horizontal">
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Cohort Id</label>
-                                <span class="col-md-9">${this.cohort.id}</span>
-                            </div>
-                        </form>
-                    </div>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Cohort Id</label>
+                            <span class="col-md-9">${this.cohort.id}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Creation date</label>
+                            <span class="col-md-9">${UtilsNew.dateFormatter(this.cohort.creationDate)}</span>
+                        </div>
+                    </form>
                 </div>
-                <!--<div class="col-md-12">
-                    <h3 class="section-title">Annotations</h3>
-    
-                </div> -->
             </div>
         ` : null }
         `;

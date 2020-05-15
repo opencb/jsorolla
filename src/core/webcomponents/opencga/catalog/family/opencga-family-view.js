@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../../utils.js";
+import UtilsNew from "./../../../../utilsNew.js";
 
 
 export default class OpencgaFamilyView extends LitElement {
@@ -50,7 +50,7 @@ export default class OpencgaFamilyView extends LitElement {
     }
 
     _init() {
-        // this.prefix = "osv" + UtilsNew.randomString(6);
+        this._prefix = "osv" + UtilsNew.randomString(6);
     }
 
     connectedCallback() {
@@ -104,6 +104,7 @@ export default class OpencgaFamilyView extends LitElement {
 
     getDefaultConfig() {
         return {
+            showTitle: false
         };
     }
 
@@ -121,24 +122,32 @@ export default class OpencgaFamilyView extends LitElement {
         </style>
 
         ${this.family ? html`
-            <div class="row" style="padding: 0px 10px">
-                <div class="col-md-12">
-                    <h3 class="section-title">Summary</h3>
-
-                    <div class="col-md-12">
-                        <div class="form-horizontal">
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Family Id</label>
-                                <span class="col-md-9">${this.family.id}</span>
-                            </div>
-                            <div class="form-group" >
-                                <label class="col-md-3 label-title">TODO</label>
-                                <span class="col-md-9">${this.family.sex}</span>
-                            </div>
-                        </div>
+        <div class="">
+            ${this._config.showTitle ? html`<h3 class="section-title">Summary</h3>` : null}
+            <div class="col-md-12">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label class="col-md-3 label-title">Family Id</label>
+                        <span class="col-md-9">${this.family.id}</span>
                     </div>
+                    <div class="form-group">
+                        <label class="col-md-3 label-title">Creation Date</label>
+                        <span class="col-md-9">${UtilsNew.dateFormatter(this.family.creationDate)}</span>
+                    </div>
+                    ${this.family.disorders ? html`<div class="form-group">
+                        <label class="col-md-3 label-title">Disorders</label>
+                        <span class="col-md-9">${this.family.disorders.map( disorder => html`<p>${disorder.name} (${disorder.id})</p>`)}</span>
+                    </div>                    
+                    ` : null}
+                    ${this.family.phenotypes ? html`
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Phenotypes</label>
+                            <span class="col-md-9">${this.family.phenotypes.map( phenotype => html`<p>${phenotype.name} (${phenotype.id})</p>`)}</span>
+                        </div>
+                    ` : null}
                 </div>
             </div>
+        </div>
         ` : null }
         `;
     }

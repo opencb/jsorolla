@@ -104,6 +104,7 @@ export default class OpencgaIndividualView extends LitElement {
 
     getDefaultConfig() {
         return {
+            showTitle: false
         };
     }
 
@@ -121,48 +122,41 @@ export default class OpencgaIndividualView extends LitElement {
         </style>
 
         ${this.individual ? html`
-            <div class="row" style="padding: 0px 10px">
+            <div>
+                ${this._config.showTitle ? html`<h3 class="section-title">Summary</h3>` : null}
                 <div class="col-md-12">
-                    <h3 class="section-title">Summary</h3>
-
-                    <div class="col-md-12">
-                        <form class="form-horizontal">
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">ID</label>
-                                <span class="col-md-9">${this.individual.id}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Name</label>
-                                <span class="col-md-9">${this.individual.name}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Version</label>
-                                <span class="col-md-9">${this.individual.version}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">UUID</label>
-                                <span class="col-md-9">${this.individual.uuid}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Sex (Karyotype)</label>
-                                <span class="col-md-9">${this.individual.sex} (${this.individual.karyotypicSex})</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Phenotypes</label>
-                                <span class="col-md-9">
-                                ${this.individual.phenotypes && this.individual.phenotypes.length ? this.individual.phenotypes.map( item => html`
-                                    <span>${item.name} (<a href="http://compbio.charite.de/hpoweb/showterm?id=${item.id}" target="_blank">${item.id}</a>)</span>
-                                    <br>
-                                `) : null }
-                            </span>
-                            </div>
-                        </form>
-                    </div>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">ID</label>
+                            <span class="col-md-9">${this.individual.id}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Name</label>
+                            <span class="col-md-9">${this.individual.name}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Version</label>
+                            <span class="col-md-9">${this.individual.version}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">UUID</label>
+                            <span class="col-md-9">${this.individual.uuid}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Sex (Karyotype)</label>
+                            <span class="col-md-9">${this.individual.sex} (${this.individual.karyotypicSex})</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Phenotypes</label>
+                            <span class="col-md-9">
+                            ${this.individual.phenotypes && this.individual.phenotypes.length ? this.individual.phenotypes.map( item => html`
+                                <span>${item.name} (<a href="http://compbio.charite.de/hpoweb/showterm?id=${item.id}" target="_blank">${item.id}</a>)</span>
+                                <br>
+                            `) : null }
+                        </span>
+                        </div>
+                    </form>
                 </div>
-                <!--<div class="col-md-12">
-                    <h3 class="section-title">Annotations</h3>
-    
-                </div> -->
             </div>
         ` : null }
         `;

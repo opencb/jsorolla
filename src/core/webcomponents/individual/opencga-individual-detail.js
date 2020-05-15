@@ -117,25 +117,15 @@ export default class OpencgaIndividualDetail extends LitElement {
                 </ul>
                
                 <div class="tab-content">
-                    <div id="file-view-tab" class="tab-pane active" role="tabpanel">
-                        <div id="${this._prefix}sample-view">
-                            <div class="container-fluid">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group detail-row">
-                                            <opencga-individual-view .opencgaSession="${this.opencgaSession}" .individual="${this.individual}">
-                                            </opencga-individual-view>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div id="individual-view-tab" class="tab-pane active" role="tabpanel">
+                        <div class="detail-row">
+                            <opencga-individual-view .opencgaSession="${this.opencgaSession}" .individual="${this.individual}"></opencga-individual-view>
                         </div>
                     </div>
                     <div id="log-tab" class="tab-pane" role="tabpanel">
                         second tab
                     </div>
                 </div>
-                
             </div>
         ` : null;
     }

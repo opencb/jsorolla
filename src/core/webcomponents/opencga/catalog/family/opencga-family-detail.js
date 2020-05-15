@@ -115,20 +115,12 @@ export default class OpencgaFamilyDetail extends LitElement {
                         </li>
                     `)}
                 </ul>
-               
+                               
                 <div class="tab-content">
                     <div id="family-view-tab" class="tab-pane active" role="tabpanel">
-                        <div id="${this._prefix}family-view">
-                            <div class="container-fluid">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group detail-row">
-                                            <opencga-family-view .opencgaSession="${this.opencgaSession}" .family="${this.family}">
-                                            </opencga-family-view>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="form-group detail-row">
+                            <opencga-family-view .opencgaSession="${this.opencgaSession}" .family="${this.family}">
+                            </opencga-family-view>
                         </div>
                     </div>
                     <div id="log-tab" class="tab-pane" role="tabpanel">

@@ -317,7 +317,7 @@ export default class OpencgaFamilyGrid extends LitElement {
                                         <td>${lifeStatus}</td>
                                         <td>${dateOfBirth}</td>
                                         <td>${creationDate}</td>
-                                        <td>${member?.status?.name}</td>
+                                        <td>${member?.status?.name || "-"}</td>
                                    </tr>`;
             }
             result += "</tbody></table></diV>";

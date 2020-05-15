@@ -119,17 +119,9 @@ export default class OpencgaFileDetail extends LitElement {
                
                 <div class="tab-content">
                     <div id="file-view-tab" class="tab-pane active" role="tabpanel">
-                        <div id="${this._prefix}file-view">
-                            <div class="container-fluid">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group detail-row">
-                                            <opencga-file-view .opencgaSession="${this.opencgaSession}" .file="${this.file}">
-                                            </opencga-file-view>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="form-group detail-row">
+                            <opencga-file-view .opencgaSession="${this.opencgaSession}" .file="${this.file}">
+                            </opencga-file-view>
                         </div>
                     </div>
                     <div id="file-preview-tab" class="tab-pane" role="tabpanel">

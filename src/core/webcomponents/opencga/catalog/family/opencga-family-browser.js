@@ -320,7 +320,6 @@ export default class OpencgaFamilyBrowser extends LitElement {
         return this._config ? html`
             <opencga-browser  resource="family"
                             .opencgaSession="${this.opencgaSession}"
-                            .opencgaClient="${this.opencgaSession.opencgaClient}"
                             .query="${this.query}"
                             .config="${this._config}"
                             .cellbaseClient="${this.cellbaseClient}"

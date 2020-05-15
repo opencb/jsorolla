@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../../utilsNew.js";
 import "./opencga-cohort-view.js";
+import "./../../../samples/opencga-sample-grid.js";
 
 export default class OpencgaCohortDetail extends LitElement {
 
@@ -117,22 +118,19 @@ export default class OpencgaCohortDetail extends LitElement {
                 </ul>
                
                 <div class="tab-content">
-                    <div id="file-view-tab" class="tab-pane active" role="tabpanel">
-                        <div id="${this._prefix}cohort-view">
-                            <div class="container-fluid">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group detail-row">
-                                            <opencga-cohort-view .opencgaSession="${this.opencgaSession}" .cohort="${this.cohort}">
-                                            </opencga-cohort-view>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div id="cohort-view-tab" class="tab-pane active" role="tabpanel">
+                        <div class="detail-row">
+                            <opencga-cohort-view .opencgaSession="${this.opencgaSession}" .cohort="${this.cohort}">
+                            </opencga-cohort-view>
                         </div>
                     </div>
-                    <div id="log-tab" class="tab-pane" role="tabpanel">
-                        second tab
+                    <div id="sample-view-tab" class="tab-pane" role="tabpanel">
+                        <opencga-sample-grid .opencgaSession="${this.opencgaSession}"
+                                                     .query="${{id: this.cohort.samples.map(sample => sample.id).join(",")}}"
+                                                     .config="${1 || this._config.filter.grid}"
+                                                     .samples="${1 || this.samples}"
+                                                     .active="${true}">
+                        </opencga-sample-grid>
                     </div>
                 </div>
                 

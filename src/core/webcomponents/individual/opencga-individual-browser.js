@@ -374,7 +374,6 @@ export default class OpencgaIndividualBrowser extends LitElement {
         return this._config ? html`
             <opencga-browser  resource="individuals"
                             .opencgaSession="${this.opencgaSession}"
-                            .opencgaClient="${this.opencgaSession.opencgaClient}"
                             .query="${this.query}"
                             .config="${this._config}"
                             .cellbaseClient="${this.cellbaseClient}"

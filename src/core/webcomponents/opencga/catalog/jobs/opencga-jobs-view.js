@@ -128,7 +128,9 @@ export default class OpencgaJobsView extends LitElement {
     }
 
     getDefaultConfig() {
-        return {};
+        return {
+            showTitle: false
+        };
     }
 
     render() {
@@ -145,82 +147,80 @@ export default class OpencgaJobsView extends LitElement {
         </style>
         ${this.job ? html`
             <div>
-                <h3 class="section-title">Summary</h3>
-                <div class="row">
-                    <div class="col-md-12">
-                        <form class="form-horizontal">
+                ${this._config.showTitle ? html`<h3 class="section-title">Summary</h3>` : null}
+                <div class="col-md-12">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Id</label>
+                            <span class="col-md-9">${this.job.id} (${this.job.uuid})</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">User</label>
+                            <span class="col-md-9">${this.job.userId}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Creation Date</label>
+                            <span class="col-md-9">${moment(this.job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Tool</label>
+                            <span class="col-md-9">${this.job.tool.id}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Input files</label>
+                            <span class="col-md-9">${this.job.input.map(file => html`<p>${file.name}</p>`)}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Parameters</label>
+                            <span class="col-md-9">${Object.entries(this.job.params).map(([param, value]) => html`<p><strong>${param}</strong>: ${value ? value : "-"}</p>`)}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Status</label>
+                            <span class="col-md-9">${this.renderHTML(this.statusFormatter(this.job.internal.status.name))}</span>
+                        </div>
+                        ${this.job.execution?.start ? html`
                             <div class="form-group">
-                                <label class="col-md-3 label-title">Id</label>
-                                <span class="col-md-9">${this.job.id} (${this.job.uuid})</span>
-                            </div>
+                                <label class="col-md-3 label-title">Execution Start</label>
+                                <span class="col-md-9">
+                                    ${moment(this.job.execution.start).format("D MMM YYYY, h:mm:ss a")} <br>
+                                </span>
+                            </div> 
+                        ` : null}
+                        ${this.job.execution?.end ? html`
                             <div class="form-group">
-                                <label class="col-md-3 label-title">User</label>
-                                <span class="col-md-9">${this.job.userId}</span>
-                            </div>
+                                <label class="col-md-3 label-title">Execution End</label>
+                                <span class="col-md-9">
+                                    ${moment(this.job.execution.end).format("D MMM YYYY, h:mm:ss a")} <br>
+                                </span>
+                            </div> 
+                        ` : null}                            
+                        ${this.job.tags?.length ? html`
                             <div class="form-group">
-                                <label class="col-md-3 label-title">Creation Date</label>
-                                <span class="col-md-9">${moment(this.job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</span>
+                                <label class="col-md-3 label-title">Tags</label>
+                                <span class="col-md-9">${this.job.tags}</span>
                             </div>
+                        ` : null}
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Priority</label>
+                            <span class="col-md-9">${this.job.priority}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 label-title">Output Dir</label>
+                            <span class="col-md-9">${this.job.outDir?.uri || "-"}</span>
+                        </div>
+                        
+                        ${this.job.dependsOn && this.job.dependsOn.length ? html`
                             <div class="form-group">
-                                <label class="col-md-3 label-title">Tool</label>
-                                <span class="col-md-9">${this.job.tool.id}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Input files</label>
-                                <span class="col-md-9">${this.job.input.map(file => html`<p>${file.name}</p>`)}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Parameters</label>
-                                <span class="col-md-9">${Object.entries(this.job.params).map(([param, value]) => html`<p><strong>${param}</strong>: ${value ? value : "-"}</p>`)}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Status</label>
-                                <span class="col-md-9">${this.renderHTML(this.statusFormatter(this.job.internal.status.name))}</span>
-                            </div>
-                            ${this.job.execution?.start ? html`
-                                <div class="form-group">
-                                    <label class="col-md-3 label-title">Execution Start</label>
-                                    <span class="col-md-9">
-                                        ${moment(this.job.execution.start).format("D MMM YYYY, h:mm:ss a")} <br>
-                                    </span>
-                                </div> 
-                            ` : null}
-                            ${this.job.execution?.end ? html`
-                                <div class="form-group">
-                                    <label class="col-md-3 label-title">Execution End</label>
-                                    <span class="col-md-9">
-                                        ${moment(this.job.execution.end).format("D MMM YYYY, h:mm:ss a")} <br>
-                                    </span>
-                                </div> 
-                            ` : null}                            
-                            ${this.job.tags?.length ? html`
-                                <div class="form-group">
-                                    <label class="col-md-3 label-title">Tags</label>
-                                    <span class="col-md-9">${this.job.tags}</span>
-                                </div>
-                            ` : null}
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Priority</label>
-                                <span class="col-md-9">${this.job.priority}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Output Dir</label>
-                                <span class="col-md-9">${this.job.outDir?.uri || "-"}</span>
-                            </div>
-                            
-                            ${this.job.dependsOn && this.job.dependsOn.length ? html`
-                                <div class="form-group">
-                                    <label class="col-md-3 label-title">Dependencies</label>
-                                    <span class="col-md-9">
-                                        <ul>
-                                            ${this.job.dependsOn.map(job => html`
-                                                <li>${job.id} (${job.uuid}) (${this.renderHTML(this.statusFormatter(job.internal.status.name))})</li>
-                                            `)}
-                                        </ul>
-                                    </span>
-                                </div>` : null}
-                        </form>
-                    </div>
+                                <label class="col-md-3 label-title">Dependencies</label>
+                                <span class="col-md-9">
+                                    <ul>
+                                        ${this.job.dependsOn.map(job => html`
+                                            <li>${job.id} (${job.uuid}) (${this.renderHTML(this.statusFormatter(job.internal.status.name))})</li>
+                                        `)}
+                                    </ul>
+                                </span>
+                            </div>` : null}
+                    </form>
                 </div>
             </div>
         ` : null}

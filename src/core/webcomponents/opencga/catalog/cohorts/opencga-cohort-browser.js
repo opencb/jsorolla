@@ -197,6 +197,10 @@ export default class OpencgaCohortBrowser extends LitElement {
                         id: "cohort-view",
                         title: "Details",
                         active: true
+                    },
+                    {
+                        id: "sample-view",
+                        title: "Samples"
                     }
                 ]
             },
@@ -295,7 +299,6 @@ export default class OpencgaCohortBrowser extends LitElement {
         return this._config ? html`
             <opencga-browser  resource="cohort"
                             .opencgaSession="${this.opencgaSession}"
-                            .opencgaClient="${this.opencgaSession.opencgaClient}"
                             .query="${this.query}"
                             .config="${this._config}"
                             .cellbaseClient="${this.cellbaseClient}"
