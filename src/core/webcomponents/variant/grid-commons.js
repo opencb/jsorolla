@@ -162,8 +162,12 @@ export default class GridCommons {
     }
 
     onPageChange(page, size) {
-        this.context.from = (page - 1) * size + 1;
-        this.context.to = page * size;
+        // this.context.from = (page - 1) * size + 1;
+        // this.context.to = page * size;
+        return {
+            from: (page - 1) * size + 1,
+            to: page * size
+        };
     }
 
 }

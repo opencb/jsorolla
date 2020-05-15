@@ -44,9 +44,6 @@ export default class OpencgaIndividualGrid extends LitElement {
             individuals: {
                 type: Array
             },
-            // search: {
-            //     type: Object
-            // },
             active: {
                 type: Boolean
             },
@@ -60,7 +57,7 @@ export default class OpencgaIndividualGrid extends LitElement {
         this._prefix = "VarIndividualGrid" + UtilsNew.randomString(6);
 
         this.catalogUiUtils = new CatalogUIUtils();
-        this.active = false;
+        // this.active = false;
         this.gridId = this._prefix + "IndividualBrowserGrid";
     }
 
@@ -80,19 +77,19 @@ export default class OpencgaIndividualGrid extends LitElement {
             changedProperties.has("query") ||
             changedProperties.has("config") ||
             changedProperties.has("active")) {
-            this.propertyObserver();
+            // this.propertyObserver();
+            this.renderTable();
         }
     }
 
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = Object.assign(this.getDefaultConfig(), this.config);
-        this._columns = this._getTableColumns();
 
         // Config for the grid toolbar
-        this.toolbarConfig = {
-            columns: this._columns[0]
-        };
+        // this.toolbarConfig = {
+        //     columns: this._columns[0]
+        // };
 
         this.renderTable();
     }
@@ -104,19 +101,20 @@ export default class OpencgaIndividualGrid extends LitElement {
         } else {
             this.renderRemoteTable();
         }
+        this.requestUpdate();
     }
 
     renderRemoteTable() {
-        if (!this.active) {
-            return;
-        }
+        // if (!this.active) {
+        //     return;
+        // }
 
         // Initialise row counters
         this.from = 1;
         this.to = this._config.pageSize;
 
         if (this.opencgaSession.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
-            const filters = Object.assign({}, this.query);
+            const filters = {...this.query};
             // filters.study = this.opencgaSession.study.fqn;
             if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
                 JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
@@ -126,42 +124,35 @@ export default class OpencgaIndividualGrid extends LitElement {
             // Store the current filters
             this.lastFilters = {...filters};
 
-            // Make a copy of the individuals (if they exist), we will use this private copy until it is assigned to this.individuals
-            // if (UtilsNew.isNotUndefined(this.individuals)) {
-            //     this._individuals = this.individuals;
-            // } else {
-            //     this._individuals = [];
-            // }
-
             this.table = $("#" + this.gridId);
-            const _this = this;
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                columns: _this._getTableColumns(),
+                columns: this._getDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
                 uniqueId: "id",
 
                 // Table properties
-                pagination: _this._config.pagination,
-                pageSize: _this._config.pageSize,
-                pageList: _this._config.pageList,
-                showExport: _this._config.showExport,
-                detailView: _this._config.detailView,
-                detailFormatter: _this._config.detailFormatter,
+                pagination: this._config.pagination,
+                pageSize: this._config.pageSize,
+                pageList: this._config.pageList,
+                showExport: this._config.showExport,
+                detailView: this._config.detailView,
+                detailFormatter: this._config.detailFormatter,
 
-                gridContext: _this,
+                gridContext: this,
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
 
                 ajax: params => {
                     const _filters = {
                         study: this.opencgaSession.study.fqn,
-                        // order: params.data.order,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
-                        count: !_this.table.bootstrapTable("getOptions").pageNumber || _this.table.bootstrapTable("getOptions").pageNumber === 1,
+                        count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         ...filters
                     };
+                    // Store the current filters
+                    this.lastFilters = {..._filters};
                     this.opencgaSession.opencgaClient.individuals().search(_filters)
                         .then( res => params.success(res))
                         .catch( e => console.error(e));
@@ -176,14 +167,14 @@ export default class OpencgaIndividualGrid extends LitElement {
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: function(row, element, field) {
+                onDblClickRow: (row, element, field) => {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (_this._config.detailView) {
+                    if (this._config.detailView) {
                         if (element[0].innerHTML.includes("icon-plus")) {
-                            $("#" + _this.gridId).bootstrapTable("expandRow", element[0].dataset.index);
+                            this.table.bootstrapTable("expandRow", element[0].dataset.index);
                         } else {
-                            $("#" + _this.gridId).bootstrapTable("collapseRow", element[0].dataset.index);
+                            this.table.bootstrapTable("collapseRow", element[0].dataset.index);
                         }
                     }
                 },
@@ -202,14 +193,14 @@ export default class OpencgaIndividualGrid extends LitElement {
                 onLoadSuccess: data => {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
-                // onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
-                onPageChange: function(page, size) {
-                    _this.from = (page - 1) * size + 1;
-                    _this.to = page * size;
+                onPageChange: (page, size) => {
+                    const result = this.gridCommons.onPageChange(page, size);
+                    this.from = result.from || this.from;
+                    this.to = result.to || this.to;
                 },
-                onPostBody: function(data) {
+                onPostBody: (data) => {
                     // Add tooltips
-                    _this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
+                    this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
                 }
             });
         }
@@ -220,50 +211,36 @@ export default class OpencgaIndividualGrid extends LitElement {
         this.to = Math.min(this.individuals.length, this._config.pageSize);
         this.numTotalResultsText = this.individuals.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-        const _this = this;
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            data: _this.individuals,
-            columns: _this._createDefaultColumns(),
+            columns: this._getDefaultColumns(),
+            data: this.individuals,
             sidePagination: "local",
 
             // Set table properties, these are read from config property
             uniqueId: "id",
-            pagination: _this._config.pagination,
-            pageSize: _this._config.pageSize,
-            pageList: _this._config.pageList,
-            showExport: _this._config.showExport,
-            detailView: _this._config.detailView,
-            detailFormatter: _this.detailFormatter,
+            pagination: this._config.pagination,
+            pageSize: this._config.pageSize,
+            pageList: this._config.pageList,
+            showExport: this._config.showExport,
+            detailView: this._config.detailView,
+            detailFormatter: this.detailFormatter,
             formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
 
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            onPageChange: function(page, size) {
-                // _this.from = (page - 1) * size + 1;
-                // _this.to = page * size;
+            onPageChange: (page, size) => {
+                const result = this.gridCommons.onPageChange(page, size);
+                this.from = result.from || this.from;
+                this.to = result.to || this.to;
             },
-            onPostBody: function(data) {
+            onPostBody: (data) => {
                 // We call onLoadSuccess to select first row
-                _this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
-                _this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
+                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
+                this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
             }
         });
     }
-
-    // _onSelectIndividual(row, event) {
-    //     console.log("row, event", row, event);
-    //     if (UtilsNew.isNotUndefinedOrNull(row)) {
-    //         if (UtilsNew.isUndefinedOrNull(event) || event !== "onLoad") {
-    //             this.dispatchEvent(new CustomEvent("selectindividual", {
-    //                 detail: {
-    //                     id: row.id,
-    //                     individual: row
-    //                 }
-    //             }));
-    //         }
-    //     }
-    // }
 
     onColumnChange(e) {
         const table = $("#" + this.gridId);
@@ -437,7 +414,7 @@ export default class OpencgaIndividualGrid extends LitElement {
         return "-";
     }
 
-    _getTableColumns() {
+    _getDefaultColumns() {
         // Check column visibility
         const customAnnotationVisible = (UtilsNew.isNotUndefinedOrNull(this._config.customAnnotations) &&
             UtilsNew.isNotEmptyArray(this._config.customAnnotations.fields));
@@ -626,27 +603,8 @@ export default class OpencgaIndividualGrid extends LitElement {
         };
     }
 
-
     render() {
         return html`
-            <style>
-                .detail-view :hover {
-                    background-color: white;
-                }
-    
-                .detail-view-row :hover {
-                    background-color: #f5f5f5;
-                }
-    
-                .cursor-pointer {
-                    cursor: pointer;
-                }
-    
-                .phenotypes-link-dropdown:hover .dropdown-menu {
-                    display: block;
-                }
-            </style>
-    
             <opencb-grid-toolbar .from="${this.from}"
                                  .to="${this.to}"
                                  .numTotalResultsText="${this.numTotalResultsText}"
