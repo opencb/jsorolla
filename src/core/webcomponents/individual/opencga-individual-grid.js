@@ -348,7 +348,6 @@ export default class OpencgaIndividualGrid extends LitElement {
     }
 
     disordersFormatter(value, row) {
-        debugger
         if (value) {
             let disordersHtml = "<div>";
             for (const disorder of value) {

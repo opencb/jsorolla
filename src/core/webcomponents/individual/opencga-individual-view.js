@@ -15,7 +15,8 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+// import UtilsNew from "../../utilsNew.js";
+import "../commons/view/data-view.js";
 
 
 export default class OpencgaIndividualView extends LitElement {
@@ -104,7 +105,47 @@ export default class OpencgaIndividualView extends LitElement {
 
     getDefaultConfig() {
         return {
-            showTitle: false
+            title: "Summary",
+            icon: "",
+            collapsable: true,
+            showTitle: false,
+            sections: [
+                {
+                    title: "General",
+                    collapsed: false,
+                    fields: [
+                        {
+                            name: "Individual ID",
+                            template: "${id} (${uuid})"
+                        },
+                        {
+                            name: "Name",
+                            field: "name"
+                        },
+                        {
+                            name: "Father",
+                            field: "father.id"
+                        },
+                        {
+                            name: "Mother",
+                            field: "mother.id"
+                        },
+                        {
+                            name: "Sex (KkaryotypicSex)",
+                            template: "${sex} (${karyotypicSex})"
+                        },
+                        {
+                            name: "Phenotypes",
+                            template: "${phenotypes[].name} (${phenotypes[].id})",
+                            // type: Array
+                        },
+                        {
+                            name: "Samples",
+                            template: "${sex} (${karyotypicSex})"
+                        }
+                    ]
+                },
+            ]
         };
     }
 
@@ -121,7 +162,11 @@ export default class OpencgaIndividualView extends LitElement {
             }
         </style>
 
-        ${this.individual ? html`
+        
+        <data-view .data=${this.individual} .config="${this.getDefaultConfig()}"></data-view>
+    
+        
+        ${this.individual && false ? html`
             <div>
                 ${this._config.showTitle ? html`<h3 class="section-title">Summary</h3>` : null}
                 <div class="col-md-12">
