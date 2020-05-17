@@ -107,42 +107,106 @@ export default class OpencgaIndividualView extends LitElement {
         return {
             title: "Summary",
             icon: "",
-            collapsable: true,
-            showTitle: false,
+            display: {
+                collapsable: true,
+                showTitle: false,
+                labelWidth: 2,
+                labelOrientation: "left"
+            },
             sections: [
                 {
                     title: "General",
                     collapsed: false,
-                    fields: [
+                    elements: [
+                        // available types: basic (optional/default), complex, list (horizontal and vertical), table, plot, custom
                         {
                             name: "Individual ID",
-                            template: "${id} (${uuid})"
+                            type: "complex",
+                            display: {
+                                template: "${id} (${uuid})",
+                            }
                         },
                         {
                             name: "Name",
-                            field: "name"
+                            field: "name",
+                            // type: "basic" (optional)
                         },
                         {
                             name: "Father",
-                            field: "father.id"
+                            field: "father.id",
+                            type: "basic"
                         },
                         {
-                            name: "Mother",
-                            field: "mother.id"
+                            name: "Mother of ${id}",
+                            field: "mother.id",
+                            type: "basic"
                         },
                         {
-                            name: "Sex (KkaryotypicSex)",
-                            template: "${sex} (${karyotypicSex})"
+                            name: "Sex (Karyotypic Sex)",
+                            type: "complex",
+                            display: {
+                                template: "${sex} (${karyotypicSex})",
+                            }
                         },
                         {
                             name: "Phenotypes",
-                            template: "${phenotypes[].name} (${phenotypes[].id})",
-                            // type: Array
+                            field: "phenotypes",
+                            type: "list",
+                            display: {
+                                template: "${name} (${id})",
+                                layout: "horizontal",
+                                separator: ", "
+                            }
                         },
                         {
-                            name: "Samples",
-                            template: "${sex} (${karyotypicSex})"
-                        }
+                            name: "Phenotypes",
+                            field: "phenotypes",
+                            type: "list",
+                            display: {
+                                template: "${name} (${id})",
+                                layout: "vertical",
+                                bullets: false
+                            }
+                        },
+                        {
+                            name: "Phenotypes",
+                            field: "phenotypes",
+                            type: "list",
+                            display: {
+                                template: "${name} (${id})",
+                                layout: "vertical",
+                                bullets: true
+                            }
+                        },
+                        {
+                            name: "Phenotypes",
+                            field: "phenotypes",
+                            type: "table",
+                            display: {
+                                columns: [{name: "ID", field: "id"}, {name: "Name", field: "name"}, {name: "Source", field: "source"}],
+                                border: true
+                            }
+                        },
+                        {
+                            name: "Phenotypes",
+                            field: "phenotypes",
+                            type: "plot",
+                            display: {
+                                chart: "histogram",
+                            }
+                        },
+                        {
+                            name: "Phenotypes",
+                            field: "phenotypes",
+                            type: "custom",
+                            display: {
+                                render: (data) => {
+                                    return html`
+                                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                                    `;
+                                },
+                            }
+                        },
                     ]
                 },
             ]
