@@ -57,6 +57,18 @@ export default class DataView extends LitElement {
         return myPath.split('.').reduce ( (res, prop) => res[prop], _object );
     }
 
+    applyTemplate(template, object, matches) {
+        if (!matches) {
+            matches = template.match(/\$\{[a-zA-Z_.\[\]]+\}/g).map(elem => elem.substring(2, elem.length - 1));
+        }
+        for (let match of matches) {
+            let v = this.getVal(match, object);
+            template = template.replace("${" + match + "}", v);
+        }
+        return template;
+    }
+
+
     _render() {
         return this.config.sections.map(section => this._createSection(section));
     }
@@ -77,11 +89,7 @@ export default class DataView extends LitElement {
     _createElement(element) {
         let title = element.name;
         if (title && title.includes("${")) {
-            let matches = title.match(/\$\{[a-zA-Z_.\[\]]+\}/g).map(elem => elem.substring(2, elem.length - 1));
-            for (let match of matches) {
-                let v = this.getVal(match);
-                title = title.replace("${" + match + "}", v);
-            }
+            title = this.applyTemplate(element.name);
         }
 
         let content = "";
@@ -125,12 +133,7 @@ export default class DataView extends LitElement {
     _createComplexElement(element) {
         let content = "-";
         if (element.display && element.display.template) {
-            let matches = element.display.template.match(/\$\{[a-zA-Z_.\[\]]+\}/g).map(elem => elem.substring(2, elem.length - 1));
-            content = element.display.template;
-            for (let match of matches) {
-                let v = this.getVal(match);
-                content = content.replace("${" + match + "}", v);
-            }
+            content = this.applyTemplate(element.display.template);
         }
         return html`<span>${content}</span>`;
     }
@@ -156,11 +159,7 @@ export default class DataView extends LitElement {
         let values = [];
         let matches = element.display.template.match(/\$\{[a-zA-Z_.\[\]]+\}/g).map(elem => elem.substring(2, elem.length - 1));
         for (let item of array) {
-            let value = element.display.template;
-            for (let match of matches) {
-                let v = this.getVal(match, item);
-                value = value.replace("${" + match + "}", v);
-            }
+            let value = this.applyTemplate(element.display.template, item, matches)
             values.push(value);
         }
 
