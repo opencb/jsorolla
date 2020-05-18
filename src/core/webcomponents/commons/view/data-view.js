@@ -116,15 +116,38 @@ export default class DataView extends LitElement {
     }
 
     _createSection(section) {
-        let content = html`
-            <div>
-                <h3 style="margin-top: 10px">${section.title}</h3>
-                <div class="row">
-                    ${section.elements.map(element => this._createElement(element))}
+        let content;
+        // Section 'elements' array has just one dimension
+        if (!Array.isArray(section.elements[0])) {
+            content = html`
+                <div>
+                    <h3 style="${(section.display && section.display.style) ? section.display.style : ""}">${section.title}</h3>
+                    <div class="row">
+                        ${section.elements.map(element => this._createElement(element))}
+                    </div>
                 </div>
-            </div>
-        
-        `;
+            `;
+        } else {
+            // Section 'elements' array must two dimensions
+            let leftColumnWidth = (section.display && section.display.leftColumnWith) ? section.display.leftColumnWith : 6;
+            let rightColumnWidth =  12 - leftColumnWidth;
+            content = html`
+                <div>
+                    <h3 style="${(section.display && section.display.style) ? section.display.style : ""}">${section.title}</h3>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="col-md-${leftColumnWidth}" style="${section.display.columnSeparatorStyle}">
+                                ${section.elements[0].map(element => this._createElement(element))}
+                            </div>
+                            <div class="col-md-${rightColumnWidth}">
+                                ${section.elements[1].map(element => this._createElement(element))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         return content;
     }
 

@@ -116,10 +116,67 @@ export default class OpencgaIndividualView extends LitElement {
             },
             sections: [
                 {
+                    title: "Two columns",
+                    collapsed: false,
+                    display: {
+                        style: "border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #ddd",
+                        leftColumnWith: 4,
+                        columnSeparatorStyle: "border-right: 1px solid red"
+                    },
+                    elements: [
+                        [
+                            {
+                                name: "Name",
+                                field: "name",
+                                // type: "basic" (optional)
+                            },
+                            {
+                                name: "Name",
+                                field: "namelkjsaljksajksa",
+                            },
+                            {
+                                name: "Father",
+                                field: "father.id",
+                                type: "basic",
+                                display: {
+                                    format: {
+                                        "father.id": {
+                                            style: "color: red"
+                                        }
+                                    }
+                                }
+                            },
+                        ],
+                        [
+                            {
+                                name: "Name",
+                                field: "name",
+                                // type: "basic" (optional)
+                            },
+                            {
+                                name: "Name",
+                                field: "namelkjsaljksajksa",
+                            },
+                            {
+                                name: "Father",
+                                field: "father.id",
+                                type: "basic",
+                                display: {
+                                    format: {
+                                        "father.id": {
+                                            style: "color: red"
+                                        }
+                                    }
+                                }
+                            },
+                        ]
+                    ]
+                },
+                {
                     title: "General",
                     collapsed: false,
                     display: {
-
+                        style: "border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #ddd"
                     },
                     elements: [
                         // available types: basic (optional/default), complex, list (horizontal and vertical), table, plot, custom
