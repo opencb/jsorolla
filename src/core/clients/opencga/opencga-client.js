@@ -278,7 +278,7 @@ export class OpenCGAClient {
                 _this.users().info(_this._config.userId)
                     .then(function(response) {
                         const session = {};
-                        console.log("response", response);
+                        //console.log("response", response);
 
                         session.user = response.response[0].result[0];
                         session.token = _this._config.token;

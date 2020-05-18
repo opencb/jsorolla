@@ -27,8 +27,6 @@ import "../commons/opencga-active-filters.js";
 import "../commons/filters/select-field-filter.js";
 import "../../loading-spinner.js";
 
-// import BrowserConf from "";
-
 export default class OpencgaVariantBrowser extends LitElement {
 
     constructor() {
@@ -697,7 +695,7 @@ export default class OpencgaVariantBrowser extends LitElement {
 
     render() {
         // Check if there is any project available
-        if (!this.opencgaSession.project) {
+        if (!this.opencgaSession?.project) {
             return html`
                 <div class="guard-page">
                     <i class="fas fa-lock fa-5x"></i>

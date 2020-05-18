@@ -55,13 +55,17 @@ export default class SimplePlot extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        switch (this.type) {
-            case "column":
-                this.barChart({title: this.title, data: this.data});
-                break;
-            case "pie":
-                this.pieChart({title: this.title, data: this.data});
-                break;
+        if(this.type && this.data) {
+            switch (this.type) {
+                case "column":
+                    this.barChart({title: this.title, data: this.data});
+                    break;
+                case "pie":
+                    this.pieChart({title: this.title, data: this.data});
+                    break;
+                default:
+                    throw new Error("Plot type not supported");
+            }
         }
     }
 

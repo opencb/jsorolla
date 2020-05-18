@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../../../utilsNew.js";
+import "../../../commons/view/data-view.js";
 
 
 export default class OpencgaFamilyView extends LitElement {
@@ -104,52 +105,59 @@ export default class OpencgaFamilyView extends LitElement {
 
     getDefaultConfig() {
         return {
-            showTitle: false
+            title: "Summary",
+            icon: "",
+            display: {
+                collapsable: true,
+                showTitle: false,
+                labelWidth: 2,
+                defaultVale: "-"
+            },
+            sections: [
+                {
+                    title: "General",
+                    collapsed: false,
+                    elements: [
+                        {
+                            name: "Family ID",
+                            field: "id"
+                        },
+                        {
+                            name: "Creation Date",
+                            field: "creationDate",
+                            type: "custom",
+                            display: {
+                                render: field => html`${UtilsNew.dateFormatter(field)}`
+                            }
+                        },
+                        {
+                            name: "Disorders",
+                            field: "disorders",
+                            type: "list",
+                            display: {
+                                template: "${name} (${id})",
+                                contentLayout: "bullets",
+                                defaultValue: "N/A"
+                            }
+                        },
+                        {
+                            name: "Phenotypes",
+                            field: "phenotypes",
+                            type: "list",
+                            display: {
+                                template: "${name} (${id})",
+                                contentLayout: "bullets",
+                                defaultValue: "N/A"
+                            }
+                        }
+                    ]
+                }
+            ]
         };
     }
 
     render() {
-        return html`
-        <style>
-            .section-title {
-                border-bottom: 2px solid #eee;
-            }
-            .label-title {
-                text-align: left;
-                padding-left: 5px;
-                padding-right: 10px;
-            }
-        </style>
-
-        ${this.family ? html`
-        <div class="">
-            ${this._config.showTitle ? html`<h3 class="section-title">Summary</h3>` : null}
-            <div class="col-md-12">
-                <div class="form-horizontal">
-                    <div class="form-group">
-                        <label class="col-md-3 label-title">Family Id</label>
-                        <span class="col-md-9">${this.family.id}</span>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-3 label-title">Creation Date</label>
-                        <span class="col-md-9">${UtilsNew.dateFormatter(this.family.creationDate)}</span>
-                    </div>
-                    ${this.family.disorders ? html`<div class="form-group">
-                        <label class="col-md-3 label-title">Disorders</label>
-                        <span class="col-md-9">${this.family.disorders.map( disorder => html`<p>${disorder.name} (${disorder.id})</p>`)}</span>
-                    </div>                    
-                    ` : null}
-                    ${this.family.phenotypes ? html`
-                        <div class="form-group">
-                            <label class="col-md-3 label-title">Phenotypes</label>
-                            <span class="col-md-9">${this.family.phenotypes.map( phenotype => html`<p>${phenotype.name} (${phenotype.id})</p>`)}</span>
-                        </div>
-                    ` : null}
-                </div>
-            </div>
-        </div>
-        ` : null }
-        `;
+        return html`<data-view .data=${this.family} .config="${this.getDefaultConfig()}"></data-view>`;
     }
 
 }

@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
+import "../commons/view/data-view.js";
 
 
 export default class OpencgaSampleView extends LitElement {
@@ -100,7 +101,66 @@ export default class OpencgaSampleView extends LitElement {
 
     getDefaultConfig() {
         return {
-            showTitle: false
+            title: "Summary",
+            icon: "",
+            display: {
+                collapsable: true,
+                showTitle: false,
+                labelWidth: 2,
+                defaultVale: "-"
+            },
+            sections: [
+                {
+                    title: "General",
+                    collapsed: false,
+                    elements: [
+                        {
+                            name: "Sample ID",
+                            field: "id"
+                        },
+                        {
+                            name: "UUID",
+                            field: "uuid"
+                        },
+                        {
+                            name: "Version",
+                            field: "version"
+                        },
+                        {
+                            name: "Release",
+                            field: "release"
+                        },
+                        {
+                            name: "Status",
+                            field: "internal.status",
+                            type: "custom",
+                            display: {
+                                render: field => html`${field.name} (${UtilsNew.dateFormatter(field.date)}) `
+                            }
+                        },
+                        {
+                            name: "Creation Date",
+                            field: "creationDate",
+                            type: "custom",
+                            display: {
+                                render: field => html`${UtilsNew.dateFormatter(field)}`
+                            }
+                        },
+                        {
+                            name: "Modification Date",
+                            field: "modificationDate",
+                            type: "custom",
+                            display: {
+                                render: field => field?.name ? html`${field.name} (${UtilsNew.dateFormatter(field.modificationDate)})` : ""
+                            }
+                        },
+                        {
+                            name: "Description",
+                            field: "description"
+                        }
+                    ]
+                }
+            ]
         };
     }
 
@@ -116,71 +176,77 @@ export default class OpencgaSampleView extends LitElement {
 
     render() {
         return html`
-            <style include="jso-styles">
-                .section-title {
-                    border-bottom: 2px solid #eee;
-                }
-                .label-title {
-                    text-align: left;
-                    padding-left: 5px;
-                    padding-right: 10px;
-                }
-            </style>
-    
-            ${this.sample ? html`
-                <div>
-                    ${this._config.showTitle ? html`<h3 class="section-title">Summary</h3>` : null}
-                    <div class="col-md-12">
-                        <form class="form-horizontal" style="padding: 20px">
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Sample ID</label>
-                                <span class="col-md-9">${this.sample.id}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">UUID</label>
-                                <span class="col-md-9">${this.sample.uuid}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Version</label>
-                                <span class="col-md-9">${this.sample.version}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Release</label>
-                                <span class="col-md-9">${this.sample.release}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Status</label>
-                                <span class="col-md-9">${this.sample.internal.status.name}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Creation Date</label>
-                                <span class="col-md-9">${this.sample.creationDate}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Modification Date</label>
-                                <span class="col-md-9">${this.sample.modificationDate}</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Description</label>
-                                <span class="col-md-9">${this.sample.description}</span>
-                            </div>
-                          <!--   ${this._getCollectionHtml()} -->
-                        </form>
-                    </div>
-    
-                    ${this.sample.phenotypes && this.sample.phenotypes.length ? html`
+
+            <data-view .data=${this.sample} .config="${this.getDefaultConfig()}"></data-view>
+
+            <!-- TODO remove after phenotypes and this._getCollectionHtml has been handled in configuration -->
+            ${false ? html`
+                <style include="jso-styles">
+                    .section-title {
+                        border-bottom: 2px solid #eee;
+                    }
+                    .label-title {
+                        text-align: left;
+                        padding-left: 5px;
+                        padding-right: 10px;
+                    }
+                </style>
+        
+                ${this.sample ? html`
+                    <div>
+                        ${this._config.showTitle ? html`<h3 class="section-title">Summary</h3>` : null}
                         <div class="col-md-12">
-                            <h3 class="section-title">Phenotypes</h3>
-                            <form class="form-horizontal">
-                                ${this.sample.phenotypes.map( item => html`
-                                    <span>${item.name} (<a href="http://compbio.charite.de/hpoweb/showterm?id=${item.id}" target="_blank">${item.id}</a>)</span>
-                                    <br>
-                                `)}
+                            <form class="form-horizontal" style="padding: 20px">
+                                <div class="form-group">
+                                    <label class="col-md-3 label-title">Sample ID</label>
+                                    <span class="col-md-9">${this.sample.id}</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-3 label-title">UUID</label>
+                                    <span class="col-md-9">${this.sample.uuid}</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-3 label-title">Version</label>
+                                    <span class="col-md-9">${this.sample.version}</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-3 label-title">Release</label>
+                                    <span class="col-md-9">${this.sample.release}</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-3 label-title">Status</label>
+                                    <span class="col-md-9">${this.sample.internal.status.name}</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-3 label-title">Creation Date</label>
+                                    <span class="col-md-9">${this.sample.creationDate}</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-3 label-title">Modification Date</label>
+                                    <span class="col-md-9">${this.sample.modificationDate}</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-3 label-title">Description</label>
+                                    <span class="col-md-9">${this.sample.description}</span>
+                                </div>
+                              <!--   ${this._getCollectionHtml()} -->
                             </form>
                         </div>
-                    ` : null }
-                </div>
-            ` : null }
+        
+                        ${this.sample.phenotypes && this.sample.phenotypes.length ? html`
+                            <div class="col-md-12">
+                                <h3 class="section-title">Phenotypes</h3>
+                                <form class="form-horizontal">
+                                    ${this.sample.phenotypes.map( item => html`
+                                        <span>${item.name} (<a href="http://compbio.charite.de/hpoweb/showterm?id=${item.id}" target="_blank">${item.id}</a>)</span>
+                                        <br>
+                                    `)}
+                                </form>
+                            </div>
+                        ` : null }
+                    </div>
+                ` : null }
+            ` : null}
         `;
     }
 

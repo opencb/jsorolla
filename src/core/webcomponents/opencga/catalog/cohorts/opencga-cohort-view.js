@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../../utilsNew.js";
+import "../../../commons/view/data-view.js";
 
 
 export default class OpencgaCohortView extends LitElement {
@@ -110,40 +111,44 @@ export default class OpencgaCohortView extends LitElement {
 
     getDefaultConfig() {
         return {
-            showTitle: false
+            title: "Summary",
+            icon: "",
+            display: {
+                collapsable: true,
+                showTitle: false,
+                labelWidth: 2,
+                defaultVale: "-",
+                labelAlign: "left"
+            },
+            sections: [
+                {
+                    title: "General",
+                    collapsed: false,
+                    elements: [
+                        // available types: basic (optional/default), complex, list (horizontal and vertical), table, plot, custom
+                        {
+                            name: "Cohort Id",
+                            field: "id"
+                        },
+                        {
+                            name: "Creation date",
+                            field: "creationDate",
+                            type: "custom",
+                            display: {
+                                render: field => {
+                                    return html`${UtilsNew.dateFormatter(field)}`;
+                                }
+                            }
+                        }
+                    ]
+                },
+            ]
         };
     }
 
     render() {
         return html`
-        <style>
-            .section-title {
-                border-bottom: 2px solid #eee;
-            }
-            .label-title {
-                text-align: left;
-                padding-left: 5px;
-                padding-right: 10px;
-            }
-        </style>
-
-        ${this.cohort ? html`
-            <div class="">
-                ${this._config.showTitle ? html`<h3 class="section-title">Summary</h3>` : null}
-                <div class="col-md-12">
-                    <form class="form-horizontal">
-                        <div class="form-group">
-                            <label class="col-md-3 label-title">Cohort Id</label>
-                            <span class="col-md-9">${this.cohort.id}</span>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 label-title">Creation date</label>
-                            <span class="col-md-9">${UtilsNew.dateFormatter(this.cohort.creationDate)}</span>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        ` : null }
+            <data-view .data=${this.cohort} .config="${this.getDefaultConfig()}"></data-view>
         `;
     }
 

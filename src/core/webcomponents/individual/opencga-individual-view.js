@@ -111,8 +111,8 @@ export default class OpencgaIndividualView extends LitElement {
                 collapsable: true,
                 showTitle: false,
                 labelWidth: 2,
-                labelOrientation: "left",
-                defaultVale: "-"
+                labelAlign: "left",
+                defaultValue: "-"
             },
             sections: [
                 {
@@ -229,6 +229,7 @@ export default class OpencgaIndividualView extends LitElement {
                         {
                             name: "Sex (Karyotypic Sex)",
                             type: "custom",
+                            // without the field "field" the param of render is data the whole config
                             display: {
                                 render: (data) => {
                                     return html`${data.sex} (<span style="color: red">${data.karyotypicSex}</span>)`;
@@ -285,7 +286,7 @@ export default class OpencgaIndividualView extends LitElement {
                                         style: "font-weight: bold"
                                     }
                                 },
-                                defaultVale: "N/A"
+                                defaultValue: "N/A"
                             }
                         },
                         {
@@ -304,7 +305,7 @@ export default class OpencgaIndividualView extends LitElement {
                                         style: "font-weight: bold"
                                     }
                                 },
-                                defaultVale: "N/A"
+                                defaultValue: "N/A"
                             }
                         },
                         {
@@ -323,7 +324,7 @@ export default class OpencgaIndividualView extends LitElement {
                                         name: "Source", field: "source"
                                     },
                                     {
-                                        name: "Undefined Filed", field: "uf", defaultVale: "N/A"
+                                        name: "Undefined Filed", field: "uf", defaultValue: "N/A"
                                     }
                                 ],
                                 format: {
@@ -382,11 +383,19 @@ export default class OpencgaIndividualView extends LitElement {
                             field: "phenotypes",
                             type: "custom",
                             display: {
-                                render: (data) => {
-                                    return html`
-                                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                                render: data => {
+                                    return html` <pre>${JSON.stringify(data, null, 2)}</pre>
                                     `;
-                                },
+                                }
+                            }
+                        },
+                        {
+                            name: "Chart",
+                            field: "phenotypes",
+                            data: {"INSERTION": 1, "SNV": 165398, "DELETION": 1, "INDEL": 7218},
+                            type: "plot",
+                            display: {
+                                type: "column",
                             }
                         },
                     ]
@@ -411,7 +420,6 @@ export default class OpencgaIndividualView extends LitElement {
         
         <data-view .data=${this.individual} .config="${this.getDefaultConfig()}"></data-view>
     
-        
         ${this.individual && false ? html`
             <div>
                 ${this._config.showTitle ? html`<h3 class="section-title">Summary</h3>` : null}

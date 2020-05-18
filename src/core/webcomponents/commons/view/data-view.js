@@ -17,7 +17,8 @@
 import {html, LitElement} from "/web_modules/lit-element.js";
 // import {directive} from "/web_modules/lit-html.js";
 import UtilsNew from "../../../utilsNew.js";
-
+import "../../simple-plot.js";
+import "../../json-viewer.js";
 
 export default class DataView extends LitElement {
 
@@ -54,7 +55,7 @@ export default class DataView extends LitElement {
 
     getValue(field, object, defaultValue, format) {
         let _object = object ? object : this.data;
-        let value = field.split('.').reduce ( (res, prop) => res[prop], _object );
+        let value = field.split(".").reduce((res, prop) => res[prop], _object);
         if (value) {
             if (format && format[field]) {
                 let f = format[field];
@@ -85,8 +86,8 @@ export default class DataView extends LitElement {
             }
             template = html`
                 ${matches.map(match => {
-                    template = template.replace("${" + match + "}", this.getValue(match, object, defaultValue, format))
-                })};
+                template = template.replace("${" + match + "}", this.getValue(match, object, defaultValue, format));
+            })};
             `;
         } else {
             for (let match of matches) {
@@ -99,10 +100,10 @@ export default class DataView extends LitElement {
     }
 
     getDefaultValue(element) {
-        if (element.display && element.display.defaultValue) {
+        if (element?.display?.defaultValue) {
             return element.display.defaultValue;
         } else {
-            if (this.config.display && this.config.display.defaultValue) {
+            if (this.config?.display?.defaultValue) {
                 return this.config.display.defaultValue;
             } else {
                 return "-";
@@ -110,32 +111,27 @@ export default class DataView extends LitElement {
         }
     }
 
-
-    _render() {
-        return this.config.sections.map(section => this._createSection(section));
-    }
-
     _createSection(section) {
         let content;
         // Section 'elements' array has just one dimension
         if (!Array.isArray(section.elements[0])) {
             content = html`
-                <div>
-                    <h3 style="${(section.display && section.display.style) ? section.display.style : ""}">${section.title}</h3>
-                    <div class="row">
+                <section>
+                    <h3 style="${(section?.display?.style) ? section.display.style : ""}">${section.title}</h3>
+                    <div class="container-fluid">
                         ${section.elements.map(element => this._createElement(element))}
                     </div>
-                </div>
+                </section>
             `;
         } else {
             // Section 'elements' array must two dimensions
-            let leftColumnWidth = (section.display && section.display.leftColumnWith) ? section.display.leftColumnWith : 6;
-            let rightColumnWidth =  12 - leftColumnWidth;
+            let leftColumnWidth = section?.display?.leftColumnWith ? section.display.leftColumnWith : 6;
+            let rightColumnWidth = 12 - leftColumnWidth;
             content = html`
-                <div>
-                    <h3 style="${(section.display && section.display.style) ? section.display.style : ""}">${section.title}</h3>
-                    <div class="row">
-                        <div class="col-md-12">
+                <section>
+                    <h3 style="${section?.display?.style ? section.display.style : ""}">${section.title}</h3>
+                    <div class="container-fluid">
+                        <div class="row detail-row">
                             <div class="col-md-${leftColumnWidth}" style="${section.display.columnSeparatorStyle}">
                                 ${section.elements[0].map(element => this._createElement(element))}
                             </div>
@@ -144,7 +140,7 @@ export default class DataView extends LitElement {
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
             `;
         }
 
@@ -155,7 +151,7 @@ export default class DataView extends LitElement {
         // Check if type is 'separator', this is a special case, no need to parse 'name' and 'content'
         if (element.type === "separator") {
             return html`
-                <div class="col-md-12" style="margin-bottom: 5px">
+                <div>
                     <hr style="${element.display.style}">
                 </div>
             `;
@@ -172,7 +168,7 @@ export default class DataView extends LitElement {
             content = html`${this.getValue(element.field, this.data, this.getDefaultValue(element), element.display ? element.display.format : null)}`;
         } else {
             // Other 'type' are rendered by specific functions
-            switch(element.type) {
+            switch (element.type) {
                 case "complex":
                     content = this._createComplexElement(element);
                     break;
@@ -185,6 +181,9 @@ export default class DataView extends LitElement {
                 case "plot":
                     content = this._createPlotElement(element);
                     break;
+                case "json":
+                    content = this._createJsonElement(element);
+                    break;
                 case "custom":
                     content = this._createCustomElement(element);
                     break;
@@ -193,10 +192,10 @@ export default class DataView extends LitElement {
 
         let layout = (element.display && element.display.layout) ? element.display.layout : "horizontal";
         if (layout === "horizontal") {
-            // Label 'width' and 'orientation' are configured by 'labelWidth' and 'labelOrientation', defaults are '2' and 'left' respectively
+            // Label 'width' and 'align' are configured by 'labelWidth' and 'labelAlign', defaults are '2' and 'left' respectively
             return html`
-                <div class="col-md-12" style="margin-bottom: 5px">
-                    <div class="col-md-${this.config.display.labelWidth || 2}" style="text-align: ${this.config.display.labelOrientation || "left"}">
+                <div class="row detail-row">
+                    <div class="col-md-${this.config.display.labelWidth || 2} text-${this.config.display.labelWidth || "left"}">
                         <label>${title}</label>
                     </div>
                     <div class="col-md-${12 - (this.config.display.labelWidth || 10)}">
@@ -206,7 +205,7 @@ export default class DataView extends LitElement {
             `;
         } else {
             return html`
-                <div class="col-md-12" style="margin-bottom: 5px">
+                <div class="row detail-row">
                     <div class="col-md-12">
                         <label>${title}</label>
                     </div>
@@ -246,7 +245,7 @@ export default class DataView extends LitElement {
         let values = [];
         let matches = element.display.template.match(/\$\{[a-zA-Z_.\[\]]+\}/g).map(elem => elem.substring(2, elem.length - 1));
         for (let object of array) {
-            let value = this.applyTemplate(element.display.template, object, matches, this.getDefaultValue(element))
+            let value = this.applyTemplate(element.display.template, object, matches, this.getDefaultValue(element));
             values.push(value);
         }
 
@@ -282,14 +281,17 @@ export default class DataView extends LitElement {
         let array = this.getValue(element.field);
 
         // Check values
+        if (!array.length) {
+            return this.getDefaultValue(element);
+        }
         if (!element.field) {
-            return html`<span style="color: red">Type 'table' requires an array field</span>`;
+            return html`<span class="text-danger">Type 'table' requires an array field</span>`;
         }
         if (!Array.isArray(array)) {
-            return html`<span style="color: red">Field '${element.field}' is not an array</span>`;
+            return html`<span class="text-danger">Field '${element.field}' is not an array</span>`;
         }
         if (!element.display && !element.display.columns) {
-            return html`<span style="color: red">Type 'table' requires a 'columns' array</span>`;
+            return html`<span class="text-danger">Type 'table' requires a 'columns' array</span>`;
         }
 
         return html`
@@ -305,7 +307,7 @@ export default class DataView extends LitElement {
                     ${array.map(row => html`
                         <tr scope="row">
                             ${element.display.columns.map(elem => html`
-                                <td>${this.getValue(elem.field, row, elem.defaultVale, element.display.format)}</td>
+                                <td>${this.getValue(elem.field, row, elem.defaultValue, element.display.format)}</td>
                             `)}
                         </tr>
                     `)}
@@ -315,7 +317,7 @@ export default class DataView extends LitElement {
     }
 
     _createPlotElement(element) {
-
+        return html`<simple-plot .active="${true}" type="${element.display.type}" title="${element.name}" .data="${element.data}"></simple-plot>`;
     }
 
     _createCustomElement(element) {
@@ -326,8 +328,26 @@ export default class DataView extends LitElement {
         }
         // Call to render function if defined
         if (element.display.render) {
-            return element.display.render(data);
+            //it covers the case the result of this.getValue is actually undefined
+            return data ? element.display.render(data) : this.getDefaultValue(element);
         }
+    }
+
+    //TODO
+    _createJsonElement(element) {
+        const json = this.getValue(element.field, this.data, this.getDefaultValue(element));
+        console.log("element", json)
+        if (json.length || UtilsNew.isObject(json)) {
+            return html`<json-viewer .data="${json}" />`;
+        } else {
+            return this.getDefaultValue(element);
+        }
+
+    }
+
+    postRender() {
+        // init any jquery plugin we might have used
+        //$('.json-renderer').jsonViewer(data);
     }
 
     render() {
@@ -355,18 +375,14 @@ export default class DataView extends LitElement {
         }
 
         return html`
-            <div style="padding: 20px">
                 <!-- Header -->
-                ${this.config.title && this.config.display.showTitle 
-                    ? html`
-                        <div>
-                            <h2>${this.config.title}</h2>
-                        </div>    
-                    ` 
-                    : null}
-                
-                <div style="padding: 0px">
-                    ${this._render()}
+                ${this.config.title && this.config.display.showTitle ? html`
+                    <div>
+                        <h2>${this.config.title}</h2>
+                    </div>`
+                : null}
+                <div>
+                    ${this.config.sections.map(section => this._createSection(section))}
                 </div>
             </div>
         `;

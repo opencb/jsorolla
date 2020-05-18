@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../../utilsNew.js";
+import "../../../commons/view/data-view.js";
 
 
 export default class OpencgaFileView extends LitElement {
@@ -113,58 +114,69 @@ export default class OpencgaFileView extends LitElement {
 
     getDefaultConfig() {
         return {
-            showTitle: false
+            title: "Summary",
+            icon: "",
+            display: {
+                collapsable: true,
+                showTitle: false,
+                labelWidth: 2,
+                defaultVale: "-"
+            },
+            sections: [
+                {
+                    title: "General",
+                    collapsed: false,
+                    elements: [
+                        {
+                            name: "File Id",
+                            field: "id"
+                        },
+                        {
+                            name: "Name",
+                            field: "name"
+                        },
+                        {
+                            name: "Creation Date",
+                            field: "creationDate",
+                            type: "custom",
+                            display: {
+                                render: field => html`${UtilsNew.dateFormatter(field)}`
+                            }
+                        },
+                        {
+                            name: "Format",
+                            field: "format"
+                        },
+                        {
+                            name: "Bioformat",
+                            field: "bioformat"
+                        },
+                        {
+                            name: "Status",
+                            field: "internal.status",
+                            type: "custom",
+                            display: {
+                                render: field => html`${field.name} (${UtilsNew.dateFormatter(field.date)})`
+                            }
+                        },
+                        {
+                            name: "Index",
+                            field: "internal.index.status",
+                            type: "custom",
+                            display: {
+                                render: field => field?.name ? html`${field.name} (${UtilsNew.dateFormatter(field.date)})` : ""
+                            }
+                        }
+                    ]
+                }
+            ]
         };
+
     }
 
     render() {
         return html`
-        <style>
-            .section-title {
-                border-bottom: 2px solid #eee;
-            }
-            .label-title {
-                text-align: left;
-                padding-left: 5px;
-                padding-right: 10px;
-            }
-        </style>
-
-        ${this.file ? html`
-            <div>
-                ${this._config.showTitle ? html`<h3 class="section-title">Summary</h3>` : null}
-                <div class="col-md-12">
-                    <form class="form-horizontal">
-                        <div class="form-group">
-                            <label class="col-md-3 label-title">Id</label>
-                            <span class="col-md-9">${this.file.id}</span>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 label-title">Name</label>
-                            <span class="col-md-9">${this.file.name}</span>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 label-title">Creation Date</label>
-                            <span class="col-md-9">${UtilsNew.dateFormatter(this.file.creationDate)}</span>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 label-title">Format</label>
-                            <span class="col-md-9">${this.file.format}</span>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 label-title">Bioformat</label>
-                            <span class="col-md-9">${this.file.bioformat}</span>
-                        </div>
-                        ${this.file?.internal?.status ? html`
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Status</label>
-                                <span class="col-md-9">${this.file.internal.status.name} (${UtilsNew.dateFormatter(this.file.internal.status.date)})</span>
-                            </div>
-                        ` : null}
-                    </form>
-                </div>
-            </div>
-        ` : null }
+            <data-view .data=${this.file} .config="${this.getDefaultConfig()}"></data-view>
         `;
     }
 

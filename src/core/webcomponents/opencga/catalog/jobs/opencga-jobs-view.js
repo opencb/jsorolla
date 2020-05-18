@@ -15,7 +15,8 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../../utils.js";
+import UtilsNew from "../../../../utilsNew.js";
+import "../../../commons/view/data-view.js";
 
 
 export default class OpencgaJobsView extends LitElement {
@@ -127,103 +128,118 @@ export default class OpencgaJobsView extends LitElement {
         return document.createRange().createContextualFragment(`${html}`);
     }
 
+
     getDefaultConfig() {
         return {
-            showTitle: false
+            title: "Summary",
+            icon: "",
+            display: {
+                collapsable: true,
+                showTitle: false,
+                labelWidth: 2,
+                defaultVale: "-"
+            },
+            sections: [
+                {
+                    title: "General",
+                    collapsed: false,
+                    elements: [
+                        {
+                            name: "Job ID",
+                            field: "id"
+                        },
+                        {
+                            name: "User",
+                            field: "userId"
+                        },
+                        {
+                            name: "Creation Date",
+                            field: "creationDate",
+                            type: "custom",
+                            display: {
+                                render: field => html`${UtilsNew.dateFormatter(field)}`
+                            }
+                        },
+                        {
+                            name: "Tool",
+                            field: "tool.id"
+                        },
+                        {
+                            name: "Input files",
+                            field: "input",
+                            type: "list",
+                            display: {
+                                template: "${name}",
+                                contentLayout: "bullets",
+                                defaultValue: "N/A"
+                            }
+                        },
+                        {
+                            name: "Parameters",
+                            field: "params",
+                            type: "custom",
+                            display: {
+                                render: field => Object.entries(field).map(([param, value]) => html`<p><strong>${param}</strong>: ${value ? value : "-"}</p>`)
+                            }
+                        },
+                        {
+                            name: "Status",
+                            field: "internal.status.name",
+                            type: "custom",
+                            display: {
+                                render: field => this.renderHTML(this.statusFormatter(field))
+                            }
+                        },
+                        {
+                            name: "Execution",
+                            field: "execution",
+                            type: "custom",
+                            display: {
+                                render: field => html`<strong>START</strong>: ${moment(field.start).format("D MMM YYYY, h:mm:ss a")} ${field.end ?  `<strong>END</strong>:${moment(field.end).format("D MMM YYYY, h:mm:ss a")}` : "" }`
+                            }
+                        },
+                        {
+                            name: "Priority",
+                            field: "priority"
+                        },
+                        {
+                            name: "Output dir",
+                            field: "outDir.uri"
+                        },
+                        {
+                            name: "Dependencies",
+                            field: "dependsOn",
+                            type: "table",
+                            display: {
+                                columns: [
+                                    {
+                                        name: "ID", field: "id"
+                                    },
+                                    {
+                                        name: "Name", field: "uuid"
+                                    },
+                                    {
+                                        name: "Status", field: "status"
+                                        //format: ${this.renderHTML(this.statusFormatter(status.name))}
+                                    }
+                                ],
+                                border: true
+                            }
+                        },
+                        {
+                            name: "Dependencies",
+                            field: "dependsOn",
+                            type: "json"
+                        }
+                    ]
+                }
+            ]
         };
     }
 
     render() {
         return html`
-        <style>
-            .section-title {
-                border-bottom: 2px solid #eee;
-            }
-            .label-title {
-                text-align: left;
-                padding-left: 5px;
-                padding-right: 10px;
-            }
-        </style>
-        ${this.job ? html`
-            <div>
-                ${this._config.showTitle ? html`<h3 class="section-title">Summary</h3>` : null}
-                <div class="col-md-12">
-                    <form class="form-horizontal">
-                        <div class="form-group">
-                            <label class="col-md-3 label-title">Id</label>
-                            <span class="col-md-9">${this.job.id} (${this.job.uuid})</span>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 label-title">User</label>
-                            <span class="col-md-9">${this.job.userId}</span>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 label-title">Creation Date</label>
-                            <span class="col-md-9">${moment(this.job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</span>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 label-title">Tool</label>
-                            <span class="col-md-9">${this.job.tool.id}</span>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 label-title">Input files</label>
-                            <span class="col-md-9">${this.job.input.map(file => html`<p>${file.name}</p>`)}</span>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 label-title">Parameters</label>
-                            <span class="col-md-9">${Object.entries(this.job.params).map(([param, value]) => html`<p><strong>${param}</strong>: ${value ? value : "-"}</p>`)}</span>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 label-title">Status</label>
-                            <span class="col-md-9">${this.renderHTML(this.statusFormatter(this.job.internal.status.name))}</span>
-                        </div>
-                        ${this.job.execution?.start ? html`
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Execution Start</label>
-                                <span class="col-md-9">
-                                    ${moment(this.job.execution.start).format("D MMM YYYY, h:mm:ss a")} <br>
-                                </span>
-                            </div> 
-                        ` : null}
-                        ${this.job.execution?.end ? html`
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Execution End</label>
-                                <span class="col-md-9">
-                                    ${moment(this.job.execution.end).format("D MMM YYYY, h:mm:ss a")} <br>
-                                </span>
-                            </div> 
-                        ` : null}                            
-                        ${this.job.tags?.length ? html`
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Tags</label>
-                                <span class="col-md-9">${this.job.tags}</span>
-                            </div>
-                        ` : null}
-                        <div class="form-group">
-                            <label class="col-md-3 label-title">Priority</label>
-                            <span class="col-md-9">${this.job.priority}</span>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 label-title">Output Dir</label>
-                            <span class="col-md-9">${this.job.outDir?.uri || "-"}</span>
-                        </div>
-                        
-                        ${this.job.dependsOn && this.job.dependsOn.length ? html`
-                            <div class="form-group">
-                                <label class="col-md-3 label-title">Dependencies</label>
-                                <span class="col-md-9">
-                                    <ul>
-                                        ${this.job.dependsOn.map(job => html`
-                                            <li>${job.id} (${job.uuid}) (${this.renderHTML(this.statusFormatter(job.internal.status.name))})</li>
-                                        `)}
-                                    </ul>
-                                </span>
-                            </div>` : null}
-                    </form>
-                </div>
-            </div>
-        ` : null}
+            <data-view .data=${this.job} .config="${this.getDefaultConfig()}"></data-view>
         `;
     }
 
