@@ -118,6 +118,9 @@ export default class OpencgaIndividualView extends LitElement {
                 {
                     title: "General",
                     collapsed: false,
+                    display: {
+
+                    },
                     elements: [
                         // available types: basic (optional/default), complex, list (horizontal and vertical), table, plot, custom
                         {
@@ -173,6 +176,12 @@ export default class OpencgaIndividualView extends LitElement {
                                 render: (data) => {
                                     return html`${data.sex} (<span style="color: red">${data.karyotypicSex}</span>)`;
                                 },
+                            }
+                        },
+                        {
+                            type: "separator",
+                            display: {
+                                style: "width: 90%; border-width: 2px"
                             }
                         },
                         {

@@ -129,6 +129,15 @@ export default class DataView extends LitElement {
     }
 
     _createElement(element) {
+        // Check if type is 'separator', this is a special case, no need to parse 'name' and 'content'
+        if (element.type === "separator") {
+            return html`
+                <div class="col-md-12" style="margin-bottom: 5px">
+                    <hr style="${element.display.style}">
+                </div>
+            `;
+        }
+
         let title = element.name;
         if (title && title.includes("${")) {
             title = this.applyTemplate(element.name);
