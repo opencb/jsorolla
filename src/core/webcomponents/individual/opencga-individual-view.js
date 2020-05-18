@@ -89,6 +89,9 @@ export default class OpencgaIndividualView extends LitElement {
                     }
                     this.individual = response.response[0].result[0];
                     console.log("_this.individual", this.individual);
+
+
+
                     this.requestUpdate();
                 })
                 .catch(function(reason) {
@@ -140,9 +143,7 @@ export default class OpencgaIndividualView extends LitElement {
                                 type: "basic",
                                 display: {
                                     format: {
-                                        "father.id": {
-                                            style: "color: red"
-                                        }
+                                        style: "color: red"
                                     }
                                 }
                             },
@@ -163,9 +164,7 @@ export default class OpencgaIndividualView extends LitElement {
                                 type: "basic",
                                 display: {
                                     format: {
-                                        "father.id": {
-                                            style: "color: red"
-                                        }
+                                        style: "color: red"
                                     }
                                 }
                             },
@@ -208,9 +207,7 @@ export default class OpencgaIndividualView extends LitElement {
                             type: "basic",
                             display: {
                                 format: {
-                                    "father.id": {
-                                        style: "color: red"
-                                    }
+                                    style: "color: red"
                                 }
                             }
                         },
@@ -315,7 +312,9 @@ export default class OpencgaIndividualView extends LitElement {
                             display: {
                                 columns: [
                                     {
-                                        name: "ID", field: "id"
+                                        name: "ID", field: "id", format: {
+                                            link: "https://hpo.jax.org/app/browse/term/ID",
+                                        }
                                     },
                                     {
                                         name: "Name", field: "name"
@@ -324,18 +323,40 @@ export default class OpencgaIndividualView extends LitElement {
                                         name: "Source", field: "source"
                                     },
                                     {
-                                        name: "Undefined Filed", field: "uf", defaultValue: "N/A"
+                                        name: "Undefined Filed", field: "uf", defaultValue: "N/A", format: {
+                                            style: "font-weight: bold"
+                                        }
                                     }
                                 ],
-                                format: {
-                                    id: {
-                                        link: "https://hpo.jax.org/app/browse/term/ID",
-                                        style: "color: red"
+                                defaultValue: "Emtpy array found",
+                                border: true
+                            }
+                        },
+                        {
+                            name: "Phenotypess",
+                            field: "phenotypess",
+                            type: "table",
+                            display: {
+                                columns: [
+                                    {
+                                        name: "ID", field: "id", format: {
+                                            link: "https://hpo.jax.org/app/browse/term/ID",
+                                            style: "color: red"
+                                        }
                                     },
-                                    name: {
-                                        style: "font-weight: bold"
+                                    {
+                                        name: "Name", field: "name"
+                                    },
+                                    {
+                                        name: "Source", field: "source"
+                                    },
+                                    {
+                                        name: "Undefined Filed", field: "uf", defaultValue: "N/A", format: {
+                                            style: "font-weight: bold"
+                                        }
                                     }
-                                },
+                                ],
+                                defaultValue: "Emtpy array found",
                                 border: true
                             }
                         },
@@ -347,7 +368,10 @@ export default class OpencgaIndividualView extends LitElement {
                                 layout: "vertical",
                                 columns: [
                                     {
-                                        name: "ID", field: "id"
+                                        name: "ID", field: "id", format: {
+                                            link: "https://hpo.jax.org/app/browse/term/ID",
+                                            style: "color: red"
+                                        }
                                     },
                                     {
                                         name: "Name", field: "name"
@@ -356,26 +380,32 @@ export default class OpencgaIndividualView extends LitElement {
                                         name: "Source", field: "source"
                                     },
                                     {
-                                        name: "Undefined Filed", field: "uf", default: "N/A"
+                                        name: "Undefined Filed", field: "uf", defaultValue: "N/A", format: {
+                                            style: "font-weight: bold"
+                                        }
                                     }
                                 ],
-                                format: {
-                                    id: {
-                                        link: "https://hpo.jax.org/app/browse/term/ID",
-                                    },
-                                    name: {
-                                        style: "font-weight: bold"
-                                    }
-                                },
                                 border: true
                             }
                         },
                         {
-                            name: "Phenotypes",
-                            field: "phenotypes",
+                            name: "plotExample from Object",
+                            field: "plotExample",
                             type: "plot",
                             display: {
-                                chart: "histogram",
+                                chart: "column",
+                            }
+                        },
+                        {
+                            name: "plotExample from Array",
+                            field: "plotExampleArray",
+                            type: "plot",
+                            display: {
+                                data: {
+                                    key: "id",
+                                    value: "total"
+                                },
+                                chart: "column",
                             }
                         },
                         {
@@ -391,11 +421,11 @@ export default class OpencgaIndividualView extends LitElement {
                         },
                         {
                             name: "Chart",
-                            field: "phenotypes",
+                            // field: "phenotypes",
                             data: {"INSERTION": 1, "SNV": 165398, "DELETION": 1, "INDEL": 7218},
                             type: "plot",
                             display: {
-                                type: "column",
+                                chart: "column",
                             }
                         },
                     ]
@@ -405,6 +435,10 @@ export default class OpencgaIndividualView extends LitElement {
     }
 
     render() {
+        this.individual.emptyArray = [];
+        this.individual.plotExample = {"A": 44, "B": 55, "C": 66};
+        this.individual.plotExampleArray = [{id: "Data - A", total: 44}, {id: "Data - B", total: 55}, {id: "Data - C", total: 66}];
+
         return html`
         <style>
             .section-title {
