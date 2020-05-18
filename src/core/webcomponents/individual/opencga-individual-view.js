@@ -111,7 +111,8 @@ export default class OpencgaIndividualView extends LitElement {
                 collapsable: true,
                 showTitle: false,
                 labelWidth: 2,
-                labelOrientation: "left"
+                labelOrientation: "left",
+                defaultVale: "-"
             },
             sections: [
                 {
@@ -123,7 +124,13 @@ export default class OpencgaIndividualView extends LitElement {
                             name: "Individual ID",
                             type: "complex",
                             display: {
-                                template: "${id} (${uuid})",
+                                template: "${id} (UUID ${uuid}  - Undefined ${uuuuuuid})",
+                                format: {
+                                    uuid: {
+                                        style: "color: red"
+                                    }
+                                },
+                                defaultValue: "NA"
                             }
                         },
                         {
@@ -132,9 +139,20 @@ export default class OpencgaIndividualView extends LitElement {
                             // type: "basic" (optional)
                         },
                         {
+                            name: "Name",
+                            field: "namelkjsaljksajksa",
+                        },
+                        {
                             name: "Father",
                             field: "father.id",
-                            type: "basic"
+                            type: "basic",
+                            display: {
+                                format: {
+                                    "father.id": {
+                                        style: "color: red"
+                                    }
+                                }
+                            }
                         },
                         {
                             name: "Mother of ${id}",
@@ -149,12 +167,21 @@ export default class OpencgaIndividualView extends LitElement {
                             }
                         },
                         {
+                            name: "Sex (Karyotypic Sex)",
+                            type: "custom",
+                            display: {
+                                render: (data) => {
+                                    return html`${data.sex} (<span style="color: red">${data.karyotypicSex}</span>)`;
+                                },
+                            }
+                        },
+                        {
                             name: "Phenotypes",
                             field: "phenotypes",
                             type: "list",
                             display: {
                                 template: "${name} (${id})",
-                                layout: "horizontal",
+                                contentLayout: "horizontal",
                                 separator: ", "
                             }
                         },
@@ -164,8 +191,16 @@ export default class OpencgaIndividualView extends LitElement {
                             type: "list",
                             display: {
                                 template: "${name} (${id})",
-                                layout: "vertical",
-                                bullets: false
+                                contentLayout: "vertical",
+                                bullets: false,
+                                format: {
+                                    id: {
+                                        link: "https://hpo.jax.org/app/browse/term/ID",
+                                    },
+                                    name: {
+                                        style: "font-weight: bold"
+                                    }
+                                },
                             }
                         },
                         {
@@ -173,9 +208,37 @@ export default class OpencgaIndividualView extends LitElement {
                             field: "phenotypes",
                             type: "list",
                             display: {
+                                layout: "horizontal",
                                 template: "${name} (${id})",
+                                contentLayout: "bullets",
+                                format: {
+                                    id: {
+                                        link: "https://hpo.jax.org/app/browse/term/ID",
+                                    },
+                                    name: {
+                                        style: "font-weight: bold"
+                                    }
+                                },
+                                defaultVale: "N/A"
+                            }
+                        },
+                        {
+                            name: "Phenotypes",
+                            field: "phenotypes",
+                            type: "list",
+                            display: {
                                 layout: "vertical",
-                                bullets: true
+                                template: "${name} (${id})",
+                                contentLayout: "bullets",
+                                format: {
+                                    id: {
+                                        link: "https://hpo.jax.org/app/browse/term/ID",
+                                    },
+                                    name: {
+                                        style: "font-weight: bold"
+                                    }
+                                },
+                                defaultVale: "N/A"
                             }
                         },
                         {
@@ -183,7 +246,60 @@ export default class OpencgaIndividualView extends LitElement {
                             field: "phenotypes",
                             type: "table",
                             display: {
-                                columns: [{name: "ID", field: "id"}, {name: "Name", field: "name"}, {name: "Source", field: "source"}],
+                                columns: [
+                                    {
+                                        name: "ID", field: "id"
+                                    },
+                                    {
+                                        name: "Name", field: "name"
+                                    },
+                                    {
+                                        name: "Source", field: "source"
+                                    },
+                                    {
+                                        name: "Undefined Filed", field: "uf", defaultVale: "N/A"
+                                    }
+                                ],
+                                format: {
+                                    id: {
+                                        link: "https://hpo.jax.org/app/browse/term/ID",
+                                        style: "color: red"
+                                    },
+                                    name: {
+                                        style: "font-weight: bold"
+                                    }
+                                },
+                                border: true
+                            }
+                        },
+                        {
+                            name: "Phenotypes",
+                            field: "phenotypes",
+                            type: "table",
+                            display: {
+                                layout: "vertical",
+                                columns: [
+                                    {
+                                        name: "ID", field: "id"
+                                    },
+                                    {
+                                        name: "Name", field: "name"
+                                    },
+                                    {
+                                        name: "Source", field: "source"
+                                    },
+                                    {
+                                        name: "Undefined Filed", field: "uf", default: "N/A"
+                                    }
+                                ],
+                                format: {
+                                    id: {
+                                        link: "https://hpo.jax.org/app/browse/term/ID",
+                                    },
+                                    name: {
+                                        style: "font-weight: bold"
+                                    }
+                                },
                                 border: true
                             }
                         },

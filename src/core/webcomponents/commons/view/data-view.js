@@ -15,6 +15,7 @@
  */
 
 import {html, LitElement} from "/web_modules/lit-element.js";
+// import {directive} from "/web_modules/lit-html.js";
 import UtilsNew from "../../../utilsNew.js";
 
 
@@ -49,23 +50,64 @@ export default class DataView extends LitElement {
         if (changedProperties.has("data")) {
             this.requestUpdate();
         }
-
     }
 
-    getVal(myPath, object) {
+    getValue(field, object, defaultValue, format) {
         let _object = object ? object : this.data;
-        return myPath.split('.').reduce ( (res, prop) => res[prop], _object );
+        let value = field.split('.').reduce ( (res, prop) => res[prop], _object );
+        if (value) {
+            if (format && format[field]) {
+                let f = format[field];
+                if (f.style) {
+                    value = html`<span style="${f.style}">${value}</span>`;
+                }
+                if (f.link) {
+                    value = html`<a href="${f.link.replace(field.toUpperCase(), value)}" target="_blank">${value}</a>`;
+                }
+            }
+        } else {
+            value = defaultValue;
+        }
+        return value;
     }
 
-    applyTemplate(template, object, matches) {
+    applyTemplate(template, object, matches, defaultValue, format) {
         if (!matches) {
             matches = template.match(/\$\{[a-zA-Z_.\[\]]+\}/g).map(elem => elem.substring(2, elem.length - 1));
         }
-        for (let match of matches) {
-            let v = this.getVal(match, object);
-            template = template.replace("${" + match + "}", v);
+
+        if (format) {
+            // FIXME this does not work yet!
+            let values = {};
+            for (let match of matches) {
+                // let v = this.getVal(match, object, defaultValue, format);
+                values[match] = this.getValue(match, object, defaultValue);
+            }
+            template = html`
+                ${matches.map(match => {
+                    template = template.replace("${" + match + "}", this.getValue(match, object, defaultValue, format))
+                })};
+            `;
+        } else {
+            for (let match of matches) {
+                let v = this.getValue(match, object, defaultValue);
+                template = template.replace("${" + match + "}", v);
+            }
         }
+
         return template;
+    }
+
+    getDefaultValue(element) {
+        if (element.display && element.display.defaultValue) {
+            return element.display.defaultValue;
+        } else {
+            if (this.config.display && this.config.display.defaultValue) {
+                return this.config.display.defaultValue;
+            } else {
+                return "-";
+            }
+        }
     }
 
 
@@ -95,7 +137,7 @@ export default class DataView extends LitElement {
         let content = "";
         // if not 'type' is defined we assumed is 'basic' and therefore field exist
         if (!element.type || element.type === "basic") {
-            content = html`${this.getVal(element.field)}`;
+            content = html`${this.getValue(element.field, this.data, this.getDefaultValue(element), element.display ? element.display.format : null)}`;
         } else {
             // Other 'type' are rendered by specific functions
             switch(element.type) {
@@ -117,31 +159,44 @@ export default class DataView extends LitElement {
             }
         }
 
-        // Label 'width' and 'orientation' are configured by 'labelWidth' and 'labelOrientation', defaults are '2' and 'left' respectively
-        return html`
-            <div class="col-md-12" style="margin-bottom: 5px">
-                <div class="col-md-${this.config.display.labelWidth || 2}" style="text-align: ${this.config.display.labelOrientation || "left"}">
-                    <label>${title}</label>
-                </div>
-                <div class="col-md-${12 - (this.config.display.labelWidth || 10)}">
-                    ${content}
-                </div>
-            </div>        
-        `;
+        let layout = (element.display && element.display.layout) ? element.display.layout : "horizontal";
+        if (layout === "horizontal") {
+            // Label 'width' and 'orientation' are configured by 'labelWidth' and 'labelOrientation', defaults are '2' and 'left' respectively
+            return html`
+                <div class="col-md-12" style="margin-bottom: 5px">
+                    <div class="col-md-${this.config.display.labelWidth || 2}" style="text-align: ${this.config.display.labelOrientation || "left"}">
+                        <label>${title}</label>
+                    </div>
+                    <div class="col-md-${12 - (this.config.display.labelWidth || 10)}">
+                        ${content}
+                    </div>
+                </div>        
+            `;
+        } else {
+            return html`
+                <div class="col-md-12" style="margin-bottom: 5px">
+                    <div class="col-md-12">
+                        <label>${title}</label>
+                    </div>
+                    <div class="col-md-12">
+                        ${content}
+                    </div>
+                </div>        
+            `;
+        }
     }
 
     _createComplexElement(element) {
-        let content = "-";
-        if (element.display && element.display.template) {
-            content = this.applyTemplate(element.display.template);
+        if (!element.display || !element.display.template) {
+            return html`<span style="color: red">No template provided</span>`;
         }
-        return html`<span>${content}</span>`;
+        return html`<span>${this.applyTemplate(element.display.template, this.data, null, this.getDefaultValue(element))}</span>`;
     }
 
     _createListElement(element) {
         // Get values
-        let array = this.getVal(element.field);
-        let layout = (element.display && element.display.layout) ? element.display.layout : "horizontal";
+        let array = this.getValue(element.field);
+        let contentLayout = (element.display && element.display.contentLayout) ? element.display.contentLayout : "horizontal";
 
         // Check values
         if (!element.field) {
@@ -150,49 +205,49 @@ export default class DataView extends LitElement {
         if (!Array.isArray(array)) {
             return html`<span style="color: red">Field '${element.field}' is not an array</span>`;
         }
-        if (layout !== "horizontal" && layout !== "vertical") {
-            return html`<span style="color: red">Layout must be 'horizontal' or 'vertical'</span>`;
+        if (contentLayout !== "horizontal" && contentLayout !== "vertical" && contentLayout !== "bullets") {
+            return html`<span style="color: red">Content layout must be 'horizontal', 'vertical' or 'bullets'</span>`;
         }
 
-        // Apply the template to all Array elements and store them in 'values'
         // TODO check if template exist -> array of scalars
+        // Apply the template to all Array elements and store them in 'values'
         let values = [];
         let matches = element.display.template.match(/\$\{[a-zA-Z_.\[\]]+\}/g).map(elem => elem.substring(2, elem.length - 1));
-        for (let item of array) {
-            let value = this.applyTemplate(element.display.template, item, matches)
+        for (let object of array) {
+            let value = this.applyTemplate(element.display.template, object, matches, this.getDefaultValue(element))
             values.push(value);
         }
 
         // Render element values
         let content = "-";
-        if (layout === "horizontal") {
-            let separator = (element.display && element.display.separator) ? element.display.separator : ", ";
-            content = html`${values.join(separator)}`;
-        } else {
-            // This is 'vertical', checked before
-            let bullets = (element.display && element.display.bullets) ? element.display.bullets : false;
-            if (bullets) {
+        switch (contentLayout) {
+            case "horizontal":
+                let separator = (element.display && element.display.separator) ? element.display.separator : ", ";
+                content = html`${values.join(separator)}`;
+                break;
+            case "vertical":
                 content = html`
-                            <ul style="padding-left: 25px">
-                                ${values.map(elem => html`
-                                    <li>${elem}</li>
-                                `)}
-                            </ul>
-                        `;
-            } else {
+                    ${values.map(elem => html`
+                        <div>${elem}</div>
+                    `)}
+                `;
+                break;
+            case "bullets":
                 content = html`
-                            ${values.map(elem => html`
-                                <div>${elem}</div>
-                            `)}
-                        `;
-            }
+                    <ul style="padding-left: 20px">
+                        ${values.map(elem => html`
+                            <li>${elem}</li>
+                        `)}
+                    </ul>
+                `;
+                break;
         }
         return content;
     }
 
     _createTableElement(element) {
         // Get values
-        let array = this.getVal(element.field);
+        let array = this.getValue(element.field);
 
         // Check values
         if (!element.field) {
@@ -218,7 +273,7 @@ export default class DataView extends LitElement {
                     ${array.map(row => html`
                         <tr scope="row">
                             ${element.display.columns.map(elem => html`
-                                <td>${this.getVal(elem.field, row)}</td>
+                                <td>${this.getValue(elem.field, row, elem.defaultVale, element.display.format)}</td>
                             `)}
                         </tr>
                     `)}
@@ -232,8 +287,12 @@ export default class DataView extends LitElement {
     }
 
     _createCustomElement(element) {
-        // Get values
-        let data = this.getVal(element.field);
+        // If a field is defined then we pass it to the user function, otherwise all data is passed
+        let data = this.data;
+        if (element.field) {
+            data = this.getValue(element.field);
+        }
+        // Call to render function if defined
         if (element.display.render) {
             return element.display.render(data);
         }
