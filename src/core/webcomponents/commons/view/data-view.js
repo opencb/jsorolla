@@ -77,28 +77,13 @@ export default class DataView extends LitElement {
         return value;
     }
 
-    applyTemplate(template, object, matches, defaultValue, format) {
+    applyTemplate(template, object, matches, defaultValue) {
         if (!matches) {
             matches = template.match(/\$\{[a-zA-Z_.\[\]]+\}/g).map(elem => elem.substring(2, elem.length - 1));
         }
-
-        if (format) {
-            // FIXME this does not work yet!
-            let values = {};
-            for (let match of matches) {
-                // let v = this.getVal(match, object, defaultValue, format);
-                values[match] = this.getValue(match, object, defaultValue);
-            }
-            template = html`
-                ${matches.map(match => {
-                template = template.replace("${" + match + "}", this.getValue(match, object, defaultValue, format));
-            })};
-            `;
-        } else {
-            for (let match of matches) {
-                let v = this.getValue(match, object, defaultValue);
-                template = template.replace("${" + match + "}", v);
-            }
+        for (let match of matches) {
+            let v = this.getValue(match, object, defaultValue);
+            template = template.replace("${" + match + "}", v);
         }
 
         return template;
@@ -254,7 +239,6 @@ export default class DataView extends LitElement {
             return html`<span style="color: red">Content layout must be 'horizontal', 'vertical' or 'bullets'</span>`;
         }
 
-        // TODO check if template exist -> array of scalars
         // Apply the template to all Array elements and store them in 'values'
         let values = [];
         if (element.display.render) {
@@ -263,10 +247,15 @@ export default class DataView extends LitElement {
                 values.push(value);
             }
         } else {
-            let matches = element.display.template.match(/\$\{[a-zA-Z_.\[\]]+\}/g).map(elem => elem.substring(2, elem.length - 1));
-            for (let object of array) {
-                let value = this.applyTemplate(element.display.template, object, matches, this.getDefaultValue(element));
-                values.push(value);
+            if (element.display.template) {
+                let matches = element.display.template.match(/\$\{[a-zA-Z_.\[\]]+\}/g).map(elem => elem.substring(2, elem.length - 1));
+                for (let object of array) {
+                    let value = this.applyTemplate(element.display.template, object, matches, this.getDefaultValue(element));
+                    values.push(value);
+                }
+            } else {
+                // if 'display.template' does not exist means it is an array of scalars
+                values = array;
             }
         }
 
