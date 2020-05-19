@@ -83,7 +83,8 @@ export default class OpencgaKnockoutAnalysis extends LitElement {
                                 id: "sample",
                                 title: "Select samples",
                                 type: "SAMPLE_FILTER",
-                                showList: true
+                                showList: true,
+                                fileUpload: true
                             },
                             {
                                 id: "gene",

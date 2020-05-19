@@ -141,7 +141,7 @@ export default class OpencgaCohortView extends LitElement {
                             }
                         }
                     ]
-                },
+                }
             ]
         };
     }

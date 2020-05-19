@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import {CountUp} from "/node_modules/countup.js/dist/countUp.min.js";
 
@@ -63,6 +62,7 @@ export default class OpencgaProjects extends LitElement {
         };
         this.data = {};
 
+        this.plots = ["format", "bioformat", "status"]
     }
 
     updated(changedProperties) {
@@ -620,11 +620,11 @@ export default class OpencgaProjects extends LitElement {
                                                 <p class="study-description">${study.description}</p>
                                             </div>
                                              ${Object.entries(study.stats).map(([resource, stat]) => html`
-                                                ${stat.results.map(facetResult => html`
+                                                ${stat.results.map(facetResult => this.plots.includes(facetResult.name) ? html`
                                                     <div class="col-md-4">
                                                         <opencga-facet-result-view .facetResult="${facetResult}">
                                                         </opencga-facet-result-view>
-                                                    </div>`)}
+                                                    </div>`: null )}
                                              `)}
                                         </div>
                                         `;

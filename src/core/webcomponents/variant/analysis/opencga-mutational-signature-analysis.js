@@ -83,7 +83,8 @@ export default class OpencgaMutationalSignatureAnalysis extends LitElement {
                                 id: "sample",
                                 title: "Select somatic sample",
                                 type: "SAMPLE_FILTER",
-                                showList: true
+                                showList: true,
+                                fileUpload: true
                             }
                         ]
                     }

@@ -19,6 +19,7 @@ import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import Pedigree from "../../visualisation/pedigree.js";
 import "./opencga-clinical-analysis-browser.js";
+import "../commons/view/data-view.js";
 
 
 export default class OpencgaClinicalAnalysisView extends LitElement {
@@ -145,7 +146,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
 
         this.pedigreeRender();
     }
-
+    /*
     _summaryOnClick() {
         if (this._summaryCollapsed) {
             $("#" + this._prefix + "SummaryCollapseIcon").removeClass("fa-plus-square-o").addClass("fa-minus-square-o");
@@ -158,6 +159,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
         }
         this._summaryCollapsed = !this._summaryCollapsed;
     }
+*/
 
     clinicalAnalysisIdObserver() {
         if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId)) {
@@ -234,9 +236,203 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Clinical Analysis View",
-            showTitle: false
-        };
+            title: "Summary",
+            icon: "",
+            display: {
+                collapsable: true,
+                showTitle: false,
+                labelWidth: 2,
+                defaultVale: "-"
+            },
+            sections: [
+                {
+                    title: "Case Summary",
+                    collapsed: false,
+                    elements: [
+                        {
+                            name: "Analysis ID",
+                            field: "id"
+                        },
+                        {
+                            name: "Proband",
+                            field: "proband.id"
+                        },
+                        {
+                            name: "Disorder",
+                            field: "disorder",
+                            type: "custom",
+                            display: {
+                                render: field => html`${disorder}`
+                            }
+                        },/*
+                        {
+                            name: "Flags",
+                            field: "type"
+                        },*/
+                        {
+                            name: "Status",
+                            field: "status",
+                            type: "complex",
+                            display: {
+                                template: "status.name ${status.name}"
+                            }
+                        },
+                        {
+                            name: "Priority",
+                            field: "priority",
+                            type: "custom",
+                            display: {
+                                render: field => html`<span class="${field}-priority">${field}</span>`
+                            }
+                        },/*
+                        {
+                            name: "Assigned To",
+                            field: "assignee",
+                            type: "custom",
+                            display: {
+                                render: field => field
+                            }
+                        },*/
+                        {
+                            name: "Creation date",
+                            field: "creationDate",
+                            type: "custom",
+                            display: {
+                                render: field => html`${moment(field, "YYYYMMDDHHmmss").format("D MMM YY")}`
+                            }
+                        },/*
+                        {
+                            name: "Due date",
+                            field: "dueDate",
+                            type: "custom",
+                            display: {
+                                render: field => html`${moment(field, "YYYYMMDDHHmmss").format("D MMM YY")}`
+                            }
+                        },*/
+                        /*{
+                            name: "Description",
+                            field: "description"
+                        },*/
+                    ]
+                },
+                {
+                    title: "Proband",
+                    elements: [
+                        {
+                            name: "Proband",
+                            field: "proband.id"
+                        },
+                        {
+                            name: "Sex (Karyotypic)",
+                            type: "complex",
+                            display: {
+                                template: "${sex} (${karyotypicSex})",
+                            }
+                        },
+                        {
+                            name: "Date of Birth",
+                            type: "complex",
+                            display: {
+                                template: "${proband.dateOfBirth} (${proband.lifeStatus})",
+                            }
+                        },
+                        {
+                            name: "Disorders",
+                            field: "_probandDisorders"
+                        },
+                        {
+                            name: "Phenotypes",
+                            field: "_probandPhenotypes"
+                        }
+                    ]
+                },
+                {
+                    title: "Sample",
+                    elements: [
+                        {
+                            name: "-",
+                            field: "proband.samples",
+                            type: "table",
+                            display: {
+                                columns: [
+                                    {
+                                        name: "ID", field: "id"
+                                    },
+                                    {
+                                        name: "Files", field: ""
+                                    },
+                                    {
+                                        name: "Collection Method", field: ""
+                                    },
+                                    {
+                                        name: "Preparation Method", field: ""
+                                    },
+                                    {
+                                        name: "Somatic", field: ""
+                                    },
+                                    {
+                                        name: "Creation Date", field: ""
+                                    },
+                                    {
+                                        name: "Status", field: ""
+                                    }
+                                ],
+                                defaultValue: "No sample found"
+                            }
+                        }
+                    ]
+                },
+                {
+                    title: "Family",
+                    elements: [
+                        {
+                            name: "Members",
+                            field: "proband.samples",
+                            type: "table",
+                            display: {
+                                columns: [
+                                    {
+                                        name: "Individual ID", field: "id"
+                                    },
+                                    {
+                                        name: "Sex", field: ""
+                                    },
+                                    {
+                                        name: "Father", field: ""
+                                    },
+                                    {
+                                        name: "Mother", field: ""
+                                    },
+                                    {
+                                        name: "Disorders", field: ""
+                                    },
+                                    {
+                                        name: "Phenotypes", field: ""
+                                    },
+                                    {
+                                        name: "Life Status", field: ""
+                                    },
+                                    {
+                                        name: "Year of Birth", field: ""
+                                    },
+                                    {
+                                        name: "Creation Date", field: ""
+                                    },
+                                    {
+                                        name: "Status", field: ""
+                                    }
+                                ],
+                                defaultValue: "No sample found"
+                            }
+                        }
+                    ]
+                },
+                {
+                    title: "Pedigree"
+
+                }
+            ]
+        }
     }
 
     render() {
@@ -285,14 +481,10 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                 padding-top: 5px !important;
             }
 
-            /*.control-label2 {*/
-            /*padding-top: 5px;*/
-            /*margin-bottom: 0;*/
-            /*text-align: right;*/
-            /*}*/
         </style>
 
-        <!--<template is="dom-if" if="{{showSummary}}">-->
+        <!-- <data-view .data=${this.clinicalAnalysis} .config="${this._config}"></data-view> -->
+
         <div class="container-fluid">
             <div class="row">
                 ${this._config.showTitle ? html`

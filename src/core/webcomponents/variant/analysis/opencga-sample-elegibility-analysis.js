@@ -83,7 +83,8 @@ export default class OpencgaSampleEligibilityAnalysis extends LitElement {
                                 id: "cohortId",
                                 title: "ID for the cohort to be created if index",
                                 type: "COHORT_FILTER",
-                                showList: true
+                                showList: true,
+                                fileUpload: true
                             },
                             {
                                 id: "query",

@@ -102,7 +102,7 @@ export default class JobsTimeline extends LitElement {
                     id: results[i].id,
                     timestampStart: results[i].execution && results[i].execution.start ? results[i].execution.start : moment(results[i].creationDate, "YYYYMMDDHHmmss").valueOf(),
                     timestampEnd: results[i].execution ? results[i].execution.end ? results[i].execution.end : results[i].execution.start : moment(results[i].creationDate, "YYYYMMDDHHmmss").valueOf(),
-                    status: results[i].internal.status.name,
+                    status: results[i]?.internal?.status?.name || "UNKNOWN",
                     dependsOn: results[i].dependsOn
                 };
                 this._results.push(result);

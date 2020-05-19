@@ -215,7 +215,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
             searchMinLength: 1,
             maxItems: 0,
             limitToShow: 3,
-            fileUpload: true,
+            fileUpload: false,
             showList: false,
             fields: item => ({name: item.id}),
             dataSource: (query, process) => {

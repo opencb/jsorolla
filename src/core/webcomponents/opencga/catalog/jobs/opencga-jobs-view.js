@@ -184,10 +184,10 @@ export default class OpencgaJobsView extends LitElement {
                         },
                         {
                             name: "Status",
-                            field: "internal.status.name",
+                            field: "internal",
                             type: "custom",
                             display: {
-                                render: field => this.renderHTML(this.statusFormatter(field))
+                                render: field => this.renderHTML(this.statusFormatter(field.status.name))
                             }
                         },
                         {

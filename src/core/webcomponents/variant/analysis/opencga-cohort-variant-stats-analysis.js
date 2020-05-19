@@ -83,13 +83,15 @@ export default class OpencgaCohortVariantStatsAnalysis extends LitElement {
                                 id: "cohort",
                                 title: "Cohort name",
                                 type: "COHORT_FILTER",
-                                showList: true
+                                showList: true,
+                                fileUpload: true
                             },
                             {
                                 id: "sample",
                                 title: "List of samples",
                                 type: "SAMPLE_FILTER",
-                                showList: true
+                                showList: true,
+                                fileUpload: true
                             },
                             {
                                 id: "sampleAnnotation",

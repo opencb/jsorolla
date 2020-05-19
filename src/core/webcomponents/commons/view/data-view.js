@@ -19,6 +19,7 @@ import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import "../../simple-plot.js";
 import "../../json-viewer.js";
+import "../../download-button.js";
 
 export default class DataView extends LitElement {
 
@@ -189,6 +190,11 @@ export default class DataView extends LitElement {
                 case "custom":
                     content = this._createCustomElement(element);
                     break;
+                case "download":
+                    content = this._createDownloadElement(element);
+                    break;
+                default:
+                    throw new Error("Element type not supported:" + element.type);
             }
         }
 
@@ -357,7 +363,6 @@ export default class DataView extends LitElement {
         return html`<simple-plot .active="${true}" type="${element.display.chart}" title="${element.name}" .data="${data}"></simple-plot>`;
     }
 
-    //TODO
     _createJsonElement(element) {
         const json = this.getValue(element.field, this.data, this.getDefaultValue(element));
         console.log("element", json)
@@ -379,6 +384,10 @@ export default class DataView extends LitElement {
             //it covers the case the result of this.getValue is actually undefined
             return data ? element.display.render(data) : this.getDefaultValue(element);
         }
+    }
+
+    _createDownloadElement(element) {
+        return html`<download-button .json="${this.data}" name="${element.name}"></download-button>`
     }
 
     postRender() {

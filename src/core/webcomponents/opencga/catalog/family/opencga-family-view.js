@@ -150,7 +150,7 @@ export default class OpencgaFamilyView extends LitElement {
                         {
                             name: "Description",
                             field: "description"
-                        },
+                        }
                     ]
                 },
                 {
@@ -187,10 +187,10 @@ export default class OpencgaFamilyView extends LitElement {
                                     },
                                     {
                                         name: "Life Status", field: "lifeStatus"
-                                    },
-                                ],
+                                    }
+                                ]
                             }
-                        },
+                        }
                     ]
                 }
             ]
