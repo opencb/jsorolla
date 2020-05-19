@@ -90,6 +90,8 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
                 return html`<cohort-id-autocomplete .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" .value="${fieldConfig.defaultValue}" @filterChange="${e => this.onFilterChange("cohort", e.detail.value)}"></cohort-id-autocomplete>`;
             case "FAMILY_FILTER":
                 return html`<family-id-autocomplete .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" .value="${fieldConfig.defaultValue}" @filterChange="${e => this.onFilterChange("family", e.detail.value)}"></family-id-autocomplete>`;
+            case "CLINICAL_ANALYSIS_FILTER":
+                return html`<clinical-analysis-id-autocomplete .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" .value="${fieldConfig.defaultValue}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></clinical-analysis-id-autocomplete>`;
             default:
                 console.warn("field type "+fieldConfig.type+" not implemented. String type fallback");
                 return html`<text-field-filter placeholder="${fieldConfig.placeholder || ""}" ?disabled=${this.config.disabled} ?required=${this.config.required} .value="${fieldConfig.defaultValue || ""}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></text-field-filter>`;

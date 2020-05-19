@@ -263,7 +263,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                     </div>
                         
                     <div class="pull-right button-wrapper">
-                        ${this.opencgaSession.study.acl.includes("EXECUTE_JOB") ? html`
+                        ${this.opencgaSession.study.acl.includes("EXECUTE_JOBS") ? html`
                             <button type="button" class="ripple btn btn-primary btn-lg" @click="${this.onRun}">Run</button>
                         ` : html`
                             <a tooltip-title="Permission denied" tooltip-text="EXECUTE_JOB permission not available"><i class="fas fa-exclamation-circle text-danger"></i></i></a>
