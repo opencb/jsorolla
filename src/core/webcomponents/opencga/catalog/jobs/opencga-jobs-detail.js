@@ -91,11 +91,6 @@ export default class OpencgaJobsDetail extends LitElement {
 
     render() {
         return this.job ? html`
-            <style>
-                .detail-row{
-                    padding: 5px;
-                }
-            </style>
             ${this._config.showTitle ? html`
                     <div class="panel" style="margin-bottom: 10px">
                         <h2 >&nbsp;${this._config.title}: ${this.job.id}</h2>

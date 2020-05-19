@@ -110,7 +110,7 @@ class VariantInterpreterLanding extends LitElement {
 
     onCloseClinicalAnalysis() {
         this.clinicalAnalysis = null;
-        this.dispatchEvent(new CustomEvent("selectclinicalnalysis", {
+        this.dispatchEvent(new CustomEvent("selectClinicalAnalysis", {
             detail: {
                 id: null,
                 clinicalAnalysis: null
@@ -124,11 +124,12 @@ class VariantInterpreterLanding extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     _this.clinicalAnalysis = response.responses[0].results[0];
-                    _this.dispatchEvent(new CustomEvent("selectclinicalnalysis", {
+                    _this.dispatchEvent(new CustomEvent("selectClinicalAnalysis", {
                         detail: {
                             id: _this.clinicalAnalysis?.id,
                             clinicalAnalysis: _this.clinicalAnalysis
-                        }
+                        },
+                        bubbles: true, composed: true
                     }));
                 })
                 .catch(response => {
@@ -139,7 +140,7 @@ class VariantInterpreterLanding extends LitElement {
             this.opencgaSession.opencgaClient.clinical().search({proband: this.probandId, study: this.opencgaSession.study.fqn})
                 .then(response => {
                     _this.clinicalAnalysis = response.responses[0].results[0];
-                    _this.dispatchEvent(new CustomEvent("selectclinicalnalysis", {
+                    _this.dispatchEvent(new CustomEvent("selectClinicalAnalysis", {
                         detail: {
                             id: _this.clinicalAnalysis?.id,
                             clinicalAnalysis: _this.clinicalAnalysis
@@ -155,6 +156,7 @@ class VariantInterpreterLanding extends LitElement {
     onClinicalAnalysisIdChange(key, value) {
         this.clinicalAnalysisId = value;
         this.probandId = null;
+
     }
 
     onProbandIdChange(key, value) {

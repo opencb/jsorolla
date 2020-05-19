@@ -58,8 +58,10 @@ export default class DataView extends LitElement {
         let value = null;
         if (field) {
             let _object = object ? object : this.data;
-            value = field.split(".").reduce((res, prop) => res[prop], _object);
-            if (value) {
+            //optional chaining is needed when "res" is undefined
+            value = field.split(".").reduce((res, prop) => res?.[prop], _object);
+            //needed for handling falsy values
+            if (value !== undefined) {
                 if (format) {
                     if (format.style) {
                         value = html`<span style="${format.style}">${value}</span>`;
@@ -327,10 +329,7 @@ export default class DataView extends LitElement {
                     ${array.map(row => html`
                         <tr scope="row">
                             ${element.display.columns.map(elem => html`
-                                <td>${elem.format && elem.format.render
-            ? elem.format.render(this.getValue(elem.field, row))
-            : this.getValue(elem.field, row, elem.defaultValue, elem.format)}
-                                </td>
+                                <td>${elem?.display?.render?.(this.getValue(elem.field, row)) ?? this.getValue(elem.field, row, elem.defaultValue, elem.format)}</td>
                             `)}
                         </tr>
                     `)}

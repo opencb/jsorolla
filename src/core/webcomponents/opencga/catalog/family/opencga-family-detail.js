@@ -94,11 +94,6 @@ export default class OpencgaFamilyDetail extends LitElement {
 
     render() {
         return this.family ? html`
-            <style>
-                .detail-row{
-                    padding: 5px;
-                }
-            </style>
             <div>
                 ${this._config.showTitle ? html`
                     <div class="panel" style="margin-bottom: 10px">

@@ -264,7 +264,8 @@ class VariantGenericInterpreter extends LitElement {
                             <div id="${this._prefix}select" class="clinical-portal-content col-md-10 col-md-offset-1">
                                 <variant-interpreter-landing .opencgaSession="${this.opencgaSession}"
                                                              .config="${this._config}"
-                                                             @selectclinicalnalysis="${this.onClinicalAnalysis}">
+                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                             @selectClinicalAnalysis="${this.onClinicalAnalysis}">
                                 </variant-interpreter-landing>
                             </div>
                         ` : null}
@@ -358,7 +359,7 @@ class VariantGenericInterpreter extends LitElement {
         //     return html`
         //         <variant-cancer-interpreter-landing .opencgaSession="${this.opencgaSession}"
         //                                             .config="${this.config}"
-        //                                             @selectclinicalnalysis="${this.onClinicalAnalysis}">
+        //                                             @selectClinicalAnalysis="${this.onClinicalAnalysis}">
         //         </variant-cancer-interpreter-landing>
         //     `;
         // }

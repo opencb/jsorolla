@@ -761,7 +761,7 @@ class VariantInterpreterCancerBrowser extends LitElement {
         //     return html`
         //         <variant-cancer-interpreter-landing .opencgaSession="${this.opencgaSession}"
         //                                             .config="${this.config}"
-        //                                             @selectclinicalnalysis="${this.onClinicalAnalysis}">
+        //                                             @selectClinicalAnalysis="${this.onClinicalAnalysis}">
         //         </variant-cancer-interpreter-landing>
         //     `;
         // }
