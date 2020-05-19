@@ -70,7 +70,7 @@ export default class OpencgaFamilyView extends LitElement {
     familyIdObserver() {
         if (this.familyId) {
             let _this = this;
-            this.opencgaSession.opencgaClient.family().info(this.familyId, {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.families().info(this.familyId, {study: this.opencgaSession.study.fqn})
                 .then( response => {
                     _this.family = response.responses[0].results[0];
                     _this.requestUpdate();
@@ -105,7 +105,7 @@ export default class OpencgaFamilyView extends LitElement {
                         },
                         {
                             name: "Family Name",
-                            field: "Name"
+                            field: "name"
                         },
                         {
                             name: "Disorders",

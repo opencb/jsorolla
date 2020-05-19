@@ -249,10 +249,17 @@ export default class DataView extends LitElement {
         // TODO check if template exist -> array of scalars
         // Apply the template to all Array elements and store them in 'values'
         let values = [];
-        let matches = element.display.template.match(/\$\{[a-zA-Z_.\[\]]+\}/g).map(elem => elem.substring(2, elem.length - 1));
-        for (let object of array) {
-            let value = this.applyTemplate(element.display.template, object, matches, this.getDefaultValue(element));
-            values.push(value);
+        if (element.display.render) {
+            for (let object of array) {
+                let value = element.display.render(object);
+                values.push(value);
+            }
+        } else {
+            let matches = element.display.template.match(/\$\{[a-zA-Z_.\[\]]+\}/g).map(elem => elem.substring(2, elem.length - 1));
+            for (let object of array) {
+                let value = this.applyTemplate(element.display.template, object, matches, this.getDefaultValue(element));
+                values.push(value);
+            }
         }
 
         // Render element values
@@ -314,9 +321,9 @@ export default class DataView extends LitElement {
                     ${array.map(row => html`
                         <tr scope="row">
                             ${element.display.columns.map(elem => html`
-                                <td>${elem.format && elem.format.render 
-                                        ? elem.format.render(this.getValue(elem.field, row)) 
-                                        : this.getValue(elem.field, row, elem.defaultValue, elem.format)}
+                                <td>${elem.format && elem.format.render
+            ? elem.format.render(this.getValue(elem.field, row))
+            : this.getValue(elem.field, row, elem.defaultValue, elem.format)}
                                 </td>
                             `)}
                         </tr>

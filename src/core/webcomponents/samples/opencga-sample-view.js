@@ -130,12 +130,12 @@ export default class OpencgaSampleView extends LitElement {
                         },
                         {
                             name: "Version",
-                            field: "version"
+                            field: "version",
                         },
-                        {
-                            name: "Release",
-                            field: "release"
-                        },
+                        // {
+                        //     name: "Release",
+                        //     field: "release"
+                        // },
                         {
                             name: "Status",
                             field: "internal.status",
