@@ -122,7 +122,7 @@ export default class OpencgaIndividualView extends LitElement {
                     title: "Two columns",
                     collapsed: false,
                     display: {
-                        style: "border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #ddd",
+                        // style: "border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #ddd",
                         leftColumnWith: 4,
                         columnSeparatorStyle: "border-right: 1px solid red"
                     },
@@ -175,7 +175,7 @@ export default class OpencgaIndividualView extends LitElement {
                     title: "General",
                     collapsed: false,
                     display: {
-                        style: "border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #ddd"
+                        // style: "border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #ddd"
                     },
                     elements: [
                         // available types: basic (optional/default), complex, list (horizontal and vertical), table, plot, custom
@@ -328,7 +328,7 @@ export default class OpencgaIndividualView extends LitElement {
                                         }
                                     }
                                 ],
-                                defaultValue: "Emtpy array found",
+                                defaultValue: "Empty array found",
                                 border: true
                             }
                         },

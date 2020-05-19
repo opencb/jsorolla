@@ -35,9 +35,6 @@ export default class OpencgaFileView extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            opencgaClient: {
-                type: Object
-            },
             fileId: {
                 type: String
             },
@@ -51,65 +48,36 @@ export default class OpencgaFileView extends LitElement {
     }
 
     _init() {
-        // this.prefix = "osv" + UtilsNew.randomString(6);
         this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-
-    firstUpdated(_changedProperties) {
-    }
-
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-
-        }
         if (changedProperties.has("fileId")) {
             this.fileIdObserver();
         }
-        if (changedProperties.has("file")) {
-            this.fileObserver();
-        }
         if (changedProperties.has("config")) {
-            this.configObserver();
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 
-    configObserver() {
-    }
-
-    // TODO recheck
     fileIdObserver() {
-        console.warn("fileIdObserver");
-        if (this.file !== undefined && this.file !== "") {
-            const params = {
-                study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
-                includeIndividual: true
-            };
-            const _this = this;
-            this.opencgaSession.opencgaClient.files().info(this.file, params)
+        if (this.fileId) {
+            let _this = this;
+            this.opencgaSession.opencgaClient.files().info(this.file, {study: this.opencgaSession.study.fqn})
                 .then(function(response) {
-                    if (response.response[0].id === undefined) {
-                        response.response[0].id = response.response[0].name;
-                    }
-                    _this.file = response.response[0].result[0];
-                    console.log("_this.file", _this.file);
+                    _this.file = response.responses[0].results[0];
                     _this.requestUpdate();
                 })
                 .catch(function(reason) {
                     console.error(reason);
                 });
         }
-
-    }
-
-    fileObserver() {
-        console.log("fileObserver");
-
     }
 
     getDefaultConfig() {
@@ -128,12 +96,42 @@ export default class OpencgaFileView extends LitElement {
                     collapsed: false,
                     elements: [
                         {
-                            name: "File Id",
-                            field: "id"
+                            name: "File ID",
+                            type: "custom",
+                            display: {
+                                render: data => html`<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`
+                            }
                         },
                         {
                             name: "Name",
                             field: "name"
+                        },
+                        {
+                            name: "Study Path",
+                            field: "path"
+                        },
+                        {
+                            name: "Size",
+                            field: "size",
+                            type: "custom",
+                            display: {
+                                render: size => html`${UtilsNew.getDiskUsage(size)}`
+                            }
+                        },
+                        {
+                            name: "Format",
+                            type: "complex",
+                            display: {
+                                template: "${format} (${bioformat})"
+                            }
+                        },
+                        {
+                            name: "Tags",
+                            field: "tags",
+                            type: "list",
+                            display: {
+                                separator: ", "
+                            }
                         },
                         {
                             name: "Creation Date",
@@ -144,14 +142,6 @@ export default class OpencgaFileView extends LitElement {
                             }
                         },
                         {
-                            name: "Format",
-                            field: "format"
-                        },
-                        {
-                            name: "Bioformat",
-                            field: "bioformat"
-                        },
-                        {
                             name: "Status",
                             field: "internal.status",
                             type: "custom",
@@ -160,7 +150,7 @@ export default class OpencgaFileView extends LitElement {
                             }
                         },
                         {
-                            name: "Index",
+                            name: "Index Status",
                             field: "internal.index.status",
                             type: "custom",
                             display: {
@@ -171,16 +161,14 @@ export default class OpencgaFileView extends LitElement {
                 }
             ]
         };
-
     }
 
     render() {
         return html`
-            <data-view .data=${this.file} .config="${this.getDefaultConfig()}"></data-view>
+            <data-view .data=${this.file} .config="${this._config}"></data-view>
         `;
     }
 
 }
 
 customElements.define("opencga-file-view", OpencgaFileView);
-

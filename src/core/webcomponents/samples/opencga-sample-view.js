@@ -23,6 +23,7 @@ export default class OpencgaSampleView extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -63,29 +64,20 @@ export default class OpencgaSampleView extends LitElement {
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
         }
-        if (changedProperties.has("sample")) {
-            this.sampleObserver();
-        }
         if (changedProperties.has("config")) {
-            this.configObserver();
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
-    }
-
-    configObserver() {
     }
 
     sampleIdObserver() {
-        if (!this.sampleId) {
+        if (this.sampleId) {
             const query = {
                 study: this.opencgaSession.study.fqn,
                 includeIndividual: true
             };
-            const _this = this;
+            let _this = this;
             this.opencgaSession.opencgaClient.samples().info(this.sampleId, query)
                 .then(function(response) {
-                    // if (response.response[0].id === undefined) {
-                    //     response.response[0].id = response.response[0].name;
-                    // }
                     _this.sample = response.responses[0].results[0];
                     _this.requestUpdate();
                 })
@@ -93,10 +85,6 @@ export default class OpencgaSampleView extends LitElement {
                     console.error(reason);
                 });
         }
-    }
-
-    sampleObserver() {
-
     }
 
     getDefaultConfig() {
@@ -116,11 +104,29 @@ export default class OpencgaSampleView extends LitElement {
                     elements: [
                         {
                             name: "Sample ID",
-                            field: "id"
+                            type: "custom",
+                            display: {
+                                render: data => html`<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`
+                            }
                         },
                         {
-                            name: "UUID",
-                            field: "uuid"
+                            name: "Individual ID",
+                            field: "individualId"
+                        },
+                        {
+                            name: "Files",
+                            field: "fileIds",
+                            type: "list",
+                            display: {
+                                defaultValue: "Files not found or empty"
+                            }
+                        },
+                        {
+                            name: "Somatic",
+                            field: "somatic",
+                            display: {
+                                defaultValue: "false"
+                            }
                         },
                         {
                             name: "Version",
@@ -135,7 +141,7 @@ export default class OpencgaSampleView extends LitElement {
                             field: "internal.status",
                             type: "custom",
                             display: {
-                                render: field => html`${field.name} (${UtilsNew.dateFormatter(field.date)}) `
+                                render: field => html`${field.name} (${UtilsNew.dateFormatter(field.date)})`
                             }
                         },
                         {
@@ -159,94 +165,38 @@ export default class OpencgaSampleView extends LitElement {
                             field: "description"
                         }
                     ]
+                },
+                {
+                    title: "Phenotypes",
+                    elements: [
+                        {
+                            name: "List of phenotypes",
+                            field: "phenotypes",
+                            type: "table",
+                            display: {
+                                columns: [
+                                    {
+                                        name: "ID", field: "id"
+                                    },
+                                    {
+                                        name: "Name", field: "name"
+                                    },
+                                    {
+                                        name: "Source", field: "source"
+                                    }
+                                ],
+                                defaultValue: "No phenotypes found"
+                            }
+                        }
+                    ]
                 }
             ]
         };
     }
 
-    _getCollectionHtml() {
-        return html`
-            <h4>Method</h4>
-            <div class="form-group">
-                <label class="col-md-3 label-title">Method ID</label>
-                <span class="col-md-9">${this.sample.collection}</span>
-            </div>
-        `;
-    }
-
     render() {
         return html`
-
-            <data-view .data=${this.sample} .config="${this.getDefaultConfig()}"></data-view>
-
-            <!-- TODO remove after phenotypes and this._getCollectionHtml has been handled in configuration -->
-            ${false ? html`
-                <style include="jso-styles">
-                    .section-title {
-                        border-bottom: 2px solid #eee;
-                    }
-                    .label-title {
-                        text-align: left;
-                        padding-left: 5px;
-                        padding-right: 10px;
-                    }
-                </style>
-        
-                ${this.sample ? html`
-                    <div>
-                        ${this._config.showTitle ? html`<h3 class="section-title">Summary</h3>` : null}
-                        <div class="col-md-12">
-                            <form class="form-horizontal" style="padding: 20px">
-                                <div class="form-group">
-                                    <label class="col-md-3 label-title">Sample ID</label>
-                                    <span class="col-md-9">${this.sample.id}</span>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-3 label-title">UUID</label>
-                                    <span class="col-md-9">${this.sample.uuid}</span>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-3 label-title">Version</label>
-                                    <span class="col-md-9">${this.sample.version}</span>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-3 label-title">Release</label>
-                                    <span class="col-md-9">${this.sample.release}</span>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-3 label-title">Status</label>
-                                    <span class="col-md-9">${this.sample.internal.status.name}</span>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-3 label-title">Creation Date</label>
-                                    <span class="col-md-9">${this.sample.creationDate}</span>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-3 label-title">Modification Date</label>
-                                    <span class="col-md-9">${this.sample.modificationDate}</span>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-3 label-title">Description</label>
-                                    <span class="col-md-9">${this.sample.description}</span>
-                                </div>
-                              <!--   ${this._getCollectionHtml()} -->
-                            </form>
-                        </div>
-        
-                        ${this.sample.phenotypes && this.sample.phenotypes.length ? html`
-                            <div class="col-md-12">
-                                <h3 class="section-title">Phenotypes</h3>
-                                <form class="form-horizontal">
-                                    ${this.sample.phenotypes.map( item => html`
-                                        <span>${item.name} (<a href="http://compbio.charite.de/hpoweb/showterm?id=${item.id}" target="_blank">${item.id}</a>)</span>
-                                        <br>
-                                    `)}
-                                </form>
-                            </div>
-                        ` : null }
-                    </div>
-                ` : null }
-            ` : null}
+            <data-view .data=${this.sample} .config="${this._config}"></data-view>
         `;
     }
 

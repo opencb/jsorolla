@@ -23,6 +23,7 @@ export default class OpencgaFamilyView extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -33,9 +34,6 @@ export default class OpencgaFamilyView extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
-                type: Object
-            },
-            opencgaClient: {
                 type: Object
             },
             familyId: {
@@ -51,56 +49,36 @@ export default class OpencgaFamilyView extends LitElement {
     }
 
     _init() {
-        this._prefix = "osv" + UtilsNew.randomString(6);
+        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-
-    firstUpdated(_changedProperties) {
     }
 
     updated(changedProperties) {
         if (changedProperties.has("familyId")) {
             this.familyIdObserver();
         }
-        if (changedProperties.has("family")) {
-            this.familyObserver();
-        }
         if (changedProperties.has("config")) {
-            this.configObserver();
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 
-    configObserver() {
-    }
-
-    // TODO recheck
     familyIdObserver() {
-        console.warn("familyIdObserver");
-        if (this.file !== undefined && this.file !== "") {
-            this.opencgaSession.opencgaClient.family().info(this.familyId, {})
+        if (this.familyId) {
+            let _this = this;
+            this.opencgaSession.opencgaClient.family().info(this.familyId, {study: this.opencgaSession.study.fqn})
                 .then( response => {
-                    if (response.response[0].id === undefined) {
-                        response.response[0].id = response.response[0].name;
-                    }
-                    this.family = response.response[0].result[0];
-                    console.log("_this.individual", this.family);
-                    this.requestUpdate();
+                    _this.family = response.responses[0].results[0];
+                    _this.requestUpdate();
                 })
                 .catch(function(reason) {
                     console.error(reason);
                 });
         }
-
-    }
-
-    familyObserver() {
-        console.log("familyObserver");
-
     }
 
     getDefaultConfig() {
@@ -120,15 +98,14 @@ export default class OpencgaFamilyView extends LitElement {
                     elements: [
                         {
                             name: "Family ID",
-                            field: "id"
-                        },
-                        {
-                            name: "Creation Date",
-                            field: "creationDate",
                             type: "custom",
                             display: {
-                                render: field => html`${UtilsNew.dateFormatter(field)}`
+                                render: data => html`<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`
                             }
+                        },
+                        {
+                            name: "Family Name",
+                            field: "Name"
                         },
                         {
                             name: "Disorders",
@@ -149,7 +126,59 @@ export default class OpencgaFamilyView extends LitElement {
                                 contentLayout: "bullets",
                                 defaultValue: "N/A"
                             }
-                        }
+                        },
+                        {
+                            name: "Creation Date",
+                            field: "creationDate",
+                            type: "custom",
+                            display: {
+                                render: field => html`${UtilsNew.dateFormatter(field)}`
+                            }
+                        },
+                        {
+                            name: "Description",
+                            field: "description"
+                        },
+                    ]
+                },
+                {
+                    title: "Family Members",
+                    elements: [
+                        {
+                            name: "List of Members:",
+                            field: "members",
+                            type: "table",
+                            display: {
+                                layout: "vertical",
+                                columns: [
+                                    {
+                                        name: "Individual ID", field: "id"
+                                    },
+                                    {
+                                        name: "Sex", field: "sex"
+                                    },
+                                    {
+                                        name: "Father ID", field: "father.id", defaultValue: "-"
+                                    },
+                                    {
+                                        name: "Mother ID", field: "mother.id", defaultValue: "-"
+                                    },
+                                    {
+                                        name: "Disorders", field: "disorders", format: {
+                                            render: data => html`${data.map(d => d.id).join(", ")}`
+                                        }
+                                    },
+                                    {
+                                        name: "Phenotypes", field: "phenotypes", format: {
+                                            render: data => html`${data.map(d => d.id).join(", ")}`
+                                        }
+                                    },
+                                    {
+                                        name: "Life Status", field: "lifeStatus"
+                                    },
+                                ],
+                            }
+                        },
                     ]
                 }
             ]
@@ -157,10 +186,11 @@ export default class OpencgaFamilyView extends LitElement {
     }
 
     render() {
-        return html`<data-view .data=${this.family} .config="${this.getDefaultConfig()}"></data-view>`;
+        return html`
+            <data-view .data=${this.family} .config="${this._config}"></data-view>
+        `;
     }
 
 }
 
 customElements.define("opencga-family-view", OpencgaFamilyView);
-

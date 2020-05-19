@@ -118,8 +118,8 @@ export default class DataView extends LitElement {
         // Section 'elements' array has just one dimension
         if (!Array.isArray(section.elements[0])) {
             content = html`
-                <section>
-                    <h3 style="${(section?.display?.style) ? section.display.style : ""}">${section.title}</h3>
+                <section style="margin-top: 20px">
+                    <h4 style="${(section?.display?.style) ? section.display.style : ""}">${section.title}</h4>
                     <div class="container-fluid">
                         ${section.elements.map(element => this._createElement(element))}
                     </div>
@@ -130,8 +130,8 @@ export default class DataView extends LitElement {
             let leftColumnWidth = section?.display?.leftColumnWith ? section.display.leftColumnWith : 6;
             let rightColumnWidth = 12 - leftColumnWidth;
             content = html`
-                <section>
-                    <h3 style="${section?.display?.style ? section.display.style : ""}">${section.title}</h3>
+                <section style="margin-top: 20px">
+                    <h4 style="${section?.display?.style ? section.display.style : ""}">${section.title}</h4>
                     <div class="container-fluid">
                         <div class="row detail-row">
                             <div class="col-md-${leftColumnWidth}" style="${section.display.columnSeparatorStyle}">
@@ -232,16 +232,16 @@ export default class DataView extends LitElement {
         let contentLayout = (element.display && element.display.contentLayout) ? element.display.contentLayout : "horizontal";
 
         // Check values
-        if (!array) {
-            return html`<span style="color: red">Type 'list' requires an array field</span>`;
+        if (!array || !array.length) {
+            return html`<span style="color: red">${this.getDefaultValue(element)}</span>`;
         }
         if (!Array.isArray(array)) {
             return html`<span style="color: red">Field '${element.field}' is not an array</span>`;
         }
-        if (!array.length) {
-            // return this.getDefaultValue(element);
-            return html`<span>${this.getDefaultValue(element)}'</span>`;
-        }
+        // if (!array.length) {
+        //     // return this.getDefaultValue(element);
+        //     return html`<span>${this.getDefaultValue(element)}'</span>`;
+        // }
         if (contentLayout !== "horizontal" && contentLayout !== "vertical" && contentLayout !== "bullets") {
             return html`<span style="color: red">Content layout must be 'horizontal', 'vertical' or 'bullets'</span>`;
         }
@@ -295,7 +295,7 @@ export default class DataView extends LitElement {
         }
         if (!array.length) {
             // return this.getDefaultValue(element);
-            return html`<span>${this.getDefaultValue(element)}'</span>`;
+            return html`<span>${this.getDefaultValue(element)}</span>`;
         }
         if (!element.display && !element.display.columns) {
             return html`<span class="text-danger">Type 'table' requires a 'columns' array</span>`;
@@ -314,7 +314,10 @@ export default class DataView extends LitElement {
                     ${array.map(row => html`
                         <tr scope="row">
                             ${element.display.columns.map(elem => html`
-                                <td>${this.getValue(elem.field, row, elem.defaultValue, elem.format)}</td>
+                                <td>${elem.format && elem.format.render 
+                                        ? elem.format.render(this.getValue(elem.field, row)) 
+                                        : this.getValue(elem.field, row, elem.defaultValue, elem.format)}
+                                </td>
                             `)}
                         </tr>
                     `)}
