@@ -112,8 +112,14 @@ export default class OpencgaFamilyView extends LitElement {
                             field: "disorders",
                             type: "list",
                             display: {
-                                template: "${name} (${id})",
                                 contentLayout: "bullets",
+                                render: disorder => {
+                                    let id = disorder.id;
+                                    if (disorder.id.startsWith("OMIM:")) {
+                                        id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
+                                    }
+                                    return html`${disorder.name} (${id})`
+                                },
                                 defaultValue: "N/A"
                             }
                         },
@@ -122,8 +128,14 @@ export default class OpencgaFamilyView extends LitElement {
                             field: "phenotypes",
                             type: "list",
                             display: {
-                                template: "${name} (${id})",
                                 contentLayout: "bullets",
+                                render: phenotype => {
+                                    let id = phenotype.id;
+                                    if (phenotype.id.startsWith("HP:")) {
+                                        id = html`<a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">${phenotype.id}</a>`;
+                                    }
+                                    return html`${phenotype.name} (${id})`
+                                },
                                 defaultValue: "N/A"
                             }
                         },
