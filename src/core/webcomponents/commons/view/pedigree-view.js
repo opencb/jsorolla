@@ -54,6 +54,7 @@ export default class PedigreeView extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("family")) {
+            //console.error("family", this.family)
             // this._config = {...this.getDefaultConfig(), ...this.config};
             this.pedigreeRender();
         }
@@ -106,16 +107,14 @@ export default class PedigreeView extends LitElement {
             family.members = membersNew;
 
             // Render new Pedigree
-            const querySelector = document.getElementById(this._prefix + "PedigreeView");
+            const querySelector = this.querySelector("#" + this.pedigreeId);
+            console.log("document.getElementById(this._prefix + \"PedigreeView\")", this.querySelector("#" + this.pedigreeId))
             const pedigree = new Pedigree(family, {selectShowSampleNames: true});
             this.svg = pedigree.pedigreeFromFamily(pedigree.pedigree, {
                 width: this._config.width,
                 height: this._config.height
             });
-
-            if (UtilsNew.isNotUndefinedOrNull(querySelector)) {
-                querySelector.appendChild(this.svg);
-            }
+            querySelector.appendChild(this.svg);
         }
         this.requestUpdate();
     }

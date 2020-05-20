@@ -15,12 +15,12 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../../utilsNew.js";
-import PolymerUtils from "../../../PolymerUtils.js";
-import "../variableSets/opencga-annotation-filter.js";
-import "../../../commons/filters/opencga-date-filter.js";
-import "../../../commons/filters/text-field-filter.js";
-import "../../../commons/filters/jobs-id-autocomplete.js";
+import UtilsNew from "../../utilsNew.js";
+import PolymerUtils from "../PolymerUtils.js";
+import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
+import "../commons/filters/opencga-date-filter.js";
+import "../commons/filters/text-field-filter.js";
+import "../commons/filters/jobs-id-autocomplete.js";
 
 
 export default class OpencgaJobsFilter extends LitElement {

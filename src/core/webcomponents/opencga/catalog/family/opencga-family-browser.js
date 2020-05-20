@@ -63,10 +63,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
             },
             selectedFacet: {
                 type: Object
-            },
-            // resource: {
-            //     type: String
-            // }
+            }
         };
     }
 
@@ -101,7 +98,6 @@ export default class OpencgaFamilyBrowser extends LitElement {
         this.facets = new Set();
         this.facetFilters = [];
 
-        this.facetConfig = {a: 1};
         this.facetActive = true;
         this.query = {};
         this.preparedQuery = {};
@@ -304,15 +300,6 @@ export default class OpencgaFamilyBrowser extends LitElement {
                 ]
             },
             annotations: {},
-
-            // TODO recheck
-            variableSetIds: [],
-            gridComparator: {
-                pageSize: 5,
-                pageList: [5, 10],
-                detailView: true,
-                multiSelection: true
-            }
         };
     }
 

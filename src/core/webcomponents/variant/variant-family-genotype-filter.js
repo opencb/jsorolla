@@ -592,10 +592,6 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                 <div class="col-md-12">
                     <h4 style="padding-top: 5px; padding-bottom: 10px">Pedigree</h4>
                     <pedigree-view .family="${this.clinicalAnalysis.family}"></pedigree-view>
-                    
-                    <div class="col-md-11 col-md-offset-1">
-                        <div id="${this._prefix}Pedigree View"></div>
-                    </div>
                 </div>
                             
             <!-- <div class="col-md-12" style="padding: 10px 20px">

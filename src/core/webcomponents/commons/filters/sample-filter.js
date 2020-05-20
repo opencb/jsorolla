@@ -178,7 +178,7 @@ export default class SampleFilter extends LitElement {
     getDefaultConfig() {
         return {
             text: "Select sample genotype filter (e.g recessive, compound heterozygous, ...):",
-            showSummary: true,
+            showSummary: false
         };
     }
 
@@ -213,7 +213,7 @@ export default class SampleFilter extends LitElement {
                 </div>
             </div>
             
-            ${this._config.showSummary 
+            ${false && this._config.showSummary 
                 ? html`
                     <div style="padding: 10px 0px 5px 0px">
                         <div style="padding: 15px 0px;">

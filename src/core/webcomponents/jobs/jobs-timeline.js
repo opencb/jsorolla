@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../../utilsNew.js";
+import UtilsNew from "../../utilsNew.js";
 
 
 export default class JobsTimeline extends LitElement {
@@ -217,7 +217,6 @@ export default class JobsTimeline extends LitElement {
             SVG.find(".edge").stroke({opacity: 0});
             SVG.find(`.edge[id*="${line.id()}"]`).stroke({opacity: .3});
         }
-
         line.stroke({color: "#000"});
     }
 
@@ -234,7 +233,7 @@ export default class JobsTimeline extends LitElement {
                 color: "#ddd",
                 width: 1
             });
-            this.draw.text(moment(this.timestampMin + this.dateTick * i).format("D MMM YY")).dy(this._config.board.originY).dx(this._config.board.originX + this.tick * i - 10);
+            this.draw.text(moment(this.timestampMin + this.dateTick * i).format("D MMM YY") + "\n    " + moment(this.timestampMin + this.dateTick * i).format("HH:ss")).dy(this._config.board.originY).dx(this._config.board.originX + this.tick * i - 20);
 
         }
     }
@@ -345,7 +344,7 @@ export default class JobsTimeline extends LitElement {
         </style>
         <div id="jobs-timeline">
             <div class="toolbar">
-                <fieldset class="edge-radio-container">
+                <!--<fieldset class="edge-radio-container">
                 <label>Job dependencies</label>
                 <div class="switch-toggle text-white">
                     <input id="edge-all" type="radio" name="edge-radio" value="all" checked @change="${this.setEdgeVisibility}">
@@ -353,7 +352,7 @@ export default class JobsTimeline extends LitElement {
                     <input id="edge-onclick" type="radio" name="edge-radio" value="onclick" @change="${this.setEdgeVisibility}">
                     <label for="edge-onclick" ><span class="${this._prefix}-text">On click</span></label>
                     <a class="btn btn-primary ripple btn-small"></a>
-                </div>
+                </div>-->
             </fieldset>      
                 <div class="slide-container">
                     <label>Height</label>
@@ -361,7 +360,7 @@ export default class JobsTimeline extends LitElement {
                 </div>
                 <div class="slide-container">
                     <label>Width</label>
-                    <input type="range" min="0.1" max="2" value="1" class="slider" step="0.1" id="svg-width" @change="${this.setWidth}" @mousedown="${this.resizing}" @mouseup="${this.resizing}">
+                    <input type="range" min="0.8" max="3" value="1" class="slider" step="0.1" id="svg-width" @change="${this.setWidth}" @mousedown="${this.resizing}" @mouseup="${this.resizing}">
                 </div>
             </div>
             <div id="loading" style="display: none">
