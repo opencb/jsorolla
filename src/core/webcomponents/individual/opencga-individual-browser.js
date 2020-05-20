@@ -60,9 +60,6 @@ export default class OpencgaIndividualBrowser extends LitElement {
             },
             selectedFacet: {
                 type: Object
-            },
-            resource: {
-                type: String
             }
         };
     }
@@ -98,7 +95,6 @@ export default class OpencgaIndividualBrowser extends LitElement {
         this.facets = new Set();
         this.facetFilters = [];
 
-        this.facetConfig = {a: 1};
         this.facetActive = true;
         this.query = {};
         this.preparedQuery = {};
@@ -363,9 +359,6 @@ export default class OpencgaIndividualBrowser extends LitElement {
                 ]
             },
             annotations: {},
-
-            //TODO recheck
-            variableSetIds: []
         };
     }
 

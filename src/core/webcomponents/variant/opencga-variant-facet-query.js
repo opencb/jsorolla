@@ -75,10 +75,7 @@ class OpencgaVariantFacetQuery extends LitElement {
 
         this.facets = new Set();
         this.facetFilters = [];
-
-        this.facetConfig = {a: 1};
         this.facetActive = true;
-
         this._config = this.getDefaultConfig();
     }
 

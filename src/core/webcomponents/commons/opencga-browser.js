@@ -38,11 +38,11 @@ import "../opencga/catalog/family/opencga-family-detail.js";
 import "../opencga/catalog/cohorts/opencga-cohort-grid.js";
 import "../opencga/catalog/cohorts/opencga-cohort-filter.js";
 import "../opencga/catalog/cohorts/opencga-cohort-detail.js";
-import "../opencga/catalog/jobs/opencga-jobs-grid.js";
-import "../opencga/catalog/jobs/opencga-jobs-filter.js";
-import "../opencga/catalog/jobs/opencga-jobs-detail.js";
-import "../opencga/catalog/jobs/opencga-jobs-browser.js";
-import "../opencga/catalog/jobs/jobs-timeline.js";
+import "../jobs/opencga-jobs-grid.js";
+import "../jobs/opencga-jobs-filter.js";
+import "../jobs/opencga-jobs-detail.js";
+import "../jobs/opencga-jobs-browser.js";
+import "../jobs/jobs-timeline.js";
 import "../clinical/opencga-clinical-analysis-grid.js";
 import "../clinical/opencga-clinical-analysis-filter.js";
 import "../clinical/opencga-clinical-analysis-detail.js";
@@ -118,7 +118,6 @@ export default class OpencgaBrowser extends LitElement {
 
         this.results = [];
         this._showInitMessage = true;
-
 
         this.facetActive = true;
         this.query = {};

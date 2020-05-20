@@ -63,9 +63,6 @@ export default class OpencgaFileBrowser extends LitElement {
             },
             selectedFacet: {
                 type: Object
-            },
-            resource: {
-                type: String
             }
         };
     }
@@ -101,7 +98,6 @@ export default class OpencgaFileBrowser extends LitElement {
         this.facets = new Set();
         this.facetFilters = [];
 
-        this.facetConfig = {a: 1};
         this.facetActive = true;
         this.query = {};
         this.preparedQuery = {};

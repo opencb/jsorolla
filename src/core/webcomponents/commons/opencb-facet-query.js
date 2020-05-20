@@ -81,7 +81,6 @@ class OpencbFacetQuery extends LitElement {
 
         this.facetFilters = [];
 
-        this.facetConfig = {a: 1};
         this.facetActive = true;
         this.facetResults = [];
     }

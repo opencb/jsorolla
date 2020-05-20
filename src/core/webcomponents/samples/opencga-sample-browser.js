@@ -63,9 +63,6 @@ export default class OpencgaSampleBrowser extends LitElement {
             },
             selectedFacet: {
                 type: Object
-            },
-            resource: {
-                type: String
             }
         };
     }
@@ -101,7 +98,6 @@ export default class OpencgaSampleBrowser extends LitElement {
         this.facets = new Set();
         this.facetFilters = [];
 
-        this.facetConfig = {a: 1};
         this.facetActive = true;
         this.query = {};
         this.preparedQuery = {};
@@ -120,7 +116,6 @@ export default class OpencgaSampleBrowser extends LitElement {
     }
 
     getDefaultConfig() {
-
         return {
             title: "Sample Browser",
             icon: "fas fa-chart-bar",
@@ -330,15 +325,7 @@ export default class OpencgaSampleBrowser extends LitElement {
                         ]
                     }
                 ]
-            },
-            // TODO recheck following fields
-            annotations: {},
-            gridComparator: {
-                pageSize: 5,
-                pageList: [5, 10],
-                multiSelection: true
-            },
-            variableSetIds: []
+            }
         };
     }
 

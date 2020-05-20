@@ -15,10 +15,10 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "./../../../../utilsNew.js";
-import GridCommons from "../../../variant/grid-commons.js";
-import "../../../commons/opencb-grid-toolbar.js";
-import "../../../../loading-spinner.js";
+import UtilsNew from "../../utilsNew.js";
+import GridCommons from "../variant/grid-commons.js";
+import "../commons/opencb-grid-toolbar.js";
+import "../../loading-spinner.js";
 
 
 // todo check functionality and notify usage

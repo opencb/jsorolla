@@ -99,7 +99,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         this.requestUpdate();
     }
 
-    // todo move to ajaxRequest BT table
     renderTable(active) {
         // if (!active) {
         //     return;
@@ -547,10 +546,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         ];
 
         return this._columns;
-    }
-
-    _getUrlQueryParams() {
-        // TODO
     }
 
     onDownload(e) {

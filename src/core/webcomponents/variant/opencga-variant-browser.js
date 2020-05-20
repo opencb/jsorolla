@@ -103,12 +103,8 @@ export default class OpencgaVariantBrowser extends LitElement {
         this.results = [];
         this._showInitMessage = true;
 
-
-        this.facetConfig = {a: 1};
         this.facetActive = true;
-        // this.query = {
-        //     sample: "ISDBM322015"
-        // };
+        this.query = {};
         this.preparedQuery = {};
         this.executedQuery = {};
         this.selectedFacet = {};
@@ -213,9 +209,10 @@ export default class OpencgaVariantBrowser extends LitElement {
 
     queryObserver() {
         // Query passed is executed and set to variant-filter, active-filters and variant-grid components
+        // (it checks just for undefined, empty object is a valid value)
         if (this.query) {
-            this.preparedQuery = this.query;
-            this.executedQuery = this.query;
+            this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+            this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
         }
 
         // let _query = {};
@@ -303,17 +300,17 @@ export default class OpencgaVariantBrowser extends LitElement {
         this.requestUpdate();
     }
 
-
     onActiveFilterChange(e) {
         this.query = {...e.detail};
         this.preparedQuery = {...e.detail};
+        this.onRun(); //TODO recheck queryObserver is supposed to handle the update of the grid
     }
 
     onActiveFilterClear() {
         this.query = {study: this.opencgaSession.study.fqn};
         this.preparedQuery = {study: this.opencgaSession.study.fqn};
+        this.onRun(); //TODO recheck queryObserver is supposed to handle the update of the grid
     }
-
 
     onActiveFacetChange(e) {
         this.selectedFacet = {...e.detail};
@@ -326,7 +323,6 @@ export default class OpencgaVariantBrowser extends LitElement {
         this.onRun();
         this.requestUpdate();
     }
-
 
     onClickRow(e) {
         this.detail = {...this.detail, [e.detail.resource]: e.detail.data};
