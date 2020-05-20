@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../../../utilsNew.js";
 import "../../../commons/view/data-view.js";
-
+import "../../../commons/view/pedigree-view.js";
 
 export default class OpencgaFamilyView extends LitElement {
 
@@ -189,6 +189,14 @@ export default class OpencgaFamilyView extends LitElement {
                                         name: "Life Status", field: "lifeStatus"
                                     }
                                 ]
+                            }
+                        },
+                        {
+                            name: "Pedigree",
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                render: data => html`<pedigree-view .family="${this.family}"></pedigree-view>`
                             }
                         }
                     ]

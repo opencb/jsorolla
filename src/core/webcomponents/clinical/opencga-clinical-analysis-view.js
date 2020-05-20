@@ -289,12 +289,10 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                                         name: "Sex", field: "sex"
                                     },
                                     {
-                                        name: "Father", field: "father", display: {
-                                            render: father => html`${father ? father.id : "-"}`
-                                        }
+                                        name: "Father", field: "father.id"
                                     },
                                     {
-                                        name: "Mother", field: "mother", display: {
+                                        name: "Mother", field: "mother.id", display: {
                                             render: mother => html`${mother ? mother.id : "-"}`
                                         }
                                     },

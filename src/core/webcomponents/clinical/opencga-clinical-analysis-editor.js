@@ -250,6 +250,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         // Calculate some internal data and render the sample table
         this._individuals = this.getIndividualsFromClinicalAnalysis(clinicalAnalysis);
         this._disorders = this.getDisordersFromIndividuals(this._individuals);
+        debugger
         this.renderTable();
 
         if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.id)) {
@@ -330,7 +331,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
             study: this.opencgaSession.study.fqn
         }).then(function(response) {
                 _this._clinicalAnalysis.family.members = response.response[0].result;
-
+debugger
                 _this.updateIndividual(response.response[0].result);
             }
         );
@@ -523,17 +524,18 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
             _clinicalAnalysis.family = _family;
         }
 
-        if (UtilsNew.isNotUndefinedOrNull(_clinicalAnalysis.files)) {
-            const _files = {};
-            for (const sampleId in _clinicalAnalysis.files) {
-                const fileIds = [];
-                for (const file of _clinicalAnalysis.files[sampleId]) {
-                    fileIds.push(file.id);
-                }
-                _files[sampleId] = fileIds;
-            }
-            _clinicalAnalysis.files = _files;
-        }
+        // if (UtilsNew.isNotUndefinedOrNull(_clinicalAnalysis.files)) {
+        //     const _files = {};
+        //     const _filesArray = [];
+        //     for (const sampleId in _clinicalAnalysis.files) {
+        //         const fileIds = [];
+        //         for (const file of _clinicalAnalysis.files[sampleId]) {
+        //             fileIds.push(file.id);
+        //         }
+        //         _files[sampleId] = fileIds;
+        //     }
+        //     _clinicalAnalysis.files = _files;
+        // }
 
         if (UtilsNew.isNotUndefinedOrNull(_clinicalAnalysis.dueDate)) {
             const dueDate = moment(_clinicalAnalysis.dueDate, "DD/MM/YYYY").format("YYYYMMDDHHMMSS");
