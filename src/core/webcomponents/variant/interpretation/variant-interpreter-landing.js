@@ -16,8 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
-import {ifDefined} from "/web_modules/lit-html/directives/if-defined.js";
-
+// import {ifDefined} from "/web_modules/lit-html/directives/if-defined.js";
 import UtilsNew from "../../../utilsNew.js";
 
 
@@ -77,9 +76,11 @@ class VariantInterpreterLanding extends LitElement {
         // if (changedProperties.has("clinicalAnalysisId")) {
         //     this.clinicalAnalysisIdObserver();
         // }
-        // if (changedProperties.has("clinicalAnalysis")) {
-        //     this.clinicalAnalysisObserver();
-        // }
+        if (changedProperties.has("clinicalAnalysis")) {
+            // this.clinicalAnalysisObserver();
+            this.clinicalAnalysis;
+            debugger
+        }
     }
 
     opencgaSessionObserver() {
@@ -109,7 +110,7 @@ class VariantInterpreterLanding extends LitElement {
     }
 
     onCloseClinicalAnalysis() {
-        this.clinicalAnalysis = null;
+        // this.clinicalAnalysis = null;
         this.dispatchEvent(new CustomEvent("selectClinicalAnalysis", {
             detail: {
                 id: null,
@@ -124,6 +125,7 @@ class VariantInterpreterLanding extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     _this.clinicalAnalysis = response.responses[0].results[0];
+                    debugger
                     _this.dispatchEvent(new CustomEvent("selectClinicalAnalysis", {
                         detail: {
                             id: _this.clinicalAnalysis?.id,
@@ -175,6 +177,7 @@ class VariantInterpreterLanding extends LitElement {
             `;
         }
 
+        debugger
         if (this.clinicalAnalysis) {
             return html`
                 <div class="row">
@@ -186,8 +189,7 @@ class VariantInterpreterLanding extends LitElement {
                         </div>
                                                         
                         <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
-                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                        .config="${this._config}">
+                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
                         </opencga-clinical-analysis-view>
                     </div>
                 </div>`;

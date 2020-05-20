@@ -43,9 +43,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             query: {
                 type: Object
             },
-            search: {
-                type: Object
-            },
             active: {
                 type: Boolean
             },
@@ -56,13 +53,15 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     _init() {
-        this._prefix = "cag" + UtilsNew.randomString(6) + "_";
+        this._prefix = "cag" + UtilsNew.randomString(6);
+
         this.active = true;
         this.gridId = this._prefix + "ClinicalAnalysisGrid";
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
@@ -73,7 +72,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession") ||
-            changedProperties.has("search") ||
             changedProperties.has("query") ||
             changedProperties.has("config") ||
             changedProperties.has("active")) {
@@ -96,7 +94,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             // ]
         };
 
-        this.renderTable(this.active);
+        this.renderTable();
+
         this.requestUpdate();
     }
 
@@ -106,36 +105,30 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         //     return;
         // }
 
-        this.opencgaClient = this.opencgaSession.opencgaClient;
-
-        this.analyses = [];
-
-        const filters = Object.assign({}, this.query);
-
         // Initialise the counters
         this.from = 1;
         this.to = this._config.pageSize;
 
-        if (UtilsNew.isNotUndefined(this.opencgaSession.study) && UtilsNew.isNotUndefined(this.opencgaSession.study.fqn)) {
+        if (this.opencgaSession.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
 
-            filters.study = this.opencgaSession.study.fqn;
+            // filters.study = this.opencgaSession.study.fqn;
             // if (UtilsNew.isNotUndefinedOrNull(this.lastFilters)
             //     && JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
             //     // Abort destroying and creating again the grid. The filters have not changed
             //     return;
             // }
+
             // // Store the current filters
             // this.lastFilters = Object.assign({}, filters);
 
             // Make a copy of the analyses (if they exist), we will use this private copy until it is assigned to this.analyses
-            if (UtilsNew.isNotUndefined(this.analyses)) {
-                this._analyses = this.analyses;
-            } else {
-                this._analyses = [];
-            }
+            // if (UtilsNew.isNotUndefined(this.analyses)) {
+            //     this._analyses = this.analyses;
+            // } else {
+            //     this._analyses = [];
+            // }
 
-            const _table = $("#" + this.gridId);
-
+            this.table = $("#" + this.gridId);
             const _this = this;
             $(this.table).bootstrapTable("destroy");
             $(this.table).bootstrapTable({
@@ -157,13 +150,12 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
                     const filters = {
-                        ...this.query,
+                        study: this.opencgaSession.study.fqn,
+                        limit: params.data.limit,
+                        skip: params.data.offset || 0,
+                        count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         exclude: "files",
-                        limit: 10,
-                        // order: "asc",
-                        // skip: 0,
-                        count: !_table.bootstrapTable("getOptions").pageNumber || _table.bootstrapTable("getOptions").pageNumber === 1,
-                        study: this.opencgaSession.study.fqn
+                        ...this.query,
                     };
                     this.opencgaSession.opencgaClient.clinical().search(filters).then( res => params.success(res));
                 },
@@ -176,197 +168,39 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                     this.requestUpdate();
                     return result.response;
                 },
-                onClickRow: (row, selectedElement, field) => {
-                    this.gridCommons.onClickRow(row.id, row, selectedElement);
-
-                    //TODO unify the event name: delete selectanalysis and use selectrow
-                    this._onSelectClinicalAnalysis(row);
-                },
-                /*
-                onClickRow: function(row, element, field) {
-                    if (_this._config.multiSelection) {
-                        // Check and uncheck when clicking in the checkbox TD cell
-                        if (field === "state") {
-                            const index = element[0].dataset.index;
-                            if (element[0].className.includes("selected")) {
-                                $(PolymerUtils.getElementById(_this._prefix + "ClinicalAnalysisBrowserGrid")).bootstrapTable("uncheck", index);
-                            } else {
-                                $(PolymerUtils.getElementById(_this._prefix + "ClinicalAnalysisBrowserGrid")).bootstrapTable("check", index);
-
-                                $(".success").removeClass("success");
-                                $(element).addClass("success");
-                            }
-                        } else {
-                            // If user has clicked in the row
-                            const index = element[0].dataset.index;
-                            if (element[0].className.includes("selected")) {
-                                $(PolymerUtils.getElementById(_this._prefix + "ClinicalAnalysisBrowserGrid")).bootstrapTable("uncheck", index);
-                                $(element).removeClass("success");
-                            } else {
-                                $(PolymerUtils.getElementById(_this._prefix + "ClinicalAnalysisBrowserGrid")).bootstrapTable("check", index);
-                            }
-                        }
-                    } else {
-                        // If not checkboxes exist
-                        $(".success").removeClass("success");
-                        $(element).addClass("success");
-                    }
-
-                    _this._onSelectClinicalAnalysis(row);
-                },*/
-                onDblClickRow: function(row, element, field) {
+                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                onDblClickRow: (row, element, field) => {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (_this._config.detailView) {
+                    if (this._config.detailView) {
                         if (element[0].innerHTML.includes("icon-plus")) {
-                            $(PolymerUtils.getElementById("#" + _this.gridId)).bootstrapTable("expandRow", element[0].dataset.index);
+                            this.table.bootstrapTable("expandRow", element[0].dataset.index);
                         } else {
-                            $(PolymerUtils.getElementById("#" + _this.gridId)).bootstrapTable("collapseRow", element[0].dataset.index);
+                            this.table.bootstrapTable("collapseRow", element[0].dataset.index);
                         }
                     }
                 },
-                onCheck: function(row, element) {
-                    // check analysis is not already selected
-                    for (const i in _this._analyses) {
-                        if (_this._analyses[i].id === row.id) {
-                            return;
-                        }
-                    }
-
-                    // we add analyses to selected analyses
-                    // _this.push("_analyses", row);
-                    // _this.set("analyses", _this._analyses.slice());
-                    _this._analyses.push(row);
-                    _this._analyses = _this._analyses.slice();
-
-                    // We only activate the row when checking
-                    if (_this._config.detailView) {
-                        $(".success").removeClass("success");
-                    }
-                    $(element[0].parentElement.parentElement).addClass("success");
-
-                    // If exist on single nested sample we must check it
-                    if (row.samples.length === 1) {
-                        const checkbox = PolymerUtils.getElementById(_this._prefix + row.samples[0].id + "Checkbox");
-                        if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
-                            checkbox.checked = true;
-                        }
-                    }
+                onCheck: (row, $element) => {
+                    this.gridCommons.onCheck(row.id, row);
                 },
-                onUncheck: function(row, elem) {
-                    let analysisToDeleteIdx = -1;
-                    for (const i in _this.analyses) {
-                        if (_this.analyses[i].id === row.id) {
-                            analysisToDeleteIdx = i;
-                            break;
-                        }
-                    }
-
-                    if (analysisToDeleteIdx === -1) {
-                        return;
-                    }
-
-                    // _this.splice("_analyses", analysisToDeleteIdx, 1);
-                    // _this.set("analyses", _this._analyses.slice());
-                    _this._analyses.splice(analysisToDeleteIdx, 1);
-                    _this.analyses = _this._analyses.slice();
-
-                    // We detail view is active we expand the row automatically
-                    if (_this._config.detailView) {
-                        $(PolymerUtils.getElementById("#" + _this.gridId)).bootstrapTable("collapseRow", elem[0].dataset.index);
-                    }
-
-                    // We must uncheck nested checked samples
-                    if (row.samples.length > 0) {
-                        for (const sample of row.samples) {
-                            const checkbox = PolymerUtils.getElementById(_this._prefix + sample.id + "Checkbox");
-                            if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
-                                checkbox.checked = false;
-                            }
-                        }
-                    }
+                onCheckAll: rows => {
+                    this.gridCommons.onCheckAll(rows);
                 },
-                onCheckAll: function(rows) {
-                    const newClinicalAnalyses = _this._analyses.slice();
-                    // check analysis is not already selected
-                    rows.forEach(analysis => {
-                        const existsNewSelected = _this._analyses.some(analysisSelected => {
-                            return analysisSelected.id === analysis.id;
-                        });
-
-                        if (!existsNewSelected) {
-                            newClinicalAnalyses.push(analysis);
-                        }
-                    });
-
-                    // we add analyses to selected analyses
-                    _this._analyses = newClinicalAnalyses;
-                    // _this.set("analyses", newClinicalAnalyses.slice());
-                    _this.analyses = newClinicalAnalyses.slice();
-
-                    // We must uncheck nested checked samples
-                    for (const row of rows) {
-                        if (row.samples.length === 1) {
-                            const checkbox = PolymerUtils.getElementById(_this._prefix + row.samples[0].id + "Checkbox");
-                            if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
-                                checkbox.checked = true;
-                            }
-                        }
-                    }
+                onUncheck: (row, $element) => {
+                    this.gridCommons.onUncheck(row.id, row);
                 },
-                onUncheckAll: function(rows) {
-                    // check analysis is not already selected
-                    rows.forEach(analysis => {
-                        _this._analyses = _this._analyses.filter(analysisSelected => {
-                            return analysisSelected.id !== analysis.id;
-                        });
-                    });
-
-                    // we add analyses to selected analyses
-                    //                            _this.push("_analyses", row);
-                    // _this.set("analyses", _this._analyses.slice());
-                    _this.analyses = _this._analyses.slice();
-
-                    // We must uncheck nested checked samples
-                    for (const row of rows) {
-                        for (const sample of row.samples) {
-                            const checkbox = PolymerUtils.getElementById(_this._prefix + sample.id + "Checkbox");
-                            if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
-                                checkbox.checked = false;
-                            }
-                        }
-                    }
+                onUncheckAll: rows => {
+                    this.gridCommons.onUncheckAll(rows);
                 },
-                onLoadSuccess: function(data) {
-                    // Add click event to the "review case" buttons
-                    const reviewCaseButtons = PolymerUtils.querySelectorAll(".reviewCaseButton");
-                    for (let i = 0; i < reviewCaseButtons.length; i++) {
-                        reviewCaseButtons[i].addEventListener("click", _this.reviewCaseButtonClicked);
-                    }
-
-                    // Check all already selected rows. Selected analyses are stored in this.analyses array
-                    if (UtilsNew.isNotUndefinedOrNull(_table)) {
-                        if (!_this._config.multiSelection) {
-                            PolymerUtils.querySelector(_table.selector).rows[1].setAttribute("class", "success");
-                            _this._onSelectClinicalAnalysis(data.rows[0]);
-                        }
-
-                        if (_this.analyses !== "undefined") {
-                            for (const idx in _this.analyses) {
-                                for (const j in data.rows) {
-                                    if (_this.analyses[idx].id === data.rows[j].id) {
-                                        $(PolymerUtils.getElementById("#" + _this.gridId)).bootstrapTable("check", j);
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
+                onLoadSuccess: data => {
+                    this.gridCommons.onLoadSuccess(data, 1);
                 },
-                onPageChange: function(page, size) {
-                    _this.from = (page - 1) * size + 1;
-                    _this.to = page * size;
+                onPageChange: (page, size) => {
+                    const result = this.gridCommons.onPageChange(page, size);
+                    this.from = result.from || this.from;
+                    this.to = result.to || this.to;
                 },
+
                 onPostBody: function(data) {
                     // Add qtip2 tooltips to Interpretation genotypes
                     $("div.interpretation-tooltip").qtip({
@@ -401,18 +235,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             // Delete table
             $("#" + this.gridId).bootstrapTable("destroy");
             this.numTotalResults = 0;
-        }
-    }
-
-    // TODO remove: use gridCommons instead
-    _onSelectClinicalAnalysis(row) {
-        if (typeof row !== "undefined") {
-            this.dispatchEvent(new CustomEvent("selectanalysis", {
-                detail: {
-                    id: row.id,
-                    analysis: row
-                }
-            }));
         }
     }
 
@@ -832,45 +654,44 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
     render() {
         return html`
-        <style>
-            .detail-view :hover {
-                background-color: white;
-            }
-
-            .detail-view-row :hover {
-                background-color: #f5f5f5;
-            }
-
-            .cursor-pointer {
-                cursor: pointer;
-            }
-
-            .phenotypes-link-dropdown:hover .dropdown-menu {
-                display: block;
-            }
-
-            .variant-link-dropdown:hover .dropdown-menu {
-                display: block;
-            }
-
-            .qtip-cutom-class .qtip-content{
-                font-size: 12px;
-            }
-        </style>
-
-        <opencb-grid-toolbar .from="${this.from}"
-                             .to="${this.to}"
-                             .numTotalResultsText="${this.numTotalResultsText}"
-                             .config="${this.toolbarConfig}"
-                             @columnchange="${this.onColumnChange}"
-                             @download="${this.onDownload}"
-                             @sharelink="${this.onShare}">
-        </opencb-grid-toolbar>
-
-        <div id="${this._prefix}GridTableDiv">
-            <table id="${this.gridId}">
-            </table>
-        </div>
+            <style>
+                .detail-view :hover {
+                    background-color: white;
+                }
+    
+                .detail-view-row :hover {
+                    background-color: #f5f5f5;
+                }
+    
+                .cursor-pointer {
+                    cursor: pointer;
+                }
+    
+                .phenotypes-link-dropdown:hover .dropdown-menu {
+                    display: block;
+                }
+    
+                .variant-link-dropdown:hover .dropdown-menu {
+                    display: block;
+                }
+    
+                .qtip-cutom-class .qtip-content{
+                    font-size: 12px;
+                }
+            </style>
+    
+            <opencb-grid-toolbar .from="${this.from}"
+                                 .to="${this.to}"
+                                 .numTotalResultsText="${this.numTotalResultsText}"
+                                 .config="${this.toolbarConfig}"
+                                 @columnchange="${this.onColumnChange}"
+                                 @download="${this.onDownload}"
+                                 @sharelink="${this.onShare}">
+            </opencb-grid-toolbar>
+    
+            <div id="${this._prefix}GridTableDiv">
+                <table id="${this.gridId}"></table>
+            </div>
         `;
     }
 

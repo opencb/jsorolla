@@ -137,8 +137,11 @@ export default class GridCommons {
                     table.bootstrapTable('check', i);
                 }
             }
-            
-            table[0].rows[firstRowIndex].setAttribute("class", "success");
+
+            if (table[0]) {
+                table[0].rows[firstRowIndex].setAttribute("class", "success");
+            }
+
             this.context.dispatchEvent(new CustomEvent("selectrow", {
                 detail: {
                     id: data.rows[0].id,

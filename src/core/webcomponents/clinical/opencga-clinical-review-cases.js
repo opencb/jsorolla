@@ -47,12 +47,13 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     _init() {
-        this._prefix = "ocrc-" + UtilsNew.randomString(6) + "_";
+        this._prefix = "ocrc-" + UtilsNew.randomString(6);
+
         this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("query")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config")) {
             this.propertyObserver();
         }
     }
@@ -259,7 +260,6 @@ export default class OpencgaClinicalReviewCases extends LitElement {
             }
         };
     }
-
 
     render() {
         return html`
@@ -507,19 +507,11 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                         <div id="${this._prefix}Info" role="tabpanel" class="tab-pane active">
                                             <div style="padding: 10px 20px; width: 90%">
                                                 <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
-                                                                                .clinicalAnalysis=${this.clinicalAnalysis}
-                                                                                .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                                                .config="${this.config}"
-                                                                                style="font-size: 12px">
+                                                                                .clinicalAnalysisId=${this.clinicalAnalysis.id}
+                                                                                .config="${this.config}">
                                                 </opencga-clinical-analysis-view>
                                             </div>
                                         </div>
-    
-                                        <!--<div id="${this._prefix}Proband" role="tabpanel" class="tab-pane">-->
-                                            <!--<div style="padding: 10px 20px; width: 90%">-->
-                                                <!--<span>Work in progress</span>-->
-                                            <!--</div>-->
-                                        <!--</div>-->
                                     </div>
                                 </div>
                             </div>

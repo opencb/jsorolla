@@ -105,9 +105,9 @@ class VariantGenericInterpreter extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-        if (changedProperties.has("clinicalAnalysisId")) {
-            // this.clinicalAnalysisIdObserver();
-        }
+        // if (changedProperties.has("clinicalAnalysisId")) {
+        //     this.clinicalAnalysisIdObserver();
+        // }
     }
 
     opencgaSessionObserver() {
@@ -141,6 +141,7 @@ class VariantGenericInterpreter extends LitElement {
 
     onClinicalAnalysis(e) {
         this.clinicalAnalysis = e.detail.clinicalAnalysis;
+        debugger
         // this.clinicalAnalysis.type = "cancer";
         this.requestUpdate();
     }
@@ -263,8 +264,8 @@ class VariantGenericInterpreter extends LitElement {
                         ${this._config.tools ? html`
                             <div id="${this._prefix}select" class="clinical-portal-content col-md-10 col-md-offset-1">
                                 <variant-interpreter-landing .opencgaSession="${this.opencgaSession}"
-                                                             .config="${this._config}"
                                                              .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                             .config="${this._config}"
                                                              @selectClinicalAnalysis="${this.onClinicalAnalysis}">
                                 </variant-interpreter-landing>
                             </div>
