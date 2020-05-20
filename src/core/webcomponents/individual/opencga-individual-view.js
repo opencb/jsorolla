@@ -63,7 +63,7 @@ export default class OpencgaIndividualView extends LitElement {
             this.individualIdObserver();
         }
         if (changedProperties.has("config")) {
-            this.configObserver();
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 

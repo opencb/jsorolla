@@ -58,9 +58,10 @@ export default class DataView extends LitElement {
         let value = null;
         if (field) {
             let _object = object ? object : this.data;
-            //optional chaining is needed when "res" is undefined
+            // optional chaining is needed when "res" is undefined
             value = field.split(".").reduce((res, prop) => res?.[prop], _object);
-            //needed for handling falsy values
+
+            // needed for handling falsy values
             if (value !== undefined) {
                 if (format) {
                     if (format.style) {
@@ -103,26 +104,30 @@ export default class DataView extends LitElement {
 
     _createSection(section) {
         let content;
+        let sectionTitleStyle = (section.display && section.display.style)
+            ? section.display.style
+            : "padding: 5px 0px; width: 80%; border-bottom: 1px solid #ddd";
         // Section 'elements' array has just one dimension
         if (!Array.isArray(section.elements[0])) {
             content = html`
                 <section style="margin-top: 20px">
-                    <h4 style="${(section?.display?.style) ? section.display.style : ""}">${section.title}</h4>
+                    <h4 style="${sectionTitleStyle}">${section.title}</h4>
                     <div class="container-fluid">
                         ${section.elements.map(element => this._createElement(element))}
                     </div>
                 </section>
             `;
         } else {
-            // Section 'elements' array must two dimensions
+            // Section 'elements' array has two dimensions
             let leftColumnWidth = section?.display?.leftColumnWith ? section.display.leftColumnWith : 6;
             let rightColumnWidth = 12 - leftColumnWidth;
+            let columnSeparatorStyle = (section.display && section.display.columnSeparatorStyle) ? section.display.columnSeparatorStyle : "";
             content = html`
                 <section style="margin-top: 20px">
-                    <h4 style="${section?.display?.style ? section.display.style : ""}">${section.title}</h4>
+                    <h4 style="${sectionTitleStyle}">${section.title}</h4>
                     <div class="container-fluid">
                         <div class="row detail-row">
-                            <div class="col-md-${leftColumnWidth}" style="${section.display.columnSeparatorStyle}">
+                            <div class="col-md-${leftColumnWidth}" style="${columnSeparatorStyle}">
                                 ${section.elements[0].map(element => this._createElement(element))}
                             </div>
                             <div class="col-md-${rightColumnWidth}">
@@ -318,7 +323,12 @@ export default class DataView extends LitElement {
                     ${array.map(row => html`
                         <tr scope="row">
                             ${element.display.columns.map(elem => html`
-                                <td>${elem?.display?.render?.(this.getValue(elem.field, row)) ?? this.getValue(elem.field, row, elem.defaultValue, elem.format)}</td>
+                                <td>
+                                    ${elem.display && elem.display.render 
+                                        ? elem.display.render(this.getValue(elem.field, row)) 
+                                        : this.getValue(elem.field, row, elem.defaultValue, elem.format)
+                                    }
+                                </td>
                             `)}
                         </tr>
                     `)}
