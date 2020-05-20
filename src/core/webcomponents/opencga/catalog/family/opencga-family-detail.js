@@ -34,14 +34,13 @@ export default class OpencgaFamilyDetail extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
-                type: Object
-            },
-            // this is not actually used at the moment
             familyId: {
-                type: Object
+                type: String
             },
             family: {
+                type: Object
+            },
+            config: {
                 type: Object
             }
         };

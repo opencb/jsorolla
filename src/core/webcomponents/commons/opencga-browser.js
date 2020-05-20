@@ -307,6 +307,7 @@ export default class OpencgaBrowser extends LitElement {
     onClickRow(e, resource) {
         console.log(e);
         this.detail = {...this.detail, [resource]: e.detail.row};
+        debugger
         this.requestUpdate();
         //console.log("this.detail", this.detail);
 
@@ -462,26 +463,19 @@ export default class OpencgaBrowser extends LitElement {
                         </div>
                         ${facetView}`;
             case "family":
+                debugger
                 this.endpoint = this.opencgaSession.opencgaClient.families();
                 return html`
-
-                        ${JSON.stringify(this.activeTab["facet-tab"]) } ${JSON.stringify(this.facetQuery)}
                         <div id="table-tab" class="content-tab active">
-                            <opencga-family-grid .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                .opencgaSession="${this.opencgaSession}"
-                                                .query="${this.executedQuery}"
-                                                .config="${this._config.filter.grid}"
-                                                .eventNotifyName="${this.eventNotifyName}"
-                                                .families="${this.families}"
-                                                .search="${this.search}"
-                                                .active="${true}"
-                                                @selectfamily="${this.onSelectFamily}"
-                                                @selectrow="${e => this.onClickRow(e, "family")}">
+                            <opencga-family-grid .opencgaSession="${this.opencgaSession}"
+                                                 .query="${this.executedQuery}"
+                                                 .config="${this._config.filter.grid}"
+                                                 .eventNotifyName="${this.eventNotifyName}"
+                                                 .active="${true}"
+                                                 @selectrow="${e => this.onClickRow(e, "family")}">
                             </opencga-family-grid>
-                            <opencga-family-detail .opencgaSession="${this.opencgaSession}"
-                                                    .opencgaClient="${this.opencgaSession.opencgaClient}"
+                            <opencga-family-detail  .opencgaSession="${this.opencgaSession}"
                                                     .config="${this._config.filter}"
-                                                    .familyId="${this.detail.family?.id}"
                                                     .family="${this.detail.family}">
                             </opencga-family-detail>
                         </div>

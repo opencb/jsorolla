@@ -58,7 +58,7 @@ export default class OpencgaFamilyGrid extends LitElement {
         this._prefix = "VarFamilyGrid" + UtilsNew.randomString(6);
 
         this.catalogUiUtils = new CatalogUIUtils();
-        this.active = false;
+        this.active = true;
         this.gridId = this._prefix + "FamilyBrowserGrid";
     }
 
@@ -92,7 +92,7 @@ export default class OpencgaFamilyGrid extends LitElement {
         // this.toolbarConfig = {
         //     columns: this._columns[0]
         // };
-
+debugger
         this.renderTable();
     }
 
@@ -110,7 +110,7 @@ export default class OpencgaFamilyGrid extends LitElement {
         // if (!active) {
         //     return;
         // }
-
+debugger
         // Initialise the counters
         this.from = 1;
         this.to = this._config.pageSize;

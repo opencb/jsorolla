@@ -37,18 +37,18 @@ export default class OpencgaFamilyBrowser extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            cellbaseClient: {
-                type: Object
-            },
-            populationFrequencies: {
-                type: Object
-            },
-            consequenceTypes: {
-                type: Object
-            },
-            proteinSubstitutionScores: {
-                type: Object
-            },
+            // cellbaseClient: {
+            //     type: Object
+            // },
+            // populationFrequencies: {
+            //     type: Object
+            // },
+            // consequenceTypes: {
+            //     type: Object
+            // },
+            // proteinSubstitutionScores: {
+            //     type: Object
+            // },
             query: {
                 type: Object
             },
@@ -64,9 +64,9 @@ export default class OpencgaFamilyBrowser extends LitElement {
             selectedFacet: {
                 type: Object
             },
-            resource: {
-                type: String
-            }
+            // resource: {
+            //     type: String
+            // }
         };
     }
 
@@ -319,13 +319,9 @@ export default class OpencgaFamilyBrowser extends LitElement {
     render() {
         return this._config ? html`
             <opencga-browser  resource="family"
-                            .opencgaSession="${this.opencgaSession}"
-                            .query="${this.query}"
-                            .config="${this._config}"
-                            .cellbaseClient="${this.cellbaseClient}"
-                            .populationFrequencies="${this.populationFrequencies}"
-                            .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                            .consequenceTypes="${this.consequenceTypes}">
+                              .opencgaSession="${this.opencgaSession}"
+                              .query="${this.query}"
+                              .config="${this._config}">
             </opencga-browser>` : null;
     }
 

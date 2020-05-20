@@ -177,7 +177,7 @@ class VariantInterpreterLanding extends LitElement {
             `;
         }
 
-        debugger
+        // debugger
         if (this.clinicalAnalysis) {
             return html`
                 <div class="row">

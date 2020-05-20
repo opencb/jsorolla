@@ -141,7 +141,7 @@ class VariantGenericInterpreter extends LitElement {
 
     onClinicalAnalysis(e) {
         this.clinicalAnalysis = e.detail.clinicalAnalysis;
-        debugger
+        // debugger
         // this.clinicalAnalysis.type = "cancer";
         this.requestUpdate();
     }

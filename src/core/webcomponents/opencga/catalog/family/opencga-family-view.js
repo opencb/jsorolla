@@ -161,7 +161,7 @@ export default class OpencgaFamilyView extends LitElement {
                             field: "members",
                             type: "table",
                             display: {
-                                layout: "vertical",
+                                layout: "horizontal",
                                 columns: [
                                     {
                                         name: "Individual ID", field: "id"
@@ -176,12 +176,12 @@ export default class OpencgaFamilyView extends LitElement {
                                         name: "Mother ID", field: "mother.id", defaultValue: "-"
                                     },
                                     {
-                                        name: "Disorders", field: "disorders", format: {
+                                        name: "Disorders", field: "disorders", display: {
                                             render: data => html`${data.map(d => d.id).join(", ")}`
                                         }
                                     },
                                     {
-                                        name: "Phenotypes", field: "phenotypes", format: {
+                                        name: "Phenotypes", field: "phenotypes", display: {
                                             render: data => html`${data.map(d => d.id).join(", ")}`
                                         }
                                     },

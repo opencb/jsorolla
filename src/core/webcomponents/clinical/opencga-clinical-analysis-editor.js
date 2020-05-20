@@ -67,22 +67,22 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
 
         this.createButtonStatus = "disabled";
 
-        this.familyBrowserConfig = {
-            title: "Family Browser",
-            showTitle: true,
-            showAggregationStats: false,
-            showComparator: false,
-/*            filter: {
-
-            },*/
-            grid: {
-                pageSize: 5,
-                pageList: [5, 10],
-                detailView: false,
-                multiSelection: false
-            },
-            variableSetIds: []
-        };
+//         this.familyBrowserConfig = {
+//             title: "Family Browser",
+//             showTitle: true,
+//             showAggregationStats: false,
+//             showComparator: false,
+// /*            filter: {
+//
+//             },*/
+//             grid: {
+//                 pageSize: 5,
+//                 pageList: [5, 10],
+//                 detailView: false,
+//                 multiSelection: false
+//             },
+//             variableSetIds: []
+//         };
 
         // TODO adapt configuration
         this.individualBrowserConfig = {
@@ -1086,7 +1086,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                             <div class="modal-body" style="height: 780px">
                                 <opencga-individual-browser .opencgaSession="${this.opencgaSession}"
                                                             .config="${this.individualBrowserConfig}"
-                                                            @selectindividual="${this.onIndividualSelect}">
+                                                            @selectrow="${this.onIndividualSelect}">
                                 </opencga-individual-browser>
                             </div>
                             <div class="modal-footer">
@@ -1108,7 +1108,6 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                             </div>
                             <div class="modal-body" style="height: 780px">
                                 <opencga-family-browser .opencgaSession="${this.opencgaSession}"
-                                                        .config="${this.familyBrowserConfig}"
                                                         @selectrow="${this.onFamilySelect}">
                                 </opencga-family-browser>
                             </div>
