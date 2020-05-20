@@ -18,6 +18,7 @@ import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import Pedigree from "../../visualisation/pedigree.js";
+import "../commons/view/pedigree-view.js";
 import "../commons/filters/select-field-filter.js";
 
 
@@ -197,9 +198,10 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
         this.sampleFilters = $.extend([], this.sampleFilters);
         // this.requestUpdate();
 
-        this.pedigreeRender();
+        //this.pedigreeRender();
+
         // TODO temp commented
-        // console.warn("sampleFiltersChange temp. commented");
+        console.warn("sampleFiltersChange temp. commented");
         // this.sampleFiltersChange();
     }
 
@@ -585,10 +587,14 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                     </div>    
                 ` : null}
             
+            
+            
                 <div class="col-md-12">
                     <h4 style="padding-top: 5px; padding-bottom: 10px">Pedigree</h4>
+                    <pedigree-view .family="${this.clinicalAnalysis.family}"></pedigree-view>
+                    
                     <div class="col-md-11 col-md-offset-1">
-                        <div id="${this._prefix}PedigreeView"></div>
+                        <div id="${this._prefix}Pedigree View"></div>
                     </div>
                 </div>
                             

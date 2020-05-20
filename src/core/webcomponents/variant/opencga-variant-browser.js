@@ -311,20 +311,19 @@ export default class OpencgaVariantBrowser extends LitElement {
 
     onActiveFilterClear() {
         this.query = {study: this.opencgaSession.study.fqn};
-        this.preparedQuery = {...this.query};
+        this.preparedQuery = {study: this.opencgaSession.study.fqn};
     }
 
 
     onActiveFacetChange(e) {
         this.selectedFacet = {...e.detail};
-        // console.log("selectedFacet",Object.keys(this.selectedFacet))
-        //$("#" + this._prefix + "FacetField", this).selectpicker("val", Object.keys(this.selectedFacet)); //TODO recheck it seems not necessary (the facet select is now in facet-filter)
+        this.onRun();
         this.requestUpdate();
     }
 
     onActiveFacetClear(e) {
         this.selectedFacet = {};
-        //$("#" + this._prefix + "FacetField", this).selectpicker("deselectAll"); //TODO recheck it seems not necessary (the facet select is now in facet-filter)
+        this.onRun();
         this.requestUpdate();
     }
 
@@ -352,7 +351,7 @@ export default class OpencgaVariantBrowser extends LitElement {
         $(".variant-browser-content").hide(); // hides all content divs
 
         // Show genome browser div
-        PolymerUtils.getElementById(this._prefix + "GenomeBrowser").style.display = "block";
+        this.querySelector("#" + this._prefix + "GenomeBrowser").style.display = "block";
 
         // Show the active button
         $(".variant-browser-view-buttons").removeClass("active");

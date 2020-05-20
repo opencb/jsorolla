@@ -110,10 +110,12 @@ class OpencbFacetResults extends LitElement {
                 this.facetResults = restResponse.getResults() || [];
                 console.log("this.facetResults", this.facetResults);
             })
-            .catch(e => {
-                // TODO show the list of the error events once the rest-client has been rewritten in axios and even in case of error a RestResponse is returned
-                this.errorState = "Error from server";
-                console.error("Error", e);
+            .catch(restResponse => {
+                if (restResponse.getEvents("ERROR").length) {
+                    console.log(restResponse.getEvents("ERROR").map(error => error.message).join("\n"));
+                } else {
+                    console.log("Unknown error");
+                }
             })
             .finally(() => {
                 this.loading = false;
@@ -183,7 +185,7 @@ class OpencbFacetResults extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles">
+        <style>
             option:disabled {
                 font-size: 0.85em;
                 font-weight: bold;
@@ -211,7 +213,7 @@ class OpencbFacetResults extends LitElement {
                     ${this.errorState}
                 </div>
             ` : null}
-            ${this.facetResults && this.facetResults.length ? this.facetResults.map(item => html`
+            ${this.facetResults?.length ? this.facetResults.map(item => html`
                 <div>
                     <h3>${item.name}</h3>
                     <opencga-facet-result-view .facetResult="${item}"
@@ -219,7 +221,7 @@ class OpencbFacetResults extends LitElement {
                             ?active="${this.facetActive}">
                     </opencga-facet-result-view>
                 </div>
-            `) : html``}
+            `) : null}
         </div>
     `;
     }

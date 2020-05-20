@@ -92,7 +92,6 @@ export default class OpencgaFamilyGrid extends LitElement {
         // this.toolbarConfig = {
         //     columns: this._columns[0]
         // };
-debugger
         this.renderTable();
     }
 
@@ -110,7 +109,6 @@ debugger
         // if (!active) {
         //     return;
         // }
-debugger
         // Initialise the counters
         this.from = 1;
         this.to = this._config.pageSize;

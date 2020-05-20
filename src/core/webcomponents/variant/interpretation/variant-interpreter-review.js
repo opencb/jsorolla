@@ -149,18 +149,20 @@ export default class VariantInterpreterReview extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        // TODO We need to respect all the changes made in the reported variants
-        this._interpretation = this.clinicalAnalysis.interpretation;
-
-        if (UtilsNew.isNotUndefinedOrNull(this._interpretation)) {
-            if (UtilsNew.isNotEmptyArray(this._interpretation.primaryFindings)) {
-                this.isInterpretedVariants = true;
-            } else {
-                this.isInterpretedVariants = false;
+        if (this.clinicalAnalysis) {
+            this._interpretation = this.clinicalAnalysis.interpretation;
+            if (UtilsNew.isNotUndefinedOrNull(this._interpretation)) {
+                if (UtilsNew.isNotEmptyArray(this._interpretation.primaryFindings)) {
+                    this.isInterpretedVariants = true;
+                } else {
+                    this.isInterpretedVariants = false;
+                }
             }
+            // this.fillForm(this._interpretation);
+            this.requestUpdate();
         }
-        // this.fillForm(this._interpretation);
-        this.requestUpdate();
+
+
     }
 
     toggleInterpretationCollapsed(e) {

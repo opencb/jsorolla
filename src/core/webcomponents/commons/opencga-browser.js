@@ -120,7 +120,6 @@ export default class OpencgaBrowser extends LitElement {
         this._showInitMessage = true;
 
 
-        this.facetConfig = {a: 1};
         this.facetActive = true;
         this.query = {};
         this.preparedQuery = {};
@@ -231,22 +230,6 @@ export default class OpencgaBrowser extends LitElement {
         }
     }
 
-    /*_initTooltip() {
-        // TODO - DONE move to Utils
-        $("a[tooltip-title]", this).each(function() {
-            $(this).qtip({
-                content: {
-                    title: $(this).attr("tooltip-title"),
-                    text: $(this).attr("tooltip-text")
-                },
-                position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-                style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-                show: {delay: 200},
-                hide: {fixed: true, delay: 300}
-            });
-        });
-    }*/
-
     onFilterChange(e) {
         this.query = e.detail;
         // TODO remove search field everywhere. use query instead
@@ -275,7 +258,6 @@ export default class OpencgaBrowser extends LitElement {
 
     onActiveFilterChange(e) {
         console.log("onActiveFilterChange on variant facet", e.detail);
-        // TODO FIXME! studies prop have to be wiped off. use study instead
         this.preparedQuery = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
     }
@@ -301,13 +283,13 @@ export default class OpencgaBrowser extends LitElement {
     onActiveFacetClear(e) {
         this.selectedFacet = {};
         //$("#" + this._prefix + "FacetField", this).selectpicker("deselectAll"); //TODO recheck it seems not necessary (the facet select is now in facet-filter)
+        this.onRun();
         this.requestUpdate();
     }
 
     onClickRow(e, resource) {
         console.log(e);
         this.detail = {...this.detail, [resource]: e.detail.row};
-        debugger
         this.requestUpdate();
         //console.log("this.detail", this.detail);
 
@@ -463,7 +445,6 @@ export default class OpencgaBrowser extends LitElement {
                         </div>
                         ${facetView}`;
             case "family":
-                debugger
                 this.endpoint = this.opencgaSession.opencgaClient.families();
                 return html`
                         <div id="table-tab" class="content-tab active">
@@ -471,7 +452,6 @@ export default class OpencgaBrowser extends LitElement {
                                                  .query="${this.executedQuery}"
                                                  .config="${this._config.filter.grid}"
                                                  .eventNotifyName="${this.eventNotifyName}"
-                                                 .active="${true}"
                                                  @selectrow="${e => this.onClickRow(e, "family")}">
                             </opencga-family-grid>
                             <opencga-family-detail  .opencgaSession="${this.opencgaSession}"

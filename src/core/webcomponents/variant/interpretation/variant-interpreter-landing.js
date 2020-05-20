@@ -77,9 +77,8 @@ class VariantInterpreterLanding extends LitElement {
         //     this.clinicalAnalysisIdObserver();
         // }
         if (changedProperties.has("clinicalAnalysis")) {
-            // this.clinicalAnalysisObserver();
-            this.clinicalAnalysis;
-            debugger
+            //this.clinicalAnalysisObserver();
+            //this.clinicalAnalysis;
         }
     }
 
@@ -97,10 +96,9 @@ class VariantInterpreterLanding extends LitElement {
         e.preventDefault();
 
         const tabId = e.currentTarget.dataset.id;
-
-        $(".content-pills", this).removeClass("active");
-        $(".content-tab", this).hide();
-
+        //the selectors are strictly defined to avoid conflics in tabs in children components
+        $("#variant-interpreter-landing > .tablist > .content-pills", this).removeClass("active");
+        $("#variant-interpreter-landing > .content-tab-wrapper > .content-tab", this).hide();
         $(`.${tabId}-tab`).addClass("active");
         $("#" + tabId, this).show();
 
@@ -115,23 +113,24 @@ class VariantInterpreterLanding extends LitElement {
             detail: {
                 id: null,
                 clinicalAnalysis: null
-            }
+            },
+            bubbles: true,
+            composed: true
         }));
     }
 
     onClinicalAnalysisChange() {
         if (this.clinicalAnalysisId) {
-            let _this = this;
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    _this.clinicalAnalysis = response.responses[0].results[0];
-                    debugger
-                    _this.dispatchEvent(new CustomEvent("selectClinicalAnalysis", {
+                    this.clinicalAnalysis = response.responses[0].results[0];
+                    this.dispatchEvent(new CustomEvent("selectClinicalAnalysis", {
                         detail: {
-                            id: _this.clinicalAnalysis?.id,
-                            clinicalAnalysis: _this.clinicalAnalysis
+                            id: this.clinicalAnalysis?.id,
+                            clinicalAnalysis: this.clinicalAnalysis
                         },
-                        bubbles: true, composed: true
+                        bubbles: true,
+                        composed: true
                     }));
                 })
                 .catch(response => {
@@ -197,54 +196,56 @@ class VariantInterpreterLanding extends LitElement {
 
         return html`
                 <style>
-                    variant-interpreter-landing .nav-tabs.nav-center {
+                    #variant-interpreter-landing .nav-tabs.nav-center {
                         margin-bottom: 20px;
                     }
                 </style>
-                <div class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
-                        <li role="presentation" class="content-pills active ${this._prefix}-search-tab">
-                            <a href="javascript: void 0" role="tab" data-id="${this._prefix}-search" @click="${this._changeTab}" class="tab-title">Search Case
-                            </a>
-                        </li>
-                        <li role="presentation" class="content-pills ${this._prefix}-create-tab">
-                            <a href="javascript: void 0" role="tab" data-id="${this._prefix}-create" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Create Case
-                            </a>
-                        </li>
-                    </div>                
-                <div class="content-tab-wrapper">
-                    <div id="${this._prefix}-search" role="tabpanel" class="tab-pane active content-tab">
-                        <div class="row">
-                            <div class="col-md-4 col-md-offset-4">
-                                <div>
-<!--                                    <h3>Search Clinical Analysis</h3>-->
+                <div id="variant-interpreter-landing">
+                    <div class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
+                            <li role="presentation" class="content-pills active ${this._prefix}-search-tab">
+                                <a href="javascript: void 0" role="tab" data-id="${this._prefix}-search" @click="${this._changeTab}" class="tab-title">Search Case
+                                </a>
+                            </li>
+                            <li role="presentation" class="content-pills ${this._prefix}-create-tab">
+                                <a href="javascript: void 0" role="tab" data-id="${this._prefix}-create" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Create Case
+                                </a>
+                            </li>
+                        </div>                
+                    <div class="content-tab-wrapper">
+                        <div id="${this._prefix}-search" role="tabpanel" class="tab-pane active content-tab">
+                            <div class="row">
+                                <div class="col-md-4 col-md-offset-4">
                                     <div>
-                                        <label>Clinical Analysis ID</label>
-                                        <select-field-filter-autocomplete-simple resource="clinical-analysis" .value="${"AN-3"}" 
-                                                .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onClinicalAnalysisIdChange("clinicalAnalysisId", e.detail.value)}">
-                                        </select-field-filter-autocomplete-simple>
-                                    </div>
-                                    
-                                    <div>
-                                        <label>Proband ID</label>
-                                        <select-field-filter-autocomplete-simple resource="individuals" 
-                                                .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onProbandIdChange("individualId", e.detail.value)}">
-                                        </select-field-filter-autocomplete-simple>
-                                    </div>
-        
-                                    <div style="float: right; padding: 10px">                            
-                                        <button class="btn btn-default ripple" @click="${this.onClinicalAnalysisChange}">Clear</button>
-                                        <button class="btn btn-default ripple" @click="${this.onClinicalAnalysisChange}">OK</button>
+    <!--                                    <h3>Search Clinical Analysis</h3>-->
+                                        <div>
+                                            <label>Clinical Analysis ID</label>
+                                            <select-field-filter-autocomplete-simple resource="clinical-analysis" 
+                                                    .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onClinicalAnalysisIdChange("clinicalAnalysisId", e.detail.value)}">
+                                            </select-field-filter-autocomplete-simple>
+                                        </div>
+                                        
+                                        <div>
+                                            <label>Proband ID</label>
+                                            <select-field-filter-autocomplete-simple resource="individuals" 
+                                                    .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onProbandIdChange("individualId", e.detail.value)}">
+                                            </select-field-filter-autocomplete-simple>
+                                        </div>
+            
+                                        <div class="pull-right">                            
+                                            <button class="btn btn-default ripple" @click="${this.onClinicalAnalysisChange}">Clear</button>
+                                            <button class="btn btn-default ripple" @click="${this.onClinicalAnalysisChange}">OK</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div id="${this._prefix}-create" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
-                        <opencga-clinical-analysis-editor   .opencgaSession="${this.opencgaSession}"
-                                                            .config="${this.clinicalAnalysisEditorConfig}"
-                                                            @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
-                         </opencga-clinical-analysis-editor>
+                        
+                        <div id="${this._prefix}-create" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
+                            <opencga-clinical-analysis-editor   .opencgaSession="${this.opencgaSession}"
+                                                                .config="${this.clinicalAnalysisEditorConfig}"
+                                                                @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
+                             </opencga-clinical-analysis-editor>
+                        </div>
                     </div>
                 </div>
             `;

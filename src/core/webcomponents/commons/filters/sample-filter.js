@@ -145,8 +145,6 @@ export default class SampleFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
-    // TODO this method has been refactored, the render block has been moved in template. Move the block in more convenient method.
-    //renderClinicalQuerySummary() {
     updateClinicalQueryTable() {
         if (this.clinicalAnalysis) {
             // Get Individuals (and samples) from Clinical Analysis
