@@ -17,7 +17,6 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import {types} from "../opencga-variant-contants.js";
 
 export default class VariantTypeFilter extends LitElement {
 

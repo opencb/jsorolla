@@ -62,7 +62,6 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
     firstUpdated() {
         this.input = $(".typeahead", this);
 
-        console.log("this._config.dataSource",this._config)
         //MAP result => ({name: result.id, individual: result.attributes && result.attributes.OPENCGA_INDIVIDUAL ? result.attributes.OPENCGA_INDIVIDUAL.id : ""})
         this.input.typeahead({
             source: this._config.dataSource,
@@ -306,15 +305,6 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                     border-radius: 5px;    
                     margin: 0 0 2px 0;
                 }
-                
-                .blue-badge .badge{
-                    background: #337ab7;
-                }
-                
-                .blue-badge .badge .close-icon{
-                    cursor:pointer;
-                }
-
             </style>
             <div class="form-group select-field-filter-autocomplete">
                 <form autocomplete="off" action="javascript:void 0">
@@ -348,7 +338,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                 ` : null}
                 
                 ${this._config.showList && this.selectionList.length ? html`
-                    <div class="selection-list blue-badge">
+                    <div class="selection-list">
                         <ul>
                             ${this.selectionList.slice(0, this._config.limitToShow).map(term => html`<li><span class="badge break-spaces">${term} <span class="close-icon" data-term=${term} @click="${this.remove}"><i class="fas fa-times"></i></span></span></li>`)}
                             ${this.showAll ? this.selectionList.slice(this._config.limitToShow).map(term => html`<li><span class="badge break-spaces">${term} <span class="close-icon"><i class="fas fa-times"></i></span></span></li>`) : ""}

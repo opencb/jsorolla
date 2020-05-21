@@ -23,7 +23,6 @@ import "../../opencga/opencga-genome-browser.js";
 import "../../clinical/opencga-clinical-analysis-view.js";
 import "../../clinical/clinical-interpretation-view.js";
 import "../../commons/opencga-active-filters.js";
-import {biotypes, tooltips, consequenceTypes, populationFrequencies} from "../../commons/opencga-variant-contants.js";
 
 
 export default class VariantInterpreterReview extends LitElement {

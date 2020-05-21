@@ -268,8 +268,7 @@ export default class DataView extends LitElement {
         let content = "-";
         switch (contentLayout) {
             case "horizontal":
-                let separator = (element.display && element.display.separator) ? element.display.separator : ", ";
-                content = html`${values.join(separator)}`;
+                content = html`${element?.display?.separator ? values.join(element.display.separator) : values}`;
                 break;
             case "vertical":
                 content = html`

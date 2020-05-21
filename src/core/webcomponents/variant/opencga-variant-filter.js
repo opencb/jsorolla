@@ -157,7 +157,6 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     opencgaSessionObserver() {
-        // TODO do not move in connectedCallback (it handle the switch between default studies)
         if (this.opencgaSession.study) {
             // Render filter menu and add event and tooltips
             if (this._initialised) {
@@ -222,37 +221,6 @@ export default class OpencgaVariantFilter extends LitElement {
         }));
     }
 
-    // binding::from this.query to the view
-    // most of those blocks have been refactored and moved in firstUpdated() in each filter component
-    setQueryFilters() {
-        if (!this._initialised) {
-            return;
-        }
-
-        // Clear filter menu before rendering
-        this._clearHtmlDom();
-        // Check 'query' is not null or empty there is nothing else to do
-        if (UtilsNew.isUndefinedOrNull(this.preparedQuery) || Object.keys(this.preparedQuery).length === 0) {
-            console.warn("this.preparedQuery is NULL:", this.preparedQuery);
-            return;
-        }
-
-        // Render Clinical filters: sample and file
-        // this.renderClinicalQuerySummary();
-
-
-        /* MOVED in feature-filter
-        // Panel - annot-panel
-        // TODO Genes must be displayed in Xref textarea
-        if (typeof this.query["gene"] !== "undefined") {
-            // PolymerUtils.setValue(this._prefix + "PanelAppsTextarea", this.query.gene);
-            let geneTextarea = PolymerUtils.getElementById(this._prefix + "FeatureTextarea");
-            if (UtilsNew.isNotUndefinedOrNull(geneTextarea)) {
-                geneTextarea.value = this.query.gene;
-            }
-        }
-         */
-    }
 
     /** *
      * Handles filterChange events from all the filter components (this is the new updateQueryFilters)
@@ -293,10 +261,6 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     onSampleFilterChange(sampleFields) {
-        // console.log("onSampleFilterChange in variant-filter", sampleFields);
-        // if (!sampleFields.genotype) {
-        //     delete this.preparedQuery.genotype;
-        // }
         if (!sampleFields.sample) {
             delete this.preparedQuery.sample;
         }
@@ -312,6 +276,28 @@ export default class OpencgaVariantFilter extends LitElement {
 
     }
 
+
+    /**
+     * @deprecated
+     */
+    // binding::from this.query to the view
+    // most of those blocks have been refactored and moved in firstUpdated() in each filter component
+    setQueryFilters() {
+        if (!this._initialised) {
+            return;
+        }
+
+        // Clear filter menu before rendering
+        this._clearHtmlDom();
+        // Check 'query' is not null or empty there is nothing else to do
+        if (UtilsNew.isUndefinedOrNull(this.preparedQuery) || Object.keys(this.preparedQuery).length === 0) {
+            console.warn("this.preparedQuery is NULL:", this.preparedQuery);
+            return;
+        }
+    }
+    /**
+     * @deprecated
+     */
     // binding::from the view to this.query
     // most of those blocks have been refactored & moved in filterChange() in each filter component
     updateQueryFilters() {
@@ -364,23 +350,10 @@ export default class OpencgaVariantFilter extends LitElement {
             PolymerUtils.getElementById(this._prefix + "FileQualInput").disabled = true;
         }
 
-        // Deselect bootstrap-select dropdowns
-
-        // handled in updated() in disease-filter
-        // $("#" + this._prefix + "DiseasePanels").selectpicker("val", []);
-        // handled in updated() in biotype-filter
-        // $("#" + this._prefix + "GeneBiotypes").selectpicker("val", []);
-
         $("#" + this._prefix + "vcfFilterSelect").selectpicker("val", []);
     }
 
-
-    // This method is only executed one time from connectedCallback function
-    // TODO recheck if it really needs to be executed in opencgaSessionObserver()
     _renderFilterMenu() {
-        // Add events and tooltips to the filter menu
-        // TODO move tooltips init somewhere after template has been rendered
-        // this._addEventListeners();
         return this.config.sections && this.config.sections.length && this.config.sections.map(section => this._createSection(section));
     }
 
@@ -400,8 +373,6 @@ export default class OpencgaVariantFilter extends LitElement {
                         </div>
                         <div id="${this._prefix}${id}" class="panel-collapse collapse ${collapsed}" role="tabpanel" aria-labelledby="${this._prefix}${id}Heading">
                             <div class="panel-body">
-                                <!--TODO verify if cadd condition works-->
-                                
                                 ${section.fields && section.fields.length && section.fields.map(field => html`
                                     ${this.config.skipSubsections && this.config.skipSubsections.length && !!~this.config.skipSubsections.indexOf(field.id) 
                                         ? null 
@@ -459,7 +430,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 content = html`<variant-type-filter .config="${this.config}" .type="${this.preparedQuery.type}" .cellbaseClient="${this.cellbaseClient}" @filterChange="${e => this.onFilterChange("type", e.detail.value)}"></variant-type-filter>`;
                 break;
             case "populationFrequency":
-                content = html`<population-frequency-filter .populationFrequencies="${this.populationFrequencies}" ?showSetAll="${subsection.showSetAll}" .populationFrequencyAlt="${this.preparedQuery.populationFrequencyAlt}" @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}"></population-frequency-filter>`;
+                content = html`<population-frequency-filter .populationFrequencies="${populationFrequencies}" ?showSetAll="${subsection.showSetAll}" .populationFrequencyAlt="${this.preparedQuery.populationFrequencyAlt}" @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}"></population-frequency-filter>`;
                 break;
             case "consequenceType":
                 content = html`<consequence-type-filter .consequenceTypes="${this.consequenceTypes}" .ct="${this.preparedQuery.ct}"  @filterChange="${e => this.onFilterChange("ct", e.detail.value)}"></consequence-type-filter>`;
@@ -511,47 +482,6 @@ export default class OpencgaVariantFilter extends LitElement {
                 </div>
              `;
         }
-    }
-
-/*    _addAllTooltips() {
-        for (const section of this.config.sections) {
-            console.log(section)
-            for (const subsection of section.fields) {
-                if (UtilsNew.isNotEmpty(subsection.tooltip)) {
-                    const tooltipIcon = $("#" + this._prefix + subsection.id + "Tooltip");
-                    if (UtilsNew.isNotUndefinedOrNull(tooltipIcon)) {
-                        this._addTooltip(tooltipIcon, subsection.title, subsection.tooltip);
-                    }
-                }
-            }
-        }
-    }*/
-
-    _addTooltip(div, title, content) {
-        div.qtip({
-            content: {
-                title: title,
-                text: content
-            },
-            position: {
-                target: "mouse",
-                adjust: {
-                    x: 2, y: 2,
-                    mouse: false
-                }
-            },
-            style: {
-                width: true
-                // classes: this.config.tooltip.classes
-            },
-            show: {
-                delay: 200
-            },
-            hide: {
-                fixed: true,
-                delay: 300
-            }
-        });
     }
 
     render() {
@@ -607,7 +537,7 @@ export default class OpencgaVariantFilter extends LitElement {
             ${this.searchButton ? html`
             <div class="search-button-wrapper">
                 <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
-                    <i class="fa fa-search" aria-hidden="true"></i> ${this.config.searchButtonText}
+                    <i class="fa fa-search" aria-hidden="true"></i> ${this.config.searchButtonText || "Search"}
                 </button>
             </div>
             ` : null}

@@ -256,7 +256,6 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     onActiveFilterChange(e) {
-        console.log("onActiveFilterChange on variant facet", e.detail);
         this.preparedQuery = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
     }
@@ -557,7 +556,7 @@ export default class OpencgaBrowser extends LitElement {
                 
                     <div class="search-button-wrapper">
                         <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">
-                            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> Run
+                            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this._config.filter.searchButtonText || "Run"}
                         </button>
                     </div>
                     <ul class="nav nav-tabs left-menu-tabs" role="tablist">

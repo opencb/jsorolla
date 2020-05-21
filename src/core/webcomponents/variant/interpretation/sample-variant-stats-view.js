@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import {types} from "../../commons/opencga-variant-contants.js";
 import "../../simple-plot.js";
 
 class SampleVariantStatsView extends LitElement {
@@ -51,7 +50,7 @@ class SampleVariantStatsView extends LitElement {
 
     _init() {
         this._prefix = "vcis-" + UtilsNew.randomString(6);
-        this.types = ["SNV", "INDEL", "CNV", "INSERTION", "DELETION", "MNV"];
+        //this.types = ["SNV", "INDEL", "CNV", "INSERTION", "DELETION", "MNV"];
     }
 
     connectedCallback() {

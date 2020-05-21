@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../../utilsNew.js";
-import {consequenceTypes, proteinSubstitutionScore} from "../../commons/opencga-variant-contants.js";
 
 export default class VariantConsequenceTypeView extends LitElement {
 

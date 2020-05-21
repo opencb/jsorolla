@@ -16,25 +16,22 @@
 
 import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import PolymerUtils from "../../PolymerUtils.js";
 import "./variant-interpreter-review.js";
 import "./variant-interpreter-landing.js";
 import "./variant-interpreter-qc.js";
 import "./variant-interpreter-rd-browser.js";
 import "./variant-interpreter-cancer-browser.js";
-import "./variant-cancer-interpreter-summary.js";
+import "./variant-interpreter-qc-summary.js";
 import "./opencga-variant-interpreter-genome-browser.js";
-import "../opencga-variant-filter.js";
 import "../../alignment/gene-coverage-view.js";
 import "../../opencga/opencga-genome-browser.js";
 import "../../clinical/opencga-clinical-analysis-view.js";
 import "../../clinical/clinical-interpretation-view.js";
 import "../../commons/opencga-active-filters.js";
 import "../../commons/filters/select-field-filter-autocomplete-simple.js";
-import "./sample-variant-stats-view.js";
 
 
-class VariantGenericInterpreter extends LitElement {
+class VariantInterpreter extends LitElement {
 
     constructor() {
         super();
@@ -368,4 +365,4 @@ class VariantGenericInterpreter extends LitElement {
 
 }
 
-customElements.define("variant-generic-interpreter", VariantGenericInterpreter);
+customElements.define("variant-interpreter", VariantInterpreter);

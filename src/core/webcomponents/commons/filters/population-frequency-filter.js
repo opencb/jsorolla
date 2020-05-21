@@ -60,7 +60,7 @@ export default class PopulationFrequencyFilter extends LitElement {
             // reset and update input fields and select fields
             //$("." + this._prefix + "FilterTextInput").val(""); //it is useless and it causes a bug when you use the set all field
             //$("." + this._prefix + "FilterTextInput").prop("disabled", false);
-            if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
+            if (typeof populationFrequencies !== "undefined" && typeof populationFrequencies.studies !== "undefined" && populationFrequencies.studies.length > 0) {
                 pfArray.forEach(queryElm => {
                     const popFreq = queryElm.split(/[<=>]+/);
                     const [study, population] = popFreq[0].split(":");
@@ -80,8 +80,8 @@ export default class PopulationFrequencyFilter extends LitElement {
     filterChange(e) {
         // TODO refactor!
         const popFreq = [];
-        if (this.populationFrequencies.studies && this.populationFrequencies.studies.length) {
-            this.populationFrequencies.studies.forEach(study => {
+        if (populationFrequencies.studies && populationFrequencies.studies.length) {
+            populationFrequencies.studies.forEach(study => {
                 const study_id = study.id;
                 if (study.populations && study.populations.length) {
                     study.populations.forEach(population => {
@@ -117,7 +117,7 @@ export default class PopulationFrequencyFilter extends LitElement {
 
     keyUpAllPopFreq(e) {
         const studyId = e.target.getAttribute("data-study");
-        const study = this.populationFrequencies.studies.find(study => study.id === studyId);
+        const study = populationFrequencies.studies.find(study => study.id === studyId);
         study.populations.forEach(popFreq => {
             this.querySelector("#" + this._prefix + studyId + popFreq.id).value = e.target.value;
         });
@@ -125,8 +125,11 @@ export default class PopulationFrequencyFilter extends LitElement {
     }
 
     render() {
+        if (!populationFrequencies?.studies?.length) {
+            return html`No Population Frequencies defined`
+        }
         return html`
-            ${this.populationFrequencies.studies && this.populationFrequencies.studies.length && this.populationFrequencies.studies.map(study => html`
+            ${populationFrequencies.studies.map(study => html`
                 <div style="padding-top: 10px">
                     <i id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}" class="fa fa-plus"
                        style="cursor: pointer;padding-right: 10px" @click="${this.handleCollapseAction}"></i>

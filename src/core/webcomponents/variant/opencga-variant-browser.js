@@ -17,7 +17,6 @@
 import {LitElement, html, css} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
-import {biotypes, populationFrequencies, tooltips, proteinSubstitutionScore} from "../commons/opencga-variant-contants.js";
 import "./opencga-variant-grid.js";
 import "./opencga-variant-filter.js";
 import "./opencga-variant-detail-view.js";
@@ -141,14 +140,17 @@ export default class OpencgaVariantBrowser extends LitElement {
                 if (field.id === "cohort") {
                     if (field.cohorts === undefined) {
                         let _cohorts = {};
-                        for (let project of this.opencgaSession.projects) {
-                            _cohorts[project.id] = {};
-                            for (let study of project.studies) {
-                                if (field.onlyCohortAll) {
-                                    _cohorts[project.id][study.id] = [{id: "ALL", name: "ALL"}]
-                                } else {
-                                    // TODO if onlyCohortAll is false then we must add all cohorts indexed
-                                    // we can take this from session object
+                        //in case of no public project this.opencgaSession is being created, but the prop projects not
+                        if(this.opencgaSession?.projects) {
+                            for (let project of this.opencgaSession.projects) {
+                                _cohorts[project.id] = {};
+                                for (let study of project.studies) {
+                                    if (field.onlyCohortAll) {
+                                        _cohorts[project.id][study.id] = [{id: "ALL", name: "ALL"}]
+                                    } else {
+                                        // TODO if onlyCohortAll is false then we must add all cohorts indexed
+                                        // we can take this from session object
+                                    }
                                 }
                             }
                         }
@@ -705,7 +707,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                 </h2>
             </div>
             
-            <div class="row" style="padding: 5px 10px">
+            <div class="row">
                 <div class="col-md-2 left-menu">
                 
                     <div class="search-button-wrapper">

@@ -91,7 +91,6 @@ export default class OpencgaActiveFilters extends LitElement {
         this._config = this.getDefaultConfig();
         this.filters = [];
 
-
         // todo recheck why function?
         this.opencgaClient = function() {
             return {"_config": {}};
@@ -107,7 +106,6 @@ export default class OpencgaActiveFilters extends LitElement {
         this.opencgaClient = this.opencgaSession.opencgaClient;
     }
 
-    // TODO recheck connectedCallback
     firstUpdated() {
         // super.connectedCallback();
 
@@ -493,10 +491,21 @@ export default class OpencgaActiveFilters extends LitElement {
                 height: 34px;
                 line-height: 34px;
                 margin: 0;
+                padding-right: 10px;
+            }
+            
+            .lhs {
+                display: inline-block;
+                padding: 5px 0;
+            }
+            
+            .lhs .btn-group {
+                padding: 2px 0;
             }
             
             .rhs {
                 float: right;
+                padding:5px
             }
 
             .rhs .dropdown {
@@ -514,16 +523,16 @@ export default class OpencgaActiveFilters extends LitElement {
                 <span><strong>Warning!</strong></span>&nbsp;&nbsp;Filters or Facet has changed, please click on <strong> RUN </strong> to update the results.
             </div>` : html`
             <div class="alert alert-warning filter-warning" role="alert" id="${this._prefix}Warning" style="">
-                <span><strong>Warning!</strong></span>&nbsp;&nbsp;Filters changed, please click on <strong> RUN </strong> to update the results.
+                <span><strong>Warning!</strong></span>&nbsp;&nbsp;Filters has changed, please click on <strong> RUN </strong> to update the results.
             </div>
         `}
         
 
         <div class="panel panel-default">
             <div class="panel-body" style="padding: 10px">
+                <div class="lhs">
                 <p class="active-filter-label">Filters</p>
                 
-                <div class="button-list">
                     ${this.queryList ? html`
                         ${this.queryList.length === 0 ? html`
                             <label>No filters selected</label>
@@ -562,10 +571,11 @@ export default class OpencgaActiveFilters extends LitElement {
                                     </ul>
                                 </div>
                             `
-    )}
+                        )}
                     `}
                 ` : null}
-                </div>
+                </div> 
+                    
                 <div class="rhs">
                     <button type="button" class="btn btn-primary ripple" @click="${this.clear}">
                         <i class="fa fa-eraser" aria-hidden="true" style="padding-right: 5px"></i> Clear

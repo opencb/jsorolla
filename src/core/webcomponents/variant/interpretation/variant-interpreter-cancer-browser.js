@@ -24,7 +24,6 @@ import "../opencga-variant-filter.js";
 import "../../clinical/clinical-interpretation-view.js";
 import "../../commons/opencga-active-filters.js";
 import "../../commons/filters/select-field-filter-autocomplete-simple.js";
-import {biotypes, tooltips, consequenceTypes, populationFrequencies} from "../../commons/opencga-variant-contants.js";
 
 
 class VariantInterpreterCancerBrowser extends LitElement {
