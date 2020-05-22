@@ -19,6 +19,7 @@ import UtilsNew from "../../../utilsNew.js";
 import "../opencga-variant-filter.js";
 import "../../commons/opencga-active-filters.js";
 import Circos from "./circos.js";
+import Signature from "./signature.js";
 
 export default class VariantInterpreterQcVariantCancer extends LitElement {
 
@@ -46,12 +47,17 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
         this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
         this.preparedQuery = {};
 
-        this.base64 = "data:image/png;base64, " + Circos.base64
+        this.base64 = "data:image/png;base64, " + Circos.base64;
+
     }
 
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
+    firstUpdated(_changedProperties) {
+        this.signaturePlot(Signature.signature)
     }
 
     updated(changedProperties) {
@@ -65,10 +71,125 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
 
     queryObserver() {
         console.log("this.query",this.query)
+
+        /*this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
+            study: this.opencgaSession.study.fqn,
+            fitting: true,
+            sample: "ISDBM322015"
+        })*/
+
+        this.signaturePlot(Signature.signature)
     }
 
-    signaturePlot() {
+    signaturePlot(result) {
 
+        const palette = {
+            "C>A": "#31bef0",
+            "C>G": "#000000",
+            "C>T": "#e62725",
+            "T>A": "#cbcacb",
+            "T>C": "#a1cf63",
+            "T>G": "#edc8c5"
+        };
+        const counts = result.counts;
+        //console.log("counts",counts)
+
+        const categories = counts.map(point => point?.context)
+        const data = counts.map(point => point?.total)
+
+        const dataset = {
+            "C>A": [],
+            "C>G": [],
+            "C>T": [],
+            "T>A": [],
+            "T>C": [],
+            "T>G": []
+        };
+        for(let p of counts) {
+            if (p) {
+                const [,m] = p.context.match(/[ACTG]\[([ACTG]>[ACTG])\][ACTG]+/);
+                dataset[m].push(p.total)
+            }
+        }
+        const addRects = function(chart) {
+            $(".rect", this).remove();
+            $(".rect-label", this).remove();
+            let lastStart = 0;
+            for (const k in dataset) {
+                console.log("chart.categories",chart.xAxis)
+                console.log("k", dataset[k].length)
+                const xAxis = chart.xAxis[0];
+                chart.renderer.rect(xAxis.toPixels(lastStart), 10, xAxis.toPixels(dataset[k].length) - xAxis.toPixels(1), 30, 0)
+                    .attr({
+                        fill: palette[k],
+                        zIndex: 2
+                    }).addClass("rect")
+                    .add();
+
+                const point = chart.series[0].points[8];
+                // for some reason toPixels(lastStart + dataset[k].length / 2) it isn't centered
+                chart.renderer.label(k, xAxis.toPixels(lastStart - 2 + dataset[k].length / 2), 0, "")
+                    .css({
+                        color: "#000"
+                    })
+                    .attr({
+                        //fill: 'rgba(0, 0, 0, 0.75)',
+                        padding: 8,
+                        r: 5,
+                        zIndex: 3
+                    }).addClass("rect-label")
+                    .add();
+
+                lastStart+= dataset[k].length;
+            }
+
+        };
+        $("#signature-plot").highcharts({
+            title: "title",
+            chart: {
+                type: "column",
+                events: {
+                    redraw: function() {
+                        addRects(this);
+                    },
+                    load: function() {
+                        addRects(this);
+                    }
+                },
+                marginTop: 70
+            },
+            credits: {
+                enabled: false
+            },
+            legend: {
+                enabled: false
+            },
+            colorAxis: {
+                minColor: '#000',
+                maxColor: '#fff',
+                labels: {
+                    formatter: function () {
+                        return Math.abs(this.value) + '%';
+                    }
+                }
+            },
+            xAxis: {
+                categories: categories,
+                labels: {
+                    rotation: -90,
+                    formatter: function () {
+                        const [,pair] = this.value.match(/[ACTG]\[([ACTG]>[ACTG])\][ACTG]+/);
+                        const [,letter] = this.value.match(/[ACTG]\[([ACTG])>[ACTG]\][ACTG]+/);
+                        return this.value.replace(pair, `<span style="color:${palette[pair]}">${letter}</span>`).replace("\[", "").replace("\]", "");
+                    }
+                }
+            },
+            colors: Object.keys(dataset).flatMap(key => Array(dataset[key].length).fill(palette[key])),
+            series: [{
+                colorByPoint: 'true',
+                data: data
+            }]
+        });
     }
 
     onVariantFilterChange(e) {
@@ -371,6 +492,7 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                                     </div>
                                     <div class="col-md-6">
                                         <h2>Signature</h2>
+                                        <div id="signature-plot" style="height: 300px"></div>
                                         <img width="480" src="https://cancer.sanger.ac.uk/signatures_v2/Signature-3.png">
                                         
                                         <div style="padding-top: 20px">
