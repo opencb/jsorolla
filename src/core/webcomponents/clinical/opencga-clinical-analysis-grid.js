@@ -289,7 +289,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
     familyFormatter(value, row) {
         if (UtilsNew.isNotUndefinedOrNull(row)) {
-            return value + ` (${row.family.members.length})`;
+            return value + ` (${row.family?.members.length})`;
         }
     }
 
