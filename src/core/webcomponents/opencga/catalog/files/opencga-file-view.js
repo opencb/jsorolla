@@ -88,7 +88,7 @@ export default class OpencgaFileView extends LitElement {
                 collapsable: true,
                 showTitle: false,
                 labelWidth: 2,
-                defaultVale: "-"
+                defaultValue: "-"
             },
             sections: [
                 {

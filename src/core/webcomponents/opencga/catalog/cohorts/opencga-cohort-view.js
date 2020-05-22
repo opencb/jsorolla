@@ -117,7 +117,7 @@ export default class OpencgaCohortView extends LitElement {
                 collapsable: true,
                 showTitle: false,
                 labelWidth: 2,
-                defaultVale: "-",
+                defaultValue: "-",
                 labelAlign: "left"
             },
             sections: [

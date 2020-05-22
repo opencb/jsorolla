@@ -122,7 +122,7 @@ class VariantInterpreterQcVariant extends LitElement {
         }
 
         // Variant stats are different for FAMILY and CANCER analysis, this does not happens with Alignment
-        if (false && this.clinicalAnalysis.type.toUpperCase() === "FAMILY") {
+        if (this.clinicalAnalysis.type.toUpperCase() === "FAMILY") {
             return html`
                 <div>
                     <h3>RD Variant Stats</h3>
@@ -135,11 +135,11 @@ class VariantInterpreterQcVariant extends LitElement {
             `;
         }
 
-        if (true || this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
+        if (this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
             return html`
                 <div>
                     <h3>Cancer Variant Stats</h3>
-                    <variant-interpreter-qc-variant-cancer .opencgaSession="${this.opencgaSession}"></variant-interpreter-qc-variant-cancer>
+                    <variant-interpreter-qc-variant-cancer .opencgaSession="${this.opencgaSession}" ></variant-interpreter-qc-variant-cancer>
                 </div>
             `;
         }
