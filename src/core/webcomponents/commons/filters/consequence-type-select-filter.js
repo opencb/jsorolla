@@ -44,33 +44,36 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
     _init() {
         this._prefix = "crf-" + UtilsNew.randomString(6) + "_";
         this._config = {...this.getDefaultConfig(), ...this.config};
+        this.selectId = "#" + this._prefix + "GeneBiotypes"
     }
 
     firstUpdated(_changedProperties) {
-        $("#" + this._prefix + "GeneBiotypes").selectpicker("val", []);
+        $(this.selectId).selectpicker("val", []);
     }
 
     updated(_changedProperties) {
         if (_changedProperties.has("ct")) {
             if (this.ct) {
-                $("#" + this._prefix + "GeneBiotypes").selectpicker("val", this.ct.split(","));
+                $(this.selectId).selectpicker("val", this.ct.split(","));
             } else {
-                $("#" + this._prefix + "GeneBiotypes").selectpicker("val", []);
+                $(this.selectId).selectpicker("val", []);
             }
         }
     }
 
     filterChange(e) {
-        if (e.target.value.toUpperCase() === "LOF") {
-
-            $("#" + this._prefix + "GeneBiotypes").selectpicker("val", this._config.lof.concat(["LoF"]));
+        /*e.preventDefault();
+        console.log("target", e.target.value)
+        console.log("before", $(e.target).val() || [])
+        // in case of select in multiple mode "e.target.value" returns just the first selected of the list. It is useless
+        if(e.target.value === "LoF") {
+            $(this.selectId).selectpicker("val", [...$(e.target).val(), ...this._config.lof]);
+        } else {
+            $(this.selectId).selectpicker("val", [...($(e.target).val() || []).filter(selected => !this._config.lof.includes(selected))]);
         }
+        console.log("after", $(e.target).val())*/
 
-        console.log($(e.target).val())
-        let so = $(e.target).val().filter(value => value !== "LoF");
-
-        debugger
-        const value = $(e.target).val() ? so.join(",") : null;
+        const value = $(this.selectId).val() ? $(this.selectId).val().join(",") : null;
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: value
@@ -79,22 +82,13 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
-    render() {
-        return html`
-                <select class="selectpicker" id="${this._prefix}GeneBiotypes" data-size="50" data-live-search="true"
-                            data-selected-text-format="count > 5" multiple @change="${this.filterChange}">
-                    <optgroup label='Loss-of-Function'>
-                        <option>LoF</option>
-                    </optgroup>;
-                    ${this._config.categories.length && this._config.categories.map( category => html`
-                        <optgroup label='${category.title.toUpperCase()}'>
-                            ${category.terms !== undefined && category.terms.map( term =>
-                                html`<option value="${term.name}">${term.name} (${term.id})</option>`
-                            )}
-                        </optgroup>;
-                    `)}
-                </select>
-        `;
+    toggleLof(e) {
+        if (e.currentTarget.checked) {
+            $(this.selectId).selectpicker("val", [...($(this.selectId).val() || []), ...this._config.lof])
+        } else {
+            $(this.selectId).selectpicker("val", ($(this.selectId).val() || []).filter(selected => !this._config.lof.includes(selected)))
+        }
+        this.filterChange();
     }
 
     getDefaultConfig() {
@@ -375,6 +369,30 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
                 },
             ]
         };
+    }
+
+    render() {
+        return html`
+                <style>
+                    .checkbox
+                </style>
+                <select class="selectpicker" id="${this._prefix}GeneBiotypes" data-size="20" data-live-search="true"
+                            data-selected-text-format="count > 5" multiple @change="${this.filterChange}">
+                    ${this._config.categories.length && this._config.categories.map( category => html`
+                        <optgroup label='${category.title.toUpperCase()}'>
+                            ${category.terms !== undefined && category.terms.map( term =>
+                                html`<option value="${term.name}">${term.name} (${term.id})</option>`
+                            )}
+                        </optgroup>;
+                    `)}
+                </select>
+                <div class="form-group">
+                    <input class="magic-checkbox" type="checkbox" name="layout" id="lof" value="lof" @click="${this.toggleLof}">
+                    <label class="pull-left text" for="lof">
+                        Loss of Functions
+                    </label>
+                </div>
+        `;
     }
 }
 
