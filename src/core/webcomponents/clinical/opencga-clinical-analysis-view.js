@@ -131,7 +131,10 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             field: "flags",
                             type: "list",
                             display: {
-                                separator: ", "
+                                contentLayout: "horizontal",
+                                render: field => {
+                                    return html`<span class="badge">${field}</span>`
+                                }
                             }
                         },
                         {

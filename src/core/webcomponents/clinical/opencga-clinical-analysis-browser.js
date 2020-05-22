@@ -122,7 +122,6 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "Clinical Analysis Browser",
-            searchButtonText: "Run",
             views: [
                 {
                     id: "table-tab",
@@ -139,6 +138,7 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                 }*/
             ],
             filter: {
+                searchButtonText: "Run",
                 sections: [
                     {
                         name: "section title",

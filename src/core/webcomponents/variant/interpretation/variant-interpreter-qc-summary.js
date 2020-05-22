@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 
 
-class VariantCancerInterpreterSummary extends LitElement {
+class VariantInterpreterQcSummary extends LitElement {
 
     constructor() {
         super();
@@ -118,4 +118,4 @@ class VariantCancerInterpreterSummary extends LitElement {
 
 }
 
-customElements.define("variant-cancer-interpreter-summary", VariantCancerInterpreterSummary);
+customElements.define("variant-interpreter-qc-summary", VariantInterpreterQcSummary);

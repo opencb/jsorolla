@@ -255,25 +255,11 @@ export default class OpencgaSampleGrid extends LitElement {
     }
 
     individualFormatter(value, row) {
-        // TODO fix
-        let a = "-";
-        if (UtilsNew.isNotUndefined(row.attributes) && UtilsNew.isNotUndefined(row.attributes.OPENCGA_INDIVIDUAL)) {
-            a = row.attributes.OPENCGA_INDIVIDUAL.id || "-";
-        }
-        return a;
+        return row?.attributes?.OPENCGA_INDIVIDUAL?.id || "-";
     }
 
     fileFormatter(values, row) {
-        // debugger
-        let html = "-";
-        if (values && values.length > 0) {
-            for (let fileId of values) {
-                if (fileId.endsWith("vcf") || fileId.endsWith("vcf.gz") || fileId.endsWith("bam")) {
-                    html += fileId + "<br>";
-                }
-            }
-        }
-        return html;
+        return values?.length ? values.filter(fileId => fileId.endsWith("vcf") || fileId.endsWith("vcf.gz") || fileId.endsWith("bam")).join("<br>") : "-";
     }
 
     dateFormatter(value, row) {

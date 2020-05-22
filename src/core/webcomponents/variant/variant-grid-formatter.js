@@ -15,7 +15,6 @@
  */
 
 import UtilsNew from "../../utilsNew.js";
-import {consequenceTypes as CT} from "../commons/opencga-variant-contants.js";
 
 
 //TODO urgent review of the whole class
@@ -25,7 +24,7 @@ export default class VariantGridFormatter {
     constructor(opencgaSession, config) {
         this.opencgaSession = opencgaSession;
         this.config = config;
-
+        this.CT = consequenceTypes; //global var
         this.prefix = "VarBrowserGrid-" + UtilsNew.randomString(6);
     }
 
@@ -37,7 +36,7 @@ export default class VariantGridFormatter {
             for (let i = 0; i < consequenceTypes.categories.length; i++) {
                 if (typeof consequenceTypes.categories[i].terms !== "undefined") {
                     for (let j = 0; j < consequenceTypes.categories[i].terms.length; j++) {
-                        consequenceTypeToColor[consequenceTypes.categories[i].terms[j].name] = CT.style[consequenceTypes.categories[i].terms[j].impact];
+                        consequenceTypeToColor[consequenceTypes.categories[i].terms[j].name] = this.CT.style[consequenceTypes.categories[i].terms[j].impact];
                         consequenceTypeToImpact[consequenceTypes.categories[i].terms[j].name] = consequenceTypes.categories[i].terms[j].impact;
                     }
                 } else if (typeof consequenceTypes.categories[i].id !== "undefined" && typeof consequenceTypes.categories[i].name !== "undefined") {
