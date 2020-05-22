@@ -58,6 +58,17 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
         if(changedProperties.has("property")) {
             this.propertyObserver();
         }
+        if(changedProperties.has("query")) {
+            this.queryObserver();
+        }
+    }
+
+    queryObserver() {
+        console.log("this.query",this.query)
+    }
+
+    signaturePlot() {
+
     }
 
     onVariantFilterChange(e) {
@@ -77,6 +88,7 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
         this.preparedQuery = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.executedQuery = {study: this.opencgaSession.study.fqn, ...e.detail}; //in variant-browser executedQuery is changed through queryObserver here not
+        this.requestUpdate();
     }
 
     onActiveFilterClear() {
@@ -84,8 +96,8 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
         this.preparedQuery = {...this.query};
         this.query = {study: this.opencgaSession.study.fqn};
         this.executedQuery = {study: this.opencgaSession.study.fqn}; //in variant-browser executedQuery is changed through queryObserver here not
+        this.requestUpdate();
     }
-
 
     getDefaultConfig() {
         return {

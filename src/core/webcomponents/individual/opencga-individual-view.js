@@ -89,7 +89,7 @@ export default class OpencgaIndividualView extends LitElement {
                 collapsable: true,
                 showTitle: false,
                 labelWidth: 2,
-                defaultVale: "-"
+                defaultValue: "-"
             },
             sections: [
                 {

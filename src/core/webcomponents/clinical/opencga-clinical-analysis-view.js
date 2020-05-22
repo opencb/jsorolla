@@ -92,8 +92,8 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                 collapsable: true,
                 showTitle: false,
                 labelWidth: 2,
-                defaultVale: "-",
-                // defaultLayout: "horizontal"
+                defaultValue: "-",
+                defaultLayout: "horizontal"
             },
             sections: [
                 {

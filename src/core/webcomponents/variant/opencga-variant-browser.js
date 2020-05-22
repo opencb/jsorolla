@@ -140,7 +140,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                 if (field.id === "cohort") {
                     if (field.cohorts === undefined) {
                         let _cohorts = {};
-                        //in case of no public project this.opencgaSession is being created, but the prop projects not
+                        //in case of no public project this.opencgaSession is being created, but the prop projects won't
                         if(this.opencgaSession?.projects) {
                             for (let project of this.opencgaSession.projects) {
                                 _cohorts[project.id] = {};

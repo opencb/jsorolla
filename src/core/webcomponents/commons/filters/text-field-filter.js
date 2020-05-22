@@ -55,12 +55,6 @@ export default class TextFieldFilter extends LitElement {
         this._prefix = "tff-" + UtilsNew.randomString(6) + "_";
     }
 
-    /*set value(val) {
-        let oldVal = this._value;
-        this._value = val;
-        this.requestUpdate('value', oldVal);
-    }*/
-
     updated(_changedProperties) {
         if (_changedProperties.has("value")) {
             if (this.value) {
