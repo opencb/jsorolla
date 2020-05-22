@@ -18,8 +18,8 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import "../opencga-variant-filter.js";
 import "../../commons/opencga-active-filters.js";
+import "../../../loading-spinner.js";
 import Circos from "./circos.js";
-import Signature from "./signature.js";
 
 export default class VariantInterpreterQcVariantCancer extends LitElement {
 
@@ -39,6 +39,9 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
             },
             config: {
                 type: Object
+            },
+            sampleId: {
+                type: String
             }
         }
     }
@@ -57,28 +60,35 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        this.signaturePlot(Signature.signature)
+
     }
 
     updated(changedProperties) {
-        if(changedProperties.has("property")) {
+        if (changedProperties.has("query") || changedProperties.has("sampleId")) {
             this.propertyObserver();
-        }
-        if(changedProperties.has("query")) {
-            this.queryObserver();
         }
     }
 
     queryObserver() {
-        console.log("this.query",this.query)
+        if (this.query) {
+            this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+            this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+        }
+        this.requestUpdate();
+    }
 
-        /*this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
+    propertyObserver() {
+        console.log("this.query",this.query)
+        this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
             study: this.opencgaSession.study.fqn,
             fitting: true,
-            sample: "ISDBM322015"
-        })*/
-
-        this.signaturePlot(Signature.signature)
+            sample: "ISDBM322015",
+            ...this.query
+        }).then( restResult => {
+            this.signaturePlot(restResult.getResult(0).signature);
+        }).catch( restResult => {
+            console.error("error", restResult)
+        })
     }
 
     signaturePlot(result) {
@@ -97,8 +107,7 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
         const data = counts.map(point => point?.total)
 
         const substitutionClass = string => {
-            const [,pair] = string.match(/[ACTG]\[([ACTG]>[ACTG])\][ACTG]+/);
-            const [,letter] = string.match(/[ACTG]\[([ACTG])>[ACTG]\][ACTG]+/);
+            const [,pair,letter] = string.match(/[ACTG]\[(([ACTG])>[ACTG])\][ACTG]+/);
             return {pair, letter};
         }
 
@@ -112,8 +121,8 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
         };
         for(let p of counts) {
             if (p) {
-                const [,m] = p.context.match(/[ACTG]\[([ACTG]>[ACTG])\][ACTG]+/);
-                dataset[m].push(p.total);
+                const {pair} = substitutionClass(p.context);
+                dataset[pair].push(p.total);
             }
         }
         const addRects = function(chart) {
@@ -131,7 +140,6 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                     }).addClass("rect")
                     .add();
 
-                const point = chart.series[0].points[8];
                 // for some reason toPixels(lastStart + dataset[k].length / 2) it isn't centered
                 chart.renderer.label(k, xAxis.toPixels(lastStart - 4 + dataset[k].length / 2), 0, "")
                     .css({
@@ -139,14 +147,13 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                         fontSize: "13px"
                     })
                     .attr({
-                        //fill: 'rgba(0, 0, 0, 0.75)',
                         padding: 8,
                         r: 5,
                         zIndex: 3
                     }).addClass("rect-label")
                     .add();
 
-                lastStart+= dataset[k].length;
+                lastStart += dataset[k].length;
             }
 
         };
@@ -202,23 +209,19 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
     onVariantFilterSearch(e) {
         console.log("onVariantFilterSearch", e)
         //this.preparedQuery = this._prepareQuery(e.detail.query); //TODO check if we need to process e.detail.query
-        this.preparedQuery = {...e.detail.query};
-        this.executedQuery = {...this.preparedQuery};
+        this.query = {...e.detail.query};
         this.requestUpdate();
     }
 
     onActiveFilterChange(e) {
-        this.preparedQuery = {study: this.opencgaSession.study.fqn, ...e.detail};
+
         this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
-        this.executedQuery = {study: this.opencgaSession.study.fqn, ...e.detail}; //in variant-browser executedQuery is changed through queryObserver here it's not
         this.requestUpdate();
     }
 
     onActiveFilterClear() {
         console.log("onActiveFilterClear");
-        this.preparedQuery = {...this.query};
         this.query = {study: this.opencgaSession.study.fqn};
-        this.executedQuery = {study: this.opencgaSession.study.fqn}; //in variant-browser executedQuery is changed through queryObserver here it's not
         this.requestUpdate();
     }
 
@@ -258,6 +261,12 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                         collapsed: true,
                         fields: [
                             {
+                                id: "biotype",
+                                title: "Gene Biotype",
+                                biotypes: biotypes,
+                                tooltip: tooltips.biotype
+                            },
+                            {
                                 id: "region",
                                 title: "Genomic Location",
                                 tooltip: tooltips.region
@@ -272,12 +281,7 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                                 title: "Disease Panels",
                                 tooltip: tooltips.diseasePanels
                             },
-                            {
-                                id: "biotype",
-                                title: "Gene Biotype",
-                                biotypes: biotypes,
-                                tooltip: tooltips.biotype
-                            },
+
                             {
                                 id: "type",
                                 title: "Variant Type",
@@ -290,81 +294,10 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                         title: "Consequence Type",
                         collapsed: true,
                         fields: [
-                            // {
-                            //     id: "consequenceType",
-                            //     title: "Select SO terms",
-                            //     tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                            // },
                             {
                                 id: "consequenceTypeSelect",
                                 title: "Select SO terms",
                                 tooltip: tooltips.consequenceTypeSelect
-                            }
-                        ]
-                    },
-                    {
-                        title: "Population Frequency",
-                        collapsed: true,
-                        fields: [
-                            {
-                                id: "populationFrequency",
-                                title: "Select Population Frequency",
-                                tooltip: tooltips.populationFrequencies,
-                                showSetAll: true
-                            }
-                        ]
-                    },
-                    {
-                        title: "Phenotype-Disease",
-                        collapsed: true,
-                        fields: [
-
-                            {
-                                id: "go",
-                                title: "GO Accessions (max. 100 terms)",
-                                tooltip: tooltips.go
-                            },
-                            {
-                                id: "hpo",
-                                title: "HPO Accessions",
-                                tooltip: tooltips.hpo
-                            },
-                            {
-                                id: "clinvar",
-                                title: "ClinVar Accessions",
-                                tooltip: tooltips.clinvar
-                            },
-                            {
-                                id: "fullTextSearch",
-                                title: "Full-text search on HPO, ClinVar, protein domains or keywords. Some OMIM and Orphanet IDs are also supported",
-                                tooltip: tooltips.fullTextSearch
-                            }
-                        ]
-                    },
-                    {
-                        title: "Deleteriousness",
-                        collapsed: true,
-                        fields: [
-                            {
-                                id: "proteinSubstitutionScore",
-                                title: "Protein Substitution Score",
-                                tooltip: tooltips.proteinSubstitutionScore
-                            },
-                            {
-                                id: "cadd",
-                                title: "CADD",
-                                tooltip: tooltips.cadd
-                            }
-                        ]
-                    },
-                    {
-                        title: "Conservation",
-                        collapsed: true,
-                        fields: [
-                            {
-                                id: "conservation",
-                                title: "Conservation Score",
-                                tooltip: tooltips.conservation
                             }
                         ]
                     }
@@ -475,7 +408,6 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                                                 .defaultStudy="${this.opencgaSession.study.fqn}"
                                                 .query="${this.preparedQuery}"
                                                 .refresh="${this.executedQuery}"
-                                                .facetQuery="${this.selectedFacetFormatted}"
                                                 .alias="${this.activeFilterAlias}"
                                                 .filters="${this._config.filter.examples}"
                                                 .config="${this._config.filter.activeFilters}"
@@ -494,7 +426,9 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                                     </div>
                                     <div class="col-md-6">
                                         <h2>Signature</h2>
-                                        <div id="signature-plot" style="height: 300px"></div>
+                                        <div id="signature-plot" style="height: 300px">
+                                            <loading-spinner></loading-spinner>
+                                        </div>
                                         <!--<img width="480" src="https://cancer.sanger.ac.uk/signatures_v2/Signature-3.png">-->
                                         <div style="padding-top: 20px">
                                             <h2>Sample Stats</h2>
