@@ -250,7 +250,6 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         // Calculate some internal data and render the sample table
         this._individuals = this.getIndividualsFromClinicalAnalysis(clinicalAnalysis);
         this._disorders = this.getDisordersFromIndividuals(this._individuals);
-        debugger
         this.renderTable();
 
         if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.id)) {

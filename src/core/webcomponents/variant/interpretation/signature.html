@@ -47,31 +47,39 @@
                 dataset[m].push(p.total)
             }
         }
-        //console.log(dataset)
-        var addRect = function(chart) {
+        var addRects = function(chart) {
             $(".rect").remove();
-            console.log("chart.categories",chart.xAxis)
-            var xAxis = chart.xAxis[0],
-                yAxis = chart.yAxis[0];
-            chart.renderer.rect(xAxis.toPixels(0), 0, xAxis.toPixels(16) - xAxis.toPixels(1), 30, 0)
-                .attr({
-                    fill: "red",
-                    zIndex: 2
-                }).addClass("rect")
-                .add();
+            $(".rect-label").remove();
+            let lastStart = 0;
+            for (const k in dataset) {
+                console.log("chart.categories",chart.xAxis)
+                console.log("k", dataset[k].length)
+                const xAxis = chart.xAxis[0],
+                    yAxis = chart.yAxis[0];
+                chart.renderer.rect(xAxis.toPixels(lastStart), 10, xAxis.toPixels(dataset[k].length) - xAxis.toPixels(1), 30, 0)
+                    .attr({
+                        fill: palette[k],
+                        zIndex: 2
+                    }).addClass("rect")
+                    .add();
 
-            var point = chart.series[0].points[8];
-            chart.renderer.label("label", xAxis.toPixels(0), 0, "", point.plotX + chart.plotLeft, point.plotY + chart.plotTop)
-                .css({
-                    color: "#000"
-                })
-                .attr({
-                    //fill: 'rgba(0, 0, 0, 0.75)',
-                    padding: 8,
-                    r: 5,
-                    zIndex: 3
-                })
-                .add();
+                const point = chart.series[0].points[8];
+                // for some reason toPixels(lastStart + dataset[k].length / 2) it isn't centered
+                chart.renderer.label(k, xAxis.toPixels(lastStart - 2 + dataset[k].length / 2), 0, "")
+                    .css({
+                        color: "#000"
+                    })
+                    .attr({
+                        //fill: 'rgba(0, 0, 0, 0.75)',
+                        padding: 8,
+                        r: 5,
+                        zIndex: 3
+                    }).addClass("rect-label")
+                    .add();
+
+                lastStart+= dataset[k].length;
+            }
+
         };
         $("#container").highcharts({
             title: "title",
@@ -79,12 +87,16 @@
                 type: "column",
                 events: {
                     redraw: function() {
-                        addRect(this);
+                        addRects(this);
                     },
                     load: function() {
-                        addRect(this);
+                        addRects(this);
                     }
-                }
+                },
+                marginTop: 70
+            },
+            credits: {
+                enabled: false
             },
             legend: {
                 enabled: false
@@ -105,9 +117,7 @@
                     formatter: function () {
                         const [,pair] = this.value.match(/[ACTG]\[([ACTG]>[ACTG])\][ACTG]+/);
                         const [,letter] = this.value.match(/[ACTG]\[([ACTG])>[ACTG]\][ACTG]+/);
-
-                        const r = this.value.replace(pair, `<span style="color:${palette[pair]}">${letter}</span>`).replace("\[", "").replace("\]", "")
-                        return r;
+                        return this.value.replace(pair, `<span style="color:${palette[pair]}">${letter}</span>`).replace("\[", "").replace("\]", "");
                     }
                 }
             },
