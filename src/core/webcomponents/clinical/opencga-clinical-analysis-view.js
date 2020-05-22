@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import "../commons/view/data-view.js";
+import "../commons/view/data-form.js";
 import "../commons/view/pedigree-view.js";
 
 
@@ -92,7 +92,8 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                 collapsable: true,
                 showTitle: false,
                 labelWidth: 2,
-                defaultVale: "-"
+                defaultVale: "-",
+                // defaultLayout: "horizontal"
             },
             sections: [
                 {
@@ -352,7 +353,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
 
     render() {
         return html`
-            <data-view .data=${this.clinicalAnalysis} .config="${this._config}"></data-view>
+            <data-form .data=${this.clinicalAnalysis} .config="${this._config}"></data-form>
         `;
     }
 

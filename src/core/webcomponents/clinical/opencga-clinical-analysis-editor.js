@@ -994,8 +994,8 @@ debugger
                                         <div class='input-group date' id="${this._prefix}DuePickerDate">
                                             <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" data-field="dueDate" @input="${this.onInputChange}" />
                                             <span class="input-group-addon">
-                                            <span class="fa fa-calendar"></span>
-                                        </span>
+                                                <span class="fa fa-calendar"></span>
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
