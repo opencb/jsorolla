@@ -271,6 +271,9 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                 },
                 {
                     title: "Family",
+                    display: {
+                        visible: data => data.type === "FAMILY",
+                    },
                     elements: [
                         {
                             name: "Family ID",
@@ -346,6 +349,19 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             display: {
                                 layout: "vertical",
                                 render: data => html`<pedigree-view .family="${this.clinicalAnalysis.family}"></pedigree-view>`
+                            }
+                        }
+                    ]
+                },
+                {
+                    title: "Files",
+                    elements: [
+                        {
+                            name: "File",
+                            field: "files",
+                            type: "list",
+                            display: {
+                                template: "${name}"
                             }
                         }
                     ]

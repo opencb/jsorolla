@@ -78,7 +78,7 @@ export default class TextFieldFilter extends LitElement {
         let placeholder = (this.placeholder && this.placeholder !== "undefined") ? this.placeholder : ""
         return html`
             <div id="${this._prefix}-wrapper" class="subsection-content form-group" style="margin-left: 0px">
-                <input type="text" id="${this._prefix}-input" class="form-control input-sm ${this._prefix}FilterTextInput" 
+                <input type="text" id="${this._prefix}-input" class="form-control ${this._prefix}FilterTextInput" 
                         ?disabled=${this.disabled} .required=${this.required} placeholder="${placeholder}" @input="${this.filterChange}">
             </div>
         `;

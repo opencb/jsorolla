@@ -552,13 +552,14 @@ export default class OpencgaFamilyGrid extends LitElement {
             customAnnotations: {
                 title: "Custom Annotation",
                 fields: []
-            }
+            },
+            style: "font-size: 14px"
         };
     }
 
     render() {
         return html`
-            <style include="jso-styles">
+            <style>
                 .detail-view :hover {
                     background-color: white;
                 }

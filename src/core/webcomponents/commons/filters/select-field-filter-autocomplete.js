@@ -309,7 +309,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
             <div class="form-group select-field-filter-autocomplete">
                 <form autocomplete="off" action="javascript:void 0">
                     <div class="input-group">
-                        <input name="sample" type="text" class="form-control input-sm typeahead" data-provide="typeahead" autocomplete="off" placeholder="${this._config.placeholder || "Start typing"}" />
+                        <input name="sample" type="text" class="form-control typeahead" data-provide="typeahead" autocomplete="off" placeholder="${this._config.placeholder || "Start typing"}" />
                         <span class="input-group-addon" @click="${this.addTerm}"><i class="fas fa-plus"></i></span>
                         ${this._config.fileUpload ? html`<span class="input-group-addon separator"></span>
                         <span class="input-group-addon" data-collapse="#${this._prefix}file-form" @click="${this.toggleCollapse}"><i class="fas fa-upload"></i></span>` : ""}

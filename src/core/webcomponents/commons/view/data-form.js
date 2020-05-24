@@ -51,8 +51,13 @@ export default class DataForm extends LitElement {
 
         $("#" + this._prefix + "DuePickerDate").datetimepicker({
             format: "DD/MM/YYYY"
-            // minDate: moment().add(1, "days"),
-            // date: moment().add(1, "months")
+        });
+        $("#" + this._prefix + "DuePickerDate").on("dp.change", (e) => {
+            // $('#datetimepicker7').data("DateTimePicker").minDate(e.date);
+            if (e.oldDate) {
+                let timeStamp = e.timeStamp;
+                this.onFilterChange(e.currentTarget.dataset.field, timeStamp)
+            }
         });
     }
 
@@ -98,11 +103,11 @@ export default class DataForm extends LitElement {
         return template;
     }
 
-    getDefaultValue(element) {
-        if (element.defaultValue) {
+    _getDefaultValue(element) {
+        if (typeof element.defaultValue !== "undefined" && element.defaultValue !== null) {
             return element.defaultValue;
         } else {
-            if (this.config?.display?.defaultValue) {
+            if (this.config.display && this.config.display.defaultValue) {
                 return this.config.display.defaultValue;
             } else {
                 return "-";
@@ -110,24 +115,58 @@ export default class DataForm extends LitElement {
         }
     }
 
-    _createSection(section) {
-        // Make sure display exist, this removes several checks below
-        if (!section.display) {
-            section.display = {};
+    _getErrorMessage(element) {
+        let errorMessage;
+        if (element.display && element.display.errorMessage) {
+            errorMessage = element.display.errorMessage;
+        } else {
+            if (this.config?.display?.errorMessage) {
+                errorMessage = this.config.display.errorMessage;
+            } else {
+                errorMessage = "Error: not valid data found";
+            }
         }
+        return html`<div style="padding-left: 20px"><em>${errorMessage}</em></div>`;
+    }
+    /**
+     * Check if visible field is defined and not null, be careful since 'visible' can be a 'boolean' or a 'function'.
+     * @param visible Filed from config
+     * @param defaultValue
+     * @returns {boolean} Default value is 'true' so it is visible.
+     * @private
+     */
+    _getBooleanValue(visible, defaultValue) {
+        let _visible = typeof defaultValue !== "undefined" ? defaultValue : true;
+        if (typeof visible !== "undefined" && visible !== null) {
+            if (typeof visible === "boolean") {
+                _visible = visible;
+            } else {
+                if (typeof visible === "function") {
+                    _visible = visible(this.data);
+                } else {
+                    console.error(`Field 'visible' not boolean or function: ${typeof visible}`)
+                }
+            }
+        }
+        return _visible;
+    }
 
-        // Check if visible field is defined and not null, be careful since it can be a 'boolean' or a 'function'.
-        // Default value is 'true' so it is visible.
-        if (typeof section.display.visible !== "undefined" && section.display.visible !== null) {
-            let visible = true;
-            if (typeof section.display.visible === "boolean") {
-                visible = section.display.visible;
-            } else if(typeof section.display.visible === "function") {
-                visible = section.display.visible(this.data);
+    _getWidth(element) {
+        if (element.display && element.display.width) {
+            return element.display.width;
+        } else {
+            if (this.config.display && this.config.display.defaultWidth) {
+                return this.config.display.defaultWidth;
+            } else {
+                return "3";
             }
-            if (!visible){
-                return;
-            }
+        }
+    }
+
+    _createSection(section) {
+        // Check if the section is visible
+        if (section.display && !this._getBooleanValue(section.display.visible)){
+            return;
         }
 
         // Get some default values
@@ -140,7 +179,7 @@ export default class DataForm extends LitElement {
         if (!Array.isArray(section.elements[0])) {
             content = html`
                 <section style="margin-top: 20px">
-                    <h4 style="${sectionTitleStyle}">${section.title}</h4>
+                    <h3 style="${sectionTitleStyle}">${section.title}</h3>
                     <div class="container-fluid">
                         ${section.elements.map(element => this._createElement(element))}
                     </div>
@@ -152,7 +191,7 @@ export default class DataForm extends LitElement {
             let columnSeparatorStyle = (section.display && section.display.columnSeparatorStyle) ? section.display.columnSeparatorStyle : "";
             content = html`
                 <section style="margin-top: 20px">
-                    <h4 style="${sectionTitleStyle}">${section.title}</h4>
+                    <h3 style="${sectionTitleStyle}">${section.title}</h3>
                     <div class="container-fluid">
                         <div class="row detail-row">
                             <div class="col-md-${leftColumnWidth}" style="${columnSeparatorStyle}">
@@ -171,6 +210,11 @@ export default class DataForm extends LitElement {
     }
 
     _createElement(element) {
+        // Check if the element is visible
+        if (element.display && !this._getBooleanValue(element.display.visible)){
+            return;
+        }
+
         // Check if type is 'separator', this is a special case, no need to parse 'name' and 'content'
         if (element.type === "separator") {
             return html`
@@ -180,6 +224,7 @@ export default class DataForm extends LitElement {
             `;
         }
 
+        // Templates are allowed in the titles
         let title = element.name;
         if (title && title.includes("${")) {
             title = this.applyTemplate(element.name);
@@ -188,7 +233,7 @@ export default class DataForm extends LitElement {
         let content = "";
         // if not 'type' is defined we assumed is 'basic' and therefore field exist
         if (!element.type || element.type === "basic") {
-            content = html`${this.getValue(element.field, this.data, this.getDefaultValue(element), element.display ? element.display.format : null)}`;
+            content = html`${this.getValue(element.field, this.data, this._getDefaultValue(element), element.display ? element.display.format : null)}`;
         } else {
             // Other 'type' are rendered by specific functions
             switch (element.type) {
@@ -258,18 +303,13 @@ export default class DataForm extends LitElement {
     }
 
     _createInputTextElement(element) {
-        let value;
-        if (element.display && element.display.value) {
-            value = element.display.value(this.data);
-        } else {
-            value = this.getValue(element.field) || element.defaultValue;
-        }
-
-        let width = element.display && element.display.width ? element.display.width : "3";
+        let value = this.getValue(element.field) || this._getDefaultValue(element);
+        let disabled = this._getBooleanValue(element.display.disabled, false);
+        let width = this._getWidth(element);
 
         return html`
             <div class="col-md-${width}">
-                <text-field-filter placeholder="${element.display?.placeholder}" ?disabled=${element.display?.disabled} ?required=${element.required} 
+                <text-field-filter placeholder="${element.display?.placeholder}" ?disabled=${disabled} ?required=${element.required} 
                                     .value="${value}" @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </text-field-filter>
             </div>
@@ -277,27 +317,35 @@ export default class DataForm extends LitElement {
     }
 
     _createInputNumberElement(element) {
-        let value = this.getValue(element.field) || element.defaultValue;
+        let value = this.getValue(element.field) || this._getDefaultValue(element);
+        let disabled = this._getBooleanValue(element.display.disabled, false);
         const [min = "", max = ""] = element.allowedValues || [];
 
-        let width = element.display && element.display.width ? element.display.width : "3";
+        let width = this._getWidth(element);
 
         return html`
             <div class="col-md-${width}">
-                <input type="number" min=${min} max=${max} step="0.01" placeholder="${element.display.placeholder || ""}" ?disabled=${element.disabled} ?required=${element.required} class="form-control input-sm"
+                <input type="number" min=${min} max=${max} step="0.01" placeholder="${element.display.placeholder || ""}" ?disabled=${disabled} ?required=${element.required} class="form-control input-sm"
                         value="${value || ""}" @input="${e => this.onFilterChange(element.field, e.target.value)}">
             </div>
         `;
     }
 
     _createInputDateElement(element) {
-
-        let width = element.display && element.display.width ? element.display.width : "3";
+        let value = this.getValue(element.field) || this._getDefaultValue(element);
+        if (typeof value !== "undefined" && value !== null) {
+            let date = this.querySelector("#" + this._prefix + "DueDate");
+            if (date) {
+                date.value = value;
+            }
+        }
+        let disabled = this._getBooleanValue(element.display.disabled, false);
+        let width = this._getWidth(element);
 
         return html`
             <div class="date col-md-${width}">
-                <div class='input-group date' id="${this._prefix}DuePickerDate">
-                    <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" data-field="dueDate" @input="${this.onFilterChange}">
+                <div class='input-group date' id="${this._prefix}DuePickerDate" data-field="${element.field}">
+                    <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" data-field="${element.field}" ?disabled="${disabled}">
                     <span class="input-group-addon">
                         <span class="fa fa-calendar"></span>
                     </span>
@@ -308,8 +356,9 @@ export default class DataForm extends LitElement {
 
     /**
      * Creates a select element given some values. You can provide:
-     * i) a 'allowedValues','defaultValue' and 'display.apply'.
-     * iii) a 'display.values' function returning {allowedValues: [...], defaultValue: "..."}
+     * i) 'allowedValues' is an array, optionally 'defaultValue' and 'display.apply'.
+     * ii) 'allowedValues' is a string pointing to a data field
+     * ii) 'allowedValues' function returning {allowedValues: [...], defaultValue: "..."}
      * @param element
      * @returns {*|TemplateResult}
      * @private
@@ -323,19 +372,48 @@ export default class DataForm extends LitElement {
             if (Array.isArray(element.allowedValues)) {
                 allowedValues = element.allowedValues;
             } else {
-                let values = this.getValue(element.allowedValues);
-                if (values && element.display.apply) {
-                    for (let value of values) {
-                        allowedValues.push(element.display.apply(value));
+                if (typeof element.allowedValues === "string") {
+                    let values = this.getValue(element.allowedValues);
+                    if (values && element.display.apply) {
+                        for (let value of values) {
+                            allowedValues.push(element.display.apply(value));
+                        }
+                    } else {
+                        allowedValues = values;
                     }
                 } else {
-                    allowedValues = values;
+                    if (typeof element.allowedValues === "function") {
+                        let values = element.allowedValues(this.data);
+                        if (values) {
+                            allowedValues = values.allowedValues;
+                            if (values.defaultValue) {
+                                defaultValue = values.defaultValue;
+                            } else {
+                                // Select defaultValue when only one value exist
+                                if (allowedValues && allowedValues.length === 1) {
+                                    defaultValue = allowedValues[0];
+                                }
+                            }
+                        }
+                    } else {
+                        console.error("element.allowedValues must be an array, string or function")
+                    }
                 }
             }
 
             // Check if data field contains a value
             defaultValue = this.getValue(element.field);
-            if (!defaultValue) {
+            if (defaultValue) {
+                // If apply is define we need to apply the same transformation to be selected
+                if (element.display.apply) {
+                    for (let allowedValue of allowedValues) {
+                        if (allowedValue.includes(defaultValue)) {
+                            defaultValue = allowedValue;
+                            break;
+                        }
+                    }
+                }
+            } else {
                 // Check if a defaultValue is set in element config
                 if (element.defaultValue) {
                     defaultValue = element.defaultValue;
@@ -346,58 +424,29 @@ export default class DataForm extends LitElement {
                     }
                 }
             }
-        } else {
-            // Second. Check if 'field' is provided, it must be an array
-            if (element.display.values) {
-                let values = element.display.values(this.data);
-                if (values) {
-                    allowedValues = values.allowedValues;
-                    if (values.defaultValue) {
-                        defaultValue = values.defaultValue;
-                    } else {
-                        // Select defaultValue when only one value exist
-                        if (allowedValues && allowedValues.length === 1) {
-                            defaultValue = allowedValues[0];
-                        }
-                    }
-                }
-            }
         }
 
         // Default values
-        let width = element.display && element.display.width ? element.display.width : "3";
-
+        let disabled = this._getBooleanValue(element.display.disabled, false);
+        let width = this._getWidth(element);
         if (allowedValues && allowedValues.length > 0) {
             return html`
                 <div class="col-md-${width}">
-                    <select-field-filter .data="${allowedValues}" ?multiple="${element.multiple}" ?disabled=${element.disabled} ?required=${element.required} 
+                    <select-field-filter .data="${allowedValues}" ?multiple="${element.multiple}" ?disabled=${disabled} ?required=${element.required} 
                                             .value="${defaultValue}" maxOptions="1"  @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                     </select-field-filter>
                 </div>
             `;
         } else {
-            return element.defaultValue;
+            return this._getErrorMessage(element);
         }
     }
-
-    onFilterChange(field, value) {
-        debugger
-        this.dispatchEvent(new CustomEvent("fieldChange", {
-            detail: {
-                param: field,
-                value: value
-            },
-            bubbles: true,
-            composed: true
-        }));
-    }
-
 
     _createComplexElement(element) {
         if (!element.display || !element.display.template) {
             return html`<span style="color: red">No template provided</span>`;
         }
-        return html`<span>${this.applyTemplate(element.display.template, this.data, null, this.getDefaultValue(element))}</span>`;
+        return html`<span>${this.applyTemplate(element.display.template, this.data, null, this._getDefaultValue(element))}</span>`;
     }
 
     _createListElement(element) {
@@ -407,7 +456,7 @@ export default class DataForm extends LitElement {
 
         // Check values
         if (!array || !array.length) {
-            return html`<span style="color: red">${this.getDefaultValue(element)}</span>`;
+            return html`<span style="color: red">${this._getDefaultValue(element)}</span>`;
         }
         if (!Array.isArray(array)) {
             return html`<span style="color: red">Field '${element.field}' is not an array</span>`;
@@ -431,7 +480,7 @@ export default class DataForm extends LitElement {
             if (element.display.template) {
                 let matches = element.display.template.match(/\$\{[a-zA-Z_.\[\]]+\}/g).map(elem => elem.substring(2, elem.length - 1));
                 for (let object of array) {
-                    let value = this.applyTemplate(element.display.template, object, matches, this.getDefaultValue(element));
+                    let value = this.applyTemplate(element.display.template, object, matches, this._getDefaultValue(element));
                     values.push(value);
                 }
             } else {
@@ -480,7 +529,7 @@ export default class DataForm extends LitElement {
         }
         if (!array.length) {
             // return this.getDefaultValue(element);
-            return html`<span>${this.getDefaultValue(element)}</span>`;
+            return html`<span>${this._getDefaultValue(element)}</span>`;
         }
         if (!element.display && !element.display.columns) {
             return html`<span class="text-danger">Type 'table' requires a 'columns' array</span>`;
@@ -534,35 +583,42 @@ export default class DataForm extends LitElement {
                 }
             }
         }
-        return html`<simple-plot .active="${true}" type="${element.display.chart}" title="${element.name}" .data="${data}"></simple-plot>`;
+        if (data) {
+            return html`<simple-plot .active="${true}" type="${element.display.chart}" title="${element.name}" .data="${data}"></simple-plot>`;
+        } else {
+            return this._getErrorMessage(element);
+        }
     }
 
     _createJsonElement(element) {
-        const json = this.getValue(element.field, this.data, this.getDefaultValue(element));
-        console.log("element", json)
+        const json = this.getValue(element.field, this.data, this._getDefaultValue(element));
         if (json.length || UtilsNew.isObject(json)) {
             return html`<json-viewer .data="${json}" />`;
         } else {
-            return this.getDefaultValue(element);
+            return this._getDefaultValue(element);
         }
     }
 
     _createCustomElement(element) {
-        // If 'field' is defined then we pass it to the 'render' function, otherwise 'data' object is passed
-        let data = this.data;
-        if (element.field) {
-            data = this.getValue(element.field);
+        if (!element.display && !element.display.render) {
+            return "All 'custom' elements must implement a 'display.render' function.";
         }
 
+        // If 'field' is defined then we pass it to the 'render' function, otherwise 'data' object is passed
+        let data = this.data;
+        // if (element.field) {
+        //     data = this.getValue(element.field);
+        // }
+
         // Call to render function if defined
-        if (element.display.render) {
-            let width = element.display.width || "3";
-            // It covers the case the result of this.getValue is actually undefined
-            let h = element.display.render(data);
-            h = html`<div class="col-md-${width}">${h}</div>`;
-            return data ? h : this.getDefaultValue(element);
+        // It covers the case the result of this.getValue is actually undefined
+        let result = element.display.render(data);
+        if (result) {
+            let width = this._getWidth(element);
+            return html`<div class="col-md-${width}">${result}</div>`;
+            // return data ? h : this.getDefaultValue(element);
         } else {
-            return "All 'custom' elements must implement a 'render' function."
+            return this._getErrorMessage(element);
         }
     }
 
@@ -573,6 +629,36 @@ export default class DataForm extends LitElement {
     postRender() {
         // init any jquery plugin we might have used
         //$('.json-renderer').jsonViewer(data);
+    }
+
+
+    onFilterChange(field, value) {
+        this.dispatchEvent(new CustomEvent("fieldChange", {
+            detail: {
+                param: field,
+                value: value
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    onClear(e) {
+        this.dispatchEvent(new CustomEvent("clear", {
+            detail: {
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    onRun(e) {
+        this.dispatchEvent(new CustomEvent("run", {
+            detail: {
+            },
+            bubbles: true,
+            composed: true
+        }));
     }
 
     render() {
@@ -600,15 +686,27 @@ export default class DataForm extends LitElement {
         }
 
         return html`
-                <!-- Header -->
-                ${this.config.title && this.config.display && this.config.display.showTitle ? html`
+            <!-- Header -->
+            ${this.config.title && this.config.display && this.config.display.showTitle 
+                ? html`
                     <div>
                         <h2>${this.config.title}</h2>
                     </div>`
-            : null}
-                <div>
+                : null
+            }
+            
+            <div class="row">
+                <div class="col-md-12">
                     ${this.config.sections.map(section => this._createSection(section))}
                 </div>
+                ${this.config.display && this.config.display.buttons && this.config.display.buttons.show
+                    ? html`
+                        <div class="col-md-12" style="padding: 20px 40px">
+                            <button type="button" class="btn btn-primary btn-lg" @click="${this.onClear}">Clear</button>
+                            <button type="button" class="btn btn-primary btn-lg" @click="${this.onRun}">Run</button>
+                        </div>`
+                    : null
+                }
             </div>
         `;
     }
