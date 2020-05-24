@@ -33,9 +33,9 @@ export default class TextFieldFilter extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
+            // opencgaSession: {
+            //     type: Object
+            // },
             placeholder: {
                 type: String
             },
@@ -52,7 +52,7 @@ export default class TextFieldFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "tff-" + UtilsNew.randomString(6) + "_";
+        this._prefix = "tff-" + UtilsNew.randomString(6);
     }
 
     updated(_changedProperties) {
@@ -75,11 +75,11 @@ export default class TextFieldFilter extends LitElement {
     }
 
     render() {
-        let placeholder = (this.placeholder && this.placeholder !== "undefined") ? this.placeholder : ""
+        let placeholder = (this.placeholder && this.placeholder !== "undefined") ? this.placeholder : "";
         return html`
             <div id="${this._prefix}-wrapper" class="subsection-content form-group" style="margin-left: 0px">
                 <input type="text" id="${this._prefix}-input" class="form-control ${this._prefix}FilterTextInput" 
-                        ?disabled=${this.disabled} .required=${this.required} placeholder="${placeholder}" @input="${this.filterChange}">
+                        ?disabled=${this.disabled} ?required=${this.required} placeholder="${placeholder}" @input="${this.filterChange}">
             </div>
         `;
     }
