@@ -418,6 +418,7 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
                             type: "input-text",
                             defaultValue: "",
                             display: {
+                                rows: 2
                             }
                         },
                     ]

@@ -306,10 +306,11 @@ export default class DataForm extends LitElement {
         let value = this.getValue(element.field) || this._getDefaultValue(element);
         let disabled = this._getBooleanValue(element.display.disabled, false);
         let width = this._getWidth(element);
+        let rows = element.display.rows ? element.display.rows : 1;
 
         return html`
             <div class="col-md-${width}">
-                <text-field-filter placeholder="${element.display?.placeholder}" ?disabled=${disabled} ?required=${element.required} 
+                <text-field-filter placeholder="${element.display?.placeholder}" .rows=${rows} ?disabled=${disabled} ?required=${element.required} 
                                     .value="${value}" @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </text-field-filter>
             </div>
