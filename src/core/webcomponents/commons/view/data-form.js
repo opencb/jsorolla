@@ -276,15 +276,18 @@ export default class DataForm extends LitElement {
         }
 
         let layout = (element.display && element.display.layout) ? element.display.layout : this.config?.display?.defaultLayout || "vertical";
+        let labelWidth = this.config.display && this.config.display.labelWidth ? this.config.display.labelWidth : 2;
         if (layout === "horizontal") {
             // Label 'width' and 'align' are configured by 'labelWidth' and 'labelAlign', defaults are '2' and 'left' respectively
             return html`
                 <div class="row detail-row">
-                    <div class="col-md-${this.config.display?.labelWidth || 2} text-${this.config.display?.labelAlign || "left"}">
-                        <label>${title}</label>
-                    </div>
-                    <div class="col-md-${12 - (this.config.display?.labelWidth || 10)}">
-                        ${content}
+                    <div class="col-md-12">
+                        <div class="col-md-${labelWidth} text-${this.config.display?.labelAlign || "left"}">
+                            <label>${title}</label>
+                        </div>
+                        <div class="col-md-${12 - labelWidth}">
+                            ${content}
+                        </div>
                     </div>
                 </div>        
             `;
@@ -320,9 +323,8 @@ export default class DataForm extends LitElement {
     _createInputNumberElement(element) {
         let value = this.getValue(element.field) || this._getDefaultValue(element);
         let disabled = this._getBooleanValue(element.display.disabled, false);
-        const [min = "", max = ""] = element.allowedValues || [];
-
         let width = this._getWidth(element);
+        const [min = "", max = ""] = element.allowedValues || [];
 
         return html`
             <div class="col-md-${width}">
@@ -345,7 +347,7 @@ export default class DataForm extends LitElement {
 
         return html`
             <div class="date col-md-${width}">
-                <div class='input-group date' id="${this._prefix}DuePickerDate" data-field="${element.field}">
+                <div class='form-group input-group date' id="${this._prefix}DuePickerDate" data-field="${element.field}">
                     <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" data-field="${element.field}" ?disabled="${disabled}">
                     <span class="input-group-addon">
                         <span class="fa fa-calendar"></span>

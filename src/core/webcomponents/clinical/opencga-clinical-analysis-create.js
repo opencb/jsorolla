@@ -191,11 +191,12 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
             ],
             display: {
                 infoIcon: "",
+                labelAlign: "left",
                 defaultLayout: "vertical",
                 buttons: {
                     show: true,
                     clearText: "Clear",
-                    submitText: "Submit"
+                    submitText: "Submit",
                 }
             },
             sections: [
@@ -213,7 +214,7 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
                             // validate: () => {},
                             defaultValue: "",
                             display: {
-                                layout: "vertical",
+                                // layout: "vertical",
                                 width: 3,
                                 placeholder: "eg. AN-3",
                                 disabled: () => this.mode === "update",
