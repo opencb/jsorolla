@@ -42,14 +42,11 @@ export default class SelectFieldFilter extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
-            placeholder: {
-                type: String
-            },
             // NOTE value (default Values) can be either a single value as string or a comma separated list (this decision is due to easily manage default values in case of array of objects)
             value: {
+                type: String
+            },
+            placeholder: {
                 type: String
             },
             multiple: {
@@ -58,11 +55,11 @@ export default class SelectFieldFilter extends LitElement {
             disabled: {
                 type: Boolean
             },
-            maxOptions: {
-                type: Number
-            },
             required: {
                 type: Boolean
+            },
+            maxOptions: {
+                type: Number
             },
             // the expected format is either an array of string or an array of objects {id, name}
             data: {
@@ -72,7 +69,8 @@ export default class SelectFieldFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "sff-" + UtilsNew.randomString(6) + "_";
+        this._prefix = "sff-" + UtilsNew.randomString(6);
+
         this.multiple = false;
         this.data = [];
         this.elm = this._prefix + "selectpicker";
@@ -90,9 +88,6 @@ export default class SelectFieldFilter extends LitElement {
             this.selectPicker.selectpicker("refresh");
         }
         if (_changedProperties.has("value")) {
-            //console.log("this.value", this.value)
-            //debugger
-
             // TODO FIXME force null to "CUSTOM" works in 1 case out of 2 in variant-filter-clinical..
             //$(".selectpicker", this).selectpicker("val", this.value ? (this.multiple ? this.value.split(",") : this.value) : "CUSTOM");
             this.selectPicker.selectpicker("val", this.value ? (this.multiple ? this.value.split(",") : this.value) : "");
@@ -105,18 +100,18 @@ export default class SelectFieldFilter extends LitElement {
     }
 
     filterChange(e) {
-        //debugger
         const selection = this.selectPicker.selectpicker("val");
         let val;
         if (selection && selection.length) {
             val = this.multiple ? selection.join(",") : selection[0];
         }
         //this.value = val ? val : null; // this allow users to get the selected values using DOMElement.value
-        console.log("select filterChange", val);
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: val ? val : null
-            }
+            },
+            bubbles: true,
+            composed: true
         });
         this.dispatchEvent(event);
     }
@@ -127,8 +122,8 @@ export default class SelectFieldFilter extends LitElement {
                 <select id="${this.elm}"
                         class="${this.elm}"
                         multiple
-                        .disabled=${this.disabled}
-                        .required=${this.required}
+                        ?disabled=${this.disabled}
+                        ?required=${this.required}
                         title="${this.placeholder ? this.placeholder : "Select an option"}"
                         data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}" 
                         @change="${this.filterChange}" data-width="100%">
