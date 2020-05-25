@@ -231,7 +231,7 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
                             defaultValue: "FAMILY",
                             errorMessage: "No found...",
                             display: {
-
+                                disabled: () => this.mode === "update",
                             }
                         },
                         {
@@ -241,8 +241,6 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
                             allowedValues: ["mixed_chemistries", "low_tumour_purity", "uniparental_isodisomy", "uniparental_heterodisomy",
                                 "unusual_karyotype", "suspected_mosaicism", "low_quality_sample"],
                             display: {
-                                width: "",
-                                tooltip: ""
                             }
                         },
                     ]
@@ -265,9 +263,21 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
                             field: "family.id",
                             type: "custom",
                             display: {
+                                visible: data => this.mode === "create",
                                 render: (data) => {
-                                    return html`<family-id-autocomplete .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFamilyChange(e)}"></family-id-autocomplete>`
-                                }
+                                    return html`
+                                        <family-id-autocomplete 
+                                            .opencgaSession="${this.opencgaSession}" ?disabled=${this.mode === "update"} @filterChange="${e => this.onFamilyChange(e)}">
+                                        </family-id-autocomplete>`
+                                },
+                            }
+                        },
+                        {
+                            name: "Select Family",
+                            field: "family.id",
+                            type: "basic",
+                            display: {
+                                visible: data => this.mode === "update",
                             }
                         },
                         {
@@ -419,7 +429,7 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
                             type: "input-text",
                             defaultValue: "",
                             display: {
-                                rows: 2
+                                rows: 2,
                             }
                         },
                     ]
