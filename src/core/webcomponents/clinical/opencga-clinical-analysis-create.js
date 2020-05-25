@@ -119,13 +119,11 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
 
     onFamilyChange(e) {
         if (e.detail.value) {
+            this.clinicalAnalysis.type = "FAMILY";
             let _this = this;
             this.opencgaSession.opencgaClient.families().info(e.detail.value, {study: this.opencgaSession.study.fqn})
                 .then( response => {
                     _this.clinicalAnalysis.family = response.responses[0].results[0];
-
-                    _this.clinicalAnalysis.type = "FAMILY";
-
                     // Select as proband the first son/daughter with a disorder
                     if (_this.clinicalAnalysis.family && _this.clinicalAnalysis.family.members) {
                         for (let member of _this.clinicalAnalysis.family.members) {
@@ -153,13 +151,11 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
 
     onCancerChange(e) {
         if (e.detail.value) {
+            this.clinicalAnalysis.type = "CANCER";
             let _this = this;
             this.opencgaSession.opencgaClient.individuals().info(e.detail.value, {study: this.opencgaSession.study.fqn})
                 .then( response => {
                     _this.clinicalAnalysis.proband = response.responses[0].results[0];
-
-                    _this.clinicalAnalysis.type = "CANCER";
-
                     if (_this.clinicalAnalysis.proband && _this.clinicalAnalysis.proband.disorders) {
                         if (_this.clinicalAnalysis.proband.disorders.length === 1) {
                             _this.clinicalAnalysis.disorder = _this.clinicalAnalysis.proband.disorders[0];
@@ -177,8 +173,8 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
 
     getDefaultConfig() {
         return {
-            id: "knockout",
-            title: "Knockout Analysis",
+            id: "clinical-analysis",
+            title: "Clinical Analysis",
             icon: "",
             requires: "2.0.0",
             description: "Sample Variant Stats description",
@@ -201,52 +197,109 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
             },
             sections: [
                 {
-                    title: "Case Info",
+                    title: "Case Information",
                     display: {
                         collapsed: false,
+                        leftColumnWith: 4,
+                        rightColumnWith: 4
                     },
                     elements: [
-                        {
-                            name: "Analysis ID",
-                            field: "id",
-                            type: "input-text",
-                            required: true,
-                            // validate: () => {},
-                            defaultValue: "",
-                            display: {
-                                // layout: "vertical",
-                                width: 3,
-                                placeholder: "eg. AN-3",
-                                disabled: () => this.mode === "update",
-                                // showList: true,
-                                // fileUpload: true
-                                errorMessage: ""
-                            }
-                        },
-                        {
-                            name: "Analysis Type",
-                            field: "type",
-                            type: "select",
-                            allowedValues: ["SINGLE", "FAMILY", "CANCER"],
-                            defaultValue: "FAMILY",
-                            errorMessage: "No found...",
-                            display: {
-                                disabled: () => this.mode === "update",
-                            }
-                        },
-                        {
-                            name: "Interpretation Flags",
-                            field: "flags",
-                            type: "select",
-                            allowedValues: ["mixed_chemistries", "low_tumour_purity", "uniparental_isodisomy", "uniparental_heterodisomy",
-                                "unusual_karyotype", "suspected_mosaicism", "low_quality_sample"],
-                            display: {
-                            }
-                        },
+                        [
+                            {
+                                name: "Analysis ID",
+                                field: "id",
+                                type: "input-text",
+                                required: true,
+                                // validate: () => {},
+                                defaultValue: "",
+                                display: {
+                                    // layout: "vertical",
+                                    width: 9,
+                                    placeholder: "eg. AN-3",
+                                    disabled: () => this.mode === "update",
+                                    // showList: true,
+                                    // fileUpload: true
+                                    errorMessage: ""
+                                }
+                            },
+                            {
+                                name: "Analysis Type",
+                                field: "type",
+                                type: "select",
+                                allowedValues: ["SINGLE", "FAMILY", "CANCER"],
+                                defaultValue: "FAMILY",
+                                errorMessage: "No found...",
+                                display: {
+                                    width: 9,
+                                    disabled: () => this.mode === "update",
+                                }
+                            },
+                            {
+                                name: "Interpretation Flags",
+                                field: "flags",
+                                type: "select",
+                                allowedValues: ["mixed_chemistries", "low_tumour_purity", "uniparental_isodisomy", "uniparental_heterodisomy",
+                                    "unusual_karyotype", "suspected_mosaicism", "low_quality_sample"],
+                                display: {
+                                    width: 9,
+                                }
+                            },
+                            {
+                                name: "Description",
+                                field: "description",
+                                type: "input-text",
+                                defaultValue: "",
+                                display: {
+                                    width: 9,
+                                    rows: 2,
+                                }
+                            },
+                        ], [
+                            {
+                                name: "Priority",
+                                field: "priority",
+                                type: "select",
+                                allowedValues: ["Urgent", "High", "Medium", "Low"],
+                                defaultValue: "Medium",
+                                display: {
+                                    width: 9,
+                                }
+                            },
+                            {
+                                name: "Assigned To",
+                                field: "analyst.responsible",
+                                type: "select",
+                                allowedValues: "_users",
+                                display: {
+                                    width: 9,
+                                }
+                            },
+                            {
+                                name: "Creation Date",
+                                field: "creationDate",
+                                type: "input-text",
+                                defaultValue: "today",
+                                display: {
+                                    width: 9,
+                                    visible: this.mode === "update",
+                                    disabled: true,
+                                }
+                            },
+                            {
+                                name: "Due Date",
+                                field: "dueDate",
+                                type: "input-date",
+                                defaultValue: "",
+                                display: {
+                                    width: 9,
+                                }
+                            },
+
+                        ]
                     ]
                 },
                 {
-                    title: "Family, Proband and Disease",
+                    title: "Family Analysis Configuration",
                     display: {
                         collapsed: false,
                         visible: data => {
@@ -336,7 +389,7 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
                     ]
                 },
                 {
-                    title: "Cancer Proband",
+                    title: "Cancer  Analysis Configuration",
                     collapsed: false,
                     display: {
                         visible: data => {
@@ -384,56 +437,6 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
                         },
                     ]
                 },
-                {
-                    title: "Case Management",
-                    elements: [
-                        {
-                            name: "Priority",
-                            field: "priority",
-                            type: "select",
-                            allowedValues: ["Urgent", "High", "Medium", "Low"],
-                            defaultValue: "Medium",
-                            display: {
-
-                            }
-                        },
-                        {
-                            name: "Assigned To",
-                            field: "analyst.responsible",
-                            type: "select",
-                            allowedValues: "_users",
-                            display: {
-                            }
-                        },
-                        {
-                            name: "Creation Date",
-                            field: "creationDate",
-                            type: "input-text",
-                            defaultValue: "today",
-                            display: {
-                                visible: this.mode === "update",
-                                disabled: true
-                            }
-                        },
-                        {
-                            name: "Due Date",
-                            field: "dueDate",
-                            type: "input-date",
-                            defaultValue: "",
-                            display: {
-                            }
-                        },
-                        {
-                            name: "Description",
-                            field: "description",
-                            type: "input-text",
-                            defaultValue: "",
-                            display: {
-                                rows: 2,
-                            }
-                        },
-                    ]
-                },
                 // {
                 //     title: "Job Info",
                 //     id: "knockout-$DATE",
@@ -458,7 +461,6 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
                     };
                 }
 
-
                 if (this.mode === "create") {
                     opencgaSession.opencgaClient.clinical().create(data, {study: opencgaSession.study.fqn})
                         .then(function(response) {
@@ -480,7 +482,6 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
                             new NotificationQueue().push(response.error, null, "ERROR");
                         });
                 }
-
             },
             result: {
                 render: job => {

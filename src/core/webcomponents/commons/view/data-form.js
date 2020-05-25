@@ -187,7 +187,7 @@ export default class DataForm extends LitElement {
             `;
         } else {    // Field 'elements' array has two dimensions
             let leftColumnWidth = section?.display?.leftColumnWith ? section.display.leftColumnWith : 6;
-            let rightColumnWidth = 12 - leftColumnWidth;
+            let rightColumnWidth = section?.display?.rightColumnWith ? section.display.rightColumnWith : 6;
             let columnSeparatorStyle = (section.display && section.display.columnSeparatorStyle) ? section.display.columnSeparatorStyle : "";
             content = html`
                 <section style="margin-top: 20px">
