@@ -655,8 +655,8 @@ export default class DataForm extends LitElement {
         }));
     }
 
-    onRun(e) {
-        this.dispatchEvent(new CustomEvent("run", {
+    onSubmit(e) {
+        this.dispatchEvent(new CustomEvent("submit", {
             detail: {
             },
             bubbles: true,
@@ -698,7 +698,7 @@ export default class DataForm extends LitElement {
                 : null
             }
             
-            <div class="row">
+            <div class="row" style="padding: 0px 20px">
                 <div class="col-md-12">
                     ${this.config.sections.map(section => this._createSection(section))}
                 </div>
@@ -706,7 +706,7 @@ export default class DataForm extends LitElement {
                     ? html`
                         <div class="col-md-12" style="padding: 20px 40px">
                             <button type="button" class="btn btn-primary btn-lg" @click="${this.onClear}">Clear</button>
-                            <button type="button" class="btn btn-primary btn-lg" @click="${this.onRun}">Run</button>
+                            <button type="button" class="btn btn-primary btn-lg" @click="${this.onSubmit}">Run</button>
                         </div>`
                     : null
                 }

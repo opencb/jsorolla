@@ -330,7 +330,6 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
             study: this.opencgaSession.study.fqn
         }).then(function(response) {
                 _this._clinicalAnalysis.family.members = response.response[0].result;
-debugger
                 _this.updateIndividual(response.response[0].result);
             }
         );

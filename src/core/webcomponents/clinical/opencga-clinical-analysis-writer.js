@@ -20,7 +20,7 @@ import "../commons/view/data-form.js";
 import {NotificationQueue} from "../Notification.js";
 
 
-export default class OpencgaClinicalAnalysisCreate extends LitElement {
+export default class OpencgaClinicalAnalysisWriter extends LitElement {
 
     constructor() {
         super();
@@ -55,7 +55,8 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
         this.clinicalAnalysis = {
             // id: "AN-3",
             // disorder: {id: "OMIM:300125"}
-            // type: "Cancer",
+            type: "FAMILY",
+            priority: "MEDIUM",
             // flags: ["low_tumour_purity", "uniparental_isodisomy"],
             // description: "Description"
         };
@@ -102,6 +103,9 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
                 let _disorder = this.clinicalAnalysis.proband.disorders.filter(d => d.id === e.detail.value);
                 this.clinicalAnalysis.disorder = _disorder[0];
                 break;
+            case "priority":
+                this.clinicalAnalysis.priority = e.detail.value;
+                break;
             case "dueDate":
                 this.clinicalAnalysis.dueDate = UtilsNew.getDatetime(e.detail.value);
                 break;
@@ -114,6 +118,7 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
         }
 
         this.clinicalAnalysis = {...this.clinicalAnalysis};
+        this.notifyClinicalAnalysisUpdate();
         this.requestUpdate();
     }
 
@@ -141,6 +146,9 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
                     }
 
                     _this.clinicalAnalysis = {..._this.clinicalAnalysis};
+
+                    _this.notifyClinicalAnalysisUpdate();
+
                     _this.requestUpdate();
                 })
                 .catch(function(reason) {
@@ -171,10 +179,22 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
         }
     }
 
+    notifyClinicalAnalysisWrite() {
+        let eventName = this.mode === "create" ? "clinicalAnalysisCreate" : "clinicalanalysischange";
+        this.dispatchEvent(new CustomEvent(eventName, {
+            detail: {
+                id: this.clinicalAnalysis.id,
+                clinicalAnalysis: this.clinicalAnalysis
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
     getDefaultConfig() {
         return {
             id: "clinical-analysis",
-            title: "Clinical Analysis",
+            title: "Create Case",
             icon: "",
             requires: "2.0.0",
             description: "Sample Variant Stats description",
@@ -186,13 +206,14 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
                 }
             ],
             display: {
+                showTitle: true,
                 infoIcon: "",
                 labelAlign: "left",
                 defaultLayout: "vertical",
                 buttons: {
                     show: true,
                     clearText: "Clear",
-                    submitText: "Submit",
+                    submitText: "Create"
                 }
             },
             sections: [
@@ -259,8 +280,8 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
                                 name: "Priority",
                                 field: "priority",
                                 type: "select",
-                                allowedValues: ["Urgent", "High", "Medium", "Low"],
-                                defaultValue: "Medium",
+                                allowedValues: ["URGENT", "HIGH", "MEDIUM", "LOW"],
+                                defaultValue: "MEDIUM",
                                 display: {
                                     width: 9,
                                 }
@@ -461,11 +482,13 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
                     };
                 }
 
+                let _this = this;
                 if (this.mode === "create") {
                     opencgaSession.opencgaClient.clinical().create(data, {study: opencgaSession.study.fqn})
                         .then(function(response) {
-                            // _this.onClear();
-                            new NotificationQueue().push(`Family ${response.responses[0].results[0].id} created successfully`, null,"success");
+                            new NotificationQueue().push(`Clinical analysis ${response.responses[0].results[0].id} created successfully`, null,"success");
+                            _this.notifyClinicalAnalysisWrite();
+                            _this.onClear();
                         })
                         .catch(function(response) {
                             console.error(response);
@@ -474,8 +497,9 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
                 } else {
                     opencgaSession.opencgaClient.clinical().update(data, {study: opencgaSession.study.fqn})
                         .then(function(response) {
-                            // _this.onClear();
-                            new NotificationQueue().push(`Family ${response.responses[0].results[0].id} created successfully`, null,"success");
+                            new NotificationQueue().push(`Clinical analysis ${response.responses[0].results[0].id} created successfully`, null,"success");
+                            _this.notifyClinicalAnalysisWrite();
+                            _this.onClear();
                         })
                         .catch(function(response) {
                             console.error(response);
@@ -507,10 +531,10 @@ export default class OpencgaClinicalAnalysisCreate extends LitElement {
                         .config="${this._config}" 
                         @fieldChange="${e => this.onFieldChange(e)}" 
                         @clear="${this.onClear}" 
-                        @run="${this.onRun}">
+                        @submit="${this.onRun}">
             </data-form>
         `;
     }
 }
 
-customElements.define("opencga-clinical-analysis-create", OpencgaClinicalAnalysisCreate);
+customElements.define("opencga-clinical-analysis-writer", OpencgaClinicalAnalysisWriter);

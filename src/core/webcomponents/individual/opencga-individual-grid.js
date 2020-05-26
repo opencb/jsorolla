@@ -226,6 +226,8 @@ export default class OpencgaIndividualGrid extends LitElement {
             showExport: this._config.showExport,
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
+
+            gridContext: this,
             formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
 
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
@@ -261,7 +263,7 @@ export default class OpencgaIndividualGrid extends LitElement {
         if (UtilsNew.isNotEmptyArray(row.samples)) {
             let tableCheckboxHeader = "";
 
-            if (this.gridContext._config.multiSelection) {
+            if (this.gridContext._config && this.gridContext._config.multiSelection) {
                 tableCheckboxHeader = "<th>Select</th>";
             }
 

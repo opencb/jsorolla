@@ -113,12 +113,13 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             field: "disorder",
                             type: "custom",
                             display: {
-                                render: disorder => {
-                                    let id = disorder.id;
-                                    if (disorder.id.startsWith("OMIM:")) {
-                                        id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
+                                render: clinicalAnalysis => {
+                                    let id = clinicalAnalysis.disorder.id;
+                                    debugger
+                                    if (clinicalAnalysis.disorder.id.startsWith("OMIM:")) {
+                                        id = html`<a href="https://omim.org/entry/${clinicalAnalysis.disorder.id.split(":")[1]}" target="_blank">${clinicalAnalysis.disorder.id}</a>`;
                                     }
-                                    return html`${disorder.name || "-"} (${id})`
+                                    return html`${clinicalAnalysis.disorder.name || "-"} (${id})`
                                 },
                             }
                         },
@@ -146,9 +147,9 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             field: "priority",
                             type: "custom",
                             display: {
-                                render: field => {
+                                render: clinicalAnalysis => {
                                     let colors = {"URGENT": "red", "HIGH": "darkorange"};
-                                    return html`<span style="color: ${colors[field]}">${field}</span>`
+                                    return html`<span style="color: ${colors[clinicalAnalysis.priority]}">${clinicalAnalysis.priority}</span>`
                                 }
                             }
                         },
@@ -161,7 +162,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             field: "creationDate",
                             type: "custom",
                             display: {
-                                render: field => html`${moment(field, "YYYYMMDDHHmmss").format("D MMM YY")}`
+                                render: clinicalAnalysis => html`${moment(clinicalAnalysis.creationDate, "YYYYMMDDHHmmss").format("D MMM YY")}`
                             }
                         },
                         {
@@ -169,12 +170,15 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             field: "dueDate",
                             type: "custom",
                             display: {
-                                render: field => html`${moment(field, "YYYYMMDDHHmmss").format("D MMM YY")}`
+                                render: clinicalAnalysis => html`${moment(clinicalAnalysis.dueDate, "YYYYMMDDHHmmss").format("D MMM YY")}`
                             }
                         },
                         {
                             name: "Description",
-                            field: "description"
+                            field: "description",
+                            display: {
+                                errorMessage: "-"
+                            }
                         }
                     ]
                 },
@@ -257,7 +261,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                                         field: "creationDate",
                                         type: "custom", // this is not needed. feels right though
                                         display: {
-                                            render: field => html`${UtilsNew.dateFormatter(field)}`
+                                            render: clinicalAnalysis => html`${UtilsNew.dateFormatter(clinicalAnalysis.creationDate)}`
                                         }
                                     },
                                     {
@@ -282,6 +286,26 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                         {
                             name: "Name",
                             field: "family.name"
+                        },
+                        {
+                            name: "Members",
+                            field: "family.members",
+                            type: "custom",
+                            display: {
+                                width: 12,
+                                render: (data) => {
+                                    debugger
+                                    if (data.family && data.family.members) {
+                                        return html`
+                                            <opencga-individual-grid .opencgaSession="${this.opencgaSession}" 
+                                                                     .individuals="${data.family.members}" 
+                                                                     @filterChange="${e => this.onFamilyChange(e)}">
+                                            </opencga-individual-grid>
+                                        `;
+                                    }
+                                },
+                                errorMessage: "No family selected"
+                            }
                         },
                         {
                             name: "Members",
@@ -348,7 +372,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             type: "custom",
                             display: {
                                 layout: "vertical",
-                                render: data => html`<pedigree-view .family="${this.clinicalAnalysis.family}"></pedigree-view>`
+                                render: clinicalAnalysis => html`<pedigree-view .family="${clinicalAnalysis.family}"></pedigree-view>`
                             }
                         }
                     ]
@@ -361,6 +385,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             field: "files",
                             type: "list",
                             display: {
+                                layout: "bullets",
                                 template: "${name}"
                             }
                         }

@@ -54,7 +54,12 @@ class VariantInterpreterLanding extends LitElement {
         this._prefix = "vcis-" + UtilsNew.randomString(6);
 
         this.clinicalAnalysisEditorConfig = {
-            showTitle: false
+            display: {
+                showTitle: false,
+                buttons: {
+                    show: true
+                }
+            }
         }
     }
 
@@ -119,40 +124,18 @@ class VariantInterpreterLanding extends LitElement {
         }));
     }
 
-    onClinicalAnalysisChange() {
-        if (this.clinicalAnalysisId) {
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    this.clinicalAnalysis = response.responses[0].results[0];
-                    this.dispatchEvent(new CustomEvent("selectClinicalAnalysis", {
-                        detail: {
-                            id: this.clinicalAnalysis?.id,
-                            clinicalAnalysis: this.clinicalAnalysis
-                        },
-                        bubbles: true,
-                        composed: true
-                    }));
-                })
-                .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
-                });
-        } else if (this.probandId) {
-            let _this = this;
-            this.opencgaSession.opencgaClient.clinical().search({proband: this.probandId, study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    _this.clinicalAnalysis = response.responses[0].results[0];
-                    _this.dispatchEvent(new CustomEvent("selectClinicalAnalysis", {
-                        detail: {
-                            id: _this.clinicalAnalysis?.id,
-                            clinicalAnalysis: _this.clinicalAnalysis
-                        }
-                    }));
-                })
-                .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
-                });
-        }
+    onClinicalAnalysisUpdate(e) {
+        // debugger
+        // this.dispatchEvent(new CustomEvent("selectClinicalAnalysis", {
+        //     detail: {
+        //         id: e.detail.clinicalAnalysis?.id,
+        //         clinicalAnalysis: e.detail.clinicalAnalysis
+        //     },
+        //     bubbles: true,
+        //     composed: true
+        // }));
     }
+
 
     onClinicalAnalysisIdChange(key, value) {
         this.clinicalAnalysisId = value;
@@ -163,6 +146,63 @@ class VariantInterpreterLanding extends LitElement {
     onProbandIdChange(key, value) {
         this.probandId = value;
         this.clinicalAnalysisId = null;
+    }
+
+    onClinicalAnalysisChange() {
+        let _this = this;
+        if (this.clinicalAnalysisId) {
+            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    _this.clinicalAnalysis = response.responses[0].results[0];
+                    _this.dispatchEvent(new CustomEvent("selectClinicalAnalysis", {
+                        detail: {
+                            id: _this.clinicalAnalysis ? _this.clinicalAnalysis.id : null,
+                            clinicalAnalysis: _this.clinicalAnalysis
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                });
+        } else if (this.probandId) {
+            this.opencgaSession.opencgaClient.clinical().search({proband: this.probandId, study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    _this.clinicalAnalysis = response.responses[0].results[0];
+                    _this.dispatchEvent(new CustomEvent("selectClinicalAnalysis", {
+                        detail: {
+                            id: _this.clinicalAnalysis ? _this.clinicalAnalysis.id : null,
+                            clinicalAnalysis: _this.clinicalAnalysis
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                });
+        }
+    }
+
+    onClinicalAnalysisCreate(e) {
+        // Fetch object from server since the server automatically adds some information
+        let _this = this;
+        this.opencgaSession.opencgaClient.clinical().info(e.detail.id, {study: this.opencgaSession.study.fqn})
+            .then(response => {
+                _this.clinicalAnalysis = response.responses[0].results[0];
+                _this.dispatchEvent(new CustomEvent("selectClinicalAnalysis", {
+                    detail: {
+                        id: _this.clinicalAnalysis ? _this.clinicalAnalysis.id : null,
+                        clinicalAnalysis: _this.clinicalAnalysis
+                    },
+                    bubbles: true,
+                    composed: true
+                }));
+            })
+            .catch(response => {
+                console.error("An error occurred fetching clinicalAnalysis: ", response);
+            });
     }
 
     render() {
@@ -193,7 +233,7 @@ class VariantInterpreterLanding extends LitElement {
                     </div>
                 </div>`;
         }
-
+debugger
         return html`
                 <style>
                     #variant-interpreter-landing .nav-tabs.nav-center {
@@ -240,11 +280,12 @@ class VariantInterpreterLanding extends LitElement {
                             </div>
                         </div>
                         
-                        <div id="${this._prefix}-create" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
-                            <opencga-clinical-analysis-editor   .opencgaSession="${this.opencgaSession}"
+                        <div id="${this._prefix}-create" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
+                            <opencga-clinical-analysis-writer   .opencgaSession="${this.opencgaSession}"
                                                                 .config="${this.clinicalAnalysisEditorConfig}"
-                                                                @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
-                             </opencga-clinical-analysis-editor>
+                                                                @clinicalanalysischange="${e => this.onClinicalAnalysisUpdate(e)}"
+                                                                @clinicalAnalysisCreate="${e => this.onClinicalAnalysisCreate(e)}">
+                             </opencga-clinical-analysis-writer>
                         </div>
                     </div>
                 </div>

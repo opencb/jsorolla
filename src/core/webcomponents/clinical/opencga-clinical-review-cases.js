@@ -505,7 +505,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     
                                     <div class="tab-content" style="height: 680px">
                                         <div id="${this._prefix}Info" role="tabpanel" class="tab-pane active">
-                                            <div style="padding: 10px 20px; width: 90%">
+                                            <div style="padding: 10px 10px">
                                                 <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
                                                                                 .clinicalAnalysisId=${this.clinicalAnalysis.id}
                                                                                 .config="${this.config}">

@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "./opencga-clinical-review-cases.js";
-import "./opencga-clinical-analysis-editor.js";
+import "./opencga-clinical-analysis-writer.js";
 import "./../opencga/catalog/panel/opencga-panel-browser.js";
 
 
@@ -26,6 +26,7 @@ export default class OpencgaClinicalPortal extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -48,7 +49,8 @@ export default class OpencgaClinicalPortal extends LitElement {
     }
 
     _init() {
-        this._prefix = "ocap-" + UtilsNew.randomString(6) + "_";
+        this._prefix = "ocap-" + UtilsNew.randomString(6);
+
         this.checkProjects = false;
         this._config = this.getDefaultConfig();
     }
@@ -167,10 +169,10 @@ export default class OpencgaClinicalPortal extends LitElement {
                         </div>
 
                         <div id="${this._prefix}CreateCase" class="clinical-portal-content" style="display: none">
-                            <opencga-clinical-analysis-editor .opencgaSession="${this.opencgaSession}"
+                            <opencga-clinical-analysis-writer .opencgaSession="${this.opencgaSession}"
                                                               .config="${this._config.clinicalAnalysisBrowser}"
                                                               @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
-                            </opencga-clinical-analysis-editor>
+                            </opencga-clinical-analysis-writer>
                         </div>
 
                         <div id="${this._prefix}DiseasePanel" class="clinical-portal-content" style="display: none">

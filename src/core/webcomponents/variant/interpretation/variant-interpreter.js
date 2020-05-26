@@ -16,12 +16,12 @@
 
 import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import "./variant-interpreter-review.js";
 import "./variant-interpreter-landing.js";
 import "./variant-interpreter-qc.js";
+import "./variant-interpreter-qc-summary.js";
 import "./variant-interpreter-rd-browser.js";
 import "./variant-interpreter-cancer-browser.js";
-import "./variant-interpreter-qc-summary.js";
+import "./variant-interpreter-review.js";
 import "./opencga-variant-interpreter-genome-browser.js";
 import "../../alignment/gene-coverage-view.js";
 import "../../opencga/opencga-genome-browser.js";
@@ -75,14 +75,15 @@ class VariantInterpreter extends LitElement {
 
     _init() {
         this._prefix = "vgi-" + UtilsNew.randomString(6);
+
         this.query = {};
         this.search = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
 
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     firstUpdated(_changedProperties) {
@@ -214,11 +215,7 @@ class VariantInterpreter extends LitElement {
         }
 
         return html`
-            <style>
-            </style>
-                    
             <div class="row">
-       
                 <div class="page-title">
                     <h2>
                         ${this.clinicalAnalysis && this.clinicalAnalysis.id ? html`
@@ -259,7 +256,7 @@ class VariantInterpreter extends LitElement {
                 <div id="${this._prefix}MainWindow" class="col-md-12">
                     <div>
                         ${this._config.tools ? html`
-                            <div id="${this._prefix}select" class="clinical-portal-content col-md-10 col-md-offset-1">
+                            <div id="${this._prefix}select" class="clinical-portal-content">
                                 <variant-interpreter-landing .opencgaSession="${this.opencgaSession}"
                                                              .clinicalAnalysis="${this.clinicalAnalysis}"
                                                              .config="${this._config}"
@@ -269,7 +266,7 @@ class VariantInterpreter extends LitElement {
                         ` : null}
         
                         ${this._config.tools ? html`
-                            <div id="${this._prefix}qc" class="clinical-portal-content col-md-10 col-md-offset-1" 
+                            <div id="${this._prefix}qc" class="clinical-portal-content" 
                                         style="${this._config.tools[0].id !== "qc" ? "display: none" : ""}">
                                 <variant-interpreter-qc .opencgaSession="${this.opencgaSession}"
                                                         .clinicalAnalysis="${this.clinicalAnalysis}"
@@ -352,15 +349,6 @@ class VariantInterpreter extends LitElement {
                 </div>
             </div> 
         `;
-
-        // if (!this.clinicalAnalysis) {
-        //     return html`
-        //         <variant-cancer-interpreter-landing .opencgaSession="${this.opencgaSession}"
-        //                                             .config="${this.config}"
-        //                                             @selectClinicalAnalysis="${this.onClinicalAnalysis}">
-        //         </variant-cancer-interpreter-landing>
-        //     `;
-        // }
     }
 
 }

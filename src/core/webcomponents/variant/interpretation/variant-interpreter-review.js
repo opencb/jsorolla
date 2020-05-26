@@ -173,7 +173,7 @@ export default class VariantInterpreterReview extends LitElement {
     }
 
     onClinicalAnalysisEditor(e) {
-        // debugger
+        debugger
         this.clinicalAnalysis = Object.assign({}, e.detail.clinicalAnalysis);
     }
 
