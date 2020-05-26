@@ -16,10 +16,10 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../../utilsNew.js";
-import "../../../commons/opencga-browser.js";
+import UtilsNew from "../../utilsNew.js";
+import "../commons/opencga-browser.js";
 
-export default class OpencgaCohortBrowser extends LitElement {
+export default class OpencgaFileBrowser extends LitElement {
 
     constructor() {
         super();
@@ -112,13 +112,12 @@ export default class OpencgaCohortBrowser extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    firstUpdated(_changedProperties) {
-    }
-
     getDefaultConfig() {
         return {
-            title: "Cohort Browser",
+            title: "File Browser",
+            //active: false,
             icon: "fas fa-chart-bar",
+            description: "",
             searchButtonText: "Run",
             views: [
                 {
@@ -129,11 +128,11 @@ export default class OpencgaCohortBrowser extends LitElement {
                 {
                     id: "facet-tab",
                     name: "Aggregation stats"
-                },
+                },/*
                 {
                     id: "comparator-tab",
                     name: "Comparator"
-                }
+                }*/
             ],
             filter: {
                 sections: [
@@ -142,35 +141,56 @@ export default class OpencgaCohortBrowser extends LitElement {
                         collapsed: false,
                         fields: [
                             {
-                                id: "id",
-                                name: "ID",
+                                id: "annotations",
+                                name: "File annotations",
+                                description: ""
+                            },
+                            {
+                                id: "name",
+                                name: "Name",
                                 type: "string",
-                                placeholder: "LP-1234,LP-2345...",
+                                placeholder: "accepted_hits.bam, phenotypes.vcf...",
+                                description: ""
+                            },
+                            {
+                                id: "path",
+                                name: "Path",
+                                type: "string",
+                                placeholder: "genomes/resources/files/...",
                                 description: ""
                             },
                             {
                                 id: "samples",
-                                name: "Samples",
+                                name: "Sample",
                                 type: "string",
                                 placeholder: "HG01879, HG01880, HG01881...",
                                 description: ""
                             },
                             {
-                                id: "annotations",
-                                name: "Cohort annotations",
-                                placeholder: "Full-text search, e.g. *melanoma*",
+                                id: "format",
+                                name: "Format",
+                                type: "category",
+                                allowedValues: ["VCF", "BCF", "GVCF", "TBI", "BIGWIG", "SAM", "BAM", "BAI", "CRAM", "CRAI", "FASTQ", "FASTA", "PED", "TAB_SEPARATED_VALUES", "COMMA_SEPARATED_VALUES", "XML", "PROTOCOL_BUFFER", "JSON", "AVRO", "PARQUET", "IMAGE", "PLAIN", "BINARY", "EXECUTABLE", "GZIP", "NONE", "UNKNOWN"],
+                                placeholder: "genomes/resources/files/...",
                                 description: ""
                             },
                             {
-                                id: "type",
-                                name: "Type",
-                                multiple: true,
-                                allowedValues: ["All", "CASE_CONTROL", "CASE_SET", "CONTROL_SET", "PAIRED", "PAIRED_TUMOR", "AGGREGATE", "TIME_SERIES", "FAMILY", "TRIO"],
+                                id: "bioformat",
+                                name: "Bioformat",
+                                type: "string",
+                                placeholder: "ALIGNMENT,VARIANT...",
                                 description: ""
+                            },
+                            {
+                                id: "internal.index.status.name",
+                                name: "Index Status",
+                                allowedValues: ["READY", "DELETED", "TRASHED", "STAGE", "MISSING", "PENDING_DELETE", "DELETING", "REMOVED", "NONE"],
+                                type: "category"
                             },
                             {
                                 id: "date",
                                 name: "Date",
+                                type: "date",
                                 description: ""
                             }
                         ]
@@ -179,35 +199,41 @@ export default class OpencgaCohortBrowser extends LitElement {
                 examples: [
                     {
                         name: "Full",
+                        active: false,
                         query: {
-                            annotation: "Pedigree:versionControl.GitVersionControl=git",
-                            type: "TIME_SERIES,FAMILY",
-                            id: "lp",
-                            samples: "hg"
+                            name: "bam",
+                            path: "genomes",
+                            sample: "hg3333",
+                            format: "VCF,BCF,GVCF,BIGWIG",
+                            bioformat: "ALIGNMENT",
+                            creationDate: ">=20200216"
                         }
                     }
                 ],
-                grid: {},
+                result: {
+                    grid: {}
+                },
                 detail: [
                     {
-                        id: "cohort-view",
+                        id: "file-view",
                         title: "Details",
                         active: true
                     },
                     {
-                        id: "sample-view",
-                        title: "Samples"
+                        id: "file-preview",
+                        title: "Preview"
                     }
                 ]
             },
             aggregation: {
-                default: ["name"],
+                default: ["type", "format"],
                 result: {
                     numColumns: 2
                 },
                 sections: [
                     {
-                        name: "section title",
+                        name: "File attributes",
+                        // collapsed: false,
                         fields: [
                             {
                                 id: "study",
@@ -216,10 +242,30 @@ export default class OpencgaCohortBrowser extends LitElement {
                                 description: "Study [[user@]project:]study where study and project can be either the ID or UUID"
                             },
                             {
+                                id: "name",
+                                name: "name",
+                                type: "string",
+                                description: "Name"
+                            },
+                            {
                                 id: "type",
                                 name: "type",
                                 type: "string",
-                                description: "type"
+                                description: "Type"
+                            },
+                            {
+                                id: "format",
+                                name: "Format",
+                                type: "category",
+                                allowedValues: ["VCF", "BCF", "GVCF", "TBI", "BIGWIG", "SAM", "BAM", "BAI", "CRAM", "CRAI", "FASTQ", "FASTA", "PED", "TAB_SEPARATED_VALUES", "COMMA_SEPARATED_VALUES", "XML", "PROTOCOL_BUFFER", "JSON", "AVRO", "PARQUET", "IMAGE", "PLAIN", "BINARY", "EXECUTABLE", "GZIP", "NONE", "UNKNOWN"],
+                                placeholder: "genomes/resources/files/...",
+                                description: ""
+                            },
+                            {
+                                id: "bioformat",
+                                name: "bioformat",
+                                type: "string",
+                                description: "Bioformat"
                             },
                             {
                                 id: "creationYear",
@@ -246,12 +292,6 @@ export default class OpencgaCohortBrowser extends LitElement {
                                 description: "Creation day of week (MONDAY, TUESDAY...)"
                             },
                             {
-                                id: "numSamples",
-                                name: "numSamples",
-                                type: "string",
-                                description: "Number of samples"
-                            },
-                            {
                                 id: "status",
                                 name: "status",
                                 type: "string",
@@ -264,11 +304,54 @@ export default class OpencgaCohortBrowser extends LitElement {
                                 description: "Release"
                             },
                             {
+                                id: "external",
+                                name: "external",
+                                type: "category",
+                                allowedValues: ["true", "false"],
+                                defaultValue: "false",
+                                description: "External"
+                            },
+                            {
+                                id: "size",
+                                name: "size",
+                                type: "string",
+                                description: "Size"
+                            },
+                            {
+                                id: "software",
+                                name: "software",
+                                type: "string",
+                                description: "Software"
+                            },
+                            {
+                                id: "experiment",
+                                name: "experiment",
+                                type: "string",
+                                description: "Experiment"
+                            },
+                            {
+                                id: "numSamples",
+                                name: "numSamples",
+                                type: "string",
+                                description: "Number of samples"
+                            },
+                            {
+                                id: "numRelatedFiles",
+                                name: "numRelatedFiles",
+                                type: "string",
+                                description: "Number of related files"
+                            },
+                            {
                                 id: "annotation",
                                 name: "annotation",
                                 type: "string",
                                 description: "Annotation, e.g: key1=value(,key2=value)"
-                            },
+                            }
+                        ]
+                    },
+                    {
+                        name: "Advanced",
+                        fields: [
                             {
                                 id: "field",
                                 name: "field",
@@ -285,18 +368,13 @@ export default class OpencgaCohortBrowser extends LitElement {
 
     render() {
         return this._config ? html`
-            <opencga-browser  resource="cohort"
+            <opencga-browser  resource="files"
                             .opencgaSession="${this.opencgaSession}"
                             .query="${this.query}"
-                            .config="${this._config}"
-                            .cellbaseClient="${this.cellbaseClient}"
-                            .populationFrequencies="${this.populationFrequencies}"
-                            .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                            .consequenceTypes="${this.consequenceTypes}">
+                            .config="${this._config}">
             </opencga-browser>` : null;
     }
 
 }
 
-
-customElements.define("opencga-cohort-browser", OpencgaCohortBrowser);
+customElements.define("opencga-file-browser", OpencgaFileBrowser);

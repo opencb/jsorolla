@@ -157,6 +157,7 @@ class VariantInterpreterRdBrowser extends LitElement {
             this.preparedQuery = this.query;
             this.executedQuery = this.query;
         }
+        this.requestUpdate();
     }
 
     /**
@@ -418,18 +419,15 @@ class VariantInterpreterRdBrowser extends LitElement {
         this.requestUpdate();
     }
 
-
     onActiveFilterChange(e) {
-        // this.query = {...e.detail};
+        this.query = {...e.detail};
         this.preparedQuery = {...e.detail};
-        this.executedQuery = {...e.detail};
         this.requestUpdate();
     }
 
     onActiveFilterClear() {
-        // this.query = {study: this.opencgaSession.study.fqn};
-        this.preparedQuery = {study: this.opencgaSession.study.fqn};
-        this.executedQuery = {...this.preparedQuery};
+        this.query = {study: this.opencgaSession.study.fqn};
+        this.preparedQuery = {...this.query};
         this.requestUpdate();
     }
 
@@ -835,7 +833,6 @@ class VariantInterpreterRdBrowser extends LitElement {
                     margin: 20px 0;
                 }
             </style>
-     
             <div class="page-title">
                 <h2>
                     ${this._config.showTitle 
@@ -877,13 +874,13 @@ class VariantInterpreterRdBrowser extends LitElement {
     
                     <div id="${this._prefix}MainContent">
                         <div id="${this._prefix}ActiveFilters">
-                            <opencga-active-filters .opencgaSession="${this.opencgaSession}"
+                            <opencga-active-filters .filterBioformat="VARIANT"
+                                                    .opencgaSession="${this.opencgaSession}"
                                                     .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                    .defaultStudy="${this.opencgaSession.study.id}"
+                                                    .defaultStudy="${this.opencgaSession.study.fqn}"
                                                     .query="${this.preparedQuery}"
                                                     .refresh="${this.executedQuery}"
                                                     .filters="${this._config.filter ? this._config.filter.examples : null}"
-                                                    .filterBioformat="VARIANT"
                                                     .alias="${this._config.activeFilterAlias}"
                                                     .genotypeSamples="${this.genotypeSamples}"
                                                     .modeInheritance="${this.modeInheritance}"

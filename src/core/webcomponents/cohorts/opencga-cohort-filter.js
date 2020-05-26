@@ -15,14 +15,14 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../../utilsNew.js";
-import PolymerUtils from "../../../PolymerUtils.js";
-import "../variableSets/opencga-annotation-filter.js";
-import "../variableSets/opencga-annotation-filter-dynamic.js";
-import "../../../commons/filters/opencga-date-filter.js";
-import "../../../commons/filters/text-field-filter.js";
-import "../../../commons/filters/select-field-filter.js";
-import "../../../commons/filters/cohort-id-autocomplete.js";
+import UtilsNew from "../../utilsNew.js";
+import PolymerUtils from "../PolymerUtils.js";
+import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
+import "../opencga/catalog/variableSets/opencga-annotation-filter-dynamic.js";
+import "../commons/filters/opencga-date-filter.js";
+import "../commons/filters/text-field-filter.js";
+import "../commons/filters/select-field-filter.js";
+import "../commons/filters/cohort-id-autocomplete.js";
 
 
 export default class OpencgaCohortFilter extends LitElement {

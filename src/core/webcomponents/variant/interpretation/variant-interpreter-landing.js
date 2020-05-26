@@ -241,16 +241,16 @@ class VariantInterpreterLanding extends LitElement {
                     }
                 </style>
                 <div id="variant-interpreter-landing">
-                    <div class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
-                            <li role="presentation" class="content-pills active ${this._prefix}-search-tab">
-                                <a href="javascript: void 0" role="tab" data-id="${this._prefix}-search" @click="${this._changeTab}" class="tab-title">Search Case
-                                </a>
-                            </li>
-                            <li role="presentation" class="content-pills ${this._prefix}-create-tab">
-                                <a href="javascript: void 0" role="tab" data-id="${this._prefix}-create" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Create Case
-                                </a>
-                            </li>
-                        </div>                
+                    <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
+                        <li role="presentation" class="content-pills active ${this._prefix}-search-tab">
+                            <a href="javascript: void 0" role="tab" data-id="${this._prefix}-search" @click="${this._changeTab}" class="tab-title">Search Case
+                            </a>
+                        </li>
+                        <li role="presentation" class="content-pills ${this._prefix}-create-tab">
+                            <a href="javascript: void 0" role="tab" data-id="${this._prefix}-create" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Create Case
+                            </a>
+                        </li>
+                    </ul>              
                     <div class="content-tab-wrapper">
                         <div id="${this._prefix}-search" role="tabpanel" class="tab-pane active content-tab">
                             <div class="row">

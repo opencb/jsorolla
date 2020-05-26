@@ -183,20 +183,18 @@ export default class OpencgaActiveFilters extends LitElement {
         const _this = this;
         if (this.opencgaClient instanceof OpenCGAClient && UtilsNew.isNotUndefined(this.opencgaSession.token)) {
             // console.error("arguments changed inverted after new clients. recheck functionality. serverVersion is now ignored");
-            this.opencgaClient.users().filters(this.opencgaSession.user.id)
-                .then(function(response) {
-                    const result = response.response[0].result;
-                    if (result.length > 0) {
-                        if (UtilsNew.isUndefined(_this.filters)) {
-                            _this.filters = [];
-                        }
-                        for (const obj of result) {
-                            _this.filters.push = obj;
-                        }
+            this.opencgaClient.users().filters(this.opencgaSession.user.id).then(function(response) {
+                const result = response.response[0].result;
+                if (result.length > 0) {
+                    if (UtilsNew.isUndefined(_this.filters)) {
+                        _this.filters = [];
                     }
-                });
+                    for (const obj of result) {
+                        _this.filters.push = obj;
+                    }
+                }
+            });
         }
-
     }
 
     save() {

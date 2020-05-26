@@ -54,6 +54,7 @@ class VariantInterpreterQcAlignment extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     firstUpdated(_changedProperties) {
@@ -743,6 +744,7 @@ class VariantInterpreterQcAlignment extends LitElement {
                 }
             ]
         }
+        this.requestUpdate();
 
     }
 
@@ -771,6 +773,187 @@ class VariantInterpreterQcAlignment extends LitElement {
         }
     }
 
+    getDefaultConfig() {
+        return {
+            title: "Summary",
+            icon: "",
+            display: {
+                collapsable: true,
+                showTitle: false,
+                labelWidth: 2,
+                defaultValue: "-"
+            },
+            sections: [
+                {
+                    title: "General",
+                    collapsed: false,
+                    elements: [
+                        {
+                            name: "fileId",
+                            field: "fileId"
+                        },
+                        {
+                            name: "sampleId",
+                            field: "sampleId"
+                        },
+                        {
+                            name: "rawTotalSequences",
+                            field: "rawTotalSequences"
+                        },
+                        {
+                            name: "filteredSequences",
+                            field: "filteredSequences"
+                        },
+                        {
+                            name: "sequences",
+                            field: "sequences"
+                        },
+                        {
+                            name: "isSorted",
+                            field: "isSorted"
+                        },
+                        {
+                            name: "firstFragments",
+                            field: "firstFragments"
+                        },
+                        {
+                            name: "lastFragments",
+                            field: "lastFragments"
+                        },
+                        {
+                            name: "readsMapped",
+                            field: "readsMapped"
+                        },
+                        {
+                            name: "readsMappedAndPaired",
+                            field: "readsMappedAndPaired"
+                        },
+                        {
+                            name: "readsUnmapped",
+                            field: "readsUnmapped"
+                        },
+                        {
+                            name: "readsProperlyPaired",
+                            field: "readsProperlyPaired"
+                        },
+                        {
+                            name: "readsPaired",
+                            field: "readsPaired"
+                        },
+                        {
+                            name: "readsDuplicated",
+                            field: "readsDuplicated"
+                        },
+                        {
+                            name: "readsMq0",
+                            field: "readsMq0"
+                        },
+                        {
+                            name: "readsQcFailed",
+                            field: "readsQcFailed"
+                        },
+                        {
+                            name: "nonPrimaryAlignments",
+                            field: "nonPrimaryAlignments"
+                        },
+                        {
+                            name: "totalLength",
+                            field: "totalLength"
+                        },
+                        {
+                            name: "totalFirstFragmentLength",
+                            field: "totalFirstFragmentLength"
+                        },
+                        {
+                            name: "totalLastFragmentLength",
+                            field: "totalLastFragmentLength"
+                        },
+                        {
+                            name: "basesMapped",
+                            field: "basesMapped"
+                        },
+                        {
+                            name: "basesMappedCigar",
+                            field: "basesMappedCigar"
+                        },
+                        {
+                            name: "basesTrimmed",
+                            field: "basesTrimmed"
+                        },
+                        {
+                            name: "basesDuplicated",
+                            field: "basesDuplicated"
+                        },
+                        {
+                            name: "mismatches",
+                            field: "mismatches"
+                        },
+                        {
+                            name: "errorRate",
+                            field: "errorRate"
+                        },
+                        {
+                            name: "averageLength",
+                            field: "averageLength"
+                        },
+                        {
+                            name: "averageFirstFragmentLength",
+                            field: "averageFirstFragmentLength"
+                        },
+                        {
+                            name: "averageLastFragmentLength",
+                            field: "averageLastFragmentLength"
+                        },
+                        {
+                            name: "maximumLength",
+                            field: "maximumLength"
+                        },
+                        {
+                            name: "maximumFirstFragmentLength",
+                            field: "maximumFirstFragmentLength"
+                        },
+                        {
+                            name: "maximumLastFragmentLength",
+                            field: "maximumLastFragmentLength"
+                        },
+                        {
+                            name: "averageQuality",
+                            field: "averageQuality"
+                        },
+                        {
+                            name: "insertSizeAverage",
+                            field: "insertSizeAverage"
+                        },
+                        {
+                            name: "insertSizeStandardDeviation",
+                            field: "insertSizeStandardDeviation"
+                        },
+                        {
+                            name: "inwardOrientedPairs",
+                            field: "inwardOrientedPairs"
+                        },
+                        {
+                            name: "outwardOrientedPairs",
+                            field: "outwardOrientedPairs"
+                        },
+                        {
+                            name: "pairsWithOtherOrientation",
+                            field: "pairsWithOtherOrientation"
+                        },
+                        {
+                            name: "pairsOnDifferentChromosomes",
+                            field: "pairsOnDifferentChromosomes"
+                        },
+                        {
+                            name: "percentageOfProperlyPairedReads",
+                            field: "percentageOfProperlyPairedReads"
+                        }
+                    ]
+                }
+            ]
+        };
+    }
+
     render() {
         // Check Project exists
         if (!this.opencgaSession.project) {
@@ -793,18 +976,7 @@ class VariantInterpreterQcAlignment extends LitElement {
                 <div>
                     <h3>Alignment Stats</h3>
                     ${this.file ? html`
-                        <div class="row">
-                            <div class="col-md-12">
-                                ${Object.entries(this.file).map( ([k, v]) => html`
-                                    <div class="form-horizontal">
-                                        <div class="form-group">
-                                            <label class="col-md-3 label-title">${k}</label>
-                                            <span class="col-md-9">${v}</span>
-                                        </div>
-                                    </div>
-                                `)}
-                            </div>
-                        </div>
+                       <data-view .data="${this.file}" .config="${this._config}"></data-view>
                     ` : html`No Stats available.`}
                 </div>
             `;

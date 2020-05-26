@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from '/web_modules/lit-element.js';
+import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 
 
@@ -71,7 +71,7 @@ export default class OpencbGridToolbar extends LitElement {
 
     onDownloadFile(e) {
         console.log("onDownloadFile")
-        this.dispatchEvent(new CustomEvent('download', {
+        this.dispatchEvent(new CustomEvent("download", {
             detail: {
                 option: e.target.dataset.downloadOption
             }, bubbles: true, composed: true
@@ -86,7 +86,7 @@ export default class OpencbGridToolbar extends LitElement {
     onColumnClick(e) {
         // Toggle the checkbox
         e.currentTarget.firstElementChild.checked = !e.currentTarget.firstElementChild.checked;
-        this.dispatchEvent(new CustomEvent('columnchange', {
+        this.dispatchEvent(new CustomEvent("columnChange", {
             detail: {
                 id: e.currentTarget.dataset.columnId,
                 selected: e.currentTarget.firstElementChild.checked
@@ -98,7 +98,7 @@ export default class OpencbGridToolbar extends LitElement {
     }
 
     onShareLink(e) {
-        this.dispatchEvent(new CustomEvent('sharelink', {
+        this.dispatchEvent(new CustomEvent("sharelink", {
             detail: {
             }, bubbles: true, composed: true
         }));
@@ -111,7 +111,7 @@ export default class OpencbGridToolbar extends LitElement {
     getDefaultConfig() {
         return {
             label: "records",
-            columns: [], // [{field: "blabla", title: "Blabla", visible: true, eligible: true}]
+            columns: [], // [{field: "fieldname", title: "title", visible: true, eligible: true}]
             download: ["Tab", "JSON"],
             showShareLink: false
         };
@@ -151,17 +151,17 @@ export default class OpencbGridToolbar extends LitElement {
                                             </button>
                                             <ul class="dropdown-menu btn-sm checkbox-container">
                                                 ${this._config.columns.length ?
-                                                    this._config.columns.map(item => this.isTrue(item.eligible) ? html`
+        this._config.columns.map(item => this.isTrue(item.eligible) ? html`
                                                         <li>
                                                             <a data-column-id="${item.field}" @click="${this.onColumnClick}" style="cursor: pointer;">
                                                                 <input type="checkbox" @click="${this.checkboxToggle}" .checked="${this.isTrue(item.visible)}"/>
                                                                 <label class="checkmark-label">${item.title}</label>
                                                             </a>
                                                         </li>` : null)
-                                                : null}
+        : null}
                                             </ul>
                                         </div>`
-                                    : null }
+        : null }
                 
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"

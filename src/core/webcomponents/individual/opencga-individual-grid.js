@@ -592,6 +592,7 @@ export default class OpencgaIndividualGrid extends LitElement {
             detailFormatter: this.detailFormatter, // function with the detail formatter
             multiSelection: false,
             showSelectCheckbox: true,
+            showToolbar: true,
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
@@ -606,13 +607,15 @@ export default class OpencgaIndividualGrid extends LitElement {
 
     render() {
         return html`
+            ${this._config.showToolbar ? html`
             <opencb-grid-toolbar .from="${this.from}"
                                  .to="${this.to}"
                                  .numTotalResultsText="${this.numTotalResultsText}"
                                  .config="${this.toolbarConfig}"
                                  @download="${this.onDownload}"
-                                 @columnchange="${this.onColumnChange}">
+                                 @columnChange="${this.onColumnChange}">
             </opencb-grid-toolbar>
+            ` : null}
     
             <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}IndividualBrowserGrid"></table>

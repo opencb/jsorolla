@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../commons/opencga-facet-result-view.js";
-import "./../../loading-spinner.js";
+import "../loading-spinner.js";
 
 //TODO this components needs cleaning from the old code
 

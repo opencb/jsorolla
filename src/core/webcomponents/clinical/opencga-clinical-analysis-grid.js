@@ -154,7 +154,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         exclude: "files",
-                        ...this.query,
+                        ...this.query
                     };
                     this.opencgaSession.opencgaClient.clinical().search(filters).then( res => params.success(res));
                 },
@@ -414,6 +414,27 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
     onClick(e, value, row) {
         console.log(e.target, value, row);
+        const action = e.currentTarget.dataset.action;
+        if (action == "delete") {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then(result => {
+                if (result.value) {
+                    Swal.fire(
+                        "Deleted!",
+                        "Clinical Analysis has been deleted.",
+                        "success"
+                    )
+                }
+            })
+        }
+
     }
 
     _initTableColumns() {
@@ -535,7 +556,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                     {
                         title: "Manage",
                         // field: "id",
-                        formatter: "<button class='btn btn-small btn-primary ripple'><i class=\"fas fa-edit\"></i> Edit</button><button class='btn btn-small btn-danger ripple'><i class=\"fas fa-times\"></i> Delete</button>",
+                        formatter: `<button class='btn btn-small btn-primary ripple' data-action="edit"><i class="fas fa-edit"></i> Edit</button>
+                                    <button class='btn btn-small btn-danger ripple' data-action="delete"><i class="fas fa-times"></i> Delete</button>`,
                         valign: "middle",
                         events: {
                             "click button": this.onClick.bind(this)
@@ -625,6 +647,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         // TODO
     }
 
+    // TODO check
     getDefaultConfig() {
         return {
             pagination: true,
@@ -679,7 +702,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                                  .to="${this.to}"
                                  .numTotalResultsText="${this.numTotalResultsText}"
                                  .config="${this.toolbarConfig}"
-                                 @columnchange="${this.onColumnChange}"
+                                 @columnChange="${this.onColumnChange}"
                                  @download="${this.onDownload}"
                                  @sharelink="${this.onShare}">
             </opencb-grid-toolbar>

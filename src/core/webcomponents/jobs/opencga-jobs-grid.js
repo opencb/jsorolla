@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import GridCommons from "../variant/grid-commons.js";
 import "../commons/opencb-grid-toolbar.js";
-import "../../loading-spinner.js";
+import "../loading-spinner.js";
 
 
 // todo check functionality and notify usage
@@ -264,27 +264,6 @@ export default class OpencgaJobsGrid extends LitElement {
             this.table.bootstrapTable("destroy");
             this.numTotalResults = 0;
         }
-    }
-
-    getDefaultConfig() {
-        return {
-            pagination: true,
-            pageSize: 10,
-            pageList: [10, 25, 50],
-            showExport: false,
-            detailView: true,
-            detailFormatter: this.detailFormatter,
-
-            showSelectCheckbox: false,
-            multiSelection: false,
-            nucleotideGenotype: true,
-            alleleStringLengthMax: 15,
-
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            }
-        };
     }
 
     /**
@@ -611,13 +590,35 @@ export default class OpencgaJobsGrid extends LitElement {
             });
     }
 
+    getDefaultConfig() {
+        return {
+            pagination: true,
+            pageSize: 10,
+            pageList: [10, 25, 50],
+            showExport: false,
+            detailView: true,
+            detailFormatter: this.detailFormatter,
+            showSelectCheckbox: false,
+            multiSelection: false,
+            nucleotideGenotype: true,
+            alleleStringLengthMax: 15,
+            showToolbar: true,
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom"
+            }
+        };
+    }
+
     render() {
         return html`
-            <opencb-grid-toolbar .from="${this.from}"
-                                .to="${this.to}"
-                                .numTotalResultsText="${this.numTotalResultsText}"
-                                @download="${this.onDownload}">
-            </opencb-grid-toolbar>
+            ${this._config.showToolbar ? html`
+                <opencb-grid-toolbar .from="${this.from}"
+                                    .to="${this.to}"
+                                    .numTotalResultsText="${this.numTotalResultsText}"
+                                    @download="${this.onDownload}">
+                </opencb-grid-toolbar>`
+            : null }
             <div>
                 <table id="${this.gridId}"></table>
             </div>

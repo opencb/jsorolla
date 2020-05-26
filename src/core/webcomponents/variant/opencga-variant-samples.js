@@ -16,7 +16,7 @@
 
 import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import "../../loading-spinner.js";
+import "../loading-spinner.js";
 
 export default class OpencgaVariantSamples extends LitElement {
 
@@ -344,7 +344,7 @@ export default class OpencgaVariantSamples extends LitElement {
                                      .to="${this.to}"
                                      .numTotalResultsText="${this.numTotalResultsText}"
                                      .config="${this.toolbarConfig}"
-                                     @columnchange="${this.onColumnChange}"
+                                     @columnChange="${this.onColumnChange}"
                                      @download="${this._downloadSamples}"
                                      @sharelink="${this.onShare}">
                 </opencb-grid-toolbar>

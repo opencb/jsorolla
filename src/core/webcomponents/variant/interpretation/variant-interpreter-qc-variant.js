@@ -47,6 +47,9 @@ class VariantInterpreterQcVariant extends LitElement {
             },
             config: {
                 type: Object
+            },
+            active: {
+                type: Boolean
             }
         };
     }
@@ -72,11 +75,6 @@ class VariantInterpreterQcVariant extends LitElement {
 
     firstUpdated(_changedProperties) {
         console.log(this.variantTypes.map( (type, i) => ({name: type, data: this.sampleVariantStats.typeCount[i]})))
-        /*this.barChart({
-            title: "Variant types",
-            categories: this.variantTypes,
-            data: this.sampleVariantStats.typeCount
-        }, "typePlot")*/
     }
 
     updated(changedProperties) {
@@ -129,7 +127,7 @@ class VariantInterpreterQcVariant extends LitElement {
                     <h3>RD Variant Stats</h3>
                     <!-- <span>We must use the new component opencga-sample-variant-stats for 
                     <a href="https://github.com/opencb/biodata/blob/develop/biodata-models/src/main/avro/variantMetadata.avdl#L122" target="_blank">https://github.com/opencb/biodata/blob/develop/biodata-models/src/main/avro/variantMetadata.avdl#L122</a></span> -->
-                    <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" .sampleId="${null}">
+                    <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" .sampleId="${null}" ?active="${this.active}">
                     </sample-variant-stats-view>
                 </div>
             
@@ -140,7 +138,7 @@ class VariantInterpreterQcVariant extends LitElement {
             return html`
                 <div>
                     <h3>Cancer Variant Stats</h3>
-                    <variant-interpreter-qc-variant-cancer .opencgaSession="${this.opencgaSession}" .sampleId="${this.clinicalAnalysis.proband.samples[0].id}" ></variant-interpreter-qc-variant-cancer>
+                    <variant-interpreter-qc-variant-cancer .opencgaSession="${this.opencgaSession}" .sampleId="${this.clinicalAnalysis.proband.samples[0].id}" ?active="${this.active}"></variant-interpreter-qc-variant-cancer>
                 </div>
             `;
         }

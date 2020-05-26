@@ -24,7 +24,7 @@ import "../commons/opencga-facet-result-view.js";
 import "../commons/facet-filter.js";
 import "../commons/opencga-active-filters.js";
 import "../commons/filters/select-field-filter.js";
-import "../../loading-spinner.js";
+import "../loading-spinner.js";
 
 export default class OpencgaVariantBrowser extends LitElement {
 
@@ -389,7 +389,7 @@ export default class OpencgaVariantBrowser extends LitElement {
             active: false,
             filter: {
                 title: "Filter",
-                button: "Run",
+                searchButtonText: "Search",
                 activeFilters: {
                     alias: {
                         // Example:
@@ -712,7 +712,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                 
                     <div class="search-button-wrapper">
                         <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">
-                            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this._config.filter.button}
+                            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this._config.filter.searchButtonText}
                         </button>
                     </div>
                     
