@@ -233,7 +233,7 @@ class VariantInterpreterLanding extends LitElement {
                     </div>
                 </div>`;
         }
-debugger
+
         return html`
                 <style>
                     #variant-interpreter-landing .nav-tabs.nav-center {
@@ -259,7 +259,7 @@ debugger
     <!--                                    <h3>Search Clinical Analysis</h3>-->
                                         <div>
                                             <label>Clinical Analysis ID</label>
-                                            <select-field-filter-autocomplete-simple resource="clinical-analysis" 
+                                            <select-field-filter-autocomplete-simple resource="clinical-analysis"
                                                     .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onClinicalAnalysisIdChange("clinicalAnalysisId", e.detail.value)}">
                                             </select-field-filter-autocomplete-simple>
                                         </div>

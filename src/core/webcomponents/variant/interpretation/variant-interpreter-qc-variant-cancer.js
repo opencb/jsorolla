@@ -16,10 +16,10 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
+import Circos from "./test/circos.js";
 import "../opencga-variant-filter.js";
 import "../../commons/opencga-active-filters.js";
 import "../../../loading-spinner.js";
-import Circos from "./test/circos.js";
 
 export default class VariantInterpreterQcVariantCancer extends LitElement {
 
@@ -37,11 +37,11 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
             query: {
                 type: Object
             },
-            config: {
-                type: Object
-            },
             sampleId: {
                 type: String
+            },
+            config: {
+                type: Object
             }
         }
     }
@@ -78,11 +78,12 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
     }
 
     propertyObserver() {
-        console.log("this.query",this.query)
+        console.log("this.query", this.query)
+        debugger
         this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
             study: this.opencgaSession.study.fqn,
-            fitting: true,
-            sample: "ISDBM322015",
+            fitting: false,
+            sample: this.sampleId,
             ...this.query
         }).then( restResult => {
             this.signaturePlot(restResult.getResult(0).signature);
@@ -401,7 +402,6 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                 </div>
 
                 <div class="col-md-10">
-                
                     <div>
                         <opencga-active-filters filterBioformat="VARIANT"
                                                 .opencgaSession="${this.opencgaSession}"
@@ -416,15 +416,15 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                         </opencga-active-filters>
                         
                         <div class="main-view">
-                            executedQuery : ${JSON.stringify(this.executedQuery)}
+<!--                            executedQuery : -->${JSON.stringify(this.executedQuery)}
                             <div class="row" style="padding: 10px">
                                 <div class="col-md-12">
-                                    <div class="col-md-6">
+                                    <div class="col-md-7">
                                         <h2>Circos</h2>
                                         <img class="img-responsive" src="${this.base64}">
                                         <!--<img width="640" src="https://www.researchgate.net/profile/Angela_Baker6/publication/259720064/figure/fig1/AS:613877578465328@1523371228720/Circos-plot-summarizing-somatic-events-A-summary-of-all-identified-somatic-genomic.png">-->
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-5">
                                         <h2>Signature</h2>
                                         <div id="signature-plot" style="height: 300px">
                                             <loading-spinner></loading-spinner>

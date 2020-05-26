@@ -91,95 +91,134 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
             display: {
                 collapsable: true,
                 showTitle: false,
-                labelWidth: 2,
+                // labelWidth: 3,
                 defaultValue: "-",
                 defaultLayout: "horizontal"
             },
             sections: [
                 {
                     title: "Case Summary",
-                    collapsed: false,
+                    display: {
+                        collapsed: false,
+                        leftColumnWith: 5,
+                        rightColumnWith: 5
+                    },
                     elements: [
-                        {
-                            name: "Analysis ID",
-                            field: "id"
-                        },
-                        {
-                            name: "Proband",
-                            field: "proband.id"
-                        },
-                        {
-                            name: "Disorder",
-                            field: "disorder",
-                            type: "custom",
-                            display: {
-                                render: clinicalAnalysis => {
-                                    let id = clinicalAnalysis.disorder.id;
-                                    debugger
-                                    if (clinicalAnalysis.disorder.id.startsWith("OMIM:")) {
-                                        id = html`<a href="https://omim.org/entry/${clinicalAnalysis.disorder.id.split(":")[1]}" target="_blank">${clinicalAnalysis.disorder.id}</a>`;
+                        [
+                            {
+                                name: "Analysis ID",
+                                field: "id",
+                                display: {
+                                    width: 9,
+                                    labelWidth: 3,
+                                }
+                            },
+                            {
+                                name: "Proband",
+                                field: "proband.id",
+                                display: {
+                                    width: 9,
+                                    labelWidth: 3,
+                                }
+                            },
+                            {
+                                name: "Disorder",
+                                field: "disorder",
+                                type: "custom",
+                                display: {
+                                    width: 9,
+                                    labelWidth: 3,
+                                    render: clinicalAnalysis => {
+                                        let id = clinicalAnalysis.disorder.id;
+                                        debugger
+                                        if (clinicalAnalysis.disorder.id.startsWith("OMIM:")) {
+                                            id = html`<a href="https://omim.org/entry/${clinicalAnalysis.disorder.id.split(":")[1]}" target="_blank">${clinicalAnalysis.disorder.id}</a>`;
+                                        }
+                                        return html`${clinicalAnalysis.disorder.name || "-"} (${id})`
+                                    },
+                                }
+                            },
+                            {
+                                name: "Analysis Type",
+                                field: "type",
+                                display: {
+                                    width: 9,
+                                    labelWidth: 3,
+                                }
+                            },
+                            {
+                                name: "Flags",
+                                field: "flags",
+                                type: "list",
+                                display: {
+                                    width: 9,
+                                    labelWidth: 3,
+                                    contentLayout: "horizontal",
+                                    render: field => {
+                                        return html`<span class="badge">${field}</span>`
                                     }
-                                    return html`${clinicalAnalysis.disorder.name || "-"} (${id})`
-                                },
-                            }
-                        },
-                        {
-                            name: "Analysis Type",
-                            field: "type"
-                        },
-                        {
-                            name: "Flags",
-                            field: "flags",
-                            type: "list",
-                            display: {
-                                contentLayout: "horizontal",
-                                render: field => {
-                                    return html`<span class="badge">${field}</span>`
+                                }
+                            },
+                            {
+                                name: "Status",
+                                field: "status.name",
+                                display: {
+                                    width: 9,
+                                    labelWidth: 3,
+                                }
+                            },
+                            {
+                                name: "Description",
+                                field: "description",
+                                display: {
+                                    width: 9,
+                                    labelWidth: 3,
+                                    errorMessage: "-"
                                 }
                             }
-                        },
-                        {
-                            name: "Status",
-                            field: "status.name"
-                        },
-                        {
-                            name: "Priority",
-                            field: "priority",
-                            type: "custom",
-                            display: {
-                                render: clinicalAnalysis => {
-                                    let colors = {"URGENT": "red", "HIGH": "darkorange"};
-                                    return html`<span style="color: ${colors[clinicalAnalysis.priority]}">${clinicalAnalysis.priority}</span>`
+                        ],[
+                            {
+                                name: "Priority",
+                                field: "priority",
+                                type: "custom",
+                                display: {
+                                    width: 9,
+                                    labelWidth: 3,
+                                    render: clinicalAnalysis => {
+                                        let colors = {"URGENT": "red", "HIGH": "darkorange"};
+                                        return html`<span style="color: ${colors[clinicalAnalysis.priority]}">${clinicalAnalysis.priority}</span>`
+                                    }
                                 }
-                            }
-                        },
-                        {
-                            name: "Assigned To",
-                            field: "analyst.assignee"
-                        },
-                        {
-                            name: "Creation date",
-                            field: "creationDate",
-                            type: "custom",
-                            display: {
-                                render: clinicalAnalysis => html`${moment(clinicalAnalysis.creationDate, "YYYYMMDDHHmmss").format("D MMM YY")}`
-                            }
-                        },
-                        {
-                            name: "Due date",
-                            field: "dueDate",
-                            type: "custom",
-                            display: {
-                                render: clinicalAnalysis => html`${moment(clinicalAnalysis.dueDate, "YYYYMMDDHHmmss").format("D MMM YY")}`
-                            }
-                        },
-                        {
-                            name: "Description",
-                            field: "description",
-                            display: {
-                                errorMessage: "-"
-                            }
-                        }
+                            },
+                            {
+                                name: "Assigned To",
+                                field: "analyst.assignee",
+                                display: {
+                                    width: 9,
+                                    labelWidth: 3,
+                                }
+                            },
+                            {
+                                name: "Creation date",
+                                field: "creationDate",
+                                type: "custom",
+                                display: {
+                                    width: 9,
+                                    labelWidth: 3,
+                                    render: clinicalAnalysis => html`${moment(clinicalAnalysis.creationDate, "YYYYMMDDHHmmss").format("D MMM YY")}`
+                                }
+                            },
+                            {
+                                name: "Due date",
+                                field: "dueDate",
+                                type: "custom",
+                                display: {
+                                    width: 9,
+                                    labelWidth: 3,
+                                    render: clinicalAnalysis => html`${moment(clinicalAnalysis.dueDate, "YYYYMMDDHHmmss").format("D MMM YY")}`
+                                }
+                            },
+                        ]
                     ]
                 },
                 {

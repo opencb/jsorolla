@@ -139,11 +139,10 @@ class VariantInterpreterQcVariant extends LitElement {
             return html`
                 <div>
                     <h3>Cancer Variant Stats</h3>
-                    <variant-interpreter-qc-variant-cancer .opencgaSession="${this.opencgaSession}" .sampleId="${null}" ></variant-interpreter-qc-variant-cancer>
+                    <variant-interpreter-qc-variant-cancer .opencgaSession="${this.opencgaSession}" .sampleId="${this.clinicalAnalysis.proband.samples[0].id}" ></variant-interpreter-qc-variant-cancer>
                 </div>
             `;
         }
-
     }
 
 }

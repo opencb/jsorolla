@@ -163,6 +163,18 @@ export default class DataForm extends LitElement {
         }
     }
 
+    _getLabelWidth(element) {
+        if (element.display && element.display.labelWidth) {
+            return element.display.labelWidth;
+        } else {
+            if (this.config.display && this.config.display.labelWidth) {
+                return this.config.display.labelWidth;
+            } else {
+                return 2;
+            }
+        }
+    }
+
     _createSection(section) {
         // Check if the section is visible
         if (section.display && !this._getBooleanValue(section.display.visible)){
@@ -276,7 +288,8 @@ export default class DataForm extends LitElement {
         }
 
         let layout = (element.display && element.display.layout) ? element.display.layout : this.config?.display?.defaultLayout || "vertical";
-        let labelWidth = this.config.display && this.config.display.labelWidth ? this.config.display.labelWidth : 2;
+        let labelWidth = this._getLabelWidth(element);
+
         if (layout === "horizontal") {
             // Label 'width' and 'align' are configured by 'labelWidth' and 'labelAlign', defaults are '2' and 'left' respectively
             return html`

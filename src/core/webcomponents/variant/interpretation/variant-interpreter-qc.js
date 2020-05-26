@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
+import "./variant-interpreter-qc-summary.js";
 import "./variant-interpreter-qc-variant.js";
 import "./variant-interpreter-qc-alignment.js";
 import "../../alignment/gene-coverage-view.js";
@@ -45,9 +46,6 @@ class VariantInterpreterQc extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
-            query: {
-                type: Object
-            },
             config: {
                 type: Object
             }
@@ -62,32 +60,41 @@ class VariantInterpreterQc extends LitElement {
         super.connectedCallback();
     }
 
-    firstUpdated(_changedProperties) {
-    }
-
     updated(changedProperties) {
-
         // if (changedProperties.has("opencgaSession")) {
         //     this.opencgaSessionObserver();
         // }
-        // if (changedProperties.has("clinicalAnalysisId")) {
-        //     this.clinicalAnalysisIdObserver();
-        // }
+        if (changedProperties.has("clinicalAnalysisId")) {
+            this.clinicalAnalysisIdObserver();
+        }
         // if (changedProperties.has("clinicalAnalysis")) {
         //     this.clinicalAnalysisObserver();
         // }
-        // if (changedProperties.has("query")) {
-        //     this.queryObserver();
-        // }
+    }
+
+    clinicalAnalysisIdObserver() {
+        if (this.opencgaSession) {
+            let _this = this;
+            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    _this.clinicalAnalysis = response.responses[0].results[0];
+                    _this.requestUpdate();
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                });
+        }
     }
 
     render() {
         // Check Project exists
         if (!this.opencgaSession.project) {
             return html`
-                    <div>
-                        <h3><i class="fas fa-lock"></i> No public projects available to browse. Please login to continue</h3>
-                    </div>`;
+                <div class="guard-page">
+                    <i class="fas fa-lock fa-5x"></i>
+                    <h3>No public projects available to browse. Please login to continue</h3>
+                </div>
+            `;
         }
 
         // if (!this.clinicalAnalysis) {
@@ -120,13 +127,13 @@ class VariantInterpreterQc extends LitElement {
                             class="browser-variant-tab-title">Coverage
                         </a>
                     </li>
-                    ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY" 
+                    ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
                         ? html`
                             <li role="presentation" class="disabled">
                                 <a href="#${this._prefix}Upd" role="tab" data-toggle="tab" data-id="${this._prefix}Upd"
                                     class="browser-variant-tab-title">UPD (coming soon)
                                 </a>
-                            </li>` 
+                            </li>`
                         : ""
                     }
                     <li role="presentation" class="">
@@ -138,20 +145,22 @@ class VariantInterpreterQc extends LitElement {
             </div>
                
             <div class="tab-content">
-                <div id="${this._prefix}Summary" role="tabpanel" class="tab-pane active">
-                    Summary (coming soon)
+                <div id="${this._prefix}Summary" role="tabpanel" class="tab-pane active col-md-10 col-md-offset-1">
+                    <variant-interpreter-qc-summary .opencgaSession="${this.opencgaSession}" 
+                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                    </variant-interpreter-qc-summary>
                 </div>
                 <div id="${this._prefix}Variants" role="tabpanel" class="tab-pane">
                     <variant-interpreter-qc-variant .opencgaSession="${this.opencgaSession}" 
                                                     .clinicalAnalysis="${this.clinicalAnalysis}">
                     </variant-interpreter-qc-variant>
                 </div>
-                <div id="${this._prefix}Alignment" role="tabpanel" class="tab-pane">
+                <div id="${this._prefix}Alignment" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1">
                     <variant-interpreter-qc-alignment   .opencgaSession="${this.opencgaSession}" 
                                                         .clinicalAnalysis="${this.clinicalAnalysis}">
                     </variant-interpreter-qc-alignment>
                 </div>
-                <div id="${this._prefix}Coverage" role="tabpanel" class="tab-pane">
+                <div id="${this._prefix}Coverage" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1">
                     <gene-coverage-view .opencgaSession="${this.opencgaSession}"
                                         .cellbaseClient="${this.cellbaseClient}"
                                         .clinicalAnalysis="${this.clinicalAnalysis}"
