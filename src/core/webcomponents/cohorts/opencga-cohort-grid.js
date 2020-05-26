@@ -15,9 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import GridCommons from "../../../variant/grid-commons.js";
-import UtilsNew from "./../../../../utilsNew.js";
-import PolymerUtils from "../../../PolymerUtils.js";
+import GridCommons from "../variant/grid-commons.js";
+import UtilsNew from "../../utilsNew.js";
+import PolymerUtils from "../PolymerUtils.js";
 
 
 export default class OpencgaCohortGrid extends LitElement {

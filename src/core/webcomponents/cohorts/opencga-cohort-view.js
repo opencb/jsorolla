@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../../utilsNew.js";
-import "../../../commons/view/data-view.js";
+import UtilsNew from "../../utilsNew.js";
+import "../commons/view/data-view.js";
 
 
 export default class OpencgaCohortView extends LitElement {

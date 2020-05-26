@@ -21,6 +21,7 @@ import "./variant-interpreter-qc.js";
 import "./variant-interpreter-rd-browser.js";
 import "./variant-interpreter-cancer-browser.js";
 import "./variant-interpreter-review.js";
+import "./variant-interpreter-interpretation.js";
 import "./opencga-variant-interpreter-genome-browser.js";
 import "../../alignment/gene-coverage-view.js";
 import "../../opencga/opencga-genome-browser.js";
@@ -117,9 +118,7 @@ class VariantInterpreter extends LitElement {
     _changeView(e) {
         e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
 
-        if (typeof e.currentTarget !== "undefined" &&
-            typeof e.currentTarget.dataset.view !== "undefined" &&
-            !e.currentTarget.className.includes("disabled")) {
+        if (e.currentTarget?.dataset?.view && !e.currentTarget.className.includes("disabled")) {
             $(".clinical-portal-content", this).hide(); // hides all content divs
             // $("#" + this._prefix + e.target.dataset.view).show(); // get the href and use it find which div to show
             this.querySelector("#" + this._prefix + e.currentTarget.dataset.view).style.display = "block";
@@ -262,9 +261,7 @@ class VariantInterpreter extends LitElement {
                                                              @selectClinicalAnalysis="${this.onClinicalAnalysis}">
                                 </variant-interpreter-landing>
                             </div>
-                        ` : null}
         
-                        ${this._config.tools ? html`
                             <div id="${this._prefix}qc" class="clinical-portal-content" 
                                         style="${this._config.tools[0].id !== "qc" ? "display: none" : ""}">
                                 <variant-interpreter-qc .opencgaSession="${this.opencgaSession}"
@@ -272,9 +269,15 @@ class VariantInterpreter extends LitElement {
                                                         .config="${this._config}">
                                 </variant-interpreter-qc>
                             </div>
-                        ` : null}
-                        
-                        ${this._config.tools ? html`
+                            
+                            <div id="${this._prefix}interpretation" class="clinical-portal-content col-md-10 col-md-offset-1" 
+                                        style="${this._config.tools[0].id !== "interpretation" ? "display: none" : ""}">
+                                <variant-interpreter-interpretation .opencgaSession="${this.opencgaSession}"
+                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                        .config="${this._config}">
+                                </variant-interpreter-interpretation>
+                            </div>                            
+                            
                             <div id="${this._prefix}genome-browser" class="clinical-portal-content" style="${this._config.tools[0].id !== "genome-browser" ? "display: none" : ""}">
                                 <opencga-variant-interpreter-genome-browser .opencgaSession="${this.opencgaSession}"
                                                                             .cellbaseClient="${this.cellbaseClient}"
@@ -297,9 +300,7 @@ class VariantInterpreter extends LitElement {
                                 </opencga-variant-interpreter-genome-browser>
                                 -->
                             </div>
-                        ` : null}
-                        
-                        ${this._config.tools ? html`
+                            
                             <div id="${this._prefix}variant-browser" class="clinical-portal-content" style="${this._config.tools[0].id !== "variant-browser" ? "display: none" : ""}">
                                 
                                 ${this.clinicalAnalysis && this.clinicalAnalysis.type.toUpperCase() === "FAMILY" 
@@ -328,9 +329,7 @@ class VariantInterpreter extends LitElement {
                                         </variant-interpreter-cancer-browser>`
                                 }
                             </div>
-                        ` : null}
-                    
-                        ${this._config.tools ? html`
+                            
                             <div id="${this._prefix}review" class="clinical-portal-content col-md-10 col-md-offset-1" style="${this._config.tools[0].id !== "review" ? "display: none" : ""}">
                                 <variant-interpreter-review .opencgaSession="${this.opencgaSession}"
                                                             .clinicalAnalysis="${this.clinicalAnalysis}"

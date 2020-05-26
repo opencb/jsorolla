@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import GridCommons from "../../../variant/grid-commons.js";
-import UtilsNew from "./../../../../utilsNew.js";
-import PolymerUtils from "../../../PolymerUtils.js";
-import "../../../commons/opencb-grid-toolbar.js";
-import "../../../../loading-spinner.js";
+import GridCommons from "../variant/grid-commons.js";
+import UtilsNew from "../../utilsNew.js";
+import PolymerUtils from "../PolymerUtils.js";
+import "../commons/opencb-grid-toolbar.js";
+import "../loading-spinner.js";
 
 
 // todo check functionality and notify usage
@@ -613,7 +613,7 @@ export default class OpencgaFileGrid extends LitElement {
         <opencb-grid-toolbar .from="${this.from}"
                             .to="${this.to}"
                             .numTotalResultsText="${this.numTotalResultsText}"
-                            @columnchange="${this.onColumnChange}"
+                            @columnChange="${this.onColumnChange}"
                             @download="${this.onDownload}">
         </opencb-grid-toolbar>
         <div id="${this._prefix}GridTableDiv">

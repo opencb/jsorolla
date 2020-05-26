@@ -21,7 +21,7 @@ import GridCommons from "../grid-commons.js";
 import VariantUtils from "../variant-utils.js";
 import "./opencga-interpretation-variant-review.js";
 import "../../commons/opencb-grid-toolbar.js";
-import "../../../loading-spinner.js";
+import "../../loading-spinner.js";
 
 
 export default class VariantInterpreterGrid extends LitElement {
@@ -1073,7 +1073,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                  .to="${this.to}"
                                  .numTotalResultsText="${this.numTotalResultsText}"
                                  .config="${this.toolbarConfig}"
-                                 @columnchange="${this.onColumnChange}"
+                                 @columnChange="${this.onColumnChange}"
                                  @download="${this.onDownload}"
                                  @sharelink="${this.onShare}">
             </opencb-grid-toolbar>

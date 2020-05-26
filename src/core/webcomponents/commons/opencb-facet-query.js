@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "./opencb-facet-results.js";
-import "./../../loading-spinner.js";
+import "../loading-spinner.js";
 
 
 //TODO delete opencga-variant-facet-query and use this for variant too

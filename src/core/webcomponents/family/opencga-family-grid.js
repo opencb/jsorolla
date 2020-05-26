@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import GridCommons from "../../../variant/grid-commons.js";
-import UtilsNew from "./../../../../utilsNew.js";
-import CatalogUIUtils from "../../../commons/CatalogUIUtils.js";
+import GridCommons from "../variant/grid-commons.js";
+import UtilsNew from "../../utilsNew.js";
+import CatalogUIUtils from "../commons/CatalogUIUtils.js";
 import "./opencga-family-filter.js";
-import "../../../commons/opencb-grid-toolbar.js";
+import "../commons/opencb-grid-toolbar.js";
 
 
 export default class OpencgaFamilyGrid extends LitElement {
@@ -585,7 +585,7 @@ export default class OpencgaFamilyGrid extends LitElement {
                                  .to="${this.to}"
                                  .numTotalResultsText="${this.numTotalResultsText}"
                                  .config="${this.toolbarConfig}"
-                                 @columnchange="${this.onColumnChange}"
+                                 @columnChange="${this.onColumnChange}"
                                  @download="${this.onDownload}">
             </opencb-grid-toolbar>
     

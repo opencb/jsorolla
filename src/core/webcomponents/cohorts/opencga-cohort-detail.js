@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../../utilsNew.js";
-import "./opencga-file-view.js";
-import "./opencga-file-preview.js";
+import UtilsNew from "../../utilsNew.js";
+import "./opencga-cohort-view.js";
+import "./../samples/opencga-sample-grid.js";
 
-export default class OpencgaFileDetail extends LitElement {
+export default class OpencgaCohortDetail extends LitElement {
 
     constructor() {
         super();
@@ -39,10 +39,10 @@ export default class OpencgaFileDetail extends LitElement {
                 type: Object
             },
             // this is not actually used at the moment
-            fileId: {
+            cohortId: {
                 type: Object
             },
-            file: {
+            cohort: {
                 type: Object
             }
         };
@@ -62,8 +62,8 @@ export default class OpencgaFileDetail extends LitElement {
         if (changedProperties.has("opencgaSession")) {
         }
 
-        if (changedProperties.has("file")) {
-
+        if (changedProperties.has("cohort")) {
+            console.log("cohort changed", this.cohort)
         }
 
         if (changedProperties.has("activeTab")) {
@@ -88,17 +88,17 @@ export default class OpencgaFileDetail extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "File",
+            title: "Cohort",
             showTitle: true
         };
     }
 
     render() {
-        return this.file ? html`
+        return this.cohort ? html`
             <div>
                 ${this._config.showTitle ? html`
                     <div class="panel" style="margin-bottom: 10px">
-                        <h2 >&nbsp;${this._config.title}: ${this.file.name}</h2>
+                        <h2 >&nbsp;${this._config.title}: ${this.cohort.id}</h2>
                     </div>
                 ` : null}
                 <ul class="nav nav-tabs" role="tablist">
@@ -113,17 +113,19 @@ export default class OpencgaFileDetail extends LitElement {
                 </ul>
                
                 <div class="tab-content">
-                    <div id="file-view-tab" class="tab-pane active" role="tabpanel">
-                        <div class="form-group detail-row">
-                            <opencga-file-view .opencgaSession="${this.opencgaSession}" .file="${this.file}">
-                            </opencga-file-view>
+                    <div id="cohort-view-tab" class="tab-pane active" role="tabpanel">
+                        <div class="detail-row">
+                            <opencga-cohort-view .opencgaSession="${this.opencgaSession}" .cohort="${this.cohort}">
+                            </opencga-cohort-view>
                         </div>
                     </div>
-                    <div id="file-preview-tab" class="tab-pane" role="tabpanel">
-                        <opencga-file-preview .opencgaSession=${this.opencgaSession}
-                                                  .active="${this.activeTab["file-preview"]}"
-                                                  .file="${this.file}">
-                        </opencga-file-preview>
+                    <div id="sample-view-tab" class="tab-pane" role="tabpanel">
+                        <opencga-sample-grid .opencgaSession="${this.opencgaSession}"
+                                                     .query="${{id: this.cohort.samples.map(sample => sample.id).join(",")}}"
+                                                     .config="${1 || this._config.filter.grid}"
+                                                     .samples="${1 || this.samples}"
+                                                     .active="${true}">
+                        </opencga-sample-grid>
                     </div>
                 </div>
                 
@@ -133,4 +135,4 @@ export default class OpencgaFileDetail extends LitElement {
 
 }
 
-customElements.define("opencga-file-detail", OpencgaFileDetail);
+customElements.define("opencga-cohort-detail", OpencgaCohortDetail);

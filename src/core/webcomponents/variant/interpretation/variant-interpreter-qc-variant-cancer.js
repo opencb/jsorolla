@@ -19,7 +19,8 @@ import UtilsNew from "../../../utilsNew.js";
 import Circos from "./test/circos.js";
 import "../opencga-variant-filter.js";
 import "../../commons/opencga-active-filters.js";
-import "../../../loading-spinner.js";
+import "../../commons/view/signature-view.js";
+import "../../loading-spinner.js";
 
 export default class VariantInterpreterQcVariantCancer extends LitElement {
 
@@ -42,6 +43,9 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
             },
             config: {
                 type: Object
+            },
+            active: {
+                type: Boolean
             }
         }
     }
@@ -77,129 +81,22 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
         this.requestUpdate();
     }
 
-    propertyObserver() {
-        console.log("this.query", this.query)
-        debugger
+    async propertyObserver() {
+        this.signature = null;
+        await this.requestUpdate();
         this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
             study: this.opencgaSession.study.fqn,
             fitting: false,
             sample: this.sampleId,
             ...this.query
         }).then( restResult => {
-            this.signaturePlot(restResult.getResult(0).signature);
+            this.signature = restResult.getResult(0).signature;
+            this.requestUpdate();
         }).catch( restResult => {
             console.error("error", restResult)
+        }).finally( () => {
+
         })
-    }
-
-    signaturePlot(result) {
-        const palette = {
-            "C>A": "#31bef0",
-            "C>G": "#000000",
-            "C>T": "#e62725",
-            "T>A": "#cbcacb",
-            "T>C": "#a1cf63",
-            "T>G": "#edc8c5"
-        };
-        const counts = result.counts;
-        //console.log("counts",counts)
-
-        const categories = counts.map(point => point?.context)
-        const data = counts.map(point => point?.total)
-
-        const substitutionClass = string => {
-            const [,pair,letter] = string.match(/[ACTG]\[(([ACTG])>[ACTG])\][ACTG]+/);
-            return {pair, letter};
-        }
-
-        const dataset = {
-            "C>A": [],
-            "C>G": [],
-            "C>T": [],
-            "T>A": [],
-            "T>C": [],
-            "T>G": []
-        };
-        for(let p of counts) {
-            if (p) {
-                const {pair} = substitutionClass(p.context);
-                dataset[pair].push(p.total);
-            }
-        }
-        const addRects = function(chart) {
-            $(".rect", this).remove();
-            $(".rect-label", this).remove();
-            let lastStart = 0;
-            for (const k in dataset) {
-                console.log("chart.categories",chart.xAxis)
-                console.log("k", dataset[k].length)
-                const xAxis = chart.xAxis[0];
-                chart.renderer.rect(xAxis.toPixels(lastStart), 30, xAxis.toPixels(dataset[k].length) - xAxis.toPixels(1), 10, 0)
-                    .attr({
-                        fill: palette[k],
-                        zIndex: 2
-                    }).addClass("rect")
-                    .add();
-
-                // for some reason toPixels(lastStart + dataset[k].length / 2) it isn't centered
-                chart.renderer.label(k, xAxis.toPixels(lastStart - 4 + dataset[k].length / 2), 0, "")
-                    .css({
-                        color: "#000",
-                        fontSize: "13px"
-                    })
-                    .attr({
-                        padding: 8,
-                        r: 5,
-                        zIndex: 3
-                    }).addClass("rect-label")
-                    .add();
-
-                lastStart += dataset[k].length;
-            }
-
-        };
-        $("#signature-plot").highcharts({
-            title: "title",
-            chart: {
-                type: "column",
-                events: {
-                    redraw: function() {
-                        addRects(this);
-                    },
-                    load: function() {
-                        addRects(this);
-                    }
-                },
-                marginTop: 70
-            },
-            credits: {
-                enabled: false
-            },
-            legend: {
-                enabled: false
-            },
-            tooltip: {
-                formatter: function() {
-                    const {pair, letter} = substitutionClass(this.x)
-                    return this.x.replace(pair, `<span style="color:${palette[pair]}">${letter}</span>`).replace("\[", "").replace("\]", "") + `<strong>:${this.y}</strong>`;
-                }
-            },
-            xAxis: {
-                categories: categories,
-                labels: {
-                    rotation: -90,
-                    formatter: function () {
-                        const {pair, letter} = substitutionClass(this.value)
-                        return this.value.replace(pair, `<span style="color:${palette[pair]}">${letter}</span>`).replace("\[", "").replace("\]", "");
-                    }
-                }
-            },
-            colors: Object.keys(dataset).flatMap(key => Array(dataset[key].length).fill(palette[key])),
-            series: [{
-                colorByPoint: "true",
-                data: data
-            }]
-        });
     }
 
     onVariantFilterChange(e) {
@@ -215,7 +112,6 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
     }
 
     onActiveFilterChange(e) {
-
         this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.requestUpdate();
     }
@@ -426,9 +322,7 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                                     </div>
                                     <div class="col-md-5">
                                         <h2>Signature</h2>
-                                        <div id="signature-plot" style="height: 300px">
-                                            <loading-spinner></loading-spinner>
-                                        </div>
+                                        <signature-view .signature="${this.signature}" .active="${this.active}"></signature-view>
                                         <!--<img width="480" src="https://cancer.sanger.ac.uk/signatures_v2/Signature-3.png">-->
                                         <div style="padding-top: 20px">
                                             <h2>Sample Stats</h2>

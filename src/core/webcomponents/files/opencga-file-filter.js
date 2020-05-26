@@ -15,13 +15,19 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../../utilsNew.js";
-import PolymerUtils from "../../../PolymerUtils.js";
-import "../variableSets/opencga-annotation-filter.js";
-import "../../../commons/filters/opencga-date-filter.js";
-import "../../../commons/filters/family-id-autocomplete.js";
+import UtilsNew from "../../utilsNew.js";
+import PolymerUtils from "../PolymerUtils.js";
+import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
+import "../opencga/catalog/variableSets/opencga-annotation-filter-dynamic.js";
+import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
+import "../commons/filters/opencga-date-filter.js";
+import "../commons/filters/text-field-filter.js";
+import "../commons/filters/select-field-filter.js";
+import "../commons/filters/select-token-filter.js";
+import "../commons/filters/file-name-autocomplete.js";
+import "../commons/filters/sample-id-autocomplete.js";
 
-export default class OpencgaFamilyFilter extends LitElement {
+export default class OpencgaFileFilter extends LitElement {
 
     constructor() {
         super();
@@ -37,14 +43,17 @@ export default class OpencgaFamilyFilter extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            // families: {
-            //     type: Array,
-            // },
+            opencgaClient: {
+                type: Object
+            },
+            files: {
+                type: Array
+            },
             query: {
-                type: Object,
+                type: Object
             },
             search: {
-                type: Object,
+                type: Object
             },
             variableSets: {
                 type: Array
@@ -52,14 +61,17 @@ export default class OpencgaFamilyFilter extends LitElement {
             variables: {
                 type: Array
             },
-            // minYear: {
-            //     type: Number
-            // },
-            // compact: {
-            //     type: Boolean
-            // },
+            minYear: {
+                type: Number
+            },
+            compact: {
+                type: Boolean
+            },
             config: {
                 type: Object
+            },
+            discriminator: {
+                type: String
             }
         };
     }
@@ -68,21 +80,21 @@ export default class OpencgaFamilyFilter extends LitElement {
         // super.ready();
         this._prefix = "osf-" + UtilsNew.randomString(6) + "_";
 
-
         this.annotationFilterConfig = {
             class: "small",
             buttonClass: "btn-sm",
             inputClass: "input-sm"
         };
 
+        //remove this, move into date-filter
         this.dateFilterConfig = {
             recentDays: 10
         };
         this.minYear = 1920;
-
         this.query = {};
         this.preparedQuery = {};
         this.searchButton = true;
+
     }
 
     connectedCallback() {
@@ -101,18 +113,6 @@ export default class OpencgaFamilyFilter extends LitElement {
         }
         if (changedProperties.has("variables")) {
             this.variablesChanged();
-        }
-    }
-
-    queryObserver() {
-        if (this._reset) {
-            console.log("onQueryUpdate: calling to 'renderQueryFilters()'", this.query);
-            this.preparedQuery = this.query;
-            // renderQueryFilters shouldn't be necessary anymore
-            // this.renderQueryFilters();
-            this.requestUpdate();
-        } else {
-            this._reset = true;
         }
     }
 
@@ -137,6 +137,18 @@ export default class OpencgaFamilyFilter extends LitElement {
         });
     }
 
+    onAnnotationChange(e) {
+        if (e.detail.value) {
+            this.preparedQuery.annotation = e.detail.value
+        } else {
+            delete this.preparedQuery.annotation
+        }
+        this.preparedQuery = {...this.preparedQuery};
+        this.notifyQuery(this.preparedQuery);
+        this.requestUpdate();
+    }
+
+    // TODO remove, use onAnnotationChange
     addAnnotation(e) {
         if (typeof this._annotationFilter === "undefined") {
             this._annotationFilter = {};
@@ -144,7 +156,8 @@ export default class OpencgaFamilyFilter extends LitElement {
         const split = e.detail.value.split("=");
         this._annotationFilter[split[0]] = split[1];
 
-        const _query = {...this.query};
+        const _query = {};
+        Object.assign(_query, this.query);
         const annotations = [];
         for (const key in this._annotationFilter) {
             annotations.push(`${key}=${this._annotationFilter[key]}`);
@@ -170,40 +183,60 @@ export default class OpencgaFamilyFilter extends LitElement {
         this._reset = true;
     }
 
-    onQueryUpdate() {
+    queryObserver() {
         if (this._reset) {
-            console.log("onQueryUpdate: calling to 'renderQueryFilters()'", this.query);
-            this.renderQueryFilters();
+            console.log("queryObserver: calling to 'renderQueryFilters()'", this.query, "discriminator", this.discriminator);
+            this.preparedQuery = this.query;
+            // this.renderQueryFilters();
+            this.requestUpdate();
         } else {
             this._reset = true;
         }
     }
 
+    /*
+    // TODO refactor!
     renderQueryFilters() {
         // Empty everything before rendering
         this._clearHtmlDom();
 
-        // Family
-        if (UtilsNew.isNotUndefined(this.query.id)) {
-            PolymerUtils.setValue(`${this._prefix}-family-input`, this.query.id);
+        console.log(this.querySelector(`${this._prefix}-name-input`));
+        // File name
+        if (UtilsNew.isNotUndefined(this.query.name)) {
+            PolymerUtils.setValue(`${this._prefix}-name-input`, this.query.name);
         }
 
-        // Members
-        if (UtilsNew.isNotUndefined(this.query.members)) {
-            PolymerUtils.setValue(`${this._prefix}-members-input`, this.query.members);
+        // File path
+        if (UtilsNew.isNotUndefined(this.query.path)) {
+            PolymerUtils.setValue(`${this._prefix}-path-input`, this.query.path);
         }
 
-        // Samples
-        // if (UtilsNew.isNotUndefined(this.query.samples)) {
-        //     PolymerUtils.setValue(`${this._prefix}-sample-input`, this.query.samples);
-        // }
-
-        // Phenotypes
-        if (UtilsNew.isNotUndefined(this.query.phenotypes)) {
-            PolymerUtils.setValue(`${this._prefix}-phenotypes-input`, this.query.phenotypes);
+        // Sample
+        if (UtilsNew.isNotUndefined(this.query.samples)) {
+            PolymerUtils.setValue(`${this._prefix}-sample-input`, this.query.samples);
         }
 
-    }
+        // File format
+        if (UtilsNew.isNotUndefined(this.query.format)) {
+            PolymerUtils.setValue(`${this._prefix}-format-input`, this.query.format);
+        }
+
+        // File bioformat
+        if (UtilsNew.isNotUndefined(this.query.bioformat)) {
+            PolymerUtils.setValue(`${this._prefix}-bioformat-input`, this.query.bioformat);
+        }
+        this.requestUpdate();
+    }*/
+
+    /*    filterChanged(e) {
+        console.log(e.target.name, e.target.value.trim());
+        if (e.target.value.trim()) {
+            this.query[e.target.name] = e.target.value.trim();
+        } else {
+            delete this.query[e.target.name];
+        }
+        console.log(this.query)
+    }*/
 
     onFilterChange(key, value) {
         console.log("filterChange", {[key]: value});
@@ -246,23 +279,34 @@ export default class OpencgaFamilyFilter extends LitElement {
     _createSubSection(subsection) {
         let content = "";
         switch (subsection.id) {
-            case "id":
-                content = html`<family-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></family-id-autocomplete>`;
+            case "name":
+                content = html`<file-name-autocomplete .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></file-name-autocomplete>`
                 break;
-            case "members":
-                content = html`<individual-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></individual-id-autocomplete>`
+            case "samples":
+                content = html`<sample-id-autocomplete .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></sample-id-autocomplete>`
                 break;
-            case "disorders":
-            case "phenotypes":
+            case "path":
+            case "bioformat":
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;
+            case "format":
+            case "internal.index.status.name":
+                content = html`<select-field-filter multiple .value="${this.preparedQuery[subsection.id]}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
+                break;
             case "annotations":
-                content = html`<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
+                content = html`
+                        <opencga-annotation-filter-modal .opencgaSession="${this.opencgaSession}"
                                                       .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                      entity="FAMILY"
+                                                      entity="FILE"
                                                       .config="${this.annotationFilterConfig}"
-                                                      @filterannotation="${this.addAnnotation}">
-                           </opencga-annotation-filter>`;
+                                                      .selectedVariablesText="${this.preparedQuery.annotation}"
+                                                      @annotationChange="${this.onAnnotationChange}">
+                        </opencga-annotation-filter-modal>
+                           <!--<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
+                                                          .config="${this.annotationFilterConfig}"
+                                                          entity="FILE"
+                                                          @filterannotation="${this.addAnnotation}">
+                           </opencga-annotation-filter>-->`;
                 break;
             case "date":
                 content = html`<opencga-date-filter .config="${this.dateFilterConfig}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>`;
@@ -270,6 +314,7 @@ export default class OpencgaFamilyFilter extends LitElement {
             default:
                 console.error("Filter component not found");
         }
+
         return html`
                     <div class="form-group">
                         <div class="browser-subsection" id="${subsection.id}">${subsection.name}
@@ -285,58 +330,86 @@ export default class OpencgaFamilyFilter extends LitElement {
                 `;
     }
 
-    calculateFilters(e) {
-        const _query = {};
-
-        const name = PolymerUtils.getValue(`${this._prefix}-family-input`);
-        if (UtilsNew.isNotEmpty(name)) {
-            _query.id = name;
-        }
-
-        // let samples = PolymerUtils.getValue(`${this._prefix}-samples-input`);
-        // if (UtilsNew.isNotEmpty(samples)) {
-        //     _query.samples = samples;
-        // }
-
-        const members = PolymerUtils.getValue(`${this._prefix}-members-input`);
-        if (UtilsNew.isNotEmpty(members)) {
-            _query.members = members;
-        }
-
-        const phenotypes = PolymerUtils.getValue(`${this._prefix}-phenotypes-input`);
-        if (UtilsNew.isNotEmpty(phenotypes)) {
-            _query.phenotypes = phenotypes;
-        }
-
-        // keep annotation filter
-        if (UtilsNew.isNotEmpty(this.query.annotation)) {
-            _query.annotation = this.query.annotation;
-        }
-
-        // keep date filters
-        if (UtilsNew.isNotEmpty(this.query.creationDate)) {
-            _query.creationDate = this.query.creationDate;
-        }
-
-        // To prevent to call renderQueryFilters we set this to false
-        this._reset = false;
-        this.query = _query;
-        this._reset = true;
-    }
-
-    /**
-     * Use custom CSS class to easily reset all controls.
-     */
-    _clearHtmlDom() {
-        // Input controls
-        PolymerUtils.setPropertyByClassName(this._prefix + "FilterTextInput", "value", "");
-        PolymerUtils.removeAttributebyclass(this._prefix + "FilterTextInput", "disabled");
-
-        $(`#${this._prefix}FamilySelection .selectpicker`).selectpicker("val", "");
+    isNotEmpty(myArray) {
+        return UtilsNew.isNotEmptyArray(myArray);
     }
 
     render() {
-        return html`${this.searchButton ? html`
+        return html`
+        <style include="jso-styles">
+            .label-opencga-file-filter {
+                padding-top: 10px;
+            }
+            span + span {
+                margin-left: 10px;
+            }
+
+            .browser-ct-scroll {
+                /*max-height: 450px;*/
+                /*overflow-y: scroll;*/
+                overflow-x: scroll;
+            }
+
+            .browser-ct-tree-view,
+            .browser-ct-tree-view * {
+                padding: 0;
+                margin: 0;
+                list-style: none;
+            }
+
+            .browser-ct-tree-view li ul {
+                margin: 0 0 0 22px;
+            }
+
+            .browser-ct-tree-view * {
+                vertical-align: middle;
+            }
+
+            .browser-ct-tree-view {
+                /*font-size: 14px;*/
+            }
+
+            .browser-ct-tree-view input[type="checkbox"] {
+                cursor: pointer;
+            }
+
+            .browser-ct-item {
+                white-space: nowrap;
+                display: inline
+            }
+
+            div.block {
+                overflow: hidden;
+            }
+
+            div.block label {
+                width: 80px;
+                display: block;
+                float: left;
+                text-align: left;
+                font-weight: normal;
+            }
+
+            select + select {
+                margin-left: 10px;
+            }
+
+            select + input {
+                margin-left: 10px;
+            }
+
+            span.searchingSpan{
+                background-color: #286090;
+            }
+            .searchingButton{
+                color: #fff;
+            }
+            .notbold{
+                font-weight: normal;
+            }
+        </style>
+
+        ${this.searchButton ? html`
             <div class="search-button-wrapper">
                 <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
                     <i class="fa fa-search" aria-hidden="true"></i> Search
@@ -345,12 +418,11 @@ export default class OpencgaFamilyFilter extends LitElement {
             ` : null}
 
         <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
-                <div class="">
-                    ${this.config.sections && this.config.sections.length ? this.config.sections.map( section => this._createSection(section)) : html`No filter has been configured.`}
-                </div>
+                ${this.config.sections && this.config.sections.length ? this.config.sections.map( section => this._createSection(section)) : html`No filter has been configured.`}
         </div>
         `;
     }
+
 }
 
-customElements.define("opencga-family-filter", OpencgaFamilyFilter);
+customElements.define("opencga-file-filter", OpencgaFileFilter);

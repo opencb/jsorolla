@@ -18,13 +18,12 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../../utilsNew.js";
 
 
-/** NOTE - Design choice: in case of single mode (this.multiple=false), in order to show the placeholder ("Select an option") and NOT adding a dummy option to allow null selection,
- *  the single selection mode is implemented still with the multiple flag in bootstrap-select, but forcing 1 selection with data-max-options=1
+/** NOTE - Design choice: to allow deselection, the single mode (this.multiple=false), has been implemented with the multiple flag in bootstrap-select, but forcing 1 selection with data-max-options=1
  *  (this has no consequences for the developer point of view)
  *
  *  Usage:
  * <select-field-filter .data="${["A","B","C"]}" .value=${"A"} @filterChange="${e => console.log(e)}"></select-field-filter>
- * <select-field-filter .data="${[{id: "a", name: "A", {id:"b", name: "B"}, {id: "c", name: "C"}]}" .value=${"a"} @filterChange="${e => console.log(e)}"></select-field-filter>
+ * <select-field-filter .data="${[{id: "a", name: "A"}, {id:"b", name: "B"}, {id: "c", name: "C"}]}" .value=${"a"} @filterChange="${e => console.log(e)}"></select-field-filter>
  */
 
 export default class SelectFieldFilter extends LitElement {
@@ -42,7 +41,7 @@ export default class SelectFieldFilter extends LitElement {
 
     static get properties() {
         return {
-            // NOTE value (default Values) can be either a single value as string or a comma separated list (this decision is due to easily manage default values in case of array of objects)
+            // NOTE value (default Values) can be either a single value as string or a comma separated list
             value: {
                 type: String
             },
@@ -88,8 +87,6 @@ export default class SelectFieldFilter extends LitElement {
             this.selectPicker.selectpicker("refresh");
         }
         if (_changedProperties.has("value")) {
-            // TODO FIXME force null to "CUSTOM" works in 1 case out of 2 in variant-filter-clinical..
-            //$(".selectpicker", this).selectpicker("val", this.value ? (this.multiple ? this.value.split(",") : this.value) : "CUSTOM");
             this.selectPicker.selectpicker("val", this.value ? (this.multiple ? this.value.split(",") : this.value) : "");
             //this.requestUpdate()
             //$(".selectpicker", this).selectpicker("refresh");

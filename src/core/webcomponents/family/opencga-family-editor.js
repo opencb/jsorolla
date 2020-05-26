@@ -15,9 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../../utilsNew.js";
-import PolymerUtils from "../../../PolymerUtils.js";
-import "../../../individual/opencga-individual-browser.js";
+import UtilsNew from "../../utilsNew.js";
+import PolymerUtils from "../PolymerUtils.js";
+import "../individual/opencga-individual-browser.js";
 import {NotificationQueue} from "../../../Notification.js";
 
 export default class OpencgaFamilyEditor extends LitElement {

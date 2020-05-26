@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./variant-interpreter-qc-summary.js";
 import "./variant-interpreter-qc-variant.js";
@@ -54,6 +55,7 @@ class VariantInterpreterQc extends LitElement {
 
     _init() {
         this._prefix = "vcis-" + UtilsNew.randomString(6);
+        this.activeTab = {"Summary": true}; //default active tab
     }
 
     connectedCallback() {
@@ -70,6 +72,21 @@ class VariantInterpreterQc extends LitElement {
         // if (changedProperties.has("clinicalAnalysis")) {
         //     this.clinicalAnalysisObserver();
         // }
+    }
+
+    _changeTab(e) {
+        e.preventDefault();
+        const tabId = e.currentTarget.dataset.id;
+        const navTabs = $(`#${this._prefix}QcTabs > .nav-tabs > .content-pills`, this);
+        const contentTabs = $(`#${this._prefix}QcTabs > .content-tab-wrapper > .tab-pane`, this);
+        if (!e.currentTarget.className.includes("disabled")) {
+            navTabs.removeClass("active");
+            contentTabs.removeClass("active");
+            $("#" + this._prefix + tabId).addClass("active");
+            for (const tab in this.activeTab) this.activeTab[tab] = false;
+            this.activeTab[tabId] = true;
+            this.requestUpdate();
+        }
     }
 
     clinicalAnalysisIdObserver() {
@@ -105,82 +122,77 @@ class VariantInterpreterQc extends LitElement {
         // }
 
         return this.clinicalAnalysis ? html`
-            <div>
-                <ul id="${this._prefix}QcTabs" class="nav nav-tabs nav-center" role="tablist">
-                    <li role="presentation" class="active">
-                        <a href="#${this._prefix}Summary" role="tab" data-toggle="tab" data-id="${this._prefix}Summary"
-                            class="browser-variant-tab-title">Summary
+            <div id="${this._prefix}QcTabs">
+                <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
+                    <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["Summary"]})}">
+                        <a href="javascript: void 0" role="tab" data-id="Summary" @click="${this._changeTab}" class="tab-title">Summary
                         </a>
                     </li>
-                    <li role="presentation">
-                        <a href="#${this._prefix}Variants" role="tab" data-toggle="tab" data-id="${this._prefix}Variants"
-                            class="browser-variant-tab-title">Variant
+                    <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Variants"]})}">
+                        <a href="javascript: void 0" role="tab" data-id="Variants" @click="${this._changeTab}" class="tab-title">Variant
                         </a>
                     </li>
-                    <li role="presentation" class="">
-                        <a href="#${this._prefix}Alignment" role="tab" data-toggle="tab" data-id="${this._prefix}Alignment"
-                            class="browser-variant-tab-title">Alignment
+                    <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Alignment"]})}">
+                        <a href="javascript: void 0" role="tab" data-id="Alignment" @click="${this._changeTab}" class="tab-title">Alignment
                         </a>
                     </li>
-                    <li role="presentation" class="">
-                        <a href="#${this._prefix}Coverage" role="tab" data-toggle="tab" data-id="${this._prefix}Coverage"
-                            class="browser-variant-tab-title">Coverage
+                    <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Coverage"]})}">
+                        <a href="javascript: void 0" role="tab" data-id="Coverage" @click="${this._changeTab}" class="tab-title">Coverage
                         </a>
                     </li>
-                    ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
-                        ? html`
-                            <li role="presentation" class="disabled">
-                                <a href="#${this._prefix}Upd" role="tab" data-toggle="tab" data-id="${this._prefix}Upd"
-                                    class="browser-variant-tab-title">UPD (coming soon)
-                                </a>
-                            </li>`
-                        : ""
-                    }
-                    <li role="presentation" class="">
-                        <a href="#${this._prefix}GenomeBrowser" role="tab" data-toggle="tab" data-id="${this._prefix}GenomeBrowser"
-                                class="browser-variant-tab-title">Genome Browser
+                    ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY" ? html`
+                        <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Upd"]})}">
+                            <a href="javascript: void 0" role="tab" data-id="Upd" @click="${this._changeTab}" class="tab-title disabled">UPD (coming soon)
+                            </a>
+                        </li>` : null }
+                    <li role="presentation" class="content-pills ${classMap({active: this.activeTab["GenomeBrowser"]})}">
+                        <a href="javascript: void 0" role="tab" data-id="GenomeBrowser" @click="${this._changeTab}" class="tab-title">Genome Browser
                         </a>
                     </li>
                 </ul>
-            </div>
-               
-            <div class="tab-content">
-                <div id="${this._prefix}Summary" role="tabpanel" class="tab-pane active col-md-10 col-md-offset-1">
-                    <variant-interpreter-qc-summary .opencgaSession="${this.opencgaSession}" 
-                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
-                    </variant-interpreter-qc-summary>
-                </div>
-                <div id="${this._prefix}Variants" role="tabpanel" class="tab-pane">
-                    <variant-interpreter-qc-variant .opencgaSession="${this.opencgaSession}" 
-                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
-                    </variant-interpreter-qc-variant>
-                </div>
-                <div id="${this._prefix}Alignment" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1">
-                    <variant-interpreter-qc-alignment   .opencgaSession="${this.opencgaSession}" 
-                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
-                    </variant-interpreter-qc-alignment>
-                </div>
-                <div id="${this._prefix}Coverage" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1">
-                    <gene-coverage-view .opencgaSession="${this.opencgaSession}"
-                                        .cellbaseClient="${this.cellbaseClient}"
-                                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                                        .geneIds="${this.geneIds}"
-                                        .panelIds="${this.diseasePanelIds}">
-                     </gene-coverage-view>
-                </div>
-                ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
-                    ? html`
-                        <div id="${this._prefix}Upd" role="tabpanel" class="tab-pane">
-                            <h3>Not implemented yet.</h3>
-                        </div>`
-                    : ""
-                }
-                <div id="${this._prefix}GenomeBrowser" role="tabpanel" class="tab-pane">
-                    <opencga-variant-interpreter-genome-browser .opencgaSession="${this.opencgaSession}"
-                                                                .cellbaseClient="${this.cellbaseClient}"
-                                                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                .config="${this._config}">
-                    </opencga-variant-interpreter-genome-browser>
+                
+                <div class="content-tab-wrapper">
+                    <div id="${this._prefix}Summary" role="tabpanel" class="tab-pane active col-md-10 col-md-offset-1 content-tab">
+                        <variant-interpreter-qc-summary .opencgaSession="${this.opencgaSession}" 
+                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                        .active="${this.activeTab["Summary"]}">
+                        </variant-interpreter-qc-summary>
+                    </div>
+                    <div id="${this._prefix}Variants" role="tabpanel" class="tab-pane content-tab">
+                        <variant-interpreter-qc-variant .opencgaSession="${this.opencgaSession}" 
+                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                        .active="${this.activeTab["Variants"]}">
+                        </variant-interpreter-qc-variant>
+                    </div>
+                    <div id="${this._prefix}Alignment" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
+                        <variant-interpreter-qc-alignment   .opencgaSession="${this.opencgaSession}" 
+                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                            .active="${this.activeTab["Alignment"]}">
+                        </variant-interpreter-qc-alignment>
+                    </div>
+                    <div id="${this._prefix}Coverage" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
+                        <gene-coverage-view .opencgaSession="${this.opencgaSession}"
+                                            .cellbaseClient="${this.cellbaseClient}"
+                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                            .geneIds="${this.geneIds}"
+                                            .panelIds="${this.diseasePanelIds}">
+                         </gene-coverage-view>
+                    </div>
+                    ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
+                        ? html`
+                            <div id="${this._prefix}Upd" role="tabpanel" class="tab-pane content-tab">
+                                <h3>Not implemented yet.</h3>
+                            </div>`
+                        : ""
+                    }
+                    <div id="${this._prefix}GenomeBrowser" role="tabpanel" class="tab-pane content-tab">
+                        <opencga-variant-interpreter-genome-browser .opencgaSession="${this.opencgaSession}"
+                                                                    .cellbaseClient="${this.cellbaseClient}"
+                                                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                    .config="${this._config}"
+                                                                    .active="${this.activeTab["GenomeBrowser"]}">
+                        </opencga-variant-interpreter-genome-browser>
+                    </div>
                 </div>
             </div>
         ` : null;

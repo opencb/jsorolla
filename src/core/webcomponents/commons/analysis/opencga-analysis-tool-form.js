@@ -68,7 +68,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                             // since we use this.config as unique source of truth we can imagine to change any other prop here (like allowedValues)
                             param.disabled = !this.checkDependency(param.dependsOn);
                         } else {
-                            param.disabled = false;
+                            param.disabled = param.disabled ?? false;
                         }
                     });
                 }

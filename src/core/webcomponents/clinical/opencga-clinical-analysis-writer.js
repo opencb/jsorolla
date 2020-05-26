@@ -341,7 +341,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 render: (data) => {
                                     return html`
                                         <family-id-autocomplete 
-                                            .opencgaSession="${this.opencgaSession}" ?disabled=${this.mode === "update"} @filterChange="${e => this.onFamilyChange(e)}">
+                                            .opencgaSession="${this.opencgaSession}" ?disabled=${this.mode === "update"} .config=${{addButton: false}} @filterChange="${e => this.onFamilyChange(e)}">
                                         </family-id-autocomplete>`
                                 },
                             }

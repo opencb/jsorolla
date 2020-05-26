@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import UtilsNew from "./../../../utilsNew.js";
 
 
@@ -87,7 +88,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
             displayText: item => {
                 //return this._config.template(item);
                 //return item.name + "<p class=\"dropdown-item-extra\"><label>Individual ID</label>" + item.individual + "</p>";
-                return item.name + (item.secondary ? Object.entries(item.secondary).map( ([label, value]) => `<p class="dropdown-item-extra"><label>${label}</label> ${value}</p>`) : "");
+                return item.name + (item.secondary ? Object.entries(item.secondary).map(([label, value]) => `<p class="dropdown-item-extra"><label>${label}</label> ${value}</p>`) : "");
             },
             highlighter: Object,
             afterSelect: item => {
@@ -99,7 +100,12 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
             if (current) {
                 if (current.name === this.input.val()) {
                     // This means the exact match is found. Use toLowerCase() if you want case insensitive match.
-                    console.log("exact match", this.input.val());
+
+                    //simple mode: no add button
+                    if (!this._config.addButton) {
+                        this.addTerm();
+                    }
+
                     //this.selection = this.input.val();
                     //this.filterChange();
                 } else {
@@ -130,27 +136,6 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
             this.requestUpdate();
         }
     }
-    /*
-    client() {
-        switch (this.resource) {
-            case "files":
-                return this.opencgaSession.opencgaClient.files();
-            case "samples":
-                return this.opencgaSession.opencgaClient.samples();
-            case "individuals":
-                return this.opencgaSession.opencgaClient.individuals();
-            case "cohort":
-                return this.opencgaSession.opencgaClient.cohorts();
-            case "family":
-                return this.opencgaSession.opencgaClient.families();
-            case "clinical-analysis":
-                return this.opencgaSession.opencgaClient.clinical();
-            case "jobs":
-                return this.opencgaSession.opencgaClient.jobs();
-            default:
-                console.error("Resource not recognized");
-        }
-    }*/
 
     filterChange() {
         this.value = this.selectionList.length ? this.selectionList.join(",") : null; // this allows the users to get the selected values using DOMElement.value
@@ -208,6 +193,10 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
         this.requestUpdate();
     }
 
+    toggleCollapse(e) {
+        $(e.currentTarget.dataset.collapse).collapse("toggle");
+    }
+
     getDefaultConfig() {
         return {
             limit: 10,
@@ -216,15 +205,12 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
             limitToShow: 3,
             fileUpload: false,
             showList: false,
+            addButton: true,
             fields: item => ({name: item.id}),
             dataSource: (query, process) => {
                 throw new Error("dataSource not defined");
             }
         };
-    }
-
-    toggleCollapse(e) {
-        $(e.currentTarget.dataset.collapse).collapse("toggle");
     }
 
     render() {
@@ -308,9 +294,9 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
             </style>
             <div class="form-group select-field-filter-autocomplete">
                 <form autocomplete="off" action="javascript:void 0">
-                    <div class="input-group">
+                    <div class="${classMap({"input-group": this._config.addButton})}">
                         <input name="sample" type="text" class="form-control typeahead" data-provide="typeahead" autocomplete="off" placeholder="${this._config.placeholder || "Start typing"}" />
-                        <span class="input-group-addon" @click="${this.addTerm}"><i class="fas fa-plus"></i></span>
+                        ${this._config.addButton ? html`<span class="input-group-addon" @click="${this.addTerm}"><i class="fas fa-plus"></i></span>` : null}
                         ${this._config.fileUpload ? html`<span class="input-group-addon separator"></span>
                         <span class="input-group-addon" data-collapse="#${this._prefix}file-form" @click="${this.toggleCollapse}"><i class="fas fa-upload"></i></span>` : ""}
                     </div>
@@ -348,7 +334,6 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
             </div>
         `;
     }
-
 }
 
 customElements.define("select-field-filter-autocomplete", SelectFieldFilterAutocomplete);
