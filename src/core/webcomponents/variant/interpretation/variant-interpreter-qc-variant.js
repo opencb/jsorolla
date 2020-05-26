@@ -97,6 +97,7 @@ class VariantInterpreterQcVariant extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     _this.clinicalAnalysis = response.responses[0].results[0];
+                    _this.requestUpdate();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);

@@ -84,10 +84,11 @@ class SampleVariantStatsView extends LitElement {
         console.log("sampleIdObserver")
         // TODO ISDBM322015 is hardcoded as is the only one available yet
         if(1 || this.sampleId) {
-            this.opencgaSession.opencgaClient.variants().infoSampleStats("ISDBM322015", {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.variants().infoSampleStats(this.ssampleId, {study: this.opencgaSession.study.fqn})
                 .then( response => {
                     console.log("response SAMPLE", response)
                     this.sample = response.getResult(0);
+                    this.requestUpdate();
                 }).catch( response => {
                     console.error(response)
                     this.sample = null;
