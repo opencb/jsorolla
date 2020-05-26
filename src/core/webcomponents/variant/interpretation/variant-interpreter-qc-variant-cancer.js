@@ -19,7 +19,7 @@ import UtilsNew from "../../../utilsNew.js";
 import "../opencga-variant-filter.js";
 import "../../commons/opencga-active-filters.js";
 import "../../../loading-spinner.js";
-import Circos from "./circos.js";
+import Circos from "./test/circos.js";
 
 export default class VariantInterpreterQcVariantCancer extends LitElement {
 
