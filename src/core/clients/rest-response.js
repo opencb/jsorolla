@@ -21,7 +21,7 @@ export class RestResponse {
 
     /**
      * @param {Object} response The response object
-     * @throw {Error} in case of wrong structure
+     * @throw {Error} in case of unexpected response structure
      */
     constructor(response) {
         try {
@@ -92,17 +92,17 @@ export class RestResponse {
      *  Return all results out of all responses (or from a single node in case 'responsePos' is defined) in form of Iterator
      * @param {Number} responsePos The index of the response
      *  Consumer-side usage examples:
-     *  <pre><code>
-     *      for (let a of responseInstance.resultIterator()) {
-     *          console.log(a)
-     *      }
-     * </code></pre>
-     *      let a, it = responseInstance.resultIterator();
+     *
+     * 1. for (let a of responseInstance.resultIterator()) {
+     *      console.log(a)
+     *    }
+     *
+     * 2. let a, it = responseInstance.resultIterator();
      *      while(!(a = it.next()).done) {
      *          console.log(a)
      *      }
      *
-     * console.log(...responseInstance.resultIterator())
+     * 3. console.log(...responseInstance.resultIterator())
      *
      */
     * resultIterator(responsePos) {
@@ -150,32 +150,16 @@ export class RestResponse {
      * @return {Object | Array} The retrieved event object or the list of events in case of no eventType defined.
      */
     getEvents(eventType) {
-        // const eventNames = ["INFO", "WARNING", "ERROR"];
-        // if (!eventType || !this.events.length) {
-        //     return this.events || [];
-        // } else if (eventNames.includes(eventType)) {
-        //     return this.events.find( event => event.type === eventType);
-        // } else {
-        //     throw new Error(`Argument "eventType" must be one of the following values: "${eventNames.join(", ")}"`);
-        // }
         return this._filterEvents(this.events, eventType);
     }
 
     /**
-     * @param {String} eventType The type of the event to retieve
+     * @param {String} eventType The type of the event to retrieve
      * @param {Number} [responsePos = 0] The node index
      * @return {Array} The list of the events
      * @throw {Error} in case of the param "eventType" is not a valid value
      */
     getResultEvents(eventType, responsePos = 0) {
-        // const eventNames = ["INFO", "WARNING", "ERROR"];
-        // if (!eventType) {
-        //     return this.responses[responsePos].events || [];
-        // } else if (eventNames.includes(eventType)) {
-        //     return this.responses[responsePos].events ? this.responses[responsePos].events.filter( event => event.type === eventType) : [];
-        // } else {
-        //     throw new Error(`Argument "eventType" must be one of the following values: "${eventNames.join(", ")}"`);
-        // }
         return this._filterEvents(this.responses[responsePos].events, eventType);
     }
 

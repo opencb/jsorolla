@@ -449,7 +449,7 @@ export default class DataForm extends LitElement {
             return html`
                 <div class="col-md-${width}">
                     <select-field-filter .data="${allowedValues}" ?multiple="${element.multiple}" ?disabled=${disabled} ?required=${element.required} 
-                                            .value="${defaultValue}" maxOptions="1"  @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                                            .value="${defaultValue}" @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                     </select-field-filter>
                 </div>
             `;

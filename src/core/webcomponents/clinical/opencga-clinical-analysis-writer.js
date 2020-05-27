@@ -89,6 +89,10 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
         }
     }
 
+    notifyClinicalAnalysisUpdate() {
+        console.log("notifyClinicalAnalysisUpdate")
+    }
+
     onFieldChange(e) {
         switch (e.detail.param) {
             case "type":
@@ -109,8 +113,8 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
             case "dueDate":
                 this.clinicalAnalysis.dueDate = UtilsNew.getDatetime(e.detail.value);
                 break;
-            case "analyst.responsible":
-                this.clinicalAnalysis.analyst = {responsible: e.detail.value};
+            case "analyst.assignee":
+                this.clinicalAnalysis.analyst = {assignee: e.detail.value};
                 break;
             default:
                 this.clinicalAnalysis[e.detail.param] = e.detail.value;
@@ -118,12 +122,13 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
         }
 
         this.clinicalAnalysis = {...this.clinicalAnalysis};
-        this.notifyClinicalAnalysisUpdate();
+        //this.notifyClinicalAnalysisUpdate();
         this.requestUpdate();
     }
 
     onFamilyChange(e) {
         if (e.detail.value) {
+            console.log("e.detail.value",e.detail.value)
             this.clinicalAnalysis.type = "FAMILY";
             let _this = this;
             this.opencgaSession.opencgaClient.families().info(e.detail.value, {study: this.opencgaSession.study.fqn})
@@ -259,6 +264,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 name: "Interpretation Flags",
                                 field: "flags",
                                 type: "select",
+                                multiple: true,
                                 allowedValues: ["mixed_chemistries", "low_tumour_purity", "uniparental_isodisomy", "uniparental_heterodisomy",
                                     "unusual_karyotype", "suspected_mosaicism", "low_quality_sample"],
                                 display: {
@@ -288,7 +294,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             },
                             {
                                 name: "Assigned To",
-                                field: "analyst.responsible",
+                                field: "analyst.assignee",
                                 type: "select",
                                 allowedValues: "_users",
                                 display: {
@@ -341,7 +347,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 render: (data) => {
                                     return html`
                                         <family-id-autocomplete 
-                                            .opencgaSession="${this.opencgaSession}" ?disabled=${this.mode === "update"} .config=${{addButton: false}} @filterChange="${e => this.onFamilyChange(e)}">
+                                            .opencgaSession="${this.opencgaSession}" ?disabled=${this.mode === "update"} .config=${null} @filterChange="${e => this.onFamilyChange(e)}">
                                         </family-id-autocomplete>`
                                 },
                             }
@@ -481,6 +487,11 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                 data.proband = {
                     id: data.proband?.id
                 };
+                data.disorder = {
+                    id: data.disorder.id
+                }
+                data.flags = data.flags.split(",")
+
                 if (data.type === "FAMILY") {
                     data.family = {
                         id: data.family.id,
@@ -490,6 +501,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
 
                 let _this = this;
                 if (this.mode === "create") {
+                    debugger
                     opencgaSession.opencgaClient.clinical().create(data, {study: opencgaSession.study.fqn})
                         .then(function(response) {
                             new NotificationQueue().push(`Clinical analysis ${response.responses[0].results[0].id} created successfully`, null,"success");

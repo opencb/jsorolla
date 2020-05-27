@@ -91,11 +91,12 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
             ...this.query
         }).then( restResult => {
             this.signature = restResult.getResult(0).signature;
-            this.requestUpdate();
-        }).catch( restResult => {
-            console.error("error", restResult)
+            }).catch( restResponse => {
+            this.signature = {
+                errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
+            };
         }).finally( () => {
-
+            this.requestUpdate();
         })
     }
 

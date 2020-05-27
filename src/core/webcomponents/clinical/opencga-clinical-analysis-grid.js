@@ -366,37 +366,31 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         // The clinical anlysisi id is in: e.target.dataset.id
     }
 
-    onDelete(e, value, row) {
+    onClickAction(e, value, row) {
         console.log(e.target, value, row);
         const action = e.currentTarget.dataset.action;
         if (action === "delete") {
-            // Swal.fire({
-            //     title: "Are you sure?",
-            //     text: "You won't be able to revert this!",
-            //     icon: "warning",
-            //     showCancelButton: true,
-            //     confirmButtonColor: "#3085d6",
-            //     cancelButtonColor: "#d33",
-            //     confirmButtonText: "Yes, delete it!"
-            // }).then(result => {
-            //     debugger
-            //     if (result.value) {
-            //         Swal.fire(
-            //             "Deleted!",
-            //             "Clinical Analysis has been deleted.",
-            //             "success"
-            //         )
-            //     }
-            // });
-            // debugger
-            this.opencgaSession.opencgaClient.clinical().delete(row.id, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    this.renderTable();
-                    this.requestUpdate();
-                })
-                .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
-                });
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then(result => {
+                if (result.value) {
+                    const clinicalAnalysisId = row.id;
+                    this.opencgaSession.opencgaClient.clinical().delete(clinicalAnalysisId, {study: this.opencgaSession.study.fqn}).then( restResponse => {
+                        console.log("restResponse", restResponse)
+                    })
+                    Swal.fire(
+                        "Deleted!",
+                        "Clinical Analysis has been deleted.",
+                        "success"
+                    )
+                }
+            })
         }
     }
 
