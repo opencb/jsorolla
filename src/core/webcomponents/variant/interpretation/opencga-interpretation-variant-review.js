@@ -37,13 +37,7 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
             },
             variant: {
                 type: Object,
-                //observer: "variantObserver"
             },
-            // active: {
-            //     type: Boolean,
-            //     value: false,
-            //     observer: "activeObserver"
-            // }
         }
     }
 
@@ -52,7 +46,7 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
     }
 
     updated(changedProperties) {
-        if(changedProperties.has("variant")) {
+        if (changedProperties.has("variant")) {
             this.variantObserver();
         }
     }
@@ -63,38 +57,36 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles"></style>
-
-        <span>${this.variant ? this.variant.id : ""}</span>
-        <div class="form-horizontal" data-toggle="validator" role="form">
-
-            <div class="form-group">
-                <label class="control-label col-md-1 jso-label-title">Interpretation ID</label>
-                <div class="col-md-3">
-                    <input type="text" id="${this._prefix}IDInterpretation" class="${this._prefix}TextInput form-control"
-                           placeholder="ID of the interpretation" data-field="id" @input="${this.onInputChange}"
-                           value="">
+            <span>${this.variant ? this.variant.id : ""}</span>
+            <div class="form-horizontal" data-toggle="validator" role="form">
+    
+                <div class="form-group">
+                    <label class="control-label col-md-1 jso-label-title">Tier</label>
+                    <div class="col-md-3">
+                        <input type="text" id="${this._prefix}IDInterpretation" class="${this._prefix}TextInput form-control"
+                               placeholder="ID of the interpretation" data-field="id" @input="${this.onInputChange}"
+                               value="">
+                    </div>
                 </div>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label col-md-1 jso-label-title">Comment</label>
-                <div class="col-md-3">
-                    <input type="text" id="${this._prefix}CommentInterpretation" class="${this._prefix}TextInput form-control"
-                           placeholder="Add a comment" data-field="comment">
+                
+                <div class="form-group">
+                    <label class="control-label col-md-1 jso-label-title">Status</label>
+                    <div class="col-md-3">
+                        <input type="text" id="${this._prefix}CommentInterpretation" class="${this._prefix}TextInput form-control"
+                               placeholder="Add a comment" data-field="comment">
+                    </div>
                 </div>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label col-md-1 jso-label-title">Description</label>
-                <div class="col-md-3">
-                    <textarea id="${this._prefix}DescriptionInterpretation" class="${this._prefix}TextInput form-control"
-                              placeholder="Description of the interpretation" data-field="description"
-                              @input="${this.onInputChange}"></textarea>
+                
+                <div class="form-group">
+                    <label class="control-label col-md-1 jso-label-title">Comment</label>
+                    <div class="col-md-3">
+                        <textarea id="${this._prefix}CommentInterpretation" class="${this._prefix}TextInput form-control"
+                                  placeholder="Add a comment" data-field="comment"
+                                  @input="${this.onInputChange}"></textarea>
+                    </div>
                 </div>
+                
             </div>
-
-        </div>
         `;
     }
 }

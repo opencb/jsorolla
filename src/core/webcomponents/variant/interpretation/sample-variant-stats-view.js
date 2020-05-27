@@ -37,7 +37,7 @@ class SampleVariantStatsView extends LitElement {
                 type: Object
             },
             sampleId: {
-                type: Object
+                type: String
             },
             sampleVariantStats: {
                 type: Object
@@ -78,12 +78,11 @@ class SampleVariantStatsView extends LitElement {
     }
 
     sampleIdObserver() {
-        console.log("sampleIdObserver")
-        // TODO ISDBM322015 is hardcoded as is the only one available yet
-        if(1 || this.sampleId) {
+        if (this.sampleId) {
             this.opencgaSession.opencgaClient.variants().infoSampleStats(this.sampleId, {study: this.opencgaSession.study.fqn})
                 .then( response => {
                     this.sample = response.getResult(0);
+                    debugger
                     this.requestUpdate();
                 }).catch( response => {
                     console.error(response)
@@ -110,7 +109,7 @@ class SampleVariantStatsView extends LitElement {
                 }
             </style>
             <div>
-                <h3>Sample Variant Stats</h3>
+<!--                <h3>Sample Variant Stats</h3>-->
                 <!-- <span>We must use the new component opencga-sample-variant-stats for 
                 <a href="https://github.com/opencb/biodata/blob/develop/biodata-models/src/main/avro/variantMetadata.avdl#L122" target="_blank">https://github.com/opencb/biodata/blob/develop/biodata-models/src/main/avro/variantMetadata.avdl#L122</a></span> -->
                 ${this.sample ? html`

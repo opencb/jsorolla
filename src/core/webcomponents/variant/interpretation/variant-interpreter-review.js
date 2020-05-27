@@ -29,6 +29,7 @@ export default class VariantInterpreterReview extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -160,8 +161,6 @@ export default class VariantInterpreterReview extends LitElement {
             // this.fillForm(this._interpretation);
             this.requestUpdate();
         }
-
-
     }
 
     toggleInterpretationCollapsed(e) {
@@ -545,11 +544,8 @@ export default class VariantInterpreterReview extends LitElement {
                 </div>
 
                 
-
                 
                 <div class="col-md-12">
-                
-                    
                     <div>
                         <!-- <h3 class="form-section-title" style="margin-top: 10px">Interpretation</h3> -->
                         <div style="display: inline; cursor:pointer" @click="toggleInterpretationCollapsed"

@@ -47,7 +47,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("populationFrequencies") || changedProperties.has("active")) && this.active) {
+        if ((changedProperties.has("populationFrequencies") || changedProperties.has("active"))) {
             this.renderPlot();
             this.renderTable();
         }

@@ -154,7 +154,7 @@ class VariantInterpreterQcSummary extends LitElement {
                                 render: (data) => {
                                     if (data.proband && data.proband.samples && data.proband.samples.length > 0) {
                                         return html`
-                                            <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" .sampleId="${data.proband.samples[0]}"> </sample-variant-stats-view>
+                                            <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" .sampleId="${data.proband.samples[0].id}"> </sample-variant-stats-view>
                                         `;
                                     }
                                 },

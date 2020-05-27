@@ -175,6 +175,7 @@ export default class OpencgaClinicalPortal extends LitElement {
                             </opencga-clinical-analysis-writer>
                         </div>
 
+                        <!-- 
                         <div id="${this._prefix}DiseasePanel" class="clinical-portal-content" style="display: none">
                             <opencga-panel-browser .opencgaSession="${this.opencgaSession}"
                                                    .opencgaClient="${this.opencgaSession.opencgaClient}"
@@ -183,6 +184,7 @@ export default class OpencgaClinicalPortal extends LitElement {
                                                    @notifymessage="${this.onNotifyMessage}">
                             </opencga-panel-browser>
                         </div>
+                        -->
                     </div>
                 </div>
             </div>
