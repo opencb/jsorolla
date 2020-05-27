@@ -334,7 +334,7 @@ export default class OpencgaIndividualGrid extends LitElement {
     }
 
     fatherFormatter(value, row) {
-        if (UtilsNew.isNotUndefinedOrNull(row.father) && UtilsNew.isNotEmpty(row.father.id)) {
+        if (row.father && row.father.id) {
             return row.father.id;
         } else {
             return "-";
@@ -342,7 +342,7 @@ export default class OpencgaIndividualGrid extends LitElement {
     }
 
     motherFormatter(value, row) {
-        if (UtilsNew.isNotUndefinedOrNull(row.mother) && UtilsNew.isNotEmpty(row.mother.id)) {
+        if (row.mother && row.mother.id) {
             return row.mother.id;
         } else {
             return "-";
@@ -607,15 +607,17 @@ export default class OpencgaIndividualGrid extends LitElement {
 
     render() {
         return html`
-            ${this._config.showToolbar ? html`
-            <opencb-grid-toolbar .from="${this.from}"
-                                 .to="${this.to}"
-                                 .numTotalResultsText="${this.numTotalResultsText}"
-                                 .config="${this.toolbarConfig}"
-                                 @download="${this.onDownload}"
-                                 @columnChange="${this.onColumnChange}">
-            </opencb-grid-toolbar>
-            ` : null}
+            ${this._config.showToolbar 
+                ? html`
+                    <opencb-grid-toolbar .from="${this.from}"
+                                         .to="${this.to}"
+                                         .numTotalResultsText="${this.numTotalResultsText}"
+                                         .config="${this.toolbarConfig}"
+                                         @download="${this.onDownload}"
+                                         @columnChange="${this.onColumnChange}">
+                    </opencb-grid-toolbar>` 
+                : null
+            }
     
             <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}IndividualBrowserGrid"></table>

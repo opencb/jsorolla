@@ -17,8 +17,8 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
-import "../commons/opencb-grid-toolbar.js";
 import GridCommons from "../variant/grid-commons.js";
+import "../commons/opencb-grid-toolbar.js";
 
 
 export default class OpencgaClinicalAnalysisGrid extends LitElement {
@@ -71,10 +71,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") ||
-            changedProperties.has("query") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") || changedProperties.has("active")) {
             this.propertyObserver();
         }
     }
@@ -82,11 +79,11 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = Object.assign({}, this.getDefaultConfig(), this.config);
-        this._columns = this._initTableColumns();
+        // this._columns = this._getDefaultColumns();
 
         // Config for the grid toolbar
         this.toolbarConfig = {
-            columns: this._columns[0]
+            columns: this._getDefaultColumns()
             // columns: [
             //     {
             //         field: "id", title: "Blabla", visible: true, eligible: true
@@ -95,7 +92,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         };
 
         this.renderTable();
-
         this.requestUpdate();
     }
 
@@ -109,44 +105,26 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         this.to = this._config.pageSize;
 
         if (this.opencgaSession.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
-
-            // filters.study = this.opencgaSession.study.fqn;
-            // if (UtilsNew.isNotUndefinedOrNull(this.lastFilters)
-            //     && JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
-            //     // Abort destroying and creating again the grid. The filters have not changed
-            //     return;
-            // }
-
-            // // Store the current filters
-            // this.lastFilters = Object.assign({}, filters);
-
-            // Make a copy of the analyses (if they exist), we will use this private copy until it is assigned to this.analyses
-            // if (UtilsNew.isNotUndefined(this.analyses)) {
-            //     this._analyses = this.analyses;
-            // } else {
-            //     this._analyses = [];
-            // }
-
             this.table = $("#" + this.gridId);
-            const _this = this;
             $(this.table).bootstrapTable("destroy");
             $(this.table).bootstrapTable({
-                columns: _this._columns,
+                columns: this._getDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
                 uniqueId: "id",
 
                 // Table properties
-                pagination: _this._config.pagination,
-                pageSize: _this._config.pageSize,
-                pageList: _this._config.pageList,
-                showExport: _this._config.showExport,
-                detailView: _this._config.detailView,
+                pagination: this._config.pagination,
+                pageSize: this._config.pageSize,
+                pageList: this._config.pageList,
+                showExport: this._config.showExport,
+                detailView: this._config.detailView,
                 // detailFormatter: _this._config.detailFormatter,
 
                 // Make Polymer components available to table formatters
-                gridContext: _this,
+                gridContext: this,
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+
                 ajax: params => {
                     const filters = {
                         study: this.opencgaSession.study.fqn,
@@ -308,28 +286,23 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         }
     }
 
-    diseaseFormatter(value, row) {
-        return row.disease.name;
+    disorderFormatter(value, row) {
+        if (value) {
+            let idHtml = `${value.id}`;
+            if (value.id.startsWith("OMIM:")) {
+                idHtml = `<a href="https://omim.org/entry/${value.id.split(":")[1]}" target="_blank">${value.id}</a>`;
+            }
+            if (value.name) {
+                return `${row.name} (${idHtml})`;
+            } else {
+                return `${idHtml}`;
+            }
+        } else {
+            return "-";
+        }
     }
 
     priorityFormatter(value) {
-        // TODO: Remove commented code. This is only for debugging purposes to see all the different priorities
-        // if (UtilsNew.isUndefinedOrNull(this.count)) {
-        //     this.count = 0;
-        // }
-        // if (this.count % 4 === 0) {
-        //     value = "URGENT";
-        // }
-        // if (this.count % 4 === 1) {
-        //     value = "HIGH";
-        // }
-        // if (this.count % 4 === 2) {
-        //     value = "MEDIUM";
-        // }
-        // if (this.count % 4 === 3) {
-        //     value = "LOW";
-        // }
-        // this.count++;
         if (UtilsNew.isEmpty(value)) {
             return "<span>-</span>";
         } else {
@@ -412,168 +385,172 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         // The clinical anlysisi id is in: e.target.dataset.id
     }
 
-    onClick(e, value, row) {
+    onDelete(e, value, row) {
         console.log(e.target, value, row);
         const action = e.currentTarget.dataset.action;
-        if (action == "delete") {
-            Swal.fire({
-                title: "Are you sure?",
-                text: "You won't be able to revert this!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, delete it!"
-            }).then(result => {
-                if (result.value) {
-                    Swal.fire(
-                        "Deleted!",
-                        "Clinical Analysis has been deleted.",
-                        "success"
-                    )
-                }
-            })
+        if (action === "delete") {
+            // Swal.fire({
+            //     title: "Are you sure?",
+            //     text: "You won't be able to revert this!",
+            //     icon: "warning",
+            //     showCancelButton: true,
+            //     confirmButtonColor: "#3085d6",
+            //     cancelButtonColor: "#d33",
+            //     confirmButtonText: "Yes, delete it!"
+            // }).then(result => {
+            //     debugger
+            //     if (result.value) {
+            //         Swal.fire(
+            //             "Deleted!",
+            //             "Clinical Analysis has been deleted.",
+            //             "success"
+            //         )
+            //     }
+            // });
+            // debugger
+            this.opencgaSession.opencgaClient.clinical().delete(row.id, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.renderTable();
+                    this.requestUpdate();
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                });
         }
-
     }
 
-    _initTableColumns() {
-        const columns = [];
-        if (this._config.multiSelection) {
-            columns.push({
-                field: "state",
-                radio: true,
+    _getDefaultColumns() {
+        let _columns = [
+            {
+                title: "Analysis ID",
+                field: "id",
+                formatter: this.analysisIdFormatter,
+                valign: "middle",
+                visible: !this._config.columns.hidden.includes("id")
+            },
+            {
+                title: "Proband ID",
+                field: "proband.id",
+                valign: "middle",
+                visible: !this._config.columns.hidden.includes("probandId")
+            },
+            {
+                title: "Family (#members)",
+                field: "family.id",
+                valign: "middle",
+                formatter: this.familyFormatter,
+                visible: !this._config.columns.hidden.includes("familyId")
+            },
+            {
+                title: "Disorder",
+                field: "disorder",
+                valign: "middle",
+                formatter: this.disorderFormatter,
+                visible: !this._config.columns.hidden.includes("disorderId")
+            },
+            {
+                title: "Type",
+                field: "type",
+                valign: "middle",
+                visible: !this._config.columns.hidden.includes("type")
+            },
+            {
+                title: "Interpretations",
+                field: "interpretations",
+                valign: "middle",
+                formatter: this.interpretationsFormatter,
+                visible: !this._config.columns.hidden.includes("interpretation")
+            },
+            {
+                title: "Status",
+                field: "status.name",
+                valign: "middle",
+                halign: this._config.header.horizontalAlign,
+                visible: !this._config.columns.hidden.includes("status")
+            },
+            {
+                title: "Priority",
+                field: "priority",
                 align: "center",
                 valign: "middle",
+                formatter: this.priorityFormatter,
+                visible: !this._config.columns.hidden.includes("priority")
+            },
+            {
+                title: "Assigned To",
+                field: "analyst.assignee",
+                align: "center",
+                valign: "middle",
+                visible: !this._config.columns.hidden.includes("assignedTo")
+            },
+            {
+                title: "Creation Date",
+                field: "creationDate",
+                valign: "middle",
+                formatter: this.dateFormatter,
+                visible: !this._config.columns.hidden.includes("creationDate")
+            },
+            {
+                title: "Due Date",
+                field: "dueDate",
+                valign: "middle",
+                formatter: this.dateFormatter,
+                visible: !this._config.columns.hidden.includes("dueDate")
+            },
+            // {
+            //     title: 'Review',
+            //     eligible: false,
+            //     align: 'center',
+            //     visible: this._config.showReviewCase,
+            //     formatter: this.reviewCaseFormatter.bind(this)
+            // },
+            {
+                title: "Intepreter",
+                eligible: false,
+                align: "center",
+                valign: "middle",
+                formatter: this.interpretationFormatter.bind(this),
+                visible: this._config.showInterpretation
+            },
+            {
+                title: "Report",
+                eligible: false,
+                align: "center",
+                valign: "middle",
+                formatter: this.reportFormatter.bind(this),
+                visible: this._config.showReport
+            },
+        ];
+
+        if (this._config.showSelectCheckbox) {
+            _columns.push({
+                field: "state",
+                checkbox: true,
                 class: "cursor-pointer",
                 eligible: false
             });
         }
 
-        this._columns = [
-            columns.concat(
-                [
-                    {
-                        title: "Analysis ID",
-                        field: "id",
-                        formatter: this.analysisIdFormatter,
-                        valign: "middle",
-                        visible: !this._config.columns.hidden.includes("id")
-                    },
-                    {
-                        title: "Proband ID",
-                        field: "proband.id",
-                        valign: "middle",
-                        visible: !this._config.columns.hidden.includes("probandId")
-                    },
-                    {
-                        title: "Family (#members)",
-                        field: "family.id",
-                        valign: "middle",
-                        formatter: this.familyFormatter,
-                        visible: !this._config.columns.hidden.includes("familyId")
-                    },
-                    {
-                        title: "Disorder",
-                        field: "disorder.id",
-                        valign: "middle",
-                        // formatter: this.diseaseFormatter
-                        visible: !this._config.columns.hidden.includes("disorderId")
-                    },
-                    {
-                        title: "Type",
-                        field: "type",
-                        valign: "middle",
-                        visible: !this._config.columns.hidden.includes("type")
-                    },
-                    {
-                        title: "Interpretations",
-                        field: "interpretations",
-                        valign: "middle",
-                        formatter: this.interpretationsFormatter,
-                        visible: !this._config.columns.hidden.includes("interpretation")
-                    },
-                    {
-                        title: "Status",
-                        field: "status.name",
-                        valign: "middle",
-                        halign: this._config.header.horizontalAlign,
-                        visible: !this._config.columns.hidden.includes("status")
-                    },
-                    {
-                        title: "Priority",
-                        field: "priority",
-                        align: "center",
-                        valign: "middle",
-                        formatter: this.priorityFormatter,
-                        visible: !this._config.columns.hidden.includes("priority")
-                    },
-                    {
-                        title: "Assigned To",
-                        field: "analyst.assignee",
-                        align: "center",
-                        valign: "middle",
-                        visible: !this._config.columns.hidden.includes("assignedTo")
-                    },
-                    {
-                        title: "Creation Date",
-                        field: "creationDate",
-                        valign: "middle",
-                        formatter: this.dateFormatter,
-                        visible: !this._config.columns.hidden.includes("creationDate")
-                    },
-                    {
-                        title: "Due Date",
-                        field: "dueDate",
-                        valign: "middle",
-                        formatter: this.dateFormatter,
-                        visible: !this._config.columns.hidden.includes("dueDate")
-                    },
-                    // {
-                    //     title: 'Review',
-                    //     eligible: false,
-                    //     align: 'center',
-                    //     visible: this._config.showReviewCase,
-                    //     formatter: this.reviewCaseFormatter.bind(this)
-                    // },
-                    {
-                        title: "Intepreter",
-                        eligible: false,
-                        align: "center",
-                        valign: "middle",
-                        formatter: this.interpretationFormatter.bind(this),
-                        visible: this._config.showInterpretation
-                    },
-                    {
-                        title: "Report",
-                        eligible: false,
-                        align: "center",
-                        valign: "middle",
-                        formatter: this.reportFormatter.bind(this),
-                        visible: this._config.showReport
-                    },
+        if (this._config.showDeleteButton) {
+            _columns.push( {
+                title: "Manage",
+                // field: "id",
+                // <button class='btn btn-small btn-primary ripple' data-action="edit"><i class="fas fa-edit"></i> Edit</button>
+                formatter: `<button class='btn btn-small btn-danger ripple' data-action="delete"><i class="fas fa-times"></i> Delete</button>`,
+                valign: "middle",
+                events: {
+                    "click button": this.onDelete.bind(this)
+                },
+                visible: !this._config.columns.hidden.includes("manage")
+            });
+        }
 
-                    {
-                        title: "Manage",
-                        // field: "id",
-                        formatter: `<button class='btn btn-small btn-primary ripple' data-action="edit"><i class="fas fa-edit"></i> Edit</button>
-                                    <button class='btn btn-small btn-danger ripple' data-action="delete"><i class="fas fa-times"></i> Delete</button>`,
-                        valign: "middle",
-                        events: {
-                            "click button": this.onClick.bind(this)
-                        },
-                        visible: !this._config.columns.hidden.includes("manage")
-                    }
-                ])
-        ];
-
-        return this._columns;
+        return _columns;
     }
 
     onDownload(e) {
         // let urlQueryParams = this._getUrlQueryParams();
         // let params = urlQueryParams.queryParams;
-        console.log(this.opencgaSession);
         const params = {
             ...this.query,
             exclude: "files",
@@ -659,13 +636,15 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             showReport: true,
             detailView: false,
             detailFormatter: this.detailFormatter, // function with the detail formatter
-            multiSelection: false,
+            showSelectCheckbox: false,
+            showDeleteButton: true,
+            showToolbar: true,
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
             },
             columns: {
-                hidden: ["status", "priority", "assignedTo", "dueDate"]
+                hidden: []
             }
         };
     }
@@ -698,17 +677,21 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 }
             </style>
     
-            <opencb-grid-toolbar .from="${this.from}"
-                                 .to="${this.to}"
-                                 .numTotalResultsText="${this.numTotalResultsText}"
-                                 .config="${this.toolbarConfig}"
-                                 @columnChange="${this.onColumnChange}"
-                                 @download="${this.onDownload}"
-                                 @sharelink="${this.onShare}">
-            </opencb-grid-toolbar>
+            ${this._config.showToolbar 
+                ? html`
+                    <opencb-grid-toolbar .from="${this.from}"
+                                        .to="${this.to}"
+                                        .numTotalResultsText="${this.numTotalResultsText}"
+                                        .config="${this.toolbarConfig}"
+                                        @columnChange="${this.onColumnChange}"
+                                        @download="${this.onDownload}"
+                                        @sharelink="${this.onShare}">
+                    </opencb-grid-toolbar>` 
+                : null
+            }
     
             <div id="${this._prefix}GridTableDiv">
-                <table id="${this.gridId}"></table>
+                <table id="${this._prefix}ClinicalAnalysisGrid"></table>
             </div>
         `;
     }

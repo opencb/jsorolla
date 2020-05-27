@@ -192,8 +192,7 @@ export default class OpencgaClinicalPortal extends LitElement {
                 <i class="fas fa-lock fa-5x"></i>
                 <h3>No public projects available to browse. Please login to continue</h3>
             </div>
-        `}
-        
+        `}        
         `;
     }
 }

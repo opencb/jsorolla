@@ -785,17 +785,27 @@ class VariantInterpreterQcAlignment extends LitElement {
             },
             sections: [
                 {
-                    title: "General",
-                    collapsed: false,
+                    title: "Summary",
+                    display: {
+                        collapsed: false,
+                    },
                     elements: [
                         {
-                            name: "fileId",
+                            name: "File",
                             field: "fileId"
                         },
                         {
-                            name: "sampleId",
+                            name: "Sample ID",
                             field: "sampleId"
-                        },
+                        }
+                    ]
+                },
+                {
+                    title: "Samtools Stats",
+                    display: {
+                        collapsed: false,
+                    },
+                    elements: [
                         {
                             name: "rawTotalSequences",
                             field: "rawTotalSequences"

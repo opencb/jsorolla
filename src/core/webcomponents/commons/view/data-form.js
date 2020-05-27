@@ -191,7 +191,7 @@ export default class DataForm extends LitElement {
         if (!Array.isArray(section.elements[0])) {
             content = html`
                 <section style="margin-top: 20px">
-                    <h3 style="${sectionTitleStyle}">${section.title}</h3>
+                    <h4 style="${sectionTitleStyle}">${section.title}</h4>
                     <div class="container-fluid">
                         ${section.elements.map(element => this._createElement(element))}
                     </div>
@@ -203,7 +203,7 @@ export default class DataForm extends LitElement {
             let columnSeparatorStyle = (section.display && section.display.columnSeparatorStyle) ? section.display.columnSeparatorStyle : "";
             content = html`
                 <section style="margin-top: 20px">
-                    <h3 style="${sectionTitleStyle}">${section.title}</h3>
+                    <h4 style="${sectionTitleStyle}">${section.title}</h4>
                     <div class="container-fluid">
                         <div class="row detail-row">
                             <div class="col-md-${leftColumnWidth}" style="${columnSeparatorStyle}">
@@ -295,7 +295,7 @@ export default class DataForm extends LitElement {
             return html`
                 <div class="row detail-row">
                     <div class="col-md-12">
-                        <div class="col-md-${labelWidth} text-${this.config.display?.labelAlign || "left"}">
+                        <div class="col-md-${labelWidth} text-${this.config.display?.labelAlign || "left"}" style="padding-left: 0px">
                             <label>${title}</label>
                         </div>
                         <div class="col-md-${12 - labelWidth}">
@@ -631,7 +631,8 @@ export default class DataForm extends LitElement {
         let result = element.display.render(data);
         if (result) {
             let width = this._getWidth(element);
-            return html`<div class="col-md-${width}">${result}</div>`;
+            let style = element.display.style ? element.display.style : "";
+            return html`<div class="col-md-${width}" style="${style}">${result}</div>`;
             // return data ? h : this.getDefaultValue(element);
         } else {
             return this._getErrorMessage(element);

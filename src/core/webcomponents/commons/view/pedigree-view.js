@@ -75,7 +75,7 @@ export default class PedigreeView extends LitElement {
         }
 
         // const family = Object.assign({}, this.clinicalAnalysis.family);
-        const family = this.family;
+        const family = {...this.family};
         const membersNew =[];
 
         if (family.members && family.members.length > 0) {
