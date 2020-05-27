@@ -412,10 +412,10 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         // The clinical anlysisi id is in: e.target.dataset.id
     }
 
-    onClick(e, value, row) {
+    onClickAction(e, value, row) {
         console.log(e.target, value, row);
         const action = e.currentTarget.dataset.action;
-        if (action == "delete") {
+        if (action === "delete") {
             Swal.fire({
                 title: "Are you sure?",
                 text: "You won't be able to revert this!",
@@ -426,6 +426,10 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 confirmButtonText: "Yes, delete it!"
             }).then(result => {
                 if (result.value) {
+                    const clinicalAnalysisId = row.id;
+                    this.opencgaSession.opencgaClient.clinical().delete(clinicalAnalysisId, {study: this.opencgaSession.study.fqn}).then( restResponse => {
+                        console.log("restResponse", restResponse)
+                    })
                     Swal.fire(
                         "Deleted!",
                         "Clinical Analysis has been deleted.",
@@ -487,7 +491,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                         visible: !this._config.columns.hidden.includes("type")
                     },
                     {
-                        title: "Interpretations",
+                        title: "Interpretation",
                         field: "interpretations",
                         valign: "middle",
                         formatter: this.interpretationsFormatter,
@@ -560,7 +564,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                                     <button class='btn btn-small btn-danger ripple' data-action="delete"><i class="fas fa-times"></i> Delete</button>`,
                         valign: "middle",
                         events: {
-                            "click button": this.onClick.bind(this)
+                            "click button": this.onClickAction.bind(this)
                         },
                         visible: !this._config.columns.hidden.includes("manage")
                     }

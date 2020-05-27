@@ -87,7 +87,7 @@ export default class OpencgaAnalysisTool extends LitElement {
             <div class="container">
                 <!-- Header -->
                 <div style="padding: 20px">
-                    <h2>${this.config.title}</h2>
+                    <h2 class="list-item-arrow">${this.config.title}</h2>
                 </div>
                 
                 <opencga-analysis-tool-form .opencgaSession=${this.opencgaSession} 

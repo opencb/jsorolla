@@ -32,10 +32,10 @@ export default class SignatureView extends LitElement {
     static get properties() {
         return {
             config: {
-              type: Object
+                type: Object
             },
             active: {
-              type: Boolean
+                type: Boolean
             },
             signature: {
                 type: Object
@@ -45,6 +45,7 @@ export default class SignatureView extends LitElement {
 
     _init(){
         this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
+        this.signature = {};
     }
 
     connectedCallback() {
@@ -61,7 +62,9 @@ export default class SignatureView extends LitElement {
     }
 
     signatureObserver() {
-
+        if (this.signature.errorState) {
+            return;
+        }
         const counts = this.signature.counts;
         //console.log("counts",counts)
 
@@ -192,11 +195,13 @@ export default class SignatureView extends LitElement {
     render() {
         return html`
             <div style="height: ${this._config.height}px">
-                ${this.signature ? html`
-                    <div id="signature-plot"></div>` : html`
-                    <loading-spinner></loading-spinner>`}
+                ${this.signature?.errorState ? html`<div class="alert alert-danger">${this.signature.errorState}</div>`
+                    : this.signature ? html` <div id="signature-plot"></div>`
+                    : html`<loading-spinner></loading-spinner>`
+                }
             </div>`
     }
+
 }
 
 customElements.define("signature-view", SignatureView);

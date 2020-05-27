@@ -56,7 +56,6 @@ export class RestClientXmlhttp {
     }
 
     static call(url, options) {
-        //console.log("REMOTE", url, options)
         const eventFire = new CustomEvent("request", {
             detail: {
                 value: url
@@ -87,7 +86,7 @@ export class RestClientXmlhttp {
                 if (request.status === 200) {
                     let contentType = this.getResponseHeader("Content-Type");
                     // indexOf() is used because sometimes the contentType is 'application/json;charset=utf-8'
-                    if (contentType.indexOf("application/json")!= -1) {
+                    if (contentType.indexOf("application/json")!== -1) {
                         dataResponse = JSON.parse(this.response);
 
                         if (typeof options !== "undefined" && typeof options.cacheFn === "function") {
@@ -135,12 +134,11 @@ export class RestClientXmlhttp {
                 }
             };
 
-            //console.log("CALL [method, url, options]", method, url, options)
+            console.log("CALL [method, url, options]", method, url, options)
             request.open(method, url, async);
             if (typeof options !== "undefined" && options.hasOwnProperty("sid")) {
                 request.setRequestHeader("Authorization", `Bearer ${options["sid"]}`);
             }
-
             // request.timeout = options.timeout || 0;
             if (method === "POST" && options !== undefined && options.hasOwnProperty("data")) {
                 if (options.hasOwnProperty("post-method") && options["post-method"] === "form") {
@@ -153,13 +151,18 @@ export class RestClientXmlhttp {
 
                     request.send(myForm);
                 } else {
-                    // request.setRequestHeader("Access-Control-Allow-Origin", "*");
+                    //request.setRequestHeader("Access-Control-Allow-Origin", "*");
                     // // request.setRequestHeader("Access-Control-Allow-Credentials", "true");
                     // request.setRequestHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
                     request.setRequestHeader("Content-type", "application/json");
                     request.send(JSON.stringify(options.data));
                 }
+            } else if (method === "DELETE") {
+                // TODO handle delete appropriately
+                request.setRequestHeader("Content-type", "application/json");
+                request.send();
             } else {
+                console.log("request.send")
                 request.send();
             }
         });
