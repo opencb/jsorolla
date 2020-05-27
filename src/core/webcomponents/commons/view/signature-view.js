@@ -22,6 +22,7 @@ export default class SignatureView extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -31,13 +32,13 @@ export default class SignatureView extends LitElement {
 
     static get properties() {
         return {
-            config: {
-              type: Object
+            signature: {
+                type: Object
             },
             active: {
-              type: Boolean
+                type: Boolean
             },
-            signature: {
+            config: {
                 type: Object
             }
         }
@@ -49,22 +50,19 @@ export default class SignatureView extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
         //loading spinner is shown in case this.signature is undefined or null
-        if((changedProperties.has("signature") || changedProperties.has("active")) && this.active && this.signature) {
+        if ((changedProperties.has("signature") || changedProperties.has("active")) && this.active && this.signature) {
             this.signatureObserver();
         }
-
     }
 
     signatureObserver() {
-
         const counts = this.signature.counts;
-        //console.log("counts",counts)
-
         const categories = counts.map(point => point?.context)
         const data = counts.map(point => point?.total)
 
@@ -99,10 +97,10 @@ export default class SignatureView extends LitElement {
                 data: []
             }
         };
-        for(let p of counts) {
-            if (p) {
-                const {pair} = substitutionClass(p.context);
-                dataset[pair].data.push(p.total);
+        for (let count of counts) {
+            if (count) {
+                const {pair} = substitutionClass(count.context);
+                dataset[pair].data.push(count.total);
             }
         }
         const addRects = function(chart) {
@@ -110,7 +108,7 @@ export default class SignatureView extends LitElement {
             $(".rect-label", this).remove();
             let lastStart = 0;
             for (const k in dataset) {
-                //console.log("chart.categories",chart.xAxis)
+                //console.log("chart.categories", chart.xAxis)
                 //console.log("k", dataset[k].data.length)
                 const xAxis = chart.xAxis[0];
                 chart.renderer.rect(xAxis.toPixels(lastStart), 30, xAxis.toPixels(dataset[k].data.length) - xAxis.toPixels(1), 10, 0)
@@ -140,7 +138,7 @@ export default class SignatureView extends LitElement {
         $("#signature-plot").highcharts({
             title: "title",
             chart: {
-                //height: this._config.height, // use plain CSS to avoid resize when <loading-spinner> is visible
+                height: this._config.height, // use plain CSS to avoid resize when <loading-spinner> is visible
                 type: "column",
                 events: {
                     redraw: function() {
@@ -185,16 +183,19 @@ export default class SignatureView extends LitElement {
     getDefaultConfig() {
         return {
             //width: null, width is always 100% of the visible container
-            height: 300
+            height: 240
         }
     }
 
     render() {
         return html`
             <div style="height: ${this._config.height}px">
-                ${this.signature ? html`
-                    <div id="signature-plot"></div>` : html`
-                    <loading-spinner></loading-spinner>`}
+                ${this.signature 
+                    ? html`
+                        <div id="signature-plot"></div>` 
+                    : html`
+                        <loading-spinner></loading-spinner>`
+                }
             </div>`
     }
 }

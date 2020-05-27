@@ -384,9 +384,14 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 width: 10,
                                 render: (data) => {
                                     if (data.family && data.family.members) {
+                                        let individualGridConfig = {
+                                            showSelectCheckbox: false,
+                                            showToolbar: false
+                                        };
                                         return html`
                                             <opencga-individual-grid .opencgaSession="${this.opencgaSession}" 
                                                                      .individuals="${data.family.members}" 
+                                                                     .config="${individualGridConfig}"
                                                                      @filterChange="${e => this.onFamilyChange(e)}">
                                             </opencga-individual-grid>
                                         `;
