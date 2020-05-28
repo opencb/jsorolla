@@ -16,17 +16,16 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import "../../simple-plot.js";
+import "./variant-interpreter-qc-variant-family.js";
 import "./variant-interpreter-qc-variant-cancer.js";
+import "../../simple-plot.js";
 
-// General component Cancer/Family QC
 
 class VariantInterpreterQcVariant extends LitElement {
 
     constructor() {
         super();
 
-        // Set status and init private properties
         this._init();
     }
 
@@ -60,21 +59,6 @@ class VariantInterpreterQcVariant extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
-        this.variantTypes = ["SNV", "INDEL", "CNV", "INSERTION", "DELETION", "MNV"]
-        this.sampleVariantStats = {
-            id: "001",
-            variantCount: 5,
-            chromosomeCount: [1,3,5,7,11],
-            typeCount: [1,3,5,7,11],
-            genotypeCount: [3,5,7],
-            filterCount: [],
-            tiTvRatio: .8
-        }
-    }
-
-    firstUpdated(_changedProperties) {
-        console.log(this.variantTypes.map( (type, i) => ({name: type, data: this.sampleVariantStats.typeCount[i]})))
     }
 
     updated(changedProperties) {
@@ -84,18 +68,14 @@ class VariantInterpreterQcVariant extends LitElement {
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
-        // if (changedProperties.has("clinicalAnalysis")) {
-        //     this.clinicalAnalysisObserver();
-        // }
     }
 
     clinicalAnalysisIdObserver() {
-        if (this.clinicalAnalysisId) {
-            let _this = this;
+        if (this.opencgaSession && this.clinicalAnalysisId) {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    _this.clinicalAnalysis = response.responses[0].results[0];
-                    _this.requestUpdate();
+                    this.clinicalAnalysis = response.responses[0].results[0];
+                    this.requestUpdate();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -105,36 +85,37 @@ class VariantInterpreterQcVariant extends LitElement {
 
     render() {
         // Check Project exists
-        if (!this.opencgaSession.project) {
+        if (!this.opencgaSession || !this.opencgaSession.project) {
             return html`
-                    <div>
-                        <h3><i class="fas fa-lock"></i> No public projects available to browse. Please login to continue</h3>
-                    </div>`;
+                <div class="guard-page">
+                    <i class="fas fa-lock fa-5x"></i>
+                    <h3>No project available to browse. Please login to continue</h3>
+                </div>
+            `;
         }
 
         // Check Clinical Analysis exist
         if (!this.clinicalAnalysis) {
             return html`
-                    <div>
-                        <h3><i class="fas fa-lock"></i> No Case open</h3>
-                    </div>`;
+                <div>
+                    <h3><i class="fas fa-lock"></i> No Case selected</h3>
+                </div>`;
         }
 
         // Variant stats are different for FAMILY and CANCER analysis, this does not happens with Alignment
-        if (false && this.clinicalAnalysis.type.toUpperCase() === "FAMILY") {
+        if (this.clinicalAnalysis.type.toUpperCase() === "FAMILY") {
             return html`
                 <div>
                     <h3>RD Variant Stats</h3>
                     <!-- <span>We must use the new component opencga-sample-variant-stats for 
                     <a href="https://github.com/opencb/biodata/blob/develop/biodata-models/src/main/avro/variantMetadata.avdl#L122" target="_blank">https://github.com/opencb/biodata/blob/develop/biodata-models/src/main/avro/variantMetadata.avdl#L122</a></span> -->
-                    <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" .sampleId="${null}" ?active="${this.active}">
-                    </sample-variant-stats-view>
+<!--                    <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" .sampleId="${null}" ?active="${this.active}"></sample-variant-stats-view>-->
+                    <variant-interpreter-qc-variant-family .opencgaSession="${this.opencgaSession}" .sampleId="${this.clinicalAnalysis.proband.samples[0].id}" ?active="${this.active}"></variant-interpreter-qc-variant-family>
                 </div>
-            
             `;
         }
 
-        if (true || this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
+        if (this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
             return html`
                 <div>
                     <h3>Cancer Variant Stats</h3>
@@ -143,7 +124,6 @@ class VariantInterpreterQcVariant extends LitElement {
             `;
         }
     }
-
 }
 
 customElements.define("variant-interpreter-qc-variant", VariantInterpreterQcVariant);

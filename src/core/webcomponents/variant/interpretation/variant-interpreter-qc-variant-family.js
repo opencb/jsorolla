@@ -16,16 +16,15 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import Circos from "./test/circos.js";
 import "../opencga-variant-filter.js";
 import "../../commons/opencga-active-filters.js";
-import "../../commons/view/signature-view.js";
 import "../../loading-spinner.js";
 
-export default class VariantInterpreterQcVariantCancer extends LitElement {
+export default class VariantInterpreterQcVariantFamily extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -44,11 +43,11 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
             sampleId: {
                 type: String
             },
-            active: {
-                type: Boolean
-            },
             config: {
                 type: Object
+            },
+            active: {
+                type: Boolean
             }
         }
     }
@@ -57,7 +56,6 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
         this._prefix = "sf-" + UtilsNew.randomString(6);
 
         this.preparedQuery = {};
-        this.base64 = "data:image/png;base64, " + Circos.base64;
     }
 
     connectedCallback() {
@@ -112,6 +110,20 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
         console.log("onVariantFilterSearch", e)
         //this.preparedQuery = this._prepareQuery(e.detail.query); //TODO check if we need to process e.detail.query
         this.query = {...e.detail.query};
+
+        let params = {
+            study: this.opencgaSession.study.fqn,
+            fields: "genotype;type;biotype;consequenceType",
+            sample: this.sampleId,
+            ...this.query
+        };
+        this.opencgaSession.opencgaClient.variants().aggregationStats(params)
+            .then(response => {
+                this.aggregationStatsResults = response.responses[0].results;
+                debugger
+                this.requestUpdate();
+            });
+
         this.requestUpdate();
     }
 
@@ -316,25 +328,36 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                         </opencga-active-filters>
                         
                         <div class="main-view">
-<!--                            executedQuery : -->${JSON.stringify(this.executedQuery)}
                             <div class="row" style="padding: 10px">
                                 <div class="col-md-12">
-                                    <div class="col-md-7">
-                                        <h2>Circos</h2>
-                                        <img class="img-responsive" src="${this.base64}">
-                                        <!--<img width="640" src="https://www.researchgate.net/profile/Angela_Baker6/publication/259720064/figure/fig1/AS:613877578465328@1523371228720/Circos-plot-summarizing-somatic-events-A-summary-of-all-identified-somatic-genomic.png">-->
+                                    <div class="col-md-6">
+                                        <h3>Genotype</h3>
+                                        <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[0]}"
+                                                .config="${this.facetConfig}"
+                                                ?active="${this.facetActive}">
+                                        </opencga-facet-result-view>
                                     </div>
-                                    <div class="col-md-5">
-                                        <div style="margin-bottom: 20px">
-                                            <h2>Signature</h2>
-                                            <signature-view .signature="${this.signature}" .active="${this.active}"></signature-view>
-                                            <!--<img width="480" src="https://cancer.sanger.ac.uk/signatures_v2/Signature-3.png">-->
-                                        </div>
-                                        <div style="padding-top: 20px">
-                                            <h2>Sample Stats</h2>
-                                            <img width="480" src="https://www.ensembl.org/img/vep_stats_2.png">
-                                        </div>
+                                    <div class="col-md-6">
+                                        <h3>Type</h3>
+                                        <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[1]}"
+                                                .config="${this.facetConfig}"
+                                                ?active="${this.facetActive}">
+                                        </opencga-facet-result-view>
                                     </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <h3>Biotype</h3>
+                                    <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[2]}"
+                                            .config="${this.facetConfig}"
+                                            ?active="${this.facetActive}">
+                                    </opencga-facet-result-view>
+                                </div>
+                                <div class="col-md-12">
+                                    <h3>Consequence Type</h3>
+                                    <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[3]}"
+                                            .config="${this.facetConfig}"
+                                            ?active="${this.facetActive}">
+                                    </opencga-facet-result-view>
                                 </div>
                             </div>                            
                         </div>
@@ -346,4 +369,4 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
 
 }
 
-customElements.define("variant-interpreter-qc-variant-cancer", VariantInterpreterQcVariantCancer);
+customElements.define("variant-interpreter-qc-variant-family", VariantInterpreterQcVariantFamily);
