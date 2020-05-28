@@ -366,7 +366,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         // The clinical anlysisi id is in: e.target.dataset.id
     }
 
-    onClickAction(e, value, row) {
+    onDelete(e, value, row) {
         console.log(e.target, value, row);
         const action = e.currentTarget.dataset.action;
         if (action === "delete") {
@@ -381,9 +381,10 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             }).then(result => {
                 if (result.value) {
                     const clinicalAnalysisId = row.id;
-                    this.opencgaSession.opencgaClient.clinical().delete(clinicalAnalysisId, {study: this.opencgaSession.study.fqn}).then( restResponse => {
-                        console.log("restResponse", restResponse)
-                    })
+                    this.opencgaSession.opencgaClient.clinical().delete(clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                        .then( restResponse => {
+                            console.log("restResponse", restResponse)
+                        });
                     Swal.fire(
                         "Deleted!",
                         "Clinical Analysis has been deleted.",

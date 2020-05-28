@@ -81,18 +81,19 @@ export default class OpenCGAParentClass {
 
     // recheck
     _delete(category1, ids1, category2, ids2, action, body, params = {}) {
-        debugger
         const host = this._config.host;
         const version = this._config.version;
         const _options = {method: "DELETE"};
         if (this._config.token) {
+            // _options.sid = this._config.token;
             _options.token = this._config.token;
         }
-        const _params = {...params, body: body};
+        // const _params = {...params, body: body};
+        const _params = {...params, ...body};
         let url = this._createRestUrl(host, version, category1, ids1, category2, ids2, action);
         url = this._addQueryParams(url, _params);
-        _options.data = _params.body;
-        _options.body = _params.body;
+        // _options.data = _params.body;
+        // _options.body = _params.body;
 
         return RestClient.call(url, _options);
     }
