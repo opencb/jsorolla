@@ -41,7 +41,7 @@ export default class SelectFieldFilter extends LitElement {
 
     static get properties() {
         return {
-            // NOTE value (default Values) can be either a single value as string or a comma separated list
+            // NOTE value (default Values) can be either a single value as string or a comma separated list (in case of multiple=true we support array of strings)
             value: {
                 type: String
             },
@@ -87,7 +87,8 @@ export default class SelectFieldFilter extends LitElement {
             this.selectPicker.selectpicker("refresh");
         }
         if (_changedProperties.has("value")) {
-            this.selectPicker.selectpicker("val", this.value ? (this.multiple ? this.value.split(",") : this.value) : "");
+            const val = this.value ? (this.multiple ? Array.isArray(this.value) ? this.value : this.value.split(",") : this.value) : ""
+            this.selectPicker.selectpicker("val", val);
             //this.requestUpdate()
             //$(".selectpicker", this).selectpicker("refresh");
         }

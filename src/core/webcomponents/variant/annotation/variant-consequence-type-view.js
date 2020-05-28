@@ -47,7 +47,7 @@ export default class VariantConsequenceTypeView extends LitElement {
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("consequenceTypes") || changedProperties.has("active"))) {
+        if ((changedProperties.has("consequenceTypes") || changedProperties.has("active")) && this.active) {
             this.renderTable();
         }
     }

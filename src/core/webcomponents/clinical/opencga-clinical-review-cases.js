@@ -432,14 +432,9 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                 <select class="selectpicker" data-width="125px" id="${this._prefix}-assigned" multiple
                                         title="Assignee: All" @change="${this.updateQuery}">
                                         ${this._studyUsers && this._studyUsers.length ? this._studyUsers.map( item => html`
-                                            <option on-dom-change="_updateValidateFormFields" value="${item}">${item}</option>
+                                            <option value="${item}">${item}</option>
                                         `) : null }
                                         
-                                    <!-- TODO recheck ondomchange!! 
-                                    <template is="dom-repeat" items="{{_studyUsers}}" on-dom-change="_updateValidateFormFields">
-                                        <option value="{{item}}">{{item}}</option>
-                                    </template>
-                                    -->
                                 </select>
                             </div>
 
@@ -491,25 +486,30 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
                         <!-- Bottom tabs with specific variant information -->
                         ${ this.clinicalAnalysis ? html`
-                            <div style="padding-top: 20px">
+                            <div>
                                 <h3>Case Study: ${this.clinicalAnalysis.id}</h3>
-                                <div style="padding-top: 20px">
+                                <div>
                                     <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
                                         <li role="presentation" class="active">
                                             <a href="#${this._prefix}Info" role="tab" data-toggle="tab" class="browser-variant-tab-title">Case Information</a>
                                         </li>
-                                        <!--<li role="presentation">-->
-                                            <!--<a href="#${this._prefix}Proband" role="tab" data-toggle="tab" class="browser-variant-tab-title">Proband Info</a>-->
-                                        <!--</li>-->
+                                        <li role="presentation">
+                                            <a href="#${this._prefix}Proband" role="tab" data-toggle="tab" class="browser-variant-tab-title">Proband Info</a>
+                                        </li>
                                     </ul>
     
-                                    <div class="tab-content" style="height: 680px">
+                                    <div class="tab-content">
                                         <div id="${this._prefix}Info" role="tabpanel" class="tab-pane active">
-                                            <div style="padding: 10px 10px">
+                                            <div>
                                                 <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
                                                                                 .clinicalAnalysisId=${this.clinicalAnalysis.id}
                                                                                 .config="${this.config}">
                                                 </opencga-clinical-analysis-view>
+                                            </div>
+                                        </div>
+                                        <div id="${this._prefix}Proband" role="tabpanel" class="tab-pane">
+                                            <div>
+                                                <opencga-individual-view .opencgaSession="${this.opencgaSession}" .individual="${this.clinicalAnalysis.proband}"></opencga-individual-view>
                                             </div>
                                         </div>
                                     </div>

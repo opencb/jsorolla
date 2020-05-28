@@ -383,13 +383,28 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                     const clinicalAnalysisId = row.id;
                     this.opencgaSession.opencgaClient.clinical().delete(clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                         .then( restResponse => {
-                            console.log("restResponse", restResponse)
-                        });
-                    Swal.fire(
-                        "Deleted!",
-                        "Clinical Analysis has been deleted.",
-                        "success"
-                    )
+                            if (restResponse.getResultEvents("ERROR").length) {
+                                Swal.fire({
+                                    title: "Error",
+                                    icon: "error",
+                                    html: restResponse.getResultEvents("ERROR").map( event => event.message).join("<br>")
+                                })
+                            } else {
+                                Swal.fire(
+                                    "Deleted!",
+                                    "Clinical Analysis has been deleted.",
+                                    "success"
+                                )
+                                this.renderTable();
+                            }
+                        })
+                        .catch (restResponse => {
+                            Swal.fire(
+                                "Server Error!",
+                                "Clinical Analysis has not been correctly deleted.",
+                                "error"
+                            )
+                        })
                 }
             })
         }
@@ -495,7 +510,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 valign: "middle",
                 formatter: this.reportFormatter.bind(this),
                 visible: this._config.showReport
-            },
+            }
         ];
 
         if (this._config.showSelectCheckbox) {
@@ -512,7 +527,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 title: "Manage",
                 // field: "id",
                 // <button class='btn btn-small btn-primary ripple' data-action="edit"><i class="fas fa-edit"></i> Edit</button>
-                formatter: `<button class='btn btn-small btn-danger ripple' data-action="delete"><i class="fas fa-times"></i> Delete</button>`,
+                formatter: "<button class='btn btn-small btn-danger ripple' data-action=\"delete\"><i class=\"fas fa-times\"></i> Delete</button>",
                 valign: "middle",
                 events: {
                     "click button": this.onDelete.bind(this)
@@ -654,7 +669,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             </style>
     
             ${this._config.showToolbar 
-                ? html`
+        ? html`
                     <opencb-grid-toolbar .from="${this.from}"
                                         .to="${this.to}"
                                         .numTotalResultsText="${this.numTotalResultsText}"
@@ -663,8 +678,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                                         @download="${this.onDownload}"
                                         @sharelink="${this.onShare}">
                     </opencb-grid-toolbar>` 
-                : null
-            }
+        : null
+}
     
             <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}ClinicalAnalysisGrid"></table>

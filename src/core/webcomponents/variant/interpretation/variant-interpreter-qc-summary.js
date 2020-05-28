@@ -149,9 +149,10 @@ class VariantInterpreterQcSummary extends LitElement {
                             name: "Proband Stats",
                             // field: "proband.id",
                             type: "custom",
+                            showLabel: false,
                             display: {
                                 width: 12,
-                                render: (data) => {
+                                render: data => {
                                     if (data.proband && data.proband.samples && data.proband.samples.length > 0) {
                                         return html`
                                             <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" .sampleId="${data.proband.samples[0].id}"> </sample-variant-stats-view>

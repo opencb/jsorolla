@@ -188,7 +188,7 @@ export default class OpencgaClinicalPortal extends LitElement {
                     </div>
                 </div>
             </div>
-        
+            <div class="v-space"></div>
         ` : html`
             <div class="guard-page">
                 <i class="fas fa-lock fa-5x"></i>

@@ -136,8 +136,8 @@ export class RestClientXmlhttp {
 
             console.log("CALL [method, url, options]", method, url, options)
             request.open(method, url, async);
-            if (typeof options !== "undefined" && options.hasOwnProperty("sid")) {
-                request.setRequestHeader("Authorization", `Bearer ${options["sid"]}`);
+            if (typeof options !== "undefined" && options.hasOwnProperty("token")) {
+                request.setRequestHeader("Authorization", `Bearer ${options["token"]}`);
             }
             // request.timeout = options.timeout || 0;
             if (method === "POST" && options !== undefined && options.hasOwnProperty("data")) {

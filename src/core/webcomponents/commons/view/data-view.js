@@ -104,13 +104,11 @@ export default class DataView extends LitElement {
 
     _createSection(section) {
         let content;
-        let sectionTitleStyle = (section.display && section.display.style)
-            ? section.display.style
-            : "padding: 5px 0px; width: 80%; border-bottom: 1px solid #ddd";
+        let sectionTitleStyle = section?.display?.style ?? "";
         // Section 'elements' array has just one dimension
         if (!Array.isArray(section.elements[0])) {
             content = html`
-                <section style="margin-top: 20px">
+                <section>
                     <h4 style="${sectionTitleStyle}">${section.title}</h4>
                     <div class="container-fluid">
                         ${section.elements.map(element => this._createElement(element))}
@@ -119,7 +117,7 @@ export default class DataView extends LitElement {
             `;
         } else {
             // Section 'elements' array has two dimensions
-            let leftColumnWidth = section?.display?.leftColumnWith ? section.display.leftColumnWith : 6;
+            let leftColumnWidth = section?.display?.leftColumnWith ?? 6;
             let rightColumnWidth = 12 - leftColumnWidth;
             let columnSeparatorStyle = (section.display && section.display.columnSeparatorStyle) ? section.display.columnSeparatorStyle : "";
             content = html`

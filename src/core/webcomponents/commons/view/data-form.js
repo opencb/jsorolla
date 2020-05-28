@@ -164,15 +164,7 @@ export default class DataForm extends LitElement {
     }
 
     _getLabelWidth(element) {
-        if (element.display && element.display.labelWidth) {
-            return element.display.labelWidth;
-        } else {
-            if (this.config.display && this.config.display.labelWidth) {
-                return this.config.display.labelWidth;
-            } else {
-                return 2;
-            }
-        }
+        return element?.display?.labelWidth ?? this.config?.display?.labelWidth ?? 2;
     }
 
     _createSection(section) {
@@ -182,16 +174,13 @@ export default class DataForm extends LitElement {
         }
 
         // Get some default values
-        let sectionTitleStyle = (section.display && section.display.style)
-            ? section.display.style
-            : "padding: 5px 0px; width: 80%; border-bottom: 1px solid #ddd";
-
+        const sectionTitleStyle = section?.display?.style ?? "";
         let content;
         // Section 'elements' array has just one dimension
         if (!Array.isArray(section.elements[0])) {
             content = html`
-                <section style="margin-top: 20px">
-                    <h4 style="${sectionTitleStyle}">${section.title}</h4>
+                <section>
+                    ${section.title ? html`<h4 style="${sectionTitleStyle}">${section.title}</h4>` : null}
                     <div class="container-fluid">
                         ${section.elements.map(element => this._createElement(element))}
                     </div>
@@ -202,8 +191,8 @@ export default class DataForm extends LitElement {
             let rightColumnWidth = section?.display?.rightColumnWith ? section.display.rightColumnWith : 6;
             let columnSeparatorStyle = (section.display && section.display.columnSeparatorStyle) ? section.display.columnSeparatorStyle : "";
             content = html`
-                <section style="margin-top: 20px">
-                    <h4 style="${sectionTitleStyle}">${section.title}</h4>
+                <section>
+                    ${section.title ? html`<h4 style="${sectionTitleStyle}">${section.title}</h4>` : null}
                     <div class="container-fluid">
                         <div class="row detail-row">
                             <div class="col-md-${leftColumnWidth}" style="${columnSeparatorStyle}">
@@ -287,29 +276,31 @@ export default class DataForm extends LitElement {
             }
         }
 
-        let layout = (element.display && element.display.layout) ? element.display.layout : this.config?.display?.defaultLayout || "vertical";
-        let labelWidth = this._getLabelWidth(element);
-
+        let layout = element?.display?.layout ?? this.config?.display?.defaultLayout ?? "vertical";
+        let showLabel = element?.showLabel ?? true;
+        let labelWidth = showLabel ? this._getLabelWidth(element) : 0;
         if (layout === "horizontal") {
             // Label 'width' and 'align' are configured by 'labelWidth' and 'labelAlign', defaults are '2' and 'left' respectively
             return html`
                 <div class="row detail-row">
-                    <div class="col-md-12">
-                        <div class="col-md-${labelWidth} text-${this.config.display?.labelAlign || "left"}" style="padding-left: 0px">
+                    ${showLabel ? html`
+                        <div class="col-md-${labelWidth} text-${this.config.display?.labelAlign || "left"}">
                             <label>${title}</label>
-                        </div>
-                        <div class="col-md-${12 - labelWidth}">
-                            ${content}
-                        </div>
+                        </div>`
+                    : null }
+                    <div class="col-md-${12 - labelWidth}">
+                        ${content}
                     </div>
                 </div>        
             `;
         } else {
             return html`
                 <div class="row detail-row">
-                    <div class="col-md-12">
-                        <label>${title}</label>
-                    </div>
+                    ${showLabel ? html`
+                        <div class="col-md-12">
+                            <label>${title}</label>
+                        </div>`
+                    : null}
                     <div class="col-md-12">
                         ${content}
                     </div>
@@ -443,7 +434,7 @@ export default class DataForm extends LitElement {
         }
 
         // Default values
-        let disabled = this._getBooleanValue(element.display.disabled, false);
+        let disabled = this._getBooleanValue(element?.display?.disabled, false);
         let width = this._getWidth(element);
         if (allowedValues && allowedValues.length > 0) {
             return html`

@@ -337,6 +337,8 @@ class VariantInterpreter extends LitElement {
                     </div>
                 </div>
             </div> 
+            
+            <div class="v-space"></div>
         `;
     }
 
