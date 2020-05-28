@@ -15,14 +15,15 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
-import "./variant-interpreter-review-summary.js";
-import "./variant-interpreter-review-primary.js";
+import "./variant-interpreter-grid.js";
+import "./variant-interpreter-detail.js";
+import "../../opencga/opencga-genome-browser.js";
+import "../../clinical/clinical-interpretation-view.js";
 
 
-export default class VariantInterpreterReview extends LitElement {
+export default class VariantInterpreterReviewPrimary extends LitElement {
 
     constructor() {
         super();
@@ -66,7 +67,27 @@ export default class VariantInterpreterReview extends LitElement {
     _init() {
         this._prefix = "ovi-" + UtilsNew.randomString(6);
 
-        this.activeTab = {"GeneralInfo": true}; //default active tab
+        //TODO recheck this variant-interpretation-editor doesn't have a "mode" prop in opencga-variant-interpretation
+        this.mode = "create";
+        this.isCreate = this.mode.toLowerCase() === "create";
+
+        this.interpretationCollapsed = false;
+        this.variantsCollapsed = false;
+        // this.isInterpretedVariants = false;
+
+        // this.checkProjects = false;
+        // this.interactive = true;
+        this.filterClass = "col-md-2";
+        this.gridClass = "col-md-10";
+
+        this._collapsed = true;
+
+        this.messageError = false;
+        this.messageSuccess = false;
+
+        this.variant = null;
+        this.reportedVariants = [];
+
         this._config = this.getDefaultConfig();
     }
 
@@ -77,9 +98,7 @@ export default class VariantInterpreterReview extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") ||
-            changedProperties.has("mode") ||
-            changedProperties.has("config")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("mode") || changedProperties.has("config")) {
             this.propertyObserver();
         }
         if (changedProperties.has("clinicalAnalysis") || changedProperties.has("interpretation")) {
@@ -88,53 +107,30 @@ export default class VariantInterpreterReview extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        // CellBase version
-        // this.cellbaseClient.getMeta("about").then(response => {
-        //     if (UtilsNew.isNotUndefinedOrNull(response) && UtilsNew.isNotEmptyArray(response.response)) {
-        //         if (UtilsNew.isNotUndefinedOrNull(response.response[0].result) && UtilsNew.isNotEmptyArray(response.response[0].result)) {
-        //             this.cellbaseVersion = response.response[0].result[0]["Version: "];
-        //         }
-        //     }
-        // });
     }
 
     propertyObserver(opencgaSession, mode, config) {
-        // With each property change we must updated config and create the columns again. No extra checks are needed.
-        // let _config = JSON.parse(JSON.stringify(config));
-        let _config = config;
-        _config = Object.assign(this.getDefaultConfig(), _config);
-        // _config.grid.showSelectCheckbox = false;
-        // _config.grid.showStatus = true;
-        this._config = _config;
-
-        // Check if Beacon hosts are configured
-        // for (const detail of this._config.detail) {
-        //     if (detail.id === "beacon" && UtilsNew.isNotEmptyArray(detail.hosts)) {
-        //         this.beaconConfig = {
-        //             hosts: detail.hosts
-        //         };
-        //     }
-        // }
+        this._config = {...this.getDefaultConfig(), ...this.config};
 
         if (UtilsNew.isNotUndefinedOrNull(mode)) {
             this.isCreate = mode.toLowerCase() === "create";
         }
     }
 
-    clinicalAnalysisObserver() {
-        if (this.clinicalAnalysis) {
-            this._interpretation = this.clinicalAnalysis.interpretation;
-            if (UtilsNew.isNotUndefinedOrNull(this._interpretation)) {
-                if (UtilsNew.isNotEmptyArray(this._interpretation.primaryFindings)) {
-                    this.isInterpretedVariants = true;
-                } else {
-                    this.isInterpretedVariants = false;
-                }
-            }
-            // this.fillForm(this._interpretation);
-            this.requestUpdate();
-        }
-    }
+    // clinicalAnalysisObserver() {
+    //     if (this.clinicalAnalysis) {
+    //         this._interpretation = this.clinicalAnalysis.interpretation;
+    //         if (UtilsNew.isNotUndefinedOrNull(this._interpretation)) {
+    //             if (UtilsNew.isNotEmptyArray(this._interpretation.primaryFindings)) {
+    //                 this.isInterpretedVariants = true;
+    //             } else {
+    //                 this.isInterpretedVariants = false;
+    //             }
+    //         }
+    //         // this.fillForm(this._interpretation);
+    //         this.requestUpdate();
+    //     }
+    // }
 
     toggleInterpretationCollapsed(e) {
         this.interpretationCollapsed = !this.interpretationCollapsed;
@@ -145,7 +141,6 @@ export default class VariantInterpreterReview extends LitElement {
     }
 
     onClinicalAnalysisEditor(e) {
-        debugger
         this.clinicalAnalysis = Object.assign({}, e.detail.clinicalAnalysis);
     }
 
@@ -393,67 +388,202 @@ export default class VariantInterpreterReview extends LitElement {
             });
     }
 
-    _changeTab(e) {
-        e.preventDefault();
-        const tabId = e.currentTarget.dataset.id;
-        const navTabs = $(`#${this._prefix}ReviewTabs > .nav-tabs > .content-pills`, this);
-        const contentTabs = $(`#${this._prefix}ReviewTabs > .content-tab-wrapper > .tab-pane`, this);
-        if (!e.currentTarget.className.includes("disabled")) {
-            navTabs.removeClass("active");
-            contentTabs.removeClass("active");
-            $("#" + this._prefix + tabId).addClass("active");
-            for (const tab in this.activeTab) this.activeTab[tab] = false;
-            this.activeTab[tabId] = true;
-            this.requestUpdate();
-        }
-    }
-
     getDefaultConfig() {
-        return {};
+        return {
+            title: "RD Variant Interpreter",
+            showTitle: false,
+            result: {
+                grid: {
+                    pagination: true,
+                    pageSize: 10,
+                    pageList: [10, 25, 50],
+                    showExport: false,
+                    detailView: true,
+                    showReview: true,
+
+                    showSelectCheckbox: false,
+                    multiSelection: false,
+                    nucleotideGenotype: true,
+                    alleleStringLengthMax: 10,
+
+                    renderLocal: true,
+
+                    header: {
+                        horizontalAlign: "center",
+                        verticalAlign: "bottom"
+                    },
+
+                    quality: {
+                        qual: 30,
+                        dp: 20
+                    },
+                    // populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"]
+                }
+            },
+            detail: {
+                title: "Selected Variant",
+                views: [
+                    {
+                        id: "annotationSummary",
+                        title: "Summary",
+                        active: true
+                    },
+                    {
+                        id: "annotationConsType",
+                        title: "Consequence Type",
+                    },
+                    {
+                        id: "annotationPropFreq",
+                        title: "Population Frequencies"
+                    },
+                    {
+                        id: "annotationClinical",
+                        title: "Clinical"
+                    },
+                    {
+                        id: "fileMetrics",
+                        title: "File Metrics"
+                    },
+                    {
+                        id: "cohortStats",
+                        title: "Cohort Stats",
+                        cohorts: this.cohorts
+                    },
+                    {
+                        id: "beacon",
+                        title: "Beacon"
+                        // Uncomment and edit Beacon hosts to change default hosts
+                        // hosts: [
+                        //     "brca-exchange", "cell_lines", "cosmic", "wtsi", "wgs", "ncbi", "ebi", "ega", "broad", "gigascience", "ucsc",
+                        //     "lovd", "hgmd", "icgc", "sahgp"
+                        // ]
+                    }
+                ]
+            }
+        };
     }
 
     render() {
-        // Check Project exists
-        if (!this.opencgaSession.project) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue</h3>
-                </div>
-            `;
-        }
-
         return html`
-            <div id="${this._prefix}ReviewTabs">
-                <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
-                    <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["GeneralInfo"]})}">
-                        <a href="javascript: void 0" role="tab" data-id="GeneralInfo" @click="${this._changeTab}" class="tab-title">General Info
-                        </a>
-                    </li>
-                    <li role="presentation" class="content-pills ${classMap({active: this.activeTab["PrimaryFindings"]})}">
-                        <a href="javascript: void 0" role="tab" data-id="PrimaryFindings" @click="${this._changeTab}" class="tab-title">Primary Findings
-                        </a>
-                    </li>
-                </ul>
-                
-                <div class="content-tab-wrapper">
-                    <div id="${this._prefix}GeneralInfo" role="tabpanel" class="tab-pane active content-tab">
-                        <variant-interpreter-review-summary .opencgaSession="${this.opencgaSession}" 
-                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            .active="${this.activeTab["GeneralInfo"]}">
-                        </variant-interpreter-review-summary>
+        <style include="jso-styles">
+            .prioritization-center {
+                margin: auto;
+                text-align: justify;
+                width: 95%;
+            }
+
+            .browser-variant-tab-title {
+                font-size: 115%;
+                font-weight: bold;
+            }
+
+            .prioritization-variant-tab-title {
+                font-size: 115%;
+                font-weight: bold;
+            }
+
+            .icon-padding {
+                padding-left: 4px;
+                padding-right: 8px;
+            }
+
+            .form-section-title {
+                padding: 5px 0px;
+                width: 90%;
+                border-bottom-width: 1px;
+                border-bottom-style: solid;
+                border-bottom-color: #ddd
+            }
+
+            .jso-label-title {
+                width: 15em !important;
+            }
+        </style>
+
+        <div class="row" style="padding: 0px 10px">
+            <div id="${this._prefix}SaveInterpretation">
+                <div class="col-md-12">
+                    ${this.messageError ? html ` 
+                        <div class="alert alert-danger" role="alert" id="${this._prefix}messageError" style="margin:5px auto;">${this.messageErrorText}</div>
+                    ` : null}
+                    ${this.messageSuccess ? html `
+                        <div class="alert alert-success" role="alert" id="${this._prefix}messageSuccess" style="margin:5px auto;">${this.messageSuccessText}</div>
+                    ` : null}
+                </div>
+
+                <div class="col-md-12">
+                    <div style="padding-top: 5px">
+<!--                        <h3 class="form-section-title">Edit Reported Variants</h3>-->
+                        <div style="display: inline; cursor:pointer" @click="${this.toggleVariantsCollapsed}"
+                             data-toggle="collapse" href="#${this._prefix}collapsibleVariants">
+                            <h4 class="form-section-title">
+                                <!--
+                                    ${this.variantsCollapsed ? html`
+                                        <i class="fa fa-caret-right" aria-hidden="true" style="width: 20px;padding-left: 5px;padding-right: 5px"></i>
+                                    ` : html`
+                                        <i class="fa fa-caret-down" aria-hidden="true" style="width: 20px;padding-left: 5px;padding-right: 5px"></i>
+                                    `}
+                                -->
+                                Primary Findings
+                            </h4>
+                        </div>
+
+                        <div id="${this._prefix}collapsibleVariants" class="collapse in">
+                            ${this.clinicalAnalysis && this.clinicalAnalysis.interpretation 
+                                ? html`
+                                    <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
+                                                              .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                              .consequenceTypes="${consequenceTypes}"
+                                                              .populationFrequencies="${populationFrequencies}"
+                                                              .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                              .config="${this._config.result.grid}"
+                                                              @selected="${this.selectedGene}"
+                                                              @selectrow="${this.onSelectVariant}"
+                                                              @checkvariant="${this.onCheckVariant}"
+                                                              @reviewvariant="${this.onReviewVariant}"
+                                                              @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
+                                    </variant-interpreter-grid>
+    
+                                    <variant-interpreter-detail .opencgaSession="${this.opencgaSession}"
+                                                                .variant="${this.variant}"
+                                                                .cellbaseClient="${this.cellbaseClient}"
+                                                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                .consequenceTypes="${this.consequenceTypes}"
+                                                                .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                                .config="${this._config.detail}">
+                                    </variant-interpreter-detail>` 
+                                : html`
+                                    <h4 style="padding: 20px">No Selected variants</h4>`
+                            }
+                        </div>
                     </div>
-                    <div id="${this._prefix}PrimaryFindings" role="tabpanel" class="tab-pane content-tab">
-                        <variant-interpreter-review-primary .opencgaSession="${this.opencgaSession}" 
-                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            .active="${this.activeTab["PrimaryFindings"]}">
-                        </variant-interpreter-review-primary>
+                    
+                    <div>
+                        <div class="col-md-4 col-md-offset-8" style="padding: 0px 20px;">
+                            <button type="button" class="btn btn-primary" @click="${this.onViewInterpretation}">Preview</button>
+                            <button type="button" class="btn btn-primary" @click="${this.onSaveInterpretation}">Save</button>
+                        </div>
                     </div>
                 </div>
-            </div> 
-        `;
+
+                <div class="col-md-12">
+                    ${this.interpretationView ? html`
+                        <clinical-interpretation-view id="id"
+                                                      interpretation="${this.interpretationView}"
+                                                      .opencgaSession="${this.opencgaSession}"
+                                                      .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                                      .cellbaseClient="${this.cellbaseClient}"
+                                                      .consequenceTypes="${this.consequenceTypes}"
+                                                      .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                      style="font-size: 12px">
+                        </clinical-interpretation-view>
+                    ` : null}
+                </div>
+            </div>
+        </div>
+    `;
     }
 
 }
 
-customElements.define("variant-interpreter-review", VariantInterpreterReview);
+customElements.define("variant-interpreter-review-primary", VariantInterpreterReviewPrimary);

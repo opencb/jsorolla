@@ -74,6 +74,19 @@ class VariantInterpreterQc extends LitElement {
         // }
     }
 
+    clinicalAnalysisIdObserver() {
+        if (this.opencgaSession && this.clinicalAnalysisId) {
+            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.clinicalAnalysis = response.responses[0].results[0];
+                    this.requestUpdate();
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                });
+        }
+    }
+
     _changeTab(e) {
         e.preventDefault();
         const tabId = e.currentTarget.dataset.id;
@@ -86,20 +99,6 @@ class VariantInterpreterQc extends LitElement {
             for (const tab in this.activeTab) this.activeTab[tab] = false;
             this.activeTab[tabId] = true;
             this.requestUpdate();
-        }
-    }
-
-    clinicalAnalysisIdObserver() {
-        if (this.opencgaSession) {
-            let _this = this;
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    _this.clinicalAnalysis = response.responses[0].results[0];
-                    _this.requestUpdate();
-                })
-                .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
-                });
         }
     }
 

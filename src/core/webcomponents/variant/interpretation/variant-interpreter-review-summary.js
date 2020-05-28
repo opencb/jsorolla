@@ -15,14 +15,12 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
-import "./variant-interpreter-review-summary.js";
-import "./variant-interpreter-review-primary.js";
+import "../../clinical/clinical-interpretation-view.js";
 
 
-export default class VariantInterpreterReview extends LitElement {
+export default class VariantInterpreterReviewSummary extends LitElement {
 
     constructor() {
         super();
@@ -66,75 +64,69 @@ export default class VariantInterpreterReview extends LitElement {
     _init() {
         this._prefix = "ovi-" + UtilsNew.randomString(6);
 
-        this.activeTab = {"GeneralInfo": true}; //default active tab
+        //TODO recheck this variant-interpretation-editor doesn't have a "mode" prop in opencga-variant-interpretation
+        this.mode = "create";
+        this.isCreate = this.mode.toLowerCase() === "create";
+
+        this.interpretationCollapsed = false;
+        this.variantsCollapsed = false;
+        // this.isInterpretedVariants = false;
+
+        this.checkProjects = false;
+        this.interactive = true;
+        this.filterClass = "col-md-2";
+        this.gridClass = "col-md-10";
+
+        this._collapsed = true;
+
+        this.messageError = false;
+        this.messageSuccess = false;
+
+        this.variant = null;
+        this.reportedVariants = [];
+
         this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
         super.connectedCallback();
-        // console.log("this.interpretation in variant-interpretation-editor", this.interpretation)
-        // this._interpretation = this.interpretation;
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") ||
-            changedProperties.has("mode") ||
-            changedProperties.has("config")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("mode") || changedProperties.has("config")) {
             this.propertyObserver();
         }
-        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("interpretation")) {
-            this.clinicalAnalysisObserver();
-        }
+        // if (changedProperties.has("clinicalAnalysis") || changedProperties.has("interpretation")) {
+        //     this.clinicalAnalysisObserver();
+        // }
     }
 
     firstUpdated(_changedProperties) {
-        // CellBase version
-        // this.cellbaseClient.getMeta("about").then(response => {
-        //     if (UtilsNew.isNotUndefinedOrNull(response) && UtilsNew.isNotEmptyArray(response.response)) {
-        //         if (UtilsNew.isNotUndefinedOrNull(response.response[0].result) && UtilsNew.isNotEmptyArray(response.response[0].result)) {
-        //             this.cellbaseVersion = response.response[0].result[0]["Version: "];
-        //         }
-        //     }
-        // });
+
     }
 
     propertyObserver(opencgaSession, mode, config) {
-        // With each property change we must updated config and create the columns again. No extra checks are needed.
-        // let _config = JSON.parse(JSON.stringify(config));
-        let _config = config;
-        _config = Object.assign(this.getDefaultConfig(), _config);
-        // _config.grid.showSelectCheckbox = false;
-        // _config.grid.showStatus = true;
-        this._config = _config;
+        this._config = {...this.getDefaultConfig(), ...this.config};
 
-        // Check if Beacon hosts are configured
-        // for (const detail of this._config.detail) {
-        //     if (detail.id === "beacon" && UtilsNew.isNotEmptyArray(detail.hosts)) {
-        //         this.beaconConfig = {
-        //             hosts: detail.hosts
-        //         };
-        //     }
-        // }
-
-        if (UtilsNew.isNotUndefinedOrNull(mode)) {
+        if (mode) {
             this.isCreate = mode.toLowerCase() === "create";
         }
     }
 
-    clinicalAnalysisObserver() {
-        if (this.clinicalAnalysis) {
-            this._interpretation = this.clinicalAnalysis.interpretation;
-            if (UtilsNew.isNotUndefinedOrNull(this._interpretation)) {
-                if (UtilsNew.isNotEmptyArray(this._interpretation.primaryFindings)) {
-                    this.isInterpretedVariants = true;
-                } else {
-                    this.isInterpretedVariants = false;
-                }
-            }
-            // this.fillForm(this._interpretation);
-            this.requestUpdate();
-        }
-    }
+    // clinicalAnalysisObserver() {
+    //     if (this.clinicalAnalysis) {
+    //         this._interpretation = this.clinicalAnalysis.interpretation;
+    //         if (UtilsNew.isNotUndefinedOrNull(this._interpretation)) {
+    //             if (UtilsNew.isNotEmptyArray(this._interpretation.primaryFindings)) {
+    //                 this.isInterpretedVariants = true;
+    //             } else {
+    //                 this.isInterpretedVariants = false;
+    //             }
+    //         }
+    //         // this.fillForm(this._interpretation);
+    //         this.requestUpdate();
+    //     }
+    // }
 
     toggleInterpretationCollapsed(e) {
         this.interpretationCollapsed = !this.interpretationCollapsed;
@@ -145,68 +137,16 @@ export default class VariantInterpreterReview extends LitElement {
     }
 
     onClinicalAnalysisEditor(e) {
-        debugger
         this.clinicalAnalysis = Object.assign({}, e.detail.clinicalAnalysis);
     }
 
-    _changeBottomTab(e) {
-        const _activeTabs = {};
-        for (const detail of this.config.detail) {
-            _activeTabs[detail.id] = (detail.id === e.currentTarget.dataset.id);
-        }
-        this.set("detailActiveTabs", _activeTabs);
-    }
-
-    checkVariant(variant) {
-        return variant.split(":").length > 2;
-    }
-
-    onSelectVariant(e) {
-        this.variant = e.detail.row;
-        this.requestUpdate();
-    }
-
-    onCheckVariant(e) {
-        // Alexis: we need to do something like this:
-        this.checkedVariants = e.detail.rows;
-
-        // We set/remove disable status to Save button
-        // if (this.checkedVariants.length > 0 && UtilsNew.isNotEmptyArray(this.samples)) {
-        //     PolymerUtils.removeAttribute(this._prefix + 'SaveInterpretationButton', 'disabled');
-        // } else {
-        //     PolymerUtils.setAttribute(this._prefix + 'SaveInterpretationButton', 'disabled', true);
-        // }
-    }
-
-    // onReviewVariant(e) {
-    //     $("#" + this._prefix + "ReviewSampleModal").modal("show");
+    // _changeBottomTab(e) {
+    //     const _activeTabs = {};
+    //     for (const detail of this.config.detail) {
+    //         _activeTabs[detail.id] = (detail.id === e.currentTarget.dataset.id);
+    //     }
+    //     this.set("detailActiveTabs", _activeTabs);
     // }
-
-    onGenomeBrowserPositionChange(e) {
-        $(".variant-interpretation-content").hide(); // hides all content divs
-        $("#" + this._prefix + "GenomeBrowser").show(); // get the href and use it find which div to show
-
-        // Show the active button
-        $(".variant-interpretation-view-buttons").removeClass("active");
-        // $(e.target).addClass("active");
-        PolymerUtils.addClass(this._prefix + "GenomeBrowserButton", "active");
-
-        this._genomeBrowserActive = true;
-
-        this.region = e.detail.genomeBrowserPosition;
-    }
-
-    _backToSelectAnalysis(e) {
-        this.dispatchEvent(new CustomEvent("backtoselectanalysis", {detail: {idTab: "PrioritizationButton"}}));
-    }
-
-    _goToReport(e) {
-        this.dispatchEvent(new CustomEvent("gotoreport", {detail: {interpretation: this.clinicalAnalysis.interpretation}}));
-    }
-
-    triggerBeacon(e) {
-        this.variantToBeacon = this.variant.id;
-    }
 
     onViewInterpretation(e) {
         // this.interpretationView = this._createInterpretation();
@@ -393,67 +333,145 @@ export default class VariantInterpreterReview extends LitElement {
             });
     }
 
-    _changeTab(e) {
-        e.preventDefault();
-        const tabId = e.currentTarget.dataset.id;
-        const navTabs = $(`#${this._prefix}ReviewTabs > .nav-tabs > .content-pills`, this);
-        const contentTabs = $(`#${this._prefix}ReviewTabs > .content-tab-wrapper > .tab-pane`, this);
-        if (!e.currentTarget.className.includes("disabled")) {
-            navTabs.removeClass("active");
-            contentTabs.removeClass("active");
-            $("#" + this._prefix + tabId).addClass("active");
-            for (const tab in this.activeTab) this.activeTab[tab] = false;
-            this.activeTab[tabId] = true;
-            this.requestUpdate();
-        }
-    }
-
     getDefaultConfig() {
-        return {};
+        return {
+
+        };
     }
 
     render() {
-        // Check Project exists
-        if (!this.opencgaSession.project) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue</h3>
-                </div>
-            `;
-        }
-
         return html`
-            <div id="${this._prefix}ReviewTabs">
-                <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
-                    <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["GeneralInfo"]})}">
-                        <a href="javascript: void 0" role="tab" data-id="GeneralInfo" @click="${this._changeTab}" class="tab-title">General Info
-                        </a>
-                    </li>
-                    <li role="presentation" class="content-pills ${classMap({active: this.activeTab["PrimaryFindings"]})}">
-                        <a href="javascript: void 0" role="tab" data-id="PrimaryFindings" @click="${this._changeTab}" class="tab-title">Primary Findings
-                        </a>
-                    </li>
-                </ul>
+        <style include="jso-styles">
+            .prioritization-center {
+                margin: auto;
+                text-align: justify;
+                width: 95%;
+            }
+
+            .browser-variant-tab-title {
+                font-size: 115%;
+                font-weight: bold;
+            }
+
+            .prioritization-variant-tab-title {
+                font-size: 115%;
+                font-weight: bold;
+            }
+
+            .icon-padding {
+                padding-left: 4px;
+                padding-right: 8px;
+            }
+
+            .form-section-title {
+                padding: 5px 0px;
+                width: 90%;
+                border-bottom-width: 1px;
+                border-bottom-style: solid;
+                border-bottom-color: #ddd
+            }
+
+            .jso-label-title {
+                width: 15em !important;
+            }
+        </style>
+
+        <div class="row" style="padding: 0px 10px">
+            <div id="${this._prefix}SaveInterpretation">
+                <div class="col-md-12">
+                    ${this.messageError ? html ` 
+                        <div class="alert alert-danger" role="alert" id="${this._prefix}messageError" style="margin:5px auto;">${this.messageErrorText}</div>
+                    ` : null}
+                    ${this.messageSuccess ? html `
+                        <div class="alert alert-success" role="alert" id="${this._prefix}messageSuccess" style="margin:5px auto;">${this.messageSuccessText}</div>
+                    ` : null}
+                </div>
                 
-                <div class="content-tab-wrapper">
-                    <div id="${this._prefix}GeneralInfo" role="tabpanel" class="tab-pane active content-tab">
-                        <variant-interpreter-review-summary .opencgaSession="${this.opencgaSession}" 
-                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            .active="${this.activeTab["GeneralInfo"]}">
-                        </variant-interpreter-review-summary>
+                <div class="col-md-12">
+                    <div>
+                        <!-- <h3 class="form-section-title" style="margin-top: 10px">Interpretation</h3> -->
+                        <div style="display: inline; cursor:pointer" @click="toggleInterpretationCollapsed"
+                             data-toggle="collapse" href="#${this._prefix}collapsibleInterpretation">
+                            <h4 class="form-section-title">
+                                <!--
+                                    ${this.interpretationCollapsed ? html`
+                                        <i class="fa fa-caret-right" aria-hidden="true" style="width: 20px;padding-left: 5px;padding-right: 5px"></i>
+                                    ` : html`
+                                    <i class="fa fa-caret-down" aria-hidden="true" style="width: 20px;padding-left: 5px;padding-right: 5px"></i>
+                                    `}
+                                -->
+                                General Interpretation Info
+                            </h4>
+                        </div>
+
+                        <div id="${this._prefix}collapsibleInterpretation" class="form-horizontal collapse in" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
+                            <div class="form-group">
+                                <label class="control-label col-md-1 jso-label-title">Interpretation ID</label>
+                                <div class="col-md-3">
+                                    ${this.isCreate ? html`
+                                        <input type="text" id="${this._prefix}IDInterpretation" class="${this._prefix}TextInput form-control"
+                                               placeholder="ID of the interpretation" data-field="id" @input="${this.onInputChange}"
+                                               value="">
+                                    ` : html`
+                                        <div class="input-group">
+                                            <input type="text" id="${this._prefix}IDInterpretation" class="${this._prefix}TextInput form-control"
+                                                   placeholder="ID of the interpretation" data-field="id" @input="${this.onInputChange}">
+                                            <span class="input-group-btn">
+                                            <button class="btn btn-default" type="button">
+                                                <i class="fa fa-search" aria-hidden="true"></i>
+                                            </button>
+                                        </span>
+                                        </div>
+                                    `}
+                                    
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label col-md-1 jso-label-title">Comment</label>
+                                <div class="col-md-3">
+                                    <input type="text" id="${this._prefix}CommentInterpretation" class="${this._prefix}TextInput form-control"
+                                           placeholder="Add a comment" data-field="comment">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label col-md-1 jso-label-title">Description</label>
+                                <div class="col-md-3">
+                                <textarea id="${this._prefix}DescriptionInterpretation" class="${this._prefix}TextInput form-control"
+                                          placeholder="Description of the interpretation" data-field="description"
+                                          @input="${this.onInputChange}"></textarea>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div id="${this._prefix}PrimaryFindings" role="tabpanel" class="tab-pane content-tab">
-                        <variant-interpreter-review-primary .opencgaSession="${this.opencgaSession}" 
-                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            .active="${this.activeTab["PrimaryFindings"]}">
-                        </variant-interpreter-review-primary>
+
+                    <div>
+                        <div class="col-md-4 col-md-offset-8" style="padding: 0px 20px;">
+                            <button type="button" class="btn btn-primary" @click="${this.onViewInterpretation}">Preview</button>
+                            <button type="button" class="btn btn-primary" @click="${this.onSaveInterpretation}">Save</button>
+                        </div>
                     </div>
                 </div>
-            </div> 
-        `;
+
+                <div class="col-md-12">
+                    ${this.interpretationView ? html`
+                        <clinical-interpretation-view id="id"
+                                                      interpretation="${this.interpretationView}"
+                                                      .opencgaSession="${this.opencgaSession}"
+                                                      .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                                      .cellbaseClient="${this.cellbaseClient}"
+                                                      .consequenceTypes="${this.consequenceTypes}"
+                                                      .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                      style="font-size: 12px">
+                        </clinical-interpretation-view>
+                    ` : null}
+                </div>
+            </div>
+        </div>
+    `;
     }
 
 }
 
-customElements.define("variant-interpreter-review", VariantInterpreterReview);
+customElements.define("variant-interpreter-review-summary", VariantInterpreterReviewSummary);

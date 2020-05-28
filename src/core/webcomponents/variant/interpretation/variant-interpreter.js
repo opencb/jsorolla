@@ -58,15 +58,6 @@ class VariantInterpreter extends LitElement {
             cellbaseClient: {
                 type: Object
             },
-            // consequenceTypes: {
-            //     type: Object
-            // },
-            // populationFrequencies: {
-            //     type: Object
-            // },
-            // proteinSubstitutionScores: {
-            //     type: Object
-            // },
             config: {
                 type: Object
             }
@@ -75,9 +66,6 @@ class VariantInterpreter extends LitElement {
 
     _init() {
         this._prefix = "vgi-" + UtilsNew.randomString(6);
-
-        this.query = {};
-        this.search = {};
     }
 
     connectedCallback() {
@@ -86,33 +74,36 @@ class VariantInterpreter extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    firstUpdated(_changedProperties) {
-        // CellBase version
-        // this.cellbaseClient.getMeta("about").then(response => {
-        //     if (UtilsNew.isNotUndefinedOrNull(response) && UtilsNew.isNotEmptyArray(response.response)) {
-        //         if (UtilsNew.isNotUndefinedOrNull(response.response[0].result) && UtilsNew.isNotEmptyArray(response.response[0].result)) {
-        //             this.cellbaseVersion = response.response[0].result[0]["Version: "];
-        //         }
-        //     }
-        // });
-
-        this.requestUpdate();
-    }
+    // firstUpdated(_changedProperties) {
+    //     this.requestUpdate();
+    // }
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-        // if (changedProperties.has("clinicalAnalysisId")) {
-        //     this.clinicalAnalysisIdObserver();
-        // }
+        if (changedProperties.has("clinicalAnalysisId")) {
+            this.clinicalAnalysisIdObserver();
+        }
     }
 
     opencgaSessionObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = {...this.getDefaultConfig(), ...this.config};
-
         this.requestUpdate();
+    }
+
+    clinicalAnalysisIdObserver() {
+        if (this.opencgaSession && this.clinicalAnalysisId) {
+            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.clinicalAnalysis = response.responses[0].results[0];
+                    this.requestUpdate();
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                });
+        }
     }
 
     _changeView(e) {
@@ -290,7 +281,7 @@ class VariantInterpreter extends LitElement {
                                                                             .samples="${this.samples}"
                                                                             .query="${this.query}"
                                                                             .search="${this.search}"
-                                                                            .region="${this.search.region}"
+                                                                            .region="${this.search?.region}"
                                                                             .geneIds="${this.geneIds}"
                                                                             .panelIds="${this.diseasePanelIds}"
                                                                             .clinicalAnalysis="${this.clinicalAnalysis}"

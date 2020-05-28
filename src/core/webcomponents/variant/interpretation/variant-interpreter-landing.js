@@ -61,6 +61,10 @@ class VariantInterpreterLanding extends LitElement {
                 }
             }
         }
+
+        // TODO Delete this code, just for the development purposes.
+        this.clinicalAnalysisId = "AN-12";
+        // this.clinicalAnalysisIdObserver();
     }
 
     connectedCallback() {
