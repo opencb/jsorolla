@@ -326,6 +326,46 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                     ]
                 },
                 {
+                    title: "Singleton Analysis Configuration",
+                    display: {
+                        collapsed: false,
+                        visible: data => {
+                            if (data.type) {
+                                return data.type.toUpperCase() === "SINGLE";
+                            } else {
+                                return true;
+                            }
+                        },
+                    },
+                    elements: [
+                        {
+                            name: "Select Individual",
+                            field: "proband.id",
+                            type: "custom",
+                            display: {
+                                visible: data => this.mode === "create",
+                                render: (data) => {
+                                    return html`
+                                        <individual-id-autocomplete 
+                                            .opencgaSession="${this.opencgaSession}" ?disabled=${this.mode === "update"} .config=${null} @filterChange="${e => this.onFamilyChange(e)}">
+                                        </individual-id-autocomplete>`
+                                },
+                            }
+                        },
+                        {
+                            name: "Select a Disorder",
+                            field: "disorder.id",
+                            type: "select",
+                            allowedValues: "proband.disorders",
+                            required: true,
+                            display: {
+                                apply: (disorder) => `${disorder.name} (${disorder.id})`,
+                                errorMessage: "No family selected"
+                            }
+                        },
+                    ]
+                },
+                {
                     title: "Family Analysis Configuration",
                     display: {
                         collapsed: false,
@@ -485,12 +525,15 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                 let data = {...clinicalAnalysis};
                 delete data._users;
                 data.proband = {
-                    id: data.proband?.id
+                    id: data.proband ? data.proband.id : null
                 };
                 data.disorder = {
                     id: data.disorder.id
                 }
-                data.flags = data.flags.split(",")
+                // Flags are optional, it can be empty
+                if (data.flags) {
+                    data.flags = data.flags.split(",");
+                }
 
                 if (data.type === "FAMILY") {
                     data.family = {

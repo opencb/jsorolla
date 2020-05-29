@@ -93,12 +93,13 @@ class VariantInterpreterLanding extends LitElement {
     }
 
     opencgaSessionObserver() {
-        // that's how the bitwise management of permissions would look like
-        // this.opencgaSession.study.acl would be an integer
-        // ACL would be a map in UtilsNew
-        //this.editMode = this.opencgaSession.study.acl & ACL["WRITE_CLINICAL_ANALYSIS"];
-
-        this.editMode = this.opencgaSession.study.acl.includes("WRITE_CLINICAL_ANALYSIS");
+        // Check logged user is the study owner
+        let _studyOwner = this.opencgaSession.study.fqn.split("@")[0];
+        if (this.opencgaSession.user.id === _studyOwner) {
+            this.editMode = true;
+        } else {
+            this.editMode = this.opencgaSession.study.acl.includes("WRITE_CLINICAL_ANALYSIS");
+        }
     }
 
     // non-bootstrap tabs

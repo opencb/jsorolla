@@ -19,7 +19,7 @@ import UtilsNew from "./../../../utilsNew.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
 
 
-export default class OpencgaMutationalSignatureAnalysis extends LitElement {
+export default class OpencgaInferredSexAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -45,7 +45,7 @@ export default class OpencgaMutationalSignatureAnalysis extends LitElement {
     _init() {
         this._prefix = "oga-" + UtilsNew.randomString(6);
 
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
@@ -61,15 +61,15 @@ export default class OpencgaMutationalSignatureAnalysis extends LitElement {
 
     getDefaultConfig() {
         return {
-            id: "mutational-signature",
-            title: "Mutational Signature Analysis",
+            id: "inferred-sex",
+            title: "Inferred Sex Analysis",
             icon: "",
             requires: "2.0.0",
-            description: "Mutational Signature description",
+            description: "Inferred Sex description",
             links: [
                 {
                     title: "OpenCGA",
-                    url: "http://docs.opencb.org/display/opencga/Sample+Stats",
+                    url: "http://docs.opencb.org/display/opencga/Genome-Wide+Association+Study",
                     icon: ""
                 }
             ],
@@ -80,18 +80,27 @@ export default class OpencgaMutationalSignatureAnalysis extends LitElement {
                         collapsed: false,
                         parameters: [
                             {
+                                id: "individual",
+                                title: "Select Individual",
+                                type: "INDIVIDUAL_FILTER",
+                                showList: true,
+                                fileUpload: true
+                                // colspan: 6
+                            },
+                            {
                                 id: "sample",
-                                title: "Select somatic sample",
+                                title: "Select samples",
                                 type: "SAMPLE_FILTER",
                                 showList: true,
                                 fileUpload: true
-                            }
+                                // colspan: 6
+                            },
                         ]
-                    }
+                    },
                 ],
                 job: {
                     title: "Job Info",
-                    id: "mutational-signature-$DATE",
+                    id: "inferred-sex-$DATE",
                     tags: "",
                     description: "",
                     validation: function(params) {
@@ -103,9 +112,10 @@ export default class OpencgaMutationalSignatureAnalysis extends LitElement {
             execute: (opencgaSession, data, params) => {
                 let _data = {};
                 if (data) {
+                    _data.individual = data.individual.join(",");
                     _data.sample = data.sample.join(",");
                 }
-                opencgaSession.opencgaClient.variants().runMutationalSignature(_data, params);
+                opencgaSession.opencgaClient.variants().runInferredSex(_data, params);
             },
             result: {
             }
@@ -119,4 +129,4 @@ export default class OpencgaMutationalSignatureAnalysis extends LitElement {
     }
 }
 
-customElements.define("opencga-mutational-signature-analysis", OpencgaMutationalSignatureAnalysis);
+customElements.define("opencga-inferred-sex-analysis", OpencgaInferredSexAnalysis);

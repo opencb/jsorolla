@@ -113,7 +113,7 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
 
         let params = {
             study: this.opencgaSession.study.fqn,
-            fields: "genotype;type;biotype;consequenceType",
+            fields: "genotype;type;biotype;consequenceType;clinicalSignificance;depth",
             sample: this.sampleId,
             ...this.query
         };
@@ -355,6 +355,20 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                                 <div class="col-md-12">
                                     <h3>Consequence Type</h3>
                                     <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[3]}"
+                                            .config="${this.facetConfig}"
+                                            ?active="${this.facetActive}">
+                                    </opencga-facet-result-view>
+                                </div>
+                                <div class="col-md-12">
+                                    <h3>Clinical Signficance</h3>
+                                    <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[4]}"
+                                            .config="${this.facetConfig}"
+                                            ?active="${this.facetActive}">
+                                    </opencga-facet-result-view>
+                                </div>
+                                <div class="col-md-12">
+                                    <h3>Depth</h3>
+                                    <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[5]}"
                                             .config="${this.facetConfig}"
                                             ?active="${this.facetActive}">
                                     </opencga-facet-result-view>

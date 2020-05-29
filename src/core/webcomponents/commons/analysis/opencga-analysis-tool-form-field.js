@@ -86,6 +86,8 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
                             </div>`;
             case "SAMPLE_FILTER":
                 return html`<sample-id-autocomplete .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" .value="${fieldConfig.defaultValue}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></sample-id-autocomplete>`;
+            case "INDIVIDUAL_FILTER":
+                return html`<individual-id-autocomplete .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" .value="${fieldConfig.defaultValue}" @filterChange="${e => this.onFilterChange("individual", e.detail.value)}"></individual-id-autocomplete>`;
             case "COHORT_FILTER":
                 return html`<cohort-id-autocomplete .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" .value="${fieldConfig.defaultValue}" @filterChange="${e => this.onFilterChange("cohort", e.detail.value)}"></cohort-id-autocomplete>`;
             case "FAMILY_FILTER":

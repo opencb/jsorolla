@@ -97,6 +97,15 @@ export default class OpencgaAnalysisToolForm extends LitElement {
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.params["study"] = this.opencgaSession.study.fqn;
+
+            // Check logged user is the study owner
+            let _studyOwner = this.opencgaSession.study.fqn.split("@")[0];
+            if (this.opencgaSession.user.id === _studyOwner) {
+                this.runnable = true;
+            } else {
+                this.runnable = this.opencgaSession.study.acl.includes("EXECUTE_JOBS")
+            }
+            this.requestUpdate();
         }
     }
 
@@ -263,12 +272,15 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                     </div>
                         
                     <div class="pull-right button-wrapper">
-                        ${this.opencgaSession.study.acl.includes("EXECUTE_JOBS") ? html`
-                            <button type="button" class="ripple btn btn-primary btn-lg" @click="${this.onRun}">Run</button>
-                        ` : html`
-                            <a tooltip-title="Permission denied" tooltip-text="EXECUTE_JOB permission not available"><i class="fas fa-exclamation-circle text-danger"></i></i></a>
-                            <button type="button" class="ripple btn btn-primary btn-lg disabled"> Run </button>
-                        `}
+                        ${this.runnable 
+                            ? html`
+                                <button type="button" class="ripple btn btn-primary btn-lg" @click="${this.onRun}">Run</button>` 
+                            : html`
+                                <a tooltip-title="Permission denied" tooltip-text="EXECUTE_JOB permission not available">
+                                    <i class="fas fa-exclamation-circle text-danger"></i>
+                                </a>
+                                <button type="button" class="ripple btn btn-primary btn-lg disabled"> Run </button>`
+                        }
                     </div>
                 </form>
            </div>
