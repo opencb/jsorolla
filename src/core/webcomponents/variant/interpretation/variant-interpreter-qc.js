@@ -136,7 +136,7 @@ class VariantInterpreterQc extends LitElement {
                         </a>
                     </li>
                     <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Coverage"]})}">
-                        <a href="javascript: void 0" role="tab" data-id="Coverage" @click="${this._changeTab}" class="tab-title">Coverage
+                        <a href="javascript: void 0" role="tab" data-id="Coverage" @click="${this._changeTab}" class="tab-title">Gene Coverage
                         </a>
                     </li>
                     ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY" ? html`
@@ -170,12 +170,15 @@ class VariantInterpreterQc extends LitElement {
                         </variant-interpreter-qc-alignment>
                     </div>
                     <div id="${this._prefix}Coverage" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
-                        <gene-coverage-view .opencgaSession="${this.opencgaSession}"
+                        
+                        <h3>Select a gene</h3>
+                        <select-field-filter .data="${[{id: "a", name: "A"}, {id:"b", name: "B"}, {id: "c", name: "C"}]}" .value=${"a"} @filterChange="${e => console.log(e)}"></select-field-filter>
+                        <gene-coverage-browser .opencgaSession="${this.opencgaSession}"
                                             .cellbaseClient="${this.cellbaseClient}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .geneIds="${this.geneIds}"
                                             .panelIds="${this.diseasePanelIds}">
-                         </gene-coverage-view>
+                         </gene-coverage-browser>
                     </div>
                     ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
                         ? html`

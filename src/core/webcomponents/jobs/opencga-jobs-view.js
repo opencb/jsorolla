@@ -81,7 +81,7 @@ export default class OpencgaJobsView extends LitElement {
 
     jobIdObserver() {
         const params = {
-            study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
+            study: this.opencgaSession.study.fqn,
             includeIndividual: true
         };
         this.opencgaSession.opencgaClient.jobs().info(this.jobId, params)
@@ -123,11 +123,6 @@ export default class OpencgaJobsView extends LitElement {
         }
         return "-";
     }
-
-    renderHTML(html) {
-        return document.createRange().createContextualFragment(`${html}`);
-    }
-
 
     getDefaultConfig() {
         return {
@@ -187,7 +182,7 @@ export default class OpencgaJobsView extends LitElement {
                             field: "internal",
                             type: "custom",
                             display: {
-                                render: field => this.renderHTML(this.statusFormatter(field.status.name))
+                                render: field => UtilsNew.renderHTML(this.statusFormatter(field.status.name))
                             }
                         },
                         {
@@ -220,7 +215,7 @@ export default class OpencgaJobsView extends LitElement {
                                     },
                                     {
                                         name: "Status", field: "status"
-                                        //format: ${this.renderHTML(this.statusFormatter(status.name))}
+                                        //format: ${UtilsNew.renderHTML(this.statusFormatter(status.name))}
                                     }
                                 ],
                                 border: true

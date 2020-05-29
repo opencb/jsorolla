@@ -318,7 +318,7 @@ export default class VariantInterpreterReview extends LitElement {
                     }
 
                     params = {
-                        study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias
+                        study: _this.opencgaSession.study.fqn,
                     };
                     const interpretations = {interpretations: interpretation.clinicalAnalysis.interpretations};
                     console.log("new clients change")

@@ -22,8 +22,6 @@ import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 
 
-// todo check functionality and notify usage
-
 export default class OpencgaFileGrid extends LitElement {
 
     constructor() {
@@ -340,46 +338,6 @@ export default class OpencgaFileGrid extends LitElement {
         }
         this.filters = filters;
     }
-    /*
-    onSearch() {
-        // Convert the filters to an objectParam that can be directly send to the file search
-        const filterParams = {};
-
-        const keys = Object.keys(this.filters);
-        for (let i = 0; i < keys.length; i++) {
-            // Some filters can come as an array of things.
-            // annotation = [{name: name, value: Smith}, {name: age, value: >5}]
-            if (Array.isArray(this.filters[keys[i]])) {
-                const myArray = this.filters[keys[i]];
-
-                let myArrayFilter = [];
-
-                // The elements in the array can be either an object
-                if (Object.getPrototypeOf(myArray[0]) === Object.prototype) {
-                    const myArray = this.filters[keys[i]];
-                    for (let j = 0; j < myArray.length; j++) {
-                        // TODO: We have to check if the value already has an operand
-                        myArrayFilter.push(myArray[j].name + "=" + myArray[j].value);
-                    }
-                } else {
-                    // Or an array of strings or numbers
-                    myArrayFilter = this.filters[keys[i]];
-                }
-
-                filterParams[keys[i]] = myArrayFilter.join(";");
-            } else {
-                filterParams[keys[i]] = this.filters[keys[i]];
-            }
-        }
-
-        if (this.filters.hasOwnProperty("annotation")) {
-            // Add the variable set whose annotations will be queried
-            filterParams["variableSetId"] = this.filteredVariables.variableSet;
-        }
-
-        this.search = filterParams;
-    }*/
-
 
     stateFormatter(value, row, index) {
         if (typeof this.field.context.files != "undefined") {

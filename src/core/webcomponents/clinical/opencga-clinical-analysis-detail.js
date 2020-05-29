@@ -82,10 +82,6 @@ export default class OpencgaClinicalAnalysisDetail extends LitElement {
         this.requestUpdate();
     }
 
-    renderHTML(html) {
-        return document.createRange().createContextualFragment(`${html}`);
-    }
-
     getDefaultConfig() {
         return {
             title: "Clinical Analysis",

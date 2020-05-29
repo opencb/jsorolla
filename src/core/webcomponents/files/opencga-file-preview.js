@@ -78,7 +78,7 @@ export default class OpencgaFilePreview extends LitElement {
 
     fileObserver() {
         const params = {
-            study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
+            study: this.opencgaSession.study.fqn,
             includeIndividual: true
         };
 

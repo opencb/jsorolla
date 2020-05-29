@@ -84,7 +84,7 @@ export default class OpencgaCohortView extends LitElement {
         console.warn("cohortIdObserver");
         if (this.file !== undefined && this.file !== "") {
             const params = {
-                study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
+                study: this.opencgaSession.study.fqn,
                 includeIndividual: true
             };
             const _this = this;

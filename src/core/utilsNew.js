@@ -176,4 +176,8 @@ export default class UtilsNew {
         return shape(array,0);
     }
 
+    static renderHTML(html) {
+        return document.createRange().createContextualFragment(`${html}`);
+    }
+
 }

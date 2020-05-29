@@ -81,10 +81,6 @@ export default class OpencgaIndividualDetail extends LitElement {
         this.requestUpdate();
     }
 
-    renderHTML(html) {
-        return document.createRange().createContextualFragment(`${html}`);
-    }
-
     getDefaultConfig() {
         return {
             title: "Individual",

@@ -16,9 +16,9 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import "./opencga-family-view.js";
 
-export default class OpencgaFamilyDetail extends LitElement {
+
+export default class GeneCoverageDetail extends LitElement {
 
     constructor() {
         super();
@@ -34,13 +34,10 @@ export default class OpencgaFamilyDetail extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            familyId: {
-                type: String
-            },
-            family: {
+            config: {
                 type: Object
             },
-            config: {
+            transcript: {
                 type: Object
             }
         };
@@ -60,18 +57,18 @@ export default class OpencgaFamilyDetail extends LitElement {
         if (changedProperties.has("opencgaSession")) {
         }
 
-        if (changedProperties.has("family")) {
+        if (changedProperties.has("transcript")) {
 
         }
 
         if (changedProperties.has("activeTab")) {
-            console.log("activeTab")
+            console.log("activeTab");
         }
     }
 
     _changeBottomTab(e) {
         const tabId = e.currentTarget.dataset.id;
-        console.log(tabId)
+        console.log(tabId);
         $(".nav-tabs", this).removeClass("active");
         $(".tab-content div[role=tabpanel]", this).hide();
         for (const tab in this.activeTab) this.activeTab[tab] = false;
@@ -82,19 +79,19 @@ export default class OpencgaFamilyDetail extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Family",
+            title: "Transcript",
             showTitle: true
         };
     }
 
     render() {
-        return this.family ? html`
-            <div>
-                ${this._config.showTitle ? html`
+        return this.transcript ? html`
+            ${this._config.showTitle ? html`
                     <div class="panel" style="margin-bottom: 10px">
-                        <h2 >&nbsp;${this._config.title}: ${this.family.id}</h2>
+                        <h2 >&nbsp;${this._config.title}: ${this.transcript.transcriptId}</h2>
                     </div>
                 ` : null}
+            <div>
                 <ul class="nav nav-tabs" role="tablist">
                     ${this.config.detail.length && this.config.detail.map(item => html`
                         <li role="presentation" class="${item.active ? "active" : ""}">
@@ -105,23 +102,17 @@ export default class OpencgaFamilyDetail extends LitElement {
                         </li>
                     `)}
                 </ul>
-                               
+                
                 <div class="tab-content">
-                    <div id="family-view-tab" class="tab-pane active" role="tabpanel">
-                        <div class="form-group detail-row">
-                            <opencga-family-view .opencgaSession="${this.opencgaSession}" .family="${this.family}">
-                            </opencga-family-view>
-                        </div>
-                    </div>
-                    <div id="log-tab" class="tab-pane" role="tabpanel">
-                        second tab
+                    <div id="transcript-detail-tab" class="tab-pane active" role="tabpanel">
+                        <gene-coverage-view .transcript="${this.transcript}"></gene-coverage-view>
                     </div>
                 </div>
                 
             </div>
-        ` : null;
+        ` : "no transcript";
     }
 
 }
 
-customElements.define("opencga-family-detail", OpencgaFamilyDetail);
+customElements.define("gene-coverage-detail", GeneCoverageDetail);

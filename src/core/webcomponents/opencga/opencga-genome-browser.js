@@ -157,7 +157,7 @@ export default class OpencgaGenomeBrowser extends LitElement {
         }
 
         const queryParams = {
-            study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
+            study: this.opencgaSession.study.fqn,
             samples: sample,
             format: "VCF,BAM",
             include: "path,name,format,bioformat"
@@ -201,7 +201,7 @@ export default class OpencgaGenomeBrowser extends LitElement {
             const _this = this;
             this.opencgaClient.samples()
                 .search({
-                    study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
+                    study: _this.opencgaSession.study.fqn,
                     name: "~^" + sampleNamePrefix,
                     include: "id,name",
                     includeIndividual: false,

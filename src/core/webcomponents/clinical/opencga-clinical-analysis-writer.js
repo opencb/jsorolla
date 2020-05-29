@@ -247,8 +247,8 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                     title: "Case Information",
                     display: {
                         collapsed: false,
-                        leftColumnWith: 4,
-                        rightColumnWith: 4
+                        leftColumnWith: 6,
+                        rightColumnWith: 6
                     },
                     elements: [
                         [

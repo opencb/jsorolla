@@ -360,7 +360,7 @@ export default class OpencgaFacetView extends LitElement {
         let queryParams = Object.assign(this.query,
             {
                 // sid: this.opencgaClient._config.sessionId,
-                study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
+                study: this.opencgaSession.study.fqn,
                 timeout: 60000,
                 field: this.facetFilters.join(";")
             });

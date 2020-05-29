@@ -82,10 +82,6 @@ export default class OpencgaFileDetail extends LitElement {
         this.requestUpdate();
     }
 
-    renderHTML(html) {
-        return document.createRange().createContextualFragment(`${html}`);
-    }
-
     getDefaultConfig() {
         return {
             title: "File",

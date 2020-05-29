@@ -89,10 +89,6 @@ export default class OpencgaSampleDetail extends LitElement {
         this.requestUpdate();
     }
 
-    renderHTML(html) {
-        return document.createRange().createContextualFragment(`${html}`);
-    }
-
     getDefaultConfig() {
         return {
             title: "Sample",

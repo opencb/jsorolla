@@ -194,7 +194,7 @@ export default class DataForm extends LitElement {
                 <section>
                     ${section.title ? html`<h4 style="${sectionTitleStyle}">${section.title}</h4>` : null}
                     <div class="container-fluid">
-                        <div class="row detail-row">
+                        <div class="row">
                             <div class="col-md-${leftColumnWidth}" style="${columnSeparatorStyle}">
                                 ${section.elements[0].map(element => this._createElement(element))}
                             </div>
@@ -449,11 +449,11 @@ export default class DataForm extends LitElement {
         }
     }
 
-    _createComplexElement(element) {
+    _createComplexElement(element, data = this.data) {
         if (!element.display || !element.display.template) {
             return html`<span style="color: red">No template provided</span>`;
         }
-        return html`<span>${this.applyTemplate(element.display.template, this.data, null, this._getDefaultValue(element))}</span>`;
+        return html`<span>${UtilsNew.renderHTML(this.applyTemplate(element.display.template, data, null, this._getDefaultValue(element)))}</span>`;
     }
 
     _createListElement(element) {
@@ -556,10 +556,9 @@ export default class DataForm extends LitElement {
                         <tr scope="row">
                             ${element.display.columns.map(elem => html`
                                 <td>
-                                    ${elem.display && elem.display.render 
-                                        ? elem.display.render(this.getValue(elem.field, row)) 
-                                        : this.getValue(elem.field, row, elem.defaultValue, elem.format)
-                                    }
+                                   ${elem.type === "complex" ? this._createComplexElement(elem, row)
+                                    : elem.type === "custom" ? elem.display.render(this.getValue(elem.field, row))
+                                    : this.getValue(elem.field, row, elem.defaultValue, elem.format) }
                                 </td>
                             `)}
                         </tr>
@@ -703,7 +702,7 @@ export default class DataForm extends LitElement {
                 : null
             }
             
-            <div class="row" style="padding: 0px 20px">
+            <div class="row">
                 <div class="col-md-12">
                     ${this.config.sections.map(section => this._createSection(section))}
                 </div>

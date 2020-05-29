@@ -18,6 +18,8 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 // import {ifDefined} from "/web_modules/lit-html/directives/if-defined.js";
 import "./sample-variant-stats-view.js";
+import "../../clinical/opencga-clinical-analysis-writer.js";
+import "../../alignment/gene-coverage-browser.js";
 import UtilsNew from "../../../utilsNew.js";
 
 
@@ -286,7 +288,7 @@ class VariantInterpreterLanding extends LitElement {
                             </div>
                         </div>
                         
-                        <div id="${this._prefix}-create" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
+                        <div id="${this._prefix}-create" role="tabpanel" class="tab-pane content-tab col-md-8 col-md-offset-2">
                             <opencga-clinical-analysis-writer   .opencgaSession="${this.opencgaSession}"
                                                                 .config="${this.clinicalAnalysisEditorConfig}"
                                                                 @clinicalanalysischange="${e => this.onClinicalAnalysisUpdate(e)}"
