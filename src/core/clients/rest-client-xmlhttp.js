@@ -162,7 +162,6 @@ export class RestClientXmlhttp {
                 request.setRequestHeader("Content-type", "application/json");
                 request.send();
             } else {
-                console.log("request.send")
                 request.send();
             }
         });

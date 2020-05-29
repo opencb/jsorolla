@@ -208,7 +208,7 @@ export default class ClinicalInterpretationView extends LitElement {
 
     onChangeId(e) {
         const params = {
-            study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias
+            study: this.opencgaSession.study.fqn,
         };
         const _this = this;
         if (UtilsNew.isNotUndefinedOrNull(this.interpretationId)) {

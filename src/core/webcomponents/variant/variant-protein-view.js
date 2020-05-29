@@ -109,8 +109,8 @@ export default class VariantProteinView extends LitElement {
                         const params = {
                             ct: "missense_variant,transcript_ablation,splice_acceptor_variant,splice_donor_variant,stop_gained,frameshift_variant,stop_lost,start_lost," +
                                 "transcript_amplification,inframe_insertion,inframe_deletion",
-                            studies: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
-                            returnedStudies: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
+                            study: _this.opencgaSession.study.fqn,
+                            returnedStudies: _this.opencgaSession.study.fqn,
                             summary: true
                             // exclude: "studies.samplesData,studies.files"
                         };

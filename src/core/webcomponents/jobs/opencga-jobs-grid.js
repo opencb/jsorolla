@@ -21,8 +21,6 @@ import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 
 
-// todo check functionality and notify usage
-
 export default class OpencgaJobsGrid extends LitElement {
 
     constructor() {
@@ -40,8 +38,7 @@ export default class OpencgaJobsGrid extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            //TODO check what's the point   ==> This seems a copy/past from file-grid, it should be 'jobs' to render locally
-            files: {
+            jobs: {
                 type: Array
             },
             filters: {
@@ -100,18 +97,18 @@ export default class OpencgaJobsGrid extends LitElement {
     }
 
     renderTable() {
-        this.files = [];
+        this.jobs = [];
         this.from = 1;
         this.to = 10;
 
         if (UtilsNew.isNotUndefined(this.opencgaSession.opencgaClient) &&
             UtilsNew.isNotUndefined(this.opencgaSession.study) &&
             UtilsNew.isNotUndefined(this.opencgaSession.study.fqn)) {
-            // Make a copy of the files (if they exist), we will use this private copy until it is assigned to this.files
-            if (UtilsNew.isNotUndefined(this.files)) {
-                this._files = this.files;
+            // Make a copy of the jobs (if they exist), we will use this private copy until it is assigned to this.jobs
+            if (UtilsNew.isNotUndefined(this.jobs)) {
+                this._jobs = this.jobs;
             } else {
-                this._files = [];
+                this._jobs = [];
             }
 
             const _this = this;
@@ -122,7 +119,6 @@ export default class OpencgaJobsGrid extends LitElement {
                 method: "get",
                 sidePagination: "server",
                 uniqueId: "id",
-
                 // Table properties
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
@@ -131,7 +127,6 @@ export default class OpencgaJobsGrid extends LitElement {
                 detailView: this._config.detailView,
                 detailFormatter: this._config.detailFormatter.bind(this),
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
-
                 ajax: params => {
                     const filters = {
                         study: this.opencgaSession.study.fqn,
@@ -155,109 +150,16 @@ export default class OpencgaJobsGrid extends LitElement {
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                /*onClickRow: (row, element, field) => {
-                    if (this._config.multiselection) {
-                        $(element).toggleClass("success");
-                        const index = element[0].getAttribute("data-index");
-                        // Check and uncheck actions trigger events that are captured below
-                        if ("selected" === element[0].className) {
-                            this.table.bootstrapTable("uncheck", index);
-                        } else {
-                            this.table.bootstrapTable("check", index);
-                        }
-                    } else {
-                        $(".success").removeClass("success");
-                        $(element).addClass("success");
-                    }
-
-                    this.dispatchEvent(new CustomEvent("clickRow", {detail: {resource: "job", data: row}}));
-                    //_this._onSelectFile(row);
-                },*/
-                onCheck: function(row, elem) {
-                    // check file is not already selected
-                    for (const i in _this._files) {
-                        if (_this._files[i].id === row.id) {
-                            return;
-                        }
-                    }
-
-                    // we add files to selected files
-                    _this._files.push(row);
-                    _this.files = _this._files.slice();
-                },
-                onUncheck: function(row, elem) {
-                    let fileToDeleteIdx = -1;
-                    for (const i in _this.files) {
-                        if (_this.files[i].id === row.id) {
-                            fileToDeleteIdx = i;
-                            break;
-                        }
-                    }
-
-                    if (fileToDeleteIdx === -1) {
-                        return;
-                    }
-
-                    // _this.splice("_files", fileToDeleteIdx, 1);
-                    // _this.set("files", _this._files.slice());
-                    _this._files.splice(fileToDeleteIdx, 1);
-                    _this.files = _this._files.slice();
-                },
-                onCheckAll: function(rows) {
-                    const newFiles = _this._files.slice();
-                    // check file is not already selected
-                    rows.forEach(file => {
-                        const existsNewSelected = _this._files.some(fileSelected => {
-                            return fileSelected.id === file.id;
-                        });
-
-                        if (!existsNewSelected) {
-                            newFiles.push(file);
-                        }
-                    });
-
-                    // we add files to selected files
-                    _this._files = newFiles;
-                    _this.files = newFiles.slice();
-
-                },
-                onUncheckAll: function(rows) {
-                    // check file is not already selected
-                    rows.forEach(file => {
-                        _this._files = _this._files.filter(fileSelected => {
-                            return fileSelected.id !== file.id;
-                        });
-
-                    });
-
-                    // we add files to selected files
-                    //                            _this.push("_files", row);
-                    _this.files = _this._files.slice();
-
-                },
+                onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
+                onCheckAll: rows => this.gridCommons.onCheckAll(rows),
+                onUncheck: (row, $element) => this.gridCommons.onUncheck(row.id, row),
+                onUncheckAll: rows => this.gridCommons.onUncheckAll(rows),
                 onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
-                /*onLoadSuccess: function(data) {
-                    console.log("onLoadSuccess")
-                    // Check all already selected rows. Selected files are stored in this.files array
-                    if (UtilsNew.isNotUndefinedOrNull(this.table)) {
-                        if (!_this._config.multiselection) {
-                            PolymerUtils.querySelector(this.table.selector).rows[1].setAttribute("class", "success");
-                            _this._onSelectFile(data.rows[0]);
-                        }
-
-                        if (_this.files !== "undefined") {
-                            for (const idx in _this.files) {
-                                for (const j in data.rows) {
-                                    if (_this.files[idx].id === data.rows[j].id) {
-                                        this.table.bootstrapTable("check", j);
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },*/
-                onPageChange: (page, size) => this.gridCommons.onPageChange(page, size)
+                onPageChange: (page, size) => {
+                    const result = this.gridCommons.onPageChange(page, size);
+                    this.from = result.from || this.from;
+                    this.to = result.to || this.to;
+                }
             });
         } else {
             // Delete table
@@ -271,12 +173,6 @@ export default class OpencgaJobsGrid extends LitElement {
      */
     onFilterUpdate() {
         // this.updateForms(this.filters); //TODO recheck, this shouldn't be necessary anymore (and it seems not)
-    }
-
-    _onSelectFile(row) {
-        if (typeof row !== "undefined") {
-            this.dispatchEvent(new CustomEvent("selectfile", {detail: {id: row.id, file: row}}));
-        }
     }
 
     // TODO adapct to jobs

@@ -81,6 +81,21 @@ class VariantInterpreterInterpretation extends LitElement {
         // }
     }
 
+    onAnalysisChange(e) {
+        this.analysis = e.detail.value;
+        this.requestUpdate();
+    }
+
+    renderAnalysis(type) {
+        switch(type) {
+            case "rd-tiering":
+                return html`<opencga-gwas-analysis .opencgaSession="${this.opencgaSession}"></opencga-gwas-analysis>`
+            case "--":
+                break;
+            default:
+        }
+    }
+
     render() {
         // Check Project exists
         if (!this.opencgaSession.project) {
@@ -92,10 +107,13 @@ class VariantInterpreterInterpretation extends LitElement {
 
         return this.clinicalAnalysis ? html`
             <div>
-                <select-field-filter .data="${[{id: "a", name: "RD tiering"}, {id:"b", name: "RD tiering"}, {id: "c", name: "RD tiering"}]}" .value=${"a"} @filterChange="${e => console.log(e)}"></select-field-filter>
-            </div>
-               
-            
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4 col-sm-12">
+                        <h3>Select Analysis</h3>
+                        <select-field-filter .data="${[{id: "rd-tiering", name: "RD tiering"}]}" @filterChange="${this.onAnalysisChange}"></select-field-filter>
+                    </div>
+                </div>
+                ${this.renderAnalysis(this.analysis)}
             </div>
         ` : null;
     }

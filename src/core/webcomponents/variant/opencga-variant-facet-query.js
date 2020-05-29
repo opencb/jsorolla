@@ -143,7 +143,7 @@ class OpencgaVariantFacetQuery extends LitElement {
 
         // Join 'query' from left menu and facet filters
         let queryParams = {...this.query,
-                study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias,
+                study: this.opencgaSession.study.fqn,
                 sid: this.opencgaSession.opencgaClient._config.sessionId,
                 fields: this.facetFilters.join(";"),
                 timeout: 60000};
