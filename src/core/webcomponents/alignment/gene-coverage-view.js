@@ -132,7 +132,7 @@ export default class GeneCoverageView extends LitElement {
                                         name: "Region",
                                         type: "complex",
                                         display: {
-                                            template: "<strong>${start}</strong> to <strong>${end}</strong>"
+                                            template: "<strong>${start}</strong>-<strong>${end}</strong>"
                                         }
                                     },
                                     {

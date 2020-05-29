@@ -205,8 +205,8 @@ export default class GeneCoverageGrid extends LitElement {
                 formatter: this.percentageFormatter
             },
             {
-                title: "60x",
-                field: "> depths.9",
+                title: "> 60x",
+                field: "depths.9",
                 formatter: this.percentageFormatter
             }
         ];
