@@ -815,7 +815,7 @@ export default class VariantInterpreterGrid extends LitElement {
             });
         }
 
-        if (this.clinicalAnalysis && this.clinicalAnalysis.type.toUpperCase() === "FAMILY") {
+        if (this.clinicalAnalysis && (this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY")) {
             // Add Cohort to Variant Stats
             _columns[0][4].colspan = 2;
             _columns[1].splice(0, 0,

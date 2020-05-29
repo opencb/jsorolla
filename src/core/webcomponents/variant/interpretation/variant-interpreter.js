@@ -129,7 +129,7 @@ class VariantInterpreter extends LitElement {
     onClinicalAnalysis(e) {
         this.clinicalAnalysis = e.detail.clinicalAnalysis;
         // debugger
-        this.clinicalAnalysis.type = "CANCER";
+        // this.clinicalAnalysis.type = "CANCER";
         this.requestUpdate();
     }
 
@@ -294,7 +294,7 @@ class VariantInterpreter extends LitElement {
                             
                             <div id="${this._prefix}variant-browser" class="clinical-portal-content" style="${this._config.tools[0].id !== "variant-browser" ? "display: none" : ""}">
                                 
-                                ${this.clinicalAnalysis && this.clinicalAnalysis.type.toUpperCase() === "FAMILY" 
+                                ${this.clinicalAnalysis && this.clinicalAnalysis.type.toUpperCase() === "SINGLE" && this.clinicalAnalysis.type.toUpperCase() === "FAMILY" 
                                     ? html`
                                         <variant-interpreter-rd-browser .opencgaSession="${this.opencgaSession}"
                                                                         .clinicalAnalysis="${this.clinicalAnalysis}"

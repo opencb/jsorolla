@@ -126,9 +126,32 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
         this.requestUpdate();
     }
 
+    onIndividualChange(e) {
+        if (e.detail.value) {
+            this.clinicalAnalysis.type = "SINGLE";
+            let _this = this;
+            this.opencgaSession.opencgaClient.individuals().info(e.detail.value, {study: this.opencgaSession.study.fqn})
+                .then( response => {
+                    _this.clinicalAnalysis.proband = response.responses[0].results[0];
+
+                    if (_this.clinicalAnalysis.proband && _this.clinicalAnalysis.proband.disorders) {
+                        if (_this.clinicalAnalysis.proband.disorders.length === 1) {
+                            _this.clinicalAnalysis.disorder = _this.clinicalAnalysis.proband.disorders[0];
+                        }
+                    }
+
+                    _this.clinicalAnalysis = {..._this.clinicalAnalysis};
+                    _this.notifyClinicalAnalysisUpdate();
+                    _this.requestUpdate();
+                })
+                .catch(function(reason) {
+                    console.error(reason);
+                });
+        }
+    }
+
     onFamilyChange(e) {
         if (e.detail.value) {
-            console.log("e.detail.value",e.detail.value)
             this.clinicalAnalysis.type = "FAMILY";
             let _this = this;
             this.opencgaSession.opencgaClient.families().info(e.detail.value, {study: this.opencgaSession.study.fqn})
@@ -151,9 +174,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                     }
 
                     _this.clinicalAnalysis = {..._this.clinicalAnalysis};
-
                     _this.notifyClinicalAnalysisUpdate();
-
                     _this.requestUpdate();
                 })
                 .catch(function(reason) {
@@ -347,7 +368,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 render: (data) => {
                                     return html`
                                         <individual-id-autocomplete 
-                                            .opencgaSession="${this.opencgaSession}" ?disabled=${this.mode === "update"} .config=${null} @filterChange="${e => this.onFamilyChange(e)}">
+                                            .opencgaSession="${this.opencgaSession}" ?disabled=${this.mode === "update"} .config=${null} @filterChange="${e => this.onIndividualChange(e)}">
                                         </individual-id-autocomplete>`
                                 },
                             }
