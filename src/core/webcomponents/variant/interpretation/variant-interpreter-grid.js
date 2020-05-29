@@ -191,8 +191,13 @@ export default class VariantInterpreterGrid extends LitElement {
                         includeSampleId: "true",
                         ...this.query
                     };
+                    if (this.clinicalAnalysis.type.toUpperCase() === "SINGLE") {
+                        filters.sample = this.clinicalAnalysis.proband.samples[0].id;
+                    }
                     this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
-                        .then( res => params.success(res));
+                        .then(res => {
+                            params.success(res);
+                        });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
@@ -251,8 +256,11 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     renderLocalVariants() {
-        let _variants = this.clinicalAnalysis.interpretation.primaryFindings;
+        if (!this.clinicalAnalysis.interpretation.primaryFindings) {
+            return;
+        }
 
+        let _variants = this.clinicalAnalysis.interpretation.primaryFindings;
         this.from = 1;
         this.to = Math.min(_variants.length, this._config.pageSize);
         this.numTotalResultsText = _variants.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -466,7 +474,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 const genotypeSplitRegExp = new RegExp("[/|]");
                 let sampleGT;
                 // Make sure we always render somatic sample first
-                if (this.field.clinicalAnalysis.type.toLowerCase() === "family") {
+                if (this.field.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.field.clinicalAnalysis.type.toUpperCase() === "FAMILY") {
                     sampleGT = row.studies[0].samples[this.field.memberIdx].data[0];
                 } else {
                     if (row.studies[0].samples.length === 2) {
@@ -885,6 +893,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         field: {
                             memberIdx: i,
                             memberName: samples[i].id,
+                            sampleId: samples[i].id,
                             quality: this._config.quality,
                             clinicalAnalysis: this.clinicalAnalysis
                         },
