@@ -135,7 +135,7 @@ class VariantInterpreter extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Variant Generic Interpreter",
+            title: "Variant Interpreter",
             icon: "fas fa-search",
             active: false,
             tools: [
@@ -176,7 +176,7 @@ class VariantInterpreter extends LitElement {
                 },
                 {
                     id: "review",
-                    title: "Review",
+                    title: "Interpretation Review",
                     acronym: "VB",
                     description: "",
                     icon: "fa fa-edit"
