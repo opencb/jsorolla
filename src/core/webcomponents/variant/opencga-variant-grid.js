@@ -367,10 +367,10 @@ export default class OpencgaVariantGrid extends LitElement {
         return queryParams;
     }
 
-    showGene(geneName) {
-        //                this.fire('selected', {gene: geneName});
-        this.dispatchEvent(new CustomEvent("selected", {detail: {gene: geneName}}));
-    }
+    // showGene(geneName) {
+    //     //                this.fire('selected', {gene: geneName});
+    //     this.dispatchEvent(new CustomEvent("selected", {detail: {gene: geneName}}));
+    // }
 
     detailFormatter(value, row, a) {
         let result = "<div class='row' style='padding-bottom: 20px'>";

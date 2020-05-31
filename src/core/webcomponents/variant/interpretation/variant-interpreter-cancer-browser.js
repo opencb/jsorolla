@@ -19,11 +19,8 @@ import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
-// import "./variant-cancer-interpreter-landing.js";
 import "../opencga-variant-filter.js";
-import "../../clinical/clinical-interpretation-view.js";
 import "../../commons/opencga-active-filters.js";
-import "../../commons/filters/select-field-filter-autocomplete-simple.js";
 
 
 class VariantInterpreterCancerBrowser extends LitElement {
@@ -77,27 +74,16 @@ class VariantInterpreterCancerBrowser extends LitElement {
         this.diseasePanelIds = [];
 
         this.interactive = true;
-        this.filterClass = "col-md-2";
-        this.gridClass = "col-md-10";
-
-        this._collapsed = true;
 
         this.messageError = false;
         this.messageSuccess = false;
 
         this.samples = [];
 
-        this.missingMembersMessage = "Missing clinical analysis";
-
         this.variant = null;
         this.reportedVariants = [];
 
-        // this.lofe = ["missense_variant", "transcript_ablation", "splice_acceptor_variant", "splice_donor_variant", "stop_gained",
-        //     "frameshift_variant", "stop_lost", "start_lost", "transcript_amplification", "inframe_insertion", "inframe_deletion"].join(", ");
-
         this.query = {};
-        this.search = {};
-
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -105,136 +91,54 @@ class VariantInterpreterCancerBrowser extends LitElement {
         super.connectedCallback();
     }
 
-    firstUpdated(_changedProperties) {
-        // CellBase version
-        // this.cellbaseClient.getMeta("about").then(response => {
-        //     if (UtilsNew.isNotUndefinedOrNull(response) && UtilsNew.isNotEmptyArray(response.response)) {
-        //         if (UtilsNew.isNotUndefinedOrNull(response.response[0].result) && UtilsNew.isNotEmptyArray(response.response[0].result)) {
-        //             this.cellbaseVersion = response.response[0].result[0]["Version: "];
-        //         }
-        //     }
-        // });
-    }
-
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
+        if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
         }
+
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
-        // if (changedProperties.has("clinicalAnalysis")) {
-        //     this.clinicalAnalysisObserver();
-        // }
+
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
     }
 
-    opencgaSessionObserver() {
-        // With each property change we must updated config and create the columns again. No extra checks are needed.
-        this._config = {...this.getDefaultConfig(), ...this.config};
-
-        // Check if Beacon hosts are configured
-        // for (const detail of this._config.filter.detail.views) {
-        //     if (detail.id === "beacon" && UtilsNew.isNotEmptyArray(detail.hosts)) {
-        //         this.beaconConfig = {
-        //             hosts: detail.hosts
-        //         };
-        //     }
-        // }
-
-        this.requestUpdate();
-    }
-
     queryObserver() {
         // Query passed is executed and set to variant-filter, active-filters and variant-grid components
-        if (UtilsNew.isNotUndefinedOrNull(this.query)) {
-            this.preparedQuery = this.query;
-            this.executedQuery = this.query;
+        // if (UtilsNew.isNotUndefinedOrNull(this.query)) {
+        //     this.preparedQuery = this.query;
+        //     this.executedQuery = this.query;
+        // }
+        if (this.opencgaSession && this.query) {
+            this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+            this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
         }
+        this.requestUpdate();
     }
 
     /**
      * Fetch the CinicalAnalysis object from REST and trigger the observer call.
      */
     clinicalAnalysisIdObserver() {
-        if (this.opencgaSession) {
-            if (this.clinicalAnalysisId) {
-                const _this = this;
-                this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-                    .then(response => {
-                        _this.clinicalAnalysis = response.responses[0].results[0];
-                        _this.requestUpdate();
-                    })
-                    .catch(response => {
-                        console.error("An error occurred fetching clinicalAnalysis: ", response);
-                    });
-            } else {
-                this.requestUpdate();
-            }
+        if (this.opencgaSession && this.clinicalAnalysisId) {
+            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.clinicalAnalysis = response.responses[0].results[0];
+                    this.requestUpdate();
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                });
         }
-    }
-
-    // onClinicalAnalysis(e) {
-    //     this.clinicalAnalysis = e.detail.clinicalAnalysis;
-    //     this.requestUpdate();
-    // }
-
-    onCollapse() {
-        if (this._collapsed) {
-            this.unCollapseFilter();
-        } else {
-            this.collapseFilter();
-        }
-    }
-
-    collapseFilter() {
-        this.filterClass = "hidden";
-        this.gridClass = "prioritization-center";
-        this._collapsed = true;
-    }
-
-    unCollapseFilter() {
-        if (this.interactive) {
-            this.filterClass = "col-md-2";
-            this.gridClass = "col-md-10";
-            this._collapsed = false;
-        }
-    }
-
-    /**
-     * Set properties for LowCoverage tools and others
-     */
-    _setPropertiesForTools() {
-        this.diseasePanelIds = (UtilsNew.isNotEmpty(this.preparedQuery.panel)) ? this.preparedQuery.panel.split(",") : [];
-        if (UtilsNew.isNotUndefinedOrNull(this.preparedQuery.xref)) {
-            const _geneIds = [];
-            for (const geneId of this.preparedQuery.xref.split(",")) {
-                if (!geneId.startsWith("ENS") && !geneId.startsWith("rs") && !geneId.startsWith("RCV")) {
-                    _geneIds.push(geneId);
-                }
-            }
-            this.geneIds = _geneIds;
-        }
-    }
-
-    onClear() {
-        const _search = {};
-        for (const hiddenField of this._config.activeFilters.hiddenFields) {
-            if (UtilsNew.isNotUndefinedOrNull(this.query[hiddenField])) {
-                _search[hiddenField] = this.query[hiddenField];
-            }
-        }
-
-        // this.search = _search;
-        this.query = {
-            study: this.opencgaSession.study.fqn
-        };
     }
 
     onSelectVariant(e) {
+        this.variantId = e.detail.id;
         this.variant = e.detail.row;
+
         this.requestUpdate();
     }
 
@@ -261,20 +165,6 @@ class VariantInterpreterCancerBrowser extends LitElement {
         // this._initGenotypeSamples(this.samples);
     }
 
-    onGenomeBrowserPositionChange(e) {
-        $(".variant-interpretation-content").hide(); // hides all content divs
-        $("#" + this._prefix + "GenomeBrowser").show(); // get the href and use it find which div to show
-
-        // Show the active button
-        $(".variant-interpretation-view-buttons").removeClass("active");
-        // $(e.target).addClass("active");
-        PolymerUtils.addClass(this._prefix + "GenomeBrowserButton", "active");
-
-        this._genomeBrowserActive = true;
-
-        this.region = e.detail.genomeBrowserPosition;
-    }
-
     onChangeView(e) {
         e.preventDefault();
         const view = e.target.dataset.view;
@@ -283,130 +173,25 @@ class VariantInterpreterCancerBrowser extends LitElement {
             PolymerUtils.hideByClass("variant-interpretation-content");
             PolymerUtils.show(this._prefix + view);
 
-            // if (view === "TableResult" || view === "SummaryReport") {
-            //     PolymerUtils.show(this._prefix + "ActiveFilters");
-            // } else {
-            //     PolymerUtils.hide(this._prefix + "ActiveFilters");
-            // }
-
             // Show the active button
             // $(e.target).addClass("active");
             PolymerUtils.removeClass(".variant-interpretation-view-buttons", "active");
             PolymerUtils.addClass(this._prefix + view + "Button", "active");
         }
-
-        // Make Genome Browser active
-        // this._genomeBrowserActive = (e.target.dataset.view === "GenomeBrowser");
     }
-
-    // onViewInterpretation(e) {
-    //     this.interpretationView = this._createInterpretation();
-    // }
-
-    // onSaveInterpretation(e, obj) {
-    //     const id = PolymerUtils.getValue(this._prefix + "IDInterpretation");
-    //     const description = PolymerUtils.getValue(this._prefix + "DescriptionInterpretation");
-    //     const comment = PolymerUtils.getValue(this._prefix + "CommentInterpretation");
-    //
-    //     if (UtilsNew.isNotEmpty(id)) {
-    //         if (/\s/.test(id)) {
-    //             this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-    //                 detail: {
-    //                     message: "ID must not contains blanks.",
-    //                     type: UtilsNew.MESSAGE_ERROR
-    //                 },
-    //                 bubbles: true,
-    //                 composed: true
-    //             }));
-    //         } else {
-    //             this.interpretation = this._createInterpretation();
-    //         }
-    //     } else {
-    //         this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-    //             detail: {
-    //                 message: "ID must not be empty.",
-    //                 type: UtilsNew.MESSAGE_ERROR
-    //             },
-    //             bubbles: true,
-    //             composed: true
-    //         }));
-    //     }
-    // }
-
-    // _createInterpretation() {
-    //     try {
-    //         const userId = this.opencgaSession.opencgaClient._config.userId;
-    //         const interpretation = {};
-    //         this.clinicalAnalysis.interpretations = this.clinicalAnalysis.interpretations ? this.clinicalAnalysis.interpretations : [];
-    //         interpretation.id = this.clinicalAnalysis.id + "-" + this.clinicalAnalysis.interpretations.length + 1;
-    //         interpretation.clinicalAnalysisId = this.clinicalAnalysis.id;
-    //         // interpretation.description = PolymerUtils.getValue(this._prefix + "DescriptionInterpretation");
-    //         interpretation.software = {
-    //             name: "IVA",
-    //             version: "2.0.0-beta",
-    //             repository: "https://github.com/opencb/iva",
-    //             commit: "",
-    //             website: "",
-    //             params: {}
-    //         };
-    //         interpretation.analyst = {
-    //             name: userId,
-    //             email: "",
-    //             company: ""
-    //         };
-    //         interpretation.dependencies = [
-    //             {
-    //                 name: "CellBase", repository: "https://github.com/opencb/cellbase", version: this.cellbaseVersion
-    //             }
-    //         ];
-    //         interpretation.filters = this.query;
-    //         //                interpretation.creationDate = Date();
-    //         // interpretation.comments = [{
-    //         //     author: userId,
-    //         //     type: "comment",
-    //         //     text: PolymerUtils.getValue(this._prefix + "CommentInterpretation"),
-    //         //     date: moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY')
-    //         // }];
-    //
-    //         // Remove 'stateCheckbox' from the variant list. When we receive the list from the grid, we are getting
-    //         // an additional field that should not be present in a reported variant.
-    //         // let allCheckedVariants = [].concat(this.checkedVariants).concat(this.checkedCompHetVariants).concat(this.checkedDeNovoVariants);
-    //         const reportedVariants = [];
-    //         for (const i in this.checkedVariants) {
-    //             const variant = Object.assign({}, this.checkedVariants[i]);
-    //             delete variant["stateCheckBox"];
-    //             reportedVariants.push(variant);
-    //         }
-    //         interpretation.primaryFindings = reportedVariants;
-    //         interpretation.attributes = {};
-    //         // interpretation.creationDate = moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY');
-    //
-    //         this.interpretation = interpretation;
-    //         this.requestUpdate();
-    //     } catch (err) {
-    //         this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-    //             detail: {
-    //                 message: err,
-    //                 type: UtilsNew.MESSAGE_ERROR
-    //             },
-    //             bubbles: true,
-    //             composed: true
-    //         }));
-    //     }
-    // }
-
 
     onVariantFilterChange(e) {
         this.preparedQuery = e.detail.query;
-        this.preparedQuery = {...this.preparedQuery};
         this.requestUpdate();
     }
 
     onVariantFilterSearch(e) {
         this.preparedQuery = e.detail.query;
-        this.executedQuery = {...this.preparedQuery};
+        // this.executedQuery = {...this.preparedQuery};
+        this.executedQuery = e.detail.query;
         this.requestUpdate();
     }
+
 
     onActiveFilterChange(e) {
         this.query = {...e.detail};
@@ -419,7 +204,6 @@ class VariantInterpreterCancerBrowser extends LitElement {
         this.preparedQuery = {...this.query};
         this.requestUpdate();
     }
-
 
     getDefaultConfig() {
         return {
@@ -594,16 +378,12 @@ class VariantInterpreterCancerBrowser extends LitElement {
                     {
                         name: "Full Example",
                         query: {
-                            "region": "1,2,3,4,5",
-                            "studies": "corpasome",
                             "xref": "BRCA1,TP53",
-                            // "panel": "Albinism_or_congenital_nystagmus-PanelAppId-511,Amyloidosis-PanelAppId-502",
                             "biotype": "protein_coding",
-                            "type": "INDEL",
+                            "type": "SNV,INDEL",
                             "ct": "lof",
-                            "populationFrequencyAlt": "1kG_phase3:ALL<0.1,GNOMAD_GENOMES:ALL<0.1",
+                            "populationFrequencyAlt": "GNOMAD_GENOMES:ALL<0.1",
                             "protein_substitution": "sift>5,polyphen>4",
-                            // "functionalScore": "cadd_raw>2,cadd_scaled<4",
                             "conservation": "phylop>1;phastCons>2;gerp<=3"
                         }
                     }
@@ -663,91 +443,21 @@ class VariantInterpreterCancerBrowser extends LitElement {
                             title: "Cohort Stats",
                             cohorts: this.cohorts
                         },
-
                         {
                             id: "beacon",
                             title: "Beacon"
-                            // Uncomment and edit Beacon hosts to change default hosts
-                            // hosts: [
-                            //     "brca-exchange", "cell_lines", "cosmic", "wtsi", "wgs", "ncbi", "ebi", "ega", "broad", "gigascience", "ucsc",
-                            //     "lovd", "hgmd", "icgc", "sahgp"
-                            // ]
                         }
                     ]
                 }
             },
             aggregation: {
-                title: "Aggregation",
-                default: ["chromosome", "type"],
-                sections: [
-                    {
-                        name: "General",
-                        fields: [
-                            {
-                                id: "chromosome", name: "Chromosome", type: "string"
-                            },
-                            {
-                                id: "studies", name: "Studiy", type: "string"
-                            },
-                            {
-                                id: "type", name: "Variant Type", type: "category", allowedValues: ["SNV", "INDEL", "CNV"]
-                            },
-                            {
-                                id: "genes", name: "Gene", type: "string"
-                            },
-                            {
-                                id: "biotypes", name: "Biotype", type: "string"
-                            },
-                            {
-                                id: "soAcc", name: "Consequence Type", type: "string"
-                            }
-                        ]
-                    },
-                    {
-                        name: "Conservation & Deleteriousness",
-                        fields: [
-                            {
-                                id: "phastCons", name: "PhastCons", defaultValue: "[0..1]:0.1", type: "number"
-                            },
-                            {
-                                id: "phylop", name: "PhyloP", defaultValue: "", type: "number"
-                            },
-                            {
-                                id: "gerp", name: "Gerp", defaultValue: "[-12.3..6.17]:2", type: "number"
-                            },
-                            {
-                                id: "sift", name: "Sift", defaultValue: "[0..1]:0.1", type: "number"
-                            },
-                            {
-                                id: "polyphen", name: "Polyphen", defaultValue: "[0..1]:0.1", type: "number"
-                            }
-                        ]
-                    },
-                    // {
-                    //     name: "Population Frequency",
-                    //     fields: [
-                    //         ...this.populationFrequencies.studies.map(study =>
-                    //             study.populations.map(population => (
-                    //                     {
-                    //                         id: `popFreq__${study.id}__${population.id}`,
-                    //                         // value: `popFreq__${study.id}__${population.id}`,
-                    //                         name: `${study.id} - ${population.id}`,
-                    //                         defaultValue: "[0..1]:0.1",
-                    //                         type: "number"
-                    //                     }
-                    //                 )
-                    //             )
-                    //         ).flat()
-                    //     ]
-                    // }
-                ]
             }
         };
     }
 
     render() {
         // Check Project exists
-        if (!this.opencgaSession && !this.opencgaSession.project) {
+        if (!this.opencgaSession || !this.opencgaSession.project) {
             return html`
                 <div class="guard-page">
                     <i class="fas fa-lock fa-5x"></i>
@@ -770,10 +480,6 @@ class VariantInterpreterCancerBrowser extends LitElement {
 
         return html`
             <style include="jso-styles">
-                opencga-variant-intepretation {
-                    font-size: 12px;
-                }
-                
                 .prioritization-center {
                     margin: auto;
                     text-align: justify;
@@ -802,10 +508,6 @@ class VariantInterpreterCancerBrowser extends LitElement {
                     border-bottom-style: solid;
                     border-bottom-color: #ddd
                 }
-    
-                .jso-label-title {
-                    width: 15em !important;
-                }
                 
                 #clinicalAnalysisIdText {
                     padding: 10px;
@@ -822,7 +524,7 @@ class VariantInterpreterCancerBrowser extends LitElement {
 
             <div class="page-title">
                 <h2>
-                    ${this.showTitle
+                    ${this._config.showTitle
                         ? html`<i class="fa fa-filter" aria-hidden="true" style="padding-left: 10px;padding-right: 10px"></i>&nbsp;${title}`
                         : null
                     }
@@ -841,8 +543,7 @@ class VariantInterpreterCancerBrowser extends LitElement {
                                             .config="${this._config.filter}"
                                             @queryChange="${this.onVariantFilterChange}"
                                             @querySearch="${this.onVariantFilterSearch}"
-                                            @samplechange="${this.onSampleChange}"
-                                            @inheritancemode="${this._onInheritanceMode}">
+                                            @samplechange="${this.onSampleChange}">
                     </opencga-variant-filter>
                 </div> <!-- Close col-md-2 -->
                 
@@ -888,8 +589,7 @@ class VariantInterpreterCancerBrowser extends LitElement {
                                                           .config="${this._config.filter.result.grid}"
                                                           @selected="${this.onSelectedGene}"
                                                           @selectrow="${this.onSelectVariant}"
-                                                          @checkrow="${this.onCheckVariant}"
-                                                          @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
+                                                          @checkrow="${this.onCheckVariant}">
                                 </variant-interpreter-grid>
                 
                                 <!-- Bottom tabs with detailed variant information -->
