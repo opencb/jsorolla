@@ -288,7 +288,7 @@ export default class OpenCGAVariantDetailView extends LitElement {
     getDefaultConfig() {
         return {
             title: "",
-            filter:{
+            filter: {
                 menu: []
             },
             detail: [

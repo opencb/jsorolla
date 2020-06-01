@@ -16,13 +16,14 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import "../commons/view/data-view.js";
+import "../commons/view/data-form.js";
 
 
 export default class OpencgaJobsView extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -40,6 +41,9 @@ export default class OpencgaJobsView extends LitElement {
             },
             job: {
                 type: Object
+            },
+            mode: {
+                type: String
             },
             config: {
                 type: Object
@@ -64,6 +68,7 @@ export default class OpencgaJobsView extends LitElement {
 
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
         }
     }
 
@@ -86,19 +91,19 @@ export default class OpencgaJobsView extends LitElement {
             case "QUEUED":
             case "REGISTERING":
             case "UNREGISTERED":
-                return `<span class="text-primary"><i class="far fa-clock"></i> ${status}</span>`
+                return html`<span class="text-primary"><i class="far fa-clock"></i> ${status}</span>`
             case "RUNNING":
-                return `<span class="text-primary"><i class="fas fa-sync-alt anim-rotate"></i> ${status}</span>`
+                return html`<span class="text-primary"><i class="fas fa-sync-alt anim-rotate"></i> ${status}</span>`
             case "DONE":
-                return `<span class="text-success"><i class="fas fa-check-circle"></i> ${status}</span>`
+                return html`<span class="text-success"><i class="fas fa-check-circle"></i> ${status}</span>`
             case "ERROR":
-                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status}</span>`;
+                return html`<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status}</span>`;
             case "UNKNOWN":
-                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status}</span>`;
+                return html`<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status}</span>`;
             case "ABORTED":
-                return `<span class="text-warning"><i class="fas fa-ban"></i> ${status}</span>`;
+                return html`<span class="text-warning"><i class="fas fa-ban"></i> ${status}</span>`;
             case "DELETED":
-                return `<span class="text-primary"><i class="fas fa-trash-alt"></i> ${status}</span>`;
+                return html`<span class="text-primary"><i class="fas fa-trash-alt"></i> ${status}</span>`;
         }
         return "-";
     }
@@ -111,12 +116,15 @@ export default class OpencgaJobsView extends LitElement {
                 collapsable: true,
                 showTitle: false,
                 labelWidth: 2,
+                defaultLayout: "horizontal",
                 defaultValue: "-"
             },
             sections: [
                 {
-                    title: "General",
-                    collapsed: false,
+                    title: "Details",
+                    display: {
+                        collapsed: false,
+                    },
                     elements: [
                         {
                             name: "Job ID",
@@ -127,49 +135,16 @@ export default class OpencgaJobsView extends LitElement {
                             field: "userId"
                         },
                         {
-                            name: "Creation Date",
-                            field: "creationDate",
-                            type: "custom",
-                            display: {
-                                render: field => html`${UtilsNew.dateFormatter(field)}`
-                            }
-                        },
-                        {
                             name: "Tool",
                             field: "tool.id"
                         },
                         {
-                            name: "Input files",
-                            field: "input",
-                            type: "list",
-                            display: {
-                                template: "${name}",
-                                contentLayout: "bullets",
-                                defaultValue: "N/A"
-                            }
-                        },
-                        {
-                            name: "Parameters",
-                            field: "params",
-                            type: "custom",
-                            display: {
-                                render: field => Object.entries(field).map(([param, value]) => html`<p><strong>${param}</strong>: ${value ? value : "-"}</p>`)
-                            }
-                        },
-                        {
                             name: "Status",
-                            field: "internal",
+                            // field: "internal",
                             type: "custom",
                             display: {
-                                render: field => UtilsNew.renderHTML(this.statusFormatter(field.status.name))
-                            }
-                        },
-                        {
-                            name: "Execution",
-                            field: "execution",
-                            type: "custom",
-                            display: {
-                                render: field => html`<strong>START</strong>: ${moment(field.start).format("D MMM YYYY, h:mm:ss a")} ${field.end ?  `<strong>END</strong>:${moment(field.end).format("D MMM YYYY, h:mm:ss a")}` : "" }`
+                                // render: job => UtilsNew.renderHTML(this.statusFormatter(job.internal.status.name))
+                                render: job => html`${this.statusFormatter(job.internal.status.name)}`
                             }
                         },
                         {
@@ -177,13 +152,88 @@ export default class OpencgaJobsView extends LitElement {
                             field: "priority"
                         },
                         {
-                            name: "Output dir",
+                            name: "Tags",
+                            field: "tags",
+                            type: "list",
+                            defaultValue: "-"
+                        },
+                        {
+                            name: "Submitted Date",
+                            // field: "creationDate",
+                            type: "custom",
+                            display: {
+                                render: job => html`${UtilsNew.dateFormatter(job.creationDate, "D MMM YYYY, h:mm:ss a")}`
+                            }
+                        },
+                        {
+                            name: "Output Directory",
                             field: "outDir.uri"
                         },
+                        {
+                            name: "Description",
+                            field: "description"
+                        },
+                    ]
+                },
+                {
+                    title: "Execution",
+                    display: {
+
+                    },
+                    elements: [
+                        {
+                            name: "Start-End",
+                            // field: "execution",
+                            type: "custom",
+                            display: {
+                                render: job => html`${moment(job.execution.start).format("D MMM YYYY, h:mm:ss a")} - ${job.execution.end ? html`${moment(job.execution.end).format("D MMM YYYY, h:mm:ss a")}` : html`-` }`
+                            }
+                        },
+                        {
+                            name: "Parameters",
+                            // field: "params",
+                            type: "custom",
+                            display: {
+                                render: job => Object.entries(job.params).map(([param, value]) => html`<div><label>${param}</label>: ${value ? value : "-"}</div>`)
+                            }
+                        },
+                        {
+                            name: "Input Files",
+                            field: "input",
+                            type: "list",
+                            defaultValue: "N/A",
+                            display: {
+                                template: "${name}",
+                                contentLayout: "bullets",
+                            }
+                        },
+                        {
+                            name: "Output Files",
+                            field: "output",
+                            type: "list",
+                            defaultValue: "N/A",
+                            display: {
+                                template: "${name}",
+                                contentLayout: "bullets",
+                            }
+                        },
+                        {
+                            name: "Command Line",
+                            field: "commandLine"
+                        },
+                    ]
+                },
+                {
+                    title: "Dependencies",
+                    display: {
+
+                    },
+                    elements: [
                         {
                             name: "Dependencies",
                             field: "dependsOn",
                             type: "table",
+                            defaultValue: "No Job dependencies",
                             display: {
                                 columns: [
                                     {
@@ -193,18 +243,18 @@ export default class OpencgaJobsView extends LitElement {
                                         name: "Name", field: "uuid"
                                     },
                                     {
-                                        name: "Status", field: "status"
+                                        name: "Status", field: "internal.status.name"
                                         //format: ${UtilsNew.renderHTML(this.statusFormatter(status.name))}
                                     }
                                 ],
                                 border: true
                             }
                         },
-                        {
-                            name: "Dependencies",
-                            field: "dependsOn",
-                            type: "json"
-                        }
+                        // {
+                        //     name: "Dependencies",
+                        //     field: "dependsOn",
+                        //     type: "json"
+                        // }
                     ]
                 }
             ]
@@ -213,7 +263,7 @@ export default class OpencgaJobsView extends LitElement {
 
     render() {
         return html`
-            <data-view .data=${this.job} .config="${this._config}"></data-view>
+            <data-form .data=${this.job} .config="${this._config}"></data-form>
         `;
     }
 }

@@ -21,6 +21,7 @@ export default class OpencgaJobsDetailLog extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -46,13 +47,14 @@ export default class OpencgaJobsDetailLog extends LitElement {
     }
 
     _init() {
-        this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
+        this._prefix = "sf-" + UtilsNew.randomString(6);
+
         this.content = null;
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     async updated(changedProperties) {

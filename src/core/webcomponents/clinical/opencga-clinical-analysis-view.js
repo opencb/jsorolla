@@ -97,7 +97,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
             },
             sections: [
                 {
-                    title: "Case Summary",
+                    title: "Details",
                     display: {
                         collapsed: false,
                         leftColumnWith: 5,

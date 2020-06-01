@@ -37,9 +37,6 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            opencgaClient: {
-                type: Object
-            },
             cellbaseClient: {
                 type: Object
             },
@@ -198,7 +195,7 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                 detail: [
                     {
                         id: "clinical-analysis-view",
-                        title: "Clinical Analysis detail",
+                        title: "Summary",
                         active: true
                     }
                 ]

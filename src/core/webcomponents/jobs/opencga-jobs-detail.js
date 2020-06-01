@@ -35,39 +35,51 @@ export default class OpencgaJobsDetail extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
-                type: Object
-            },
-            // this is not actually used at the moment
             jobId: {
                 type: Object
             },
             job: {
+                type: Object
+            },
+            config: {
                 type: Object
             }
         };
     }
 
     _init() {
-        this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
+        this._prefix = "sf-" + UtilsNew.randomString(6);
+
         this.activeTab = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
+        if (changedProperties.has("jobId")) {
+            this.jobIdObserver();
         }
 
-        if (changedProperties.has("job")) {
-
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
         }
+    }
 
-        if (changedProperties.has("activeTab")) {
-            console.log("activeTab");
+    jobIdObserver() {
+        if (this.opencgaSession && this.jobId) {
+            this.opencgaSession.opencgaClient.jobs().info(this.jobId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.job = response.getResult(0);
+                    this.requestUpdate();
+                })
+                .catch(function(reason) {
+                    console.error(reason);
+                });
         }
     }
 
@@ -85,7 +97,7 @@ export default class OpencgaJobsDetail extends LitElement {
     getDefaultConfig() {
         return {
             title: "Job",
-            showTitle: true
+            showTitle: true,
         };
     }
 
@@ -103,12 +115,12 @@ export default class OpencgaJobsDetail extends LitElement {
                                 <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab"
                                    data-id="${item.id}"
                                    class=""
-                                   @click="${this._changeBottomTab}">${item.title}</a>
+                                   @click="${this._changeBottomTab}" style="font-weight: bold">${item.title}</a>
                         </li>
                     `)}
                 </ul>
                 
-                <div class="tab-content">
+                <div class="tab-content" style="padding: 20px">
                     <div id="job-detail-tab" class="tab-pane active" role="tabpanel">
                         <opencga-jobs-view .opencgaSession=${this.opencgaSession}
                                            .job="${this.job}">

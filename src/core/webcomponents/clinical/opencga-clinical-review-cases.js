@@ -25,6 +25,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
     constructor() {
         super();
+        
         this._init();
     }
 
@@ -491,14 +492,14 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                 <div>
                                     <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
                                         <li role="presentation" class="active">
-                                            <a href="#${this._prefix}Info" role="tab" data-toggle="tab" class="browser-variant-tab-title">Case Information</a>
+                                            <a href="#${this._prefix}Info" role="tab" data-toggle="tab" class="browser-variant-tab-title" style="font-weight: bold">Summary</a>
                                         </li>
                                         <li role="presentation">
-                                            <a href="#${this._prefix}Proband" role="tab" data-toggle="tab" class="browser-variant-tab-title">Proband Info</a>
+                                            <a href="#${this._prefix}Proband" role="tab" data-toggle="tab" class="browser-variant-tab-title" style="font-weight: bold">Proband Info</a>
                                         </li>
                                     </ul>
     
-                                    <div class="tab-content">
+                                    <div class="tab-content" style="padding: 20px">
                                         <div id="${this._prefix}Info" role="tabpanel" class="tab-pane active">
                                             <div>
                                                 <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"

@@ -167,8 +167,9 @@ export default class UtilsNew {
         });
     }
 
-    static dateFormatter(date) {
-        return moment(date, "YYYYMMDDHHmmss").format("D MMM YYYY");
+    static dateFormatter(date, format) {
+        let _format = format ? format : "D MMM YYYY";
+        return moment(date, "YYYYMMDDHHmmss").format(_format);
     }
 
     static arrayDimension(array) {

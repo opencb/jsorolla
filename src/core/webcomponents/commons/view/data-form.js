@@ -180,7 +180,7 @@ export default class DataForm extends LitElement {
         if (!Array.isArray(section.elements[0])) {
             content = html`
                 <section>
-                    ${section.title ? html`<h4 style="${sectionTitleStyle}">${section.title}</h4>` : null}
+                    ${section.title ? html`<h3 style="${sectionTitleStyle}">${section.title}</h3>` : null}
                     <div class="container-fluid">
                         ${section.elements.map(element => this._createElement(element))}
                     </div>
@@ -192,7 +192,7 @@ export default class DataForm extends LitElement {
             let columnSeparatorStyle = (section.display && section.display.columnSeparatorStyle) ? section.display.columnSeparatorStyle : "";
             content = html`
                 <section>
-                    ${section.title ? html`<h4 style="${sectionTitleStyle}">${section.title}</h4>` : null}
+                    ${section.title ? html`<h3 style="${sectionTitleStyle}">${section.title}</h3>` : null}
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-md-${leftColumnWidth}" style="${columnSeparatorStyle}">
@@ -606,7 +606,7 @@ export default class DataForm extends LitElement {
     }
 
     _createCustomElement(element) {
-        if (!element.display && !element.display.render) {
+        if (!element.display || !element.display.render) {
             return "All 'custom' elements must implement a 'display.render' function.";
         }
 
@@ -622,8 +622,8 @@ export default class DataForm extends LitElement {
         if (result) {
             let width = this._getWidth(element);
             let style = element.display.style ? element.display.style : "";
-            return html`<div class="col-md-${width}" style="${style}">${result}</div>`;
-            // return data ? h : this.getDefaultValue(element);
+            // return html`<div class="col-md-${width}" style="${style}">${result}</div>`;
+            return html`<div>${result}</div>`;
         } else {
             return this._getErrorMessage(element);
         }

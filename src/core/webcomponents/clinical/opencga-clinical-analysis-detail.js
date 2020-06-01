@@ -103,12 +103,12 @@ export default class OpencgaClinicalAnalysisDetail extends LitElement {
                                 <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab"
                                    data-id="${item.id}"
                                    class=""
-                                   @click="${this._changeBottomTab}">${item.title}</a>
+                                   @click="${this._changeBottomTab}" style="font-weight: bold">${item.title}</a>
                         </li>
                     `)}
                 </ul>
                
-                <div class="tab-content">
+                <div class="tab-content" style="padding: 20px">
                     <div id="clinical-analysis-view-tab" class="tab-pane active" role="tabpanel">
                         <div id="${this._prefix}family-view">
                             <div class="container-fluid">
