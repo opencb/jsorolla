@@ -95,7 +95,7 @@ export default class CohortStatsFilter extends LitElement {
         let cohortsPerStudy = {};
         if (this.opencgaSession && this.onlyCohortAll) {
             for (let study of this.opencgaSession.project.studies) {
-                cohortsPerStudy[study.id] = [
+                cohortsPerStudy[study.fqn] = [
                     {id: "ALL", name: "All"}
                 ]
             }
