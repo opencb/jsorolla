@@ -35,9 +35,6 @@ export default class OpencgaJobsView extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            opencgaClient: {
-                type: Object
-            },
             jobId: {
                 type: String
             },
@@ -51,54 +48,36 @@ export default class OpencgaJobsView extends LitElement {
     }
 
     _init() {
-        // this.prefix = "osv" + UtilsNew.randomString(6);
         this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-
-    firstUpdated(_changedProperties) {
     }
 
     updated(changedProperties) {
         if (changedProperties.has("jobId")) {
             this.jobIdObserver();
         }
-        if (changedProperties.has("job")) {
-            this.jobObserver();
-        }
-        if (changedProperties.has("config")) {
-            this.configObserver();
-        }
-    }
 
-    configObserver() {
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+        }
     }
 
     jobIdObserver() {
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            includeIndividual: true
-        };
-        this.opencgaSession.opencgaClient.jobs().info(this.jobId, params)
-            .then(response => {
-                this.job = response.getResult(0);
-                this.job.id = this.job.id ?? this.job.name;
-                this.requestUpdate();
-            })
-            .catch(function(reason) {
-                console.error(reason);
-            });
-
-
-    }
-
-    jobObserver() {
-        console.log("jobObserver");
+        if (this.opencgaSession && this.jobId) {
+            this.opencgaSession.opencgaClient.jobs().info(this.jobId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.job = response.getResult(0);
+                    this.requestUpdate();
+                })
+                .catch(function(reason) {
+                    console.error(reason);
+                });
+        }
     }
 
     statusFormatter(status) {
@@ -234,10 +213,9 @@ export default class OpencgaJobsView extends LitElement {
 
     render() {
         return html`
-            <data-view .data=${this.job} .config="${this.getDefaultConfig()}"></data-view>
+            <data-view .data=${this.job} .config="${this._config}"></data-view>
         `;
     }
-
 }
 
 customElements.define("opencga-jobs-view", OpencgaJobsView);
