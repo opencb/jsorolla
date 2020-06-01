@@ -48,13 +48,43 @@ export default class FeatureFilter extends LitElement {
     _init() {
         this._prefix = "feaf-" + UtilsNew.randomString(6) + "_";
         this.featureDatalist = [];
-        // TODO check why there are 2 fields in query object..
-        // this.featureIds = this.query && this.query.ids || [];
         this.featureIds = [];
         this.separator = ",";
         this.featureTextArea = "";
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
+    updated(_changedProperties) {
+        // XRefs, Gene and Variant Ids
+        if (_changedProperties.has("query")) {
+            if (this.query["xref"]) {
+                this.value = this.query["xref"];
+            } else if (this.query.ids) {
+                this.value = this.query.ids;
+            } else if (this.query.gene) {
+                this.value = this.query.gene;
+            } else {
+                this.value = "";
+            }
+            this.requestUpdate();
+        }
+    }
+
+    onFilterChange(key, value) {
+        const event = new CustomEvent("filterChange", {
+            detail: {
+                value: value
+            }
+        });
+        this.dispatchEvent(event);
+    }
+/*
+    /!** @deprecated
+     * *!/
     updated(_changedProperties) {
         // XRefs, Gene and Variant Ids
         if (_changedProperties.has("query")) {
@@ -73,6 +103,17 @@ export default class FeatureFilter extends LitElement {
         }
     }
 
+    /!** @deprecated
+     * *!/
+    onInput(e) {
+        this.featureTextArea = e.target.value;
+        this.featureIds = this.featureTextArea.split(this.separator).filter(_ => _);
+        this.filterChange();
+    }
+
+
+    /!** @deprecated
+     * *!/
     autocomplete(e) {
         // Only gene symbols are going to be searched and not Ensembl IDs
         const featureId = e.target.value.trim();
@@ -85,6 +126,9 @@ export default class FeatureFilter extends LitElement {
         }
     }
 
+
+    /!** @deprecated
+     * *!/
     // TODO it needs a proper input validation..
     addFeatureId(e) {
 
@@ -112,13 +156,8 @@ export default class FeatureFilter extends LitElement {
         }
     }
 
-    onInput(e) {
-        this.featureTextArea = e.target.value;
-        this.featureIds = this.featureTextArea.split(this.separator).filter(_ => _);
-        this.filterChange();
-
-    }
-
+    /!** @deprecated
+    * *!/
     filterChange() {
 
         console.log("this.featureTextArea", this.featureTextArea, "this.featureIds", this.featureIds);
@@ -151,11 +190,36 @@ export default class FeatureFilter extends LitElement {
 
         this.requestUpdate();
         this.dispatchEvent(event);
+    }*/
+
+    getDefaultConfig() {
+        return {
+            showList: true,
+            fields: item => ({
+                name: item.id
+            }),
+            dataSource: (query, process) => {
+
+                this.cellbaseClient.get("feature", "id", query.toUpperCase(), "starts_with", {limit: 50}, {})
+                    .then(restResponse => {
+                        //this.featureDatalist = response.response[0].result;
+                        process(restResponse.response[0].result);
+                    });
+
+                /*this.opencgaSession.opencgaClient.clinical().search(filters).then(restResponse => {
+                    const results = restResponse.getResults();
+                    process(results.map(this._config.fields));
+                });*/
+            }
+        };
     }
 
     render() {
         return html`
-            <div class="form-group">
+
+            <select-field-filter-autocomplete .opencgaSession="${this.opencgaSession}" .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></select-field-filter-autocomplete>
+
+            <!--<div class="form-group">
                 <div class="input-group">
                     <input id="${this._prefix}FeatureIdText" type="text" class="form-control"
                                        list="${this._prefix}FeatureDatalist"
@@ -172,7 +236,7 @@ export default class FeatureFilter extends LitElement {
                     class="form-control clearable ${this._prefix}FilterTextInput"
                     rows="3" placeholder="BRCA2,ENSG00000139618,ENST00000544455,rs28897700"
                     style="margin-top: 5px" @input="${this.onInput}">${this.featureTextArea}</textarea>
-            </div>
+            </div> -->
         `;
     }
 

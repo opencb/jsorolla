@@ -200,9 +200,9 @@ export default class OpencgaVariantBrowser extends LitElement {
         // this event keeps in sync the query object in variant-browser with the general one in iva-app (this.queries)
         // it is also in charge of update executedQuery (notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() in variant-browser).
         // if we want to dismiss the general query feature (that is browsers remembering your last query even if you change view) replace the following line with:
-        this.notifySearch(this.preparedQuery);
         // this.executedQuery = {...this.preparedQuery};
         // this.requestUpdate();
+        this.notifySearch(this.preparedQuery);
 
         if (Object.keys(this.selectedFacet).length) {
             this.facetQuery = {
@@ -252,7 +252,7 @@ export default class OpencgaVariantBrowser extends LitElement {
         this.onRun(); //TODO recheck queryObserver is supposed to handle the update of the grid
     }
 
-    
+
     onVariantFacetChange(e) {
         this.selectedFacetFormatted = e.detail.value;
         this.requestUpdate();

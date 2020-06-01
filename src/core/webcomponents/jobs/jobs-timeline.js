@@ -184,7 +184,7 @@ export default class JobsTimeline extends LitElement {
         this.intervals.forEach((target, i) => {
             if (target.dependsOn && target.dependsOn.length) {
                 target.dependsOn.forEach(dep => {
-                    if (!dep || !dep.id) console.error("Dependant Job ID not defined dep", target)
+                    if (!dep || !dep.id) console.error("Dependant Job ID not defined, dep", target)
                     const source = this.intervals.find(c => c.id === dep.id);
                     if (source) {
                         this.draw.line(source.end, source.y, target.start, target.y).stroke({

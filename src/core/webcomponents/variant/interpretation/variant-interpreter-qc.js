@@ -102,6 +102,11 @@ class VariantInterpreterQc extends LitElement {
         }
     }
 
+    selectGene(e) {
+        console.log("selectGene", e)
+        this.geneIds = [e.detail.target];
+    }
+
     render() {
         // Check Project exists
         if (!this.opencgaSession.project) {
@@ -170,9 +175,8 @@ class VariantInterpreterQc extends LitElement {
                         </variant-interpreter-qc-alignment>
                     </div>
                     <div id="${this._prefix}Coverage" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
-                        
                         <h3>Select a gene</h3>
-                        <select-field-filter .data="${[{id: "a", name: "A"}, {id:"b", name: "B"}, {id: "c", name: "C"}]}" .value=${"a"} @filterChange="${e => console.log(e)}"></select-field-filter>
+                        <select-field-filter .data="${[{id: "TP53", name: "TP53"}]}" .value=${"TP53"} @filterChange="${this.selectGene}"></select-field-filter>
                         <gene-coverage-browser .opencgaSession="${this.opencgaSession}"
                                             .cellbaseClient="${this.cellbaseClient}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"

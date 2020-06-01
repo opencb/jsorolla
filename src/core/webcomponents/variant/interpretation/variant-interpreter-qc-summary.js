@@ -125,7 +125,7 @@ class VariantInterpreterQcSummary extends LitElement {
                             display: {
                                 render: clinicalAnalysis => {
                                     let id = clinicalAnalysis.disorder.id;
-                                    debugger
+                                    //debugger
                                     if (clinicalAnalysis.disorder.id.startsWith("OMIM:")) {
                                         id = html`<a href="https://omim.org/entry/${clinicalAnalysis.disorder.id.split(":")[1]}" target="_blank">${clinicalAnalysis.disorder.id}</a>`;
                                     }

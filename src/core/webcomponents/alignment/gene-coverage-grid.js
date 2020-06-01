@@ -75,7 +75,7 @@ export default class GeneCoverageGrid extends LitElement {
 
     firstUpdated(_changedProperties) {
         this._initTableColumns();
-        this.dispatchEvent(new CustomEvent("clear", {detail: {}, bubbles: true, composed: true}));
+        //this.dispatchEvent(new CustomEvent("clear", {detail: {}, bubbles: true, composed: true}));
         this.table = this.querySelector("#" + this.gridId);
         this.query = {};
     }
@@ -140,13 +140,6 @@ export default class GeneCoverageGrid extends LitElement {
             this.table.bootstrapTable("destroy");
             this.numTotalResults = 0;
         }
-    }
-
-    /**
-     * If filters have been removed, clean the values from the forms.
-     */
-    onFilterUpdate() {
-        // this.updateForms(this.filters); //TODO recheck, this shouldn't be necessary anymore (and it seems not)
     }
 
     percentageFormatter(v) {
@@ -351,8 +344,6 @@ export default class GeneCoverageGrid extends LitElement {
                                     @download="${this.onDownload}">
                 </opencb-grid-toolbar>`
             : null }
-            
-            ${JSON.stringify(this.data)}
             <div>
                 <table id="${this.gridId}"></table>
             </div>

@@ -288,12 +288,9 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
     disorderFormatter(value, row) {
         if (value) {
-            let idHtml = `${value.id}`;
-            if (value.id.startsWith("OMIM:")) {
-                idHtml = `<a href="https://omim.org/entry/${value.id.split(":")[1]}" target="_blank">${value.id}</a>`;
-            }
+            let idHtml = value.id.startsWith("OMIM:") ? `<a href="https://omim.org/entry/${value.id.split(":")[1]}" target="_blank">${value.id}</a>` : `${value.id}`;
             if (value.name) {
-                return `${row.name} (${idHtml})`;
+                return `${value.name} (${idHtml})`;
             } else {
                 return `${idHtml}`;
             }

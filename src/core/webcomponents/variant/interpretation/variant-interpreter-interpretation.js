@@ -19,6 +19,7 @@ import UtilsNew from "../../../utilsNew.js";
 import "./variant-interpreter-qc-variant.js";
 import "./variant-interpreter-qc-alignment.js";
 import "../../alignment/gene-coverage-view.js";
+import "../../clinical/analysis/opencga-rd-tiering-analysis.js";
 
 
 class VariantInterpreterInterpretation extends LitElement {
@@ -89,7 +90,7 @@ class VariantInterpreterInterpretation extends LitElement {
     renderAnalysis(type) {
         switch(type) {
             case "rd-tiering":
-                return html`<opencga-gwas-analysis .opencgaSession="${this.opencgaSession}"></opencga-gwas-analysis>`
+                return html`<opencga-rd-tiering-analysis .opencgaSession="${this.opencgaSession}"></opencga-rd-tiering-analysis>`
             case "--":
                 break;
             default:
