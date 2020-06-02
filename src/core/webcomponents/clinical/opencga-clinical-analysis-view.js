@@ -63,19 +63,19 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
         if (changedProperties.has("clinicalAnalysisId")){
             this.clinicalAnalysisIdObserver();
         }
+
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 
     clinicalAnalysisIdObserver() {
-        if (this.clinicalAnalysisId) {
-            const _this = this;
+        if (this.opencgaSession && this.clinicalAnalysisId) {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-                .then(function(response) {
+                .then(response => {
                     if (response.responses[0].numResults === 1) {
-                        _this.clinicalAnalysis = response.responses[0].results[0];
-                        _this.requestUpdate();
+                        this.clinicalAnalysis = response.responses[0].results[0];
+                        this.requestUpdate();
                     }
                 })
                 .catch(function(reason) {
@@ -349,67 +349,12 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                                     }
                                 },
                                 errorMessage: "No family selected"
-                            }
+                            },
                         },
                         // {
-                        //     name: "Members",
+                        //     name: "Members JSON",
                         //     field: "family.members",
-                        //     type: "table",
-                        //     display: {
-                        //         columns: [
-                        //             {
-                        //                 name: "Individual ID", field: "id"
-                        //             },
-                        //             {
-                        //                 name: "Sex", field: "sex"
-                        //             },
-                        //             {
-                        //                 name: "Father", field: "father.id"
-                        //             },
-                        //             {
-                        //                 name: "Mother", field: "mother.id", display: {
-                        //                     render: mother => html`${mother ? mother.id : "-"}`
-                        //                 }
-                        //             },
-                        //             {
-                        //                 name: "Disorders", field: "disorders", display: {
-                        //                     render: disorders => {
-                        //                         let phenotypesHtml = [];
-                        //                         for (let disorder of disorders) {
-                        //                             let id = disorder.id;
-                        //                             if (disorder.id && disorder.id.startsWith("OMIM:")) {
-                        //                                 id = html`<div>${disorder.name} (<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>)</div>`;
-                        //                             }
-                        //                             phenotypesHtml.push(id);
-                        //                         }
-                        //                         return phenotypesHtml;
-                        //                     },
-                        //                 }
-                        //             },
-                        //             {
-                        //                 name: "Phenotypes", field: "phenotypes", display: {
-                        //                     render: phenotypes => {
-                        //                         let phenotypesHtml = [];
-                        //                         for (let phenotype of phenotypes) {
-                        //                             let id = phenotype.id;
-                        //                             if (phenotype.id && phenotype.id.startsWith("HP:")) {
-                        //                                 id = html`<div>${phenotype.name} (<a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">${phenotype.id}</a>)</div>`;
-                        //                             }
-                        //                             phenotypesHtml.push(id);
-                        //                         }
-                        //                         return phenotypesHtml;
-                        //                     },
-                        //                 }
-                        //             },
-                        //             {
-                        //                 name: "Life Status", field: "lifeStatus"
-                        //             },
-                        //             {
-                        //                 name: "Year of Birth", field: "dateOfBirth", defaultValue: "-"
-                        //             },
-                        //         ],
-                        //         defaultValue: "No sample found"
-                        //     }
+                        //     type: "json"
                         // },
                         {
                             name: "Pedigree",

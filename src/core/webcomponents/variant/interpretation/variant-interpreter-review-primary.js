@@ -102,7 +102,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             this.propertyObserver();
         }
         if (changedProperties.has("clinicalAnalysis") || changedProperties.has("interpretation")) {
-            this.clinicalAnalysisObserver();
+            // this.clinicalAnalysisObserver();
         }
     }
 

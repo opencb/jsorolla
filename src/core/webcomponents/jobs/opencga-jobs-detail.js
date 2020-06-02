@@ -98,6 +98,21 @@ export default class OpencgaJobsDetail extends LitElement {
         return {
             title: "Job",
             showTitle: true,
+            // details: [
+            //     {
+            //         // id: "",
+            //         name: "",
+            //         // visible:
+            //         render: data => {
+            //             return html`
+            //                 <opencga-jobs-detail-log .opencgaSession=${this.opencgaSession}
+            //                                         .active="${this.activeTab["log"]}"
+            //                                         .job="${this.job}">
+            //                 </opencga-jobs-detail-log>
+            //             `;
+            //         }
+            //     }
+            // ]
         };
     }
 

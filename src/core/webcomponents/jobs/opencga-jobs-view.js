@@ -221,6 +221,11 @@ export default class OpencgaJobsView extends LitElement {
                             name: "Command Line",
                             field: "commandLine"
                         },
+                        {
+                            name: "Dependencies",
+                            field: "dependsOn",
+                            type: "json"
+                        }
                     ]
                 },
                 {
@@ -250,11 +255,7 @@ export default class OpencgaJobsView extends LitElement {
                                 border: true
                             }
                         },
-                        // {
-                        //     name: "Dependencies",
-                        //     field: "dependsOn",
-                        //     type: "json"
-                        // }
+
                     ]
                 }
             ]

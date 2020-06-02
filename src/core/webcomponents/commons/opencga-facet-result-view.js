@@ -36,12 +36,6 @@ export default class OpencgaFacetResultView extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
-            cellbaseClient: {
-                type: Object
-            },
             facetResult: {
                 type: Object
             },
@@ -66,20 +60,13 @@ export default class OpencgaFacetResultView extends LitElement {
 
 
     updated(changedProperties) {
-        console.log("this.facetResult", this.facetResult);
         if (changedProperties.has("facetResult") || changedProperties.has("config")) {
             this.renderFacets();
         }
     }
 
-    /* connectedCallback() {
-        super.connectedCallback();
-
-        this.renderFacets();
-    }*/
-
-    renderFacets(e, conf) {
-        this._config = Object.assign(this.getDefaultConfig(), this.config);
+    renderFacets() {
+        this._config = {...this.getDefaultConfig(), ...this.config};
 
         this.renderHistogramChart();
     }
@@ -272,7 +259,7 @@ export default class OpencgaFacetResultView extends LitElement {
                 obj.series.push({name: field.name, data: data});
             }
             params = obj;
-        } else if (this.facetResult.start !== undefined) {
+        } else {
             const range = this.facetResult;
             const obj = {
                 name: range.name,
@@ -437,76 +424,82 @@ export default class OpencgaFacetResultView extends LitElement {
 
 
     render() {
-        return html`
-        <style include="jso-styles"></style>
-        <div style="padding: 5px 10px">
-            <div class="btn-group" style="float: right">
-                <span id="${this._prefix}HistogramChartButton" class="btn btn-primary plots active" @click="${this.renderHistogramChart}">
-                    <i class="fas fa-chart-bar" style="padding-right: 5px" title="Bar Chart" data-id="${this.facetResult.name}"></i>
-                </span>
-                <span id="${this._prefix}PieChartButton" class="btn btn-primary plots" @click="${this.onPieChart}">
-                    <i class="fas fa-chart-pie" style="padding-right: 5px" title="Pie Chart" data-id="${this.facetResult.name}"></i>
-                </span>
-            </div>
-            <div id="${this._prefix}Plot"></div>
+        if (!this.facetResult) {
+            return html`
+                <div><span style="font-weight: bold;color: darkorange">No facet result found</span></div>
+            `;
+        }
 
-            <!--Table-->
-            <br>
-            <table id="${this._prefix}Table" class="table table-bordered" style="display: none;">               
-                <!-- Facet Field Table -->
-                ${this.facetResult.category ? html`
-                    <thead class="table-header bg-primary">
-                        <tr>
-                            <th>${this.facetResult.title}}</th>
-                            ${this.subFieldExists(this.facetResult.subField) ? html`
-                                <th>${this.facetResult.subField}</th>
-                            ` : null}
-                            <th>Number of Variants</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${this.facetResult.buckets && this.facetResult.buckets ? this.facetResult.buckets.map(count => html`
-                            ${this.fieldExists(count) ? html`
+        return html`
+            <div style="padding: 5px 10px">
+                <div class="btn-group" style="float: right">
+                    <span id="${this._prefix}HistogramChartButton" class="btn btn-primary plots active" @click="${this.renderHistogramChart}">
+                        <i class="fas fa-chart-bar" style="padding-right: 5px" title="Bar Chart" data-id="${this.facetResult.name}"></i>
+                    </span>
+                    <span id="${this._prefix}PieChartButton" class="btn btn-primary plots" @click="${this.onPieChart}">
+                        <i class="fas fa-chart-pie" style="padding-right: 5px" title="Pie Chart" data-id="${this.facetResult.name}"></i>
+                    </span>
+                </div>
+                
+                <div id="${this._prefix}Plot"></div>
+    
+                <!--Table-->
+                <div>
+                    <table id="${this._prefix}Table" class="table table-bordered" style="display: none;">               
+                        <!-- Facet Field Table -->
+                        ${this.facetResult.category ? html`
+                            <thead class="table-header bg-primary">
                                 <tr>
-                                    <td rowspan="${this.countSubFields(count)}">${count.value}</td>
+                                    <th>${this.facetResult.title}}</th>
+                                    ${this.subFieldExists(this.facetResult.subField) ? html`
+                                        <th>${this.facetResult.subField}</th>
+                                    ` : null}
+                                    <th>Number of Variants</th>
                                 </tr>
-                                ${count.field.counts && count.field.counts.length ? count.field.counts.map(subFieldCount => html`
-                                    <tr>
-                                        <td>${subFieldCount.value}</td>
-                                        <td>${subFieldCount.count}</td>
-                                    </tr>
+                            </thead>
+                            <tbody>
+                                ${this.facetResult.buckets && this.facetResult.buckets ? this.facetResult.buckets.map(count => html`
+                                    ${this.fieldExists(count) ? html`
+                                        <tr>
+                                            <td rowspan="${this.countSubFields(count)}">${count.value}</td>
+                                        </tr>
+                                        ${count.field.counts && count.field.counts.length ? count.field.counts.map(subFieldCount => html`
+                                            <tr>
+                                                <td>${subFieldCount.value}</td>
+                                                <td>${subFieldCount.count}</td>
+                                            </tr>
+                                        `) : null}
+                                    ` : html`
+                                        <tr>
+                                            <td>${count.value}}</td>
+                                            <td>${count.count}}</td>
+                                        </tr>
+                                    `}                              
                                 `) : null}
-                            ` : html`
+                              
+                            </tbody>
+                        ` : html`
+                        <!-- Facet Range Table -->
+                        <thead class="table-header bg-primary">
+                            <tr>
+                                <th>Range</th>
+                                <th>Number of Variants</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            ${this.facetResult.data && this.facetResult.data.length ? this.facetResult.data.map(data => html`
                                 <tr>
-                                    <td>${count.value}}</td>
-                                    <td>${count.count}}</td>
+                                    <td>${data.range}</td>
+                                    <td>${data.count}</td>
                                 </tr>
-                            `}                              
-                        `) : null}
-                      
-                    </tbody>
-                ` : html`
-                <!-- Facet Range Table -->
-                <thead class="table-header bg-primary">
-                    <tr>
-                        <th>Range</th>
-                        <th>Number of Variants</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    ${this.facetResult.data && this.facetResult.data.length ? this.facetResult.data.map(data => html`
-                        <tr>
-                            <td>${data.range}</td>
-                            <td>${data.count}</td>
-                        </tr>
-                    `) : null}
-                </tbody>
-               `}
-            </table>
-        </div>
+                            `) : null}
+                        </tbody>
+                       `}
+                    </table>
+                </div>
+            </div>
         `;
     }
-
 }
 
 customElements.define("opencga-facet-result-view", OpencgaFacetResultView);
