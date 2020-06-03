@@ -174,13 +174,14 @@ export default class DataForm extends LitElement {
         }
 
         // Get some default values
-        const sectionTitleStyle = section?.display?.style ?? "";
+        const sectionTitleClass = section?.display?.title?.class ?? "";
+        const sectionTitleStyle = section?.display?.title?.style ?? "";
         let content;
         // Section 'elements' array has just one dimension
         if (!Array.isArray(section.elements[0])) {
             content = html`
                 <section>
-                    ${section.title ? html`<h3 style="${sectionTitleStyle}">${section.title}</h3>` : null}
+                    ${section.title ? html`<h3 class="${sectionTitleClass}" style="${sectionTitleStyle}">${section.title}</h3>` : null}
                     <div class="container-fluid">
                         ${section.elements.map(element => this._createElement(element))}
                     </div>
@@ -192,7 +193,7 @@ export default class DataForm extends LitElement {
             let columnSeparatorStyle = (section.display && section.display.columnSeparatorStyle) ? section.display.columnSeparatorStyle : "";
             content = html`
                 <section>
-                    ${section.title ? html`<h3 style="${sectionTitleStyle}">${section.title}</h3>` : null}
+                    ${section.title ? html`<h3 class="${sectionTitleClass}" style="${sectionTitleStyle}">${section.title}</h3>` : null}
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-md-${leftColumnWidth}" style="${columnSeparatorStyle}">
@@ -311,9 +312,9 @@ export default class DataForm extends LitElement {
 
     _createInputTextElement(element) {
         let value = this.getValue(element.field) || this._getDefaultValue(element);
-        let disabled = this._getBooleanValue(element.display.disabled, false);
+        let disabled = this._getBooleanValue(element.display?.disabled, false);
         let width = this._getWidth(element);
-        let rows = element.display.rows ? element.display.rows : 1;
+        let rows = element.display && element.display.rows ? element.display.rows : 1;
 
         return html`
             <div class="col-md-${width}">
@@ -622,7 +623,7 @@ export default class DataForm extends LitElement {
             let width = this._getWidth(element);
             let style = element.display.style ? element.display.style : "";
             // return html`<div class="col-md-${width}" style="${style}">${result}</div>`;
-            return html`<div>${result}</div>`;
+            return html`<div class="col-md-${width}" style="${style}">${result}</div>`;
         } else {
             return this._getErrorMessage(element);
         }
@@ -691,12 +692,13 @@ export default class DataForm extends LitElement {
             `;
         }
 
+        const sectionTitleIcon = this.config.display?.title?.class ?? "";
         return html`
             <!-- Header -->
             ${this.config.title && this.config.display && this.config.display.showTitle 
                 ? html`
                     <div>
-                        <h2>${this.config.title}</h2>
+                        <h2 class="${sectionTitleIcon}" >${this.config.title}</h2>
                     </div>`
                 : null
             }
