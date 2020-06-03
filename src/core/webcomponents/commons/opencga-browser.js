@@ -26,6 +26,7 @@ import "../loading-spinner.js";
 import "../files/opencga-file-grid.js";
 import "../files/opencga-file-filter.js";
 import "../files/opencga-file-detail.js";
+import "../files/opencga-file-tree.js";
 import "../samples/opencga-sample-grid.js";
 import "../samples/opencga-sample-filter.js";
 import "../samples/opencga-sample-detail.js";
@@ -340,6 +341,11 @@ export default class OpencgaBrowser extends LitElement {
                                 </opencga-file-detail>
                             </div>
                             ${facetView}
+                            <div id="tree-tab" class="content-tab">
+                                <opencga-file-tree .opencgaSession="${this.opencgaSession}"
+                                                     .config="${this._config.filter.grid}">
+                                </opencga-file-tree>
+                            </div>
                             `;
             case "samples":
                 this.endpoint = this.opencgaSession.opencgaClient.samples();
