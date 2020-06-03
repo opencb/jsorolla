@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import "../commons/view/data-view.js";
+import "../commons/view/data-form.js";
 
 
 export default class OpencgaFileView extends LitElement {
@@ -115,7 +115,7 @@ export default class OpencgaFileView extends LitElement {
                             field: "size",
                             type: "custom",
                             display: {
-                                render: size => html`${UtilsNew.getDiskUsage(size)}`
+                                render: field => html`${UtilsNew.getDiskUsage(field)}`
                             }
                         },
                         {
@@ -165,7 +165,7 @@ export default class OpencgaFileView extends LitElement {
 
     render() {
         return html`
-            <data-view .data=${this.file} .config="${this._config}"></data-view>
+            <data-form .data=${this.file} .config="${this._config}"></data-form>
         `;
     }
 
