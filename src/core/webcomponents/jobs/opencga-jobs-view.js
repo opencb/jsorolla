@@ -108,6 +108,11 @@ export default class OpencgaJobsView extends LitElement {
         return "-";
     }
 
+    dependsOnMap(node) {
+        console.log("node", node)
+        return {text: node.id, nodes: node.elements?.map(n => this.dependsOnMap(n))};
+    }
+
     getDefaultConfig() {
         return {
             title: "Summary",
@@ -186,7 +191,7 @@ export default class OpencgaJobsView extends LitElement {
                             // field: "execution",
                             type: "custom",
                             display: {
-                                render: job => html`${moment(job.execution.start).format("D MMM YYYY, h:mm:ss a")} - ${job.execution.end ? html`${moment(job.execution.end).format("D MMM YYYY, h:mm:ss a")}` : html`-` }`
+                                render: job => job.execution ? html`${job.execution.start ? moment(job.execution.start).format("D MMM YYYY, h:mm:ss a") : "-"} ${job.execution.end ? html`- ${moment(job.execution.end).format("D MMM YYYY, h:mm:ss a")}` : html`-` }` : "-"
                             }
                         },
                         {
@@ -219,12 +224,21 @@ export default class OpencgaJobsView extends LitElement {
                         },
                         {
                             name: "Command Line",
-                            field: "commandLine"
+                            type: "complex",
+                            display: {
+                                template: "<div class='cmd'>${commandLine}</div>",
+                            }
                         },
                         {
                             name: "Dependencies",
                             field: "dependsOn",
-                            type: "json"
+                            type: "tree",
+                            display: {
+                                //apply: this.dependsOnMap.bind(this)
+                                apply: function fn(node) {
+                                    return {text: node.id, nodes: node.elements?.map(n => fn(n))};
+                                }
+                            }
                         }
                     ]
                 },

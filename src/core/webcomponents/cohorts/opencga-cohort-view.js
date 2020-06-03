@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import "../commons/view/data-view.js";
+import "../commons/view/data-form.js";
 
 
 export default class OpencgaCohortView extends LitElement {
@@ -148,7 +148,7 @@ export default class OpencgaCohortView extends LitElement {
 
     render() {
         return html`
-            <data-view .data=${this.cohort} .config="${this.getDefaultConfig()}"></data-view>
+            <data-form .data=${this.cohort} .config="${this.getDefaultConfig()}"></data-form>
         `;
     }
 

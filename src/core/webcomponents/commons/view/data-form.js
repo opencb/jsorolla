@@ -18,7 +18,9 @@ import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import "../../simple-plot.js";
 import "../../json-viewer.js";
+import "../../tree-viewer.js";
 import "../../download-button.js";
+
 
 export default class DataForm extends LitElement {
 
@@ -56,7 +58,7 @@ export default class DataForm extends LitElement {
             // $('#datetimepicker7').data("DateTimePicker").minDate(e.date);
             if (e.oldDate) {
                 let timeStamp = e.timeStamp;
-                this.onFilterChange(e.currentTarget.dataset.field, timeStamp)
+                this.onFilterChange(e.currentTarget.dataset.field, timeStamp);
             }
         });
     }
@@ -126,8 +128,9 @@ export default class DataForm extends LitElement {
                 errorMessage = "Error: not valid data found";
             }
         }
-        return html`<div style="padding-left: 20px"><em>${errorMessage}</em></div>`;
+        return html`<div><em>${errorMessage}</em></div>`;
     }
+
     /**
      * Check if visible field is defined and not null, be careful since 'visible' can be a 'boolean' or a 'function'.
      * @param visible Filed from config
@@ -144,7 +147,7 @@ export default class DataForm extends LitElement {
                 if (typeof visible === "function") {
                     _visible = visible(this.data);
                 } else {
-                    console.error(`Field 'visible' not boolean or function: ${typeof visible}`)
+                    console.error(`Field 'visible' not boolean or function: ${typeof visible}`);
                 }
             }
         }
@@ -169,7 +172,7 @@ export default class DataForm extends LitElement {
 
     _createSection(section) {
         // Check if the section is visible
-        if (section.display && !this._getBooleanValue(section.display.visible)){
+        if (section.display && !this._getBooleanValue(section.display.visible)) {
             return;
         }
 
@@ -213,7 +216,7 @@ export default class DataForm extends LitElement {
 
     _createElement(element) {
         // Check if the element is visible
-        if (element.display && !this._getBooleanValue(element.display.visible)){
+        if (element.display && !this._getBooleanValue(element.display.visible)) {
             return;
         }
 
@@ -266,6 +269,9 @@ export default class DataForm extends LitElement {
                 case "json":
                     content = this._createJsonElement(element);
                     break;
+                case "tree":
+                    content = this._createTreeElement(element);
+                    break;
                 case "custom":
                     content = this._createCustomElement(element);
                     break;
@@ -277,7 +283,7 @@ export default class DataForm extends LitElement {
             }
         }
 
-        let layout = element?.display?.layout ?? this.config?.display?.defaultLayout ?? "vertical";
+        let layout = element?.display?.layout ?? this.config?.display?.defaultLayout ?? "horizontal";
         let showLabel = element?.showLabel ?? true;
         let labelWidth = showLabel ? this._getLabelWidth(element) : 0;
         if (layout === "horizontal") {
@@ -288,7 +294,7 @@ export default class DataForm extends LitElement {
                         <div class="col-md-${labelWidth} text-${this.config.display?.labelAlign || "left"}">
                             <label>${title}</label>
                         </div>`
-                    : null }
+                : null}
                     <div class="col-md-${12 - labelWidth}">
                         ${content}
                     </div>
@@ -301,7 +307,7 @@ export default class DataForm extends LitElement {
                         <div class="col-md-12">
                             <label>${title}</label>
                         </div>`
-                    : null}
+                : null}
                     <div class="col-md-12">
                         ${content}
                     </div>
@@ -404,7 +410,7 @@ export default class DataForm extends LitElement {
                             }
                         }
                     } else {
-                        console.error("element.allowedValues must be an array, string or function")
+                        console.error("element.allowedValues must be an array, string or function");
                     }
                 }
             }
@@ -452,7 +458,7 @@ export default class DataForm extends LitElement {
 
     _createComplexElement(element, data = this.data) {
         if (!element.display || !element.display.template) {
-            return html`<span style="color: red">No template provided</span>`;
+            return html`<span class="text-danger">No template provided</span>`;
         }
         return html`<span>${UtilsNew.renderHTML(this.applyTemplate(element.display.template, data, null, this._getDefaultValue(element)))}</span>`;
     }
@@ -464,17 +470,17 @@ export default class DataForm extends LitElement {
 
         // Check values
         if (!array || !array.length) {
-            return html`<span style="color: red">${this._getDefaultValue(element)}</span>`;
+            return html`<span class="text-danger">${this._getDefaultValue(element)}</span>`;
         }
         if (!Array.isArray(array)) {
-            return html`<span style="color: red">Field '${element.field}' is not an array</span>`;
+            return html`<span class="text-danger">Field '${element.field}' is not an array</span>`;
         }
         // if (!array.length) {
         //     // return this.getDefaultValue(element);
         //     return html`<span>${this.getDefaultValue(element)}'</span>`;
         // }
         if (contentLayout !== "horizontal" && contentLayout !== "vertical" && contentLayout !== "bullets") {
-            return html`<span style="color: red">Content layout must be 'horizontal', 'vertical' or 'bullets'</span>`;
+            return html`<span class="text-danger">Content layout must be 'horizontal', 'vertical' or 'bullets'</span>`;
         }
 
         // Apply the template to all Array elements and store them in 'values'
@@ -558,7 +564,7 @@ export default class DataForm extends LitElement {
                                 <td>
                                    ${elem.type === "complex" ? this._createComplexElement(elem, row)
                                     : elem.type === "custom" ? elem.display.render(this.getValue(elem.field, row))
-                                    : this.getValue(elem.field, row, elem.defaultValue, elem.format) }
+                                    : this.getValue(elem.field, row, elem.defaultValue, elem.format)}
                                 </td>
                             `)}
                         </tr>
@@ -605,6 +611,26 @@ export default class DataForm extends LitElement {
         }
     }
 
+    _createTreeElement(element) {
+        const json = this.getValue(element.field, this.data, this._getDefaultValue(element));
+        if (typeof element.display.apply !== "function") {
+            return `<span class="text-danger">apply() function that provides a "text" property is mandatory in Tree-Viewer elements</span>`;
+        } else {
+            if (Array.isArray(json)) {
+                if (json.length > 0) {
+                    return html`<tree-viewer .data="${json.map(element.display.apply)}" />`;
+                } else {
+                    return this._getDefaultValue(element);
+                }
+            } else if (UtilsNew.isObject(json)) {
+                return html`<tree-viewer .data="${element.display.apply.call(null, json)}" />`;
+            } else {
+                return html`<span class="text-danger">Unexpected JSON format</span>`;
+            }
+        }
+    }
+
+
     _createCustomElement(element) {
         if (!element.display || !element.display.render) {
             return "All 'custom' elements must implement a 'display.render' function.";
@@ -612,9 +638,9 @@ export default class DataForm extends LitElement {
 
         // If 'field' is defined then we pass it to the 'render' function, otherwise 'data' object is passed
         let data = this.data;
-        // if (element.field) {
-        //     data = this.getValue(element.field);
-        // }
+        if (element.field) {
+            data = this.getValue(element.field);
+        }
 
         // Call to render function if defined
         // It covers the case the result of this.getValue is actually undefined
@@ -630,7 +656,7 @@ export default class DataForm extends LitElement {
     }
 
     _createDownloadElement(element) {
-        return html`<download-button .json="${this.data}" name="${element.name}"></download-button>`
+        return html`<download-button .json="${this.data}" name="${element.name}"></download-button>`;
     }
 
     postRender() {
@@ -652,8 +678,7 @@ export default class DataForm extends LitElement {
 
     onClear(e) {
         this.dispatchEvent(new CustomEvent("clear", {
-            detail: {
-            },
+            detail: {},
             bubbles: true,
             composed: true
         }));
@@ -661,8 +686,7 @@ export default class DataForm extends LitElement {
 
     onSubmit(e) {
         this.dispatchEvent(new CustomEvent("submit", {
-            detail: {
-            },
+            detail: {},
             bubbles: true,
             composed: true
         }));
@@ -695,26 +719,26 @@ export default class DataForm extends LitElement {
         const sectionTitleIcon = this.config.display?.title?.class ?? "";
         return html`
             <!-- Header -->
-            ${this.config.title && this.config.display && this.config.display.showTitle 
-                ? html`
+            ${this.config.title && this.config.display && this.config.display.showTitle
+            ? html`
                     <div>
                         <h2 class="${sectionTitleIcon}" >${this.config.title}</h2>
                     </div>`
-                : null
-            }
+            : null
+        }
             
             <div class="row">
                 <div class="col-md-12">
                     ${this.config.sections.map(section => this._createSection(section))}
                 </div>
                 ${this.config.display && this.config.display.buttons && this.config.display.buttons.show
-                    ? html`
+            ? html`
                         <div class="col-md-12" style="padding: 20px 40px">
                             <button type="button" class="btn btn-primary btn-lg" @click="${this.onClear}">Clear</button>
                             <button type="button" class="btn btn-primary btn-lg" @click="${this.onSubmit}">Run</button>
                         </div>`
-                    : null
-                }
+            : null
+        }
             </div>
         `;
     }

@@ -178,19 +178,14 @@ export default class OpencgaJobsDetailLog extends LitElement {
 
     render() {
         return html`
-        <style> 
-            pre.cmd {
-                background: black;
-                font-family: "Courier New", monospace;
-                padding: 15px;
-                color: #a5a5a5;
-                font-size: .9em;
-                min-height: 150px;
-            }
-            
+        <style>            
             .wrapper {
                 height: 35px;
                 margin-top: 5px;
+            }
+            
+            .log-wrapper {
+                min-height: 150px;
             }
             
             .wrapper fieldset.log-type {
@@ -261,7 +256,7 @@ export default class OpencgaJobsDetailLog extends LitElement {
                 </div>
             </div>                    
         </div>
-        <pre class="cmd ${this._config.command}">${this.content}\n${this.loading || (this.content && this._config.command === "tail") ? html`<div class="cursor"></div>` : ""}</pre>
+        <pre class="cmd log-wrapper ${this._config.command}">${this.content}\n${this.loading || (this.content && this._config.command === "tail") ? html`<div class="cursor"></div>` : ""}</pre>
         `;
     }
 
