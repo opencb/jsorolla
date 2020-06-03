@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import "../commons/view/data-view.js";
+import "../commons/view/data-form.js";
 import "../commons/view/pedigree-view.js";
 
 export default class OpencgaFamilyView extends LitElement {
@@ -207,7 +207,7 @@ export default class OpencgaFamilyView extends LitElement {
 
     render() {
         return html`
-            <data-view .data=${this.family} .config="${this._config}"></data-view>
+            <data-form .data=${this.family} .config="${this._config}"></data-form>
         `;
     }
 

@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import "../commons/view/data-view.js";
+import "../commons/view/data-form.js";
 
 
 export default class OpencgaSampleView extends LitElement {
@@ -196,7 +196,7 @@ export default class OpencgaSampleView extends LitElement {
 
     render() {
         return html`
-            <data-view .data=${this.sample} .config="${this._config}"></data-view>
+            <data-form .data=${this.sample} .config="${this._config}"></data-form>
         `;
     }
 

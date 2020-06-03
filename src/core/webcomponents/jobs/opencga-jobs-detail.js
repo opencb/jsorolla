@@ -18,6 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "./opencga-jobs-detail-log.js";
 import "./opencga-jobs-view.js";
+import "./../commons/view/detail-tabs.js";
 
 export default class OpencgaJobsDetail extends LitElement {
 
@@ -98,26 +99,38 @@ export default class OpencgaJobsDetail extends LitElement {
         return {
             title: "Job",
             showTitle: true,
-            // details: [
-            //     {
-            //         // id: "",
-            //         name: "",
-            //         // visible:
-            //         render: data => {
-            //             return html`
-            //                 <opencga-jobs-detail-log .opencgaSession=${this.opencgaSession}
-            //                                         .active="${this.activeTab["log"]}"
-            //                                         .job="${this.job}">
-            //                 </opencga-jobs-detail-log>
-            //             `;
-            //         }
-            //     }
-            // ]
+            detailTabs: [
+                {
+                    id: "job-view",
+                    name: "Details",
+                    active: true,
+                    // visible:
+                    render: active => {
+                        return html`<opencga-jobs-view .opencgaSession=${this.opencgaSession} .job="${this.job}"></opencga-jobs-view>`;
+                    }
+                },
+                {
+                    id: "job-log",
+                    name: "Logs",
+                    // visible:
+                    render: active => {
+                        return html`
+                            <opencga-jobs-detail-log .opencgaSession=${this.opencgaSession}
+                                                    .active="${active}"
+                                                    .job="${this.job}">
+                            </opencga-jobs-detail-log>
+                        `;
+                    }
+                }
+            ]
         };
     }
 
     render() {
         return this.job ? html`
+            <detail-tabs .config="${this._config}" .data="${this.job}"></detail-tabs>
+            
+            ${false ? html`
             ${this._config.showTitle ? html`
                     <div class="panel" style="margin-bottom: 10px">
                         <h2 >&nbsp;${this._config.title}: ${this.job.id}</h2>
@@ -150,6 +163,7 @@ export default class OpencgaJobsDetail extends LitElement {
                 </div>
                 
             </div>
+            ` : null}
         ` : null;
     }
 
