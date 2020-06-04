@@ -186,6 +186,12 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                                 biotypes: biotypes,
                                 tooltip: tooltips.biotype
                             },
+                            {
+                                id: "type",
+                                title: "Variant Type",
+                                biotypes: types,
+                                tooltip: tooltips.type
+                            },
                         ]
                     },
                     {

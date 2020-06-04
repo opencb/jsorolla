@@ -73,7 +73,8 @@ export default class VariantInterpreterQcCancerPlots extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("query") || changedProperties.has("sampleId")) {
-            // this.renderCircos();
+            document.getElementById(this._prefix + "CircosMessage").style["display"] = "inline";
+            this.renderCircos();
             this.propertyObserver();
         }
     }
@@ -98,6 +99,7 @@ export default class VariantInterpreterQcCancerPlots extends LitElement {
     }
 
     renderCircos() {
+        document.getElementById(this._prefix + "CircosMessage").style["display"] = "none";
         this.opencgaSession.opencgaClient.variants().circos({
             study: this.opencgaSession.study.fqn,
             sample: this.sampleId,
@@ -105,11 +107,12 @@ export default class VariantInterpreterQcCancerPlots extends LitElement {
             ...this.query
         }).then( restResult => {
             debugger
-            this.signature = restResult.getResult(0).signature;
+            this.circosImage = "data:image/png;base64, " + restResult.getResult(0);
+            document.getElementById(this._prefix + "CircosMessage").style["display"] = "none";
         }).catch( restResponse => {
-            this.signature = {
-                errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
-            };
+            // this.signature = {
+            //     errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
+            // };
         }).finally( () => {
             this.requestUpdate();
         })
@@ -128,7 +131,11 @@ export default class VariantInterpreterQcCancerPlots extends LitElement {
                         <div class="col-md-12">
                             <div class="col-md-7">
                                 <h2>Circos</h2>
-                                <img class="img-responsive" src="${this.base64}">
+                                <span id="${this._prefix}CircosMessage" style="display: inline">Fetching data image...</span>
+                                ${this.circosImage 
+                                    ? html`<img class="img-responsive" src="${this.circosImage}">` 
+                                    : html`<loading-spinner></loading-spinner>`
+                                }
                                         <!--<img width="640" src="https://www.researchgate.net/profile/Angela_Baker6/publication/259720064/figure/fig1/AS:613877578465328@1523371228720/Circos-plot-summarizing-somatic-events-A-summary-of-all-identified-somatic-genomic.png">-->
                             </div>
                             <div class="col-md-5">
