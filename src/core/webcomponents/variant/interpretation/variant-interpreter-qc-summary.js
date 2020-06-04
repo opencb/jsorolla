@@ -123,13 +123,12 @@ class VariantInterpreterQcSummary extends LitElement {
                             field: "disorder",
                             type: "custom",
                             display: {
-                                render: clinicalAnalysis => {
-                                    let id = clinicalAnalysis.disorder.id;
-                                    //debugger
-                                    if (clinicalAnalysis.disorder.id.startsWith("OMIM:")) {
-                                        id = html`<a href="https://omim.org/entry/${clinicalAnalysis.disorder.id.split(":")[1]}" target="_blank">${clinicalAnalysis.disorder.id}</a>`;
+                                render: disorder => {
+                                    let id = disorder.id;
+                                    if (disorder.id.startsWith("OMIM:")) {
+                                        id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
                                     }
-                                    return html`${clinicalAnalysis.disorder.name || "-"} (${id})`
+                                    return html`${disorder.name || "-"} (${id})`
                                 },
                             }
                         },

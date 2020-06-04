@@ -128,12 +128,12 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                                 display: {
                                     width: 9,
                                     labelWidth: 3,
-                                    render: clinicalAnalysis => {
-                                        let id = clinicalAnalysis.disorder.id;
-                                        if (clinicalAnalysis.disorder.id.startsWith("OMIM:")) {
-                                            id = html`<a href="https://omim.org/entry/${clinicalAnalysis.disorder.id.split(":")[1]}" target="_blank">${clinicalAnalysis.disorder.id}</a>`;
+                                    render: disorder => {
+                                        let id = disorder.id;
+                                        if (disorder.id.startsWith("OMIM:")) {
+                                            id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
                                         }
-                                        return html`${clinicalAnalysis.disorder.name || "-"} (${id})`
+                                        return html`${disorder.name || "-"} (${id})`
                                     },
                                 }
                             },
@@ -327,21 +327,21 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                         },
                         {
                             name: "Members",
-                            field: "family.members",
+                            field: "family",
                             type: "custom",
                             display: {
                                 layout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
-                                render: (data) => {
-                                    if (data.family && data.family.members) {
+                                render: (family) => {
+                                    if (family && family.members) {
                                         let individualGridConfig = {
                                             showSelectCheckbox: false,
                                             showToolbar: false
                                         };
                                         return html`
                                             <opencga-individual-grid .opencgaSession="${this.opencgaSession}" 
-                                                                     .individuals="${data.family.members}" 
+                                                                     .individuals="${family.members}" 
                                                                      .config="${individualGridConfig}"
                                                                      @filterChange="${e => this.onFamilyChange(e)}">
                                             </opencga-individual-grid>
