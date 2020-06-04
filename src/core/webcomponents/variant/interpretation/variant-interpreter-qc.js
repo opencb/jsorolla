@@ -149,10 +149,12 @@ class VariantInterpreterQc extends LitElement {
                             <a href="javascript: void 0" role="tab" data-id="Upd" @click="${this._changeTab}" class="tab-title disabled">UPD (coming soon)
                             </a>
                         </li>` : null }
+                    <!-- 
                     <li role="presentation" class="content-pills ${classMap({active: this.activeTab["GenomeBrowser"]})}">
                         <a href="javascript: void 0" role="tab" data-id="GenomeBrowser" @click="${this._changeTab}" class="tab-title">Genome Browser
                         </a>
                     </li>
+                    -->
                 </ul>
                 
                 <div class="content-tab-wrapper">
@@ -191,6 +193,7 @@ class VariantInterpreterQc extends LitElement {
                             </div>`
                         : ""
                     }
+                    <!--
                     <div id="${this._prefix}GenomeBrowser" role="tabpanel" class="tab-pane content-tab">
                         <opencga-variant-interpreter-genome-browser .opencgaSession="${this.opencgaSession}"
                                                                     .cellbaseClient="${this.cellbaseClient}"
@@ -199,6 +202,7 @@ class VariantInterpreterQc extends LitElement {
                                                                     .active="${this.activeTab["GenomeBrowser"]}">
                         </opencga-variant-interpreter-genome-browser>
                     </div>
+                    -->
                 </div>
             </div>
         ` : null;

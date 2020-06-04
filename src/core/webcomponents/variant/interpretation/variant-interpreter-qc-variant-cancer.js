@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import Circos from "./test/circos.js";
+import "./variant-interpreter-qc-cancer-plots.js";
 import "../opencga-variant-filter.js";
 import "../../commons/opencga-active-filters.js";
 import "../../commons/view/signature-view.js";
@@ -26,6 +27,7 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -36,6 +38,9 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
+                type: Object
+            },
+            clinicalAnalysis: {
                 type: Object
             },
             query: {
@@ -56,8 +61,7 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
     _init(){
         this._prefix = "sf-" + UtilsNew.randomString(6);
 
-        this.preparedQuery = {};
-        this.base64 = "data:image/png;base64, " + Circos.base64;
+        // this.base64 = "data:image/png;base64, " + Circos.base64;
     }
 
     connectedCallback() {
@@ -67,12 +71,11 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-
     }
 
     updated(changedProperties) {
         if (changedProperties.has("query") || changedProperties.has("sampleId")) {
-            this.propertyObserver();
+            this.queryObserver();
         }
     }
 
@@ -84,46 +87,50 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
         this.requestUpdate();
     }
 
-    async propertyObserver() {
-        this.signature = null;
-        await this.requestUpdate();
-        this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
-            study: this.opencgaSession.study.fqn,
-            fitting: false,
-            sample: this.sampleId,
-            ...this.query
-        }).then( restResult => {
-            this.signature = restResult.getResult(0).signature;
-            }).catch( restResponse => {
-            this.signature = {
-                errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
-            };
-        }).finally( () => {
-            this.requestUpdate();
-        })
-    }
-
     onVariantFilterChange(e) {
         this.preparedQuery = e.detail.query;
         this.requestUpdate();
     }
 
     onVariantFilterSearch(e) {
-        console.log("onVariantFilterSearch", e)
-        //this.preparedQuery = this._prepareQuery(e.detail.query); //TODO check if we need to process e.detail.query
-        this.query = {...e.detail.query};
+        this.preparedQuery = e.detail.query;
+        this.executedQuery = e.detail.query;
         this.requestUpdate();
     }
 
     onActiveFilterChange(e) {
         this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     onActiveFilterClear() {
-        console.log("onActiveFilterClear");
         this.query = {study: this.opencgaSession.study.fqn};
-        this.requestUpdate();
+        // this.requestUpdate();
+    }
+
+    showModal() {
+        $("#" + this._prefix + "SaveModal").modal("show");
+    }
+
+    onClear(e) {
+        debugger
+    }
+
+    onSave(e) {
+
+        this.opencgaSession.opencgaClient.clinical().updateQualityControl(this.clinicalAnalysis.id, {
+            study: this.opencgaSession.study.fqn,
+            ...this.query
+        }).then( restResult => {
+            debugger
+            this.signature = restResult.getResult(0).signature;
+        }).catch( restResponse => {
+            this.signature = {
+                errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
+            };
+        }).finally( () => {
+            this.requestUpdate();
+        })
     }
 
     getDefaultConfig() {
@@ -145,28 +152,19 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                 },
                 sections: [     // sections and subsections, structure and order is respected
                     {
-                        title: "Study and Cohorts",
+                        title: "Sample",
                         collapsed: false,
                         fields: [
                             {
-                                id: "cohort",
-                                title: "Cohort Alternate Stats",
-                                onlyCohortAll: true,
-                                tooltip: tooltips.cohort
-                                //cohorts: this.cohorts
-                            }
+                                id: "file-quality",
+                                title: "Quality Filter"
+                            },
                         ]
                     },
                     {
                         title: "Genomic",
                         collapsed: true,
                         fields: [
-                            {
-                                id: "biotype",
-                                title: "Gene Biotype",
-                                biotypes: biotypes,
-                                tooltip: tooltips.biotype
-                            },
                             {
                                 id: "region",
                                 title: "Genomic Location",
@@ -182,13 +180,12 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                                 title: "Disease Panels",
                                 tooltip: tooltips.diseasePanels
                             },
-
                             {
-                                id: "type",
-                                title: "Variant Type",
-                                types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION"],
-                                tooltip: tooltips.type
-                            }
+                                id: "biotype",
+                                title: "Gene Biotype",
+                                biotypes: biotypes,
+                                tooltip: tooltips.biotype
+                            },
                         ]
                     },
                     {
@@ -205,80 +202,18 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                 ],
                 examples: [
                     {
-                        name: "Example BRCA2",
+                        name: "Example Missense PASS",
                         active: false,
                         query: {
-                            gene: "BRCA2",
-                            ct: "missense_variant"
+                            filter: "PASS",
+                            ct: "lof,missense_variant"
                         }
                     },
-                    {
-                        name: "Full Example",
-                        query: {
-                            "region": "1,2,3,4,5",
-                            "xref": "BRCA1,TP53",
-                            "biotype": "protein_coding",
-                            "type": "SNV,INDEL",
-                            "ct": "lof",
-                            "populationFrequencyAlt": "1kG_phase3:ALL<0.1,GNOMAD_GENOMES:ALL<0.1",
-                            "protein_substitution": "sift>5,polyphen>4",
-                            "conservation": "phylop>1;phastCons>2;gerp<=3"
-                        }
-                    }
                 ],
                 result: {
                     grid: {}
                 },
                 detail: {
-                    title: "Selected Variant",
-                    views: [
-                        {
-                            id: "annotationSummary",
-                            title: "Summary",
-                            active: true
-                        },
-                        {
-                            id: "annotationConsType",
-                            title: "Consequence Type"
-                        },
-                        {
-                            id: "annotationPropFreq",
-                            title: "Population Frequencies"
-                        },
-                        {
-                            id: "annotationClinical",
-                            title: "Clinical"
-                        },
-                        {
-                            id: "cohortStats",
-                            title: "Cohort Stats"
-                            //cohorts: this.cohorts
-                        },
-                        {
-                            id: "samples",
-                            title: "Samples"
-                        },
-                        {
-                            id: "beacon",
-                            // component: "variant-beacon-network",
-                            title: "Beacon"
-                            // Uncomment and edit Beacon hosts to change default hosts
-                            // hosts: [
-                            //     "brca-exchange", "cell_lines", "cosmic", "wtsi", "wgs", "ncbi", "ebi", "ega", "broad", "gigascience", "ucsc",
-                            //     "lovd", "hgmd", "icgc", "sahgp"
-                            // ]
-                        },
-                        {
-                            id: "network",
-                            // component: "reactome-variant-network",
-                            title: "Reactome Pathways"
-                        }
-                        // {
-                        //     id: "template",
-                        //     component: "opencga-variant-detail-template",
-                        //     title: "Template"
-                        // }
-                    ]
                 }
             }
         }
@@ -315,28 +250,57 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                                                 @activeFilterClear="${this.onActiveFilterClear}">
                         </opencga-active-filters>
                         
-                        <div class="main-view">
-<!--                            executedQuery : -->${JSON.stringify(this.executedQuery)}
-                            <div class="row" style="padding: 10px">
-                                <div class="col-md-12">
-                                    <div class="col-md-7">
-                                        <h2>Circos</h2>
-                                        <img class="img-responsive" src="${this.base64}">
-                                        <!--<img width="640" src="https://www.researchgate.net/profile/Angela_Baker6/publication/259720064/figure/fig1/AS:613877578465328@1523371228720/Circos-plot-summarizing-somatic-events-A-summary-of-all-identified-somatic-genomic.png">-->
-                                    </div>
-                                    <div class="col-md-5">
-                                        <div style="margin-bottom: 20px">
-                                            <h2>Signature</h2>
-                                            <signature-view .signature="${this.signature}" .active="${this.active}"></signature-view>
-                                            <!--<img width="480" src="https://cancer.sanger.ac.uk/signatures_v2/Signature-3.png">-->
-                                        </div>
-                                        <div style="padding-top: 20px">
-                                            <h2>Sample Stats</h2>
-                                            <img width="480" src="https://www.ensembl.org/img/vep_stats_2.png">
-                                        </div>
+                        <div class="col-md-12">
+                            <div style="padding: 0px 10px;float: left">
+                                <button id="${this._prefix}Save" type="button" class="btn btn-primary" @click="${this.showModal}">
+                                    <i class="fa fa-cog" aria-hidden="true" data-view="Interactive" style="padding-right: 5px" @click="${this.showModal}"></i> Settings
+                                </button>
+                                <button id="${this._prefix}Save" type="button" class="btn btn-primary" @click="${this.showModal}">
+                                    <i class="fa fa-save" aria-hidden="true" data-view="Interactive" style="padding-right: 5px" @click="${this.showModal}"></i> Save...
+                                </button>
+                            </div>
+                        </div>
+                
+                        <variant-interpreter-qc-cancer-plots    .opencgaSession="${this.opencgaSession}"
+                                                                .query="${this.executedQuery}"
+                                                                .sampleId="${this.sampleId}"
+                                                                .active="${this.active}">
+                        </variant-interpreter-qc-cancer-plots>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal -->
+            <div class="modal fade" id="${this._prefix}SaveModal" data-backdrop="static" data-keyboard="false"
+                 tabindex="-1" role="dialog" aria-hidden="true" style="padding-top: 0%; overflow-y: visible">
+                <div class="modal-dialog" style="width: 640px">
+                    <div class="modal-content">
+                        <div class="modal-header" style="padding: 5px 15px">
+                            <h3>Save QC Filter</h3>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-horizontal collapse in">
+                                <div class="form-group">
+                                    <label class="control-label col-md-1 jso-label-title">Filter ID</label>
+                                    <div class="col-md-6">
+                                        <input type="text" id="${this._prefix}CommentInterpretation" class="${this._prefix}TextInput form-control"
+                                               placeholder="Add a filter ID" data-field="comment">
                                     </div>
                                 </div>
-                            </div>                            
+    
+                                <div class="form-group">
+                                    <label class="control-label col-md-1 jso-label-title">Description</label>
+                                    <div class="col-md-6">
+                                        <textarea id="${this._prefix}DescriptionInterpretation" class="${this._prefix}TextInput form-control"
+                                              placeholder="Description of the filter" data-field="description"
+                                              @input="${this.onInputChange}"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.onClear}">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.onSave}">Save</button>
                         </div>
                     </div>
                 </div>

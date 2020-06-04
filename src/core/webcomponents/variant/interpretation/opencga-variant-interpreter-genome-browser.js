@@ -247,11 +247,13 @@ export default class OpencgaVariantInterpreterGenomeBrowser extends LitElement {
         }
 
         let samplesToIndividual = {};
-        for (let i = 0; i < clinicalAnalysis.family.members.length; i++) {
-            let member = clinicalAnalysis.family.members[i];
-            if (UtilsNew.isNotEmptyArray(member.samples)) {
-                for (let j = 0; j < member.samples.length; j++) {
-                    samplesToIndividual[member.samples[j].id] = member.id;
+        if (clinicalAnalysis.family && clinicalAnalysis.family.members) {
+            for (let i = 0; i < clinicalAnalysis.family.members.length; i++) {
+                let member = clinicalAnalysis.family.members[i];
+                if (UtilsNew.isNotEmptyArray(member.samples)) {
+                    for (let j = 0; j < member.samples.length; j++) {
+                        samplesToIndividual[member.samples[j].id] = member.id;
+                    }
                 }
             }
         }

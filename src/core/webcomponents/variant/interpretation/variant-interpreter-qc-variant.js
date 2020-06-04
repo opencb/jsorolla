@@ -117,9 +117,11 @@ class VariantInterpreterQcVariant extends LitElement {
 
         if (this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
             return html`
-                <div>
-                    <h3>Cancer Variant Stats</h3>
-                    <variant-interpreter-qc-variant-cancer .opencgaSession="${this.opencgaSession}" .sampleId="${this.clinicalAnalysis.proband.samples[0].id}" ?active="${this.active}"></variant-interpreter-qc-variant-cancer>
+                <div style="padding: 10px">
+                    <div style="padding: 10px 0px">
+                        <h3>Cancer Variant Stats</h3>               
+                    </div>
+                    <variant-interpreter-qc-variant-cancer .clinicalAnalysis="${this.clinicalAnalysis}" .opencgaSession="${this.opencgaSession}" .sampleId="${this.clinicalAnalysis.proband.samples[0].id}" ?active="${this.active}"></variant-interpreter-qc-variant-cancer>
                 </div>
             `;
         }

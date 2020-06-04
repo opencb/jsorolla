@@ -90,6 +90,7 @@ class VariantInterpreter extends LitElement {
     opencgaSessionObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = {...this.getDefaultConfig(), ...this.config};
+        this.clinicalAnalysis = null;
         this.requestUpdate();
     }
 

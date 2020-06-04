@@ -115,6 +115,10 @@ export default class Variant extends OpenCGAParentClass {
         return this._get("analysis", null, "variant", null, "aggregationStats", params);
     }
 
+    circos(params) {
+        return this._get("analysis", null, "variant", null, "circos", params);
+    }
+
     /** Read variant annotations metadata from any saved versions
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.annotationId] - Annotation identifier.
