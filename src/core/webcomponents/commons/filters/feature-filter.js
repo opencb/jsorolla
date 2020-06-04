@@ -47,10 +47,7 @@ export default class FeatureFilter extends LitElement {
 
     _init() {
         this._prefix = "feaf-" + UtilsNew.randomString(6) + "_";
-        this.featureDatalist = [];
-        this.featureIds = [];
         this.separator = ",";
-        this.featureTextArea = "";
     }
 
     connectedCallback() {
@@ -82,162 +79,23 @@ export default class FeatureFilter extends LitElement {
         });
         this.dispatchEvent(event);
     }
-/*
-    /!** @deprecated
-     * *!/
-    updated(_changedProperties) {
-        // XRefs, Gene and Variant Ids
-        if (_changedProperties.has("query")) {
-            if (this.query["xref"]) {
-                this.featureTextArea = this.query["xref"];
-            } else if (this.query.ids) {
-                this.featureTextArea = this.query.ids;
-            } else if (this.query.gene) {
-                this.featureTextArea = this.query.gene;
-            } else {
-                // this block covers the case of opencga-active-filters deletes all features filters
-                this.featureTextArea = "";
-            }
-            this.featureIds = this.featureTextArea.split(this.separator).filter(_ => _);
-            this.querySelector("#" + this._prefix + "FeatureTextarea").value = this.featureTextArea;
-        }
-    }
-
-    /!** @deprecated
-     * *!/
-    onInput(e) {
-        this.featureTextArea = e.target.value;
-        this.featureIds = this.featureTextArea.split(this.separator).filter(_ => _);
-        this.filterChange();
-    }
-
-
-    /!** @deprecated
-     * *!/
-    autocomplete(e) {
-        // Only gene symbols are going to be searched and not Ensembl IDs
-        const featureId = e.target.value.trim();
-        if (featureId && featureId.length >= 3 && !featureId.startsWith("ENS")) {
-            this.cellbaseClient.get("feature", "id", featureId.toUpperCase(), "starts_with", {limit: 50}, {})
-                .then(response => {
-                    this.featureDatalist = response.response[0].result;
-                    this.requestUpdate();
-                });
-        }
-    }
-
-
-    /!** @deprecated
-     * *!/
-    // TODO it needs a proper input validation..
-    addFeatureId(e) {
-
-        // split by comma and filters empty strings
-        // let ids = this.featureTextArea.split(",").filter(id => id ? id : false);
-
-        const featureIdText = this.querySelector("#" + this._prefix + "FeatureIdText");
-        console.log("addFeatureId", featureIdText.value);
-        if (featureIdText.value) {
-            if (!~this.featureIds.indexOf(featureIdText.value)) {
-                this.featureIds.push(featureIdText.value);
-            }
-            featureIdText.value = "";
-            // let featureTextArea = this.querySelector("#" + this._prefix + "FeatureTextarea");
-            this.featureTextArea = this.featureIds.join(this.separator);
-
-            // FIXME the below line shouldn't be necessary!
-            // TODO Isolate the issue
-            // Step to reproduce: 1. add a value using the select 2. edit manually the textarea 3. add a value from the select.
-            // The last one will be in this.featureTextArea and this.featureIds, but the textArea won't reflect the update.
-            this.querySelector("#" + this._prefix + "FeatureTextarea").value = this.featureTextArea;
-
-            this.requestUpdate();
-            this.filterChange();
-        }
-    }
-
-    /!** @deprecated
-    * *!/
-    filterChange() {
-
-        console.log("this.featureTextArea", this.featureTextArea, "this.featureIds", this.featureIds);
-        let xref;
-        // let featureTextArea = this.querySelector("#" + this._prefix + "FeatureTextarea");
-
-        // console.log("featureTextArea selector", featureTextArea)
-
-        if (this.featureTextArea) {
-            let features = this.featureTextArea.trim();
-            features = features.replace(/\r?\n/g, this.separator).replace(/\s/g, "");
-            const featureArray = [];
-            for (const feature of features.split(this.separator)) {
-                if (feature.startsWith("rs") || feature.split(":").length > 2) {
-                    featureArray.push(feature);
-                } else {
-                    // Genes must be uppercase
-                    featureArray.push(feature.toUpperCase());
-                }
-            }
-            xref = featureArray.filter(_ => _).join(this.separator);
-        }
-
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: xref, // xref, ids, gene
-                featureIds: this.featureIds
-            }
-        });
-
-        this.requestUpdate();
-        this.dispatchEvent(event);
-    }*/
 
     getDefaultConfig() {
         return {
-            showList: true,
             fields: item => ({
                 name: item.id
             }),
             dataSource: (query, process) => {
-
                 this.cellbaseClient.get("feature", "id", query.toUpperCase(), "starts_with", {limit: 50}, {})
                     .then(restResponse => {
-                        //this.featureDatalist = response.response[0].result;
                         process(restResponse.response[0].result);
                     });
-
-                /*this.opencgaSession.opencgaClient.clinical().search(filters).then(restResponse => {
-                    const results = restResponse.getResults();
-                    process(results.map(this._config.fields));
-                });*/
             }
         };
     }
 
     render() {
-        return html`
-
-            <select-field-filter-autocomplete .opencgaSession="${this.opencgaSession}" .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></select-field-filter-autocomplete>
-
-            <!--<div class="form-group">
-                <div class="input-group">
-                    <input id="${this._prefix}FeatureIdText" type="text" class="form-control"
-                                       list="${this._prefix}FeatureDatalist"
-                                       placeholder="Search for Gene Symbols" value="" @input="${this.autocomplete}">
-                    <datalist id="${this._prefix}FeatureDatalist">
-                                    ${this.featureDatalist.map(feature => html`<option value="${feature.name}">${feature.name}</option>`)}
-                    </datalist>
-                <div class="input-group-addon btn" @click="${this.addFeatureId}"> <i class="fa fa-plus"></i> </div>
-                </div>
-            </div>
-  
-            <div class="form-group">
-                <textarea id="${this._prefix}FeatureTextarea" name="geneSnp"
-                    class="form-control clearable ${this._prefix}FilterTextInput"
-                    rows="3" placeholder="BRCA2,ENSG00000139618,ENST00000544455,rs28897700"
-                    style="margin-top: 5px" @input="${this.onInput}">${this.featureTextArea}</textarea>
-            </div> -->
-        `;
+        return html`<select-field-filter-autocomplete .opencgaSession="${this.opencgaSession}" .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></select-field-filter-autocomplete>`;
     }
 
 }

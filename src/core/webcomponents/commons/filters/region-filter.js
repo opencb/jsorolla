@@ -76,7 +76,7 @@ export default class RegionFilter extends LitElement {
             .replace(/\r?\n/g, this.separator)
             .replace(/\s/g, "")
             .split(this.separator)
-            .filter(_ => _)
+            .filter(Boolean)
             .join(this.separator);
 
         const event = new CustomEvent("filterChange", {

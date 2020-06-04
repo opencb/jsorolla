@@ -20,7 +20,6 @@ import "../commons/opencga-browser.js";
 import "./gene-coverage-detail.js";
 import "./gene-coverage-grid.js";
 
-// TODO this component will be the new opencga-file-browser and this configuration will be for browser and facet both
 
 export default class GeneCoverageBrowser extends LitElement {
 

@@ -258,7 +258,6 @@ export default class OpencgaFamilyFilter extends LitElement {
                 break;
             case "annotations":
                 content = html`<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
-                                                      .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                       entity="FAMILY"
                                                       .config="${this.annotationFilterConfig}"
                                                       @filterannotation="${this.addAnnotation}">

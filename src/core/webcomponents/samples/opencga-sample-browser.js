@@ -208,25 +208,47 @@ export default class OpencgaSampleBrowser extends LitElement {
                         showTitle: false
                     }
                 },
-                detail: [
-                    {
-                        id: "sample-view",
-                        title: "Details",
-                        active: true
-                    },
-                    {
-                        id: "sample-variant-stats-view",
-                        title: "Variant Stats"
-                    },
-                    {
-                        id: "individual-view",
-                        title: "Individual"
-                    },
-                    {
-                        id: "file-view",
-                        title: "Files"
-                    }
-                ]
+                detail: {
+                    title: "Sample",
+                    showTitle: true,
+                    items: [
+                        {
+                            id: "sample-view",
+                            name: "Summary",
+                            active: true,
+                            // visible:
+                            render: (sample, active, opencgaSession) => {
+                                return html`<opencga-sample-view .opencgaSession="${opencgaSession}" .sample="${sample}"></opencga-sample-view>`;
+                            }
+                        },
+                        {
+                            id: "sample-variant-stats-view",
+                            name: "Variant Stats",
+                            // visible:
+                            render: (sample, active, opencgaSession) => {
+                                return html`<sample-variant-stats-view .opencgaSession="${opencgaSession}" .sampleId="${sample.id}"></sample-variant-stats-view>
+                                `;
+                            }
+                        },
+                        {
+                            id: "individual-view",
+                            name: "Individual",
+                            // visible:
+                            render: (sample, active, opencgaSession) => {
+                                return html`<opencga-individual-view .opencgaSession="${opencgaSession}" .individualId="${sample?.individualId}"></opencga-individual-view>
+                                `;
+                            }
+                        },
+                        {
+                            id: "file-view",
+                            name: "Files",
+                            // visible:
+                            render: (sample, active, opencgaSession) => {
+                                return html`<opencga-file-grid .opencgaSession="${opencgaSession}" .query="${{samples: sample.id}}" .search="${{samples: sample.id}}"></opencga-file-grid>`;
+                            }
+                        }
+                    ]
+                }
             },
             aggregation: {
                 default: [],

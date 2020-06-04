@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "./opencga-individual-view.js";
+import "./../commons/view/detail-tabs.js";
 
 export default class OpencgaIndividualDetail extends LitElement {
 
@@ -49,7 +50,6 @@ export default class OpencgaIndividualDetail extends LitElement {
 
     _init() {
         this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
-        this.activeTab = {};
     }
 
     connectedCallback() {
@@ -69,55 +69,14 @@ export default class OpencgaIndividualDetail extends LitElement {
             console.log("activeTab")
         }
     }
-
-    _changeBottomTab(e) {
-        const tabId = e.currentTarget.dataset.id;
-        console.log(tabId)
-        $(".nav-tabs", this).removeClass("active");
-        $(".tab-content div[role=tabpanel]", this).hide();
-        for (const tab in this.activeTab) this.activeTab[tab] = false;
-        $("#" + tabId + "-tab", this).show();
-        this.activeTab[tabId] = true;
-        this.requestUpdate();
-    }
-
     getDefaultConfig() {
         return {
-            title: "Individual",
-            showTitle: true
         };
     }
 
     render() {
         return this.individual ? html`
-            <div>
-                ${this._config.showTitle ? html`
-                    <div class="panel" style="margin-bottom: 10px">
-                        <h2 >&nbsp;${this._config.title}: ${this.individual.id}</h2>
-                    </div>
-                ` : null}
-                <ul class="nav nav-tabs" role="tablist">
-                    ${this.config.detail.length && this.config.detail.map(item => html`
-                        <li role="presentation" class="${item.active ? "active" : ""}">
-                                <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab"
-                                   data-id="${item.id}"
-                                   class=""
-                                   @click="${this._changeBottomTab}">${item.title}</a>
-                        </li>
-                    `)}
-                </ul>
-               
-                <div class="tab-content">
-                    <div id="individual-view-tab" class="tab-pane active" role="tabpanel">
-                        <div class="detail-row">
-                            <opencga-individual-view .opencgaSession="${this.opencgaSession}" .individual="${this.individual}"></opencga-individual-view>
-                        </div>
-                    </div>
-                    <div id="log-tab" class="tab-pane" role="tabpanel">
-                        second tab
-                    </div>
-                </div>
-            </div>
+            <detail-tabs .config="${this._config.detail}" .data="${this.individual}" .opencgaSession="${this.opencgaSession}"></detail-tabs>
         ` : null;
     }
 

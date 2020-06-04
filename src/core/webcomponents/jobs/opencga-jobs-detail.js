@@ -97,73 +97,13 @@ export default class OpencgaJobsDetail extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Job",
-            showTitle: true,
-            detailTabs: [
-                {
-                    id: "job-view",
-                    name: "Details",
-                    active: true,
-                    // visible:
-                    render: active => {
-                        return html`<opencga-jobs-view .opencgaSession=${this.opencgaSession} .job="${this.job}"></opencga-jobs-view>`;
-                    }
-                },
-                {
-                    id: "job-log",
-                    name: "Logs",
-                    // visible:
-                    render: active => {
-                        return html`
-                            <opencga-jobs-detail-log .opencgaSession=${this.opencgaSession}
-                                                    .active="${active}"
-                                                    .job="${this.job}">
-                            </opencga-jobs-detail-log>
-                        `;
-                    }
-                }
-            ]
-        };
+
+        }
     }
 
     render() {
         return this.job ? html`
-            <detail-tabs .config="${this._config}" .data="${this.job}"></detail-tabs>
-            
-            ${false ? html`
-            ${this._config.showTitle ? html`
-                    <div class="panel" style="margin-bottom: 10px">
-                        <h2 >&nbsp;${this._config.title}: ${this.job.id}</h2>
-                    </div>
-                ` : null}
-            <div>
-                <ul class="nav nav-tabs" role="tablist">
-                    ${this.config.detail.length && this.config.detail.map(item => html`
-                        <li role="presentation" class="${item.active ? "active" : ""}">
-                                <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab"
-                                   data-id="${item.id}"
-                                   class=""
-                                   @click="${this._changeBottomTab}" style="font-weight: bold">${item.title}</a>
-                        </li>
-                    `)}
-                </ul>
-                
-                <div class="tab-content" style="padding: 20px">
-                    <div id="job-detail-tab" class="tab-pane active" role="tabpanel">
-                        <opencga-jobs-view .opencgaSession=${this.opencgaSession}
-                                           .job="${this.job}">
-                        </opencga-jobs-view>
-                    </div>
-                    <div id="log-tab" class="tab-pane" role="tabpanel">
-                        <opencga-jobs-detail-log .opencgaSession=${this.opencgaSession}
-                                                  .active="${this.activeTab["log"]}"
-                                                  .job="${this.job}">
-                        </opencga-jobs-detail-log>
-                    </div>
-                </div>
-                
-            </div>
-            ` : null}
+            <detail-tabs .config="${this._config.detail}" .data="${this.job}" .opencgaSession="${this.opencgaSession}"></detail-tabs>
         ` : null;
     }
 

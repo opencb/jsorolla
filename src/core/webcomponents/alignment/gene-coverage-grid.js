@@ -146,6 +146,16 @@ export default class GeneCoverageGrid extends LitElement {
         return parseFloat(v).toFixed(2) + "%"
     }
 
+    cellStyle(value, row, index) {
+        const color = value > 80 ? "rgba(176, 255, 199, 0.2)" : "rgba(255,194,194,0.2)"
+        return {
+            css: {
+                background: `linear-gradient(90deg, ${color} 0%, ${color} ${value}%, transparent ${value}%, transparent ${value}%)`
+
+            }
+        }
+    }
+
     _initTableColumns() {
         this._columns = [
             {
@@ -155,52 +165,62 @@ export default class GeneCoverageGrid extends LitElement {
             {
                 title: "> 1x",
                 field: "depths.0",
-                formatter: this.percentageFormatter
+                formatter: this.percentageFormatter,
+                cellStyle: this.cellStyle
             },
             {
                 title: "> 5x",
                 field: "depths.1",
-                formatter: this.percentageFormatter
+                formatter: this.percentageFormatter,
+                cellStyle: this.cellStyle
             },
             {
                 title: "> 10x",
                 field: "depths.2",
-                formatter: this.percentageFormatter
+                formatter: this.percentageFormatter,
+                cellStyle: this.cellStyle
             },
             {
                 title: "> 15x",
                 field: "depths.3",
-                formatter: this.percentageFormatter
+                formatter: this.percentageFormatter,
+                cellStyle: this.cellStyle
             },
             {
                 title: "> 20x",
                 field: "depths.4",
-                formatter: this.percentageFormatter
+                formatter: this.percentageFormatter,
+                cellStyle: this.cellStyle
             },
             {
                 title: "> 25x",
                 field: "depths.5",
-                formatter: this.percentageFormatter
+                formatter: this.percentageFormatter,
+                cellStyle: this.cellStyle
             },
             {
                 title: "> 30x",
                 field: "depths.6",
-                formatter: this.percentageFormatter
+                formatter: this.percentageFormatter,
+                cellStyle: this.cellStyle
             },
             {
                 title: "> 40x",
                 field: "depths.7",
-                formatter: this.percentageFormatter
+                formatter: this.percentageFormatter,
+                cellStyle: this.cellStyle
             },
             {
                 title: "> 50x",
                 field: "depths.8",
-                formatter: this.percentageFormatter
+                formatter: this.percentageFormatter,
+                cellStyle: this.cellStyle
             },
             {
                 title: "> 60x",
                 field: "depths.9",
-                formatter: this.percentageFormatter
+                formatter: this.percentageFormatter,
+                cellStyle: this.cellStyle
             }
         ];
 

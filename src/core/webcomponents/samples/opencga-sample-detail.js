@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
+import "./../commons/view/detail-tabs.js";
 import "./opencga-sample-view.js";
 import "../variant/interpretation/sample-variant-stats-view.js";
 
@@ -75,81 +76,19 @@ export default class OpencgaSampleDetail extends LitElement {
     sampleObserver() {
         //console.log("sampleObserver");
         //console.log("OPENCGA_INDIVIDUAL", this.sample?.attributes?.OPENCGA_INDIVIDUAL);
-        this.individual = this.sample?.attributes?.OPENCGA_INDIVIDUAL;
+        //this.individual = this.sample?.attributes?.OPENCGA_INDIVIDUAL;
         this.requestUpdate();
     }
 
-    _changeBottomTab(e) {
-        const tabId = e.currentTarget.dataset.id;
-        $(".nav-tabs", this).removeClass("active");
-        $(".tab-content div[role=tabpanel]", this).hide();
-        for (const tab in this.activeTab) this.activeTab[tab] = false;
-        $("#" + tabId + "-tab", this).show();
-        this.activeTab[tabId] = true;
-        this.requestUpdate();
-    }
 
     getDefaultConfig() {
         return {
-            title: "Sample",
-            showTitle: true
         };
     }
 
     render() {
         return this.sample ? html`
-            <div>
-                ${this._config.showTitle ? html`
-                    <div class="panel" style="margin-bottom: 10px">
-                        <h2 >&nbsp;${this._config.title}: ${this.sample.id}</h2>
-                    </div>
-                ` : null}
-                <ul class="nav nav-tabs" role="tablist">
-                    ${this.config.detail.length && this.config.detail.map(item => html`
-                        <li role="presentation" class="${item.active ? "active" : ""}">
-                                <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab"
-                                   data-id="${item.id}"
-                                   class=""
-                                   @click="${this._changeBottomTab}">${item.title}</a>
-                        </li>
-                    `)}
-                </ul>
-               
-                
-                <div class="tab-content">
-                    <div id="sample-view-tab" class="tab-pane active" role="tabpanel">
-                        <div id="${this._prefix}sample-view">
-                            <div class="container-fluid">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group detail-row">
-                                            <opencga-sample-view .opencgaSession="${this.opencgaSession}"
-                                                                  .sample="${this.sample}">
-                                            </opencga-sample-view>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="individual-view-tab" class="tab-pane" role="tabpanel">
-                        <opencga-individual-view .opencgaSession="${this.opencgaSession}" .individual="${this.individual}">
-                        </opencga-individual-view>
-                    </div>
-                    <div id="file-view-tab" class="tab-pane" role="tabpanel">
-                        <opencga-file-grid .opencgaSession="${this.opencgaSession}"
-                                           .query="${{samples: this.sample.id}}"
-                                           .search="${{samples: this.sample.id}}">
-                        </opencga-file-grid>
-                    </div>
-                    <div id="sample-variant-stats-view-tab" class="tab-pane" role="tabpanel">
-                        <sample-variant-stats-view .opencgaSession="${this.opencgaSession}"
-                                           .sampleId="${this.sample.id}">
-                        </sample-variant-stats-view>
-                    </div>
-                </div>
-                
-            </div>
+            <detail-tabs .config="${this._config.detail}" .data="${this.sample}" .opencgaSession="${this.opencgaSession}"></detail-tabs>
         ` : null;
     }
 

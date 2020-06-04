@@ -36,10 +36,10 @@ class SampleVariantStatsView extends LitElement {
         return {
             opencgaSession: {
                 type: Object
-            },/*
+            },
             sampleId: {
                 type: String
-            },*/
+            },
             sampleVariantStats: {
                 type: Object
             },
@@ -84,7 +84,6 @@ class SampleVariantStatsView extends LitElement {
             this.opencgaSession.opencgaClient.variants().infoSampleStats(this.sampleId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.sampleStats = response.getResult(0);
-                    debugger
                     this.requestUpdate();
                 }).catch(response => {
                 console.error(response);

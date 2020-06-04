@@ -33,7 +33,7 @@ export default class OpencgaLogin extends LitElement {
 
     static get properties() {
         return {
-            opencgaClient: {
+            opencgaSession: {
                 type: Object
             },
             buttonText: {
@@ -73,7 +73,7 @@ export default class OpencgaLogin extends LitElement {
             const user = this.querySelector("#opencgaUser").value;
             const pass = this.querySelector("#opencgaPassword").value;
             const _this = this;
-            this.opencgaClient.login(user, pass)
+            this.opencgaSession.opencgaClient.login(user, pass)
                 .then( response => {
 
                     if(response) {

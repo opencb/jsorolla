@@ -68,15 +68,16 @@ export default class OpencgaFileView extends LitElement {
 
     fileIdObserver() {
         if (this.fileId) {
-            let _this = this;
-            this.opencgaSession.opencgaClient.files().info(this.file, {study: this.opencgaSession.study.fqn})
-                .then(function(response) {
-                    _this.file = response.responses[0].results[0];
-                    _this.requestUpdate();
+            this.opencgaSession.opencgaClient.files().info(this.fileId, {study: this.opencgaSession.study.fqn})
+                .then( restResponse => {
+                    this.file = restResponse.responses[0].results[0];
+                    this.requestUpdate();
                 })
-                .catch(function(reason) {
-                    console.error(reason);
+                .catch( restResponse => {
+                    console.error(restResponse);
                 });
+        } else {
+            this.file = null;
         }
     }
 

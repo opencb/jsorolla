@@ -142,17 +142,15 @@ export default class OpencgaSampleGrid extends LitElement {
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 detailFormatter: this._config.detailFormatter,
-
                 gridContext: this,
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
-
                 ajax: params => {
                     const _filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        //include: "id,phenotypes,internal",
+                        //include: "id,phenotypes,internal,individualId,creationDate",
                         ...filters
                     };
                     // Store the current filters
