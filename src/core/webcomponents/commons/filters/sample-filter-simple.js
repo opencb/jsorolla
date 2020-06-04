@@ -75,7 +75,7 @@ export default class SampleFilterSimple extends LitElement {
                 // this block covers the case of opencga-active-filters deletes all features filters
                 this.featureTextArea = "";
             }
-            this.featureIds = this.featureTextArea.split(this.separator).filter(_ => _);
+            this.featureIds = this.featureTextArea.split(this.separator).filter(Boolean);
             this.querySelector("#" + this._prefix + "FeatureTextarea").value = this.featureTextArea;
         }
     }
@@ -121,7 +121,7 @@ export default class SampleFilterSimple extends LitElement {
 
     onInput(e) {
         this.featureTextArea = e.target.value;
-        this.featureIds = this.featureTextArea.split(this.separator).filter(_ => _);
+        this.featureIds = this.featureTextArea.split(this.separator).filter(Boolean);
         this.filterChange();
 
     }
@@ -146,7 +146,7 @@ export default class SampleFilterSimple extends LitElement {
                     featureArray.push(feature.toUpperCase());
                 }
             }
-            xref = featureArray.filter(_ => _).join(this.separator);
+            xref = featureArray.filter(Boolean).join(this.separator);
         }
 
         const event = new CustomEvent("filterChange", {

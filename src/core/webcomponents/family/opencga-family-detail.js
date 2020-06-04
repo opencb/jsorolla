@@ -48,7 +48,6 @@ export default class OpencgaFamilyDetail extends LitElement {
 
     _init() {
         this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
-        this.activeTab = {};
     }
 
     connectedCallback() {
@@ -61,7 +60,9 @@ export default class OpencgaFamilyDetail extends LitElement {
         }
 
         if (changedProperties.has("family")) {
+        }
 
+        if (changedProperties.has("familyId")) {
         }
 
         if (changedProperties.has("activeTab")) {
@@ -69,56 +70,14 @@ export default class OpencgaFamilyDetail extends LitElement {
         }
     }
 
-    _changeBottomTab(e) {
-        const tabId = e.currentTarget.dataset.id;
-        console.log(tabId)
-        $(".nav-tabs", this).removeClass("active");
-        $(".tab-content div[role=tabpanel]", this).hide();
-        for (const tab in this.activeTab) this.activeTab[tab] = false;
-        $("#" + tabId + "-tab", this).show();
-        this.activeTab[tabId] = true;
-        this.requestUpdate();
-    }
-
     getDefaultConfig() {
         return {
-            title: "Family",
-            showTitle: true
         };
     }
 
     render() {
         return this.family ? html`
-            <div>
-                ${this._config.showTitle ? html`
-                    <div class="panel" style="margin-bottom: 10px">
-                        <h2 >&nbsp;${this._config.title}: ${this.family.id}</h2>
-                    </div>
-                ` : null}
-                <ul class="nav nav-tabs" role="tablist">
-                    ${this.config.detail.length && this.config.detail.map(item => html`
-                        <li role="presentation" class="${item.active ? "active" : ""}">
-                                <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab"
-                                   data-id="${item.id}"
-                                   class=""
-                                   @click="${this._changeBottomTab}">${item.title}</a>
-                        </li>
-                    `)}
-                </ul>
-                               
-                <div class="tab-content">
-                    <div id="family-view-tab" class="tab-pane active" role="tabpanel">
-                        <div class="form-group detail-row">
-                            <opencga-family-view .opencgaSession="${this.opencgaSession}" .family="${this.family}">
-                            </opencga-family-view>
-                        </div>
-                    </div>
-                    <div id="log-tab" class="tab-pane" role="tabpanel">
-                        second tab
-                    </div>
-                </div>
-                
-            </div>
+            <detail-tabs .config="${this._config.detail}" .data="${this.family}" .opencgaSession="${this.opencgaSession}"></detail-tabs>
         ` : null;
     }
 

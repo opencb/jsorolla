@@ -70,7 +70,7 @@ export default class GoAccessionsFilter extends LitElement {
                 .replace(/\r?\n/g, ",")
                 .replace(/\s/g, "")
                 .split(",")
-                .filter(_ => _);
+                .filter(Boolean);
             //console.log("_go", _go)
             //console.log("length", _go.length)
             if (_go.length < 100) {

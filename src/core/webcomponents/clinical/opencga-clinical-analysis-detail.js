@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utils.js";
 import "./opencga-clinical-analysis-view.js";
+import "./../commons/view/detail-tabs.js";
 
 export default class OpencgaClinicalAnalysisDetail extends LitElement {
 
@@ -91,44 +92,7 @@ export default class OpencgaClinicalAnalysisDetail extends LitElement {
 
     render() {
         return this.clinicalAnalysis ? html`
-            <div>
-                ${this._config.showTitle ? html`
-                    <div class="panel" style="margin-bottom: 10px">
-                        <h2 >&nbsp;${this._config.title}: ${this.clinicalAnalysis.id}</h2>
-                    </div>
-                ` : null}
-                <ul class="nav nav-tabs" role="tablist">
-                    ${this.config.detail.length && this.config.detail.map(item => html`
-                        <li role="presentation" class="${item.active ? "active" : ""}">
-                                <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab"
-                                   data-id="${item.id}"
-                                   class=""
-                                   @click="${this._changeBottomTab}" style="font-weight: bold">${item.title}</a>
-                        </li>
-                    `)}
-                </ul>
-               
-                <div class="tab-content" style="padding: 20px">
-                    <div id="clinical-analysis-view-tab" class="tab-pane active" role="tabpanel">
-                        <div id="${this._prefix}family-view">
-                            <div class="container-fluid">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group detail-row">
-                                            <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}" .clinicalAnalysis="${this.clinicalAnalysis}">
-                                            </opencga-clinical-analysis-view>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="log-tab" class="tab-pane" role="tabpanel">
-                        second tab
-                    </div>
-                </div>
-                
-            </div>
+            <detail-tabs .config="${this._config.detail}" .data="${this.clinicalAnalysis}" .opencgaSession="${this.opencgaSession}"></detail-tabs>
         ` : null;
     }
 

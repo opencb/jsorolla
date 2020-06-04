@@ -153,8 +153,8 @@ export default class OpencgaFileBrowser extends LitElement {
                                 description: ""
                             },
                             {
-                                id: "path",
-                                name: "Path",
+                                id: "directory",
+                                name: "Directory",
                                 type: "string",
                                 placeholder: "genomes/resources/files/...",
                                 description: ""
@@ -213,17 +213,29 @@ export default class OpencgaFileBrowser extends LitElement {
                 result: {
                     grid: {}
                 },
-                detail: [
-                    {
-                        id: "file-view",
-                        title: "Details",
-                        active: true
-                    },
-                    {
-                        id: "file-preview",
-                        title: "Preview"
-                    }
-                ]
+                detail: {
+                    title: "File",
+                    showTitle: true,
+                    items: [
+                        {
+                            id: "file-view",
+                            name: "Summary",
+                            active: true,
+                            // visible:
+                            render: (file, active, opencgaSession) => {
+                                return html` <opencga-file-view .opencgaSession="${opencgaSession}" .file="${file}"></opencga-file-view>`;
+                            }
+                        },
+                        {
+                            id: "file-preview",
+                            name: "Preview",
+                            // visible:
+                            render: (file, active, opencgaSession) => {
+                                return html`<opencga-file-preview .opencgaSession=${opencgaSession} .active="${active}" .file="${file}"></opencga-file-preview>`;
+                            }
+                        }
+                    ]
+                }
             },
             aggregation: {
                 default: ["type", "format"],

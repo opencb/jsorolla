@@ -285,7 +285,7 @@ export default class OpencgaFileFilter extends LitElement {
             case "samples":
                 content = html`<sample-id-autocomplete .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></sample-id-autocomplete>`
                 break;
-            case "path":
+            case "directory":
             case "bioformat":
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;
@@ -296,7 +296,6 @@ export default class OpencgaFileFilter extends LitElement {
             case "annotations":
                 content = html`
                         <opencga-annotation-filter-modal .opencgaSession="${this.opencgaSession}"
-                                                      .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                       entity="FILE"
                                                       .config="${this.annotationFilterConfig}"
                                                       .selectedVariablesText="${this.preparedQuery.annotation}"

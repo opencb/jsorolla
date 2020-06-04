@@ -165,7 +165,7 @@ export default class SelectFieldFilterAutocompleteSimple extends LitElement {
 
     addTerm() {
         if (this.input.val()) {
-            this.selectionList.push(this.input.val().split(new RegExp("[,;]")).filter(_ => _));
+            this.selectionList.push(this.input.val().split(new RegExp("[,;]")).filter(Boolean));
             this.filterChange();
             this.input.val("").change();
             this.requestUpdate();

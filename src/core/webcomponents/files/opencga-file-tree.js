@@ -16,8 +16,9 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
+import "./opencga-file-view.js";
 import "../commons/view/data-form.js";
-
+import "../loading-spinner.js";
 
 export default class OpencgaFileTree extends LitElement {
 
@@ -47,6 +48,7 @@ export default class OpencgaFileTree extends LitElement {
     _init() {
         this.currentRootId = ":";
         this.tree = null;
+        this.fileId = null;
     }
 
     connectedCallback() {
@@ -54,26 +56,26 @@ export default class OpencgaFileTree extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    firstUpdated(_changedProperties) {
-        this.opencgaSession.opencgaClient.files().tree(this.currentRootId, {study: this.opencgaSession.study.fqn, maxDepth:3})
-            .then(restResponse => {
-                this.tree = restResponse.getResult(0);
-                this.currentRoot =  restResponse.getResult(0);
-                this.requestUpdate();
-            })
-            .catch(restResponse => {
-                console.error(restResponse);
-            });
-    }
-
     updated(changedProperties) {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
+
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSession.opencgaClient.files().tree(this.currentRootId, {study: this.opencgaSession.study.fqn, maxDepth: 3})
+                .then(restResponse => {
+                    this.tree = restResponse.getResult(0);
+                    this.currentRoot = restResponse.getResult(0);
+                    this.requestUpdate();
+                })
+                .catch(restResponse => {
+                    console.error(restResponse);
+                });
+        }
     }
 
     fetchFolder(fileId) {
-        this.opencgaSession.opencgaClient.files().tree(fileId, {study: this.opencgaSession.study.fqn, maxDepth:3})
+        this.opencgaSession.opencgaClient.files().tree(fileId, {study: this.opencgaSession.study.fqn, maxDepth: 3})
             .then(restResponse => {
                 const result = restResponse.getResult(0);
                 const folder = this.searchNode(fileId, this.tree.children);
@@ -98,20 +100,20 @@ export default class OpencgaFileTree extends LitElement {
         }
     }
 
-    renderEntry(root) {
+    renderFileManager(root) {
         const children = root.children;
         return html`
             ${this.path(root)}
             <ul class="file-manager">
                 ${children.map(node => {
-                    if (node.file.type === "DIRECTORY") {
-                        return html`${this.folder(node)}`    
-                    } else if (node.file.type === "FILE") {
-                        return html`${this.file(node)}`
-                    } else {
-                        throw new Error("Type not recognized " + node.file.type)
-                    }
-                }) }
+            if (node.file.type === "DIRECTORY") {
+                return html`${this.folder(node)}`;
+            } else if (node.file.type === "FILE") {
+                return html`${this.file(node)}`;
+            } else {
+                throw new Error("Type not recognized " + node.file.type);
+            }
+        })}
             </ul>
         `;
     }
@@ -125,7 +127,7 @@ export default class OpencgaFileTree extends LitElement {
                     <span class="details">${node.children.length} items</span>
                 </a>
             </li>
-        `
+        `;
     }
 
     file(node) {
@@ -137,36 +139,33 @@ export default class OpencgaFileTree extends LitElement {
                     <span class="details">${UtilsNew.getDiskUsage(node.file.size)}</span>
                 </a>
             </li>
-        `
+        `;
     }
 
     route(nodeId) {
         this.currentRoot = this.searchNode(nodeId, this.tree.children);
+        this.fileId = null;
         this.requestUpdate();
     }
 
     reset() {
         this.currentRoot = this.tree;
+        this.fileId = null;
         this.requestUpdate();
     }
 
     path(node) {
-        console.log(node)
-        const path = node.file.id.split(":").filter(_ => _);
-        console.log("path", path)
+        const path = node.file.id.split(":").filter(Boolean);
         return html`
             <div class="file-manager-breadcrumbs">
-                <a @click="${this.reset}"> &compfn; </a> <span class="path-separator">/</span>
-                ${path.map( (name,i) => html`<a @click="${() => this.route(path.slice(0,i + 1).join(":") + ":")}"> ${name} </a> <span class="path-separator">/</span>`)}
-            </div>`
-    }
-
-    onClickFolder() {
-
+                <a @click="${this.reset}"> ~ </a> <span class="path-separator">/</span>
+                ${path.map((name, i) => html`<a @click="${() => this.route(path.slice(0, i + 1).join(":") + ":")}"> ${name} </a> <span class="path-separator">/</span>`)}
+            </div>`;
     }
 
     onClickFile(id) {
-        console.log("onClickFile", id)
+        this.fileId = id;
+        this.requestUpdate();
     }
 
     getDefaultConfig() {
@@ -176,18 +175,22 @@ export default class OpencgaFileTree extends LitElement {
         };
     }
 
-    render() {
-        if (this.currentRoot) {
-            return html`
-            <div>
-                ${this.renderEntry(this.currentRoot)}
-            </div>
-        `;
-        } else {
-            return html`no root`;
-        }
-    }
 
+    render() {
+        return html`
+            <div class="page-title">
+                <h2>
+                    <i aria-hidden="true" class="fas fa-file"></i>&nbsp;File Manager
+                </h2>
+            </div>
+            ${this.currentRoot ? html`
+                <div>
+                    ${this.renderFileManager(this.currentRoot) }
+                </div>
+                <opencga-file-view .opencgaSession="${this.opencgaSession}" .fileId="${this.fileId}"></opencga-file-view>
+            ` : html`<loading-spinner></loading-spinner>`}
+        `;
+    }
 }
 
 customElements.define("opencga-file-tree", OpencgaFileTree);

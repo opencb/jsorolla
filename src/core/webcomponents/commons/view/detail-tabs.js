@@ -80,13 +80,13 @@ export default class DetailTabs extends LitElement {
     render() {
         return html`
             ${this._config.showTitle ? html`
-                <div class="panel" style="margin-bottom: 10px">
+                <div class="panel">
                     <h2 >&nbsp;${this._config.title}: ${this.data.id}</h2>
                 </div>
             ` : null}
             <div>
                 <ul class="nav nav-tabs" role="tablist">
-                    ${this._config.detailTabs.length && this._config.detailTabs.map(item => html`
+                    ${this._config.items.length && this._config.items.map(item => html`
                         <li role="presentation" class="${classMap({active: item.active})}">
                             <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}" @click="${this._changeBottomTab}">${item.name}</a>
                         </li>
@@ -95,9 +95,9 @@ export default class DetailTabs extends LitElement {
             </div>
             
             <div class="tab-content">
-                ${this._config.detailTabs.length ? this._config.detailTabs.map(item => html`
+                ${this._config.items.length ? this._config.items.map(item => html`
                     <div id="${item.id}-tab" class="tab-pane ${classMap({active: item.active})}" role="tabpanel">
-                        ${item.render(this.activeTab[item.id])}
+                        ${item.render(this.data, this.activeTab[item.id], this.opencgaSession )}
                     </div>
                 `) : null}
             </div>

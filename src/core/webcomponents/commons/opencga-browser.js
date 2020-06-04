@@ -334,16 +334,14 @@ export default class OpencgaBrowser extends LitElement {
                                                            entity="FILE">
                                 </opencga-annotation-viewer> -->
                                 <opencga-file-detail .opencgaSession="${this.opencgaSession}"
-                                                        .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                         .config="${this._config.filter}"
                                                         .fileId="${this.detail.file?.id}"
-                                                        .file="${this.detail.file}">>
+                                                        .file="${this.detail.file}">
                                 </opencga-file-detail>
                             </div>
                             ${facetView}
                             <div id="tree-tab" class="content-tab">
-                                <opencga-file-tree .opencgaSession="${this.opencgaSession}"
-                                                     .config="${this._config.filter.grid}">
+                                <opencga-file-tree .opencgaSession="${this.opencgaSession}">
                                 </opencga-file-tree>
                             </div>
                             `;
@@ -360,7 +358,6 @@ export default class OpencgaBrowser extends LitElement {
                                                      @selectrow="${e => this.onClickRow(e, "sample")}">
                             </opencga-sample-grid>
                             <opencga-sample-detail .opencgaSession="${this.opencgaSession}"
-                                                    .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                     .config="${this._config.filter}"
                                                     .sampleId="${this.detail.sample?.id}"
                                                     .sample="${this.detail.sample}">>
@@ -371,8 +368,7 @@ export default class OpencgaBrowser extends LitElement {
                 this.endpoint = this.opencgaSession.opencgaClient.individuals();
                 return html`
                         <div id="table-tab" class="content-tab active">
-                            <opencga-individual-grid .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                 .opencgaSession="${this.opencgaSession}"
+                            <opencga-individual-grid .opencgaSession="${this.opencgaSession}"
                                                  .config="${this._config.filter.grid}"
                                                  .eventNotifyName="${this.eventNotifyName}"
                                                  .individuals="${this.individuals}"
@@ -389,7 +385,6 @@ export default class OpencgaBrowser extends LitElement {
                                                        entity="INDIVIDUAL">
                             </opencga-annotation-viewer> -->
                             <opencga-individual-detail .opencgaSession="${this.opencgaSession}"
-                                                    .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                     .config="${this._config.filter}"
                                                     .individualId="${this.detail.individual?.id}"
                                                     .individual="${this.detail.individual}">
@@ -401,7 +396,6 @@ export default class OpencgaBrowser extends LitElement {
                 return html`
                         <div id="table-tab" class="content-tab active">
                             <opencga-cohort-grid .opencgaSession="${this.opencgaSession}"
-                                                     .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                      .query="${this.executedQuery}"
                                                      .search="${this.executedQuery}"
                                                      .config="${this._config.filter.grid}"
@@ -410,7 +404,6 @@ export default class OpencgaBrowser extends LitElement {
                                                      @selectrow="${e => this.onClickRow(e, "cohort")}">
                             </opencga-cohort-grid>
                             <opencga-cohort-detail .opencgaSession="${this.opencgaSession}"
-                                                    .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                     .config="${this._config.filter}"
                                                     .cohortId="${this.detail.cohort?.id}"
                                                     .cohort="${this.detail.cohort}">
@@ -478,7 +471,6 @@ export default class OpencgaBrowser extends LitElement {
                                                             @selectrow="${e => this.onClickRow(e, "clinicalAnalysis")}">
                             </opencga-clinical-analysis-grid>
                             <opencga-clinical-analysis-detail .opencgaSession="${this.opencgaSession}"
-                                                    .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                     .config="${this._config.filter}"
                                                     .clinicalAnalysisId="${this.detail.clinicalAnalysis?.id}"
                                                     .clinicalAnalysis="${this.detail.clinicalAnalysis}">

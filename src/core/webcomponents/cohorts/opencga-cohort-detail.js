@@ -18,6 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "./opencga-cohort-view.js";
 import "./../samples/opencga-sample-grid.js";
+import "./../commons/view/detail-tabs.js";
 
 export default class OpencgaCohortDetail extends LitElement {
 
@@ -50,7 +51,6 @@ export default class OpencgaCohortDetail extends LitElement {
 
     _init() {
         this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
-        this.activeTab = {};
     }
 
     connectedCallback() {
@@ -71,61 +71,14 @@ export default class OpencgaCohortDetail extends LitElement {
         }
     }
 
-    _changeBottomTab(e) {
-        const tabId = e.currentTarget.dataset.id;
-        console.log(tabId)
-        $(".nav-tabs", this).removeClass("active");
-        $(".tab-content div[role=tabpanel]", this).hide();
-        for (const tab in this.activeTab) this.activeTab[tab] = false;
-        $("#" + tabId + "-tab", this).show();
-        this.activeTab[tabId] = true;
-        this.requestUpdate();
-    }
-
     getDefaultConfig() {
         return {
-            title: "Cohort",
-            showTitle: true
         };
     }
 
     render() {
         return this.cohort ? html`
-            <div>
-                ${this._config.showTitle ? html`
-                    <div class="panel" style="margin-bottom: 10px">
-                        <h2 >&nbsp;${this._config.title}: ${this.cohort.id}</h2>
-                    </div>
-                ` : null}
-                <ul class="nav nav-tabs" role="tablist">
-                    ${this.config.detail.length && this.config.detail.map(item => html`
-                        <li role="presentation" class="${item.active ? "active" : ""}">
-                                <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab"
-                                   data-id="${item.id}"
-                                   class=""
-                                   @click="${this._changeBottomTab}">${item.title}</a>
-                        </li>
-                    `)}
-                </ul>
-               
-                <div class="tab-content">
-                    <div id="cohort-view-tab" class="tab-pane active" role="tabpanel">
-                        <div class="detail-row">
-                            <opencga-cohort-view .opencgaSession="${this.opencgaSession}" .cohort="${this.cohort}">
-                            </opencga-cohort-view>
-                        </div>
-                    </div>
-                    <div id="sample-view-tab" class="tab-pane" role="tabpanel">
-                        <opencga-sample-grid .opencgaSession="${this.opencgaSession}"
-                                                     .query="${{id: this.cohort.samples.map(sample => sample.id).join(",")}}"
-                                                     .config="${1 || this._config.filter.grid}"
-                                                     .samples="${1 || this.samples}"
-                                                     .active="${true}">
-                        </opencga-sample-grid>
-                    </div>
-                </div>
-                
-            </div>
+            <detail-tabs .config="${this._config.detail}" .data="${this.cohort}" .opencgaSession="${this.opencgaSession}"></detail-tabs>
         ` : null;
     }
 

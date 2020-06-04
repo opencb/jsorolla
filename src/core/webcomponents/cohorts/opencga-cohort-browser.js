@@ -188,17 +188,36 @@ export default class OpencgaCohortBrowser extends LitElement {
                     }
                 ],
                 grid: {},
-                detail: [
-                    {
-                        id: "cohort-view",
-                        title: "Details",
-                        active: true
-                    },
-                    {
-                        id: "sample-view",
-                        title: "Samples"
-                    }
-                ]
+                detail: {
+                    title: "Cohort",
+                    showTitle: true,
+                    items: [
+                        {
+                            id: "cohort-view",
+                            name: "Summary",
+                            active: true,
+                            // visible:
+                            render: (cohort, active, opencgaSession) => {
+                                return html`<opencga-cohort-view .opencgaSession="${opencgaSession}" .cohort="${cohort}"></opencga-cohort-view>`;
+                            }
+                        },
+                        {
+                            id: "sample-view",
+                            name: "Samples",
+                            // visible:
+                            render: (cohort, active, opencgaSession) => {
+                                return html`
+                                    <opencga-sample-grid .opencgaSession="${opencgaSession}"
+                                                         .query="${{id: cohort.samples.map(sample => sample.id).join(",")}}"
+                                                         .config="${1}"
+                                                         .samples="${1}"
+                                                         .active="${active}">
+                                    </opencga-sample-grid>
+                                `;
+                            }
+                        }
+                    ]
+                }
             },
             aggregation: {
                 default: ["name"],

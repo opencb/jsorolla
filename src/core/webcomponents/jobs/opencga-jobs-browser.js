@@ -18,7 +18,6 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/opencga-browser.js";
 
-// TODO this component will be the new opencga-file-browser and this configuration will be for browser and facet both
 
 export default class OpencgaJobsBrowser extends LitElement {
 
@@ -233,17 +232,34 @@ export default class OpencgaJobsBrowser extends LitElement {
                 result: {
                     grid: {}
                 },
-                detail: [
-                    {
-                        id: "job-detail",
-                        title: "Summary",
-                        active: true
-                    },
-                    {
-                        id: "log",
-                        title: "Logs"
-                    }
-                ]
+                detail: {
+                    title: "Job",
+                    showTitle: true,
+                    items: [
+                        {
+                            id: "job-view",
+                            name: "Summary",
+                            active: true,
+                            // visible:
+                            render: (job, active, opencgaSession) => {
+                                return html`<opencga-jobs-view .opencgaSession=${opencgaSession} .job="${job}"></opencga-jobs-view>`;
+                            }
+                        },
+                        {
+                            id: "job-log",
+                            name: "Logs",
+                            // visible:
+                            render: (job, active, opencgaSession) => {
+                                return html`
+                            <opencga-jobs-detail-log .opencgaSession=${opencgaSession}
+                                                    .active="${active}"
+                                                    .job="${job}">
+                            </opencga-jobs-detail-log>
+                        `;
+                            }
+                        }
+                    ]
+                }
             },
             aggregation: {
                 default: ["type", "study>>bioformat"],

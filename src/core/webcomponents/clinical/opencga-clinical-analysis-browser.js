@@ -192,13 +192,21 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                     detailView: false,
                     multiSelection: false
                 },
-                detail: [
-                    {
-                        id: "clinical-analysis-view",
-                        title: "Summary",
-                        active: true
-                    }
-                ]
+                detail: {
+                    title: "Clinical Analysis",
+                    showTitle: true,
+                    items: [
+                        {
+                            id: "clinical-analysis-view",
+                            name: "Summary",
+                            active: true,
+                            // visible:
+                            render: (clinicalAnalysis, active, opencgaSession) => {
+                                return html`<opencga-clinical-analysis-view .opencgaSession="${opencgaSession}" .clinicalAnalysis="${clinicalAnalysis}"></opencga-clinical-analysis-view>`;
+                            }
+                        }
+                    ]
+                }
             },
             aggregation: {
                 default: [],

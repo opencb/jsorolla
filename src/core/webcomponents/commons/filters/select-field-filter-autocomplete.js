@@ -150,7 +150,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
 
     addTerm() {
         if (this.input.val()) {
-            this.selectionList.push(this.input.val().split(new RegExp("[,;]")).filter(_ => _));
+            this.selectionList.push(this.input.val().split(new RegExp("[,;]")).filter(Boolean));
             this.filterChange();
             this.input.val("").change();
             this.requestUpdate();
@@ -167,7 +167,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
         reader.onload = () => {
             const plain = reader.result;
             //it handles split on ",", ";", "CR", "LF" and "CRLF"
-            this.selectionList.push(plain.split(/\r\n|\r|\n|,|;/).filter(_ => _));
+            this.selectionList.push(plain.split(/\r\n|\r|\n|,|;/).filter(Boolean));
             $("#file-form").collapse("toggle");
             this.filterChange();
         };
