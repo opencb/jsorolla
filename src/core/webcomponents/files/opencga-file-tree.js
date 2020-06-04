@@ -59,7 +59,6 @@ export default class OpencgaFileTree extends LitElement {
             .then(restResponse => {
                 this.tree = restResponse.getResult(0);
                 this.currentRoot =  restResponse.getResult(0);
-                console.log("this.tree", this.tree);
                 this.requestUpdate();
             })
             .catch(restResponse => {
@@ -74,12 +73,9 @@ export default class OpencgaFileTree extends LitElement {
     }
 
     fetchFolder(fileId) {
-        console.log("fetchFolder", fileId)
         this.opencgaSession.opencgaClient.files().tree(fileId, {study: this.opencgaSession.study.fqn, maxDepth:3})
             .then(restResponse => {
                 const result = restResponse.getResult(0);
-                console.log("result",result)
-                //const folder = this.tree.children.find( node => node.file.id === fileId);
                 const folder = this.searchNode(fileId, this.tree.children);
                 folder.children = result.children;
                 this.currentRoot = result;
@@ -92,13 +88,10 @@ export default class OpencgaFileTree extends LitElement {
 
     searchNode(nodeId, array) {
         for (const f of array) {
-            console.log("NODE", f)
             if (f.file.id === nodeId) {
-                console.log("found", f);
                 return f;
             }
             if (f.file.type === "DIRECTORY") {
-                console.log("recurring", f.file.id, nodeId, "new node:", f)
                 const r = this.searchNode(nodeId, f.children || []);
                 if (r) return r;
             }
@@ -106,8 +99,6 @@ export default class OpencgaFileTree extends LitElement {
     }
 
     renderEntry(root) {
-        console.log("root", root)
-        const file = root.file;
         const children = root.children;
         return html`
             ${this.path(root)}
@@ -123,7 +114,6 @@ export default class OpencgaFileTree extends LitElement {
                 }) }
             </ul>
         `;
-
     }
 
     folder(node) {
@@ -142,7 +132,7 @@ export default class OpencgaFileTree extends LitElement {
         return html`
             <li class="file">
                 <a @click="${() => this.onClickFile(node.file.id)}">
-                    <span class="icon"></span>
+                    <span class="icon"><i class="fas fa-file fa-6x"></i></span>
                     <span class="name">${node.file.name}</span>
                     <span class="details">${UtilsNew.getDiskUsage(node.file.size)}</span>
                 </a>
