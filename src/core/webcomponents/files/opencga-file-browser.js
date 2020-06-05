@@ -128,10 +128,6 @@ export default class OpencgaFileBrowser extends LitElement {
                 {
                     id: "facet-tab",
                     name: "Aggregation stats"
-                },
-                {
-                    id: "tree-tab",
-                    name: "File Explorer"
                 }
             ],
             filter: {

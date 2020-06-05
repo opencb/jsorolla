@@ -50,13 +50,10 @@ export default class OpencgaJobsDetail extends LitElement {
 
     _init() {
         this._prefix = "sf-" + UtilsNew.randomString(6);
-
-        this.activeTab = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
-
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -76,7 +73,6 @@ export default class OpencgaJobsDetail extends LitElement {
             this.opencgaSession.opencgaClient.jobs().info(this.jobId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.job = response.getResult(0);
-                    this.requestUpdate();
                 })
                 .catch(function(reason) {
                     console.error(reason);
@@ -84,20 +80,34 @@ export default class OpencgaJobsDetail extends LitElement {
         }
     }
 
-    _changeBottomTab(e) {
-        const tabId = e.currentTarget.dataset.id;
-        console.log(tabId);
-        $(".nav-tabs", this).removeClass("active");
-        $(".tab-content div[role=tabpanel]", this).hide();
-        for (const tab in this.activeTab) this.activeTab[tab] = false;
-        $("#" + tabId + "-tab", this).show();
-        this.activeTab[tabId] = true;
-        this.requestUpdate();
-    }
-
     getDefaultConfig() {
         return {
-
+            title: "Job",
+            showTitle: true,
+            items: [
+                {
+                    id: "job-view",
+                    name: "Summary",
+                    active: true,
+                    // visible:
+                    render: (job, active, opencgaSession) => {
+                        return html`<opencga-jobs-view .opencgaSession=${opencgaSession} .job="${job}"></opencga-jobs-view>`;
+                    }
+                },
+                {
+                    id: "job-log",
+                    name: "Logs",
+                    // visible:
+                    render: (job, active, opencgaSession) => {
+                        return html`
+                            <opencga-jobs-detail-log .opencgaSession=${opencgaSession}
+                                                    .active="${active}"
+                                                    .job="${job}">
+                            </opencga-jobs-detail-log>
+                        `;
+                    }
+                }
+            ]
         }
     }
 

@@ -60,20 +60,90 @@ export default class OpencgaCohortDetail extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
+            this.cohort = null;
         }
 
-        if (changedProperties.has("cohort")) {
-            console.log("cohort changed", this.cohort)
+        if (changedProperties.has("cohortId")) {
+            this.cohortIdObserver();
         }
+    }
 
-        if (changedProperties.has("activeTab")) {
-            console.log("activeTab")
+    cohortIdObserver() {
+        if (this.opencgaSession && this.cohort) {
+            this.opencgaSession.opencgaClient.cohorts().info(this.cohort, {study: this.opencgaSession.study.fqn})
+                .then(restResponse => {
+                    this.cohort = restResponse.getResult(0);
+                })
+                .catch(restResponse => {
+                    console.error(restResponse);
+                });
         }
     }
 
     getDefaultConfig() {
         return {
+            title: "Cohort",
+            showTitle: true,
+            items: [
+                {
+                    id: "cohort-view",
+                    name: "Summary",
+                    active: true,
+                    // visible:
+                    render: (cohort, active, opencgaSession) => {
+                        return html`<opencga-cohort-view .opencgaSession="${opencgaSession}" .cohort="${cohort}"></opencga-cohort-view>`;
+                    }
+                },
+                {
+                    id: "sample-view",
+                    name: "Samples",
+                    // visible:
+                    render: (cohort, active, opencgaSession) => {
+                        return html`
+                                    <opencga-sample-grid .opencgaSession="${opencgaSession}"
+                                                         .query="${{id: cohort.samples.map(sample => sample.id).join(",")}}"
+                                                         .config="${1}"
+                                                         .samples="${1}"
+                                                         .active="${active}">
+                                    </opencga-sample-grid>
+                                `;
+                    }
+                }
+            ]
         };
+    }
+
+    getDefaultConfig() {
+        return {
+            title: "Cohort",
+            showTitle: true,
+            items: [
+                {
+                    id: "cohort-view",
+                    name: "Summary",
+                    active: true,
+                    // visible:
+                    render: (cohort, active, opencgaSession) => {
+                        return html`<opencga-cohort-view .opencgaSession="${opencgaSession}" .cohort="${cohort}"></opencga-cohort-view>`;
+                    }
+                },
+                {
+                    id: "sample-view",
+                    name: "Samples",
+                    // visible:
+                    render: (cohort, active, opencgaSession) => {
+                        return html`
+                                    <opencga-sample-grid .opencgaSession="${opencgaSession}"
+                                                         .query="${{id: cohort.samples.map(sample => sample.id).join(",")}}"
+                                                         .config="${1}"
+                                                         .samples="${1}"
+                                                         .active="${active}">
+                                    </opencga-sample-grid>
+                                `;
+                    }
+                }
+            ]
+        }
     }
 
     render() {

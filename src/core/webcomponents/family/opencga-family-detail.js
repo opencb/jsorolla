@@ -57,21 +57,42 @@ export default class OpencgaFamilyDetail extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-        }
+            this.family = null;
 
-        if (changedProperties.has("family")) {
         }
 
         if (changedProperties.has("familyId")) {
+            this.familyIdObserver();
         }
+    }
 
-        if (changedProperties.has("activeTab")) {
-            console.log("activeTab")
+    familyIdObserver() {
+        if (this.opencgaSession && this.familyId) {
+            this.opencgaSession.opencgaClient.family().info(this.familyId, {study: this.opencgaSession.study.fqn})
+                .then(restResponse => {
+                    this.family = restResponse.getResult(0);
+                })
+                .catch(restResponse => {
+                    console.error(restResponse);
+                });
         }
     }
 
     getDefaultConfig() {
         return {
+            title: "Family",
+            showTitle: true,
+            items: [
+                {
+                    id: "family-view",
+                    name: "Summary",
+                    active: true,
+                    // visible:
+                    render: (family, active, opencgaSession) => {
+                        return html`<opencga-family-view .opencgaSession="${opencgaSession}" .family="${family}"></opencga-family-view>`;
+                    }
+                }
+            ]
         };
     }
 

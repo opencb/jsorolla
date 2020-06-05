@@ -23,7 +23,8 @@ import "./annotation/variant-annotation-clinical-view.js";
 import "./opencga-variant-cohort-stats.js";
 import "./opencga-variant-samples.js";
 
-export default class OpenCGAVariantDetailView extends LitElement {
+// TODO complete
+export default class OpencgaVariantDetail extends LitElement {
 
     constructor() {
         super();
@@ -60,7 +61,6 @@ export default class OpenCGAVariantDetailView extends LitElement {
         this._prefix = "ovdv-" + UtilsNew.randomString(6);
         // FIXME in case of region as a prop (with value = this.query.region from variant-filter) in case opencga-active-filter deletes a region filter this component is not updated.
         // A temp solution is to add query as prop and watch for its edits in updated() [this.region as prop is not used anymore].
-        this.detailActiveTabs = {};
         this._config = this.getDefaultConfig();
     }
 
@@ -83,7 +83,6 @@ export default class OpenCGAVariantDetailView extends LitElement {
     }
 
     variantIdObserver() {
-        let _this = this;
         if (this.cellbaseClient && this.variantId) {
             this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", {assembly: this.opencgaSession.project.organism.assembly}, {})
                 .then( response => {
@@ -104,15 +103,43 @@ export default class OpenCGAVariantDetailView extends LitElement {
         }
     }
 
-    _changeBottomTab(e) {
-        let _activeTabs = {};
-        for (let detail of this._config.detail) {
-            _activeTabs[detail.id] = (detail.id === e.currentTarget.dataset.id);
-        }
-        this.detailActiveTabs = _activeTabs;
-        this.requestUpdate();
+    getDefaultConfig() {
+        return {
+            title: "Sample",
+            showTitle: true,
+            items: [
+                {
+                    id: "sample-view",
+                    name: "Summary",
+                    active: true,
+                    render: (sample, active, opencgaSession) => {
+                        return html`<opencga-sample-view .sample="${sample}" .opencgaSession="${opencgaSession}"></opencga-sample-view>`;
+                    }
+                },
+                {
+                    id: "sample-variant-stats-view",
+                    name: "Variant Stats",
+                    render: (sample, active, opencgaSession) => {
+                        return html`<sample-variant-stats-view .sampleId="${sample.id}" .opencgaSession="${opencgaSession}"></sample-variant-stats-view>`;
+                    }
+                },
+                {
+                    id: "individual-view",
+                    name: "Individual",
+                    render: (sample, active, opencgaSession) => {
+                        return html`<opencga-individual-view .individualId="${sample?.individualId}" .opencgaSession="${opencgaSession}"></opencga-individual-view>`;
+                    }
+                },
+                {
+                    id: "file-view",
+                    name: "Files",
+                    render: (sample, active, opencgaSession) => {
+                        return html`<opencga-file-grid .opencgaSession="${opencgaSession}" .query="${{samples: sample.id}}" .search="${{samples: sample.id}}"></opencga-file-grid>`;
+                    }
+                }
+            ]
+        };
     }
-
     render() {
         if (this.variant === undefined || this.variant.annotation === undefined) {
             return;
@@ -310,4 +337,4 @@ export default class OpenCGAVariantDetailView extends LitElement {
     }
 }
 
-customElements.define("opencga-variant-detail-view", OpenCGAVariantDetailView);
+customElements.define("opencga-variant-detail", OpencgaVariantDetail);

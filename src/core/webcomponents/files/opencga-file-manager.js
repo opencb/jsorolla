@@ -20,7 +20,7 @@ import "./opencga-file-view.js";
 import "../commons/view/data-form.js";
 import "../loading-spinner.js";
 
-export default class OpencgaFileTree extends LitElement {
+export default class OpencgaFileManager extends LitElement {
 
     constructor() {
         super();
@@ -74,18 +74,17 @@ export default class OpencgaFileTree extends LitElement {
         }
     }
 
-    fetchFolder(fileId) {
-        this.opencgaSession.opencgaClient.files().tree(fileId, {study: this.opencgaSession.study.fqn, maxDepth: 3})
-            .then(restResponse => {
-                const result = restResponse.getResult(0);
-                const folder = this.searchNode(fileId, this.tree.children);
-                folder.children = result.children;
-                this.currentRoot = result;
-                this.requestUpdate();
-            })
-            .catch(restResponse => {
-                console.error(restResponse);
-            });
+    async fetchFolder(fileId) {
+        try {
+            const restResponse = await this.opencgaSession.opencgaClient.files().tree(fileId, {study: this.opencgaSession.study.fqn, maxDepth: 3})
+            const result = restResponse.getResult(0);
+            const folder = this.searchNode(fileId, this.tree.children);
+            folder.children = result.children;
+            this.currentRoot = result;
+            this.requestUpdate();
+        } catch (restResponse) {
+            console.error(restResponse);
+        }
     }
 
     searchNode(nodeId, array) {
@@ -117,6 +116,46 @@ export default class OpencgaFileTree extends LitElement {
             </ul>
         `;
     }
+
+    renderTree(root) {
+        const children = root.children;
+        const id = `tree-${root.file.id.replace(/:/g, "-")}`;
+        return html`
+            <span class="folder-name ${id}" @click="${() => this.toggleFolder(id, root)}"> ${root.file.name} </span>
+            <ul class="">
+                ${children.map(node => {
+                    if (node.file.type === "DIRECTORY") {
+                        return html`
+                            <li class="folder">
+                                <span class="badge">${node.children.length}</span>
+                                ${node.file.name}
+                                ${this.renderTree(node)}
+                            </li>`;
+                    } else if (node.file.type === "FILE") {
+                        return html`
+                            <p class="file" @click="${() => this.onClickFile(node.file.id)}">
+                                FILE : ${node.file.name}
+                            </p>`;
+                    } else {
+                        throw new Error("Type not recognized " + node.file.type);
+                    }
+                })}
+            </ul>
+        `;
+    }
+
+    async toggleFolder(id, node) {
+        // TODO avoid this check and to execute fetchFolder in case of collapsing an <ul>
+        if (id !== "tree-") {
+            console.log("toggle" + node.file.id);
+            console.log($("." + id + " ul"));
+            await this.fetchFolder(node.file.id);
+        } else {
+            console.log("no id")
+        }
+        $("." + id + " + ul").slideToggle();
+    }
+
 
     folder(node) {
         return html`
@@ -183,14 +222,26 @@ export default class OpencgaFileTree extends LitElement {
                     <i aria-hidden="true" class="fas fa-file"></i>&nbsp;File Manager
                 </h2>
             </div>
-            ${this.currentRoot ? html`
-                <div>
-                    ${this.renderFileManager(this.currentRoot) }
+            
+            <div class="row">
+                <div class="col-md-2 left-menu file-manager-tree">
+                    ${this.tree ? html`${this.renderTree(this.tree)}` : null}
+                    
                 </div>
-                <opencga-file-view .opencgaSession="${this.opencgaSession}" .fileId="${this.fileId}"></opencga-file-view>
-            ` : html`<loading-spinner></loading-spinner>`}
+
+                <div class="col-md-10">
+                    ${this.currentRoot ? html`
+                        <div>
+                            ${this.renderFileManager(this.currentRoot)}
+                        </div>
+                    <opencga-file-view .opencgaSession="${this.opencgaSession}" .fileId="${this.fileId}"></opencga-file-view>
+                ` : html`<loading-spinner></loading-spinner>`}
+                    
+                </div>
+            </div>
+            
         `;
     }
 }
 
-customElements.define("opencga-file-tree", OpencgaFileTree);
+customElements.define("opencga-file-manager", OpencgaFileManager);

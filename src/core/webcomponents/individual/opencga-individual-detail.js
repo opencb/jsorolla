@@ -49,7 +49,11 @@ export default class OpencgaIndividualDetail extends LitElement {
 
     _init() {
         this._prefix = "id-" + UtilsNew.randomString(6);
-        this._config = this.getDefaultConfig();
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
@@ -70,12 +74,11 @@ export default class OpencgaIndividualDetail extends LitElement {
     individualIdObserver() {
         if (this.opencgaSession && this.individualId) {
             this.opencgaSession.opencgaClient.individuals().info(this.individualId, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    this.individual = response.responses[0].results[0];
-                    this.requestUpdate();
+                .then(restResponse => {
+                    this.individual = restResponse.getResult(0);
                 })
-                .catch(reason => {
-                    console.error(reason);
+                .catch(restResponse => {
+                    console.error(restResponse);
                 });
         }
     }

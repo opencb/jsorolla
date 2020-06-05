@@ -50,7 +50,6 @@ export default class OpencgaClinicalAnalysisDetail extends LitElement {
 
     _init() {
         this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
-        this.activeTab = {};
     }
 
     connectedCallback() {
@@ -60,33 +59,46 @@ export default class OpencgaClinicalAnalysisDetail extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.clinicalAnalysis = null
+            this.clinicalAnalysis = null;
         }
 
-        if (changedProperties.has("clinicalAnalysis")) {
-
+        if (changedProperties.has("clinicalAnalysisId")) {
+            this.clinicalAnalysisIdObserver();
         }
 
-        if (changedProperties.has("activeTab")) {
-            console.log("activeTab")
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
         }
     }
 
-    _changeBottomTab(e) {
-        const tabId = e.currentTarget.dataset.id;
-        console.log(tabId)
-        $(".nav-tabs", this).removeClass("active");
-        $(".tab-content div[role=tabpanel]", this).hide();
-        for (const tab in this.activeTab) this.activeTab[tab] = false;
-        $("#" + tabId + "-tab", this).show();
-        this.activeTab[tabId] = true;
-        this.requestUpdate();
+    clinicalAnalysisIdObserver() {
+        if (this.opencgaSession && this.clinicalAnalysisId) {
+            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                .then(restResponse => {
+                    this.clinicalAnalysis = restResponse.getResult(0);
+                })
+                .catch(restResponse => {
+                    console.error(restResponse);
+                });
+        }
     }
 
     getDefaultConfig() {
         return {
             title: "Clinical Analysis",
-            showTitle: true
+            showTitle: true,
+            items: [
+                {
+                    id: "clinical-analysis-view",
+                    name: "Summary",
+                    active: true,
+                    // visible:
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`<opencga-clinical-analysis-view .opencgaSession="${opencgaSession}" .clinicalAnalysis="${clinicalAnalysis}"></opencga-clinical-analysis-view>`;
+                    }
+                }
+            ]
         };
     }
 

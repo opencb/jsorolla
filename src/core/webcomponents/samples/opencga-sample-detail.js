@@ -50,7 +50,11 @@ export default class OpencgaSampleDetail extends LitElement {
 
     _init() {
         this._prefix = "sd-" + UtilsNew.randomString(6);
-        this._config = this.getDefaultConfig();
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
@@ -72,8 +76,7 @@ export default class OpencgaSampleDetail extends LitElement {
         if (this.opencgaSession && this.sampleId) {
             this.opencgaSession.opencgaClient.samples().info(this.sampleId, {study: this.opencgaSession.study.fqn, includeIndividual: true})
                 .then(response => {
-                    this.sample = response.responses[0].results[0];
-                    this.requestUpdate();
+                    this.sample = response.getResult(0);
                 })
                 .catch(reason => {
                     console.error(reason);

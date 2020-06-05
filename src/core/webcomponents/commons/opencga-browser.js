@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import PolymerUtils from "../PolymerUtils.js";
 import "./opencga-facet-result-view.js";
 import "./opencga-active-filters.js";
 import "./filters/select-field-filter.js";
@@ -26,7 +25,6 @@ import "../loading-spinner.js";
 import "../files/opencga-file-grid.js";
 import "../files/opencga-file-filter.js";
 import "../files/opencga-file-detail.js";
-import "../files/opencga-file-tree.js";
 import "../samples/opencga-sample-grid.js";
 import "../samples/opencga-sample-filter.js";
 import "../samples/opencga-sample-detail.js";
@@ -340,10 +338,6 @@ export default class OpencgaBrowser extends LitElement {
                                 </opencga-file-detail>
                             </div>
                             ${facetView}
-                            <div id="tree-tab" class="content-tab">
-                                <opencga-file-tree .opencgaSession="${this.opencgaSession}">
-                                </opencga-file-tree>
-                            </div>
                             `;
             case "samples":
                 this.endpoint = this.opencgaSession.opencgaClient.samples();

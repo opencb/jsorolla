@@ -32,9 +32,6 @@ export default class OpencgaProjects extends LitElement {
 
     static get properties() {
         return {
-            opencgaClient: {
-                type: Object
-            },
             opencgaSession: {
                 type: Object
             },
@@ -62,16 +59,7 @@ export default class OpencgaProjects extends LitElement {
         };
         this.data = {};
 
-        this.plots = ["format", "bioformat", "status"]
-    }
-
-    updated(changedProperties) {
-        if (changedProperties.has("projects")) {
-            // this.projectsChanged();
-        }
-        if (changedProperties.has("studySummaries")) {
-            this.summariesChanged();
-        }
+        this.plots = ["format", "bioformat", "status"];
     }
 
     firstUpdated(_changedProperties) {
@@ -93,6 +81,15 @@ export default class OpencgaProjects extends LitElement {
         if (!this.requestDone) {
             this.facetQuery();
             this.requestDone = true;
+        }
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.has("projects")) {
+            // this.projectsChanged();
+        }
+        if (changedProperties.has("studySummaries")) {
+            this.summariesChanged();
         }
     }
 
@@ -340,7 +337,7 @@ export default class OpencgaProjects extends LitElement {
                 ],
                 studies: []
             };
-            const catalogStats = this.opencgaClient.studies().aggregationStats(project.studies.map( study => study.fqn).join(","), {}).then( response => {
+            const catalogStats = this.opencgaSession.opencgaClient.studies().aggregationStats(project.studies.map( study => study.fqn).join(","), {}).then( response => {
                 // handle opencga 1.4 and 2
                 const r = response.getResult(0).results ? response.getResult(0).results[0] : response.getResult(0);
                 //console.log("R", r);
@@ -392,7 +389,7 @@ export default class OpencgaProjects extends LitElement {
                 this.requestUpdate();
             });
 
-            this.opencgaClient.variants().aggregationStats({project: project.id, fields: "studies"}).then(response => {
+            this.opencgaSession.opencgaClient.variants().aggregationStats({project: project.id, fields: "studies"}).then(response => {
                 const r = response.getResult(0).results ? response.getResult(0).results[0] : response.getResult(0);
                 //console.log("variants", r);
                 this.variantsCount.update(this.totalCount.variants += r.count);
