@@ -35,51 +35,76 @@ export default class OpencgaIndividualDetail extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
-                type: Object
-            },
-            // this is not actually used at the moment
             individualId: {
-                type: Object
+                type: String
             },
             individual: {
                 type: Object
-            }
+            },
+            config: {
+                type: Object
+            },
         };
     }
 
     _init() {
-        this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._prefix = "id-" + UtilsNew.randomString(6);
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
+            this.individual = null;
         }
 
-        if (changedProperties.has("individual")) {
-
+        if (changedProperties.has("individualId")) {
+            this.individualIdObserver();
         }
 
-        if (changedProperties.has("activeTab")) {
-            console.log("activeTab")
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
         }
     }
+
+    individualIdObserver() {
+        if (this.opencgaSession && this.individualId) {
+            this.opencgaSession.opencgaClient.individuals().info(this.individualId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.individual = response.responses[0].results[0];
+                    this.requestUpdate();
+                })
+                .catch(reason => {
+                    console.error(reason);
+                });
+        }
+    }
+
     getDefaultConfig() {
         return {
+            title: "Individual",
+            showTitle: true,
+            items: [
+                {
+                    id: "individual-view",
+                    name: "Summary",
+                    active: true,
+                    render: (individual, active, opencgaSession) => {
+                        return html`<opencga-individual-view .individual="${individual}" .opencgaSession="${opencgaSession}"></opencga-individual-view>`;
+                    }
+                }
+            ]
         };
     }
 
     render() {
-        return this.individual ? html`
-            <detail-tabs .config="${this._config.detail}" .data="${this.individual}" .opencgaSession="${this.opencgaSession}"></detail-tabs>
-        ` : null;
+        if (this.opencgaSession && this.individual) {
+            return html`
+                <detail-tabs .data="${this.individual}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`;
+        } else {
+            return html`<h3>No valid session or individual found</h3>`;
+        }
     }
-
 }
 
 customElements.define("opencga-individual-detail", OpencgaIndividualDetail);

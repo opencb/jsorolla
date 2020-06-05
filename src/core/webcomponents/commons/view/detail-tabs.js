@@ -94,7 +94,9 @@ export default class DetailTabs extends LitElement {
                     ${this._config.items.length && this._config.items.map(item => 
                         html`
                             <li role="presentation" class="${classMap({active: item.active})}">
-                                <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}" @click="${this._changeBottomTab}">${item.name}</a>
+                                <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}" @click="${this._changeBottomTab}">
+                                    <span style="font-weight: bold; font-size: larger">${item.name}</span>
+                                </a>
                             </li>
                         `)
                     }

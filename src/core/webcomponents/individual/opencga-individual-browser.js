@@ -258,9 +258,8 @@ export default class OpencgaIndividualBrowser extends LitElement {
                             id: "individual-view",
                             name: "Summary",
                             active: true,
-                            // visible:
                             render: (individual, active, opencgaSession) => {
-                                return html`<opencga-individual-view .opencgaSession="${opencgaSession}" .individual="${individual}"></opencga-individual-view>`;
+                                return html`<opencga-individual-view .individual="${individual}" .opencgaSession="${opencgaSession}"></opencga-individual-view>`;
                             }
                         }
                     ]

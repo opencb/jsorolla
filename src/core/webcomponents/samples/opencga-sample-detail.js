@@ -55,7 +55,11 @@ export default class OpencgaSampleDetail extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.sample = null
+            this.sample = null;
+        }
+
+        if (changedProperties.has("sampleId")) {
+            this.sampleIdObserver();
         }
 
         if (changedProperties.has("config")) {
