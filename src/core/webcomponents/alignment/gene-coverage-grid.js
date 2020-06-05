@@ -65,6 +65,9 @@ export default class GeneCoverageGrid extends LitElement {
 
         this.file = "SonsAlignedBamFile.bam";
         this.gene = "TP53";
+
+        this.coverageArray = [1, 5, 10, 15, 20, 25, 30, 40, 50, 60];
+        this.coverageQuality = [100, 95, 90, 85, 80, 75, 70, 65, 60, 55];
     }
 
     connectedCallback() {
@@ -143,15 +146,16 @@ export default class GeneCoverageGrid extends LitElement {
     }
 
     percentageFormatter(v) {
-        return parseFloat(v).toFixed(2) + "%"
+        return parseFloat(v).toFixed(2) + "%";
     }
 
-    cellStyle(value, row, index) {
-        const color = value > 80 ? "rgba(176, 255, 199, 0.2)" : "rgba(255,194,194,0.2)"
+    cellStyle(value, row, index, field) {
+        let coverage = Number.parseInt(field.split(".")[1]);
+        let thresholdValue = this.coverageQuality ? this.coverageQuality[coverage] : 80;
+        const color = value >= thresholdValue ? "rgba(176, 255, 199, 0.2)" : "rgba(255,194,194,0.2)"
         return {
             css: {
                 background: `linear-gradient(90deg, ${color} 0%, ${color} ${value}%, transparent ${value}%, transparent ${value}%)`
-
             }
         }
     }
@@ -166,61 +170,61 @@ export default class GeneCoverageGrid extends LitElement {
                 title: "> 1x",
                 field: "depths.0",
                 formatter: this.percentageFormatter,
-                cellStyle: this.cellStyle
+                cellStyle: this.cellStyle.bind(this)
             },
             {
                 title: "> 5x",
                 field: "depths.1",
                 formatter: this.percentageFormatter,
-                cellStyle: this.cellStyle
+                cellStyle: this.cellStyle.bind(this)
             },
             {
                 title: "> 10x",
                 field: "depths.2",
                 formatter: this.percentageFormatter,
-                cellStyle: this.cellStyle
+                cellStyle: this.cellStyle.bind(this)
             },
             {
                 title: "> 15x",
                 field: "depths.3",
                 formatter: this.percentageFormatter,
-                cellStyle: this.cellStyle
+                cellStyle: this.cellStyle.bind(this)
             },
             {
                 title: "> 20x",
                 field: "depths.4",
                 formatter: this.percentageFormatter,
-                cellStyle: this.cellStyle
+                cellStyle: this.cellStyle.bind(this)
             },
             {
                 title: "> 25x",
                 field: "depths.5",
                 formatter: this.percentageFormatter,
-                cellStyle: this.cellStyle
+                cellStyle: this.cellStyle.bind(this)
             },
             {
                 title: "> 30x",
                 field: "depths.6",
                 formatter: this.percentageFormatter,
-                cellStyle: this.cellStyle
+                cellStyle: this.cellStyle.bind(this)
             },
             {
                 title: "> 40x",
                 field: "depths.7",
                 formatter: this.percentageFormatter,
-                cellStyle: this.cellStyle
+                cellStyle: this.cellStyle.bind(this)
             },
             {
                 title: "> 50x",
                 field: "depths.8",
                 formatter: this.percentageFormatter,
-                cellStyle: this.cellStyle
+                cellStyle: this.cellStyle.bind(this)
             },
             {
                 title: "> 60x",
                 field: "depths.9",
                 formatter: this.percentageFormatter,
-                cellStyle: this.cellStyle
+                cellStyle: this.cellStyle.bind(this)
             }
         ];
 
