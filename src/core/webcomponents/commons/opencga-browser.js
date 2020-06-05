@@ -358,7 +358,7 @@ export default class OpencgaBrowser extends LitElement {
                                                      @selectrow="${e => this.onClickRow(e, "sample")}">
                             </opencga-sample-grid>
                             <opencga-sample-detail .opencgaSession="${this.opencgaSession}"
-                                                    .config="${this._config.filter}"
+                                                    .config="${this._config.filter.detail}"
                                                     .sampleId="${this.detail.sample?.id}"
                                                     .sample="${this.detail.sample}">>
                             </opencga-sample-detail>

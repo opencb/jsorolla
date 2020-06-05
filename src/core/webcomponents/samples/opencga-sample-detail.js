@@ -36,27 +36,21 @@ export default class OpencgaSampleDetail extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
-                type: Object
-            },
-            // this is not actually used at the moment
             sampleId: {
                 type: String
             },
             sample: {
                 type: Object
-            }
+            },
+            config: {
+                type: Object
+            },
         };
     }
 
     _init() {
-        this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
-        this.activeTab = {};
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._prefix = "sd-" + UtilsNew.randomString(6);
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
@@ -64,34 +58,71 @@ export default class OpencgaSampleDetail extends LitElement {
             this.sample = null
         }
 
-        if (changedProperties.has("sample")) {
-            this.sampleObserver();
-        }
-
-        if (changedProperties.has("activeTab")) {
-            console.log("activeTab")
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
         }
     }
 
-    sampleObserver() {
-        //console.log("sampleObserver");
-        //console.log("OPENCGA_INDIVIDUAL", this.sample?.attributes?.OPENCGA_INDIVIDUAL);
-        //this.individual = this.sample?.attributes?.OPENCGA_INDIVIDUAL;
-        this.requestUpdate();
+    sampleIdObserver() {
+        if (this.opencgaSession && this.sampleId) {
+            this.opencgaSession.opencgaClient.samples().info(this.sampleId, {study: this.opencgaSession.study.fqn, includeIndividual: true})
+                .then(response => {
+                    this.sample = response.responses[0].results[0];
+                    this.requestUpdate();
+                })
+                .catch(reason => {
+                    console.error(reason);
+                });
+        }
     }
-
 
     getDefaultConfig() {
         return {
+            title: "Sample",
+            showTitle: true,
+            items: [
+                {
+                    id: "sample-view",
+                    name: "Summary",
+                    active: true,
+                    render: (sample, active, opencgaSession) => {
+                        return html`<opencga-sample-view .sample="${sample}" .opencgaSession="${opencgaSession}"></opencga-sample-view>`;
+                    }
+                },
+                {
+                    id: "sample-variant-stats-view",
+                    name: "Variant Stats",
+                    render: (sample, active, opencgaSession) => {
+                        return html`<sample-variant-stats-view .sampleId="${sample.id}" .opencgaSession="${opencgaSession}"></sample-variant-stats-view>`;
+                    }
+                },
+                {
+                    id: "individual-view",
+                    name: "Individual",
+                    render: (sample, active, opencgaSession) => {
+                        return html`<opencga-individual-view .individualId="${sample?.individualId}" .opencgaSession="${opencgaSession}"></opencga-individual-view>`;
+                    }
+                },
+                {
+                    id: "file-view",
+                    name: "Files",
+                    render: (sample, active, opencgaSession) => {
+                        return html`<opencga-file-grid .opencgaSession="${opencgaSession}" .query="${{samples: sample.id}}" .search="${{samples: sample.id}}"></opencga-file-grid>`;
+                    }
+                }
+            ]
         };
     }
 
     render() {
-        return this.sample ? html`
-            <detail-tabs .config="${this._config.detail}" .data="${this.sample}" .opencgaSession="${this.opencgaSession}"></detail-tabs>
-        ` : null;
+        if (this.opencgaSession && this.sample) {
+            return html`
+                <detail-tabs .data="${this.sample}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`;
+        } else {
+            return html`<h3>No valid session or sample found</h3>`;
+        }
     }
-
 }
 
 customElements.define("opencga-sample-detail", OpencgaSampleDetail);
