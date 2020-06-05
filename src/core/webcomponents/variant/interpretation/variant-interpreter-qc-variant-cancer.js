@@ -112,12 +112,27 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
         $("#" + this._prefix + "SaveModal").modal("show");
     }
 
+    onFilterIdChange(e) {
+        this.filterId = e.currentTarget.value;
+    }
+
+    onFilterDescriptionChange(e) {
+        this.filterDescription = e.currentTarget.value;
+    }
+
+
     onClear(e) {
         debugger
     }
 
     onSave(e) {
-
+debugger
+        let variantQc = {
+            id: this.filterId,
+            query: this.query,
+            sampleId: this.sampleId
+            // description: this.filterDescription,
+        };
         this.opencgaSession.opencgaClient.clinical().updateQualityControl(this.clinicalAnalysis.id, {
             study: this.opencgaSession.study.fqn,
             ...this.query
@@ -290,7 +305,7 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                                     <label class="control-label col-md-1 jso-label-title">Filter ID</label>
                                     <div class="col-md-6">
                                         <input type="text" id="${this._prefix}CommentInterpretation" class="${this._prefix}TextInput form-control"
-                                               placeholder="Add a filter ID" data-field="comment">
+                                               placeholder="Add a filter ID" data-field="comment" @input="${this.onFilterIdChange}">
                                     </div>
                                 </div>
     
@@ -299,7 +314,7 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                                     <div class="col-md-6">
                                         <textarea id="${this._prefix}DescriptionInterpretation" class="${this._prefix}TextInput form-control"
                                               placeholder="Description of the filter" data-field="description"
-                                              @input="${this.onInputChange}"></textarea>
+                                              @input="${this.onFilterDescriptionChange}"></textarea>
                                     </div>
                                 </div>
                             </div>
