@@ -37,28 +37,16 @@ export default class OpencgaIndividualBrowser extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            cellbaseClient: {
-                type: Object
-            },
-            populationFrequencies: {
-                type: Object
-            },
-            consequenceTypes: {
-                type: Object
-            },
-            proteinSubstitutionScores: {
-                type: Object
-            },
             query: {
-                type: Object
-            },
-            config: {
                 type: Object
             },
             facetQuery: {
                 type: Object
             },
             selectedFacet: {
+                type: Object
+            },
+            config: {
                 type: Object
             }
         };
@@ -67,21 +55,6 @@ export default class OpencgaIndividualBrowser extends LitElement {
     _init() {
         this._prefix = "facet" + UtilsNew.randomString(6);
 
-        this.checkProjects = false;
-
-        this.activeFilterAlias = {
-            "annot-xref": "XRef",
-            "biotype": "Biotype",
-            "annot-ct": "Consequence Types",
-            "alternate_frequency": "Population Frequency",
-            "annot-functional-score": "CADD",
-            "protein_substitution": "Protein Substitution",
-            "annot-go": "GO",
-            "annot-hpo": "HPO"
-        };
-
-        this.fixedFilters = ["studies"];
-
         // These are for making the queries to server
         this.facetFields = [];
         this.facetRanges = [];
@@ -89,19 +62,15 @@ export default class OpencgaIndividualBrowser extends LitElement {
         this.facetFieldsName = [];
         this.facetRangeFields = [];
 
-        this.results = [];
-        this._showInitMessage = true;
-
         this.facets = new Set();
         this.facetFilters = [];
 
         this.facetActive = true;
-        this.query = {};
-        this.preparedQuery = {};
         this.selectedFacet = {};
         this.selectedFacetFormatted = {};
         this.errorState = false;
 
+        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
@@ -109,7 +78,11 @@ export default class OpencgaIndividualBrowser extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    firstUpdated(_changedProperties) {
+    updated(changedProperties) {
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
+        }
     }
 
     getDefaultConfig() {
@@ -369,21 +342,15 @@ export default class OpencgaIndividualBrowser extends LitElement {
         };
     }
 
-
     render() {
         return this._config ? html`
             <opencga-browser  resource="individuals"
                             .opencgaSession="${this.opencgaSession}"
                             .query="${this.query}"
-                            .config="${this._config}"
-                            .cellbaseClient="${this.cellbaseClient}"
-                            .populationFrequencies="${this.populationFrequencies}"
-                            .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                            .consequenceTypes="${this.consequenceTypes}">
+                            .config="${this._config}">
             </opencga-browser>` : null;
     }
 
 }
-
 
 customElements.define("opencga-individual-browser", OpencgaIndividualBrowser);

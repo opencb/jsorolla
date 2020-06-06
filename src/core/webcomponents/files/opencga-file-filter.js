@@ -43,12 +43,6 @@ export default class OpencgaFileFilter extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            opencgaClient: {
-                type: Object
-            },
-            files: {
-                type: Array
-            },
             query: {
                 type: Object
             },

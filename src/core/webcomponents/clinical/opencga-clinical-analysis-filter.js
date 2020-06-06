@@ -36,9 +36,6 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            analyses: {
-                type: Array
-            },
             query: {
                 type: Object
             },

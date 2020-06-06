@@ -69,7 +69,7 @@ export default class OpencgaFileDetail extends LitElement {
 
     fileIdObserver() {
         if (this.opencgaSession && this.fileId) {
-            this.opencgaSession.opencgaClient.family().info(this.fileId, {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.files().info(this.fileId, {study: this.opencgaSession.study.fqn})
                 .then(restResponse => {
                     this.file = restResponse.getResult(0);
                 })

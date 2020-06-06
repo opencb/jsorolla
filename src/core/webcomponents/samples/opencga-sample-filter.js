@@ -268,10 +268,6 @@ export default class OpencgaSampleFilter extends LitElement {
             case "date":
                 content = html`<opencga-date-filter .config="${this.dateFilterConfig}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>`;
                 break;
-            case "study":
-                content = html`<feature-filter .cellbaseClient="${this.cellbaseClient}" .query=${this.query}
-                                            @filterChange="${e => this.onFilterChange("xref", e.detail.value)}"></feature-filter>`;
-                break;
             default:
                 console.error("Filter component not found");
         }

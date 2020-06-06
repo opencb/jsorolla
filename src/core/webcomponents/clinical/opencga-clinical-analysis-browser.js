@@ -37,25 +37,7 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            cellbaseClient: {
-                type: Object
-            },
-            populationFrequencies: {
-                type: Object
-            },
-            consequenceTypes: {
-                type: Object
-            },
-            proteinSubstitutionScores: {
-                type: Object
-            },
             query: {
-                type: Object
-            },
-            search: {
-                type: Object
-            },
-            config: {
                 type: Object
             },
             facetQuery: {
@@ -64,29 +46,14 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
             selectedFacet: {
                 type: Object
             },
-            resource: {
-                type: String
+            config: {
+                type: Object
             }
         };
     }
 
     _init() {
-        this._prefix = "facet" + UtilsNew.randomString(6);
-
-        this.checkProjects = false;
-
-        this.activeFilterAlias = {
-            "annot-xref": "XRef",
-            "biotype": "Biotype",
-            "annot-ct": "Consequence Types",
-            "alternate_frequency": "Population Frequency",
-            "annot-functional-score": "CADD",
-            "protein_substitution": "Protein Substitution",
-            "annot-go": "GO",
-            "annot-hpo": "HPO"
-        };
-
-        this.fixedFilters = ["studies"];
+        this._prefix = "cab" + UtilsNew.randomString(6);
 
         // These are for making the queries to server
         this.facetFields = [];
@@ -94,26 +61,25 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
 
         this.facetFieldsName = [];
         this.facetRangeFields = [];
-
-        this.results = [];
-        this._showInitMessage = true;
-
         this.facets = new Set();
         this.facetFilters = [];
-
         this.facetActive = true;
-        this.query = {};
-        this.preparedQuery = {};
-        this.selectedFacet = {};
         this.selectedFacetFormatted = {};
         this.errorState = false;
 
+        this._config = this.getDefaultConfig();
     }
 
-    // eslint-disable-next-line require-jsdoc
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
+        }
     }
 
     getDefaultConfig() {
@@ -200,7 +166,6 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                             id: "clinical-analysis-view",
                             name: "Summary",
                             active: true,
-                            // visible:
                             render: (clinicalAnalysis, active, opencgaSession) => {
                                 return html`<opencga-clinical-analysis-view .opencgaSession="${opencgaSession}" .clinicalAnalysis="${clinicalAnalysis}"></opencga-clinical-analysis-view>`;
                             }
@@ -626,12 +591,10 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
             <opencga-browser  resource="clinical-analysis"
                             .opencgaSession="${this.opencgaSession}"
                             .query="${this.query}"
-                            .config="${this._config}"
-                            .cellbaseClient="${this.cellbaseClient}">
+                            .config="${this._config}">
             </opencga-browser>` : null;
     }
 
 }
-
 
 customElements.define("opencga-clinical-analysis-browser", OpencgaClinicalAnalysisBrowser);

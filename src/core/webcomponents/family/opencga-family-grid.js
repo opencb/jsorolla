@@ -102,7 +102,6 @@ export default class OpencgaFamilyGrid extends LitElement {
         } else {
             this.renderRemoteTable();
         }
-        this.requestUpdate();
     }
 
     renderRemoteTable(active) {
@@ -116,11 +115,12 @@ export default class OpencgaFamilyGrid extends LitElement {
         if (this.opencgaSession.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
             const filters = {...this.query};
 
-            if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
-                JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
-                // Abort destroying and creating again the grid. The filters have not changed
-                return;
-            }
+            // // Abort destroying and creating again the grid. The filters have not changed
+            // if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
+            //     JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
+            //     return;
+            // }
+
             // Store the current filters
             this.lastFilters = {...filters};
 
