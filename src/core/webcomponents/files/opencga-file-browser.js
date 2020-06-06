@@ -217,7 +217,6 @@ export default class OpencgaFileBrowser extends LitElement {
                             id: "file-view",
                             name: "Summary",
                             active: true,
-                            // visible:
                             render: (file, active, opencgaSession) => {
                                 return html` <opencga-file-view .opencgaSession="${opencgaSession}" .file="${file}"></opencga-file-view>`;
                             }
@@ -225,7 +224,6 @@ export default class OpencgaFileBrowser extends LitElement {
                         {
                             id: "file-preview",
                             name: "Preview",
-                            // visible:
                             render: (file, active, opencgaSession) => {
                                 return html`<opencga-file-preview .opencgaSession=${opencgaSession} .active="${active}" .file="${file}"></opencga-file-preview>`;
                             }

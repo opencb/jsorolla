@@ -35,26 +35,21 @@ export default class OpencgaClinicalAnalysisDetail extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
-                type: Object
-            },
-            // this is not actually used at the moment
             clinicalAnalysisId: {
-                type: Object
+                type: String
             },
             clinicalAnalysis: {
+                type: Object
+            },
+            config: {
                 type: Object
             }
         };
     }
 
     _init() {
-        this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._prefix = "sf-" + UtilsNew.randomString(6);
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
@@ -93,7 +88,6 @@ export default class OpencgaClinicalAnalysisDetail extends LitElement {
                     id: "clinical-analysis-view",
                     name: "Summary",
                     active: true,
-                    // visible:
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`<opencga-clinical-analysis-view .opencgaSession="${opencgaSession}" .clinicalAnalysis="${clinicalAnalysis}"></opencga-clinical-analysis-view>`;
                     }
@@ -103,11 +97,11 @@ export default class OpencgaClinicalAnalysisDetail extends LitElement {
     }
 
     render() {
-        return this.clinicalAnalysis ? html`
-            <detail-tabs .config="${this._config.detail}" .data="${this.clinicalAnalysis}" .opencgaSession="${this.opencgaSession}"></detail-tabs>
-        ` : null;
+        return this.opencgaSession && this.clinicalAnalysis
+            ? html`
+                <detail-tabs .data="${this.clinicalAnalysis}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`
+            : null;
     }
-
 }
 
 customElements.define("opencga-clinical-analysis-detail", OpencgaClinicalAnalysisDetail);

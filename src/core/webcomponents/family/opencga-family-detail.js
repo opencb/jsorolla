@@ -47,22 +47,22 @@ export default class OpencgaFamilyDetail extends LitElement {
     }
 
     _init() {
-        this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._prefix = "sf-" + UtilsNew.randomString(6);
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.family = null;
-
         }
 
         if (changedProperties.has("familyId")) {
             this.familyIdObserver();
+        }
+
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
         }
     }
 
@@ -87,7 +87,6 @@ export default class OpencgaFamilyDetail extends LitElement {
                     id: "family-view",
                     name: "Summary",
                     active: true,
-                    // visible:
                     render: (family, active, opencgaSession) => {
                         return html`<opencga-family-view .opencgaSession="${opencgaSession}" .family="${family}"></opencga-family-view>`;
                     }
@@ -97,9 +96,10 @@ export default class OpencgaFamilyDetail extends LitElement {
     }
 
     render() {
-        return this.family ? html`
-            <detail-tabs .config="${this._config.detail}" .data="${this.family}" .opencgaSession="${this.opencgaSession}"></detail-tabs>
-        ` : null;
+        return this.opencgaSession && this.family
+            ? html`
+                <detail-tabs .data="${this.family}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`
+            : null;
     }
 
 }

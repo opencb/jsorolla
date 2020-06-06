@@ -37,7 +37,7 @@ export default class OpencgaJobsDetail extends LitElement {
                 type: Object
             },
             jobId: {
-                type: Object
+                type: String
             },
             job: {
                 type: Object
@@ -50,14 +50,14 @@ export default class OpencgaJobsDetail extends LitElement {
 
     _init() {
         this._prefix = "sf-" + UtilsNew.randomString(6);
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.job = null;
+        }
+
         if (changedProperties.has("jobId")) {
             this.jobIdObserver();
         }
@@ -89,7 +89,6 @@ export default class OpencgaJobsDetail extends LitElement {
                     id: "job-view",
                     name: "Summary",
                     active: true,
-                    // visible:
                     render: (job, active, opencgaSession) => {
                         return html`<opencga-jobs-view .opencgaSession=${opencgaSession} .job="${job}"></opencga-jobs-view>`;
                     }
@@ -97,12 +96,11 @@ export default class OpencgaJobsDetail extends LitElement {
                 {
                     id: "job-log",
                     name: "Logs",
-                    // visible:
                     render: (job, active, opencgaSession) => {
                         return html`
-                            <opencga-jobs-detail-log .opencgaSession=${opencgaSession}
-                                                    .active="${active}"
-                                                    .job="${job}">
+                            <opencga-jobs-detail-log    .opencgaSession=${opencgaSession}
+                                                        .active="${active}"
+                                                        .job="${job}">
                             </opencga-jobs-detail-log>
                         `;
                     }
@@ -112,9 +110,10 @@ export default class OpencgaJobsDetail extends LitElement {
     }
 
     render() {
-        return this.job ? html`
-            <detail-tabs .config="${this._config.detail}" .data="${this.job}" .opencgaSession="${this.opencgaSession}"></detail-tabs>
-        ` : null;
+        return this.opencgaSession && this.job
+            ? html`
+                <detail-tabs .data="${this.job}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`
+            : null;
     }
 
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "./opencga-individual-view.js";
 import "./../commons/view/detail-tabs.js";
@@ -49,11 +49,7 @@ export default class OpencgaIndividualDetail extends LitElement {
 
     _init() {
         this._prefix = "id-" + UtilsNew.randomString(6);
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {

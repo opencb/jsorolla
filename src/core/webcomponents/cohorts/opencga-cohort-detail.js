@@ -36,26 +36,21 @@ export default class OpencgaCohortDetail extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
-                type: Object
-            },
-            // this is not actually used at the moment
             cohortId: {
-                type: Object
+                type: String
             },
             cohort: {
+                type: Object
+            },
+            config: {
                 type: Object
             }
         };
     }
 
     _init() {
-        this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._prefix = "ocd-" + UtilsNew.randomString(6);
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
@@ -66,11 +61,16 @@ export default class OpencgaCohortDetail extends LitElement {
         if (changedProperties.has("cohortId")) {
             this.cohortIdObserver();
         }
+
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
+        }
     }
 
     cohortIdObserver() {
-        if (this.opencgaSession && this.cohort) {
-            this.opencgaSession.opencgaClient.cohorts().info(this.cohort, {study: this.opencgaSession.study.fqn})
+        if (this.opencgaSession && this.cohortId) {
+            this.opencgaSession.opencgaClient.cohorts().info(this.cohortId, {study: this.opencgaSession.study.fqn})
                 .then(restResponse => {
                     this.cohort = restResponse.getResult(0);
                 })
@@ -89,7 +89,6 @@ export default class OpencgaCohortDetail extends LitElement {
                     id: "cohort-view",
                     name: "Summary",
                     active: true,
-                    // visible:
                     render: (cohort, active, opencgaSession) => {
                         return html`<opencga-cohort-view .opencgaSession="${opencgaSession}" .cohort="${cohort}"></opencga-cohort-view>`;
                     }
@@ -97,59 +96,26 @@ export default class OpencgaCohortDetail extends LitElement {
                 {
                     id: "sample-view",
                     name: "Samples",
-                    // visible:
                     render: (cohort, active, opencgaSession) => {
                         return html`
-                                    <opencga-sample-grid .opencgaSession="${opencgaSession}"
-                                                         .query="${{id: cohort.samples.map(sample => sample.id).join(",")}}"
-                                                         .config="${1}"
-                                                         .samples="${1}"
-                                                         .active="${active}">
-                                    </opencga-sample-grid>
-                                `;
+                            <opencga-sample-grid    .opencgaSession="${opencgaSession}"
+                                                    .query="${{id: cohort.samples.map(sample => sample.id).join(",")}}"
+                                                    .config="${1}"
+                                                    .samples="${1}"
+                                                    .active="${active}">
+                            </opencga-sample-grid>
+                        `;
                     }
                 }
             ]
         };
     }
 
-    getDefaultConfig() {
-        return {
-            title: "Cohort",
-            showTitle: true,
-            items: [
-                {
-                    id: "cohort-view",
-                    name: "Summary",
-                    active: true,
-                    // visible:
-                    render: (cohort, active, opencgaSession) => {
-                        return html`<opencga-cohort-view .opencgaSession="${opencgaSession}" .cohort="${cohort}"></opencga-cohort-view>`;
-                    }
-                },
-                {
-                    id: "sample-view",
-                    name: "Samples",
-                    // visible:
-                    render: (cohort, active, opencgaSession) => {
-                        return html`
-                                    <opencga-sample-grid .opencgaSession="${opencgaSession}"
-                                                         .query="${{id: cohort.samples.map(sample => sample.id).join(",")}}"
-                                                         .config="${1}"
-                                                         .samples="${1}"
-                                                         .active="${active}">
-                                    </opencga-sample-grid>
-                                `;
-                    }
-                }
-            ]
-        }
-    }
-
     render() {
-        return this.cohort ? html`
-            <detail-tabs .config="${this._config.detail}" .data="${this.cohort}" .opencgaSession="${this.opencgaSession}"></detail-tabs>
-        ` : null;
+        return this.opencgaSession && this.cohort
+            ? html`
+                <detail-tabs .data="${this.cohort}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`
+            : null;
     }
 
 }

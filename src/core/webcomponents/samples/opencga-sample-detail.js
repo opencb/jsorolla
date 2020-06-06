@@ -50,11 +50,7 @@ export default class OpencgaSampleDetail extends LitElement {
 
     _init() {
         this._prefix = "sd-" + UtilsNew.randomString(6);
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
