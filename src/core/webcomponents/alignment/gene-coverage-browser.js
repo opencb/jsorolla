@@ -63,6 +63,7 @@ export default class GeneCoverageBrowser extends LitElement {
         this.preparedQuery = {};
         this.errorState = false;
 
+        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
@@ -71,8 +72,8 @@ export default class GeneCoverageBrowser extends LitElement {
     }
 
     onClickRow(e) {
-        console.log(e)
-        this.transcript = e.detail.row;
+        this.transcriptCoverageStat = e.detail.row;
+        this._config.filter.detail.title = `Transcript ${this.transcriptCoverageStat.transcriptId}`;
         this.requestUpdate();
     }
 
@@ -82,27 +83,35 @@ export default class GeneCoverageBrowser extends LitElement {
             icon: "fas fa-chart-bar",
             description: "",
             filter: {
-                detail: [
-                    {
-                        id: "transcript-detail",
-                        title: "Details",
-                        active: true
-                    }
-                ]
+                detail: {
+                    title: "Transcript",
+                    showTitle: true,
+                    items: [
+                        {
+                            id: "transcript-detail",
+                            name: "Details",
+                            active: true,
+                            render: (transcriptCoverageStat, active, opencgaSession) => {
+                                return html`<gene-coverage-view .transcript="${transcriptCoverageStat}"></gene-coverage-view>`;
+                            }
+                        }
+                    ]
+                }
             }
         };
     }
 
     render() {
-        return this._config ? html`
-            <h3>Gene Coverage</h3>
-            <gene-coverage-grid .opencgaSession="${this.opencgaSession}"
-                                            .config="${this._config?.filter?.grid}"
-                                            .query="${this.executedQuery}"
-                                            @selectrow="${this.onClickRow}">
-            </gene-coverage-grid>
-            <gene-coverage-detail .transcript="${this.transcript}" .config="${this._config?.filter}"></gene-coverage-detail>
-        ` : null;
+        return this._config
+            ? html`
+                <h3>Gene Coverage</h3>
+                <gene-coverage-grid .opencgaSession="${this.opencgaSession}"
+                                    .config="${this._config?.filter?.grid}"
+                                    .query="${this.executedQuery}"
+                                    @selectrow="${this.onClickRow}">
+                </gene-coverage-grid>
+                <gene-coverage-detail .transcriptCoverageStat="${this.transcriptCoverageStat}" .config="${this._config.filter.detail}" .opencgaSession="${this.opencgaSession}"></gene-coverage-detail>`
+            : null;
     }
 
 }

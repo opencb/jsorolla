@@ -131,11 +131,15 @@ export default class GeneCoverageGrid extends LitElement {
                 onCheckAll: rows => this.gridCommons.onCheckAll(rows),
                 onUncheck: (row, $element) => this.gridCommons.onUncheck(row.id, row),
                 onUncheckAll: rows => this.gridCommons.onUncheckAll(rows),
-                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1, "transcriptId"),
                 onPageChange: (page, size) => {
                     const result = this.gridCommons.onPageChange(page, size);
                     this.from = result.from || this.from;
                     this.to = result.to || this.to;
+                },
+                onPostBody: (data) => {
+                    // We call onLoadSuccess to select first row
+                    this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
                 }
             });
         } else {

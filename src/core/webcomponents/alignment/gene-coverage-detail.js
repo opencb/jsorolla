@@ -34,83 +34,60 @@ export default class GeneCoverageDetail extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
+            transcriptCoverageStat: {
                 type: Object
             },
-            transcript: {
+            config: {
                 type: Object
             }
         };
     }
 
     _init() {
-        this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
-        this.activeTab = {};
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._prefix = "gcd-" + UtilsNew.randomString(6);
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
+            this.transcriptCoverageStat = null;
         }
 
-        if (changedProperties.has("transcript")) {
-
+        if (changedProperties.has("transcriptCoverageStat")) {
+            this._config.title = `Transcript ${this.transcriptCoverageStat.transcriptId}`;
+            this.requestUpdate();
         }
 
-        if (changedProperties.has("activeTab")) {
-            console.log("activeTab");
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
         }
-    }
-
-    _changeBottomTab(e) {
-        const tabId = e.currentTarget.dataset.id;
-        console.log(tabId);
-        $(".nav-tabs", this).removeClass("active");
-        $(".tab-content div[role=tabpanel]", this).hide();
-        for (const tab in this.activeTab) this.activeTab[tab] = false;
-        $("#" + tabId + "-tab", this).show();
-        this.activeTab[tabId] = true;
-        this.requestUpdate();
     }
 
     getDefaultConfig() {
         return {
             title: "Transcript",
-            showTitle: true
+            showTitle: true,
+            items: [
+                {
+                    id: "transcript-detail",
+                    name: "Details",
+                    active: true,
+                    render: (transcriptCoverageStat, active, opencgaSession) => {
+                        return html`<gene-coverage-view .transcript="${transcriptCoverageStat}"></gene-coverage-view>`;
+                    }
+                }
+            ]
         };
     }
 
     render() {
-        return this.transcript ? html`
-            ${this._config.showTitle ? html`
-                    <div class="panel" style="margin-bottom: 10px">
-                        <h2 >&nbsp;${this._config.title}: ${this.transcript.transcriptId}</h2>
-                    </div>
-                ` : null}
-            <div>
-                <ul class="nav nav-tabs" role="tablist">
-                    ${this.config.detail.length && this.config.detail.map(item => html`
-                        <li role="presentation" class="${item.active ? "active" : ""}">
-                                <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab"
-                                   data-id="${item.id}"
-                                   class=""
-                                   @click="${this._changeBottomTab}">${item.title}</a>
-                        </li>
-                    `)}
-                </ul>
-                
-                <div class="tab-content">
-                    <div id="transcript-detail-tab" class="tab-pane active" role="tabpanel">
-                        <gene-coverage-view .transcript="${this.transcript}"></gene-coverage-view>
-                    </div>
-                </div>
-                
-            </div>
-        ` : "no transcript";
+        if (this.opencgaSession && this.transcriptCoverageStat) {
+            return html`
+                <detail-tabs .data="${this.transcriptCoverageStat}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`;
+        } else {
+            return html`<h3>No valid session or transcript found</h3>`;
+        }
     }
 
 }
