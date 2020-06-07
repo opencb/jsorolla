@@ -39,6 +39,9 @@ export default class DataForm extends LitElement {
             data: {
                 type: Object
             },
+            mode: {
+                type: String
+            },
             config: {
                 type: Object
             }
@@ -717,28 +720,80 @@ export default class DataForm extends LitElement {
         }
 
         const sectionTitleIcon = this.config.display?.title?.class ?? "";
+
+        if (this.config.display && this.config.display.mode === "card") {
+            return html`
+                <div class="row">
+                    <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#${this._prefix}Help">
+                        <i class="${this.config.icon ? this.config.icon : "fas fa-info-circle"}" aria-hidden="true" style="padding-right: 5px"></i> ${this.config.title}
+                    </button>
+                    <div class="">
+                        <div id="${this._prefix}Help" class="collapse">
+                            <div class="well">
+                                ${this.config.sections.map(section => this._createSection(section))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (this.config.display && this.config.display.mode && this.config.display.mode.type === "modal") {
+            return html`
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#${this._prefix}DataModal">
+                    <i class="${this.config.icon ? this.config.icon : "fas fa-info-circle"}" aria-hidden="true" style="padding-right: 5px"></i> ${this.config.title}
+                </button>
+                <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document" style="width: ${this.config.display.mode.width ? this.config.display.mode.width : 640}px">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3 class="modal-title" id="${this._prefix}exampleModalLabel">${this.config.title}</h3>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container-fluid">
+                                    ${this.config.sections.map(section => this._createSection(section))}
+                                </div>
+                            </div>
+                            ${this.config.display && this.config.display.buttons && this.config.display.buttons.show
+                                ? html`
+                                        <div class="modal-footer" style="padding: 20px 40px">
+                                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.onClear}">
+                                                ${this.config.display.buttons.cancelText ? this.config.display.buttons.cancelText : "Cancel"}
+                                            </button>
+                                            <button type="button" class="btn btn-primary" @click="${this.onSubmit}">
+                                                ${this.config.display.buttons.okText ? this.config.display.buttons.okText : "OK"}
+                                            </button>
+                                        </div>`
+                                : null
+                            }
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         return html`
             <!-- Header -->
             ${this.config.title && this.config.display && this.config.display.showTitle
-            ? html`
+                ? html`
                     <div>
                         <h2 class="${sectionTitleIcon}" >${this.config.title}</h2>
                     </div>`
-            : null
-        }
+                : null
+            }
             
             <div class="row">
                 <div class="col-md-12">
                     ${this.config.sections.map(section => this._createSection(section))}
                 </div>
                 ${this.config.display && this.config.display.buttons && this.config.display.buttons.show
-            ? html`
+                    ? html`
                         <div class="col-md-12" style="padding: 20px 40px">
                             <button type="button" class="btn btn-primary btn-lg" @click="${this.onClear}">Clear</button>
                             <button type="button" class="btn btn-primary btn-lg" @click="${this.onSubmit}">Run</button>
                         </div>`
-            : null
-        }
+                    : null
+                }
             </div>
         `;
     }

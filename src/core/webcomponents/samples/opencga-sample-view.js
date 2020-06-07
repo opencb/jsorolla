@@ -92,6 +92,15 @@ export default class OpencgaSampleView extends LitElement {
             title: "Summary",
             icon: "",
             display: {
+                // mode: {
+                //     type: "modal",
+                //     width: 1024
+                // },
+                buttons: {
+                    show: false,
+                    // cancelText: "Clearrr",
+                    // okText: "Okk",
+                },
                 collapsable: true,
                 showTitle: false,
                 labelWidth: 2,
