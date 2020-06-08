@@ -88,7 +88,7 @@ export default class OpencgaSampleFilter extends LitElement {
 
     firstUpdated(_changedProperties) {
         super.firstUpdated(_changedProperties);
-        this._initTooltip();
+        UtilsNew.initTooltip(this);
     }
 
     updated(changedProperties) {
@@ -100,51 +100,9 @@ export default class OpencgaSampleFilter extends LitElement {
         }
     }
 
-    /*    //TODO in progress, added to replace notify
-    filterChange() {
-        const value = ``;
-        console.log("filterChange", value);
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: value || null
-            }
-        });
-        this.dispatchEvent(event);
-    }*/
-
     onSearch() {
         this.search = {...this.query};
         this.notifySearch(this.preparedQuery);
-    }
-
-    _initTooltip() {
-        // TODO move to Utils
-        $("a[tooltip-title]", this).each(function() {
-            $(this).qtip({
-                content: {
-                    title: $(this).attr("tooltip-title"),
-                    text: $(this).attr("tooltip-text")
-                },
-                position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-                style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-                show: {delay: 200},
-                hide: {fixed: true, delay: 300}
-            });
-        });
-    }
-
-    onDateChanged(e) {
-        const query = {};
-        Object.assign(query, this.query);
-        if (UtilsNew.isNotEmpty(e.detail.date)) {
-            query["creationDate"] = e.detail.date;
-        } else {
-            delete query["creationDate"];
-        }
-
-        this._reset = false;
-        this.query = query;
-        this._reset = true;
     }
 
     queryObserver() {
@@ -183,27 +141,6 @@ export default class OpencgaSampleFilter extends LitElement {
         this.requestUpdate();
     }
 
-    addAnnotation(e) {
-        // console.log("addAnnotation", e)
-
-        if (typeof this._annotationFilter === "undefined") {
-            this._annotationFilter = {};
-        }
-        const split = e.detail.value.split("=");
-        this._annotationFilter[split[0]] = split[1];
-
-        const _query = {};
-        Object.assign(_query, this.query);
-        const annotations = [];
-        for (const key in this._annotationFilter) {
-            annotations.push(`${key}=${this._annotationFilter[key]}`);
-        }
-        this.preparedQuery.annotation = annotations.join(";");
-        this.preparedQuery = {...this.preparedQuery};
-        this.notifyQuery(this.preparedQuery);
-        this.requestUpdate();
-    }
-
     notifyQuery(query) {
         this.dispatchEvent(new CustomEvent("queryChange", {
             detail: {
@@ -233,14 +170,7 @@ export default class OpencgaSampleFilter extends LitElement {
         let content = "";
         switch (subsection.id) {
             case "id":
-                content = html`<!--<select-token-filter
-                                    resource="samples"
-                                   .opencgaSession="${this.opencgaSession}"
-                                   placeholder="${subsection.placeholder}"
-                                   .value="${this.preparedQuery[subsection.id]}"
-                                   @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                              </select-token-filter>-->
-                              <sample-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></sample-id-autocomplete>
+                content = html`<sample-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></sample-id-autocomplete>
                 `;
                 break;
             case "individual":

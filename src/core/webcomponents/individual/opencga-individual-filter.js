@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import PolymerUtils from "../PolymerUtils.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
 import "../commons/filters/text-field-filter.js";
 import "../commons/filters/select-field-filter.js";
@@ -93,7 +92,7 @@ export default class OpencgaIndividualFilter extends LitElement {
 
     firstUpdated(_changedProperties) {
         super.firstUpdated(_changedProperties);
-        this._initTooltip();
+        UtilsNew.initTooltip(this);
     }
 
     updated(changedProperties) {
@@ -110,22 +109,6 @@ export default class OpencgaIndividualFilter extends LitElement {
         this.notifySearch(this.preparedQuery);
     }
 
-    _initTooltip() {
-        // TODO move to Utils
-        $("a[tooltip-title]", this).each(function() {
-            $(this).qtip({
-                content: {
-                    title: $(this).attr("tooltip-title"),
-                    text: $(this).attr("tooltip-text")
-                },
-                position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-                style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-                show: {delay: 200},
-                hide: {fixed: true, delay: 300}
-            });
-        });
-    }
-
     onAnnotationChange(e) {
         if (e.detail.value) {
             this.preparedQuery.annotation = e.detail.value
@@ -137,39 +120,6 @@ export default class OpencgaIndividualFilter extends LitElement {
         this.requestUpdate();
     }
 
-    addAnnotation(e) {
-        if (typeof this._annotationFilter === "undefined") {
-            this._annotationFilter = {};
-        }
-        const split = e.detail.value.split("=");
-        this._annotationFilter[split[0]] = split[1];
-
-        const _query = {};
-        Object.assign(_query, this.query);
-        const annotations = [];
-        for (const key in this._annotationFilter) {
-            annotations.push(`${key}=${this._annotationFilter[key]}`);
-        }
-        _query["annotation"] = annotations.join(";");
-
-        this._reset = false;
-        this.query = _query;
-        this._reset = true;
-    }
-
-    onDateChanged(e) {
-        const query = {};
-        Object.assign(query, this.query);
-        if (UtilsNew.isNotEmpty(e.detail.date)) {
-            query["creationDate"] = e.detail.date;
-        } else {
-            delete query["creationDate"];
-        }
-
-        this._reset = false;
-        this.query = _query;
-        this._reset = true;
-    }
 
     queryObserver() {
         if (this._reset) {
@@ -180,59 +130,6 @@ export default class OpencgaIndividualFilter extends LitElement {
             this.requestUpdate();
         } else {
             this._reset = true;
-        }
-    }
-
-    /**
-     * @deprecated
-    * */
-    renderQueryFilters() {
-        // Empty everything before rendering
-        this._clearHtmlDom();
-
-        // Individual
-        if (UtilsNew.isNotUndefined(this.query.id)) {
-            PolymerUtils.setValue(`${this._prefix}-individual-input`, this.query.id);
-        }
-
-        // Samples
-        if (UtilsNew.isNotUndefined(this.query.samples)) {
-            PolymerUtils.setValue(`${this._prefix}-sample-input`, this.query.samples);
-        }
-
-        // Phenotypes
-        if (UtilsNew.isNotUndefined(this.query.phenotypes)) {
-            PolymerUtils.setValue(`${this._prefix}-phenotypes-input`, this.query.phenotypes);
-        }
-
-        // Ethnicity
-        if (UtilsNew.isNotUndefined(this.query.ethnicity)) {
-            PolymerUtils.setValue(`${this._prefix}-ethnicity-input`, this.query.ethnicity);
-        }
-
-        // Disorder
-        if (UtilsNew.isNotUndefined(this.query.disorders)) {
-            PolymerUtils.setValue(`${this._prefix}-disorder-input`, this.query.disorders);
-        }
-
-        // Sex
-        if (UtilsNew.isNotUndefined(this.query.sex)) {
-            $(`#${this._prefix}-individual-sex-select`).selectpicker("val", this.query.sex.split(","));
-        }
-
-        // Karyotypic sex
-        if (UtilsNew.isNotUndefined(this.query.karyotypicSex)) {
-            $(`#${this._prefix}-individual-karyotypicsex-select`).selectpicker("val", this.query.karyotypicSex.split(","));
-        }
-
-        // Affectation status
-        if (UtilsNew.isNotUndefined(this.query.affectationStatus)) {
-            $(`#${this._prefix}-affectation-status-select`).selectpicker("val", this.query.affectationStatus.split(","));
-        }
-
-        // Life status
-        if (UtilsNew.isNotUndefined(this.query.lifeStatus)) {
-            $(`#${this._prefix}-life-status-select`).selectpicker("val", this.query.lifeStatus.split(","));
         }
     }
 
@@ -323,17 +220,6 @@ export default class OpencgaIndividualFilter extends LitElement {
                          </div>
                     </div>
                 `;
-    }
-
-    /**
-     * Use custom CSS class to easily reset all controls.
-     */
-    _clearHtmlDom() {
-        // Input controls
-        PolymerUtils.setPropertyByClassName(this._prefix + "FilterTextInput", "value", "");
-        PolymerUtils.removeAttributebyclass(this._prefix + "FilterTextInput", "disabled");
-
-        $(`#${this._prefix}IndividualSelection .selectpicker`).selectpicker("val", "");
     }
 
     render() {

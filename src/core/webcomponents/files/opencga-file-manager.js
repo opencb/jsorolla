@@ -61,7 +61,7 @@ export default class OpencgaFileManager extends LitElement {
         }
 
         if (changedProperties.has("opencgaSession")) {
-            this.opencgaSession.opencgaClient.files().tree(this.currentRootId, {study: this.opencgaSession.study.fqn, maxDepth: 3})
+            this.opencgaSession.opencgaClient.files().tree(this.currentRootId, {study: this.opencgaSession.study.fqn, maxDepth: 3, include: "id,name,path"})
                 .then(restResponse => {
                     this.tree = restResponse.getResult(0);
                     this.currentRoot = restResponse.getResult(0);
@@ -77,7 +77,7 @@ export default class OpencgaFileManager extends LitElement {
         try {
             const folder = this.searchNode(fileId, this.tree.children);
             if (!folder.visited) {
-                const restResponse = await this.opencgaSession.opencgaClient.files().tree(fileId, {study: this.opencgaSession.study.fqn, maxDepth: 3})
+                const restResponse = await this.opencgaSession.opencgaClient.files().tree(fileId, {study: this.opencgaSession.study.fqn, maxDepth: 3,include: "id,name,path"})
                 const result = restResponse.getResult(0);
                 folder.children = result.children;
                 folder.visited = true;
