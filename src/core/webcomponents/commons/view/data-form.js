@@ -112,7 +112,7 @@ export default class DataForm extends LitElement {
         if (typeof element.defaultValue !== "undefined" && element.defaultValue !== null) {
             return element.defaultValue;
         } else {
-            if (this.config.display && this.config.display.defaultValue) {
+            if (this.config.display && typeof this.config.display.defaultValue !== "undefined" && this.config.display.defaultValue !== null) {
                 return this.config.display.defaultValue;
             } else {
                 return "-";
@@ -173,6 +173,23 @@ export default class DataForm extends LitElement {
         return element?.display?.labelWidth ?? this.config?.display?.labelWidth ?? 2;
     }
 
+
+    renderData() {
+        if (this.config.type === "form") {
+            return html`
+                <form class="${this.config?.display?.defaultLayout === "horizontal" ? "form-horizontal" : ""}">
+                    ${this.config.sections.map(section => this._createSection(section))}
+                </form>
+            `;
+        } else {
+            return html`
+                <div>
+                    ${this.config.sections.map(section => this._createSection(section))}
+                </div>
+            `;
+        }
+    }
+
     _createSection(section) {
         // Check if the section is visible
         if (section.display && !this._getBooleanValue(section.display.visible)) {
@@ -182,39 +199,38 @@ export default class DataForm extends LitElement {
         // Get some default values
         const sectionTitleClass = section?.display?.title?.class ?? "";
         const sectionTitleStyle = section?.display?.title?.style ?? "";
-        let content;
+
         // Section 'elements' array has just one dimension
         if (!Array.isArray(section.elements[0])) {
-            content = html`
-                <section>
+            const sectionWidth = section?.display?.width ? section?.display?.width : "12";
+            return html`
+                <div>
                     ${section.title ? html`<h3 class="${sectionTitleClass}" style="${sectionTitleStyle}">${section.title}</h3>` : null}
-                    <div class="container-fluid">
+                    <div class="container-fluid col-md-${sectionWidth}" style="padding: 10px">
                         ${section.elements.map(element => this._createElement(element))}
                     </div>
-                </section>
+                </div>
             `;
         } else {    // Field 'elements' array has two dimensions
             let leftColumnWidth = section?.display?.leftColumnWith ? section.display.leftColumnWith : 6;
             let rightColumnWidth = section?.display?.rightColumnWith ? section.display.rightColumnWith : 6;
             let columnSeparatorStyle = (section.display && section.display.columnSeparatorStyle) ? section.display.columnSeparatorStyle : "";
-            content = html`
-                <section>
+            return html`
+                <div>
                     ${section.title ? html`<h3 class="${sectionTitleClass}" style="${sectionTitleStyle}">${section.title}</h3>` : null}
                     <div class="container-fluid">
                         <div class="row">
-                            <div class="col-md-${leftColumnWidth}" style="${columnSeparatorStyle}">
+                            <div class="col-md-${leftColumnWidth}" style="${columnSeparatorStyle}; padding-right: 25px">
                                 ${section.elements[0].map(element => this._createElement(element))}
                             </div>
-                            <div class="col-md-${rightColumnWidth}">
+                            <div class="col-md-${rightColumnWidth}" style="padding-left: 25px">
                                 ${section.elements[1].map(element => this._createElement(element))}
                             </div>
                         </div>
                     </div>
-                </section>
+                </div>
             `;
         }
-
-        return content;
     }
 
     _createElement(element) {
@@ -289,44 +305,71 @@ export default class DataForm extends LitElement {
         let layout = element?.display?.layout ?? this.config?.display?.defaultLayout ?? "horizontal";
         let showLabel = element?.showLabel ?? true;
         let labelWidth = showLabel ? this._getLabelWidth(element) : 0;
-        if (layout === "horizontal") {
-            // Label 'width' and 'align' are configured by 'labelWidth' and 'labelAlign', defaults are '2' and 'left' respectively
-            return html`
-                <div class="row detail-row">
-                    ${showLabel ? html`
-                        <div class="col-md-${labelWidth} text-${this.config.display?.labelAlign || "left"}">
-                            <label>${title}</label>
-                        </div>`
-                : null}
-                    <div class="col-md-${12 - labelWidth}">
-                        ${content}
+        let width = this._getWidth(element);
+
+        // When forms we return a form-group
+        if (this.config.type && this.config.type === "form") {
+            if (this.config?.display?.defaultLayout === "horizontal") {
+                return html`
+                    <div class="form-group">
+                        <label class="control-label col-md-${labelWidth}" style="text-align: ${this.config.display?.labelAlign || "left"}">${title}</label>
+                        <div class="col-md-${width - labelWidth}">
+                            ${content}
+                        </div>
                     </div>
-                </div>        
-            `;
+                `;
+            } else {
+                const sectionWidth = element?.display?.width ? element.display.width : "12";
+                return html`
+                    <div class="form-group">
+                        <label class="control-label col-md-12">${title}</label>
+                        <div class="col-md-${sectionWidth}">
+                            ${content}
+                        </div>
+                    </div>
+                `;
+            }
         } else {
-            return html`
-                <div class="row detail-row">
-                    ${showLabel ? html`
+            // Views can be horizontal or horizontal
+            if (layout === "horizontal") {
+                // Label 'width' and 'align' are configured by 'labelWidth' and 'labelAlign', defaults are '2' and 'left' respectively
+                return html`
+                    <div class="row detail-row">
+                        ${showLabel ? html`
+                            <div class="col-md-${labelWidth} text-${this.config.display?.labelAlign || "left"}">
+                                <label>${title}</label>
+                            </div>`
+                        : null}
+                        <div class="col-md-${12 - labelWidth}">
+                            ${content}
+                        </div>
+                    </div>        
+                `;
+            } else {
+                return html`
+                    <div class="row detail-row">
+                        ${showLabel ? html`
+                            <div class="col-md-12">
+                                <label>${title}</label>
+                            </div>`
+                        : null}
                         <div class="col-md-12">
-                            <label>${title}</label>
-                        </div>`
-                : null}
-                    <div class="col-md-12">
-                        ${content}
-                    </div>
-                </div>        
-            `;
+                            ${content}
+                        </div>
+                    </div>        
+                `;
+            }
         }
     }
 
     _createInputTextElement(element) {
         let value = this.getValue(element.field) || this._getDefaultValue(element);
         let disabled = this._getBooleanValue(element.display?.disabled, false);
-        let width = this._getWidth(element);
+        // let width = this._getWidth(element);
         let rows = element.display && element.display.rows ? element.display.rows : 1;
 
         return html`
-            <div class="col-md-${width}">
+            <div class="">
                 <text-field-filter placeholder="${element.display?.placeholder}" .rows=${rows} ?disabled=${disabled} ?required=${element.required} 
                                     .value="${value}" @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </text-field-filter>
@@ -341,7 +384,7 @@ export default class DataForm extends LitElement {
         const [min = "", max = ""] = element.allowedValues || [];
 
         return html`
-            <div class="col-md-${width}">
+            <div class="">
                 <input type="number" min=${min} max=${max} step="0.01" placeholder="${element.display.placeholder || ""}" ?disabled=${disabled} ?required=${element.required} class="form-control input-sm"
                         value="${value || ""}" @input="${e => this.onFilterChange(element.field, e.target.value)}">
             </div>
@@ -360,15 +403,23 @@ export default class DataForm extends LitElement {
         let width = this._getWidth(element);
 
         return html`
-            <div class="date col-md-${width}">
-                <div class='form-group input-group date' id="${this._prefix}DuePickerDate" data-field="${element.field}">
-                    <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" data-field="${element.field}" ?disabled="${disabled}">
-                    <span class="input-group-addon">
+            <div class='input-group date' id="${this._prefix}DuePickerDate" data-field="${element.field}">
+                <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" data-field="${element.field}" ?disabled="${disabled}">
+                <span class="input-group-addon">
                         <span class="fa fa-calendar"></span>
-                    </span>
-                </div>
+                </span>
             </div>
         `;
+        // return html`
+        //     <div class="date col-md-${width}">
+        //         <div class='form-group input-group date' id="${this._prefix}DuePickerDate" data-field="${element.field}">
+        //             <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" data-field="${element.field}" ?disabled="${disabled}">
+        //             <span class="input-group-addon">
+        //                 <span class="fa fa-calendar"></span>
+        //             </span>
+        //         </div>
+        //     </div>
+        // `;
     }
 
     /**
@@ -448,7 +499,7 @@ export default class DataForm extends LitElement {
         let width = this._getWidth(element);
         if (allowedValues && allowedValues.length > 0) {
             return html`
-                <div class="col-md-${width}">
+                <div class="">
                     <select-field-filter .data="${allowedValues}" ?multiple="${element.multiple}" ?disabled=${disabled} ?required=${element.required} 
                                             .value="${defaultValue}" @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                     </select-field-filter>
@@ -652,7 +703,7 @@ export default class DataForm extends LitElement {
             let width = this._getWidth(element);
             let style = element.display.style ? element.display.style : "";
             // return html`<div class="col-md-${width}" style="${style}">${result}</div>`;
-            return html`<div class="col-md-${width}" style="${style}">${result}</div>`;
+            return html`<div class="" style="${style}">${result}</div>`;
         } else {
             return this._getErrorMessage(element);
         }
@@ -730,7 +781,7 @@ export default class DataForm extends LitElement {
                     <div class="">
                         <div id="${this._prefix}Help" class="collapse">
                             <div class="well">
-                                ${this.config.sections.map(section => this._createSection(section))}
+                                ${this.renderData()}
                             </div>
                         </div>
                     </div>
@@ -750,13 +801,11 @@ export default class DataForm extends LitElement {
                                 <h3 class="modal-title" id="${this._prefix}exampleModalLabel">${this.config.title}</h3>
                             </div>
                             <div class="modal-body">
-                                <div class="container-fluid">
-                                    ${this.config.sections.map(section => this._createSection(section))}
-                                </div>
+                                ${this.renderData()}
                             </div>
                             ${this.config.display && this.config.display.buttons && this.config.display.buttons.show
                                 ? html`
-                                        <div class="modal-footer" style="padding: 20px 40px">
+                                        <div class="modal-footer">
                                             <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.onClear}">
                                                 ${this.config.display.buttons.cancelText ? this.config.display.buttons.cancelText : "Cancel"}
                                             </button>
@@ -772,6 +821,8 @@ export default class DataForm extends LitElement {
             `;
         }
 
+
+        // ${this.config.sections.map(section => this._createSection(section))}
         return html`
             <!-- Header -->
             ${this.config.title && this.config.display && this.config.display.showTitle
@@ -784,7 +835,7 @@ export default class DataForm extends LitElement {
             
             <div class="row">
                 <div class="col-md-12">
-                    ${this.config.sections.map(section => this._createSection(section))}
+                    ${this.renderData()}
                 </div>
                 ${this.config.display && this.config.display.buttons && this.config.display.buttons.show
                     ? html`

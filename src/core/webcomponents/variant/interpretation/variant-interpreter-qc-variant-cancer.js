@@ -62,6 +62,7 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
         this._prefix = "sf-" + UtilsNew.randomString(6);
 
         // this.base64 = "data:image/png;base64, " + Circos.base64;
+        this.save = {};
     }
 
     connectedCallback() {
@@ -146,6 +147,53 @@ debugger
         }).finally( () => {
             this.requestUpdate();
         })
+    }
+
+    getSaveConfig() {
+        return {
+            title: "Save Variant QC",
+            icon: "",
+            type: "form",
+            display: {
+                mode: {
+                    type: "modal",
+                    // width: 1024
+                },
+                buttons: {
+                    show: true,
+                    cancelText: "Cancel",
+                    okText: "Save",
+                },
+                showTitle: true,
+                labelWidth: 3,
+                labelAlign: "right",
+                defaultValue: "",
+                defaultLayout: "horizontal",
+            },
+            sections: [
+                {
+                    elements: [
+                        {
+                            name: "Filter ID",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a filter ID",
+                                width: 10
+                            }
+                        },
+                        {
+                            name: "Description",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a filter description",
+                                width: 10,
+                                rows: 2
+                            }
+                        },
+                    ]
+                }
+            ]
+        }
     }
 
     getDefaultConfig() {
@@ -279,6 +327,7 @@ debugger
                                 <button id="${this._prefix}Save" type="button" class="btn btn-primary" @click="${this.showModal}">
                                     <i class="fa fa-save" aria-hidden="true" data-view="Interactive" style="padding-right: 5px" @click="${this.showModal}"></i> Save...
                                 </button>
+                                <data-form .data=${this.save} .config="${this.getSaveConfig()}"></data-form>
                             </div>
                         </div>
                 

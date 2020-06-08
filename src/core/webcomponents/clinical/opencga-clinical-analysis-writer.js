@@ -222,6 +222,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
             id: "clinical-analysis",
             title: "Create Case",
             icon: "",
+            type: "form",
             requires: "2.0.0",
             description: "Sample Variant Stats description",
             links: [
@@ -232,6 +233,9 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                 }
             ],
             display: {
+                // form: {
+                //     layout: "horizontal"
+                // },
                 showTitle: true,
                 infoIcon: "",
                 labelAlign: "left",
@@ -247,8 +251,8 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                     title: "Case Information",
                     display: {
                         collapsed: false,
-                        leftColumnWith: 6,
-                        rightColumnWith: 6
+                        leftColumnWith: 5,
+                        rightColumnWith: 5
                     },
                     elements: [
                         [
@@ -260,8 +264,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 // validate: () => {},
                                 defaultValue: "",
                                 display: {
-                                    // layout: "vertical",
-                                    width: 9,
+                                    // width: 9,
                                     placeholder: "eg. AN-3",
                                     disabled: () => this.mode === "update",
                                     // showList: true,
@@ -277,7 +280,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 defaultValue: "FAMILY",
                                 errorMessage: "No found...",
                                 display: {
-                                    width: 9,
+                                    // width: 9,
                                     disabled: () => this.mode === "update",
                                 }
                             },
@@ -289,7 +292,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 allowedValues: ["mixed_chemistries", "low_tumour_purity", "uniparental_isodisomy", "uniparental_heterodisomy",
                                     "unusual_karyotype", "suspected_mosaicism", "low_quality_sample"],
                                 display: {
-                                    width: 9,
+                                    // width: 9,
                                 }
                             },
                             {
@@ -298,7 +301,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 type: "input-text",
                                 defaultValue: "",
                                 display: {
-                                    width: 9,
+                                    // width: 9,
                                     rows: 2,
                                 }
                             },
@@ -310,7 +313,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 allowedValues: ["URGENT", "HIGH", "MEDIUM", "LOW"],
                                 defaultValue: "MEDIUM",
                                 display: {
-                                    width: 9,
+                                    // width: 9,
                                 }
                             },
                             {
@@ -319,7 +322,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 type: "select",
                                 allowedValues: "_users",
                                 display: {
-                                    width: 9,
+                                    // width: 9,
                                 }
                             },
                             {
@@ -328,7 +331,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 type: "input-text",
                                 defaultValue: "today",
                                 display: {
-                                    width: 9,
+                                    // width: 9,
                                     visible: this.mode === "update",
                                     disabled: true,
                                 }
@@ -339,7 +342,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 type: "input-date",
                                 defaultValue: "",
                                 display: {
-                                    width: 9,
+                                    // width: 9,
                                 }
                             },
 
@@ -364,6 +367,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             field: "proband.id",
                             type: "custom",
                             display: {
+                                width: 5,
                                 visible: data => this.mode === "create",
                                 render: (data) => {
                                     return html`
@@ -389,6 +393,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                 {
                     title: "Family Analysis Configuration",
                     display: {
+                        // width: 6,
                         collapsed: false,
                         visible: data => {
                             if (data.type) {
@@ -404,6 +409,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             field: "family.id",
                             type: "custom",
                             display: {
+                                width: 5,
                                 visible: data => this.mode === "create",
                                 render: (data) => {
                                     return html`
@@ -418,6 +424,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             field: "family.id",
                             type: "basic",
                             display: {
+                                width: 5,
                                 visible: data => this.mode === "update",
                             }
                         },
@@ -428,6 +435,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             allowedValues: "family.members",
                             required: true,
                             display: {
+                                width: 5,
                                 // apply: (member) => `${member.id}`,
                                 errorMessage: "No family selected"
                             }
@@ -439,6 +447,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             allowedValues: "proband.disorders",
                             required: true,
                             display: {
+                                width: 5,
                                 apply: (disorder) => `${disorder.name} (${disorder.id})`,
                                 errorMessage: "No family selected"
                             }

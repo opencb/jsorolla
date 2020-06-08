@@ -78,7 +78,7 @@ export default class TextFieldFilter extends LitElement {
         let rows = this.rows ? this.rows : 1;
         let placeholder = (this.placeholder && this.placeholder !== "undefined") ? this.placeholder : "";
         return html`
-            <div id="${this._prefix}-wrapper" class="form-group" style="margin-left: 0px">
+            <div id="${this._prefix}-wrapper" class="" style="margin-left: 0px">
                 ${rows === 1 
                     ? html`
                         <input type="text" id="${this._prefix}-input" class="form-control" 
