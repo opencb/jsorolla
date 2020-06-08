@@ -92,7 +92,7 @@ export default class OpencgaFamilyFilter extends LitElement {
 
     firstUpdated(_changedProperties) {
         super.firstUpdated(_changedProperties);
-        this._initTooltip();
+        UtilsNew.initTooltip(this);
     }
 
     updated(changedProperties) {
@@ -108,8 +108,6 @@ export default class OpencgaFamilyFilter extends LitElement {
         if (this._reset) {
             console.log("onQueryUpdate: calling to 'renderQueryFilters()'", this.query);
             this.preparedQuery = this.query;
-            // renderQueryFilters shouldn't be necessary anymore
-            // this.renderQueryFilters();
             this.requestUpdate();
         } else {
             this._reset = true;
@@ -119,22 +117,6 @@ export default class OpencgaFamilyFilter extends LitElement {
     onSearch() {
         // this.search = {...this.query};
         this.notifySearch(this.preparedQuery);
-    }
-
-    _initTooltip() {
-        // TODO move to Utils
-        $("a[tooltip-title]", this).each(function() {
-            $(this).qtip({
-                content: {
-                    title: $(this).attr("tooltip-title"),
-                    text: $(this).attr("tooltip-text")
-                },
-                position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-                style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-                show: {delay: 200},
-                hide: {fixed: true, delay: 300}
-            });
-        });
     }
 
     addAnnotation(e) {
@@ -321,17 +303,6 @@ export default class OpencgaFamilyFilter extends LitElement {
         this._reset = false;
         this.query = _query;
         this._reset = true;
-    }
-
-    /**
-     * Use custom CSS class to easily reset all controls.
-     */
-    _clearHtmlDom() {
-        // Input controls
-        PolymerUtils.setPropertyByClassName(this._prefix + "FilterTextInput", "value", "");
-        PolymerUtils.removeAttributebyclass(this._prefix + "FilterTextInput", "disabled");
-
-        $(`#${this._prefix}FamilySelection .selectpicker`).selectpicker("val", "");
     }
 
     render() {

@@ -40,10 +40,6 @@ export default class OpencgaCohortFilter extends LitElement {
         return {
             opencgaSession: {
                 type: Object
-                // observer: "updateVariableSets"
-            },
-            opencgaClient: {
-                type: Object
             },
             cohorts: {
                 type: Array
@@ -125,7 +121,7 @@ export default class OpencgaCohortFilter extends LitElement {
 
     firstUpdated(_changedProperties) {
         super.firstUpdated(_changedProperties);
-        this._initTooltip();
+        UtilsNew.initTooltip(this);
     }
 
     updated(changedProperties) {
@@ -145,22 +141,6 @@ export default class OpencgaCohortFilter extends LitElement {
         this.notifySearch(this.preparedQuery);
     }
 
-    _initTooltip() {
-        // TODO move to Utils
-        $("a[tooltip-title]", this).each(function() {
-            $(this).qtip({
-                content: {
-                    title: $(this).attr("tooltip-title"),
-                    text: $(this).attr("tooltip-text")
-                },
-                position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-                style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-                show: {delay: 200},
-                hide: {fixed: true, delay: 300}
-            });
-        });
-    }
-
     onAnnotationChange(e) {
         if (e.detail.value) {
             this.preparedQuery.annotation = e.detail.value
@@ -171,43 +151,6 @@ export default class OpencgaCohortFilter extends LitElement {
         this.notifyQuery(this.preparedQuery);
         this.requestUpdate();
     }
-
-    // TODO remove, use onAnnotationChange
-    addAnnotation(e) {
-        if (typeof this._annotationFilter === "undefined") {
-            this._annotationFilter = {};
-        }
-        const split = e.detail.value.split("=");
-        this._annotationFilter[split[0]] = split[1];
-
-        const _query = {};
-        Object.assign(_query, this.query);
-        const annotations = [];
-        for (const key in this._annotationFilter) {
-            annotations.push(`${key}=${this._annotationFilter[key]}`);
-        }
-        _query["annotation"] = annotations.join(";");
-
-        this._reset = false;
-        // this.set("query", _query);
-        this.query = _query;
-        this._reset = true;
-    }
-    /*
-    onDateChanged(e) {
-        const query = {};
-        Object.assign(query, this.query);
-        if (UtilsNew.isNotEmpty(e.detail.date)) {
-            query["creationDate"] = e.detail.date;
-        } else {
-            delete query["creationDate"];
-        }
-
-        this._reset = false;
-        // this.set("query", _query);
-        this.query = query;
-        this._reset = true;
-    }*/
 
     queryObserver() {
         if (this._reset) {
@@ -220,18 +163,6 @@ export default class OpencgaCohortFilter extends LitElement {
             this._reset = true;
         }
     }
-
-    /*renderQueryFilters() {
-        // Empty everything before rendering
-        this._clearHtmlDom();
-
-        this._checkAnnotations();
-
-        // Cohort
-        if (UtilsNew.isNotUndefined(this.query.name)) {
-            PolymerUtils.setValue(this._prefix + "CohortName", this.query.name);
-        }
-    }*/
 
     onFilterChange(key, value) {
         console.log("filterChange", {[key]: value});
@@ -313,59 +244,10 @@ export default class OpencgaCohortFilter extends LitElement {
                 `;
     }
 
-    addAnnotationFilter(e) {
-        const _query = {};
-        const annotations = [];
-        let annotationTextInputElements = PolymerUtils.getElementsByClassName(this._prefix + "AnnotationTextInput");
-        for (const annot of annotationTextInputElements) {
-            if (annot.value !== "") {
-                annotations.push(annot.dataset.variableName + "=" + annot.value);
-            }
-        }
-
-        annotationTextInputElements = PolymerUtils.getElementsByClassName(this._prefix + "AnnotationSelect");
-        for (const annot of annotationTextInputElements) {
-            if (annot.value !== "") {
-                annotations.push(annot.dataset.variableName + "=" + annot.value);
-            }
-        }
-
-        _query.annotation = annotations.join(",");
-
-        this._reset = false;
-        // this.set("query", _query);
-        this.query = _query;
-        this._reset = true;
-    }
-
-    _getDateFilter(e) {
-        const year = PolymerUtils.getElementById(this._prefix + "YearSelect").value;
-        const month = PolymerUtils.getElementById(this._prefix + "MonthSelect").value;
-        let day = PolymerUtils.getElementById(this._prefix + "DaySelect").value;
-        let date;
-        if (month === "any") {
-            date = "~^" + year + "*";
-        } else {
-            let monthIndex = this.monthToSearch.indexOf(month) + 1;
-            if (monthIndex < 10) {
-                monthIndex = "0" + monthIndex;
-            }
-            if (day === "any") {
-                date = "~^" + year + monthIndex + "*";
-            } else {
-                if (day < 10) {
-                    day = "0" + day;
-                }
-                date = "~^" + year + monthIndex + day + "*";
-            }
-        }
-        return date;
-    }
-
     updateVariableSets() {
         this.variables = [];
         const _this = this;
-        this.opencgaClient.studies().info(this.opencgaSession.study.id, {include: "variableSets"})
+        this.opencgaSession.opencgaClient.studies().info(this.opencgaSession.study.id, {include: "variableSets"})
             .then(function(response) {
                 _this.variableSets = response.response[0].result[0].variableSets;
                 // debugger
@@ -460,115 +342,6 @@ export default class OpencgaCohortFilter extends LitElement {
     variablesChanged() {
         this._areVariablesEmpty = (this.variables.length === 0);
     }
-
-    checkVarType(myVar, type) {
-        return (myVar.type === type);
-    }
-
-    checkCatType(myVar, type, lowerLimit, upperLimit) {
-        return (myVar.type === type && myVar.allowedValues.length >= lowerLimit && myVar.allowedValues.length < upperLimit);
-    }
-
-    checkYears(e) {
-        e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-        PolymerUtils.innerHTML(this._prefix + "_errorDiv_birthYear", "");
-        PolymerUtils.innerHTML(this._prefix + "_errorDiv_testYear", "");
-        let currentElement = PolymerUtils.getElementById(e.target.id);
-        const identifier = e.target.id;
-        let pairElement = "";
-        let divSuffix = "";
-        let message = "";
-        if (identifier.search("birthYear") !== -1) { // Birth year element raises the event -> check Test year
-            pairElement = PolymerUtils.getElementById(this._prefix + "testYear");
-            divSuffix = "birthYear";
-            message = "Year of Birth must be prior to year of Test";
-        } else { // Year of test element raises the event -> swap elements and check the birth year
-            currentElement = PolymerUtils.getElementById(this._prefix + "birthYear");
-            pairElement = PolymerUtils.getElementById(e.target.id);
-            divSuffix = "testYear";
-            message = "Year of Test must be posterior to year of Birth";
-        }
-
-        if (PolymerUtils.querySelectorAll("option:selected", pairElement) !== "" &&
-            (parseInt(PolymerUtils.querySelectorAll("option:selected", currentElement).textContent) > parseInt(PolymerUtils.querySelectorAll("option:selected", pairElement).textContent))) { // Year of birth cannot be lower than Year of test
-            PolymerUtils.innerHTML(this._prefix + "_errorDiv_" + divSuffix, message);
-        }
-    }
-
-    checkType(str1, str2) {
-        return str1.search(str2) !== -1;
-    }
-
-    _filterVariable(variable) {
-        for (let i = 0; i < this.filteredVariables.variables.length; i++) {
-            if (variable.name === this.filteredVariables.variables[i].name) {
-                return false;
-            }
-        }
-        if (UtilsNew.isNotUndefined(this.searchVariable) &&
-            variable.name.toLowerCase().indexOf(this.searchVariable.toLowerCase()) === -1) {
-            return false;
-        }
-        return true;
-    }
-
-    _sortVariables(a, b) {
-        if (a.rank < b.rank) {
-            return -1;
-        }
-        return 1;
-    }
-
-    _changeMode(e) {
-        this.compact = !this.compact;
-    }
-
-    _checkAnnotations() {
-        if (typeof this._annotationFilter !== "undefined") {
-            const annotations = this.query["annotation"];
-            this._annotationFilter = {};
-            if (typeof annotations !== "undefined") {
-                const splitAnnotations = annotations.split(";");
-                for (const i in splitAnnotations) {
-                    const splitAnnotation = splitAnnotations[i].split("=");
-                    this._annotationFilter[splitAnnotation[0]] = splitAnnotation[1];
-                }
-            }
-        }
-    }
-
-/*    /!**
-     * Use custom CSS class to easily reset all controls.
-     *!/
-    _clearHtmlDom() {
-        // Input controls
-        PolymerUtils.setPropertyByClassName(this._prefix + "FilterTextInput", "value", "");
-        PolymerUtils.removeAttributebyclass(this._prefix + "FilterTextInput", "disabled");
-        // Uncheck checkboxes
-        PolymerUtils.setPropertyByClassName(this._prefix + "FilterCheckBox", "checked", false);
-        // Set first option and make it active
-        PolymerUtils.setAttributeByClassName(this._prefix + "FilterSelect", "selectedIndex", 0);
-        PolymerUtils.removeAttributebyclass(this._prefix + "FilterSelect", "disabled");
-        PolymerUtils.setPropertyByClassName(this._prefix + "FilterRadio", "checked", false);
-        PolymerUtils.setAttributeByClassName(this._prefix + "FilterRadio", "disabled", true);
-
-        // TODO Refactor
-        $("." + this._prefix + "FilterRadio").filter("[value=\"or\"]").prop("checked", true);
-    }*/
-
-/*    isVisible(myVar) {
-        if (UtilsNew.isNotUndefinedOrNull(this.config) && UtilsNew.isNotUndefinedOrNull(this.config.variableSet)) {
-            const excludeArray = this.config.variableSet.exclude;
-            for (const index in excludeArray) {
-                if (excludeArray[index].webComponent === this.localName) {
-                    return (!(excludeArray[index].variable.indexOf(myVar.name)!== -1));
-                } else {
-                    return true;
-                }
-            }
-        }
-        return true;
-    }*/
 
     render() {
         return html`${this.searchButton ? html`

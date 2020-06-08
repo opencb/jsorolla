@@ -80,7 +80,7 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
 
     firstUpdated(_changedProperties) {
         super.firstUpdated(_changedProperties);
-        this._initTooltip();
+        UtilsNew.initTooltip(this);
     }
 
     updated(changedProperties) {
@@ -94,37 +94,6 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
         this.notifySearch(this.preparedQuery);
     }
 
-    _initTooltip() {
-        // TODO move to Utils
-        $("a[tooltip-title]", this).each(function() {
-            $(this).qtip({
-                content: {
-                    title: $(this).attr("tooltip-title"),
-                    text: $(this).attr("tooltip-text")
-                },
-                position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-                style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-                show: {delay: 200},
-                hide: {fixed: true, delay: 300}
-            });
-        });
-    }
-
-    onDateChanged(e) {
-        const query = {};
-        Object.assign(query, this.query);
-        if (UtilsNew.isNotEmpty(e.detail.date)) {
-            query["creationDate"] = e.detail.date;
-        } else {
-            delete query["creationDate"];
-        }
-
-        this._reset = false;
-        // this.set("query", query);
-        this.query = query;
-        this._reset = true;
-    }
-
     queryObserver() {
         if (this._reset) {
             console.log("queryObserver: calling to 'renderQueryFilters()'", this.query);
@@ -136,86 +105,6 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
             this._reset = true;
         }
     }
-
-    /*    renderQueryFilters() {
-        // Empty everything before rendering
-        this._clearHtmlDom();
-
-        // ClinicalAnalysis
-        if (UtilsNew.isNotUndefined(this.query.id)) {
-            PolymerUtils.setValue(`${this._prefix}-analysis-input`, this.query.id);
-        }
-
-        // Family
-        if (UtilsNew.isNotUndefined(this.query.family)) {
-            PolymerUtils.setValue(`${this._prefix}-family-input`, this.query.family);
-        }
-
-        // Proband
-        if (UtilsNew.isNotUndefined(this.query.proband)) {
-            PolymerUtils.setValue(`${this._prefix}-proband-input`, this.query.proband);
-        }
-
-        // Sample
-        if (UtilsNew.isNotUndefined(this.query.sample)) {
-            PolymerUtils.setValue(`${this._prefix}-sample-input`, this.query.sample);
-        }
-
-        // Priority
-        if (UtilsNew.isNotUndefined(this.query.priority)) {
-            $(`#${this._prefix}-analysis-priority-select`).selectpicker("val", this.query.priority.split(","));
-        }
-
-        // Type
-        if (UtilsNew.isNotUndefined(this.query.type)) {
-            $(`#${this._prefix}-analysis-type-select`).selectpicker("val", this.query.type.split(","));
-        }
-    }
-
-    calculateFilters(e) {
-        const _query = {};
-
-        const name = PolymerUtils.getValue(`${this._prefix}-analysis-input`);
-        if (UtilsNew.isNotEmpty(name)) {
-            _query.id = name;
-        }
-
-        const family = PolymerUtils.getValue(`${this._prefix}-family-input`);
-        if (UtilsNew.isNotEmpty(family)) {
-            _query.family = family;
-        }
-
-        const proband = PolymerUtils.getValue(`${this._prefix}-proband-input`);
-        if (UtilsNew.isNotEmpty(proband)) {
-            _query.proband = proband;
-        }
-
-        const samples = PolymerUtils.getValue(`${this._prefix}-sample-input`);
-        if (UtilsNew.isNotEmpty(samples)) {
-            _query.sample = samples;
-        }
-
-        const priority = $(`#${this._prefix}-analysis-priority-select`).selectpicker("val");
-        if (UtilsNew.isNotEmpty(priority)) {
-            _query.priority = priority.join(",");
-        }
-
-        const type = $(`#${this._prefix}-analysis-type-select`).selectpicker("val");
-        if (UtilsNew.isNotEmpty(type)) {
-            _query.type = type.join(",");
-        }
-
-        // keep date filters
-        if (UtilsNew.isNotEmpty(this.query.creationDate)) {
-            _query.creationDate = this.query.creationDate;
-        }
-
-        // To prevent to call renderQueryFilters we set this to false
-        this._reset = false;
-        // this.set("query", _query);
-        this.query = _query;
-        this._reset = true;
-    }*/
 
     onFilterChange(key, value) {
         console.log("filterChange", {[key]: value});
@@ -289,16 +178,6 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
                          </div>
                     </div>
                 `;
-    }
-    /**
-     * Use custom CSS class to easily reset all controls.
-     */
-    _clearHtmlDom() {
-        // Input controls
-        PolymerUtils.setPropertyByClassName(this._prefix + "FilterTextInput", "value", "");
-        PolymerUtils.removeAttributebyclass(this._prefix + "FilterTextInput", "disabled");
-
-        $(`#${this._prefix}ClinicalAnalysisSelection .selectpicker`).selectpicker("val", "");
     }
 
     render() {

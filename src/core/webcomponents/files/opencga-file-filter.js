@@ -98,7 +98,7 @@ export default class OpencgaFileFilter extends LitElement {
 
     firstUpdated(_changedProperties) {
         super.firstUpdated(_changedProperties);
-        this._initTooltip();
+        UtilsNew.initTooltip(this);
     }
 
     updated(changedProperties) {
@@ -115,22 +115,6 @@ export default class OpencgaFileFilter extends LitElement {
         this.notifySearch(this.preparedQuery);
     }
 
-    _initTooltip() {
-        // TODO move to Utils
-        $("a[tooltip-title]", this).each(function() {
-            $(this).qtip({
-                content: {
-                    title: $(this).attr("tooltip-title"),
-                    text: $(this).attr("tooltip-text")
-                },
-                position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-                style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-                show: {delay: 200},
-                hide: {fixed: true, delay: 300}
-            });
-        });
-    }
-
     onAnnotationChange(e) {
         if (e.detail.value) {
             this.preparedQuery.annotation = e.detail.value
@@ -140,41 +124,6 @@ export default class OpencgaFileFilter extends LitElement {
         this.preparedQuery = {...this.preparedQuery};
         this.notifyQuery(this.preparedQuery);
         this.requestUpdate();
-    }
-
-    // TODO remove, use onAnnotationChange
-    addAnnotation(e) {
-        if (typeof this._annotationFilter === "undefined") {
-            this._annotationFilter = {};
-        }
-        const split = e.detail.value.split("=");
-        this._annotationFilter[split[0]] = split[1];
-
-        const _query = {};
-        Object.assign(_query, this.query);
-        const annotations = [];
-        for (const key in this._annotationFilter) {
-            annotations.push(`${key}=${this._annotationFilter[key]}`);
-        }
-        _query["annotation"] = annotations.join(";");
-
-        this._reset = false;
-        this.query = _query;
-        this._reset = true;
-    }
-
-    onDateChanged(e) {
-        const query = {};
-        Object.assign(query, this.query);
-        if (UtilsNew.isNotEmpty(e.detail.date)) {
-            query["creationDate"] = e.detail.date;
-        } else {
-            delete query["creationDate"];
-        }
-
-        this._reset = false;
-        this.query = query;
-        this._reset = true;
     }
 
     queryObserver() {
@@ -187,50 +136,6 @@ export default class OpencgaFileFilter extends LitElement {
             this._reset = true;
         }
     }
-
-    /*
-    // TODO refactor!
-    renderQueryFilters() {
-        // Empty everything before rendering
-        this._clearHtmlDom();
-
-        console.log(this.querySelector(`${this._prefix}-name-input`));
-        // File name
-        if (UtilsNew.isNotUndefined(this.query.name)) {
-            PolymerUtils.setValue(`${this._prefix}-name-input`, this.query.name);
-        }
-
-        // File path
-        if (UtilsNew.isNotUndefined(this.query.path)) {
-            PolymerUtils.setValue(`${this._prefix}-path-input`, this.query.path);
-        }
-
-        // Sample
-        if (UtilsNew.isNotUndefined(this.query.samples)) {
-            PolymerUtils.setValue(`${this._prefix}-sample-input`, this.query.samples);
-        }
-
-        // File format
-        if (UtilsNew.isNotUndefined(this.query.format)) {
-            PolymerUtils.setValue(`${this._prefix}-format-input`, this.query.format);
-        }
-
-        // File bioformat
-        if (UtilsNew.isNotUndefined(this.query.bioformat)) {
-            PolymerUtils.setValue(`${this._prefix}-bioformat-input`, this.query.bioformat);
-        }
-        this.requestUpdate();
-    }*/
-
-    /*    filterChanged(e) {
-        console.log(e.target.name, e.target.value.trim());
-        if (e.target.value.trim()) {
-            this.query[e.target.name] = e.target.value.trim();
-        } else {
-            delete this.query[e.target.name];
-        }
-        console.log(this.query)
-    }*/
 
     onFilterChange(key, value) {
         console.log("filterChange", {[key]: value});
@@ -294,12 +199,7 @@ export default class OpencgaFileFilter extends LitElement {
                                                       .config="${this.annotationFilterConfig}"
                                                       .selectedVariablesText="${this.preparedQuery.annotation}"
                                                       @annotationChange="${this.onAnnotationChange}">
-                        </opencga-annotation-filter-modal>
-                           <!--<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
-                                                          .config="${this.annotationFilterConfig}"
-                                                          entity="FILE"
-                                                          @filterannotation="${this.addAnnotation}">
-                           </opencga-annotation-filter>-->`;
+                        </opencga-annotation-filter-modal>`;
                 break;
             case "date":
                 content = html`<opencga-date-filter .config="${this.dateFilterConfig}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>`;
