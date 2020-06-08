@@ -384,6 +384,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             allowedValues: "proband.disorders",
                             required: true,
                             display: {
+                                width: 5,
                                 apply: (disorder) => `${disorder.name} (${disorder.id})`,
                                 errorMessage: "No family selected"
                             }
@@ -491,7 +492,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                     ]
                 },
                 {
-                    title: "Cancer  Analysis Configuration",
+                    title: "Cancer Analysis Configuration",
                     collapsed: false,
                     display: {
                         visible: data => {
@@ -503,6 +504,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             name: "Select individual",
                             type: "custom",
                             display: {
+                                width: 5,
                                 render: data => {
                                     return html`<individual-id-autocomplete .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onCancerChange(e)}"></individual-id-autocomplete>`
                                 }
@@ -515,6 +517,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             allowedValues: "proband.disorders",
                             required: true,
                             display: {
+                                width: 5,
                                 apply: (disorder) => `${disorder.name} (${disorder.id})`,
                                 errorMessage: "No proband selected"
                             }
@@ -526,7 +529,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             display: {
                                 width: 10,
                                 render: (data) => {
-                                    if (data.proband && data.proband.samples) {
+                                    if (data?.proband && data?.proband?.samples) {
                                         return html`
                                             <opencga-sample-grid .opencgaSession="${this.opencgaSession}" 
                                                                      .samples="${data.proband.samples}">

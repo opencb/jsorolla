@@ -116,7 +116,7 @@ export default class SelectFieldFilter extends LitElement {
 
     render() {
         return html`
-            <div id="${this._prefix}-select-field-filter-wrapper" class="form-group">
+            <div id="${this._prefix}-select-field-filter-wrapper" class="">
                 <select id="${this.elm}"
                         class="${this.elm}"
                         multiple

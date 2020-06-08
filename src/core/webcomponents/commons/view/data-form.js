@@ -321,7 +321,7 @@ export default class DataForm extends LitElement {
             } else {
                 const sectionWidth = element?.display?.width ? element.display.width : "12";
                 return html`
-                    <div class="form-group">
+                    <div class="form-group col-md-12">
                         <label class="control-label col-md-12">${title}</label>
                         <div class="col-md-${sectionWidth}">
                             ${content}
