@@ -86,10 +86,15 @@ export default class OpencgaIndividualView extends LitElement {
             title: "Summary",
             icon: "",
             display: {
+                // mode: {
+                //     type: "card",
+                //     width: 1024
+                // },
                 collapsable: true,
                 showTitle: false,
                 labelWidth: 2,
-                defaultValue: "-"
+                defaultValue: "-",
+                defaultLayout: "horizontal"
             },
             sections: [
                 {

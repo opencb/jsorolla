@@ -204,7 +204,7 @@ export default class DataForm extends LitElement {
         if (!Array.isArray(section.elements[0])) {
             const sectionWidth = section?.display?.width ? section?.display?.width : "12";
             return html`
-                <div>
+                <div class="row">
                     ${section.title ? html`<h3 class="${sectionTitleClass}" style="${sectionTitleStyle}">${section.title}</h3>` : null}
                     <div class="container-fluid col-md-${sectionWidth}" style="padding: 10px">
                         ${section.elements.map(element => this._createElement(element))}
@@ -340,12 +340,13 @@ export default class DataForm extends LitElement {
                                 <label>${title}</label>
                             </div>`
                         : null}
-                        <div class="col-md-${12 - labelWidth}">
+                        <div class="col-md-${width - labelWidth}">
                             ${content}
                         </div>
                     </div>        
                 `;
             } else {
+                const sectionWidth = element?.display?.width ? element.display.width : "12";
                 return html`
                     <div class="row detail-row">
                         ${showLabel ? html`
@@ -353,7 +354,7 @@ export default class DataForm extends LitElement {
                                 <label>${title}</label>
                             </div>`
                         : null}
-                        <div class="col-md-12">
+                        <div class="col-md-${sectionWidth}">
                             ${content}
                         </div>
                     </div>        
@@ -772,7 +773,7 @@ export default class DataForm extends LitElement {
 
         const sectionTitleIcon = this.config.display?.title?.class ?? "";
 
-        if (this.config.display && this.config.display.mode === "card") {
+        if (this.config.display && this.config.display?.mode?.type === "card") {
             return html`
                 <div class="row">
                     <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#${this._prefix}Help">
@@ -789,7 +790,7 @@ export default class DataForm extends LitElement {
             `;
         }
 
-        if (this.config.display && this.config.display.mode && this.config.display.mode.type === "modal") {
+        if (this.config.display && this.config.display?.mode?.type === "modal") {
             return html`
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#${this._prefix}DataModal">
                     <i class="${this.config.icon ? this.config.icon : "fas fa-info-circle"}" aria-hidden="true" style="padding-right: 5px"></i> ${this.config.title}
