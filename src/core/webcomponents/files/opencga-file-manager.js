@@ -48,7 +48,6 @@ export default class OpencgaFileManager extends LitElement {
     _init() {
         this.currentRootId = ":";
         this.tree = null;
-        this.fileId = null;
     }
 
     connectedCallback() {
@@ -76,11 +75,19 @@ export default class OpencgaFileManager extends LitElement {
 
     async fetchFolder(fileId) {
         try {
-            const restResponse = await this.opencgaSession.opencgaClient.files().tree(fileId, {study: this.opencgaSession.study.fqn, maxDepth: 3})
-            const result = restResponse.getResult(0);
             const folder = this.searchNode(fileId, this.tree.children);
-            folder.children = result.children;
-            this.currentRoot = result;
+            if (!folder.visited) {
+                const restResponse = await this.opencgaSession.opencgaClient.files().tree(fileId, {study: this.opencgaSession.study.fqn, maxDepth: 3})
+                const result = restResponse.getResult(0);
+                folder.children = result.children;
+                folder.visited = true;
+                this.currentRoot = result;
+            } else {
+                this.currentRoot = folder;
+            }
+
+            console.log("current root", this.currentRoot)
+
             this.requestUpdate();
         } catch (restResponse) {
             console.error(restResponse);
@@ -121,20 +128,23 @@ export default class OpencgaFileManager extends LitElement {
         const children = root.children;
         const id = `tree-${root.file.id.replace(/:/g, "-")}`;
         return html`
-            <span class="folder-name ${id}" @click="${() => this.toggleFolder(id, root)}"> ${root.file.name} </span>
+            ${root.file.name !== "." ? html`
+                    <i @click="${() => this.toggleFolder(id, root)}" class="fas fa-angle-${root.exploded ? "down" : "right"}"></i> <a class="folder-name ${id}" @click="${() => this.route(root.file.id.replace(/:/g, "-"))}"> ${root.file.name} </a>
+                ` : html`
+                    <i class="fas fa-home"></i> <a @click="${() => this.reset}"> Home</a>`}
+            
             <ul class="">
                 ${children.map(node => {
                     if (node.file.type === "DIRECTORY") {
                         return html`
                             <li class="folder">
-                                <span class="badge">${node.children.length}</span>
-                                ${node.file.name}
+                                <!-- <span class="badge">${node.children.length}</span>-->
                                 ${this.renderTree(node)}
                             </li>`;
                     } else if (node.file.type === "FILE") {
                         return html`
                             <p class="file" @click="${() => this.onClickFile(node.file.id)}">
-                                FILE : ${node.file.name}
+                                ${node.file.name}
                             </p>`;
                     } else {
                         throw new Error("Type not recognized " + node.file.type);
@@ -146,10 +156,17 @@ export default class OpencgaFileManager extends LitElement {
 
     async toggleFolder(id, node) {
         // TODO avoid this check and to execute fetchFolder in case of collapsing an <ul>
+        //check for the root
         if (id !== "tree-") {
+            if(!node.exploded) {
+                node.exploded = true;
+                await this.fetchFolder(node.file.id);
+            } else {
+                node.exploded = false;
+            }
             console.log("toggle" + node.file.id);
             console.log($("." + id + " ul"));
-            await this.fetchFolder(node.file.id);
+
         } else {
             console.log("no id")
         }
