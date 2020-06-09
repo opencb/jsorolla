@@ -17,7 +17,6 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import GridCommons from "../variant/grid-commons.js";
 import UtilsNew from "../../utilsNew.js";
-import PolymerUtils from "../PolymerUtils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 
@@ -39,43 +38,32 @@ export default class OpencgaFileGrid extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            query: {
+                type: Object
+            },
             files: {
                 type: Array
             },
-            filters: {
-                type: Object
-            },
-            // TODO replace with query
-            search: {
-                type: Object
-            },
-            eventNotifyName: {
-                type: String
-            },
             config: {
-                type: Object
-            },
-            query: {
                 type: Object
             }
         };
     }
 
     _init() {
-        this._prefix = "VarFileGrid" + UtilsNew.randomString(6) + "_";
-        this._config = this.getDefaultConfig();
-        this.eventNotifyName = "messageevent";
+        this._prefix = "fg" + UtilsNew.randomString(6);
         this.gridId = this._prefix + "FileBrowserGrid";
+        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     firstUpdated(_changedProperties) {
-        this._initTableColumns();
         this.dispatchEvent(new CustomEvent("clear", {detail: {}, bubbles: true, composed: true}));
         this.table = this.querySelector("#" + this.gridId);
         this.query = {};
@@ -85,61 +73,48 @@ export default class OpencgaFileGrid extends LitElement {
         if (changedProperties.has("opencgaSession") || changedProperties.has("query")) {
             this.renderTable();
         }
-        if (changedProperties.has("filters")) {
-            this.onFilterUpdate();
-        }
+
         if (changedProperties.has("config")) {
-            this.configObserver();
+            this._config = Object.assign(this.getDefaultConfig(), this.config);
+            this.requestUpdate();
         }
-
-        if (changedProperties.has("filteredVariables")) {
-            this.calculateFilters();
-        }
-    }
-
-    configObserver() {
-        this._config = Object.assign(this.getDefaultConfig(), this.config);
     }
 
     renderTable() {
-        this.files = [];
+        // If this.files is provided as property we render the array directly
+        if (this.files && this.files.length > 0) {
+            this.renderLocalTable();
+        } else {
+            this.renderRemoteTable();
+        }
+        this.requestUpdate();
+    }
 
+    renderRemoteTable() {
         this.from = 1;
-        this.to = 10;
+        this.to = this._config.pageSize || 10;
 
-        if (UtilsNew.isNotUndefined(this.opencgaSession.opencgaClient) &&
-            UtilsNew.isNotUndefined(this.opencgaSession.study) &&
-            UtilsNew.isNotUndefined(this.opencgaSession.study.fqn)) {
-            // Make a copy of the files (if they exist), we will use this private copy until it is assigned to this.files
-            if (UtilsNew.isNotUndefined(this.files)) {
-                this._files = this.files;
-            } else {
-                this._files = [];
-            }
-
-            const _table = $(this.table);
-
-            const _this = this;
-            $(this.table).bootstrapTable("destroy");
-            $(this.table).bootstrapTable({
-                // url: opencgaHostUrl,
-                columns: _this._columns,
+        if (this.opencgaSession.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
+            this.table = $("#" + this.gridId);
+            this.table.bootstrapTable("destroy");
+            this.table.bootstrapTable({
+                columns: this._getDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
                 uniqueId: "id",
+
                 // Table properties
-                pagination: _this._config.pagination,
-                pageSize: _this._config.pageSize,
-                pageList: _this._config.pageList,
-                showExport: _this._config.showExport,
-                detailView: _this._config.detailView,
-                detailFormatter: _this._config.detailFormatter,
+                pagination: this._config.pagination,
+                pageSize: this._config.pageSize,
+                pageList: this._config.pageList,
+                showExport: this._config.showExport,
+                detailView: this._config.detailView,
+                detailFormatter: this._config.detailFormatter,
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
                     const filters = {
                         study: this.opencgaSession.study.fqn,
                         type: "FILE",
-                        order: params.data.order,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !$(this.table).bootstrapTable("getOptions").pageNumber || $(this.table).bootstrapTable("getOptions").pageNumber === 1,
@@ -158,338 +133,156 @@ export default class OpencgaFileGrid extends LitElement {
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                /*
-                                onClickRow: function(row, element, field) {
-                                    if (_this._config.multiSelection) {
-                                        $(element).toggleClass("success");
-                                        const index = element[0].getAttribute("data-index");
-                                        // Check and uncheck actions trigger events that are captured below
-                                        if ("selected" === element[0].className) {
-                                            $(PolymerUtils.getElementById(_this._prefix + "FileBrowserGrid")).bootstrapTable("uncheck", index);
-                                        } else {
-                                            $(PolymerUtils.getElementById(_this._prefix + "FileBrowserGrid")).bootstrapTable("check", index);
-                                        }
-                                    } else {
-                                        $(".success").removeClass("success");
-                                        $(element).addClass("success");
-                                    }
-
-                                    _this._onSelectFile(row);
-                                },*/
-                onCheck: function(row, elem) {
-                    // check file is not already selected
-                    for (const i in _this._files) {
-                        if (_this._files[i].id === row.id) {
-                            return;
+                onDblClickRow: (row, element, field) => {
+                    // We detail view is active we expand the row automatically.
+                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
+                    if (this._config.detailView) {
+                        if (element[0].innerHTML.includes("icon-plus")) {
+                            this.table.bootstrapTable("expandRow", element[0].dataset.index);
+                        } else {
+                            this.table.bootstrapTable("collapseRow", element[0].dataset.index);
                         }
                     }
-
-                    // we add files to selected files
-                    // _this.push("_files", row);
-                    // _this.set("files", _this._files.slice());
-                    _this._files.push(row);
-                    _this.files = _this._files.slice();
-
                 },
-                onUncheck: function(row, elem) {
-                    let fileToDeleteIdx = -1;
-                    for (const i in _this.files) {
-                        if (_this.files[i].id === row.id) {
-                            fileToDeleteIdx = i;
-                            break;
-                        }
-                    }
-
-                    if (fileToDeleteIdx === -1) {
-                        return;
-                    }
-
-                    // _this.splice("_files", fileToDeleteIdx, 1);
-                    // _this.set("files", _this._files.slice());
-                    _this._files.splice(fileToDeleteIdx, 1);
-                    _this.files = _this._files.slice();
+                onCheck: (row, $element) => {
+                    this.gridCommons.onCheck(row.id, row);
                 },
-                onCheckAll: function(rows) {
-                    const newFiles = _this._files.slice();
-                    // check file is not already selected
-                    rows.forEach(file => {
-                        const existsNewSelected = _this._files.some(fileSelected => {
-                            return fileSelected.id === file.id;
-                        });
-
-                        if (!existsNewSelected) {
-                            newFiles.push(file);
-                        }
-                    });
-
-                    // we add files to selected files
-                    _this._files = newFiles;
-                    _this.files = newFiles.slice();
-
+                onCheckAll: rows => {
+                    this.gridCommons.onCheckAll(rows);
                 },
-                onUncheckAll: function(rows) {
-                    // check file is not already selected
-                    rows.forEach(file => {
-                        _this._files = _this._files.filter(fileSelected => {
-                            return fileSelected.id !== file.id;
-                        });
-
-                    });
-
-                    // we add files to selected files
-                    //                            _this.push("_files", row);
-                    _this.files = _this._files.slice();
-
+                onUncheck: (row, $element) => {
+                    this.gridCommons.onUncheck(row.id, row);
                 },
-                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
-                onPageChange: (page, size) => this.gridCommons.onPageChange(page, size)
-            });
-
-            this.opencgaSession.opencgaClient.studies().info(this.opencgaSession.study.id)
-                .then(function(response) {
-                    _this.variableSets = response.response[0].result[0].variableSets;
-                })
-                .catch(function() {
-                    console.log("Could not obtain the variable sets of the study " + _this.opencgaSession.study.id);
-                });
-        } else {
-            // Delete table
-            $(PolymerUtils.getElementById(this._prefix + "FileBrowserGrid")).bootstrapTable("destroy");
-            this.numTotalResults = 0;
-        }
-    }
-
-    /**
-     * If filters have been removed, clean the values from the forms.
-     */
-    onFilterUpdate() {
-        // this.updateForms(this.filters); //TODO recheck, this shouldn't be necessary anymore (and it seems not)
-    }
-
-    _onSelectFile(row) {
-        if (typeof row !== "undefined") {
-            this.dispatchEvent(new CustomEvent("selectfile", {detail: {id: row.id, file: row}}));
-        }
-    }
-
-    updateForms(filters) {
-        // This is just to avoid entering here when it has just been initialized
-        if (UtilsNew.isUndefined(this._prefix)) {
-            return;
-        }
-
-        const fileName = PolymerUtils.getValue(this._prefix + "NameTextarea");
-        if (!filters.hasOwnProperty("name") && UtilsNew.isNotUndefined(fileName) && fileName.length > 0) {
-            PolymerUtils.getElementById(this._prefix + "NameTextarea").value = "";
-        }
-
-        const individual = PolymerUtils.getValue(this._prefix + "IndividualTextarea");
-        if (!filters.hasOwnProperty("individual.id") && UtilsNew.isNotUndefined(individual) && individual.length > 0) {
-
-            PolymerUtils.setValue(this._prefix + "IndividualTextarea", "");
-        }
-
-        if (this.filteredVariables.variables.length > 0) {
-            if (!filters.hasOwnProperty("annotation")) {
-                // Remove the filter variableSetId as it won't make more sense.
-                this.filteredVariables.variables = [];
-
-            } else if (filters.annotation.length < this.filteredVariables.variables.length) {
-                const tmpVariables = [];
-                filters.annotation.forEach(function(variable) {
-                    tmpVariables.push(variable);
-                });
-
-                this.filteredVariables.variables = tmpVariables;
-            }
-        }
-    }
-
-    /**
-     * Read from the values in the forms, and sets the filters.
-     */
-    calculateFilters() {
-        const filters = {};
-        let fileName = "";
-        let individual = "";
-
-        if (PolymerUtils.getElementById(this._prefix + "NameTextarea") !== null) {
-            fileName = PolymerUtils.getElementById(this._prefix + "NameTextarea").value;
-        }
-        if (PolymerUtils.getElementById(this._prefix + "IndividualTextarea") !== null) {
-            individual = PolymerUtils.getElementById(this._prefix + "IndividualTextarea").value;
-        }
-
-        if (UtilsNew.isNotUndefined(fileName) && fileName.length > 0) {
-            filters["name"] = "~" + fileName;
-        }
-
-        if (UtilsNew.isNotUndefined(individual) && individual.length > 0) {
-            filters["individual.id"] = "~" + individual;
-        }
-
-        if (UtilsNew.isNotUndefined(this.filteredVariables.variables) && this.filteredVariables.variables.length > 0) {
-            //                    filters["variableSetId"] = this.filteredVariables.variableSet;
-            const annotations = [];
-            this.filteredVariables.variables.forEach(function(variable) {
-                annotations.push(variable);
-            });
-            filters["annotation"] = annotations;
-        }
-        this.filters = filters;
-    }
-
-    stateFormatter(value, row, index) {
-        if (typeof this.field.context.files != "undefined") {
-            for (const idx in this.field.context.files) {
-                if (this.field.context.files[idx].name == row.name) {
-                    break;
+                onUncheckAll: rows => {
+                    this.gridCommons.onUncheckAll(rows);
+                },
+                onLoadSuccess: data => {
+                    this.gridCommons.onLoadSuccess(data, 1);
+                },
+                onPageChange: (page, size) => {
+                    const result = this.gridCommons.onPageChange(page, size);
+                    this.from = result.from || this.from;
+                    this.to = result.to || this.to;
+                },
+                onPostBody: (data) => {
+                    // Add tooltips?
                 }
-            }
+            });
         }
     }
 
-    individualFormatter(value, row) {
-        if (UtilsNew.isNotUndefined(row.attributes) && UtilsNew.isNotUndefined(row.attributes.individual) &&
-            UtilsNew.isNotUndefined(row.attributes.individual.id)) {
-            return row.attributes.individual.id;
-        } else {
-            return "-";
-        }
+    renderLocalTable() {
+        this.from = 1;
+        this.to = Math.min(this.samples.length, this._config.pageSize);
+        this.numTotalResultsText = this.samples.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+        this.table = $("#" + this.gridId);
+        this.table.bootstrapTable("destroy");
+        this.table.bootstrapTable({
+            columns: this._getDefaultColumns(),
+            data: this.files,
+            sidePagination: "local",
+
+            // Set table properties, these are read from config property
+            uniqueId: "id",
+            pagination: this._config.pagination,
+            pageSize: this._config.pageSize,
+            pageList: this._config.pageList,
+            showExport: this._config.showExport,
+            detailView: this._config.detailView,
+            detailFormatter: this.detailFormatter,
+            formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+
+            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onPageChange: (page, size) => {
+                const result = this.gridCommons.onPageChange(page, size);
+                this.from = result.from || this.from;
+                this.to = result.to || this.to;
+            },
+            onPostBody: (data) => {
+                // We call onLoadSuccess to select first row
+                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
+                // this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
+            }
+        });
     }
+
+    // sizeFormatter(bytes) {
+    //     const si = true; // international system of units
+    //     let u, b=bytes, t= si ? 1000 : 1024;
+    //     ["", si?"k":"K", ..."MGTPEZY"].find(x=> (u=x, b/=t, b**2<1));
+    //     return `${u ? (t*b).toFixed(1) : bytes} ${u}${!si && u ? "i":""}B`;
+    // }
 
     dateFormatter(value, row) {
         return moment(value, "YYYYMMDDHHmmss").format("D MMM YYYY");
     }
 
-    diagnosisFormatter(value, row) {
-        if (UtilsNew.isNotUndefined(row.attributes) && UtilsNew.isNotUndefined(row.attributes.individual) &&
-            UtilsNew.isNotEmptyArray(row.attributes.individual.phenotypes)) {
-            const diagnosisPhenotypes = row.attributes.individual.phenotypes.filter(disease => {
-                return disease.source === "ICD10";
-            }).map(icd10disease => {
-                return icd10disease.name;
-            });
-            if (UtilsNew.isNotEmptyArray(diagnosisPhenotypes)) {
-                return diagnosisPhenotypes.join(",");
+    _getDefaultColumns() {
+        // name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid"
+        let _columns = [
+            {
+                title: "Uuid",
+                field: "uuid",
+                visible: false
+            },
+            {
+                title: "Name",
+                field: "name"
+            },
+            {
+                title: "Path",
+                field: "path"
+            },
+            {
+                title: "Format",
+                field: "format"
+            },
+            {
+                title: "Bioformat",
+                field: "bioformat"
+            },
+            {
+                title: "Size",
+                field: "size",
+                formatter: (value) => UtilsNew.getDiskUsage(value)
+            },
+            {
+                title: "Creation date",
+                field: "creationDate",
+                formatter: this.dateFormatter
+            },
+            // {
+            //     title: "Modification date",
+            //     field: "modificationDate",
+            //     formatter: this.dateFormatter
+            // },
+            {
+                title: "Status",
+                field: "internal.status.name"
+            },
+            {
+                title: "Index",
+                field: "internal.index.status.name"
             }
-        }
-        return "-";
-    }
-
-    hpoFormatter(value, row) {
-        if (UtilsNew.isNotUndefined(row.attributes) && UtilsNew.isNotUndefined(row.attributes.individual) &&
-            UtilsNew.isNotEmptyArray(row.attributes.individual.phenotypes)) {
-            const hpoPhenotypes = row.attributes.individual.phenotypes.filter(disease => {
-                return disease.source === "HPO";
-            }).map(hpoDisease => {
-                return hpoDisease.name;
-            });
-            if (UtilsNew.isNotEmptyArray(hpoPhenotypes)) {
-                return hpoPhenotypes.join(",");
-            }
-        }
-        return "-";
-    }
-
-    fatherFormatter(value, row) {
-        if (UtilsNew.isNotUndefined(row.attributes) && UtilsNew.isNotUndefined(row.attributes.individual) &&
-            UtilsNew.isNotUndefined(row.attributes.individual.father) &&
-            UtilsNew.isNotUndefined(row.attributes.individual.father.id)) {
-            return row.attributes.individual.father.id;
-        } else {
-            return "-";
-        }
-    }
-
-    motherFormatter(value, row) {
-        if (UtilsNew.isNotUndefined(row.attributes) && UtilsNew.isNotUndefined(row.attributes.individual) &&
-            UtilsNew.isNotUndefined(row.attributes.individual.mother) &&
-            UtilsNew.isNotUndefined(row.attributes.individual.mother.id)) {
-            return row.attributes.individual.mother.id;
-        } else {
-            return "-";
-        }
-    }
-
-    cellTypeFormatter(value, row) {
-        return (row.somatic) ? "Somatic" : "Germline";
-    }
-
-    sizeFormatter(bytes) {
-        const si = true; // international system of units
-        let u, b=bytes, t= si ? 1000 : 1024;
-        ["", si?"k":"K", ..."MGTPEZY"].find(x=> (u=x, b/=t, b**2<1));
-        return `${u ? (t*b).toFixed(1) : bytes} ${u}${!si && u ? "i":""}B`;
-    }
-
-    _initTableColumns() {
-        const columns = [];
-        if (this._config.multiSelection) {
-            columns.push({
-                field: {source: "state", context: this},
-                checkbox: true,
-                formatter: this.stateFormatter
-            });
-        }
-
-        this._columns = [
-            columns.concat([
-                // name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid"
-                {
-                    title: "Uuid",
-                    field: "uuid",
-                    visible: false
-                },
-                {
-                    title: "Name",
-                    field: "name"
-                },
-                {
-                    title: "Path",
-                    field: "path"
-                },
-                {
-                    title: "Format",
-                    field: "format"
-                },
-                {
-                    title: "Bioformat",
-                    field: "bioformat"
-                },
-                {
-                    title: "Size",
-                    field: "size",
-                    formatter: this.sizeFormatter
-                },
-                {
-                    title: "Creation date",
-                    field: "creationDate",
-                    formatter: this.dateFormatter
-                },
-                {
-                    title: "Modification date",
-                    field: "modificationDate",
-                    formatter: this.dateFormatter
-                },
-                {
-                    title: "Status",
-                    field: "internal.status.name"
-                },
-                {
-                    title: "Index",
-                    field: "internal.index.status.name"
-                }
-            ])
         ];
 
-        return this._columns;
+        if (this._config.showSelectCheckbox) {
+            _columns.push({
+                field: "state",
+                checkbox: true,
+                // formatter: this.stateFormatter,
+                class: "cursor-pointer",
+                eligible: false
+            });
+        }
+
+        return _columns;
     }
 
     onDownload(e) {
         // let urlQueryParams = this._getUrlQueryParams();
         // let params = urlQueryParams.queryParams;
-        console.log(this.opencgaSession);
         const params = {
             ...this.query,
             limit: 1000,
@@ -561,23 +354,23 @@ export default class OpencgaFileGrid extends LitElement {
             showExport: false,
             detailView: false,
             detailFormatter: undefined, // function with the detail formatter
-            multiSelection: false
+            multiSelection: false,
+            showSelectCheckbox: false
         };
     }
 
-
     render() {
         return html`
-        <opencb-grid-toolbar .from="${this.from}"
-                            .to="${this.to}"
-                            .numTotalResultsText="${this.numTotalResultsText}"
-                            @columnChange="${this.onColumnChange}"
-                            @download="${this.onDownload}">
-        </opencb-grid-toolbar>
-        <div id="${this._prefix}GridTableDiv">
-            <table id="${this._prefix}FileBrowserGrid">
-            </table>
-        </div>
+            <opencb-grid-toolbar .from="${this.from}"
+                                .to="${this.to}"
+                                .numTotalResultsText="${this.numTotalResultsText}"
+                                @columnChange="${this.onColumnChange}"
+                                @download="${this.onDownload}">
+            </opencb-grid-toolbar>
+            <div id="${this._prefix}GridTableDiv">
+                <table id="${this._prefix}FileBrowserGrid">
+                </table>
+            </div>
         `;
     }
 
