@@ -114,25 +114,16 @@ export default class OpencgaClinicalPortal extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles">
-        </style>
-
         ${this.checkProjects ? html`
+            <div class="page-title">
+                <h2>
+                    ${this._config.title}
+                </h2>
+            </div>
             <div class="row">
                 <div id="${this._prefix}ClinicalPortal"  class="col-md-10 col-md-offset-1">
+                    
                     <nav class="navbar">
-                        <div class="container-fluid" style="padding: 0px 5px">
-                            <!-- Brand and toggle get grouped for better mobile display -->
-                            <div class="navbar-header">
-                                <!--<a href="#home" class="navbar-brand" style="padding-top: 10px" on-click="changeTool">-->
-                                <!--<img src="{{config.logo}}" width="100px">-->
-                                <!--</a>-->
-                                
-                                    <h1>${this._config.title}</h1>
-                                
-                            </div>
-                        </div>
-
                         <ul class="nav navbar-nav navbar-right" style="padding: 0px 20px">
                             <li>
                                 <button type="button" class="btn btn-success ripple clinical-portal-button active " style="font-size: 1.1em" data-view="ReviewCases" @click="${this._changeView}" active>

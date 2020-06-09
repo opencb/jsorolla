@@ -61,7 +61,7 @@ export default class OpencgaFileManager extends LitElement {
         }
 
         if (changedProperties.has("opencgaSession")) {
-            this.opencgaSession.opencgaClient.files().tree(this.currentRootId, {study: this.opencgaSession.study.fqn, maxDepth: 3, include: "id,name,path"})
+            this.opencgaSession.opencgaClient.files().tree(this.currentRootId, {study: this.opencgaSession.study.fqn, maxDepth: 3, include: "id,name,path,size,format"})
                 .then(restResponse => {
                     this.tree = restResponse.getResult(0);
                     this.currentRoot = restResponse.getResult(0);
@@ -77,7 +77,7 @@ export default class OpencgaFileManager extends LitElement {
         try {
             const folder = this.searchNode(fileId, this.tree.children);
             if (!folder.visited) {
-                const restResponse = await this.opencgaSession.opencgaClient.files().tree(fileId, {study: this.opencgaSession.study.fqn, maxDepth: 3,include: "id,name,path"})
+                const restResponse = await this.opencgaSession.opencgaClient.files().tree(fileId, {study: this.opencgaSession.study.fqn, maxDepth: 3,include: "id,name,path,size,format"})
                 const result = restResponse.getResult(0);
                 folder.children = result.children;
                 folder.visited = true;
@@ -112,16 +112,24 @@ export default class OpencgaFileManager extends LitElement {
             ${this.path(root)}
             <ul class="file-manager">
                 ${children.map(node => {
-            if (node.file.type === "DIRECTORY") {
-                return html`${this.folder(node)}`;
-            } else if (node.file.type === "FILE") {
-                return html`${this.file(node)}`;
-            } else {
-                throw new Error("Type not recognized " + node.file.type);
-            }
-        })}
+        if (node.file.type === "DIRECTORY") {
+            return html`${this.folder(node)}`;
+        } else if (node.file.type === "FILE") {
+            return html`${this.file(node)}`;
+        } else {
+            throw new Error("Type not recognized " + node.file.type);
+        }
+    })}
             </ul>
         `;
+    }
+
+    icon(format, size) {
+        const icon = {
+            IMAGE: "fas fa-file-image",
+            VCF: "fas fa-file"
+        }[format];
+        return html`<i class="${icon || "fas fa-file"} ${size ? `fa-${size}x` : ""}"></i>`
     }
 
     renderTree(root) {
@@ -129,27 +137,27 @@ export default class OpencgaFileManager extends LitElement {
         const id = `tree-${root.file.id.replace(/:/g, "-")}`;
         return html`
             ${root.file.name !== "." ? html`
-                    <i @click="${() => this.toggleFolder(id, root)}" class="fas fa-angle-${root.exploded ? "down" : "right"}"></i> <a class="folder-name ${id}" @click="${() => this.route(root.file.id.replace(/:/g, "-"))}"> ${root.file.name} </a>
+                    <i @click="${() => this.toggleFolder(id, root)}" class="fas fa-angle-${root.exploded ? "down" : "right"}"></i> <a class="folder-name ${id}" @click="${() => this.route(root.file.id)}"> ${root.file.name} </a>
                 ` : html`
                     <i class="fas fa-home"></i> <a @click="${() => this.reset}"> Home</a>`}
             
             <ul class="">
                 ${children.map(node => {
-                    if (node.file.type === "DIRECTORY") {
-                        return html`
+        if (node.file.type === "DIRECTORY") {
+            return html`
                             <li class="folder">
                                 <!-- <span class="badge">${node.children.length}</span>-->
                                 ${this.renderTree(node)}
                             </li>`;
-                    } else if (node.file.type === "FILE") {
-                        return html`
+        } else if (node.file.type === "FILE") {
+            return html`
                             <p class="file" @click="${() => this.onClickFile(node.file.id)}">
-                                ${node.file.name}
+                                ${this.icon(node.file.format)} ${node.file.name}
                             </p>`;
-                    } else {
-                        throw new Error("Type not recognized " + node.file.type);
-                    }
-                })}
+        } else {
+            throw new Error("Type not recognized " + node.file.type);
+        }
+    })}
             </ul>
         `;
     }
@@ -190,7 +198,7 @@ export default class OpencgaFileManager extends LitElement {
         return html`
             <li class="file">
                 <a @click="${() => this.onClickFile(node.file.id)}">
-                    <span class="icon"><i class="fas fa-file fa-6x"></i></span>
+                    <span class="icon">${this.icon(node.file.format, 6)}</span>
                     <span class="name">${node.file.name}</span>
                     <span class="details">${UtilsNew.getDiskUsage(node.file.size)}</span>
                 </a>
@@ -199,6 +207,7 @@ export default class OpencgaFileManager extends LitElement {
     }
 
     route(nodeId) {
+        console.log("route", nodeId)
         this.currentRoot = this.searchNode(nodeId, this.tree.children);
         this.fileId = null;
         this.requestUpdate();
@@ -220,6 +229,7 @@ export default class OpencgaFileManager extends LitElement {
     }
 
     onClickFile(id) {
+        console.log(id)
         this.fileId = id;
         this.requestUpdate();
     }
@@ -259,6 +269,7 @@ export default class OpencgaFileManager extends LitElement {
             
         `;
     }
+
 }
 
 customElements.define("opencga-file-manager", OpencgaFileManager);

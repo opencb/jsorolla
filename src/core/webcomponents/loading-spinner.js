@@ -26,6 +26,14 @@ export default class LoadingSpinner extends LitElement {
         return this;
     }
 
+    static get properties() {
+        return {
+            description: {
+                type: String
+            }
+        }
+    }
+
     render() {
         return html`
         <style>
@@ -441,9 +449,15 @@ export default class LoadingSpinner extends LitElement {
             .loading-spinner-wrapper .loading-text {
                 font-size: 19px;
                 font-variant: all-small-caps;
-                letter-spacing: 5px;
+                letter-spacing: .3em;
                 margin: 20px 0 0 20px;
                 text-align: left;
+            }
+            
+            .loading-spinner-wrapper .description {
+                font-size: 17px;
+                font-variant: all-small-caps;
+                letter-spacing: .3em;
             }
             
             .loading-text-wrapper {
@@ -492,7 +506,9 @@ export default class LoadingSpinner extends LitElement {
                 <div class="loading-text">
                     Loading...
                 </div>
+                
             </div>
+            ${this.description ? html`<p class="description">${this.description}</p>` : null}
         </div>
         `;
     }

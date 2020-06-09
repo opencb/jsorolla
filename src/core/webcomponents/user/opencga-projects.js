@@ -610,7 +610,7 @@ export default class OpencgaProjects extends LitElement {
                         <div class="container-fluid">
                             <div class="row">
                                 ${project.studies ? project.studies.map(study => {
-            return html`
+                                    return html`
                                         <div class="panel panel-default col-md-12 study-panel">
                                             <div class="panel-body">
                                                 <p class="study-title">Study: ${study.name}</p>

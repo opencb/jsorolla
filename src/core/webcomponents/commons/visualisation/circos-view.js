@@ -95,11 +95,11 @@ export default class CircosView extends LitElement {
     render() {
         return html`
             <div>
-                <span id="${this._prefix}CircosMessage" style="display: inline">Fetching data image, this can take few senconds...</span>
+                <span id="${this._prefix}CircosMessage" style="display: inline"></span>
                 ${this.circosImage 
                     ? html`
                         <img class="img-responsive" src="${this.circosImage}">`
-                    : html`<loading-spinner></loading-spinner>`
+                    : html`<loading-spinner description="Fetching image data, this can take few seconds..."></loading-spinner>`
                 }
             </div>`
     }

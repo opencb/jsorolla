@@ -116,7 +116,11 @@ class VariantInterpreterQcSummary extends LitElement {
                         },
                         {
                             name: "Proband",
-                            field: "proband.id"
+                            field: "proband.id",
+                            type: "custom",
+                            display: {
+                                render: probandId => html`<strong>${probandId}</strong>`
+                            }
                         },
                         {
                             name: "Disorder",
@@ -152,9 +156,14 @@ class VariantInterpreterQcSummary extends LitElement {
                             display: {
                                 width: 12,
                                 render: data => {
+                                    console.log("data",data)
                                     if (data.proband && data.proband.samples && data.proband.samples.length > 0) {
+                                        const stats = data.proband.samples[0].annotationSets.find( annotationSet => annotationSet.id === "opencga_sample_variant_stats");
+                                        if(!stats) {
+                                            console.error("Sample variant stats unavailable")
+                                        }
                                         return html`
-                                            <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" .sampleId="${data.proband.samples[0].id}"> </sample-variant-stats-view>
+                                            <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" .sampleVariantStats="${stats?.annotations}"> </sample-variant-stats-view>
                                         `;
                                     }
                                 },

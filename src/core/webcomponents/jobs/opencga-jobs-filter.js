@@ -39,9 +39,6 @@ export default class OpencgaJobsFilter extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            // opencgaClient: {
-            //     type: Object
-            // },
             query: {
                 type: Object
             },
