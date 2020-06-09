@@ -61,13 +61,14 @@ export default class OpencgaFileView extends LitElement {
         if (changedProperties.has("fileId")) {
             this.fileIdObserver();
         }
+
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 
     fileIdObserver() {
-        if (this.fileId) {
+        if (this.opencgaSession && this.fileId) {
             this.opencgaSession.opencgaClient.files().info(this.fileId, {study: this.opencgaSession.study.fqn})
                 .then( restResponse => {
                     this.file = restResponse.responses[0].results[0];
@@ -94,7 +95,10 @@ export default class OpencgaFileView extends LitElement {
             sections: [
                 {
                     title: "General",
-                    collapsed: false,
+                    display: {
+                        // width: 10,
+                        collapsed: false
+                    },
                     elements: [
                         {
                             name: "File ID",

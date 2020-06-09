@@ -164,7 +164,7 @@ export default class DataForm extends LitElement {
             if (this.config.display && this.config.display.defaultWidth) {
                 return this.config.display.defaultWidth;
             } else {
-                return "3";
+                return null;
             }
         }
     }
@@ -306,6 +306,7 @@ export default class DataForm extends LitElement {
         let showLabel = element?.showLabel ?? true;
         let labelWidth = showLabel ? this._getLabelWidth(element) : 0;
         let width = this._getWidth(element);
+        width = width ? width : 12;
 
         // When forms we return a form-group
         if (this.config.type && this.config.type === "form") {
@@ -822,8 +823,6 @@ export default class DataForm extends LitElement {
             `;
         }
 
-
-        // ${this.config.sections.map(section => this._createSection(section))}
         return html`
             <!-- Header -->
             ${this.config.title && this.config.display && this.config.display.showTitle
@@ -841,8 +840,12 @@ export default class DataForm extends LitElement {
                 ${this.config.display && this.config.display.buttons && this.config.display.buttons.show
                     ? html`
                         <div class="col-md-12" style="padding: 20px 40px">
-                            <button type="button" class="btn btn-primary btn-lg" @click="${this.onClear}">Clear</button>
-                            <button type="button" class="btn btn-primary btn-lg" @click="${this.onSubmit}">Run</button>
+                            <button type="button" class="btn btn-primary" @click="${this.onClear}">
+                                ${this.config.display.buttons.cancelText ? this.config.display.buttons.cancelText : "Cancel"}
+                            </button>
+                            <button type="button" class="btn btn-primary" @click="${this.onSubmit}">
+                                ${this.config.display.buttons.okText ? this.config.display.buttons.okText : "OK"}
+                            </button>
                         </div>`
                     : null
                 }
