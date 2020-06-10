@@ -246,7 +246,7 @@ export default class OpencgaFileManager extends LitElement {
         return html`
             <div class="page-title">
                 <h2>
-                    <i aria-hidden="true" class="fas fa-file"></i>&nbsp;File Manager
+                    <i aria-hidden="true" class="fas fa-file"></i>&nbsp;File Explorer
                 </h2>
             </div>
             

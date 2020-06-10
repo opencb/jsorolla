@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./variant-interpreter-qc-variant-family.js";
 import "./variant-interpreter-qc-variant-cancer.js";
-import "../../simple-plot.js";
+import "../../simple-chart.js";
 import "../../commons/view/data-form.js";
 
 
