@@ -168,7 +168,7 @@ export default class GeneCoverageGrid extends LitElement {
         this._columns = [
             {
                 title: "transcript Id",
-                field: "transcriptId"
+                field: "id",
             },
             {
                 title: "> 1x",

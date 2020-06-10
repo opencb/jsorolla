@@ -54,7 +54,7 @@ export default class GeneCoverageDetail extends LitElement {
         }
 
         if (changedProperties.has("transcriptCoverageStat")) {
-            this._config.title = `Transcript ${this.transcriptCoverageStat.transcriptId}`;
+            this._config.title = `Transcript ${this.transcriptCoverageStat.id}`;
             this.requestUpdate();
         }
 
