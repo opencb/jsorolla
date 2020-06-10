@@ -167,13 +167,10 @@ export default class OpencgaFileBrowser extends LitElement {
                 ],
                 examples: [
                     {
-                        name: "Full",
+                        name: "Alignment",
                         active: false,
                         query: {
-                            name: "bam",
-                            path: "genomes",
-                            sample: "hg3333",
-                            format: "VCF,BCF,GVCF,BIGWIG",
+                            format: "BAM,SAM,BIGWIG",
                             bioformat: "ALIGNMENT",
                             creationDate: ">=20200216"
                         }
