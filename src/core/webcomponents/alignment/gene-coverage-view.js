@@ -49,7 +49,6 @@ export default class GeneCoverageView extends LitElement {
 
     _init() {
         // this.prefix = "osv" + UtilsNew.randomString(6);
-        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
@@ -58,31 +57,16 @@ export default class GeneCoverageView extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("jobId")) {
-            this.jobIdObserver();
-        }
-        if (changedProperties.has("job")) {
-            this.jobObserver();
+        if (changedProperties.has("transcriptId")) {
+            this.transcriptIdObserver();
         }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 
-    jobIdObserver() {
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            includeIndividual: true
-        };
-        this.opencgaSession.opencgaClient.jobs().info(this.jobId, params)
-            .then(response => {
-                this.job = response.getResult(0);
-                this.job.id = this.job.id ?? this.job.name;
-                this.requestUpdate();
-            })
-            .catch(function(reason) {
-                console.error(reason);
-            });
+    transcriptIdObserver() {
+        //this.opencgaSession.opencgaClient.alignments().queryCoverage
     }
 
     getDefaultConfig() {
@@ -191,8 +175,6 @@ export default class GeneCoverageView extends LitElement {
     }
 
     render() {
-        this.transcript;
-        debugger
         return html`
             <data-form .data=${this.transcript} .config="${this.getDefaultConfig()}"></data-form>
         `;

@@ -374,7 +374,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             field: "files",
                             type: "list",
                             display: {
-                                layout: "bullets",
+                                contentLayout: "bullets",
                                 template: "${name}"
                             }
                         }

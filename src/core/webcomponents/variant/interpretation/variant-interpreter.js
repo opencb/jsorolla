@@ -248,6 +248,7 @@ class VariantInterpreter extends LitElement {
                             <div id="${this._prefix}qc" class="clinical-portal-content" 
                                         style="${this._config.tools[0].id !== "qc" ? "display: none" : ""}">
                                 <variant-interpreter-qc .opencgaSession="${this.opencgaSession}"
+                                                        .cellbaseClient="${this.cellbaseClient}"
                                                         .clinicalAnalysis="${this.clinicalAnalysis}"
                                                         .config="${this._config}">
                                 </variant-interpreter-qc>

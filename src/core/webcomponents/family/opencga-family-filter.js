@@ -37,14 +37,11 @@ export default class OpencgaFamilyFilter extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            // families: {
-            //     type: Array,
-            // },
             query: {
-                type: Object,
+                type: Object
             },
             search: {
-                type: Object,
+                type: Object
             },
             variableSets: {
                 type: Array
@@ -52,12 +49,6 @@ export default class OpencgaFamilyFilter extends LitElement {
             variables: {
                 type: Array
             },
-            // minYear: {
-            //     type: Number
-            // },
-            // compact: {
-            //     type: Boolean
-            // },
             config: {
                 type: Object
             }
@@ -115,7 +106,6 @@ export default class OpencgaFamilyFilter extends LitElement {
     }
 
     onSearch() {
-        // this.search = {...this.query};
         this.notifySearch(this.preparedQuery);
     }
 
@@ -321,6 +311,7 @@ export default class OpencgaFamilyFilter extends LitElement {
         </div>
         `;
     }
+
 }
 
 customElements.define("opencga-family-filter", OpencgaFamilyFilter);

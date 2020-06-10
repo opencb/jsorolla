@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import UtilsNew from "../utilsNew.js";
+import {SVG} from "../svg.js";
 
 export default class ExonViewer {
 

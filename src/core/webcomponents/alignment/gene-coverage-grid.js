@@ -45,13 +45,6 @@ export default class GeneCoverageGrid extends LitElement {
             filters: {
                 type: Object
             },
-            query: {
-                type: Object
-            },
-            // TODO check do we really need it..
-            eventNotifyName: {
-                type: String
-            },
             config: {
                 type: Object
             }
@@ -60,11 +53,10 @@ export default class GeneCoverageGrid extends LitElement {
 
     _init() {
         this._prefix = "gcgrid" + UtilsNew.randomString(6) + "_";
-        this.eventNotifyName = "messageevent";
         this.gridId = this._prefix + "GeneBrowserGrid";
 
         this.file = "SonsAlignedBamFile.bam";
-        this.gene = "TP53";
+        this.gene = "TP53"; // TODO remove
 
         // this.coverageArray = [1, 5, 10, 15, 20, 25, 30, 40, 50, 60];
         this.coverageQuality = [100, 95, 90, 85, 80, 75, 70, 65, 60, 55];
@@ -80,7 +72,6 @@ export default class GeneCoverageGrid extends LitElement {
         this._initTableColumns();
         //this.dispatchEvent(new CustomEvent("clear", {detail: {}, bubbles: true, composed: true}));
         this.table = this.querySelector("#" + this.gridId);
-        this.query = {};
     }
 
     updated(changedProperties) {
@@ -92,10 +83,6 @@ export default class GeneCoverageGrid extends LitElement {
         }
         if (changedProperties.has("config")) {
             this.configObserver();
-        }
-
-        if (changedProperties.has("filteredVariables")) {
-            //this.calculateFilters(); // TODO whats this?
         }
     }
 

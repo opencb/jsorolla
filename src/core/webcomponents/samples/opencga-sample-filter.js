@@ -101,7 +101,6 @@ export default class OpencgaSampleFilter extends LitElement {
     }
 
     onSearch() {
-        this.search = {...this.query};
         this.notifySearch(this.preparedQuery);
     }
 
@@ -218,79 +217,7 @@ export default class OpencgaSampleFilter extends LitElement {
     }
 
     render() {
-        return html`
-            <style include="jso-styles">
-                .label-opencga-sample-filter {
-                    padding-top: 10px;
-                }
-            
-                .browser-ct-scroll {
-                    /*max-height: 450px;*/
-                    /*overflow-y: scroll;*/
-                    overflow-x: scroll;
-                }
-            
-                .browser-ct-tree-view,
-                .browser-ct-tree-view * {
-                    padding: 0;
-                    margin: 0;
-                    list-style: none;
-                }
-            
-                .browser-ct-tree-view li ul {
-                    margin: 0 0 0 22px;
-                }
-            
-                .browser-ct-tree-view * {
-                    vertical-align: middle;
-                }
-            
-                .browser-ct-tree-view {
-                    /*font-size: 14px;*/
-                }
-            
-                .browser-ct-tree-view input[type="checkbox"] {
-                    cursor: pointer;
-                }
-            
-                .browser-ct-item {
-                    white-space: nowrap;
-                    display: inline
-                }
-            
-                div.block {
-                    overflow: hidden;
-                }
-            
-                div.block label {
-                    width: 80px;
-                    display: block;
-                    float: left;
-                    text-align: left;
-                    font-weight: normal;
-                }
-            
-                select + select {
-                    margin-left: 10px;
-                }
-            
-                select + input {
-                    margin-left: 10px;
-                }
-
-                span.searchingSpan {
-                    background-color: #286090;
-                }
-            
-                .searchingButton {
-                    color: #fff;
-                }
-            
-                .notbold {
-                    font-weight: normal;
-                }
-            </style>
-            
+        return html`            
             ${this.searchButton ? html`
                 <div class="search-button-wrapper">
                     <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">

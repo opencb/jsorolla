@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import PolymerUtils from "../PolymerUtils.js";
 import "../commons/filters/opencga-date-filter.js";
 import "../commons/filters/clinical-analysis-id-autocomplete.js";
 
@@ -38,12 +37,6 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
             },
             query: {
                 type: Object
-            },
-            search: {
-                type: Object
-            },
-            minYear: {
-                type: Number
             },
             compact: {
                 type: Boolean
@@ -90,7 +83,6 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
     }
 
     onSearch() {
-        // this.search = {...this.query};
         this.notifySearch(this.preparedQuery);
     }
 

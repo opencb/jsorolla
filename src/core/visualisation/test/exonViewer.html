@@ -9,17 +9,24 @@
     <script type="text/javascript" src="../../../../node_modules/jquery/dist/jquery.min.js"></script>
     <script type="text/javascript" src="../../../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>
 
-    <script type="text/javascript" src="../../svg.js"></script>
-    <script type="text/javascript" src="../../utilsNew.js"></script>
+    <script type="module" src="../../utilsNew.js"></script>
     <script type="text/javascript" src="../../../genome-browser/feature-binary-search-tree.js"></script>
-    <script type="text/javascript" src="../exonViewer.js"></script>
     <script type="text/javascript" src="resources/BRCA2.js"></script>
 
 </head>
 
-<body onload="render()">
-<script>
+<body>
 
+<h2>Simple transcript</h2>
+<div id="transcriptDiv" style=""></div>
+
+
+<script type="module">
+
+    import {SVG} from "../../svg.js";
+    import UtilsNew from "../../utilsNew.js";
+
+    import ExonViewer from "../exonViewer.js";
     let exons = [
         {
             start: 1,
@@ -45,9 +52,9 @@
             data: coverage
         });
         tracks.push({
-           name: "Low coverage",
-           type: "lowcoverage",
-           data: lowCoverage
+            name: "Low coverage",
+            type: "lowcoverage",
+            data: lowCoverage
         });
 
         let exonViewer = new ExonViewer("transcriptDiv", brca2.transcripts[0].exons, tracks);
@@ -55,13 +62,7 @@
         let svg = exonViewer.render();
         document.getElementById("transcriptDiv").appendChild(svg);
     }
+    render()
 </script>
-
-<h2>Simple transcript</h2>
-<div id="transcriptDiv" style=""></div>
-
-<!--<h2>Complex family</h2>-->
-<!--<div id="complexFamilyTestDiv"></div>-->
-
 </body>
 </html>

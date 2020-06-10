@@ -166,7 +166,7 @@ export default class OpencgaSampleView extends LitElement {
                             field: "modificationDate",
                             type: "custom",
                             display: {
-                                render: field => field?.name ? html`${field.name} (${UtilsNew.dateFormatter(field.modificationDate)})` : ""
+                                render: field => html`${UtilsNew.dateFormatter(field)}`
                             }
                         },
                         {

@@ -49,18 +49,9 @@ export default class OpencgaJobsFilter extends LitElement {
             variables: {
                 type: Array
             },
-            // minYear: {
-            //     type: Number
-            // },
-            // compact: {
-            //     type: Boolean
-            // },
             config: {
                 type: Object
-            },
-            // discriminator: {
-            //     type: String
-            // }
+            }
         };
     }
 
@@ -99,7 +90,6 @@ export default class OpencgaJobsFilter extends LitElement {
     }
 
     onSearch() {
-        // this.search = {...this.query};
         this.notifySearch(this.preparedQuery);
     }
 

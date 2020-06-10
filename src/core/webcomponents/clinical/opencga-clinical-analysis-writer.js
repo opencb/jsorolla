@@ -610,8 +610,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
     }
 
     onClear() {
-        let _clinicalAnalysis = {_users: this.clinicalAnalysis._users};
-        this.clinicalAnalysis = {..._clinicalAnalysis};
+        this.clinicalAnalysis = {_users: this.clinicalAnalysis._users};
         this.requestUpdate();
     }
 

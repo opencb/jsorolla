@@ -21,6 +21,7 @@ import "./variant-interpreter-qc-summary.js";
 import "./variant-interpreter-qc-variant.js";
 import "./variant-interpreter-qc-alignment.js";
 import "../../alignment/gene-coverage-view.js";
+import "../../alignment/gene-coverage-browser.js";
 
 
 class VariantInterpreterQc extends LitElement {
@@ -104,7 +105,8 @@ class VariantInterpreterQc extends LitElement {
 
     selectGene(e) {
         console.log("selectGene", e)
-        this.geneIds = [e.detail.target];
+        this.geneIds = e.detail.value;
+        this.requestUpdate();
     }
 
     render() {
@@ -178,10 +180,10 @@ class VariantInterpreterQc extends LitElement {
                     </div>
                     <div id="${this._prefix}Coverage" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
                         <h3>Select a gene</h3>
-                        <feature-filter .cellbaseClient="${this.cellbaseClient}"></feature-filter>
-                        <select-field-filter .data="${[{id: "BRCA2", name: "BRCA2"}]}" .value=${"BRCA2"} @filterChange="${this.selectGene}"></select-field-filter>
+                        <feature-filter .cellbaseClient="${this.cellbaseClient}" @filterChange="${this.selectGene}"></feature-filter>
+                        <!--<disease-filter .opencgaSession="${this.opencgaSession}" .config="${this.config}" .panel="${this.panel}" 
+                                @filterChange="${e => this.onFilterChange("panel", e.detail.value)}"></disease-filter> -->
                         <gene-coverage-browser .opencgaSession="${this.opencgaSession}"
-                                            .cellbaseClient="${this.cellbaseClient}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .geneIds="${this.geneIds}"
                                             .panelIds="${this.diseasePanelIds}">

@@ -57,10 +57,7 @@ export default class GeneCoverageBrowser extends LitElement {
     _init() {
         this._prefix = "gcb" + UtilsNew.randomString(6);
         this.checkProjects = false;
-        this.results = [];
-
         this.query = {};
-        this.preparedQuery = {};
         this.errorState = false;
 
         this._config = this.getDefaultConfig();
@@ -102,12 +99,11 @@ export default class GeneCoverageBrowser extends LitElement {
     }
 
     render() {
-        return this._config
+        return this._config && this.geneIds
             ? html`
-                <h3>Gene Coverage</h3>
+                <h3>Gene Coverage</h3> ${JSON.stringify(this.geneIds)}
                 <gene-coverage-grid .opencgaSession="${this.opencgaSession}"
                                     .config="${this._config?.filter?.grid}"
-                                    .query="${this.executedQuery}"
                                     @selectrow="${this.onClickRow}">
                 </gene-coverage-grid>
                 <gene-coverage-detail .transcriptCoverageStat="${this.transcriptCoverageStat}" .config="${this._config.filter.detail}" .opencgaSession="${this.opencgaSession}"></gene-coverage-detail>`

@@ -97,24 +97,10 @@ export default class OpencgaBrowser extends LitElement {
 
         this.activeFilterAlias = {
         };
-        // this.fixedFilters = ["studies"];
 
-        // These are for making the queries to server
-        this.facetFields = [];
-        this.facetRanges = [];
-
-        this.facetFieldsName = [];
-        this.facetRangeFields = [];
-
-        this.results = [];
-        this._showInitMessage = true;
-
-        this.facetActive = true;
         this.selectedFacet = {};
         this.selectedFacetFormatted = {};
-
         this.activeTab = {};
-
         this.detail = {};
     }
 
@@ -200,7 +186,7 @@ export default class OpencgaBrowser extends LitElement {
     onFilterChange(e) {
         this.query = e.detail;
         // TODO remove search field everywhere. use query instead
-        this.search = e.detail;
+        //this.search = e.detail;
     }
 
     onClickPill(e) {
@@ -257,14 +243,10 @@ export default class OpencgaBrowser extends LitElement {
         console.log(e);
         this.detail = {...this.detail, [resource]: e.detail.row};
         this.requestUpdate();
-
-        // todo evaluate to bubble the grid event
-        //this.dispatchEvent(new CustomEvent("clickRow", {detail: e.detail}));
     }
 
     renderView(entity) {
         // TODO be sure to EXECUTE this function each template update, otherwise props in the following components won't be updated.
-        // this function cannot be moved in firstUpdated()
         // possible modular solution (which still doesn't solve the update filter issue): map of TemplateResult: renderView(entity).mainView
         const facetView = html`<div id="facet-tab" class="content-tab">
                                     <opencb-facet-results
@@ -277,7 +259,6 @@ export default class OpencgaBrowser extends LitElement {
                                 </div>
                         `;
         switch (entity) {
-            // TODO handle specific events
             case "files":
                 this.endpoint = this.opencgaSession.opencgaClient.files();
                 return html`
@@ -441,7 +422,6 @@ export default class OpencgaBrowser extends LitElement {
                                     <opencga-file-filter    .opencgaSession="${this.opencgaSession}"
                                                             .config="${this._config.filter}"
                                                             .query="${this.query}"
-                                                            .variableSets="${this.variableSets}"
                                                             .searchButton="${false}"
                                                             @queryChange="${this.onQueryFilterChange}"
                                                             @querySearch="${this.onQueryFilterSearch}">
@@ -452,7 +432,6 @@ export default class OpencgaBrowser extends LitElement {
                                     <opencga-sample-filter  .opencgaSession="${this.opencgaSession}"
                                                             .config="${this._config.filter}"
                                                             .query="${this.query}"
-                                                            .variableSets="${this.variableSets}"
                                                             .searchButton="${false}"
                                                             @queryChange="${this.onQueryFilterChange}"
                                                             @querySearch="${this.onQueryFilterSearch}">
@@ -463,8 +442,6 @@ export default class OpencgaBrowser extends LitElement {
                                     <opencga-individual-filter  .opencgaSession="${this.opencgaSession}"
                                                                 .config="${this._config.filter}"
                                                                 .query="${this.query}"
-                                                                .search="${this.search}"
-                                                                .variableSets="${this.variableSets}"
                                                                 .searchButton="${false}"
                                                                 @queryChange="${this.onQueryFilterChange}"
                                                                 @querySearch="${this.onQueryFilterSearch}">
@@ -475,8 +452,6 @@ export default class OpencgaBrowser extends LitElement {
                                     <opencga-family-filter  .opencgaSession="${this.opencgaSession}"
                                                             .config="${this._config.filter}"
                                                             .query="${this.query}"
-                                                            .search="${this.search}"
-                                                            .variableSets="${this.variableSets}"
                                                             .searchButton="${false}"
                                                             @queryChange="${this.onQueryFilterChange}"
                                                             @querySearch="${this.onQueryFilterSearch}">
@@ -487,7 +462,6 @@ export default class OpencgaBrowser extends LitElement {
                                     <opencga-cohort-filter  .opencgaSession="${this.opencgaSession}"
                                                             .config="${this._config.filter}"
                                                             .query="${this.query}"
-                                                            .search="${this.search}"
                                                             .variableSets="${this.variableSets}"
                                                             .searchButton="${false}"
                                                             @queryChange="${this.onQueryFilterChange}"
@@ -516,8 +490,7 @@ export default class OpencgaBrowser extends LitElement {
                                                         @queryChange="${this.onQueryFilterChange}"
                                                         @querySearch="${this.onQueryFilterSearch}">
                                     </opencga-jobs-filter>
-                                ` : null}
-                                
+                                ` : null}                                
                             </div>
                             
                             <div role="tabpanel" class="tab-pane" id="facet_tab" aria-expanded="true">

@@ -40,12 +40,6 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
             query: {
                 type: Object
             },
-            facetQuery: {
-                type: Object
-            },
-            selectedFacet: {
-                type: Object
-            },
             config: {
                 type: Object
             }
@@ -54,20 +48,7 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
 
     _init() {
         this._prefix = "cab" + UtilsNew.randomString(6);
-
-        // These are for making the queries to server
-        this.facetFields = [];
-        this.facetRanges = [];
-
-        this.facetFieldsName = [];
-        this.facetRangeFields = [];
-        this.facets = new Set();
-        this.facetFilters = [];
-        this.facetActive = true;
-        this.selectedFacetFormatted = {};
         this.errorState = false;
-
-        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {

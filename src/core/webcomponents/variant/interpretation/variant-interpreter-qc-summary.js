@@ -179,7 +179,7 @@ class VariantInterpreterQcSummary extends LitElement {
                             field: "files",
                             type: "list",
                             display: {
-                                layout: "bullets",
+                                contentLayout: "bullets",
                                 template: "${name}"
                             }
                         }
@@ -203,26 +203,6 @@ class VariantInterpreterQcSummary extends LitElement {
         return html`
             <data-form .data=${this.clinicalAnalysis} .config="${this._config}"></data-form>
         `;
-
-        // return html`
-        //         <div class="row" style="padding: 10px">
-        //             <div class="col-md-12">
-        //                 <div class="col-md-6">
-        //                     <h2>Circos</h2>
-        //                     <img width="640" src="https://www.researchgate.net/profile/Angela_Baker6/publication/259720064/figure/fig1/AS:613877578465328@1523371228720/Circos-plot-summarizing-somatic-events-A-summary-of-all-identified-somatic-genomic.png">
-        //                 </div>
-        //                 <div class="col-md-6">
-        //                     <h2>Signature</h2>
-        //                     <img width="480" src="https://cancer.sanger.ac.uk/signatures_v2/Signature-3.png">
-        //
-        //                     <div style="padding-top: 20px">
-        //                         <h2>Sample Stats</h2>
-        //                         <img width="480" src="https://www.ensembl.org/img/vep_stats_2.png">
-        //                     </div>
-        //                 </div>
-        //             </div>
-        //         </div>
-        //     `;
     }
 
 }

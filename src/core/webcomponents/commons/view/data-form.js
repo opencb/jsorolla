@@ -228,7 +228,7 @@ export default class DataForm extends LitElement {
                     ${section.title ? html`<h3 class="${sectionTitleClass}" style="${sectionTitleStyle}">${section.title}</h3>` : null}
                     <div class="container-fluid">
                         <div class="row">
-                            <div class="col-md-${leftColumnWidth}" style="${columnSeparatorStyle}; padding-right: 25px">
+                            <div class="col-md-${leftColumnWidth}" style="${columnSeparatorStyle}">
                                 ${section.elements[0].map(element => this._createElement(element))}
                             </div>
                             <div class="col-md-${rightColumnWidth}" style="padding-left: 25px">

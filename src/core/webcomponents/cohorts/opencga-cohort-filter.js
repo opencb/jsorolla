@@ -47,17 +47,11 @@ export default class OpencgaCohortFilter extends LitElement {
             query: {
                 type: Object
             },
-            search: {
-                type: Object
-            },
             variableSets: {
                 type: Array
             },
             variables: {
                 type: Array
-            },
-            minYear: {
-                type: Number
             },
             compact: {
                 type: Boolean
@@ -137,7 +131,6 @@ export default class OpencgaCohortFilter extends LitElement {
     }
 
     onSearch() {
-        this.search = {...this.query};
         this.notifySearch(this.preparedQuery);
     }
 

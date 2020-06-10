@@ -17,7 +17,6 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import "../../clinical/opencga-clinical-analysis-writer.js";
-import "../../alignment/gene-coverage-browser.js";
 import UtilsNew from "../../../utilsNew.js";
 
 

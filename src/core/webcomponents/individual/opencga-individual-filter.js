@@ -43,21 +43,6 @@ export default class OpencgaIndividualFilter extends LitElement {
             query: {
                 type: Object
             },
-            search: {
-                type: Object
-            },
-            variableSets: {
-                type: Array
-            },
-            variables: {
-                type: Array
-            },
-            // minYear: {
-            //     type: Number
-            // },
-            // compact: {
-            //     type: Boolean
-            // },
             config: {
                 type: Object
             }
@@ -99,13 +84,9 @@ export default class OpencgaIndividualFilter extends LitElement {
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
-        if (changedProperties.has("variables")) {
-            this.variablesChanged();
-        }
     }
 
     onSearch() {
-        // this.search = {...this.query};
         this.notifySearch(this.preparedQuery);
     }
 
