@@ -17,7 +17,6 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 
-
 export default class FacetFilter extends LitElement {
 
     constructor() {
@@ -61,10 +60,10 @@ export default class FacetFilter extends LitElement {
             if (v.fn && (v.fn === "Avg" || v.fn === "Percentile")) {
                 str = v.fn + "(" + k + ")";
             } else {
-                str = k + v.value;
+                str = k + (v.value ? "[" + v.value + "]" : "");
             }
             if (v.nested) {
-                str += ">>" + ((v.nested.fn && (v.nested.fn === "Avg" || v.nested.fn === "Percentile")) ? v.nested.fn + "(" + v.nested.facet + ")" : v.nested.facet + v.nested.value);
+                str += ">>" + ((v.nested.fn && (v.nested.fn === "Avg" || v.nested.fn === "Percentile")) ? v.nested.fn + "(" + v.nested.facet + ")" : v.nested.facet + (v.nested.value ? "[" + v.nested.value + "]" : ""));
             }
             return str;
         };
@@ -280,6 +279,22 @@ export default class FacetFilter extends LitElement {
                     </div>
                     ${renderNestedFieldWrapper(facet)}
                 `;
+            case "boolean":
+                return html`
+                    <div class="row facet-row">
+                        <div class="col-md-12">
+                            <fieldset>
+                                <div class="switch-toggle text-white">
+                                    <input id="${this._prefix}-true" class="form-group-sm" type="radio" name="${this._prefix}-options" value="True" data-id="${facet.id}" @change="${this.onFacetValueChange}">
+                                    <label for="${this._prefix}-true"><span class="small">True</span></label>
+                                    <input id="${this._prefix}-false" class="form-group-sm" type="radio" name="${this._prefix}-options" value="False" data-id="${facet.id}" @change="${this.onFacetValueChange}">
+                                    <label for="${this._prefix}-false"><span class="small">False</span></label>
+                                    <a class="btn btn-primary ripple"></a>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    `;
             default:
                 console.log("no type recognized", facet)
                 return html`no type recognized: ${facet.type}`;
@@ -312,6 +327,22 @@ export default class FacetFilter extends LitElement {
                     <div class="col-md-12">
                         <input type="text" class="form-control" placeholder="Include values" data-parent-facet="${parent}" id="${this._prefix}${facet.id}_Nested_text" .value="${facet.value || ""}"  @input="${this.onNestedFacetValueChange}"  />
                     </div>`;
+            case "boolean":
+                return html`
+                    <div class="row facet-row">
+                        <div class="col-md-12">
+                            <fieldset>
+                                <div class="switch-toggle text-white">
+                                    <input id="${this._prefix}-true" class="form-group-sm" type="radio" name="${this._prefix}-options" value="True" data-id="${facet.id}" @change="${this.onNestedFacetValueChange}">
+                                    <label for="${this._prefix}-true"><span class="small">True</span></label>
+                                    <input id="${this._prefix}-false" class="form-group-sm" type="radio" name="${this._prefix}-options" value="False" data-id="${facet.id}" @change="${this.onNestedFacetValueChange}">
+                                    <label for="${this._prefix}-false"><span class="small">False</span></label>
+                                    <a class="btn btn-primary ripple"></a>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    `;
             default:
                 return html`no type recognized`;
         }

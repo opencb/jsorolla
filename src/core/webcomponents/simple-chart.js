@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../utilsNew.js";
 
-export default class SimplePlot extends LitElement {
+export default class SimpleChart extends LitElement {
 
     constructor() {
         super();
@@ -168,4 +168,4 @@ export default class SimplePlot extends LitElement {
 
 }
 
-customElements.define("simple-plot", SimplePlot);
+customElements.define("simple-chart", SimpleChart);

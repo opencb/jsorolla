@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import "../../simple-plot.js";
+import "../../simple-chart.js";
 import "../../commons/view/data-form.js";
 
 class SampleVariantStatsView extends LitElement {
