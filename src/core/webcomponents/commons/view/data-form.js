@@ -73,7 +73,7 @@ export default class DataForm extends LitElement {
     }
 
     getValue(field, object, defaultValue, format) {
-        let value = null;
+        let value = object;
         if (field) {
             let _object = object ? object : this.data;
             // optional chaining is needed when "res" is undefined

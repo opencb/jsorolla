@@ -178,7 +178,8 @@ class VariantInterpreterQc extends LitElement {
                     </div>
                     <div id="${this._prefix}Coverage" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
                         <h3>Select a gene</h3>
-                        <select-field-filter .data="${[{id: "TP53", name: "TP53"}]}" .value=${"TP53"} @filterChange="${this.selectGene}"></select-field-filter>
+                        <feature-filter .cellbaseClient="${this.cellbaseClient}"></feature-filter>
+                        <select-field-filter .data="${[{id: "BRCA2", name: "BRCA2"}]}" .value=${"BRCA2"} @filterChange="${this.selectGene}"></select-field-filter>
                         <gene-coverage-browser .opencgaSession="${this.opencgaSession}"
                                             .cellbaseClient="${this.cellbaseClient}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"

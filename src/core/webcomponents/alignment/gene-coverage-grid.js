@@ -66,7 +66,7 @@ export default class GeneCoverageGrid extends LitElement {
         this.file = "SonsAlignedBamFile.bam";
         this.gene = "TP53";
 
-        this.coverageArray = [1, 5, 10, 15, 20, 25, 30, 40, 50, 60];
+        // this.coverageArray = [1, 5, 10, 15, 20, 25, 30, 40, 50, 60];
         this.coverageQuality = [100, 95, 90, 85, 80, 75, 70, 65, 60, 55];
     }
 
@@ -148,8 +148,12 @@ export default class GeneCoverageGrid extends LitElement {
         }
     }
 
-    percentageFormatter(v) {
-        return parseFloat(v).toFixed(2) + "%";
+    transcriptIdFormatter(value, row) {
+        return row.id + "<br>" + row.biotype;
+    }
+
+    percentageFormatter(value) {
+        return parseFloat(value).toFixed(2) + "%";
     }
 
     cellStyle(value, row, index, field) {
@@ -167,7 +171,7 @@ export default class GeneCoverageGrid extends LitElement {
         this._columns = [
             {
                 title: "transcript Id",
-                field: "id",
+                formatter: this.transcriptIdFormatter,
             },
             {
                 title: "> 1x",

@@ -57,10 +57,6 @@ export default class GeneCoverageView extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-
-    firstUpdated(_changedProperties) {
-    }
-
     updated(changedProperties) {
         if (changedProperties.has("jobId")) {
             this.jobIdObserver();
@@ -69,11 +65,8 @@ export default class GeneCoverageView extends LitElement {
             this.jobObserver();
         }
         if (changedProperties.has("config")) {
-            this.configObserver();
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
-    }
-
-    configObserver() {
     }
 
     jobIdObserver() {
@@ -90,8 +83,6 @@ export default class GeneCoverageView extends LitElement {
             .catch(function(reason) {
                 console.error(reason);
             });
-
-
     }
 
     getDefaultConfig() {
@@ -112,7 +103,18 @@ export default class GeneCoverageView extends LitElement {
                     elements: [
                         {
                             name: "Transcript ID",
-                            field: "transcriptId"
+                            field: "id"
+                        },
+                        {
+                            name: "Region",
+                            type: "complex",
+                            display: {
+                                template: "<strong>${chromosome}:${start}-${end}</strong>"
+                            }
+                        },
+                        {
+                            name: "Biotype",
+                            field: "biotype"
                         },
                         {
                             name: "length",
@@ -132,16 +134,36 @@ export default class GeneCoverageView extends LitElement {
                                         name: "Region",
                                         type: "complex",
                                         display: {
-                                            template: "<strong>${start}</strong>-<strong>${end}</strong>"
+                                            template: "<strong>${chromosome}:${start}-${end}</strong>"
                                         }
                                     },
                                     {
                                         name: "Size",
-                                        field: ""
+                                        // field: "",
+                                        type: "custom",
+                                        display: {
+                                            render: data => {
+                                                if (data) {
+                                                    return data.end - data.start + 1
+                                                } else {
+                                                    return "N/A";
+                                                }
+                                            }
+                                        }
                                     },
                                     {
                                         name: "% of exon",
-                                        field: ""
+                                        // field: "",
+                                        type: "custom",
+                                        display: {
+                                            render: data => {
+                                                if (data) {
+                                                    return (data.end - data.start + 1) / this.transcript.length
+                                                } else {
+                                                    return "N/A";
+                                                }
+                                            }
+                                        }
                                     },
                                     {
                                         name: "Mean depth",
@@ -169,6 +191,8 @@ export default class GeneCoverageView extends LitElement {
     }
 
     render() {
+        this.transcript;
+        debugger
         return html`
             <data-form .data=${this.transcript} .config="${this.getDefaultConfig()}"></data-form>
         `;
