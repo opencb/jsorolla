@@ -175,16 +175,22 @@ export default class DataForm extends LitElement {
 
 
     renderData() {
+        let classes = this.config?.display?.classes ? this.config.display.classes : "";
+        let style = this.config?.display?.style ? this.config.display.style : "";
         if (this.config.type === "form") {
             return html`
-                <form class="${this.config?.display?.defaultLayout === "horizontal" ? "form-horizontal" : ""}">
-                    ${this.config.sections.map(section => this._createSection(section))}
-                </form>
+                <div class="row">
+                    <form class="${this.config?.display?.defaultLayout === "horizontal" ? "form-horizontal" : ""} ${classes}" style="${style}">
+                        ${this.config.sections.map(section => this._createSection(section))}
+                    </form>
+                </div>
             `;
         } else {
             return html`
-                <div>
-                    ${this.config.sections.map(section => this._createSection(section))}
+                <div class="row">
+                    <div class="${classes}" style="${style}">
+                        ${this.config.sections.map(section => this._createSection(section))}
+                    </div>
                 </div>
             `;
         }
@@ -205,9 +211,11 @@ export default class DataForm extends LitElement {
             const sectionWidth = section?.display?.width ? section?.display?.width : "12";
             return html`
                 <div class="row">
-                    ${section.title ? html`<h3 class="${sectionTitleClass}" style="${sectionTitleStyle}">${section.title}</h3>` : null}
-                    <div class="container-fluid col-md-${sectionWidth}" style="padding: 10px">
-                        ${section.elements.map(element => this._createElement(element))}
+                    <div class="col-md-${sectionWidth}">
+                        ${section.title ? html`<h3 class="${sectionTitleClass}" style="${sectionTitleStyle}">${section.title}</h3>` : null}
+                        <div class="container-fluid" style="padding: 10px">
+                            ${section.elements.map(element => this._createElement(element))}
+                        </div>
                     </div>
                 </div>
             `;
@@ -792,15 +800,17 @@ export default class DataForm extends LitElement {
         }
 
         if (this.config.display && this.config.display?.mode?.type === "modal") {
+            let title = this.config.display.mode.title ? this.config.display.mode.title : this.config.title;
+            let buttonClass = this.config.display.mode.buttonClass ? this.config.display.mode.buttonClass : "btn-primary";
             return html`
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#${this._prefix}DataModal">
+                <button type="button" class="btn ${buttonClass}" data-toggle="modal" data-target="#${this._prefix}DataModal">
                     <i class="${this.config.icon ? this.config.icon : "fas fa-info-circle"}" aria-hidden="true" style="padding-right: 5px"></i> ${this.config.title}
                 </button>
                 <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document" style="width: ${this.config.display.mode.width ? this.config.display.mode.width : 640}px">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h3 class="modal-title" id="${this._prefix}exampleModalLabel">${this.config.title}</h3>
+                                <h3 class="modal-title" id="${this._prefix}exampleModalLabel">${title}</h3>
                             </div>
                             <div class="modal-body">
                                 ${this.renderData()}
