@@ -527,9 +527,9 @@ export default class OpencgaActiveFilters extends LitElement {
         
 
         <div class="panel panel-default">
-            <div class="panel-body" style="padding: 10px">
+            <div class="panel-body" style="padding: 8px 10px">
                 <div class="lhs">
-                <p class="active-filter-label">Filters</p>
+                    <p class="active-filter-label">Filters</p>
                 
                     ${this.queryList ? html`
                         ${this.queryList.length === 0 ? html`
@@ -575,7 +575,7 @@ export default class OpencgaActiveFilters extends LitElement {
                 </div> 
                     
                 <div class="rhs">
-                    <button type="button" class="btn btn-primary ripple" @click="${this.clear}">
+                    <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.clear}">
                         <i class="fa fa-eraser" aria-hidden="true" style="padding-right: 5px"></i> Clear
                     </button>
                     
@@ -583,7 +583,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     ${this.showSelectFilters(this.opencgaClient._config) ? html`
                         <div class="dropdown">
 
-                            <button type="button" class="btn btn-primary dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <button type="button" class="btn btn-primary btn-sm dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i> Filters <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-right">

@@ -74,14 +74,11 @@ class VariantInterpreter extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    // firstUpdated(_changedProperties) {
-    //     this.requestUpdate();
-    // }
-
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
+
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
@@ -154,13 +151,6 @@ class VariantInterpreter extends LitElement {
                     description: "",
                     icon: "fa fa-chart-bar"
                 },
-                // {
-                //     id: "genome-browser",
-                //     title: "Genome Browser",
-                //     acronym: "VB",
-                //     description: "",
-                //     icon: "fa fa-bars"
-                // },
                 {
                     id: "interpretation",
                     title: "Interpretation Methods",
@@ -246,7 +236,8 @@ class VariantInterpreter extends LitElement {
                 <div id="${this._prefix}MainWindow" class="col-md-12">
                     <div>
                         ${this._config.tools ? html`
-                            <div id="${this._prefix}select" class="clinical-portal-content">
+                            <div id="${this._prefix}select" class="clinical-portal-content" 
+                                        style="${this._config.tools[0].id !== "select" ? "display: none" : ""}">
                                 <variant-interpreter-landing .opencgaSession="${this.opencgaSession}"
                                                              .clinicalAnalysis="${this.clinicalAnalysis}"
                                                              .config="${this._config}"

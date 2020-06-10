@@ -19,6 +19,7 @@ import UtilsNew from "../../../utilsNew.js";
 import "./variant-interpreter-qc-variant-family.js";
 import "./variant-interpreter-qc-variant-cancer.js";
 import "../../simple-plot.js";
+import "../../commons/view/data-form.js";
 
 
 class VariantInterpreterQcVariant extends LitElement {
@@ -55,6 +56,7 @@ class VariantInterpreterQcVariant extends LitElement {
 
     _init() {
         this._prefix = "vcis-" + UtilsNew.randomString(6);
+        this.save = {};
     }
 
     connectedCallback() {
@@ -121,7 +123,11 @@ class VariantInterpreterQcVariant extends LitElement {
                     <div style="padding: 10px 0px">
                         <h3>Cancer Variant Stats</h3>               
                     </div>
-                    <variant-interpreter-qc-variant-cancer .clinicalAnalysis="${this.clinicalAnalysis}" .opencgaSession="${this.opencgaSession}" .sampleId="${this.clinicalAnalysis.proband.samples[0].id}" ?active="${this.active}"></variant-interpreter-qc-variant-cancer>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <variant-interpreter-qc-variant-cancer .clinicalAnalysis="${this.clinicalAnalysis}" .opencgaSession="${this.opencgaSession}" .sampleId="${this.clinicalAnalysis.proband.samples[0].id}" ?active="${this.active}"></variant-interpreter-qc-variant-cancer>
+                        </div>
+                    </div>
                 </div>
             `;
         }

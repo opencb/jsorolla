@@ -72,19 +72,19 @@ export default class CircosView extends LitElement {
         this.circosImage = null;
         this.requestUpdate();
 
-        // this.opencgaSession.opencgaClient.variants().circos({
-        //     study: this.opencgaSession.study.fqn,
-        //     sample: this.sampleId,
-        //     density: "LOW",
-        //     ...this.query
-        // }).then( restResult => {
-        //     document.getElementById(this._prefix + "CircosMessage").style["display"] = "none";
-        //     this.circosImage = "data:image/png;base64, " + restResult.getResult(0);
-        // }).catch( restResponse => {
-        //     console.error(restResponse);
-        // }).finally( () => {
-        //     this.requestUpdate();
-        // })
+        this.opencgaSession.opencgaClient.variants().circos({
+            study: this.opencgaSession.study.fqn,
+            sample: this.sampleId,
+            density: "LOW",
+            ...this.query
+        }).then( restResult => {
+            document.getElementById(this._prefix + "CircosMessage").style["display"] = "none";
+            this.circosImage = "data:image/png;base64, " + restResult.getResult(0);
+        }).catch( restResponse => {
+            console.error(restResponse);
+        }).finally( () => {
+            this.requestUpdate();
+        })
     }
 
     getDefaultConfig() {

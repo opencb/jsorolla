@@ -77,6 +77,12 @@ export default class VariantInterpreterQcCancerPlots extends LitElement {
     async propertyObserver() {
         this.signature = null;
         await this.requestUpdate();
+
+        this.signatureQuery();
+        this.statsQuery();
+    }
+
+    signatureQuery() {
         this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
             study: this.opencgaSession.study.fqn,
             fitting: false,
@@ -90,7 +96,28 @@ export default class VariantInterpreterQcCancerPlots extends LitElement {
             };
         }).finally( () => {
             this.requestUpdate();
-        })
+        });
+    }
+
+    statsQuery() {
+        let params = {
+            study: this.opencgaSession.study.fqn,
+            fields: "genotype;type;biotype;consequenceType;clinicalSignificance;depth",
+            sample: this.sampleId,
+            ...this.query
+        };
+        this.opencgaSession.opencgaClient.variants().aggregationStats(params)
+            .then(response => {
+                this.aggregationStatsResults = response.responses[0].results;
+            })
+            .catch( restResponse => {
+                this.stats = {
+                    errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
+                };
+            })
+            .finally( () => {
+                this.requestUpdate();
+            });
     }
 
     getDefaultConfig() {
@@ -117,8 +144,48 @@ export default class VariantInterpreterQcCancerPlots extends LitElement {
                                 </div>
                                 <div style="padding-top: 20px">
                                     <h2>Sample Stats</h2>
-                                    <img width="480" src="https://www.ensembl.org/img/vep_stats_2.png">
+                                    <!--<img width="480" src="https://www.ensembl.org/img/vep_stats_2.png">-->
+                                    <div class="">
+                                        <h3>Type</h3>
+                                        <opencga-facet-result-view  .title="Type" .xAxisTitle="types" .showButtons=${false} 
+                                                                    .facetResult="${this.aggregationStatsResults?.[1]}"
+                                                                    .config="${this.facetConfig}"
+                                                                    ?active="${true}">
+                                        </opencga-facet-result-view>
+                                    </div>
                                 </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-12">
+                            <h2>Other Sample Stats</h2>
+                            <div class="">
+                                <h3>Biotype</h3>
+                                <opencga-facet-result-view title="Biotype" xAxisTitle="biotypes" .facetResult="${this.aggregationStatsResults?.[2]}"
+                                                            .config="${this.facetConfig}"
+                                                            ?active="${true}">
+                                </opencga-facet-result-view>
+                            </div>
+                            <div class="">
+                                <h3>Consequence Type</h3>
+                                <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[3]}"
+                                        .config="${this.facetConfig}"
+                                        ?active="${this.facetActive}">
+                                </opencga-facet-result-view>
+                            </div>
+                            <div class="">
+                                <h3>Clinical Signficance</h3>
+                                <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[4]}"
+                                        .config="${this.facetConfig}"
+                                        ?active="${this.facetActive}">
+                                </opencga-facet-result-view>
+                            </div>
+                            <div class="">
+                                <h3>Depth</h3>
+                                <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[5]}"
+                                        .config="${this.facetConfig}"
+                                        ?active="${this.facetActive}">
+                                </opencga-facet-result-view>
                             </div>
                         </div>
                     </div>                            

@@ -166,7 +166,7 @@ export default class PolymerUtils {
                     element.classList.remove(className);
                 });
             } else {
-                el.classList.remove(className);
+                el.classList?.remove(className);
             }
         }
     }

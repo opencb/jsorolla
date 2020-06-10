@@ -63,15 +63,16 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
 
         // this.base64 = "data:image/png;base64, " + Circos.base64;
         this.save = {};
+        this.settings = {
+            density: "MEDIUM",
+            format: "SVG"
+        };
     }
 
     connectedCallback() {
         super.connectedCallback();
 
         this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    firstUpdated(_changedProperties) {
     }
 
     updated(changedProperties) {
@@ -109,10 +110,6 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
         // this.requestUpdate();
     }
 
-    showModal() {
-        $("#" + this._prefix + "SaveModal").modal("show");
-    }
-
     onFilterIdChange(e) {
         this.filterId = e.currentTarget.value;
     }
@@ -121,19 +118,41 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
         this.filterDescription = e.currentTarget.value;
     }
 
+    onSettingsFieldChange(e) {
+        e.detail;
+        debugger
+        switch (e.detail.param) {
+            case "density":
+                this.settings.id = e.detail.value;
+                break;
+            case "format":
+                this.settings.format = e.detail.value;
+                break;
+        }
+    }
+
+    onSaveFieldChange(e) {
+        switch (e.detail.param) {
+            case "id":
+                this.save.id = e.detail.value;
+                break;
+            case "description":
+                this.save.description = e.detail.value;
+                break;
+        }
+    }
 
     onClear(e) {
-        debugger
+    }
+
+    onSettingsOk(e) {
     }
 
     onSave(e) {
-debugger
-        let variantQc = {
-            id: this.filterId,
-            query: this.query,
-            sampleId: this.sampleId
-            // description: this.filterDescription,
-        };
+        this.save.sampleId = this.clinicalAnalysis.proband.samples[0].id;
+        this.save.query = this.executedQuery ? this.executedQuery : {};
+        console.log(e.detail);
+        debugger
         this.opencgaSession.opencgaClient.clinical().updateQualityControl(this.clinicalAnalysis.id, {
             study: this.opencgaSession.study.fqn,
             ...this.query
@@ -149,22 +168,78 @@ debugger
         })
     }
 
-    getSaveConfig() {
+    getSettingsConfig() {
         return {
-            title: "Save Variant QC",
-            icon: "",
+            title: "Settings",
+            icon: "fas fa-cog",
             type: "form",
             display: {
+                classes: "col-md-10 col-md-offset-1",
+                // style: "padding: 5px 25px",
                 mode: {
                     type: "modal",
-                    // width: 1024
+                    title: "Display Settings",
+                    // buttonClass: "btn-default"
+                },
+                buttons: {
+                    show: true,
+                    cancelText: "Cancel",
+                    okText: "OK",
+                },
+                // showTitle: true,
+                labelWidth: 4,
+                labelAlign: "right",
+                defaultValue: "",
+                defaultLayout: "horizontal",
+            },
+            sections: [
+                {
+                    title: "Circos",
+                    display: {
+                    },
+                    elements: [
+                        {
+                            name: "Rain Plot Density",
+                            field: "density",
+                            type: "select",
+                            allowedValues: ["LOW", "MEDIUM", "HIGH"],
+                            defaultValue: "LOW",
+                            display: {
+                            }
+                        },
+                        {
+                            name: "Image format",
+                            field: "format",
+                            type: "select",
+                            allowedValues: ["PNG", "SVG"],
+                            defaultValue: ["PNG"],
+                            display: {
+                            }
+                        },
+                    ]
+                }
+            ]
+        }
+    }
+
+    getSaveConfig() {
+        return {
+            title: "Save",
+            icon: "fas fa-save",
+            type: "form",
+            display: {
+                classes: "col-md-10 col-md-offset-1",
+                mode: {
+                    type: "modal",
+                    title: "Save",
+                    // buttonClass: "btn-default btn-lg"
                 },
                 buttons: {
                     show: true,
                     cancelText: "Cancel",
                     okText: "Save",
                 },
-                showTitle: true,
+                // showTitle: true,
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultValue: "",
@@ -172,21 +247,23 @@ debugger
             },
             sections: [
                 {
+                    display: {
+                    },
                     elements: [
                         {
                             name: "Filter ID",
+                            field: "id",
                             type: "input-text",
                             display: {
                                 placeholder: "Add a filter ID",
-                                width: 10
                             }
                         },
                         {
                             name: "Description",
+                            field: "description",
                             type: "input-text",
                             display: {
                                 placeholder: "Add a filter description",
-                                width: 10,
                                 rows: 2
                             }
                         },
@@ -306,71 +383,38 @@ debugger
                 </div>
 
                 <div class="col-md-10">
-                    <div>
-                        <opencga-active-filters filterBioformat="VARIANT"
-                                                .opencgaSession="${this.opencgaSession}"
-                                                .defaultStudy="${this.opencgaSession.study.fqn}"
-                                                .query="${this.preparedQuery}"
-                                                .refresh="${this.executedQuery}"
-                                                .alias="${this.activeFilterAlias}"
-                                                .filters="${this._config.filter.examples}"
-                                                .config="${this._config.filter.activeFilters}"
-                                                @activeFilterChange="${this.onActiveFilterChange}"
-                                                @activeFilterClear="${this.onActiveFilterClear}">
-                        </opencga-active-filters>
-                        
+                    <div class="row">
                         <div class="col-md-12">
-                            <div style="padding: 0px 10px;float: left">
-                                <button id="${this._prefix}Save" type="button" class="btn btn-primary" @click="${this.showModal}">
-                                    <i class="fa fa-cog" aria-hidden="true" data-view="Interactive" style="padding-right: 5px" @click="${this.showModal}"></i> Settings
-                                </button>
-                                <button id="${this._prefix}Save" type="button" class="btn btn-primary" @click="${this.showModal}">
-                                    <i class="fa fa-save" aria-hidden="true" data-view="Interactive" style="padding-right: 5px" @click="${this.showModal}"></i> Save...
-                                </button>
-                                <data-form .data=${this.save} .config="${this.getSaveConfig()}"></data-form>
+                            <opencga-active-filters filterBioformat="VARIANT"
+                                                    .opencgaSession="${this.opencgaSession}"
+                                                    .defaultStudy="${this.opencgaSession.study.fqn}"
+                                                    .query="${this.preparedQuery}"
+                                                    .refresh="${this.executedQuery}"
+                                                    .alias="${this.activeFilterAlias}"
+                                                    .filters="${this._config.filter.examples}"
+                                                    .config="${this._config.filter.activeFilters}"
+                                                    @activeFilterChange="${this.onActiveFilterChange}"
+                                                    @activeFilterClear="${this.onActiveFilterClear}">
+                            </opencga-active-filters>
+                        </div>
+                       
+                        <div class="col-md-12">
+                            <div style="padding: 5px 25px;float: left">
+                                <data-form  .data=${this.settings} .config="${this.getSettingsConfig()}" 
+                                            @fieldChange="${e => this.onSettingsFieldChange(e)}" @submit="${this.onSettingsOk}">
+                                </data-form>
+                                <data-form  .data=${this.save} .config="${this.getSaveConfig()}" 
+                                            @fieldChange="${e => this.onSaveFieldChange(e)}" @submit="${this.onSave}">
+                                </data-form>
                             </div>
                         </div>
-                
-                        <variant-interpreter-qc-cancer-plots    .opencgaSession="${this.opencgaSession}"
-                                                                .query="${this.executedQuery}"
-                                                                .sampleId="${this.sampleId}"
-                                                                .active="${this.active}">
-                        </variant-interpreter-qc-cancer-plots>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Modal -->
-            <div class="modal fade" id="${this._prefix}SaveModal" data-backdrop="static" data-keyboard="false"
-                 tabindex="-1" role="dialog" aria-hidden="true" style="padding-top: 0%; overflow-y: visible">
-                <div class="modal-dialog" style="width: 640px">
-                    <div class="modal-content">
-                        <div class="modal-header" style="padding: 5px 15px">
-                            <h3>Save QC Filter</h3>
-                        </div>
-                        <div class="modal-body">
-                            <div class="form-horizontal collapse in">
-                                <div class="form-group">
-                                    <label class="control-label col-md-1 jso-label-title">Filter ID</label>
-                                    <div class="col-md-6">
-                                        <input type="text" id="${this._prefix}CommentInterpretation" class="${this._prefix}TextInput form-control"
-                                               placeholder="Add a filter ID" data-field="comment" @input="${this.onFilterIdChange}">
-                                    </div>
-                                </div>
-    
-                                <div class="form-group">
-                                    <label class="control-label col-md-1 jso-label-title">Description</label>
-                                    <div class="col-md-6">
-                                        <textarea id="${this._prefix}DescriptionInterpretation" class="${this._prefix}TextInput form-control"
-                                              placeholder="Description of the filter" data-field="description"
-                                              @input="${this.onFilterDescriptionChange}"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.onClear}">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.onSave}">Save</button>
+                       
+                        <div class="col-md-12"> 
+                            <variant-interpreter-qc-cancer-plots    .opencgaSession="${this.opencgaSession}"
+                                                                    .query="${this.executedQuery}"
+                                                                     .sampleId="${this.sampleId}"
+                                                                    .active="${this.active}">
+                            </variant-interpreter-qc-cancer-plots>
                         </div>
                     </div>
                 </div>
