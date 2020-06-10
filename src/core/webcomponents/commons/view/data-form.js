@@ -767,6 +767,10 @@ export default class DataForm extends LitElement {
             `;
         }
 
+        // if (UtilsNew.isEmpty(this.data)) {
+        //     return;
+        // }
+
         // Check configuration
         if (!this.config) {
             return html`

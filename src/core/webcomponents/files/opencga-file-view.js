@@ -49,6 +49,8 @@ export default class OpencgaFileView extends LitElement {
 
     _init() {
         this._config = this.getDefaultConfig();
+
+        this.file = {};
     }
 
     connectedCallback() {
@@ -151,7 +153,7 @@ export default class OpencgaFileView extends LitElement {
                             field: "internal.status",
                             type: "custom",
                             display: {
-                                render: field => html`${field.name} (${UtilsNew.dateFormatter(field.date)})`
+                                render: field => field?.name ? html`${field.name} (${UtilsNew.dateFormatter(field.date)})` : ""
                             }
                         },
                         {

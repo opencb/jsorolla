@@ -161,8 +161,8 @@ export default class VariantInterpreterQcCancerPlots extends LitElement {
                             <h2>Other Sample Stats</h2>
                             <div class="">
                                 <h3>Biotype</h3>
-                                <opencga-facet-result-view title="Biotype" xAxisTitle="biotypes" .facetResult="${this.aggregationStatsResults?.[2]}"
-                                                            .config="${this.facetConfig}"
+                                <opencga-facet-result-view title="Biotype" xAxisTitle="biotypes" type="pie" .facetResult="${this.aggregationStatsResults?.[2]}"
+                                                            .config="${{title: "Biotype", xAxisTitle: "biotypes"}}"
                                                             ?active="${true}">
                                 </opencga-facet-result-view>
                             </div>

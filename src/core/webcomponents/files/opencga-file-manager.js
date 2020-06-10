@@ -251,12 +251,12 @@ export default class OpencgaFileManager extends LitElement {
             </div>
             
             <div class="row">
-                <div class="col-md-2 left-menu file-manager-tree">
+                <div class="col-md-3 left-menu file-manager-tree">
                     ${this.tree ? html`${this.renderTree(this.tree)}` : null}
                     
                 </div>
 
-                <div class="col-md-10">
+                <div class="col-md-9">
                     ${this.currentRoot ? html`
                         <div>
                             ${this.renderFileManager(this.currentRoot)}

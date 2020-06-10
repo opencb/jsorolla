@@ -178,7 +178,7 @@ class VariantInterpreterQc extends LitElement {
                                                             .active="${this.activeTab["Alignment"]}">
                         </variant-interpreter-qc-alignment>
                     </div>
-                    <div id="${this._prefix}Coverage" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
+                    <div id="${this._prefix}Coverage" role="tabpanel" class="tab-pane col-md-8 col-md-offset-2 content-tab">
                         <h3>Select a gene</h3>
                         <feature-filter .cellbaseClient="${this.cellbaseClient}" @filterChange="${this.selectGene}"></feature-filter>
                         <!--<disease-filter .opencgaSession="${this.opencgaSession}" .config="${this.config}" .panel="${this.panel}" 
