@@ -36,6 +36,21 @@ export default class OpencgaFacetResultView extends LitElement {
 
     static get properties() {
         return {
+            title: {
+                type: String
+            },
+            subtitle: {
+                type: String
+            },
+            xAxisTitle: {
+                type: String
+            },
+            yAxisTitle: {
+                type: String
+            },
+            showButtons: {
+                type: Boolean
+            },
             facetResult: {
                 type: Object
             },
@@ -60,13 +75,17 @@ export default class OpencgaFacetResultView extends LitElement {
 
 
     updated(changedProperties) {
-        if (changedProperties.has("facetResult") || changedProperties.has("config")) {
+        if (changedProperties.has("facetResult")) {
+            this.renderFacets();
+        }
+
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
             this.renderFacets();
         }
     }
 
     renderFacets() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
 
         this.renderHistogramChart();
     }
@@ -112,21 +131,34 @@ export default class OpencgaFacetResultView extends LitElement {
         const params = this._getHistogramData();
 
         $(this.plotDiv).highcharts({
-            credits: {enabled: false},
+            credits: {
+                enabled: false
+            },
             chart: {
-                type: "column"
+                type: "column",
+                ...this._config.chart
             },
             title: {
-                text: params.title || params.name
+                text: this.title || params.title || params.name,
+                ...this._config.title
+            },
+            subtitle: {
+                text: this.subtitle,
+                ...this._config.subtitle
             },
             xAxis: {
-                categories: params.categories
+                title: {
+                    text: this.xAxisTitle || ""
+                },
+                categories: params.categories,
+                ...this._config.xAxis
             },
             yAxis: {
                 min: 0,
                 title: {
-                    text: "Total number of Variants"
-                }
+                    text: this.yAxisTitle || "Total number of Variants"
+                },
+                ...this._config.yAxis
             },
             tooltip: {
                 headerFormat: "<span style=\"font-size:10px\">{point.key}</span><table>",
@@ -418,7 +450,22 @@ export default class OpencgaFacetResultView extends LitElement {
 
     getDefaultConfig() {
         return {
-            property: "example property"
+            chart: {
+                backgroundColor: {
+                    linearGradient: [0, 0, 500, 500],
+                    stops: [
+                        [0, 'rgb(255, 255, 255)'],
+                        [1, 'rgb(240, 240, 255)']
+                    ]
+                },
+                borderWidth: 1,
+                plotBackgroundColor: 'rgba(255, 255, 255, .9)',
+                plotShadow: true,
+                plotBorderWidth: 1
+            },
+            subtitle: {
+                text: ""
+            }
         };
     }
 
@@ -432,14 +479,18 @@ export default class OpencgaFacetResultView extends LitElement {
 
         return html`
             <div style="padding: 5px 10px">
-                <div class="btn-group" style="float: right">
-                    <span id="${this._prefix}HistogramChartButton" class="btn btn-primary plots active" @click="${this.renderHistogramChart}">
-                        <i class="fas fa-chart-bar" style="padding-right: 5px" title="Bar Chart" data-id="${this.facetResult.name}"></i>
-                    </span>
-                    <span id="${this._prefix}PieChartButton" class="btn btn-primary plots" @click="${this.onPieChart}">
-                        <i class="fas fa-chart-pie" style="padding-right: 5px" title="Pie Chart" data-id="${this.facetResult.name}"></i>
-                    </span>
-                </div>
+                ${this.showButtons 
+                    ? html`
+                        <div class="btn-group" style="float: right">
+                            <span id="${this._prefix}HistogramChartButton" class="btn btn-primary plots active" @click="${this.renderHistogramChart}">
+                                <i class="fas fa-chart-bar" style="padding-right: 5px" title="Bar Chart" data-id="${this.facetResult.name}"></i>
+                            </span>
+                            <span id="${this._prefix}PieChartButton" class="btn btn-primary plots" @click="${this.onPieChart}">
+                                <i class="fas fa-chart-pie" style="padding-right: 5px" title="Pie Chart" data-id="${this.facetResult.name}"></i>
+                            </span>
+                        </div>` 
+                    : null
+                }
                 
                 <div id="${this._prefix}Plot"></div>
     
