@@ -140,6 +140,64 @@ export default class OpencgaVariantDetail extends LitElement {
             ]
         };
     }
+
+    getDefaultConfig() {
+        return {
+            title: "",
+            filter: {
+                menu: []
+            },
+            detail: [
+                // {
+                //     id: "annotation",
+                //     component: "cellbase-variantannotation-view",
+                //     title: "Advanced Annotation",
+                //     active: true
+                // },
+                {
+                    id: "annotationSummary",
+                    title: "Summary",
+                    active: true
+                },
+                {
+                    id: "annotationConsType",
+                    title: "Consequence Types",
+                },
+                {
+                    id: "annotationPropFreq",
+                    title: "Population Frequencies"
+                },
+                {
+                    id: "annotationClinical",
+                    title: "Clinical Info"
+                },
+                {
+                    id: "cohortStats",
+                    title: "Cohort Stats"
+                },
+                {
+                    id: "samples",
+                    title: "Samples"
+                },
+                {
+                    id: "beacon",
+                    component: "variant-beacon-network",
+                    title: "Beacon"
+                    // Uncomment and edit Beacon hosts to change default hosts
+                    // hosts: [
+                    //     "brca-exchange", "cell_lines", "cosmic", "wtsi", "wgs", "ncbi", "ebi", "ega", "broad", "gigascience", "ucsc",
+                    //     "lovd", "hgmd", "icgc", "sahgp"
+                    // ]
+                },
+                {
+                    id: "network",
+                    component: "reactome-variant-network",
+                    title: "Reactome Pathways"
+                }
+            ]
+        };
+    }
+
     render() {
         if (this.variant === undefined || this.variant.annotation === undefined) {
             return;
@@ -167,21 +225,6 @@ export default class OpencgaVariantDetail extends LitElement {
                                     </ul>
             
                                     <div class="tab-content" style="height: 680px">
-                                        <!-- Annotation Tab
-                                        <div id="${this._prefix}annotation" role="tabpanel" class="tab-pane active">
-                                            <div style="width: 90%;padding-top: 8px">
-                                                <cellbase-variantannotation-view .data="${this.variantId}"
-                                                                                 .assembly=${this.opencgaSession.project.organism.assembly}
-                                                                                 _prefix="${this._prefix}"
-                                                                                 .cellbaseClient="${this.cellbaseClient}"
-                                                                                 mode="vertical"
-                                                                                 .hashFragmentCredentials="${this.hashFragmentCredentials}"
-                                                                                 .consequenceTypes="${this.consequenceTypes}"
-                                                                                 .proteinSubstitutionScores="${this.proteinSubstitutionScores}">
-                                                </cellbase-variantannotation-view>
-                                            </div>
-                                        </div>
-             -->
                                         
                                          <!-- Annotation Tab -->
                                         <div id="${this._prefix}annotationSummary" role="tabpanel" class="tab-pane active">
@@ -277,63 +320,6 @@ export default class OpencgaVariantDetail extends LitElement {
                                 </div>
                             </div>
                 `;
-    }
-
-    getDefaultConfig() {
-        return {
-            title: "",
-            filter: {
-                menu: []
-            },
-            detail: [
-                // {
-                //     id: "annotation",
-                //     component: "cellbase-variantannotation-view",
-                //     title: "Advanced Annotation",
-                //     active: true
-                // },
-                {
-                    id: "annotationSummary",
-                    title: "Summary",
-                    active: true
-                },
-                {
-                    id: "annotationConsType",
-                    title: "Consequence Types",
-                },
-                {
-                    id: "annotationPropFreq",
-                    title: "Population Frequencies"
-                },
-                {
-                    id: "annotationClinical",
-                    title: "Clinical Info"
-                },
-                {
-                    id: "cohortStats",
-                    title: "Cohort Stats"
-                },
-                {
-                    id: "samples",
-                    title: "Samples"
-                },
-                {
-                    id: "beacon",
-                    component: "variant-beacon-network",
-                    title: "Beacon"
-                    // Uncomment and edit Beacon hosts to change default hosts
-                    // hosts: [
-                    //     "brca-exchange", "cell_lines", "cosmic", "wtsi", "wgs", "ncbi", "ebi", "ega", "broad", "gigascience", "ucsc",
-                    //     "lovd", "hgmd", "icgc", "sahgp"
-                    // ]
-                },
-                {
-                    id: "network",
-                    component: "reactome-variant-network",
-                    title: "Reactome Pathways"
-                }
-            ]
-        };
     }
 }
 

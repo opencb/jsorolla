@@ -134,7 +134,7 @@ class VariantInterpreter extends LitElement {
     getDefaultConfig() {
         return {
             title: "Variant Interpreter",
-            icon: "fas fa-search",
+            icon: "genome_browser.svg",
             active: false,
             tools: [
                 {
@@ -199,9 +199,9 @@ class VariantInterpreter extends LitElement {
                 <div class="page-title">
                     <h2>
                         ${this.clinicalAnalysis && this.clinicalAnalysis.id ? html`
-                            <i class="fa fa-filter" aria-hidden="true" style="padding-left: 10px;padding-right: 10px"></i>&nbsp;${this._config.title} - Case ${this.clinicalAnalysis.id}
+                            <img src="img/tools/icons/${this._config.icon}" alt="${this._config.title}"> ${this._config.title} <span class="inverse"> Case ${this.clinicalAnalysis.id} </span>
                         ` : html`
-                            <i class="fa fa-filter" aria-hidden="true"></i>&nbsp; ${this._config.title}
+                            <img src="img/tools/icons/${this._config.icon}" alt="${this._config.title}"> ${this._config.title}
                         `}
                     </h2>
                 </div>

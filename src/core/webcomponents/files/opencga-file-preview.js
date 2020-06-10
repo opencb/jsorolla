@@ -34,9 +34,6 @@ export default class OpencgaFilePreview extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            opencgaClient: {
-                type: Object
-            },
             file: {
                 type: Object
             },

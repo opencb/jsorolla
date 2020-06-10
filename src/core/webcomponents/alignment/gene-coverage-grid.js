@@ -124,8 +124,7 @@ export default class GeneCoverageGrid extends LitElement {
                 pageList: this._config.pageList,
                 showExport: this._config.showExport,
                 //detailView: this._config.detailView,
-                //detailFormatter: this._config.detailFormatter.bind(this),
-                formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+                formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
                 onCheckAll: rows => this.gridCommons.onCheckAll(rows),
@@ -156,12 +155,12 @@ export default class GeneCoverageGrid extends LitElement {
     cellStyle(value, row, index, field) {
         let coverage = Number.parseInt(field.split(".")[1]);
         let thresholdValue = this.coverageQuality ? this.coverageQuality[coverage] : 80;
-        const color = value >= thresholdValue ? "rgba(176, 255, 199, 0.2)" : "rgba(255,194,194,0.2)"
+        const color = value >= thresholdValue ? "rgba(176, 255, 199, 0.2)" : "rgba(255,194,194,0.2)";
         return {
             css: {
                 background: `linear-gradient(90deg, ${color} 0%, ${color} ${value}%, transparent ${value}%, transparent ${value}%)`
             }
-        }
+        };
     }
 
     _initTableColumns() {
@@ -235,112 +234,41 @@ export default class GeneCoverageGrid extends LitElement {
         return this._columns;
     }
 
-    //TODO adapt to coverage
-    detailFormatter(value, row) {
-        /*let result = "<div class='row' style='padding-bottom: 20px'>";
-        let detailHtml = "";
-
-        if (row) {
-            // Job Dependencies section
-            detailHtml = "<div style='padding: 10px 0px 10px 25px'><h4>Details</h4></div>";
-            detailHtml += "<div style='padding: 5px 40px'>";
-            if (row.dependsOn && row.dependsOn.length > 0) {
-                detailHtml += ` <div class='row' style="padding: 5px 10px 20px 10px">
-                                    <div class='col-md-12'>
-                                        <div>
-                                            <table class="table table-hover table-no-bordered">
-                                                <thead>
-                                                    <tr class="table-header">
-                                                        <th>ID</th>
-                                                        <th>Tool</th>
-                                                        <th>Status</th>
-                                                        <th>Priority</th>
-                                                        <th>Creation Date</th>
-                                                        <th>Visited</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    ${row.dependsOn.map(job => `
-                                                        <tr class="detail-view-row">
-                                                            <td>${job.id}</td>
-                                                            <td>${job.tool.id}</td>
-                                                            <td>${this.statusFormatter(job.internal.status.name)}</td>
-                                                            <td>${job.priority}</td>
-                                                            <td>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</td>
-                                                            <td>${job.visited}</td>
-                                                       </tr>
-                                                    `).join("")}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>`;
-            } else {
-                detailHtml += "No dependencies";
-            }
-            detailHtml += "</div>";
-        }
-        result += detailHtml + "</div>";
-        return result;*/
-    }
-
-    //TODO adapt to coverage
     onDownload(e) {
-        /*const filters = {
-            limit: 1000,
-            //sid: this.opencgaSession.opencgaClient._config.sessionId,
-            skip: 0,
-            count: false,
-            study: this.opencgaSession.study.fqn,
-            ...this.query
-        };
-        this.opencgaSession.opencgaClient.jobs().search(filters)
-            .then(response => {
-                const result = response.getResults();
-                let dataString = [];
-                let mimeType = "";
-                let extension = "";
-                if (result) {
-                    // Check if user clicked in Tab or JSON format
-                    if (e.detail.option.toLowerCase() === "tab") {
-                        dataString = [
-                            ["Id", "Tool", "Priority", "Tags", "Creation date", "Status", "Visited"].join("\t"),
-                            ...result.map( _ => [
-                                _.id,
-                                _.tool.id,
-                                _.priority,
-                                _.tags,
-                                _.creationDate,
-                                _["internal.status.name"],
-                                _.visited
-                            ].join("\t"))];
-                        mimeType = "text/plain";
-                        extension = ".txt";
-                    } else {
-                        for (const res of result) {
-                            dataString.push(JSON.stringify(res, null, "\t"));
-                        }
-                        mimeType = "application/json";
-                        extension = ".json";
-                    }
+        const result = this.data.stats;
+        let dataString = [];
+        let mimeType = "";
+        let extension = "";
+        // Check if user clicked in Tab or JSON format
+        if (e.detail.option.toLowerCase() === "tab") {
+            dataString = [
+                ["transcript Id", "> 1x", "> 5x", "> 10x", "> 15x", "> 20x", "> 25x", "> 30x", "> 40x", "> 50x", "> 60x"].join("\t"),
+                ...result.map(_ => [
+                    _.id,
+                    ..._.depths
+                ].join("\t"))];
+            mimeType = "text/plain";
+            extension = ".txt";
+        } else {
+            for (const res of result) {
+                dataString.push(JSON.stringify(res, null, "\t"));
+            }
+            mimeType = "application/json";
+            extension = ".json";
+        }
 
-                    // Build file and anchor link
-                    const data = new Blob([dataString.join("\n")], {type: mimeType});
-                    const file = window.URL.createObjectURL(data);
-                    const a = document.createElement("a");
-                    a.href = file;
-                    a.download = this.opencgaSession.study.alias + "[" + new Date().toISOString() + "]" + extension;
-                    document.body.appendChild(a);
-                    a.click();
-                    setTimeout(function() {
-                        document.body.removeChild(a);
-                    }, 0);
-                } else {
-                    console.error("Error in result format");
-                }
-            })
-            .then(function() {
-            });*/
+        // Build file and anchor link
+        const data = new Blob([dataString.join("\n")], {type: mimeType});
+        const file = window.URL.createObjectURL(data);
+        const a = document.createElement("a");
+        a.href = file;
+        a.download = this.opencgaSession.study.alias + "[" + new Date().toISOString() + "]" + extension;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() {
+            document.body.removeChild(a);
+        }, 0);
+
     }
 
     getDefaultConfig() {
@@ -350,7 +278,6 @@ export default class GeneCoverageGrid extends LitElement {
             pageList: [10, 25, 50],
             showExport: false,
             detailView: false,
-            detailFormatter: this.detailFormatter,
             showSelectCheckbox: false,
             multiSelection: false,
             nucleotideGenotype: true,
@@ -371,7 +298,7 @@ export default class GeneCoverageGrid extends LitElement {
                                     .numTotalResultsText="${this.numTotalResultsText}"
                                     @download="${this.onDownload}">
                 </opencb-grid-toolbar>`
-            : null }
+            : null}
             <div>
                 <table id="${this.gridId}"></table>
             </div>

@@ -301,7 +301,7 @@ export default class OpencgaVariantBrowser extends LitElement {
         // return BrowserConf.config;
         return {
             title: "Variant Browser",
-            icon: "fas fa-search",
+            icon: "variant_browser.svg",
             active: false,
             filter: {
                 title: "Filter",
@@ -613,7 +613,8 @@ export default class OpencgaVariantBrowser extends LitElement {
         return html`
             <div class="page-title">
                 <h2>
-                    <i class="${this._config.icon}" aria-hidden="true"></i>&nbsp;${this._config.title}
+                    <img src="img/tools/icons/${this._config.icon}" alt="${this._config.title}">
+                    ${this._config.title}
                 </h2>
             </div>
             

@@ -35,9 +35,6 @@ export default class OpencgaCohortView extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            opencgaClient: {
-                type: Object
-            },
             cohortId: {
                 type: String
             },

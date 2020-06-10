@@ -83,11 +83,11 @@ class SampleVariantStatsView extends LitElement {
         if (this.sampleId) {
             this.opencgaSession.opencgaClient.variants().infoSampleStats(this.sampleId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    this.sampleStats = response.getResult(0);
+                    this.sampleVariantStats = response.getResult(0);
                     this.requestUpdate();
                 }).catch(response => {
                 console.error(response);
-                this.sampleStats = null;
+                this.sampleVariantStats = null;
             }).finally(() => this.requestUpdate());
         }
     }
@@ -227,98 +227,7 @@ class SampleVariantStatsView extends LitElement {
                     margin: 25px 0
                 }
             </style>
-            <div>
-            
-            <data-form .data=${this.sampleStats} .config="${this.getDefaultConfig()}"></data-form>
-         
-<!--                <h3>Sample Variant Stats</h3>-->
-                <!-- <span>We must use the new component opencga-sample-variant-stats for 
-                <a href="https://github.com/opencb/biodata/blob/develop/biodata-models/src/main/avro/variantMetadata.avdl#L122" target="_blank">https://github.com/opencb/biodata/blob/develop/biodata-models/src/main/avro/variantMetadata.avdl#L122</a></span> -->
-                
-                <!-- ${this.sampleStats ? html`
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-horizontal">
-                                <div class="form-group">
-                                    <label class="col-md-3 label-title">Id</label>
-                                    <span class="col-md-9">${this.sampleStats.id}</span>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-3 label-title">Number of variants</label>
-                                    <span class="col-md-9">${this.sampleStats.variantCount}</span>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-3 label-title">TiTvRatio</label>
-                                    <span class="col-md-9">${this.sampleStats.tiTvRatio}</span>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-3 label-title">Quality Avg (Quality Standard dev.)</label>
-                                    <span class="col-md-9">${this.sampleStats.qualityAvg} (${this.sampleStats.qualityStdDev})</span>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label class="col-md-3 label-title">Heterozygosity Rate</label>
-                                    <span class="col-md-9">${this.sampleStats.heterozygosityRate}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        ${!$.isEmptyObject(this.sampleStats.chromosomeCount) ? html`
-                            <div class="col-md-6">
-                                <div class="shadow plot-wrapper">
-                                    <simple-plot .active="${true}" type="column" title="Chromosomes" .data="${this.sampleStats.chromosomeCount}"></simple-plot>
-                                </div>  
-                            </div>
-                        ` : null}
-                        ${!$.isEmptyObject(this.sampleStats.chromosomeCount) && !$.isEmptyObject(this.sampleStats.chromosomeCount) ? html`
-                            <div class="col-md-6">
-                                <div class="shadow plot-wrapper">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <simple-plot .active="${true}" type="pie" title="Genotypes" .data="${this.sampleStats.genotypeCount}"></simple-plot>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <simple-plot .active="${true}" type="pie" title="Filters" .data="${this.sampleStats.filterCount}"></simple-plot>
-                                        </div>  
-                                    </div>
-                                </div>
-                            </div>
-                        ` : null}
-                        ${!$.isEmptyObject(this.sampleStats.typeCount) ? html`
-                            <div class="col-md-6">
-                                <div class="shadow plot-wrapper">
-                                    <simple-plot .active="${true}" type="column" title="Type" .data="${this.sampleStats.typeCount}"></simple-plot>
-                                </div>  
-                            </div>
-                        ` : null}
-                        ${!$.isEmptyObject(this.sampleStats.indelLengthCount) ? html`
-                            <div class="col-md-6">
-                                <div class="shadow plot-wrapper">
-                                    <simple-plot .active="${true}" type="column" title="INDEL Length" .data="${this.sampleStats.indelLengthCount}"></simple-plot>
-                                </div>  
-                            </div>
-                        ` : null}
-                        ${!$.isEmptyObject(this.sampleStats.consequenceTypeCount) ? html`
-                            <div class="col-md-12">
-                                <div class="shadow plot-wrapper">
-                                    <simple-plot .active="${true}" type="column" title="Consequence type" .data="${this.sampleStats.consequenceTypeCount}"></simple-plot>
-                                </div>  
-                            </div>
-                        ` : null}
-                        ${!$.isEmptyObject(this.sampleStats.biotypeCount) ? html`
-                            <div class="col-md-12">
-                                <div class="shadow plot-wrapper">
-                                    <simple-plot .active="${true}" type="column" title="Biotype" .data="${this.sampleStats.biotypeCount}"></simple-plot>
-                                </div>  
-                            </div>
-                        ` : null}
-                    </div>
-                    -->
-                    <!-- TODO check this.sampleStats.cancer -->
-                    
-                ` : html`No Stats available.`}
-            </div>
+            <data-form .data=${this.sampleVariantStats} .config="${this.getDefaultConfig()}"></data-form>
         `;
 
     }
