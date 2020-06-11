@@ -175,6 +175,30 @@ export default class DataForm extends LitElement {
 
 
     renderData() {
+        // Render custom display.layout array when provided
+        if (this.config?.display && this.config?.display.layout && Array.isArray(this.config?.display.layout)) {
+            return html`
+                <div class="row">
+                    ${this.config?.display.layout.map(section => section.id 
+                        ? html`
+                            <div class="${section.classes}">
+                                ${this._createSection(this.config.sections.find(s => s.id === section.id))}
+                            </div>` 
+                        : html`
+                            <div class="${section.classes}">
+                                ${section.sections.map(subsection => subsection.id
+                                    ? html`
+                                        <div class="${subsection.classes}">
+                                            ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
+                                        </div>` 
+                                    : null
+                                )}
+                            </div>`
+                    )}
+                </div>
+            `;
+        }
+
         let classes = this.config?.display?.classes ? this.config.display.classes : "";
         let style = this.config?.display?.style ? this.config.display.style : "";
         if (this.config.type === "form") {
@@ -310,7 +334,7 @@ export default class DataForm extends LitElement {
             }
         }
 
-        let layout = element?.display?.layout ?? this.config?.display?.defaultLayout ?? "horizontal";
+        let layout = element?.display?.defaultLayout ?? this.config?.display?.defaultLayout ?? "horizontal";
         let showLabel = element?.showLabel ?? true;
         let labelWidth = showLabel ? this._getLabelWidth(element) : 0;
         let width = this._getWidth(element);
@@ -847,12 +871,13 @@ export default class DataForm extends LitElement {
                 : null
             }
             
-            <div class="row">
-                <div class="col-md-12">
-                    ${this.renderData()}
-                </div>
-                ${this.config.display && this.config.display.buttons && this.config.display.buttons.show
-                    ? html`
+            <!-- Render data form -->
+            ${this.renderData()}
+            
+            <!-- Render buttons -->
+            ${this.config.display && this.config.display.buttons && this.config.display.buttons.show
+                ? html`
+                    <div class="row">
                         <div class="col-md-12" style="padding: 20px 40px">
                             <button type="button" class="btn btn-primary" @click="${this.onClear}">
                                 ${this.config.display.buttons.cancelText ? this.config.display.buttons.cancelText : "Cancel"}
@@ -860,10 +885,10 @@ export default class DataForm extends LitElement {
                             <button type="button" class="btn btn-primary" @click="${this.onSubmit}">
                                 ${this.config.display.buttons.okText ? this.config.display.buttons.okText : "OK"}
                             </button>
-                        </div>`
-                    : null
-                }
-            </div>
+                        </div>
+                    </div>`
+                : null
+            }
         `;
     }
 }

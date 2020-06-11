@@ -93,10 +93,68 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                 showTitle: false,
                 // labelWidth: 3,
                 defaultValue: "-",
-                defaultLayout: "horizontal"
+                defaultLayout: "horizontal",
+                buttons: {
+                    show: true
+                },
+                layout: [
+                    {
+                        id: "",
+                        classes: "col-md-12",
+                        sections: [
+                            {
+                                id: "detail",
+                                classes: "col-md-5"
+                            },
+                            {
+                                id: "proband",
+                                classes: "col-md-7"
+                            }
+                        ]
+                    },
+                    {
+                        id: "family",
+                        classes: "col-md-12"
+                    },
+                    {
+                        id: "files",
+                        classes: "col-md-12"
+                    }
+                ],
+                // layout: [
+                //     {
+                //         id: "",
+                //         classes: "col-md-6",
+                //         sections: [
+                //             {
+                //                 id: "detail",
+                //                 classes: "col-md-12"
+                //             },
+                //             {
+                //                 id: "proband",
+                //                 classes: "col-md-12"
+                //             }
+                //         ]
+                //     },
+                //     {
+                //         // id: "family",
+                //         classes: "col-md-6",
+                //         sections: [
+                //             {
+                //                 id: "family",
+                //                 classes: "col-md-12"
+                //             },
+                //             {
+                //                 id: "files",
+                //                 classes: "col-md-12"
+                //             }
+                //         ]
+                //     }
+                // ],
             },
             sections: [
                 {
+                    id: "detail",
                     title: "Details",
                     display: {
                         collapsed: false,
@@ -221,6 +279,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                     ]
                 },
                 {
+                    id: "proband",
                     title: "Proband",
                     elements: [
                         {
@@ -312,6 +371,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                     ]
                 },
                 {
+                    id: "family",
                     title: "Family",
                     display: {
                         visible: data => data.type === "FAMILY",
@@ -367,6 +427,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                     ]
                 },
                 {
+                    id: "files",
                     title: "Files",
                     elements: [
                         {
