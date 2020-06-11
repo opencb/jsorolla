@@ -112,14 +112,14 @@ export default class OpencgaFileManager extends LitElement {
             ${this.path(root)}
             <ul class="file-manager">
                 ${children.map(node => {
-        if (node.file.type === "DIRECTORY") {
-            return html`${this.folder(node)}`;
-        } else if (node.file.type === "FILE") {
-            return html`${this.file(node)}`;
-        } else {
-            throw new Error("Type not recognized " + node.file.type);
-        }
-    })}
+                    if (node.file.type === "DIRECTORY") {
+                        return html`${this.folder(node)}`;
+                    } else if (node.file.type === "FILE") {
+                        return html`${this.file(node)}`;
+                    } else {
+                        throw new Error("Type not recognized " + node.file.type);
+                    }
+                })}
             </ul>
         `;
     }
@@ -129,7 +129,7 @@ export default class OpencgaFileManager extends LitElement {
             IMAGE: "fas fa-file-image",
             VCF: "fas fa-file"
         }[format];
-        return html`<i class="${icon || "fas fa-file"} ${size ? `fa-${size}x` : ""}"></i>`
+        return html`<i class="${icon || "fas fa-file"} ${size ? `fa-${size}x` : ""}"></i><span class="format">${format}</span>`
     }
 
     renderTree(root) {
@@ -198,7 +198,7 @@ export default class OpencgaFileManager extends LitElement {
         return html`
             <li class="file">
                 <a @click="${() => this.onClickFile(node.file.id)}">
-                    <span class="icon">${this.icon(node.file.format, 6)}</span>
+                    <span class="icon">${this.icon(node.file.format, 5)}</span>
                     <span class="name">${node.file.name}</span>
                     <span class="details">${UtilsNew.getDiskUsage(node.file.size)}</span>
                 </a>
@@ -244,7 +244,7 @@ export default class OpencgaFileManager extends LitElement {
 
     render() {
         return html`
-            <div class="page-title">
+            <div class="">
                 <h2>
                     <i aria-hidden="true" class="fas fa-file"></i>&nbsp;File Explorer
                 </h2>

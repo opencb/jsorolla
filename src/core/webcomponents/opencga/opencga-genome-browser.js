@@ -275,14 +275,8 @@ export default class OpencgaGenomeBrowser extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles"></style>
-
         ${this._config.showTitle ? html`
-            <div class="page-title">
-                <h2>
-                    <i class="fa fa-list" aria-hidden="true"></i> </i>&nbsp;${this._config.title}
-                </h2>
-            </div>
+            <tool-header title="${this._config.title}" icon="fa fa-list"></tool-header>
         ` : null}
 
         <div style="margin: 20px">

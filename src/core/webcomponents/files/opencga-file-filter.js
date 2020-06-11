@@ -121,14 +121,10 @@ export default class OpencgaFileFilter extends LitElement {
     }
 
     queryObserver() {
-        if (this._reset) {
-            console.log("queryObserver: calling to 'renderQueryFilters()'", this.query);
-            this.preparedQuery = this.query;
-            // this.renderQueryFilters();
-            this.requestUpdate();
-        } else {
-            this._reset = true;
-        }
+        console.log("queryObserver: calling to 'renderQueryFilters()'", this.query);
+        this.preparedQuery = this.query;
+        // this.renderQueryFilters();
+        this.requestUpdate();
     }
 
     onFilterChange(key, value) {
@@ -187,6 +183,7 @@ export default class OpencgaFileFilter extends LitElement {
                 content = html`<select-field-filter multiple .value="${this.preparedQuery[subsection.id]}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
                 break;
             case "annotations":
+                debugger
                 content = html`
                         <opencga-annotation-filter-modal .opencgaSession="${this.opencgaSession}"
                                                       entity="FILE"

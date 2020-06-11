@@ -16,14 +16,13 @@
 
 import {LitElement, html, css} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
+import "./../tool-header.js";
 import "./opencga-variant-filter.js";
 import "./opencga-variant-grid.js";
 import "./opencga-variant-detail-view.js";
 import "../commons/opencga-facet-result-view.js";
 import "../commons/facet-filter.js";
 import "../commons/opencga-active-filters.js";
-// import "../commons/filters/select-field-filter.js";
-// import "../loading-spinner.js";
 
 export default class OpencgaVariantBrowser extends LitElement {
 
@@ -611,13 +610,8 @@ export default class OpencgaVariantBrowser extends LitElement {
         }
 
         return html`
-            <div class="page-title">
-                <h2>
-                    <img src="img/tools/icons/${this._config.icon}" alt="${this._config.title}">
-                    ${this._config.title}
-                </h2>
-            </div>
-            
+           <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
+
             <div class="row">
                 <div class="col-md-2 left-menu">
                 

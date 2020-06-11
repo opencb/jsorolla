@@ -96,13 +96,9 @@ export default class OpencgaFamilyFilter extends LitElement {
     }
 
     queryObserver() {
-        if (this._reset) {
-            console.log("onQueryUpdate: calling to 'renderQueryFilters()'", this.query);
-            this.preparedQuery = this.query;
-            this.requestUpdate();
-        } else {
-            this._reset = true;
-        }
+        console.log("onQueryUpdate: calling to 'renderQueryFilters()'", this.query);
+        this.preparedQuery = this.query;
+        this.requestUpdate();
     }
 
     onSearch() {
@@ -123,32 +119,7 @@ export default class OpencgaFamilyFilter extends LitElement {
         }
         _query["annotation"] = annotations.join(";");
 
-        this._reset = false;
         this.query = _query;
-        this._reset = true;
-    }
-
-    onDateChanged(e) {
-        const query = {};
-        Object.assign(query, this.query);
-        if (UtilsNew.isNotEmpty(e.detail.date)) {
-            query["creationDate"] = e.detail.date;
-        } else {
-            delete query["creationDate"];
-        }
-
-        this._reset = false;
-        this.query = query;
-        this._reset = true;
-    }
-
-    onQueryUpdate() {
-        if (this._reset) {
-            console.log("onQueryUpdate: calling to 'renderQueryFilters()'", this.query);
-            this.renderQueryFilters();
-        } else {
-            this._reset = true;
-        }
     }
 
     renderQueryFilters() {
@@ -290,9 +261,7 @@ export default class OpencgaFamilyFilter extends LitElement {
         }
 
         // To prevent to call renderQueryFilters we set this to false
-        this._reset = false;
         this.query = _query;
-        this._reset = true;
     }
 
     render() {

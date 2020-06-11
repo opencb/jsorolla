@@ -36,12 +36,28 @@ export default class SimpleChart extends LitElement {
             title: {
                 type: String
             },
+            subtitle: {
+                type: String
+            },
             data: {
                 type: Object
             },
             type: {
                 type: String
-            }
+            },
+            config: {
+                type: Object
+            },
+            xAxisTitle: {
+                type: String
+            },
+            yAxisTitle: {
+                type: String
+            },
+            showButtons: {
+                type: Boolean
+            },
+
         }
     }
 
@@ -64,7 +80,7 @@ export default class SimpleChart extends LitElement {
                     this.pieChart({title: this.title, data: this.data});
                     break;
                 default:
-                    throw new Error("Plot type not supported");
+                    throw new Error("Chart type not supported");
             }
         }
     }

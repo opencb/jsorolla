@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
+import "../tool-header.js";
 import {CountUp} from "/node_modules/countup.js/dist/countUp.min.js";
 
 
@@ -545,11 +546,7 @@ export default class OpencgaProjects extends LitElement {
         </style>
         <!-- TODO check if logged in -->
         <div id="projects">
-            <div class="panel">
-                <h3 class="page-title">
-                    <i class="fa fa-search" aria-hidden="true"></i> Projects summary
-                </h3>
-            </div>
+             <tool-header title="Projects summary" icon="fa fa-search"></tool-header>
 
             <div class="panel-container">
                 <div class="panel panel-default shadow">

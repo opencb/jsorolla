@@ -94,14 +94,10 @@ export default class OpencgaJobsFilter extends LitElement {
     }
 
     queryObserver() {
-        if (this._reset) {
-            console.log("queryObserver: calling to 'renderQueryFilters()'", this.query);
-            this.preparedQuery = this.query;
-            // this.renderQueryFilters();
-            this.requestUpdate();
-        } else {
-            this._reset = true;
-        }
+        console.log("queryObserver: calling to 'renderQueryFilters()'", this.query);
+        this.preparedQuery = this.query;
+        // this.renderQueryFilters();
+        this.requestUpdate();
     }
 
     onFilterChange(key, value) {

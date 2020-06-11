@@ -174,4 +174,9 @@ export default class GridCommons {
         };
     }
 
+    // overrides the pagination info in bootstrap-table
+    formatShowingRows(pageFrom, pageTo, totalRows, totalNotFiltered) {
+        return `Showing ${pageFrom} to ${pageTo} of ${Number(totalRows).toLocaleString()} records`
+    }
+
 }

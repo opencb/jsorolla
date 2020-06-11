@@ -107,6 +107,7 @@ export default class OpencgaFileGrid extends LitElement {
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
+                formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 detailFormatter: this._config.detailFormatter,
@@ -214,8 +215,9 @@ export default class OpencgaFileGrid extends LitElement {
     //     return `${u ? (t*b).toFixed(1) : bytes} ${u}${!si && u ? "i":""}B`;
     // }
 
-    dateFormatter(value, row) {
-        return moment(value, "YYYYMMDDHHmmss").format("D MMM YYYY");
+    creationDateFormatter(date) {
+        //return moment(date, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")
+        return `<a tooltip-title="Creation date"  tooltip-text="${moment(date, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}"> ${moment(date, "YYYYMMDDHHmmss").fromNow()} </a>`
     }
 
     _getDefaultColumns() {
@@ -245,18 +247,13 @@ export default class OpencgaFileGrid extends LitElement {
             {
                 title: "Size",
                 field: "size",
-                formatter: (value) => UtilsNew.getDiskUsage(value)
+                formatter: UtilsNew.getDiskUsage
             },
             {
                 title: "Creation date",
                 field: "creationDate",
-                formatter: this.dateFormatter
+                formatter: this.creationDateFormatter
             },
-            // {
-            //     title: "Modification date",
-            //     field: "modificationDate",
-            //     formatter: this.dateFormatter
-            // },
             {
                 title: "Status",
                 field: "internal.status.name"

@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
+import "../tool-header.js";
 import "./opencga-clinical-review-cases.js";
 import "./opencga-clinical-analysis-writer.js";
 import "./../opencga/catalog/panel/opencga-panel-browser.js";
@@ -115,11 +116,8 @@ export default class OpencgaClinicalPortal extends LitElement {
     render() {
         return html`
         ${this.checkProjects ? html`
-            <div class="page-title">
-                <h2>
-                    ${this._config.title}
-                </h2>
-            </div>
+            <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
+
             <div class="row">
                 <div id="${this._prefix}ClinicalPortal"  class="col-md-10 col-md-offset-1">
                     

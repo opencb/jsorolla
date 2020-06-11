@@ -22,6 +22,7 @@ import "./filters/select-field-filter.js";
 import "./opencb-facet-results.js";
 import "./facet-filter.js";
 import "../loading-spinner.js";
+import "../tool-header.js";
 import "../files/opencga-file-grid.js";
 import "../files/opencga-file-filter.js";
 import "../files/opencga-file-detail.js";
@@ -185,8 +186,6 @@ export default class OpencgaBrowser extends LitElement {
 
     onFilterChange(e) {
         this.query = e.detail;
-        // TODO remove search field everywhere. use query instead
-        //this.search = e.detail;
     }
 
     onClickPill(e) {
@@ -397,15 +396,10 @@ export default class OpencgaBrowser extends LitElement {
     render() {
         return html`
             ${this.checkProjects ? html`
-                <div class="page-title">
-                    <h2>
-                        <i class="${this._config.icon}" aria-hidden="true"></i>&nbsp;${this._config.title}
-                    </h2>
-                </div>
+                <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
     
-                <div class="row" style="padding: 0px 10px">
+                <div class="row">
                     <div class="col-md-2">
-                    
                         <div class="search-button-wrapper">
                             <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">
                                 <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this._config.filter.searchButtonText || "Run"}
@@ -472,7 +466,6 @@ export default class OpencgaBrowser extends LitElement {
                                 ${this.resource === "clinical-analysis" ? html`
                                     <opencga-clinical-analysis-filter   .opencgaSession="${this.opencgaSession}"
                                                                         .config="${this._config.filter}"
-                                                                        .search="${this.search}"
                                                                         .query="${this.query}"
                                                                         .searchButton="${false}"
                                                                         @queryChange="${this.onQueryFilterChange}"

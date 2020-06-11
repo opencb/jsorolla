@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
+import "../../tool-header.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
 import "../opencga-variant-filter.js";
@@ -475,9 +476,6 @@ class VariantInterpreterCancerBrowser extends LitElement {
         //     `;
         // }
 
-        // Prepare some variables
-        let title = this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title;
-
         return html`
             <style include="jso-styles">
                 .prioritization-center {
@@ -522,17 +520,11 @@ class VariantInterpreterCancerBrowser extends LitElement {
                 }
             </style>
 
-            <div class="page-title">
-                <h2>
-                    ${this._config.showTitle
-                        ? html`<i class="fa fa-filter" aria-hidden="true" style="padding-left: 10px;padding-right: 10px"></i>&nbsp;${title}`
-                        : null
-                    }
-                </h2>
-            </div>
-            
-            <div class="row" style="padding: 5px 10px">
-            
+             ${this._config.showTitle ? html`
+                <tool-header title="${this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title}" icon="${this._config.icon}"></tool-header>
+            ` : null}
+                         
+            <div class="row">
                 <div class="col-md-2">
                     <opencga-variant-filter .opencgaSession="${this.opencgaSession}"
                                             .query="${this.query}"

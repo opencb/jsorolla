@@ -595,7 +595,6 @@ class VariantInterpreterRdBrowser extends LitElement {
             `;
         }
 
-        let title = this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title;
         return html`
             <style>
                 .prioritization-center {
@@ -640,14 +639,9 @@ class VariantInterpreterRdBrowser extends LitElement {
                 }
             </style>
             
-            <div class="page-title">
-                <h2>
-                    ${this._config.showTitle 
-                        ? html`<i class="fa fa-filter" aria-hidden="true" style="padding-left: 10px;padding-right: 10px"></i>&nbsp;${title}` 
-                        : null
-                    }
-                </h2>
-            </div>
+            ${this._config.showTitle ? html`
+                <tool-header title="${this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title}" icon="${this._config.icon}"></tool-header>
+            ` : null}
 
             <div class="row" style="padding: 5px 10px">
 

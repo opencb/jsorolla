@@ -117,6 +117,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
+                formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 // detailFormatter: _this._config.detailFormatter,

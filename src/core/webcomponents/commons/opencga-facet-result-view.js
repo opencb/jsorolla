@@ -452,14 +452,14 @@ export default class OpencgaFacetResultView extends LitElement {
         return {
             chart: {
                 backgroundColor: {
-                    linearGradient: [0, 0, 500, 500],
+                    //linearGradient: [0, 0, 500, 500],
                     stops: [
-                        [0, 'rgb(255, 255, 255)'],
-                        [1, 'rgb(240, 240, 255)']
+                        [0, "rgb(255, 255, 255)"],
+                        [1, "rgb(240, 240, 255)"]
                     ]
                 },
                 borderWidth: 1,
-                plotBackgroundColor: 'rgba(255, 255, 255, .9)',
+                //plotBackgroundColor: "rgba(255, 255, 255, .9)",
                 plotShadow: true,
                 plotBorderWidth: 1
             },
@@ -551,6 +551,7 @@ export default class OpencgaFacetResultView extends LitElement {
             </div>
         `;
     }
+
 }
 
 customElements.define("opencga-facet-result-view", OpencgaFacetResultView);

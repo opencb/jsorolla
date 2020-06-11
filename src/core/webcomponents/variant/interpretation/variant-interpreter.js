@@ -16,6 +16,7 @@
 
 import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
+import "../../tool-header.js";
 import "./variant-interpreter-landing.js";
 import "./variant-interpreter-qc.js";
 import "./variant-interpreter-rd-browser.js";
@@ -196,15 +197,11 @@ class VariantInterpreter extends LitElement {
 
         return html`
             <div class="row">
-                <div class="page-title">
-                    <h2>
-                        ${this.clinicalAnalysis && this.clinicalAnalysis.id ? html`
-                            <img src="img/tools/icons/${this._config.icon}" alt="${this._config.title}"> ${this._config.title} <span class="inverse"> Case ${this.clinicalAnalysis.id} </span>
-                        ` : html`
-                            <img src="img/tools/icons/${this._config.icon}" alt="${this._config.title}"> ${this._config.title}
-                        `}
-                    </h2>
-                </div>
+            ${this.clinicalAnalysis && this.clinicalAnalysis.id ? html`
+                <tool-header title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>` }" icon="${this._config.icon}"></tool-header>
+            ` : html`
+                <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
+            `}
             
                 <div class="col-md-10 col-md-offset-1">
                     <nav class="navbar" style="margin-bottom: 5px; border-radius: 0px">

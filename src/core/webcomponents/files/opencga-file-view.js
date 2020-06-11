@@ -150,10 +150,10 @@ export default class OpencgaFileView extends LitElement {
                         },
                         {
                             name: "Status",
-                            field: "internal",
+                            field: "internal.status",
                             type: "custom",
                             display: {
-                                render: field => field?.name ? html`${field.name} (${UtilsNew.dateFormatter(field.date)})` : ""
+                                render: field => html`${field.name} (${UtilsNew.dateFormatter(field.date)})`
                             }
                         },
                         {

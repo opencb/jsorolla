@@ -183,6 +183,7 @@ export default class OpencgaVariantGrid extends LitElement {
                 pagination: _this._config.pagination,
                 pageSize: _this._config.pageSize,
                 pageList: _this._config.pageList,
+                formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: _this._config.showExport,
                 detailView: _this._config.detailView,
                 detailFormatter: _this._config.detailFormatter,
