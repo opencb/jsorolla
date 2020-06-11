@@ -74,6 +74,12 @@ export default class GeneCoverageBrowser extends LitElement {
         this.requestUpdate();
     }
 
+    selectGene(e) {
+        console.log("selectGene", e)
+        this.geneIds = e.detail.value;
+        this.requestUpdate();
+    }
+
     getDefaultConfig() {
         return {
             title: "Gene Coverage Browser",
@@ -99,11 +105,17 @@ export default class GeneCoverageBrowser extends LitElement {
     }
 
     render() {
-        return this._config && this.geneIds
+        return this._config
             ? html`
-                <h3>Gene Coverage</h3> ${JSON.stringify(this.geneIds)}
+                <h3>Select a gene</h3>
+                <feature-filter .cellbaseClient="${this.cellbaseClient}" @filterChange="${this.selectGene}"></feature-filter>
+                <!--<disease-filter .opencgaSession="${this.opencgaSession}" .config="${this.config}" .panel="${this.panel}" 
+                                @filterChange="${e => this.onFilterChange("panel", e.detail.value)}"></disease-filter> -->
+                
+                <h3>Gene Coverage ${this.geneIds}</h3>
                 <gene-coverage-grid .opencgaSession="${this.opencgaSession}"
                                     .config="${this._config?.filter?.grid}"
+                                    .geneIds="${this.geneIds}"
                                     @selectrow="${this.onClickRow}">
                 </gene-coverage-grid>
                 <gene-coverage-detail .transcriptCoverageStat="${this.transcriptCoverageStat}" .config="${this._config.filter.detail}" .opencgaSession="${this.opencgaSession}"></gene-coverage-detail>`

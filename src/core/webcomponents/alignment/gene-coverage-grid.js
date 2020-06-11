@@ -39,6 +39,9 @@ export default class GeneCoverageGrid extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            geneIds: {
+                type: String
+            },
             stats: {
                 type: Array
             },
@@ -56,7 +59,10 @@ export default class GeneCoverageGrid extends LitElement {
         this.gridId = this._prefix + "GeneBrowserGrid";
 
         this.file = "SonsAlignedBamFile.bam";
-        this.gene = "TP53"; // TODO remove
+        //this.gene = "TP53"; // TODO remove
+        this.stats = null;
+        this.loading = false;
+        this.errorState = false;
 
         // this.coverageArray = [1, 5, 10, 15, 20, 25, 30, 40, 50, 60];
         this.coverageQuality = [100, 95, 90, 85, 80, 75, 70, 65, 60, 55];
@@ -75,7 +81,7 @@ export default class GeneCoverageGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("query")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("geneIds")) {
             this.renderTable();
         }
         if (changedProperties.has("filters")) {
@@ -91,47 +97,58 @@ export default class GeneCoverageGrid extends LitElement {
     }
 
     async renderTable() {
-        this.genes = [];
         this.from = 1;
         this.to = 10;
 
-        const restResponse = await this.opencgaSession.opencgaClient.alignments().statsCoverage(this.file, this.gene, {study: this.opencgaSession.study.fqn});
-        this.data = restResponse.getResults()[0];
+        try {
+            if (this.opencgaSession.opencgaClient && this.opencgaSession?.study?.fqn && this.geneIds) {
+                this.errorState = false;
+                this.loading = true;
+                await this.requestUpdate();
+                const restResponse = await this.opencgaSession.opencgaClient.alignments().statsCoverage(this.file, this.geneIds, {study: this.opencgaSession.study.fqn});
+                this.stats = restResponse.getResults()[0].stats;
+                this.loading = false;
+                await this.requestUpdate();
 
-        if (this.opencgaSession.opencgaClient && this.opencgaSession?.study?.fqn) {
-            $(this.table).bootstrapTable("destroy");
-            $(this.table).bootstrapTable({
-                data: this.data.stats,
-                columns: this._columns,
-                sidePagination: "local",
-                uniqueId: "transcriptId",
-                // Table properties
-                pagination: this._config.pagination,
-                pageSize: this._config.pageSize,
-                pageList: this._config.pageList,
-                showExport: this._config.showExport,
-                //detailView: this._config.detailView,
-                formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
-                onCheckAll: rows => this.gridCommons.onCheckAll(rows),
-                onUncheck: (row, $element) => this.gridCommons.onUncheck(row.id, row),
-                onUncheckAll: rows => this.gridCommons.onUncheckAll(rows),
-                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1, "transcriptId"),
-                onPageChange: (page, size) => {
-                    const result = this.gridCommons.onPageChange(page, size);
-                    this.from = result.from || this.from;
-                    this.to = result.to || this.to;
-                },
-                onPostBody: (data) => {
-                    // We call onLoadSuccess to select first row
-                    this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
-                }
-            });
-        } else {
-            // Delete table
-            this.table.bootstrapTable("destroy");
-            this.numTotalResults = 0;
+                $(this.table).bootstrapTable("destroy");
+                $(this.table).bootstrapTable({
+                    data: this.stats,
+                    columns: this._columns,
+                    sidePagination: "local",
+                    uniqueId: "transcriptId",
+                    // Table properties
+                    pagination: this._config.pagination,
+                    pageSize: this._config.pageSize,
+                    pageList: this._config.pageList,
+                    showExport: this._config.showExport,
+                    //detailView: this._config.detailView,
+                    formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+                    onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                    onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
+                    onCheckAll: rows => this.gridCommons.onCheckAll(rows),
+                    onUncheck: (row, $element) => this.gridCommons.onUncheck(row.id, row),
+                    onUncheckAll: rows => this.gridCommons.onUncheckAll(rows),
+                    onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1, "id"),
+                    onPageChange: (page, size) => {
+                        const result = this.gridCommons.onPageChange(page, size);
+                        this.from = result.from || this.from;
+                        this.to = result.to || this.to;
+                    },
+                    onPostBody: (data) => {
+                        // We call onLoadSuccess to select first row
+                        this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
+                    }
+                });
+
+            } else {
+                // Delete table
+                $(this.table).bootstrapTable("destroy");
+            }
+        } catch (e) {
+            console.error(e);
+            this.stats = null;
+            this.errorState = "Error from the Server";
+            this.requestUpdate();
         }
     }
 
@@ -157,8 +174,8 @@ export default class GeneCoverageGrid extends LitElement {
     _initTableColumns() {
         this._columns = [
             {
-                title: "transcript Id",
-                formatter: this.transcriptIdFormatter,
+                title: "Transcript Id",
+                formatter: this.transcriptIdFormatter
             },
             {
                 title: "> 1x",
@@ -226,7 +243,7 @@ export default class GeneCoverageGrid extends LitElement {
     }
 
     onDownload(e) {
-        const result = this.data.stats;
+        const result = this.stats;
         let dataString = [];
         let mimeType = "";
         let extension = "";
@@ -283,6 +300,12 @@ export default class GeneCoverageGrid extends LitElement {
 
     render() {
         return html`
+            ${this.loading ? html`
+                <div id="loading">
+                    <loading-spinner></loading-spinner>
+                </div>
+            ` : null}
+            stats ${JSON.stringify(this.stats)}
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar .from="${this.from}"
                                     .to="${this.to}"
@@ -293,6 +316,11 @@ export default class GeneCoverageGrid extends LitElement {
             <div>
                 <table id="${this.gridId}"></table>
             </div>
+            ${this.errorState ? html`
+                <div id="error" class="alert alert-danger" role="alert">
+                    ${this.errorState}
+                </div>
+            ` : null}
         `;
     }
 
