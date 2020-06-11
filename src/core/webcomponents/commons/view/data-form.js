@@ -181,7 +181,7 @@ export default class DataForm extends LitElement {
                 <div class="row">
                     ${this.config?.display.layout.map(section => section.id 
                         ? html`
-                            <div class="${section.classes}">
+                            <div class="${section.classes}" style="padding-left: 25px">
                                 ${this._createSection(this.config.sections.find(s => s.id === section.id))}
                             </div>` 
                         : html`
