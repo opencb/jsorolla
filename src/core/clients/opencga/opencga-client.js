@@ -194,6 +194,13 @@ export class OpenCGAClient {
             this._config.userId = userId;
             this._config.token = restResponse.getResult(0).token;
 
+            await this.users().updateConfigs(userId, {
+                "id": "IVA",
+                "configuration": {
+                    "lastAccess": new Date().toISOString()
+                }
+            });
+
             // Check if cookies being used
             if (this._config.cookies.active) {
                 this.setCookies(userId, this._config.token);
@@ -222,6 +229,14 @@ export class OpenCGAClient {
         const userId = this._config.userId;
         const response = await this.users().login({refreshToken: this._config.token});
         this._config.token = response.getResult(0).token;
+
+        await this.users().updateConfigs(userId, {
+            "id": "IVA",
+            "configuration": {
+                "lastAccess": new Date().toISOString()
+            }
+        });
+
         if (this._config.cookies.active) {
             this.setCookies(userId, this._config.token);
         }
@@ -277,13 +292,7 @@ export class OpenCGAClient {
                 _this.users().info(_this._config.userId)
                     .then( async response => {
                         const session = {};
-                        //console.log("response", response);
-
-                        //TODO continue
-                        //const config = await _this.users().configs(_this._config.userId, {name: "IVA"}).getResult(0);
-                        //console.log("config", config);
-
-                        session.user = response.response[0].result[0];
+                        session.user = response.getResult(0);
                         session.token = _this._config.token;
                         session.date = new Date().toISOString();
                         session.server = {
@@ -364,11 +373,11 @@ export class OpenCGAClient {
                                 resolve(session);
                             })
                             .catch(function(response) {
-                                reject({message: "An error when getting projects", value: response});
+                                reject({message: "An error when getting user projects", value: response});
                             });
                     })
                     .catch(function(response) {
-                        reject({message: "An error when getting projects", value: response});
+                        reject({message: "An error getting user information", value: response});
                     });
             } else {
                 reject({message: "No valid token", value: _this._config.token});

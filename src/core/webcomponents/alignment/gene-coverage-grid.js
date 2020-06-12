@@ -305,7 +305,6 @@ export default class GeneCoverageGrid extends LitElement {
                     <loading-spinner></loading-spinner>
                 </div>
             ` : null}
-            stats ${JSON.stringify(this.stats)}
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar .from="${this.from}"
                                     .to="${this.to}"

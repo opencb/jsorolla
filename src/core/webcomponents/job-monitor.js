@@ -60,15 +60,15 @@ export class JobMonitor extends LitElement {
     updated(_changedProperties) {
         super.updated(_changedProperties);
         if (_changedProperties.has("opencgaSession")) {
-            this.top();
+            this.lastJobsDone();
         }
     }
 
-    top() {
-        this.opencgaSession.opencgaClient.jobs().top({study: this.opencgaSession.study.fqn, limit: 20}).then( restResponse => {
-            console.log(restResponse.getResult(0))
-            this.running = restResponse.getResult(0).jobs//.filter( job => job?.internal?.status?.name === "RUNNING");
-            console.log("this.running", this.running)
+    lastJobsDone() {
+        const lastAccessUnix = moment(this.opencgaSession.user.configs.IVA.lastAccess).unix() * 100;
+        this.opencgaSession.opencgaClient.jobs().search({study: this.opencgaSession.study.fqn, "internal.status.name": "DONE,ERROR", "execution.end": lastAccessUnix}).then( restResponse => {
+            this.running = restResponse.getResults();
+            //console.log("this.running", this.running)
             this.requestUpdate();
         }).catch( restResponse => {
             console.error(restResponse)
@@ -83,6 +83,7 @@ export class JobMonitor extends LitElement {
                        ${this.running.length? html`<span class="badge badge-pill badge-primary">${this.running.length}</span>` : null}<i class="fas fa-bell"></i>
                     </a>
                     <ul class="dropdown-menu">
+                        <li class="info">Jobs done since your last access</li>
                         ${this.running.length ? this.running.slice(0, 5).map(job => html`
                             <li>
                                 <a href="#">
@@ -92,7 +93,7 @@ export class JobMonitor extends LitElement {
                                         </div>
                                         <div class="media-body">
                                             <h4 class="media-heading">${job.id}</h4>
-                                            <p>${job?.internal?.status?.name}</p> 
+                                            <p>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status?.name))}</p> 
                                         </div>
                                     </div>
                                  </a>

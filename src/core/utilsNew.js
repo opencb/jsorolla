@@ -1,3 +1,5 @@
+import {html} from "../../../../web_modules/lit-element.js";
+
 export default class UtilsNew {
 
     static get MESSAGE_SUCCESS() {
@@ -179,6 +181,29 @@ export default class UtilsNew {
 
     static renderHTML(html) {
         return document.createRange().createContextualFragment(`${html}`);
+    }
+
+    static jobStatusFormatter(status) {
+        switch (status) {
+            case "PENDING":
+            case "QUEUED":
+            case "REGISTERING":
+            case "UNREGISTERED":
+                return `<span class="text-primary"><i class="far fa-clock"></i> ${status}</span>`
+            case "RUNNING":
+                return `<span class="text-primary"><i class="fas fa-sync-alt anim-rotate"></i> ${status}</span>`
+            case "DONE":
+                return `<span class="text-success"><i class="fas fa-check-circle"></i> ${status}</span>`
+            case "ERROR":
+                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status}</span>`;
+            case "UNKNOWN":
+                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status}</span>`;
+            case "ABORTED":
+                return `<span class="text-warning"><i class="fas fa-ban"></i> ${status}</span>`;
+            case "DELETED":
+                return `<span class="text-primary"><i class="fas fa-trash-alt"></i> ${status}</span>`;
+        }
+        return "-";
     }
 
 }

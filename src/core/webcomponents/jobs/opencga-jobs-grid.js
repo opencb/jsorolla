@@ -238,7 +238,7 @@ export default class OpencgaJobsGrid extends LitElement {
             {
                 title: "Status",
                 field: "internal.status.name",
-                formatter: this.statusFormatter
+                formatter: status => UtilsNew.jobStatusFormatter(status)
             },
             {
                 title: "Creation",
@@ -326,7 +326,7 @@ export default class OpencgaJobsGrid extends LitElement {
                                                         <tr class="detail-view-row">
                                                             <td>${job.id}</td>
                                                             <td>${job.tool.id}</td>
-                                                            <td>${this.statusFormatter(job.internal.status.name)}</td>
+                                                            <td>${UtilsNew.jobStatusFormatter(job.internal.status.name)}</td>
                                                             <td>${job.priority}</td>
                                                             <td>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</td>
                                                             <td>${job.visited}</td>
@@ -389,41 +389,6 @@ export default class OpencgaJobsGrid extends LitElement {
     creationDateFormatter(date) {
         //return moment(date, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")
         return `<a tooltip-title="Creation date"  tooltip-text="${moment(date, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}"> ${moment(date, "YYYYMMDDHHmmss").fromNow()} </a>`
-    }
-
-    statusFormatter(status) {
-        switch (status) {
-            case "PENDING":
-            case "QUEUED":
-            case "REGISTERING":
-            case "UNREGISTERED":
-                return `<span class="text-primary"><i class="far fa-clock"></i> ${status}</span>`
-            case "RUNNING":
-                return `<span class="text-primary"><i class="fas fa-sync-alt anim-rotate"></i> ${status}</span>`
-            case "DONE":
-                return `<span class="text-success"><i class="fas fa-check-circle"></i> ${status}</span>`
-            case "ERROR":
-                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status}</span>`;
-            case "UNKNOWN":
-                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status}</span>`;
-            case "ABORTED":
-                return `<span class="text-warning"><i class="fas fa-ban"></i> ${status}</span>`;
-            case "DELETED":
-                return `<span class="text-primary"><i class="fas fa-trash-alt"></i> ${status}</span>`;
-        }
-        return "-";
-        // return {
-        //     "PENDING": `<span class="text-primary"><i class="far fa-clock"></i> ${status}</span>`,
-        //     "QUEUED": `<span class="text-primary"><span class=""> <i class="far fa-clock"></i> ${status}</span>`,
-        //     "RUNNING": `<span class="text-primary"><i class="fas fa-sync-alt anim-rotate"></i> ${status}</span>`,
-        //     "DONE": `<span class="text-success"><i class="fas fa-check-circle"></i> ${status}</span>`,
-        //     "ERROR": `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status}</span>`,
-        //     "UNKNOWN": `<span class="text-warning"><i class="fas fa-question-circle"></i> ${status}</span>`,
-        //     "REGISTERING": `<span class="text-info"><i class="far fa-clock"></i> ${status}</span>`,
-        //     "UNREGISTERED": `<span class="text-muted"><i class="far fa-clock"></i> ${status}</span>`,
-        //     "ABORTED": `<span class="text-warning"><i class="fas fa-ban"></i> ${status}</span>`,
-        //     "DELETED": `<span class="text-primary"><i class="fas fa-trash-alt"></i> ${status}</span>`
-        // }[status];
     }
 
     onDownload(e) {

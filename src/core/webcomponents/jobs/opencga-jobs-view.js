@@ -85,29 +85,6 @@ export default class OpencgaJobsView extends LitElement {
         }
     }
 
-    statusFormatter(status) {
-        switch (status) {
-            case "PENDING":
-            case "QUEUED":
-            case "REGISTERING":
-            case "UNREGISTERED":
-                return html`<span class="text-primary"><i class="far fa-clock"></i> ${status}</span>`
-            case "RUNNING":
-                return html`<span class="text-primary"><i class="fas fa-sync-alt anim-rotate"></i> ${status}</span>`
-            case "DONE":
-                return html`<span class="text-success"><i class="fas fa-check-circle"></i> ${status}</span>`
-            case "ERROR":
-                return html`<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status}</span>`;
-            case "UNKNOWN":
-                return html`<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status}</span>`;
-            case "ABORTED":
-                return html`<span class="text-warning"><i class="fas fa-ban"></i> ${status}</span>`;
-            case "DELETED":
-                return html`<span class="text-primary"><i class="fas fa-trash-alt"></i> ${status}</span>`;
-        }
-        return "-";
-    }
-
     dependsOnMap(node) {
         console.log("node", node)
         return {text: node.id, nodes: node.elements?.map(n => this.dependsOnMap(n))};
@@ -148,8 +125,7 @@ export default class OpencgaJobsView extends LitElement {
                             // field: "internal",
                             type: "custom",
                             display: {
-                                // render: job => UtilsNew.renderHTML(this.statusFormatter(job.internal.status.name))
-                                render: job => html`${this.statusFormatter(job.internal.status.name)}`
+                                render: job => UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job.internal.status.name))
                             }
                         },
                         {
