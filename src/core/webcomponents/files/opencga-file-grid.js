@@ -215,6 +215,10 @@ export default class OpencgaFileGrid extends LitElement {
     //     return `${u ? (t*b).toFixed(1) : bytes} ${u}${!si && u ? "i":""}B`;
     // }
 
+    pathFormatter(value, row) {
+        return "/" + row.path.replace(row.name, "");
+    }
+
     creationDateFormatter(date) {
         //return moment(date, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")
         return `<a tooltip-title="Creation date"  tooltip-text="${moment(date, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}"> ${moment(date, "YYYYMMDDHHmmss").fromNow()} </a>`
@@ -233,8 +237,8 @@ export default class OpencgaFileGrid extends LitElement {
                 field: "name"
             },
             {
-                title: "Path",
-                field: "path"
+                title: "Directory",
+                formatter: this.pathFormatter,
             },
             {
                 title: "Format",
