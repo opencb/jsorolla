@@ -354,9 +354,9 @@ export default class DataForm extends LitElement {
             } else {
                 const sectionWidth = element?.display?.width ? element.display.width : "12";
                 return html`
-                    <div class="form-group col-md-12">
-                        <label class="control-label col-md-12">${title}</label>
-                        <div class="col-md-${sectionWidth}">
+                    <div class="form-group col-md-${sectionWidth}">
+                        <label class="control-label">${title}</label>
+                        <div class="">
                             ${content}
                         </div>
                     </div>
@@ -878,7 +878,7 @@ export default class DataForm extends LitElement {
             ${this.config.display && this.config.display.buttons && this.config.display.buttons.show
                 ? html`
                     <div class="row">
-                        <div class="col-md-12" style="padding: 20px 40px">
+                        <div class="${this.config.display.classes ? this.config.display.classes : "col-md-12"}" style="padding: 10px 40px">
                             <button type="button" class="btn btn-primary" @click="${this.onClear}">
                                 ${this.config.display.buttons.cancelText ? this.config.display.buttons.cancelText : "Cancel"}
                             </button>

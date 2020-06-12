@@ -99,6 +99,8 @@ class VariantInterpreterLanding extends LitElement {
         } else {
             this.editMode = this.opencgaSession.study.acl.includes("WRITE_CLINICAL_ANALYSIS");
         }
+
+        this.getLastClinicalAnalysis();
     }
 
     // non-bootstrap tabs
@@ -210,6 +212,104 @@ class VariantInterpreterLanding extends LitElement {
             });
     }
 
+    getLastClinicalAnalysis() {
+        // Fetch object from server since the server automatically adds some information
+        this.opencgaSession.opencgaClient.clinical().search({study: this.opencgaSession.study.fqn, limit: 10})
+            .then(response => {
+                this.lastClinicalAnalysis = response.responses[0].results.map(value => value.id);
+                debugger
+                this.requestUpdate();
+            })
+            .catch(response => {
+                console.error("An error occurred fetching clinicalAnalysis: ", response);
+            });
+    }
+
+    onSearchFieldChange(e) {
+        switch (e.detail.param) {
+            case "id":
+                this.clinicalAnalysisId = e.detail.value;
+                this.probandId = null;
+                break;
+            case "proband.id":
+                this.probandId = e.detail.value;
+                this.clinicalAnalysisId = null;
+                break;
+        }
+    }
+
+    getSearchtConfig() {
+        return {
+            id: "clinical-analysis",
+            title: "",
+            icon: "",
+            type: "form",
+            description: "Sample Variant Stats description",
+            display: {
+                showTitle: true,
+                infoIcon: "",
+                labelAlign: "left",
+                defaultLayout: "vertical",
+                classes: "col-md-4 col-md-offset-4",
+                buttons: {
+                    show: true,
+                    clearText: "Clear",
+                    submitText: "Open"
+                }
+            },
+            sections: [
+                {
+                    title: "Open Case",
+                    display: {
+                    },
+                    elements: [
+                        {
+                            name: "Clinical Analysis ID",
+                            field: "id",
+                            type: "custom",
+                            display: {
+                                render: () => {
+                                    return html`
+                                        <select-field-filter-autocomplete-simple resource="clinical-analysis"
+                                                .opencgaSession="${this.opencgaSession}" 
+                                                @filterChange="${e => this.onClinicalAnalysisIdChange("clinicalAnalysisId", e.detail.value)}">
+                                        </select-field-filter-autocomplete-simple>
+                                    `;
+                                },
+                                placeholder: "eg. AN-3",
+                                errorMessage: ""
+                            }
+                        },
+                        {
+                            name: "Proband ID",
+                            field: "proband.id",
+                            type: "custom",
+                            display: {
+                                render: () => {
+                                    return html`
+                                        <select-field-filter-autocomplete-simple resource="individuals" 
+                                                    .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onProbandIdChange("individualId", e.detail.value)}">
+                                        </select-field-filter-autocomplete-simple>
+                                    `;
+                                },
+                            }
+                        },
+                        {
+                            name: "Recent Analysis created",
+                            field: "id",
+                            type: "select",
+                            allowedValues: data => {
+                                return {allowedValues: this.lastClinicalAnalysis};
+                            },
+                            display: {
+                            }
+                        },
+                    ]
+                }
+            ]
+        }
+    }
+
     render() {
         // Check Project exists
         if (!this.opencgaSession.project) {
@@ -258,31 +358,12 @@ class VariantInterpreterLanding extends LitElement {
                     </ul>              
                     <div class="content-tab-wrapper">
                         <div id="${this._prefix}-search" role="tabpanel" class="tab-pane active content-tab">
-                            <div class="row">
-                                <div class="col-md-4 col-md-offset-4">
-                                    <div>
-    <!--                                    <h3>Search Clinical Analysis</h3>-->
-                                        <div>
-                                            <label>Clinical Analysis ID</label>
-                                            <select-field-filter-autocomplete-simple resource="clinical-analysis"
-                                                    .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onClinicalAnalysisIdChange("clinicalAnalysisId", e.detail.value)}">
-                                            </select-field-filter-autocomplete-simple>
-                                        </div>
-                                        
-                                        <div>
-                                            <label>Proband ID</label>
-                                            <select-field-filter-autocomplete-simple resource="individuals" 
-                                                    .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onProbandIdChange("individualId", e.detail.value)}">
-                                            </select-field-filter-autocomplete-simple>
-                                        </div>
-            
-                                        <div class="pull-right">                            
-                                            <button class="btn btn-default ripple" @click="${this.onClinicalAnalysisChange}">Clear</button>
-                                            <button class="btn btn-default ripple" @click="${this.onClinicalAnalysisChange}">OK</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <data-form  .data="${{}}" 
+                                        .config="${this.getSearchtConfig()}" 
+                                        @fieldChange="${this.onSearchFieldChange}"
+                                        @clear="${this.onClinicalAnalysisChange}"
+                                        @submit="${this.onClinicalAnalysisChange}">
+                            </data-form>
                         </div>
                         
                         <div id="${this._prefix}-create" role="tabpanel" class="tab-pane content-tab col-md-8 col-md-offset-2">
