@@ -258,10 +258,11 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
            
             ${this.variableSets ? html`
                 <div class="modal fade annotation-modal" id="${this._prefix}annotation-modal" role="dialog"
-                 aria-labelledby="annotation-modal" data-backdrop="static" data-keyboard="false">
+                 aria-labelledby="annotation-modal" data-keyboard="false">
                 <div class="modal-dialog">
                     <div class="modal-content container">
                         <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
                             Annotation filter
                         </div>
                         <div class="modal-body">

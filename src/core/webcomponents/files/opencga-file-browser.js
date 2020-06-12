@@ -89,7 +89,7 @@ export default class OpencgaFileBrowser extends LitElement {
         return {
             title: "File Browser",
             //active: false,
-            icon: "fas fa-chart-bar",
+            icon: "fab fa-searchengin",
             description: "",
             searchButtonText: "Run",
             views: [

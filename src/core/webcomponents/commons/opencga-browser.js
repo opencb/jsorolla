@@ -131,6 +131,7 @@ export default class OpencgaBrowser extends LitElement {
     opencgaSessionObserver() {
         if (this.opencgaSession && this.opencgaSession.project) {
             this.checkProjects = true;
+            this.query = {study: this.opencgaSession.study.fqn};
             this.requestUpdate().then(() => $(".bootstrap-select", this).selectpicker());
         } else {
             this.checkProjects = false;
@@ -140,7 +141,7 @@ export default class OpencgaBrowser extends LitElement {
     queryObserver() {
         // Query passed is executed and set to variant-filter, active-filters and variant-grid components
         let _query = {};
-        if (UtilsNew.isEmpty(this.query) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study)) {
+        if (UtilsNew.isEmpty(this.query) && this.opencgaSession && this.opencgaSession.study) {
             _query = {
                 study: this.opencgaSession.study.fqn
             };
@@ -397,7 +398,6 @@ export default class OpencgaBrowser extends LitElement {
         return html`
             ${this.checkProjects ? html`
                 <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
-    
                 <div class="row">
                     <div class="col-md-2">
                         <div class="search-button-wrapper">

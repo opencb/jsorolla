@@ -88,7 +88,7 @@ export default class OpencgaJobsBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "Jobs Browser",
-            icon: "fas fa-chart-bar",
+            icon: "fab fa-searchengin",
             description: "",
             searchButtonText: "Run",
             views: [

@@ -19,6 +19,7 @@ import UtilsNew from "../../../utilsNew.js";
 import "../../tool-header.js";
 import "./variant-interpreter-landing.js";
 import "./variant-interpreter-qc.js";
+import "./variant-interpreter-report.js";
 import "./variant-interpreter-rd-browser.js";
 import "./variant-interpreter-cancer-browser.js";
 import "./variant-interpreter-review.js";
@@ -322,6 +323,10 @@ class VariantInterpreter extends LitElement {
                                                             @gene="${this.geneSelected}"
                                                             @samplechange="${this.onSampleChange}">
                                  </variant-interpreter-review>
+                            </div>
+                            <div id="${this._prefix}report" class="clinical-portal-content col-md-10 col-md-offset-1" style="${this._config.tools[0].id !== "report" ? "display: none" : ""}">
+                                <variant-interpreter-report .opencgaSession="${this.opencgaSession}">
+                                </variant-interpreter-report>
                             </div>
                         ` : null}
                     </div>

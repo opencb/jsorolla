@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import "../../clinical/opencga-clinical-analysis-writer.js";
+import "../../commons/filters/clinical-analysis-id-autocomplete.js";
 import UtilsNew from "../../../utilsNew.js";
 
 
@@ -238,7 +239,7 @@ class VariantInterpreterLanding extends LitElement {
         }
     }
 
-    getSearchtConfig() {
+    getSearchConfig() {
         return {
             id: "clinical-analysis",
             title: "",
@@ -286,12 +287,23 @@ class VariantInterpreterLanding extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => {
-                                    return html`
-                                        <select-field-filter-autocomplete-simple resource="individuals" 
-                                                    .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onProbandIdChange("individualId", e.detail.value)}">
-                                        </select-field-filter-autocomplete-simple>
-                                    `;
-                                },
+                                    const config = {
+                                        addButton: false,
+                                        dataSource: (query, process) => {
+                                            const filters = {
+                                                study: this.opencgaSession.study.fqn,
+                                                limit: 5,
+                                                count: false,
+                                                proband: "^" + query.toUpperCase()
+                                            };
+                                            this.opencgaSession.opencgaClient.clinical().search(filters).then(restResponse => {
+                                                const results = restResponse.getResults();
+                                                process(results.map( item => ({name: item.id, secondary: {Proband: item?.proband?.id}})));
+                                            });
+                                        }
+                                    }
+                                    return html`<clinical-analysis-id-autocomplete .config=${config} .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onProbandIdChange("individualId", e.detail.value)}"></clinical-analysis-id-autocomplete>`;
+                                }
                             }
                         },
                         {
@@ -359,7 +371,7 @@ class VariantInterpreterLanding extends LitElement {
                     <div class="content-tab-wrapper">
                         <div id="${this._prefix}-search" role="tabpanel" class="tab-pane active content-tab">
                             <data-form  .data="${{}}" 
-                                        .config="${this.getSearchtConfig()}" 
+                                        .config="${this.getSearchConfig()}" 
                                         @fieldChange="${this.onSearchFieldChange}"
                                         @clear="${this.onClinicalAnalysisChange}"
                                         @submit="${this.onClinicalAnalysisChange}">

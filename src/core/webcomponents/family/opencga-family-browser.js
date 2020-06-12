@@ -88,7 +88,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "Family Browser",
-            icon: "fas fa-chart-bar",
+            icon: "fab fa-searchengin",
             searchButtonText: "Run",
             views: [
                 {

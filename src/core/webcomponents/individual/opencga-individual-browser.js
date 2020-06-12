@@ -88,7 +88,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "Individual Browser",
-            icon: "fas fa-chart-bar",
+            icon: "fab fa-searchengin",
             searchButtonText: "Run",
             views: [
                 {

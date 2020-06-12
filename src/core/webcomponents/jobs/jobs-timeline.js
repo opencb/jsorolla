@@ -59,11 +59,9 @@ export default class JobsTimeline extends LitElement {
 
     updated(changedProperties) {
         // console.log(`query ${this.query}, active ${this.active}`)
-        if ((changedProperties.has("query") || changedProperties.has("opencgaSession")) && this.active) {
-            this.fetchContent();
-        }
-        if (changedProperties.has("active") && this.active) {
-            this.fetchContent(); // TODO avoid remote request in case the query hasn't changed
+        if ((changedProperties.has("query") || changedProperties.has("opencgaSession") || changedProperties.has("active")) && this.active) {
+            this.fetchContent();// TODO avoid remote request in case the query hasn't changed
+            this.fileId = null;
         }
     }
 
@@ -79,9 +77,7 @@ export default class JobsTimeline extends LitElement {
             study: this.opencgaSession.study.fqn,
             deleted: false,
             count: true,
-            // order: params.data.order,
             limit: 500,
-            // skip: params.data.offset || 0,
             // include: "name",
             // exclude: "execution",
             ...this.query
@@ -218,6 +214,9 @@ export default class JobsTimeline extends LitElement {
             SVG.find(`.edge[id*="${line.id()}"]`).stroke({opacity: .3});
         }
         line.stroke({color: "#000"});
+        //this.file
+        this.jobId = line.id();
+        this.requestUpdate();
     }
 
     drawTicks(num, height) {
@@ -324,7 +323,7 @@ export default class JobsTimeline extends LitElement {
             }
             
             #jobs-timeline .toolbar {
-                width: 480px;
+                /* width: 480px;*/
                 float: right;
                 margin-bottom: 10px;
             }
@@ -369,6 +368,9 @@ export default class JobsTimeline extends LitElement {
             <div id="svg-timeline">
             </div>
         </div>
+        <opencga-jobs-detail    .opencgaSession="${this.opencgaSession}"
+                            .jobId="${this.jobId}">
+        </opencga-jobs-detail>
         `;
     }
 

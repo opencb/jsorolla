@@ -153,7 +153,7 @@ export default class OpencgaFileView extends LitElement {
                             field: "internal.status",
                             type: "custom",
                             display: {
-                                render: field => html`${field.name} (${UtilsNew.dateFormatter(field.date)})`
+                                render: field => field ? html`${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-"
                             }
                         },
                         {
@@ -161,7 +161,7 @@ export default class OpencgaFileView extends LitElement {
                             field: "internal.index.status",
                             type: "custom",
                             display: {
-                                render: field => field?.name ? html`${field.name} (${UtilsNew.dateFormatter(field.date)})` : ""
+                                render: field => field?.name ? html`${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-"
                             }
                         }
                     ]

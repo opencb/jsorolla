@@ -66,6 +66,7 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "Clinical Analysis Browser",
+            icon: "fab fa-searchengin",
             views: [
                 {
                     id: "table-tab",

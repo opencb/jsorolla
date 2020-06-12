@@ -73,17 +73,16 @@ export default class OpencgaFileManager extends LitElement {
         }
     }
 
-    async fetchFolder(fileId) {
+    async fetchFolder(node) {
         try {
-            const folder = this.searchNode(fileId, this.tree.children);
-            if (!folder.visited) {
-                const restResponse = await this.opencgaSession.opencgaClient.files().tree(fileId, {study: this.opencgaSession.study.fqn, maxDepth: 3,include: "id,name,path,size,format"})
+            if (!node.visited) {
+                const restResponse = await this.opencgaSession.opencgaClient.files().tree(node.file.id, {study: this.opencgaSession.study.fqn, maxDepth: 3,include: "id,name,path,size,format"})
                 const result = restResponse.getResult(0);
-                folder.children = result.children;
-                folder.visited = true;
-                this.currentRoot = result;
+                node.children = result.children;
+                node.visited = true;
+                //this.currentRoot = result;
             } else {
-                this.currentRoot = folder;
+                //this.currentRoot = node;
             }
 
             console.log("current root", this.currentRoot)
@@ -129,66 +128,73 @@ export default class OpencgaFileManager extends LitElement {
             IMAGE: "fas fa-file-image",
             VCF: "fas fa-file"
         }[format];
-        return html`<i class="${icon || "fas fa-file"} ${size ? `fa-${size}x` : ""}"></i><span class="format">${format}</span>`
+        return html`<i class="${icon || "fas fa-file"} ${size ? `fa-${size}x` : ""}"></i>`
     }
 
     renderTree(root) {
         const children = root.children;
-        const id = `tree-${root.file.id.replace(/:/g, "-")}`;
+        const domId = `tree-${root.file.id.replace(/:/g, "")}`;
         return html`
             ${root.file.name !== "." ? html`
-                    <i @click="${() => this.toggleFolder(id, root)}" class="fas fa-angle-${root.exploded ? "down" : "right"}"></i> <a class="folder-name ${id}" @click="${() => this.route(root.file.id)}"> ${root.file.name} </a>
+                    <i @click="${() => this.toggleFolder(domId, root)}" class="fas fa-angle-${root.exploded ? "down" : "right"}"></i> <a class="folder-name ${domId} ${root.exploded ? "exploded" : ""}" @click="${() => this.toggleFolder(domId, root)}"> ${root.file.name} </a>
                 ` : html`
-                    <i class="fas fa-home"></i> <a @click="${() => this.reset}"> Home</a>`}
+                    <i class="fas fa-home"></i> <a class="home" @click="${this.reset}"> Home</a>`}
             
             <ul class="">
                 ${children.map(node => {
-        if (node.file.type === "DIRECTORY") {
-            return html`
+                    if (node.file.type === "DIRECTORY") {
+                        return html`
                             <li class="folder">
                                 <!-- <span class="badge">${node.children.length}</span>-->
                                 ${this.renderTree(node)}
                             </li>`;
-        } else if (node.file.type === "FILE") {
-            return html`
+                    } else if (node.file.type === "FILE") {
+                        return html`
                             <p class="file" @click="${() => this.onClickFile(node.file.id)}">
-                                ${this.icon(node.file.format)} ${node.file.name}
+                                ${this.icon(node)} ${node.file.name}
                             </p>`;
-        } else {
-            throw new Error("Type not recognized " + node.file.type);
-        }
-    })}
+                    } else {
+                        throw new Error("Type not recognized " + node.file.type);
+                    }
+                })}
             </ul>
         `;
     }
 
-    async toggleFolder(id, node) {
-        // TODO avoid this check and to execute fetchFolder in case of collapsing an <ul>
+    async toggleFolder(domId, node) {
         //check for the root
-        if (id !== "tree-") {
+        if (domId !== "tree-") {
             if(!node.exploded) {
-                node.exploded = true;
-                await this.fetchFolder(node.file.id);
+                /*node.exploded = true;
+                if(!node.visited) {
+                    await this.fetchFolder(node);
+                }
+                $("." + domId + "").addClass("exploded")*/
+                this.route(node.file.id);
             } else {
                 node.exploded = false;
+                $("." + domId + "").removeClass("exploded")
             }
             console.log("toggle" + node.file.id);
-            console.log($("." + id + " ul"));
+            console.log($("." + domId + " ul"));
 
         } else {
-            console.log("no id")
+            console.error("no id!")
         }
-        $("." + id + " + ul").slideToggle();
+        //$("." + id + " + ul").slideToggle();
+        await this.requestUpdate();
     }
 
 
     folder(node) {
         return html`
             <li class="folder">
-                <a @click="${() => this.fetchFolder(node.file.id)}">
-                    <span class="icon"><i class="fas fa-folder fa-6x"></i></span>
-                    <span class="name">${node.file.name}</span>
-                    <span class="details">${node.children.length} items</span>
+                <a @click="${() => this.route(node.file.id)}">
+                    <span class="icon"><i class="fas fa-folder fa-5x"></i></span>
+                    <span class="content">
+                        <span class="name"><span class="max-lines-2"> ${node.file.name} </span>
+                        <span class="details">${node.children.length} items</span>
+                    </span>
                 </a>
             </li>
         `;
@@ -198,22 +204,39 @@ export default class OpencgaFileManager extends LitElement {
         return html`
             <li class="file">
                 <a @click="${() => this.onClickFile(node.file.id)}">
-                    <span class="icon">${this.icon(node.file.format, 5)}</span>
-                    <span class="name">${node.file.name}</span>
-                    <span class="details">${UtilsNew.getDiskUsage(node.file.size)}</span>
+                    <span class="icon">${this.icon(node.file.format, 5)}<span class="format">${node.file.format}</span></span>
+                    <span class="content">
+                        <span class="name">
+                            <span class="max-lines-2">
+                                ${node.file.name}
+                            </span>
+                        </span>
+                        <span class="details">${UtilsNew.getDiskUsage(node.file.size)}</span>
+                    </span>
                 </a>
             </li>
         `;
     }
 
-    route(nodeId) {
-        console.log("route", nodeId)
-        this.currentRoot = this.searchNode(nodeId, this.tree.children);
+    async route(id) {
+        console.log("route", id)
+        this.currentRoot = this.searchNode(id, this.tree.children);
+        this.currentRoot.exploded = true;
+
+        if(!this.currentRoot.visited) {
+            await this.fetchFolder(this.currentRoot);
+        }
+
+        const domId = `tree-${id.replace(/:/g, "")}`;
+        $("." + domId + "").addClass("exploded");
+
+        //$("." + domId + " + ul").slideToggle();
         this.fileId = null;
         this.requestUpdate();
     }
 
     reset() {
+        console.log("reset")
         this.currentRoot = this.tree;
         this.fileId = null;
         this.requestUpdate();
@@ -246,7 +269,7 @@ export default class OpencgaFileManager extends LitElement {
         return html`
             <div class="">
                 <h2>
-                    <i aria-hidden="true" class="fas fa-file"></i>&nbsp;File Explorer
+                    <i aria-hidden="true" class="fas fa-file"></i> File Explorer
                 </h2>
             </div>
             

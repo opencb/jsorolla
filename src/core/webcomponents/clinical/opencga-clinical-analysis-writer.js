@@ -221,7 +221,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
         return {
             id: "clinical-analysis",
             title: "Create Case",
-            icon: "",
+            icon: "fas fa-user-md",
             type: "form",
             requires: "2.0.0",
             description: "Sample Variant Stats description",

@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
+import {NotificationQueue} from "../Notification.js";
 
 
 export default class OpencgaLogin extends LitElement {
@@ -76,7 +77,10 @@ export default class OpencgaLogin extends LitElement {
             this.opencgaSession.opencgaClient.login(user, pass)
                 .then( response => {
 
-                    if(response) {
+                    if(response.getEvents("ERROR").length) {
+                        this.errorState = response.getEvents("ERROR")[0];
+                        new NotificationQueue().push(this.errorState.name, this.errorState.message, "error");
+                    } else if(response) {
                         this.querySelector("#opencgaUser").value = "";
                         this.querySelector("#opencgaPassword").value = "";
                         console.log("response", response)
@@ -108,19 +112,18 @@ export default class OpencgaLogin extends LitElement {
                         }));
                     }
                 })
-                .catch(function(response) {
-                    console.log(response)
-                    const _message = this.errorMessage = response.error || "Login error. Please check your credentials.";
-                    console.log(response.getEvents())
+                .catch( response => {
+                    // response isn't necessarily a restResponse instance
+                    this.errorState = {name: "Login error", message: "Please check your credentials."};
                     this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
                         detail: {
-                            message: _message,
+                            message: this.errorState,
                             type: UtilsNew.MESSAGE_ERROR
                         },
                         bubbles: true,
                         composed: true
                     }));
-                }.bind(this));
+                }).finally( () => this.requestUpdate());
         }
 
     }
@@ -133,7 +136,7 @@ export default class OpencgaLogin extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles">
+        <style>
             .v-offset {
                 margin-top: 90px;
             }
@@ -148,6 +151,7 @@ export default class OpencgaLogin extends LitElement {
             
             .login-box {
                 padding: 20px;
+                margin-bottom: 20px;
             }
             
             .has-error .form-control:focus {
@@ -180,15 +184,18 @@ export default class OpencgaLogin extends LitElement {
                                        placeholder="Password" aria-describedby="password" required>
                             </div>
                         </div>
-
                         <div class="form-group">
                             <button type="submit" class="btn btn-lg btn-primary btn-block ripple">${this.buttonText}</button>
                         </div>
-
                     </form>
                 </div>
             </div>
         </div>
+        ${this.errorState ? html`
+            <div id="error" class="alert alert-danger" role="alert">
+                <p><strong>${this.errorState.name}</strong></p><p>${this.errorState.message}</p>
+            </div>
+        ` : null}
         `;
     }
 

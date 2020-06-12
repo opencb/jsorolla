@@ -188,10 +188,8 @@ export class OpenCGAClient {
 
     async login(userId, password) {
         try {
-            const response = await this.users().login({user: userId, password: password});
-            const restResponse = new RestResponse(response);
+            const restResponse = await this.users().login({user: userId, password: password});
 
-            // TODO search for Errors in restResponse.events
             // TODO remove userId and token from config and move it to session
             this._config.userId = userId;
             this._config.token = restResponse.getResult(0).token;
@@ -203,8 +201,9 @@ export class OpenCGAClient {
             this.clients.forEach(client => client.setToken(this._config.token));
             // this.createSession();
             return restResponse;
-        } catch (e) {
-            console.error(e);
+        } catch (restResponse) {
+            console.error(restResponse);
+            return restResponse;
         }
     }
 
@@ -276,9 +275,13 @@ export class OpenCGAClient {
             //console.log("_this._config", _this._config); // ------------ TODO refreshing a page userId is empty
             if (UtilsNew.isNotUndefined(_this._config.token)) {
                 _this.users().info(_this._config.userId)
-                    .then(function(response) {
+                    .then( async response => {
                         const session = {};
                         //console.log("response", response);
+
+                        //TODO continue
+                        //const config = await _this.users().configs(_this._config.userId, {name: "IVA"}).getResult(0);
+                        //console.log("config", config);
 
                         session.user = response.response[0].result[0];
                         session.token = _this._config.token;

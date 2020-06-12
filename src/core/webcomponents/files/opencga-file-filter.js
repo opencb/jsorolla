@@ -183,7 +183,6 @@ export default class OpencgaFileFilter extends LitElement {
                 content = html`<select-field-filter multiple .value="${this.preparedQuery[subsection.id]}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
                 break;
             case "annotations":
-                debugger
                 content = html`
                         <opencga-annotation-filter-modal .opencgaSession="${this.opencgaSession}"
                                                       entity="FILE"
