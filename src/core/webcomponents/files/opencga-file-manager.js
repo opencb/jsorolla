@@ -47,7 +47,9 @@ export default class OpencgaFileManager extends LitElement {
 
     _init() {
         this.currentRootId = ":";
+
         this.tree = null;
+        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
@@ -56,10 +58,6 @@ export default class OpencgaFileManager extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-        }
-
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSession.opencgaClient.files().tree(this.currentRootId, {study: this.opencgaSession.study.fqn, maxDepth: 3, include: "id,name,path,size,format"})
                 .then(restResponse => {
@@ -70,6 +68,10 @@ export default class OpencgaFileManager extends LitElement {
                 .catch(restResponse => {
                     console.error(restResponse);
                 });
+        }
+
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 
@@ -98,7 +100,7 @@ export default class OpencgaFileManager extends LitElement {
             if (f.file.id === nodeId) {
                 return f;
             }
-            if (f.file.type === "DIRECTORY") {
+            if (f.file.type.toUpperCase() === "DIRECTORY") {
                 const r = this.searchNode(nodeId, f.children || []);
                 if (r) return r;
             }
@@ -111,9 +113,9 @@ export default class OpencgaFileManager extends LitElement {
             ${this.path(root)}
             <ul class="file-manager">
                 ${children.map(node => {
-                    if (node.file.type === "DIRECTORY") {
+                    if (node.file.type.toUpperCase() === "DIRECTORY") {
                         return html`${this.folder(node)}`;
-                    } else if (node.file.type === "FILE") {
+                    } else if (node.file.type.toUpperCase() === "FILE") {
                         return html`${this.file(node)}`;
                     } else {
                         throw new Error("Type not recognized " + node.file.type);
@@ -148,7 +150,7 @@ export default class OpencgaFileManager extends LitElement {
                                 <!-- <span class="badge">${node.children.length}</span>-->
                                 ${this.renderTree(node)}
                             </li>`;
-                    } else if (node.file.type === "FILE") {
+                    } else if (node.file.type.toUpperCase() === "FILE") {
                         return html`
                             <p class="file" @click="${() => this.onClickFile(node.file.id)}">
                                 ${this.icon(node)} ${node.file.name}
@@ -184,7 +186,6 @@ export default class OpencgaFileManager extends LitElement {
         //$("." + id + " + ul").slideToggle();
         await this.requestUpdate();
     }
-
 
     folder(node) {
         return html`
@@ -259,37 +260,31 @@ export default class OpencgaFileManager extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Summary",
-            icon: ""
+            title: "File Explorer",
+            icon: "fas fa-file"
         };
     }
-
-
+    
     render() {
         return html`
-            <div class="">
-                <h2>
-                    <i aria-hidden="true" class="fas fa-file"></i> File Explorer
-                </h2>
-            </div>
+            <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
             
             <div class="row">
-                <div class="col-md-3 left-menu file-manager-tree">
+                <div class="col-md-3 left-menu file-manager-tree" style="padding: 10px">
                     ${this.tree ? html`${this.renderTree(this.tree)}` : null}
-                    
                 </div>
 
                 <div class="col-md-9">
-                    ${this.currentRoot ? html`
-                        <div>
-                            ${this.renderFileManager(this.currentRoot)}
-                        </div>
-                    <opencga-file-view .opencgaSession="${this.opencgaSession}" .fileId="${this.fileId}"></opencga-file-view>
-                ` : html`<loading-spinner></loading-spinner>`}
-                    
+                    ${this.currentRoot 
+                        ? html`
+                            <div>
+                                ${this.renderFileManager(this.currentRoot)}
+                            </div>
+                            <opencga-file-view .opencgaSession="${this.opencgaSession}" .fileId="${this.fileId}"></opencga-file-view>` 
+                        : html`<loading-spinner></loading-spinner>`
+                    }
                 </div>
-            </div>
-            
+            </div>            
         `;
     }
 
