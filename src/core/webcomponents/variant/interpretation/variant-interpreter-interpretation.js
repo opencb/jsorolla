@@ -15,10 +15,8 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import UtilsNew from "../../../utilsNew.js";
-import "./variant-interpreter-qc-variant.js";
-import "./variant-interpreter-qc-alignment.js";
-import "../../alignment/gene-coverage-view.js";
 import "../../clinical/analysis/opencga-rd-tiering-analysis.js";
 
 
@@ -26,8 +24,6 @@ class VariantInterpreterInterpretation extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
         this._init();
     }
 
@@ -46,9 +42,6 @@ class VariantInterpreterInterpretation extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
-            query: {
-                type: Object
-            },
             config: {
                 type: Object
             }
@@ -57,13 +50,11 @@ class VariantInterpreterInterpretation extends LitElement {
 
     _init() {
         this._prefix = "vcis-" + UtilsNew.randomString(6);
+        this.activeTab = {"RdTiering": true}; //default active tab
     }
 
     connectedCallback() {
         super.connectedCallback();
-    }
-
-    firstUpdated(_changedProperties) {
     }
 
     updated(changedProperties) {
@@ -71,9 +62,9 @@ class VariantInterpreterInterpretation extends LitElement {
         // if (changedProperties.has("opencgaSession")) {
         //     this.opencgaSessionObserver();
         // }
-        // if (changedProperties.has("clinicalAnalysisId")) {
-        //     this.clinicalAnalysisIdObserver();
-        // }
+        if (changedProperties.has("clinicalAnalysisId")) {
+            this.clinicalAnalysisIdObserver();
+        }
         // if (changedProperties.has("clinicalAnalysis")) {
         //     this.clinicalAnalysisObserver();
         // }
@@ -82,18 +73,46 @@ class VariantInterpreterInterpretation extends LitElement {
         // }
     }
 
-    onAnalysisChange(e) {
-        this.analysis = e.detail.value;
-        this.requestUpdate();
+    // onAnalysisChange(e) {
+    //     this.analysis = e.detail.value;
+    //     this.requestUpdate();
+    // }
+    //
+    // renderAnalysis(type) {
+    //     switch(type) {
+    //         case "rd-tiering":
+    //             return html`<opencga-rd-tiering-analysis .opencgaSession="${this.opencgaSession}"></opencga-rd-tiering-analysis>`
+    //         case "--":
+    //             break;
+    //         default:
+    //     }
+    // }
+
+    clinicalAnalysisIdObserver() {
+        if (this.opencgaSession && this.clinicalAnalysisId) {
+            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.clinicalAnalysis = response.responses[0].results[0];
+                    this.requestUpdate();
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                });
+        }
     }
 
-    renderAnalysis(type) {
-        switch(type) {
-            case "rd-tiering":
-                return html`<opencga-rd-tiering-analysis .opencgaSession="${this.opencgaSession}"></opencga-rd-tiering-analysis>`
-            case "--":
-                break;
-            default:
+    _changeTab(e) {
+        e.preventDefault();
+        const tabId = e.currentTarget.dataset.id;
+        const navTabs = $(`#${this._prefix}QcTabs > .nav-tabs > .content-pills`, this);
+        const contentTabs = $(`#${this._prefix}QcTabs > .content-tab-wrapper > .tab-pane`, this);
+        if (!e.currentTarget.className.includes("disabled")) {
+            navTabs.removeClass("active");
+            contentTabs.removeClass("active");
+            $("#" + this._prefix + tabId).addClass("active");
+            for (const tab in this.activeTab) this.activeTab[tab] = false;
+            this.activeTab[tabId] = true;
+            this.requestUpdate();
         }
     }
 
@@ -106,15 +125,72 @@ class VariantInterpreterInterpretation extends LitElement {
                     </div>`;
         }
 
+        // return this.clinicalAnalysis ? html`
+        //     <div>
+        //         <div class="row">
+        //             <div class="col-md-4 col-md-offset-4 col-sm-12">
+        //                 <h3>Select Analysis</h3>
+        //                 <select-field-filter .data="${[{id: "rd-tiering", name: "RD tiering"}]}" @filterChange="${this.onAnalysisChange}"></select-field-filter>
+        //             </div>
+        //         </div>
+        //         ${this.renderAnalysis(this.analysis)}
+        //     </div>
+        // ` : null;
+
         return this.clinicalAnalysis ? html`
-            <div>
+            <div id="${this._prefix}QcTabs">
                 <div class="row">
-                    <div class="col-md-4 col-md-offset-4 col-sm-12">
-                        <h3>Select Analysis</h3>
-                        <select-field-filter .data="${[{id: "rd-tiering", name: "RD tiering"}]}" @filterChange="${this.onAnalysisChange}"></select-field-filter>
+                    <div class="col-md-9">
+                        <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
+                            ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY" 
+                                ? html`
+                                    <li role="presentation" class="content-pills ${classMap({active: this.activeTab["RdTiering"]})}">
+                                        <a href="javascript: void 0" role="tab" data-id="RdTiering" @click="${this._changeTab}" class="tab-title">RD Tiering</a>
+                                    </li>
+                                    <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Zetta"]})}">
+                                        <a href="javascript: void 0" role="tab" data-id="Zetta" @click="${this._changeTab}" class="tab-title">Zetta</a>
+                                    </li>` 
+                                : null
+                            }
+                            ${this.clinicalAnalysis.type.toUpperCase() === "CAMCER"
+                                ? html`
+                                    <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Upd"]})}">
+                                        <a href="javascript: void 0" role="tab" data-id="Upd" @click="${this._changeTab}" class="tab-title disabled">UPD (coming soon)</a>
+                                    </li>`
+                                : null
+                            }
+                        </ul>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div style="padding: 5px 0px">
+                        <button type="button" class="btn btn-link" data-toggle="collapse" data-target="#${this._prefix}Help">
+                            <i class="fas fa-info-circle" aria-hidden="true" style="padding-right: 5px"></i> Help
+                        </button>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-8 col-md-offset-2" style="padding-top: 5px">
+                        <div id="${this._prefix}Help" class="collapse">
+                            <div class="well">
+                                <p>QC allows you to study the quality control. It consists of several tools...
+                            </div>
+                        </div>
                     </div>
                 </div>
-                ${this.renderAnalysis(this.analysis)}
+                
+                <div class="content-tab-wrapper">
+                    ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
+                        ? html`
+                            <div id="${this._prefix}RdTiering" role="tabpanel" class="tab-pane content-tab active">
+                                <opencga-rd-tiering-analysis .opencgaSession="${this.opencgaSession}"></opencga-rd-tiering-analysis>
+                            </div>
+                            <div id="${this._prefix}Zetta" role="tabpanel" class="tab-pane content-tab">
+                                <opencga-rd-tiering-analysis .opencgaSession="${this.opencgaSession}"></opencga-rd-tiering-analysis>
+                            </div>`
+                        : ""
+                    }
+                </div>
             </div>
         ` : null;
     }

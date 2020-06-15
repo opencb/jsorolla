@@ -39,11 +39,11 @@ export default class DiseaseFilter extends LitElement {
             },
             // panels: {
             //     type: Array
-            // },
-            config: {
+            panel: {
                 type: Object
             },
-            panel: {
+            // },
+            config: {
                 type: Object
             }
         };
@@ -52,6 +52,7 @@ export default class DiseaseFilter extends LitElement {
     _init() {
         this._prefix = "ff-" + UtilsNew.randomString(6) + "_";
         this._panel = [];
+        this._config = this.getDefaultConfig();
     }
 
     firstUpdated(_changedProperties) {
@@ -72,6 +73,10 @@ export default class DiseaseFilter extends LitElement {
             $(`select#${this._prefix}DiseasePanels`).selectpicker("val", this._panel);
             this.showPanelGenes(this._panel);
         }
+
+        if (_changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+        }
     }
 
     showPanelGenes(panels) {
@@ -82,7 +87,7 @@ export default class DiseaseFilter extends LitElement {
             this.opencgaSession.opencgaClient.panels()
                 .info(panels.join(","), {
                     study: _this.opencgaSession.study.fqn,
-                    include: "id,name,genes.id,genes.name,regions.id"
+                    include: "id,name,stats,genes.id,genes.name,regions.id"
                 })
                 .then(function(response) {
                     let text = "";
@@ -121,7 +126,15 @@ export default class DiseaseFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
+    getDefaultConfig() {
+        return {
+            showSummary: false,
+        };
+    }
+
     render() {
+        this.opencgaSession;
+        debugger
         return html`
             <div>
                 <select id="${this._prefix}DiseasePanels" class="selectpicker" data-size="10" data-live-search="true" data-selected-text-format="count" multiple @change="${e => this.filterChange(e)}">
@@ -133,7 +146,11 @@ export default class DiseaseFilter extends LitElement {
                         </option>
                     `)}
                 </select>
-                <textarea id="${this._prefix}DiseasePanelsTextarea" class="form-control" rows="4" style="margin-top: 5px;background: #f7f7f7" disabled> </textarea>
+                ${this._config.showSummary 
+                    ? html`
+                        <textarea id="${this._prefix}DiseasePanelsTextarea" class="form-control" rows="4" style="margin-top: 5px;background: #f7f7f7" disabled> </textarea>` 
+                    : null
+                }
             </div>
         `;
     }

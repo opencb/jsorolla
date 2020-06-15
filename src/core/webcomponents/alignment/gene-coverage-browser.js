@@ -108,17 +108,25 @@ export default class GeneCoverageBrowser extends LitElement {
         return this._config
             ? html`
                 <h3>Select a gene</h3>
-                <feature-filter .cellbaseClient="${this.cellbaseClient}" @filterChange="${this.selectGene}"></feature-filter>
-                <!--<disease-filter .opencgaSession="${this.opencgaSession}" .config="${this.config}" .panel="${this.panel}" 
-                                @filterChange="${e => this.onFilterChange("panel", e.detail.value)}"></disease-filter> -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <feature-filter .cellbaseClient="${this.cellbaseClient}" @filterChange="${this.selectGene}"></feature-filter>
                 
-                <h3>Gene Coverage ${this.geneIds}</h3>
-                <gene-coverage-grid .opencgaSession="${this.opencgaSession}"
-                                    .config="${this._config?.filter?.grid}"
-                                    .geneIds="${this.geneIds}"
-                                    @selectrow="${this.onClickRow}">
-                </gene-coverage-grid>
-                <gene-coverage-detail .transcriptCoverageStat="${this.transcriptCoverageStat}" .config="${this._config.filter.detail}" .opencgaSession="${this.opencgaSession}"></gene-coverage-detail>`
+                        <disease-filter .opencgaSession="${this.opencgaSession}" .config="${this.config}" 
+                                        @filterChange="${e => this.onFilterChange("panel", e.detail.value)}">
+                        </disease-filter>
+                    </div>
+                    
+                    <div class="col-md-12">
+                        <h3>Gene Coverage ${this.geneIds}</h3>
+                        <gene-coverage-grid .opencgaSession="${this.opencgaSession}"
+                                            .config="${this._config?.filter?.grid}"
+                                            .geneIds="${this.geneIds}"
+                                            @selectrow="${this.onClickRow}">
+                        </gene-coverage-grid>
+                        <gene-coverage-detail .transcriptCoverageStat="${this.transcriptCoverageStat}" .config="${this._config.filter.detail}" .opencgaSession="${this.opencgaSession}"></gene-coverage-detail>
+                    </div>
+                </div>`
             : null;
     }
 

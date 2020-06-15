@@ -64,7 +64,7 @@ class VariantInterpreterLanding extends LitElement {
         }
 
         // TODO Delete this code, just for the development purposes.
-        this.clinicalAnalysisId = "AN-2";
+        this.clinicalAnalysisId = "AN-12";
         // this.clinicalAnalysisIdObserver();
     }
 
