@@ -126,7 +126,7 @@ export default class OpencgaFileView extends LitElement {
                             }
                         },
                         {
-                            name: "Format",
+                            name: "Format (Bioformat)",
                             type: "complex",
                             display: {
                                 template: "${format} (${bioformat})"

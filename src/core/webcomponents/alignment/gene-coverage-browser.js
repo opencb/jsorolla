@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/opencga-browser.js";
 import "./gene-coverage-detail.js";
@@ -42,12 +43,9 @@ export default class GeneCoverageBrowser extends LitElement {
             cellbaseClient: {
                 type: Object
             },
-            query: {
+            /*query: { //TODO is that supposed to be used to define the BAM file
                 type: Object
-            },
-            geneIds: {
-                type: Object
-            },
+            },*/
             panelIds: {
                 type: Object
             }
@@ -59,8 +57,10 @@ export default class GeneCoverageBrowser extends LitElement {
         this.checkProjects = false;
         this.query = {};
         this.errorState = false;
-
-        this._config = this.getDefaultConfig();
+        this.activeTab = {};
+        this.loading = false;
+        this.transcriptCoverageDetail = {};
+        this.file = "SonsAlignedBamFile.bam";
     }
 
     connectedCallback() {
@@ -68,16 +68,52 @@ export default class GeneCoverageBrowser extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    onClickRow(e) {
-        this.transcriptCoverageStat = e.detail.row;
-        this._config.filter.detail.title = `Transcript ${this.transcriptCoverageStat.transcriptId}`;
+    onClickRow(e, geneId) {
+        console.log("clickrow",e,geneId)
+        this.transcriptCoverageDetail[geneId] = e.detail.row;
+        this.transcriptCoverageDetail = {...this.transcriptCoverageDetail};
         this.requestUpdate();
     }
 
     selectGene(e) {
         console.log("selectGene", e)
-        this.geneIds = e.detail.value;
+        this.geneIds = e.detail.value.split(",");
+        this.fetchData(this.geneIds);
         this.requestUpdate();
+    }
+
+    onClickPill(e) {
+        // e.preventDefault();
+        this._changeView(e.currentTarget.dataset.id);
+    }
+
+    _changeView(tabId) {
+        $(".content-pills", this).removeClass("active");
+        $(".content-tab", this).removeClass("active");
+        for (const tab in this.activeTab) this.activeTab[tab] = false;
+        $(`button.content-pills[data-id=${tabId}]`, this).addClass("active");
+        $("#" + tabId, this).addClass("active");
+        this.activeTab[tabId] = true;
+        this.requestUpdate();
+    }
+
+    async fetchData(geneIds) {
+        this.loading = true;
+        await this.requestUpdate();
+        this.opencgaSession.opencgaClient.alignments().statsCoverage(this.file, geneIds, {study: this.opencgaSession.study.fqn})
+            .then( restResponse => {
+                if(restResponse.getResults().length > 0) {
+                    this.stats = restResponse.getResults();
+                    this.activeTab[this.stats[0].geneName] = true;
+                } else {
+                    this.stats = [];
+                }
+            })
+            .catch( e => console.error(e))
+            .finally( () => {
+                this.loading = false;
+                this.requestUpdate();
+            })
     }
 
     getDefaultConfig() {
@@ -118,13 +154,31 @@ export default class GeneCoverageBrowser extends LitElement {
                     </div>
                     
                     <div class="col-md-12">
-                        <h3>Gene Coverage ${this.geneIds}</h3>
-                        <gene-coverage-grid .opencgaSession="${this.opencgaSession}"
-                                            .config="${this._config?.filter?.grid}"
-                                            .geneIds="${this.geneIds}"
-                                            @selectrow="${this.onClickRow}">
-                        </gene-coverage-grid>
-                        <gene-coverage-detail .transcriptCoverageStat="${this.transcriptCoverageStat}" .config="${this._config.filter.detail}" .opencgaSession="${this.opencgaSession}"></gene-coverage-detail>
+                        ${this.loading ? html`
+                            <div id="loading">
+                                <loading-spinner></loading-spinner>
+                            </div>
+                        ` : this.stats ? html`
+                            <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
+                                <div class="btn-group" role="group">
+                                    ${this.geneIds && this.geneIds.length ? this.geneIds.map( id => html`
+                                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab[id]})}" @click="${this.onClickPill}" data-id="${id}">
+                                            <i class="fa fa-table icon-padding" aria-hidden="true"></i> ${id}
+                                        </button>
+                                    `) : null}
+                                </div>
+                            </div>
+                            ${this.stats.map(geneCoverageStat => html`
+                                <div id="${geneCoverageStat.geneName}" class="content-tab ${classMap({active: this.activeTab[geneCoverageStat.geneName]})}">
+                                    <h3>Gene Coverage ${geneCoverageStat.geneName} </h3>
+                                    <gene-coverage-grid .opencgaSession="${this.opencgaSession}"
+                                                    .config="${this._config?.filter?.grid}"
+                                                    .stats="${geneCoverageStat.stats}"
+                                                    @selectrow="${e => this.onClickRow(e, geneCoverageStat.geneName)}">
+                                    </gene-coverage-grid>
+                                    <gene-coverage-detail .transcriptCoverageStat="${this.transcriptCoverageDetail?.[geneCoverageStat.geneName]}" .config="${this._config.filter.detail}" .opencgaSession="${this.opencgaSession}"></gene-coverage-detail>
+                                </div>
+                        `)}` : null}
                     </div>
                 </div>`
             : null;

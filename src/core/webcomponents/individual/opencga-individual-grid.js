@@ -368,25 +368,16 @@ export default class OpencgaIndividualGrid extends LitElement {
     }
 
     phenotypesFormatter(value, row) {
-        if (UtilsNew.isNotEmptyArray(value)) {
-            let phenotypeTooltipText = "";
-            for (const phenotype of value) {
-                phenotypeTooltipText += "<div style=\"padding: 5px\">";
-                if (UtilsNew.isNotUndefinedOrNull(phenotype.source) && phenotype.source.toUpperCase() === "HPO") {
-                    phenotypeTooltipText += `<span><a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})</span>`;
-                } else {
-                    phenotypeTooltipText += `<span>${phenotype.id} (${phenotype.status})</span>`;
-                }
-                phenotypeTooltipText += "</div>";
-            }
-
-            const html = `<div class="phenotypesTooltip" data-tooltip-text='${phenotypeTooltipText}' align="center">
-                                    <a style="cursor: pointer">
-                                        ${value.length} terms found
-                                    </a>
-                                </div>
-                    `;
-            return html;
+        if (value && value.length) {
+            const tooltip = value.map( phenotype => {
+                return `
+                    <div>
+                        ${phenotype.source && phenotype.source.toUpperCase() === "HPO" ? `
+                            <span><a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})</span>
+                        ` : `<span>${phenotype.id} (${phenotype.status})</span>`}
+                    </div>`
+            }).join("")
+            return `<a tooltip-title="Phenotypes" tooltip-text='${tooltip}'> ${value.length} term${value.length > 1 ? "s": ""} found </a>`;
         } else {
             return "-";
         }

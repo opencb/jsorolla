@@ -49,7 +49,7 @@ export default class OpencgaFileManager extends LitElement {
         this.currentRootId = ":";
 
         this.tree = null;
-        this._config = this.getDefaultConfig();
+        this.fileId = null;
     }
 
     connectedCallback() {
@@ -69,7 +69,6 @@ export default class OpencgaFileManager extends LitElement {
                     console.error(restResponse);
                 });
         }
-
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
@@ -82,13 +81,8 @@ export default class OpencgaFileManager extends LitElement {
                 const result = restResponse.getResult(0);
                 node.children = result.children;
                 node.visited = true;
-                //this.currentRoot = result;
-            } else {
-                //this.currentRoot = node;
             }
-
-            console.log("current root", this.currentRoot)
-
+            //console.log("current root", this.currentRoot)
             this.requestUpdate();
         } catch (restResponse) {
             console.error(restResponse);
@@ -130,7 +124,7 @@ export default class OpencgaFileManager extends LitElement {
             IMAGE: "fas fa-file-image",
             VCF: "fas fa-file"
         }[format];
-        return html`<i class="${icon || "fas fa-file"} ${size ? `fa-${size}x` : ""}"></i>`
+        return html`<i class="${icon || "fas fa-file"}${size ? ` fa-${size}x` : ""}"></i>`
     }
 
     renderTree(root) {
@@ -152,8 +146,8 @@ export default class OpencgaFileManager extends LitElement {
                             </li>`;
                     } else if (node.file.type.toUpperCase() === "FILE") {
                         return html`
-                            <p class="file" @click="${() => this.onClickFile(node.file.id)}">
-                                ${this.icon(node)} ${node.file.name}
+                            <p class="file ${this.fileId === node.file.id ? "active" : ""}" @click="${() => this.onClickFile(node.file.id)}">
+                                ${this.icon(node.file.format)} ${node.file.name}
                             </p>`;
                     } else {
                         throw new Error("Type not recognized " + node.file.type);
@@ -172,7 +166,7 @@ export default class OpencgaFileManager extends LitElement {
                     await this.fetchFolder(node);
                 }
                 $("." + domId + "").addClass("exploded")*/
-                this.route(node.file.id);
+                await this.route(node.file.id);
             } else {
                 node.exploded = false;
                 $("." + domId + "").removeClass("exploded")
@@ -203,7 +197,7 @@ export default class OpencgaFileManager extends LitElement {
 
     file(node) {
         return html`
-            <li class="file">
+            <li class="file ${this.fileId === node.file.id ? "active" : ""}">
                 <a @click="${() => this.onClickFile(node.file.id)}">
                     <span class="icon">${this.icon(node.file.format, 5)}<span class="format">${node.file.format}</span></span>
                     <span class="content">
@@ -219,7 +213,7 @@ export default class OpencgaFileManager extends LitElement {
         `;
     }
 
-    async route(id) {
+    async route(id, resetFileId = true) {
         console.log("route", id)
         this.currentRoot = this.searchNode(id, this.tree.children);
         this.currentRoot.exploded = true;
@@ -227,17 +221,15 @@ export default class OpencgaFileManager extends LitElement {
         if(!this.currentRoot.visited) {
             await this.fetchFolder(this.currentRoot);
         }
-
         const domId = `tree-${id.replace(/:/g, "")}`;
         $("." + domId + "").addClass("exploded");
-
-        //$("." + domId + " + ul").slideToggle();
-        this.fileId = null;
+        if(resetFileId) {
+            this.fileId = null;
+        }
         this.requestUpdate();
     }
 
     reset() {
-        console.log("reset")
         this.currentRoot = this.tree;
         this.fileId = null;
         this.requestUpdate();
@@ -253,8 +245,9 @@ export default class OpencgaFileManager extends LitElement {
     }
 
     onClickFile(id) {
-        console.log(id)
+        const path = id.split(":").slice(0, -1).join(":") + ":";
         this.fileId = id;
+        this.route(path, false);
         this.requestUpdate();
     }
 
@@ -264,7 +257,7 @@ export default class OpencgaFileManager extends LitElement {
             icon: "fas fa-file"
         };
     }
-    
+
     render() {
         return html`
             <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>

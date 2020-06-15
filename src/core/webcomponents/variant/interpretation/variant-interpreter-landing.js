@@ -333,24 +333,6 @@ class VariantInterpreterLanding extends LitElement {
             `;
         }
 
-        // debugger
-        if (this.clinicalAnalysis) {
-            return html`
-                <div class="row">
-                    <div class="col-md-10 col-md-offset-1">
-                        <h2>Case ${this.clinicalAnalysis.id}</h2>
-
-                        <div style="float: right; padding-right: 20px">
-                            <button class="btn btn-primary" @click="${this.onCloseClinicalAnalysis}">Close</button>
-                        </div>
-                                                        
-                        <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
-                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
-                        </opencga-clinical-analysis-view>
-                    </div>
-                </div>`;
-        }
-
         return html`
                 <style>
                     #variant-interpreter-landing .nav-tabs.nav-center {
@@ -360,7 +342,7 @@ class VariantInterpreterLanding extends LitElement {
                 <div id="variant-interpreter-landing">
                     <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
                         <li role="presentation" class="content-pills active ${this._prefix}-search-tab">
-                            <a href="javascript: void 0" role="tab" data-id="${this._prefix}-search" @click="${this._changeTab}" class="tab-title">Search Case
+                            <a href="javascript: void 0" role="tab" data-id="${this._prefix}-search" @click="${this._changeTab}" class="tab-title">Select Case
                             </a>
                         </li>
                         <li role="presentation" class="content-pills ${this._prefix}-create-tab">
@@ -376,6 +358,21 @@ class VariantInterpreterLanding extends LitElement {
                                         @clear="${this.onClinicalAnalysisChange}"
                                         @submit="${this.onClinicalAnalysisChange}">
                             </data-form>
+                            
+                            ${this.clinicalAnalysis ? html`
+                                <div class="row">
+                                    <div class="col-md-10 col-md-offset-1">
+                                        <h2>Case ${this.clinicalAnalysis.id}</h2>
+                
+                                        <div style="float: right; padding-right: 20px">
+                                            <button class="btn btn-primary" @click="${this.onCloseClinicalAnalysis}">Close</button>
+                                        </div>
+                                                                        
+                                        <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
+                                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
+                                        </opencga-clinical-analysis-view>
+                                    </div>
+                                </div>` : null}
                         </div>
                         
                         <div id="${this._prefix}-create" role="tabpanel" class="tab-pane content-tab col-md-8 col-md-offset-2">

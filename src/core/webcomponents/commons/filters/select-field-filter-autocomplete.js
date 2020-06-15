@@ -152,7 +152,11 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
         if (this.input.val()) {
             this.selectionList.push(this.input.val().split(new RegExp("[,;]")).filter(Boolean));
             this.filterChange();
-            this.input.val("").change();
+
+            // addButton implies multiple mode
+            if(this._config.addButton) {
+                this.input.val("").change();
+            }
             this.requestUpdate();
         }
     }

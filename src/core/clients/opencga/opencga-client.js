@@ -197,7 +197,7 @@ export class OpenCGAClient {
             await this.users().updateConfigs(userId, {
                 "id": "IVA",
                 "configuration": {
-                    "lastAccess": new Date().toISOString()
+                    "lastAccess": moment(new Date()).valueOf()
                 }
             });
 
@@ -233,7 +233,7 @@ export class OpenCGAClient {
         await this.users().updateConfigs(userId, {
             "id": "IVA",
             "configuration": {
-                "lastAccess": new Date().toISOString()
+                "lastAccess": moment(new Date()).valueOf()
             }
         });
 

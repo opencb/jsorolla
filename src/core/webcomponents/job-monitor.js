@@ -53,7 +53,6 @@ export class JobMonitor extends LitElement {
             danger: "fa ffa fa-exclamation-circle fa-2x",
             error: "fa ffa fa-exclamation-circle fa-2x"
         };
-        this.running = [];
 
     }
 
@@ -65,14 +64,21 @@ export class JobMonitor extends LitElement {
     }
 
     lastJobsDone() {
-        const lastAccessUnix = moment(this.opencgaSession.user.configs.IVA.lastAccess).unix() * 100;
-        this.opencgaSession.opencgaClient.jobs().search({study: this.opencgaSession.study.fqn, "internal.status.name": "DONE,ERROR", "execution.end": lastAccessUnix}).then( restResponse => {
-            this.running = restResponse.getResults();
-            //console.log("this.running", this.running)
+        const lastAccess = moment(this.opencgaSession.user.configs.IVA.lastAccess).format("YYYYMMDDHHmmss"); // NOTE: we use creationDate as we cannot query execution.end
+        const lastDays = moment(new Date());
+        lastDays.format("YYYYMMDDHHmmss")
+        lastDays.subtract(97, "d");
+        this.opencgaSession.opencgaClient.jobs().search({study: this.opencgaSession.study.fqn, "internal.status.name": "DONE,ERROR,PENDING,QUEUED,RUNNING"}).then( restResponse => {
+            this.jobs = restResponse.getResults();
+            this.running = this.jobs.filter( job => ["PENDING", "QUEUED", "RUNNING"].includes(job?.internal?.status.name))
+            this.done = this.jobs.filter( job => /*["DONE", "ERROR"].includes(job?.internal?.status.name) &&*/ job?.execution?.end >= lastDays.valueOf())
+            this.total = this.running.length + this.done.length;
+            console.log("JOBS", this.running, this.done)
             this.requestUpdate();
         }).catch( restResponse => {
             console.error(restResponse)
         })
+
     }
 
     render() {
@@ -80,27 +86,48 @@ export class JobMonitor extends LitElement {
             <ul class="nav navbar-nav navbar-right notification-nav">
                 <li class="notification">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                       ${this.running.length? html`<span class="badge badge-pill badge-primary">${this.running.length}</span>` : null}<i class="fas fa-bell"></i>
+                        <span class="badge badge-pill badge-primary ${!this.total > 0 ? "invisible" : ""}">${this.total}</span><i class="fas fa-bell"></i>
                     </a>
                     <ul class="dropdown-menu">
-                        <li class="info">Jobs done since your last access</li>
-                        ${this.running.length ? this.running.slice(0, 5).map(job => html`
-                            <li>
-                                <a href="#">
-                                    <div class="media">
-                                        <div class="media-left">
-                                                <i class="fas fa-cogs media-object"></i>
+                        ${this.total ? html`
+                            <li class="info">Jobs done since your last access ${moment(this.opencgaSession.user.configs.IVA.lastAccess).format("DD-MM-YYYY HH:mm:ss")}</li>
+                            ${this.done.length ? this.done.slice(0, 5).map(job => html`
+                                <li>
+                                    <a href="#">
+                                        <div class="media">
+                                            <div class="media-left">
+                                                    <i class="fas fa-cogs media-object"></i>
+                                            </div>
+                                            <div class="media-body">
+                                                <h4 class="media-heading">${job.id}</h4>
+                                                <small>${job?.execution?.end ? moment(job.execution.end).format("D MMM YYYY, h:mm:ss a") : null}</small>
+                                                <p>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status?.name))}</p> 
+                                            </div>
                                         </div>
-                                        <div class="media-body">
-                                            <h4 class="media-heading">${job.id}</h4>
-                                            <p>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status?.name))}</p> 
-                                        </div>
-                                    </div>
-                                 </a>
-                            </li>
-                        `) : html`
+                                     </a>
+                                </li>
+                            `) : null}
+                            ${this.running.length ? html`
+                                <li role="separator" class="divider"></li>
+                                ${this.done.slice(0, 5).map(job => html`
+                                    <li>
+                                        <a href="#">
+                                            <div class="media">
+                                                <div class="media-left">
+                                                        <i class="fas fa-cogs media-object"></i>
+                                                </div>
+                                                <div class="media-body">
+                                                    <h4 class="media-heading">${job.id}</h4>
+                                                    <small>${job?.execution?.end ? moment(job.execution.end).format("D MMM YYYY, h:mm:ss a") : null}</small>
+                                                    <p>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status?.name))}</p> 
+                                                </div>
+                                            </div>
+                                         </a>
+                                    </li>
+                                `) }` : null}
+                        ` : html`
                             <li>
-                                <a href="#projects"> No notifications </a>
+                                <a> No notifications </a>
                             </li>
                         `}
                         

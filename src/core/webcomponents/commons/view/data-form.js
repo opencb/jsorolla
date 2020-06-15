@@ -781,7 +781,6 @@ export default class DataForm extends LitElement {
     }
 
     render() {
-        // Check Project exists
         if (!this.data) {
             return html`
                 <div class="guard-page">

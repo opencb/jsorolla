@@ -133,8 +133,8 @@ export default class DiseaseFilter extends LitElement {
     }
 
     render() {
-        this.opencgaSession;
-        debugger
+        //this.opencgaSession;
+        //debugger
         return html`
             <div>
                 <select id="${this._prefix}DiseasePanels" class="selectpicker" data-size="10" data-live-search="true" data-selected-text-format="count" multiple @change="${e => this.filterChange(e)}">

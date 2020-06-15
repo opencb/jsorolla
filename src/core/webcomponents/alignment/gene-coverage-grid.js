@@ -45,9 +45,6 @@ export default class GeneCoverageGrid extends LitElement {
             stats: {
                 type: Array
             },
-            filters: {
-                type: Object
-            },
             config: {
                 type: Object
             }
@@ -82,10 +79,10 @@ export default class GeneCoverageGrid extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession") || changedProperties.has("geneIds")) {
-            this.renderTable();
+            //this.renderTable();
         }
-        if (changedProperties.has("filters")) {
-            this.onFilterUpdate();
+        if (changedProperties.has("stats")) {
+            this.renderLocalTable();
         }
         if (changedProperties.has("config")) {
             this.configObserver();
@@ -96,6 +93,41 @@ export default class GeneCoverageGrid extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
+    renderLocalTable() {
+        console.log("renderLocalTable", this.stats)
+        this.from = 1;
+        this.to = Math.min(this.stats.length, this._config.pageSize);
+        this.numTotalResultsText = this.stats.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+        this.table = $("#" + this.gridId);
+        this.table.bootstrapTable("destroy");
+        this.table.bootstrapTable({
+            columns: this._initTableColumns(),
+            data: this.stats,
+            sidePagination: "local",
+            // Set table properties, these are read from config property
+            uniqueId: "id",
+            pagination: this._config.pagination,
+            pageSize: this._config.pageSize,
+            pageList: this._config.pageList,
+            showExport: this._config.showExport,
+            detailView: this._config.detailView,
+            detailFormatter: this.detailFormatter,
+            gridContext: this,
+            formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onPageChange: (page, size) => {
+                const result = this.gridCommons.onPageChange(page, size);
+                this.from = result.from || this.from;
+                this.to = result.to || this.to;
+            },
+            onPostBody: data => {
+                // We call onLoadSuccess to select first row
+                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
+            }
+        });
+    }
+
     async renderTable() {
         this.from = 1;
         this.to = 10;
@@ -103,26 +135,27 @@ export default class GeneCoverageGrid extends LitElement {
         try {
             if (this.opencgaSession.opencgaClient && this.opencgaSession?.study?.fqn && this.geneIds) {
                 this.errorState = false;
-                this.loading = true;
-                await this.requestUpdate();
-                const restResponse = await this.opencgaSession.opencgaClient.alignments().statsCoverage(this.file, this.geneIds, {study: this.opencgaSession.study.fqn});
-                this.stats = restResponse.getResults()[0].stats;
-                this.loading = false;
-                await this.requestUpdate();
-
                 $(this.table).bootstrapTable("destroy");
                 $(this.table).bootstrapTable({
-                    data: this.stats,
+                    //data: this.stats,
                     columns: this._columns,
-                    sidePagination: "local",
-                    uniqueId: "transcriptId",
+                    uniqueId: "id",
                     // Table properties
+                    showPaginationSwitch: true,
                     pagination: this._config.pagination,
                     pageSize: this._config.pageSize,
                     pageList: this._config.pageList,
                     showExport: this._config.showExport,
                     //detailView: this._config.detailView,
                     formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+                    ajax: params => {
+                        this.opencgaSession.opencgaClient.alignments().statsCoverage(this.file, this.geneIds, {study: this.opencgaSession.study.fqn})
+                            .then( restResponse => {
+                                this.stats = restResponse.getResults()[0].stats;
+                                params.success(this.stats);
+                            })
+                            .catch( e => console.error(e));
+                    },
                     onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                     onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
                     onCheckAll: rows => this.gridCommons.onCheckAll(rows),
@@ -136,7 +169,7 @@ export default class GeneCoverageGrid extends LitElement {
                     },
                     onPostBody: (data) => {
                         // We call onLoadSuccess to select first row
-                        this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
+                        //this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 0);
                     }
                 });
 
@@ -166,7 +199,7 @@ export default class GeneCoverageGrid extends LitElement {
         const color = value >= thresholdValue ? "rgba(176, 255, 199, 0.2)" : "rgba(255,194,194,0.2)";
         return {
             css: {
-                background: `linear-gradient(90deg, ${color} 0%, ${color} ${value}%, transparent ${value}%, transparent ${value}%)`
+                background: `linear-gradient(90deg, ${color} 0%, ${color} ${value}%, transparent ${value}%, transparent 100%)`
             }
         };
     }

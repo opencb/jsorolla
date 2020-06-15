@@ -163,25 +163,25 @@ class VariantInterpreterQc extends LitElement {
                 </div>
                 
                 <div class="content-tab-wrapper">
-                    <div id="${this._prefix}Summary" role="tabpanel" class="tab-pane active col-md-8 col-md-offset-2 content-tab">
+                    <div id="${this._prefix}Summary" role="tabpanel" class="tab-pane active container content-tab">
                         <variant-interpreter-qc-summary .opencgaSession="${this.opencgaSession}" 
                                                         .clinicalAnalysis="${this.clinicalAnalysis}"
                                                         .active="${this.activeTab["Summary"]}">
                         </variant-interpreter-qc-summary>
                     </div>
-                    <div id="${this._prefix}Variants" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
+                    <div id="${this._prefix}Variants" role="tabpanel" class="tab-pane container content-tab">
                         <variant-interpreter-qc-variant .opencgaSession="${this.opencgaSession}" 
                                                         .clinicalAnalysis="${this.clinicalAnalysis}"
                                                         .active="${this.activeTab["Variants"]}">
                         </variant-interpreter-qc-variant>
                     </div>
-                    <div id="${this._prefix}Alignment" role="tabpanel" class="tab-pane col-md-8 col-md-offset-2 content-tab">
+                    <div id="${this._prefix}Alignment" role="tabpanel" class="tab-pane container content-tab">
                         <variant-interpreter-qc-alignment   .opencgaSession="${this.opencgaSession}" 
                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                                             .active="${this.activeTab["Alignment"]}">
                         </variant-interpreter-qc-alignment>
                     </div>
-                    <div id="${this._prefix}Coverage" role="tabpanel" class="tab-pane col-md-8 col-md-offset-2 content-tab">
+                    <div id="${this._prefix}Coverage" role="tabpanel" class="tab-pane container content-tab">
                         <gene-coverage-browser .opencgaSession="${this.opencgaSession}"
                                                .cellbaseClient="${this.cellbaseClient}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
