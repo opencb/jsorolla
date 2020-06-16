@@ -86,7 +86,7 @@ export default class OpencgaFileDetail extends LitElement {
             items: [
                 {
                     id: "file-view",
-                    name: "Summary",
+                    name: "Overview",
                     active: true,
                     render: (file, active, opencgaSession) => {
                         return html` <opencga-file-view .opencgaSession="${opencgaSession}" .file="${file}"></opencga-file-view>`;

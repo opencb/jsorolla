@@ -87,7 +87,7 @@ export default class OpencgaCohortDetail extends LitElement {
             items: [
                 {
                     id: "cohort-view",
-                    name: "Summary",
+                    name: "Overview",
                     active: true,
                     render: (cohort, active, opencgaSession) => {
                         return html`<opencga-cohort-view .opencgaSession="${opencgaSession}" .cohort="${cohort}"></opencga-cohort-view>`;

@@ -85,7 +85,7 @@ export default class OpencgaFamilyDetail extends LitElement {
             items: [
                 {
                     id: "family-view",
-                    name: "Summary",
+                    name: "Overview",
                     active: true,
                     render: (family, active, opencgaSession) => {
                         return html`<opencga-family-view .opencgaSession="${opencgaSession}" .family="${family}"></opencga-family-view>`;

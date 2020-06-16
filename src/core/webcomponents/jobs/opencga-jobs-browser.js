@@ -206,7 +206,7 @@ export default class OpencgaJobsBrowser extends LitElement {
                     items: [
                         {
                             id: "job-view",
-                            name: "Summary",
+                            name: "Overview",
                             active: true,
                             // visible:
                             render: (job, active, opencgaSession) => {

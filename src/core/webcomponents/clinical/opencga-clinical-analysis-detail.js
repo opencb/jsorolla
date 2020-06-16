@@ -86,7 +86,7 @@ export default class OpencgaClinicalAnalysisDetail extends LitElement {
             items: [
                 {
                     id: "clinical-analysis-view",
-                    name: "Summary",
+                    name: "Overview",
                     active: true,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`<opencga-clinical-analysis-view .opencgaSession="${opencgaSession}" .clinicalAnalysis="${clinicalAnalysis}"></opencga-clinical-analysis-view>`;

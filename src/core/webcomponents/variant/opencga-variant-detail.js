@@ -110,7 +110,7 @@ export default class OpencgaVariantDetail extends LitElement {
             items: [
                 {
                     id: "sample-view",
-                    name: "Summary",
+                    name: "Overview",
                     active: true,
                     render: (sample, active, opencgaSession) => {
                         return html`<opencga-sample-view .sample="${sample}" .opencgaSession="${opencgaSession}"></opencga-sample-view>`;
