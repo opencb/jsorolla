@@ -368,7 +368,7 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
     render() {
         return html`
             <div class="row">
-                <div class="col-md-2 left-menu">
+                <div class="col-md-3 left-menu">
                     <opencga-variant-filter .opencgaSession=${this.opencgaSession}
                                             .query="${this.query}"
                                             .cellbaseClient="${this.cellbaseClient}"
@@ -382,7 +382,7 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                     </opencga-variant-filter>
                 </div>
 
-                <div class="col-md-10">
+                <div class="col-md-9">
                     <div class="row">
                         <div class="col-md-12">
                             <opencga-active-filters filterBioformat="VARIANT"

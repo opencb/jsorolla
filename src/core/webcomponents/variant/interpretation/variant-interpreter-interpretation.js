@@ -139,44 +139,29 @@ class VariantInterpreterInterpretation extends LitElement {
 
         return this.clinicalAnalysis ? html`
             <div id="${this._prefix}QcTabs">
-                <div class="row">
-                    <div class="col-md-9">
-                        <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
-                            ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY" 
-                                ? html`
-                                    <li role="presentation" class="content-pills ${classMap({active: this.activeTab["RdTiering"]})}">
-                                        <a href="javascript: void 0" role="tab" data-id="RdTiering" @click="${this._changeTab}" class="tab-title">RD Tiering</a>
-                                    </li>
-                                    <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Zetta"]})}">
-                                        <a href="javascript: void 0" role="tab" data-id="Zetta" @click="${this._changeTab}" class="tab-title">Zetta</a>
-                                    </li>` 
-                                : null
-                            }
-                            ${this.clinicalAnalysis.type.toUpperCase() === "CAMCER"
-                                ? html`
-                                    <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Upd"]})}">
-                                        <a href="javascript: void 0" role="tab" data-id="Upd" @click="${this._changeTab}" class="tab-title disabled">UPD (coming soon)</a>
-                                    </li>`
-                                : null
-                            }
-                        </ul>
-                    </div>
-                    
-                    <div class="col-md-3">
-                        <div style="padding: 5px 0px">
-                        <button type="button" class="btn btn-link" data-toggle="collapse" data-target="#${this._prefix}Help">
-                            <i class="fas fa-info-circle" aria-hidden="true" style="padding-right: 5px"></i> Help
-                        </button>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-8 col-md-offset-2" style="padding-top: 5px">
-                        <div id="${this._prefix}Help" class="collapse">
-                            <div class="well">
-                                <p>QC allows you to study the quality control. It consists of several tools...
-                            </div>
-                        </div>
-                    </div>
+                <div class="container">
+                    <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
+                        ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY" 
+                            ? html`
+                                <li role="presentation" class="content-pills ${classMap({active: this.activeTab["RdTiering"]})}">
+                                    <a href="javascript: void 0" role="tab" data-id="RdTiering" @click="${this._changeTab}" class="tab-title">RD Tiering</a>
+                                </li>
+                                <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Zetta"]})}">
+                                    <a href="javascript: void 0" role="tab" data-id="Zetta" @click="${this._changeTab}" class="tab-title">Zetta</a>
+                                </li>` 
+                            : null
+                        }
+                        ${this.clinicalAnalysis.type.toUpperCase() === "CAMCER"
+                            ? html`
+                                <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Upd"]})}">
+                                    <a href="javascript: void 0" role="tab" data-id="Upd" @click="${this._changeTab}" class="tab-title disabled">UPD (coming soon)</a>
+                                </li>`
+                            : null
+                        }
+                        <li role="presentation" class="content-pills pull-right ${classMap({active: this.activeTab["help"]})}">
+                            <a href="javascript: void 0" role="tab" data-id="Help" @click="${this._changeTab}" class="tab-title">Help</a>
+                        </li>
+                    </ul>
                 </div>
                 
                 <div class="content-tab-wrapper">

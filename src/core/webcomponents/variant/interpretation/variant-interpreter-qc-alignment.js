@@ -983,13 +983,20 @@ class VariantInterpreterQcAlignment extends LitElement {
 
         // Alignment stats are the same for FAMILY and CANCER analysis
         return html`
-                <div>
-                    <h3>Alignment Stats</h3>
-                    ${this.file ? html`
-                       <data-form .data="${this.file}" .config="${this._config}"></data-form>
-                    ` : html`No Stats available.`}
+            <div class="container" style="margin-bottom: 20px">
+                <div style="float: left">
+                    <h2>Alignment Stats</h2>
                 </div>
-            `;
+                
+                <div style="padding-left: 15px">
+                    ${this.file 
+                        ? html`
+                           <data-form .data="${this.file}" .config="${this._config}"></data-form>` 
+                        : html`No Stats available.`
+                    }
+                </div>
+            </div>
+        `;
     }
 
 }

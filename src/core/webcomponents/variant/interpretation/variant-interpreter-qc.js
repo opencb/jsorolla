@@ -20,8 +20,7 @@ import UtilsNew from "../../../utilsNew.js";
 import "./variant-interpreter-qc-summary.js";
 import "./variant-interpreter-qc-variant.js";
 import "./variant-interpreter-qc-alignment.js";
-import "../../alignment/gene-coverage-view.js";
-import "../../alignment/gene-coverage-browser.js";
+import "./variant-interpreter-qc-gene-coverage.js";
 
 
 class VariantInterpreterQc extends LitElement {
@@ -169,7 +168,7 @@ class VariantInterpreterQc extends LitElement {
                                                         .active="${this.activeTab["Summary"]}">
                         </variant-interpreter-qc-summary>
                     </div>
-                    <div id="${this._prefix}Variants" role="tabpanel" class="tab-pane container content-tab">
+                    <div id="${this._prefix}Variants" role="tabpanel" class="tab-pane content-tab">
                         <variant-interpreter-qc-variant .opencgaSession="${this.opencgaSession}" 
                                                         .clinicalAnalysis="${this.clinicalAnalysis}"
                                                         .active="${this.activeTab["Variants"]}">
@@ -182,12 +181,11 @@ class VariantInterpreterQc extends LitElement {
                         </variant-interpreter-qc-alignment>
                     </div>
                     <div id="${this._prefix}Coverage" role="tabpanel" class="tab-pane container content-tab">
-                        <gene-coverage-browser .opencgaSession="${this.opencgaSession}"
-                                               .cellbaseClient="${this.cellbaseClient}"
-                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                            .geneIds="${this.geneIds}"
-                                            .panelIds="${this.diseasePanelIds}">
-                         </gene-coverage-browser>
+                        <variant-interpreter-qc-gene-coverage   .opencgaSession="${this.opencgaSession}" 
+                                                                .cellbaseClient="${this.cellbaseClient}"
+                                                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                .active="${this.activeTab["Coverage"]}">
+                        </variant-interpreter-qc-gene-coverage>
                     </div>
                     ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
                         ? html`

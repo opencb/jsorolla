@@ -45,11 +45,11 @@ class VariantInterpreterQcVariant extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
-            config: {
-                type: Object
-            },
             active: {
                 type: Boolean
+            },
+            config: {
+                type: Object
             }
         };
     }
@@ -107,26 +107,39 @@ class VariantInterpreterQcVariant extends LitElement {
         // Variant stats are different for FAMILY and CANCER analysis, this does not happens with Alignment
         if (this.clinicalAnalysis.type.toUpperCase() === "FAMILY") {
             return html`
-                <div>
-                    <h3>RD Variant Stats</h3>
-                    <!-- <span>We must use the new component opencga-sample-variant-stats for 
-                    <a href="https://github.com/opencb/biodata/blob/develop/biodata-models/src/main/avro/variantMetadata.avdl#L122" target="_blank">https://github.com/opencb/biodata/blob/develop/biodata-models/src/main/avro/variantMetadata.avdl#L122</a></span> -->
-<!--                    <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" .sampleId="${null}" ?active="${this.active}"></sample-variant-stats-view>-->
-                    <variant-interpreter-qc-variant-family .opencgaSession="${this.opencgaSession}" .sampleId="${this.clinicalAnalysis.proband.samples[0].id}" ?active="${this.active}"></variant-interpreter-qc-variant-family>
+                <div class="container" style="margin-bottom: 20px">
+                    <div style="float: left">
+                        <h2>RD Variant Stats</h2>
+                    </div>
+                    <div style="margin-top: 20px; float: right">
+                        <button class="btn btn-primary" @click="${this.onCloseClinicalAnalysis}">
+                            <i class="fas fa-save" style="padding-right: 10px"></i>Save
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-10 col-md-offset-1">
+                        <variant-interpreter-qc-variant-family .opencgaSession="${this.opencgaSession}" .sampleId="${this.clinicalAnalysis.proband.samples[0].id}" ?active="${this.active}"></variant-interpreter-qc-variant-family>
+                    </div>
                 </div>
             `;
         }
 
         if (this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
             return html`
-                <div style="padding: 10px">
-                    <div style="padding: 10px 0px">
-                        <h3>Cancer Variant Stats</h3>               
+                <div class="container" style="margin-bottom: 20px">
+                    <div style="float: left">
+                        <h2>Cancer Variant Stats</h2>
                     </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <variant-interpreter-qc-variant-cancer .clinicalAnalysis="${this.clinicalAnalysis}" .opencgaSession="${this.opencgaSession}" .sampleId="${this.clinicalAnalysis.proband.samples[0].id}" ?active="${this.active}"></variant-interpreter-qc-variant-cancer>
-                        </div>
+                    <div style="margin-top: 20px; float: right">
+                        <button class="btn btn-primary" @click="${this.onCloseClinicalAnalysis}">
+                            <i class="fas fa-save" style="padding-right: 10px"></i>Save
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-10 col-md-offset-1">
+                        <variant-interpreter-qc-variant-cancer .clinicalAnalysis="${this.clinicalAnalysis}" .opencgaSession="${this.opencgaSession}" .sampleId="${this.clinicalAnalysis.proband.samples[0].id}" ?active="${this.active}"></variant-interpreter-qc-variant-cancer>
                     </div>
                 </div>
             `;

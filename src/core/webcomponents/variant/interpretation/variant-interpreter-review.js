@@ -425,19 +425,22 @@ export default class VariantInterpreterReview extends LitElement {
 
         return html`
             <div id="${this._prefix}ReviewTabs">
-                <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
-                    <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["GeneralInfo"]})}">
-                        <a href="javascript: void 0" role="tab" data-id="GeneralInfo" @click="${this._changeTab}" class="tab-title">General Info
-                        </a>
-                    </li>
-                    <li role="presentation" class="content-pills ${classMap({active: this.activeTab["PrimaryFindings"]})}">
-                        <a href="javascript: void 0" role="tab" data-id="PrimaryFindings" @click="${this._changeTab}" class="tab-title">Primary Findings
-                        </a>
-                    </li>
-                </ul>
+                <div class="container">
+                    <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
+                        <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["GeneralInfo"]})}">
+                            <a href="javascript: void 0" role="tab" data-id="GeneralInfo" @click="${this._changeTab}" class="tab-title">General Info</a>
+                        </li>
+                        <li role="presentation" class="content-pills ${classMap({active: this.activeTab["PrimaryFindings"]})}">
+                            <a href="javascript: void 0" role="tab" data-id="PrimaryFindings" @click="${this._changeTab}" class="tab-title">Primary Findings</a>
+                        </li>
+                        <li role="presentation" class="content-pills pull-right ${classMap({active: this.activeTab["help"]})}">
+                            <a href="javascript: void 0" role="tab" data-id="Help" @click="${this._changeTab}" class="tab-title">Help</a>
+                        </li>
+                    </ul>
+                </div>
                 
                 <div class="content-tab-wrapper">
-                    <div id="${this._prefix}GeneralInfo" role="tabpanel" class="tab-pane active content-tab">
+                    <div id="${this._prefix}GeneralInfo" role="tabpanel" class="tab-pane container active content-tab">
                         <variant-interpreter-review-summary .opencgaSession="${this.opencgaSession}" 
                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                                             .active="${this.activeTab["GeneralInfo"]}">

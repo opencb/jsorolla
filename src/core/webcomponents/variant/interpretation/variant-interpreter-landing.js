@@ -334,57 +334,81 @@ class VariantInterpreterLanding extends LitElement {
         }
 
         return html`
-                <style>
-                    #variant-interpreter-landing .nav-tabs.nav-center {
-                        margin-bottom: 20px;
-                    }
-                </style>
-                <div id="variant-interpreter-landing">
+            <style>
+                #variant-interpreter-landing .nav-tabs.nav-center {
+                    /*margin-bottom: 20px;*/
+                }
+            </style>
+            <div id="variant-interpreter-landing">
+                <div class="container">
                     <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
                         <li role="presentation" class="content-pills active ${this._prefix}-search-tab">
-                            <a href="javascript: void 0" role="tab" data-id="${this._prefix}-search" @click="${this._changeTab}" class="tab-title">Select Case
-                            </a>
+                            <a href="javascript: void 0" role="tab" data-id="${this._prefix}-search" @click="${this._changeTab}" class="tab-title">Select Case</a>
                         </li>
                         <li role="presentation" class="content-pills ${this._prefix}-create-tab">
-                            <a href="javascript: void 0" role="tab" data-id="${this._prefix}-create" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Create Case
-                            </a>
+                            <a href="javascript: void 0" role="tab" data-id="${this._prefix}-create" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Create Case</a>
                         </li>
-                    </ul>              
-                    <div class="content-tab-wrapper">
-                        <div id="${this._prefix}-search" role="tabpanel" class="tab-pane active content-tab">
-                            <data-form  .data="${{}}" 
-                                        .config="${this.getSearchConfig()}" 
-                                        @fieldChange="${this.onSearchFieldChange}"
-                                        @clear="${this.onClinicalAnalysisChange}"
-                                        @submit="${this.onClinicalAnalysisChange}">
-                            </data-form>
-                            
-                            ${this.clinicalAnalysis ? html`
+                        <li role="presentation" class="content-pills pull-right ${classMap({active: this.activeTab["help"]})}">
+                            <a href="javascript: void 0" role="tab" data-id="Help" @click="${this._changeTab}" class="tab-title">Help</a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="content-tab-wrapper">
+                    <div id="${this._prefix}-search" role="tabpanel" class="tab-pane active content-tab">
+                        ${this.clinicalAnalysis 
+                            ? html`
+                                <div class="container" style="margin-bottom: 20px">
+                                    <div style="float: left">
+                                        <h2>Case ${this.clinicalAnalysis.id}</h2>
+                                    </div>
+                                    <div style="margin-top: 20px; float: right">
+                                        <button class="btn btn-primary" @click="${this.onCloseClinicalAnalysis}">
+                                            <i class="fas fa-times" style="padding-right: 10px"></i>Close
+                                        </button>
+                                    </div>
+                                </div>
                                 <div class="row">
                                     <div class="col-md-10 col-md-offset-1">
-                                        <h2>Case ${this.clinicalAnalysis.id}</h2>
-                
-                                        <div style="float: right; padding-right: 20px">
-                                            <button class="btn btn-primary" @click="${this.onCloseClinicalAnalysis}">Close</button>
-                                        </div>
-                                                                        
                                         <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
                                                                         .clinicalAnalysis="${this.clinicalAnalysis}">
                                         </opencga-clinical-analysis-view>
                                     </div>
-                                </div>` : null}
+                                </div>` 
+                            : html`
+                                <data-form  .data="${{}}" 
+                                            .config="${this.getSearchConfig()}" 
+                                            @fieldChange="${this.onSearchFieldChange}"
+                                            @clear="${this.onClinicalAnalysisChange}"
+                                            @submit="${this.onClinicalAnalysisChange}">
+                                </data-form>`
+                        }
+                    </div>
+                    
+                    <div id="${this._prefix}-create" role="tabpanel" class="tab-pane content-tab">
+                        <div class="container" style="margin-bottom: 20px">
+                            <div style="float: left">
+                                <h2>Case Case</h2>
+                            </div>
+                            <div style="margin-top: 20px; float: right">
+                                <button class="btn btn-primary" @click="${this.onCloseClinicalAnalysis}">
+                                    <i class="fas fa-erase" style="padding-right: 10px"></i>Clear
+                                </button>
+                            </div>
                         </div>
-                        
-                        <div id="${this._prefix}-create" role="tabpanel" class="tab-pane content-tab col-md-8 col-md-offset-2">
-                            <opencga-clinical-analysis-writer   .opencgaSession="${this.opencgaSession}"
-                                                                .config="${this.clinicalAnalysisEditorConfig}"
-                                                                @clinicalanalysischange="${e => this.onClinicalAnalysisUpdate(e)}"
-                                                                @clinicalAnalysisCreate="${e => this.onClinicalAnalysisCreate(e)}">
-                             </opencga-clinical-analysis-writer>
+                        <div class="row">
+                            <div class="col-md-8 col-md-offset-2">
+                                <opencga-clinical-analysis-writer   .opencgaSession="${this.opencgaSession}"
+                                                                    .config="${this.clinicalAnalysisEditorConfig}"
+                                                                    @clinicalanalysischange="${e => this.onClinicalAnalysisUpdate(e)}"
+                                                                    @clinicalAnalysisCreate="${e => this.onClinicalAnalysisCreate(e)}">
+                                </opencga-clinical-analysis-writer> 
+                           </div>
                         </div>
                     </div>
                 </div>
-            `;
+            </div>
+        `;
     }
 
 }

@@ -376,6 +376,18 @@ export default class VariantInterpreterReviewSummary extends LitElement {
             }
         </style>
 
+        <div class="container" style="margin-bottom: 20px">
+            <div style="float: left">
+                <h2>Interpretation Info</h2>
+            </div>
+            <div style="margin-top: 20px; float: right">
+                <button type="button" class="btn btn-primary" @click="${this.onViewInterpretation}">Preview</button>
+                <button class="btn btn-primary" @click="${this.onSaveInterpretation}">
+                    <i class="fas fa-save" style="padding-right: 10px"></i>Save
+                </button>
+            </div>
+        </div>
+            
         <div class="row" style="padding: 0px 10px">
             <div id="${this._prefix}SaveInterpretation">
                 <div class="col-md-12">
@@ -389,21 +401,6 @@ export default class VariantInterpreterReviewSummary extends LitElement {
                 
                 <div class="col-md-12">
                     <div>
-                        <!-- <h3 class="form-section-title" style="margin-top: 10px">Interpretation</h3> -->
-                        <div style="display: inline; cursor:pointer" @click="toggleInterpretationCollapsed"
-                             data-toggle="collapse" href="#${this._prefix}collapsibleInterpretation">
-                            <h4 class="form-section-title">
-                                <!--
-                                    ${this.interpretationCollapsed ? html`
-                                        <i class="fa fa-caret-right" aria-hidden="true" style="width: 20px;padding-left: 5px;padding-right: 5px"></i>
-                                    ` : html`
-                                    <i class="fa fa-caret-down" aria-hidden="true" style="width: 20px;padding-left: 5px;padding-right: 5px"></i>
-                                    `}
-                                -->
-                                General Interpretation Info
-                            </h4>
-                        </div>
-
                         <div id="${this._prefix}collapsibleInterpretation" class="form-horizontal collapse in" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
                             <div class="form-group">
                                 <label class="control-label col-md-1 jso-label-title">Interpretation ID</label>
@@ -443,13 +440,6 @@ export default class VariantInterpreterReviewSummary extends LitElement {
                                           @input="${this.onInputChange}"></textarea>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="col-md-4 col-md-offset-8" style="padding: 0px 20px;">
-                            <button type="button" class="btn btn-primary" @click="${this.onViewInterpretation}">Preview</button>
-                            <button type="button" class="btn btn-primary" @click="${this.onSaveInterpretation}">Save</button>
                         </div>
                     </div>
                 </div>

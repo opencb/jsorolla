@@ -58,11 +58,6 @@ class VariantInterpreterQcSummary extends LitElement {
         super.connectedCallback();
 
         this._config = {...this.getDefaultConfig(), ...this.config};
-        // this.requestUpdate();
-    }
-
-    firstUpdated(_changedProperties) {
-        // this.requestUpdate();
     }
 
     updated(changedProperties) {
@@ -72,21 +67,18 @@ class VariantInterpreterQcSummary extends LitElement {
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
-        // if (changedProperties.has("clinicalAnalysis")) {
-        //     this.clinicalAnalysisObserver();
-        // }
+
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 
     clinicalAnalysisIdObserver() {
-        if (this.opencgaSession) {
-            let _this = this;
+        if (this.opencgaSession && this.clinicalAnalysisId) {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    _this.clinicalAnalysis = response.responses[0].results[0];
-                    _this.requestUpdate();
+                    this.clinicalAnalysis = response.responses[0].results[0];
+                    this.requestUpdate();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -201,7 +193,15 @@ class VariantInterpreterQcSummary extends LitElement {
         }
 
         return html`
-            <data-form .data=${this.clinicalAnalysis} .config="${this._config}"></data-form>
+            <div class="container" style="margin-bottom: 20px">
+                <div style="float: left">
+                    <h2>Overview</h2>
+                </div>
+                
+                <div style="padding-left: 15px">
+                    <data-form .data=${this.clinicalAnalysis} .config="${this._config}"></data-form>
+                </div>
+            </div>
         `;
     }
 

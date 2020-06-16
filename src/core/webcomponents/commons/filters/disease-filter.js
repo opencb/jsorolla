@@ -136,7 +136,7 @@ export default class DiseaseFilter extends LitElement {
             // let genes = this.genes.map(gene => gene.name);
             // $(`select#${this._prefix}Genes`).selectpicker('val', genes);
             this.requestUpdate();
-            // $(`select#${this._prefix}Genes`).selectpicker("refresh");
+            $(`select#${this._prefix}Genes`).selectpicker("refresh");
         } else {
             // const select_vals = $("#" + this._prefix + "DiseasePanels").val() || [];
             const value = select_vals && select_vals.length ? select_vals.join(",") : null;
