@@ -199,8 +199,8 @@ export default class DataForm extends LitElement {
             `;
         }
 
-        let classes = this.config?.display?.classes ? this.config.display.classes : "";
-        let style = this.config?.display?.style ? this.config.display.style : "";
+        let classes = this.config?.display?.classes ?? "";
+        let style = this.config?.display?.style ?? "";
         if (this.config.type === "form") {
             return html`
                 <div class="row">
@@ -781,19 +781,6 @@ export default class DataForm extends LitElement {
     }
 
     render() {
-        if (!this.data) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No valid data provided: ${this.data}</h3>
-                </div>
-            `;
-        }
-
-        // if (UtilsNew.isEmpty(this.data)) {
-        //     return;
-        // }
-
         // Check configuration
         if (!this.config) {
             return html`
@@ -805,6 +792,20 @@ export default class DataForm extends LitElement {
                     </div>
                 </div>
             `;
+        }
+        if (!this.data) {
+            // in this case equality (==) is better than identity (===) because undefined == null
+            if(this.config.nullData == null) {
+                return html`${this.config.nullData}`
+            } else {
+                return html`
+                <div class="guard-page">
+                    <i class="fas fa-lock fa-5x"></i>
+                    <h3>No valid data provided: ${this.data}</h3>
+                </div>
+                `;
+            }
+
         }
 
         const sectionTitleIcon = this.config.display?.title?.class ?? "";

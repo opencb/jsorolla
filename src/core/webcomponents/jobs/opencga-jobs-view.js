@@ -94,6 +94,7 @@ export default class OpencgaJobsView extends LitElement {
         return {
             title: "Summary",
             icon: "",
+            nullData: "",
             display: {
                 collapsable: true,
                 showTitle: false,

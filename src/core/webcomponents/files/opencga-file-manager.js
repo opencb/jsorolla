@@ -119,14 +119,6 @@ export default class OpencgaFileManager extends LitElement {
         `;
     }
 
-    icon(format, size) {
-        const icon = {
-            IMAGE: "fas fa-file-image",
-            VCF: "fas fa-file"
-        }[format];
-        return html`<i class="${icon || "fas fa-file"}${size ? ` fa-${size}x` : ""}"></i>`
-    }
-
     renderTree(root) {
         const children = root.children;
         const domId = `tree-${root.file.id.replace(/:/g, "")}`;
@@ -181,6 +173,14 @@ export default class OpencgaFileManager extends LitElement {
         await this.requestUpdate();
     }
 
+    icon(format, size) {
+        const icon = {
+            IMAGE: "fas fa-file-image",
+            VCF: "fas fa-file"
+        }[format];
+        return html`<i class="${icon || "fas fa-file"}${size ? ` fa-${size}x` : ""}"></i>`
+    }
+
     folder(node) {
         return html`
             <li class="folder">
@@ -213,6 +213,15 @@ export default class OpencgaFileManager extends LitElement {
         `;
     }
 
+    path(node) {
+        const path = node.file.id.split(":").filter(Boolean);
+        return html`
+            <div class="file-manager-breadcrumbs">
+                <a @click="${this.reset}"> ~ </a> <span class="path-separator">/</span>
+                ${path.map((name, i) => html`<a @click="${() => this.route(path.slice(0, i + 1).join(":") + ":")}"> ${name} </a> <span class="path-separator">/</span>`)}
+            </div>`;
+    }
+
     async route(id, resetFileId = true) {
         console.log("route", id)
         this.currentRoot = this.searchNode(id, this.tree.children);
@@ -235,15 +244,6 @@ export default class OpencgaFileManager extends LitElement {
         this.requestUpdate();
     }
 
-    path(node) {
-        const path = node.file.id.split(":").filter(Boolean);
-        return html`
-            <div class="file-manager-breadcrumbs">
-                <a @click="${this.reset}"> ~ </a> <span class="path-separator">/</span>
-                ${path.map((name, i) => html`<a @click="${() => this.route(path.slice(0, i + 1).join(":") + ":")}"> ${name} </a> <span class="path-separator">/</span>`)}
-            </div>`;
-    }
-
     onClickFile(id) {
         const path = id.split(":").slice(0, -1).join(":") + ":";
         this.fileId = id;
@@ -254,7 +254,7 @@ export default class OpencgaFileManager extends LitElement {
     getDefaultConfig() {
         return {
             title: "File Explorer",
-            icon: "fas fa-file"
+            icon: "file-explorer.svg"
         };
     }
 

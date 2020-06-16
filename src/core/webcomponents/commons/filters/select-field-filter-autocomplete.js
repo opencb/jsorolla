@@ -34,9 +34,9 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            /*opencgaSession: {
                 type: Object
-            },
+            },*/
             value: {
                 type: String
             },

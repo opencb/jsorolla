@@ -19,8 +19,8 @@ import UtilsNew from "../../../utilsNew.js";
 
 /*
 * TODO handle GENES
-* TODO UX improvement: turn textarea in a tag input with autocomplete
 * **/
+
 export default class FeatureFilter extends LitElement {
 
     constructor() {
@@ -95,7 +95,7 @@ export default class FeatureFilter extends LitElement {
     }
 
     render() {
-        return html`<select-field-filter-autocomplete .opencgaSession="${this.opencgaSession}" .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></select-field-filter-autocomplete>`;
+        return html`<select-field-filter-autocomplete .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></select-field-filter-autocomplete>`;
     }
 
 }

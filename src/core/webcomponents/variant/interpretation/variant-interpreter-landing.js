@@ -342,20 +342,20 @@ class VariantInterpreterLanding extends LitElement {
             <div id="variant-interpreter-landing">
                 <div class="container">
                     <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
-                        <li role="presentation" class="content-pills active ${this._prefix}-search-tab">
-                            <a href="javascript: void 0" role="tab" data-id="${this._prefix}-search" @click="${this._changeTab}" class="tab-title">Select Case</a>
+                        <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["landing-search"] || UtilsNew.isEmpty(this.activeTab)})}"">
+                            <a href="javascript: void 0" role="tab" data-id="landing-search" @click="${this._changeTab}" class="tab-title">Select Case</a>
                         </li>
-                        <li role="presentation" class="content-pills ${this._prefix}-create-tab">
-                            <a href="javascript: void 0" role="tab" data-id="${this._prefix}-create" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Create Case</a>
+                        <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing-create"]})}"">
+                            <a href="javascript: void 0" role="tab" data-id="landing-create" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Create Case</a>
                         </li>
-                        <li role="presentation" class="content-pills pull-right ${classMap({active: this.activeTab["help"]})}">
-                            <a href="javascript: void 0" role="tab" data-id="Help" @click="${this._changeTab}" class="tab-title">Help</a>
+                        <li role="presentation" class="content-pills pull-right ${classMap({active: this.activeTab["landing-help"]})}">
+                            <a href="javascript: void 0" role="tab" data-id="landing-help" @click="${this._changeTab}" class="tab-title">Help</a>
                         </li>
                     </ul>
                 </div>
                 
                 <div class="content-tab-wrapper">
-                    <div id="${this._prefix}-search" role="tabpanel" class="tab-pane active content-tab">
+                    <div id="landing-search" role="tabpanel" class="tab-pane active content-tab">
                         ${this.clinicalAnalysis 
                             ? html`
                                 <div class="container" style="margin-bottom: 20px">
@@ -385,7 +385,7 @@ class VariantInterpreterLanding extends LitElement {
                         }
                     </div>
                     
-                    <div id="${this._prefix}-create" role="tabpanel" class="tab-pane content-tab">
+                    <div id="landing-create" role="tabpanel" class="tab-pane content-tab">
                         <div class="container" style="margin-bottom: 20px">
                             <div style="float: left">
                                 <h2>Case Case</h2>
@@ -405,6 +405,13 @@ class VariantInterpreterLanding extends LitElement {
                                 </opencga-clinical-analysis-writer> 
                            </div>
                         </div>
+                    </div>
+                    
+                    <div id="landing-help" role="tabpanel" class="tab-pane content-tab">
+                        <div class="container">
+                            help
+                        </div>
+                        
                     </div>
                 </div>
             </div>

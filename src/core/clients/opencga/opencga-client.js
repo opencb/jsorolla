@@ -194,13 +194,6 @@ export class OpenCGAClient {
             this._config.userId = userId;
             this._config.token = restResponse.getResult(0).token;
 
-            await this.users().updateConfigs(userId, {
-                "id": "IVA",
-                "configuration": {
-                    "lastAccess": moment(new Date()).valueOf()
-                }
-            });
-
             // Check if cookies being used
             if (this._config.cookies.active) {
                 this.setCookies(userId, this._config.token);
@@ -230,11 +223,8 @@ export class OpenCGAClient {
         const response = await this.users().login({refreshToken: this._config.token});
         this._config.token = response.getResult(0).token;
 
-        await this.users().updateConfigs(userId, {
-            "id": "IVA",
-            "configuration": {
-                "lastAccess": moment(new Date()).valueOf()
-            }
+        await this.updateUserConfigs({
+            lastAccess: moment(new Date()).valueOf()
         });
 
         if (this._config.cookies.active) {
@@ -284,7 +274,7 @@ export class OpenCGAClient {
     // TODO refactor
     createSession() {
         const _this = this;
-        return new Promise(function(resolve, reject) {
+        return new Promise((resolve, reject) => {
             // check that a session exists
             // TODO should we check the session has not expired?
             //console.log("_this._config", _this._config); // ------------ TODO refreshing a page userId is empty
@@ -301,6 +291,10 @@ export class OpenCGAClient {
                             serverVersion: _this._config.serverVersion
                         };
                         session.opencgaClient = _this;
+
+                        await this.updateUserConfigs({
+                            lastAccess: moment(new Date()).valueOf()
+                        });
 
                         // Fetch authorised Projects and Studies
                         _this.projects().search({})
@@ -396,6 +390,21 @@ export class OpenCGAClient {
 
     getClients() {
         return this.clients;
+    }
+
+    getUserConfigs() {
+        return this.users().configs(this._config.userId, "IVA")
+    }
+
+    updateUserConfigs(data) {
+        return this.users().updateConfigs(this._config.userId, {
+            id: "IVA",
+            configuration: {
+                ...data
+                //"lastAccess": moment(new Date()).valueOf()
+            }
+        });
+
     }
 
 }

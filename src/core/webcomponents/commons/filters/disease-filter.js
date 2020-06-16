@@ -182,8 +182,6 @@ export default class DiseaseFilter extends LitElement {
                 </div>
         `;
         } else {
-            this.genes
-            debugger
             return html`
                 <div>
                     <select id="${this._prefix}DiseasePanels" class="selectpicker" data-size="10" data-live-search="true" @change="${e => this.filterChange(e)}">
