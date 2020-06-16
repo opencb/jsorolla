@@ -128,6 +128,7 @@ export default class OpencgaVariantSamples extends LitElement {
         }
     }
 
+    // TODO replace with phenotypesFormatter in the other browsers
     phenotypeFormatter(value, row, index) {
         if (value && value.phenotypes) {
             let phenotypeTooltipText = "";

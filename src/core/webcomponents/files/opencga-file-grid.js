@@ -203,7 +203,6 @@ export default class OpencgaFileGrid extends LitElement {
             onPostBody: (data) => {
                 // We call onLoadSuccess to select first row
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
-                // this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
             }
         });
     }

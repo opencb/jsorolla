@@ -525,7 +525,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 title: "Manage",
                 // field: "id",
                 // <button class='btn btn-small btn-primary ripple' data-action="edit"><i class="fas fa-edit"></i> Edit</button>
-                formatter: "<button class='btn btn-small btn-danger ripple' data-action=\"delete\"><i class=\"fas fa-times\"></i> Delete</button>",
+                formatter: `<button class="btn btn-small btn-danger ripple delete-button" data-action="delete"><i class="fas fa-times"></i> Delete</button>`,
                 valign: "middle",
                 events: {
                     "click button": this.onDelete.bind(this)
@@ -663,6 +663,10 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     
                 .qtip-cutom-class .qtip-content{
                     font-size: 12px;
+                }
+                
+                .delete-button {
+                    width: 77px;
                 }
             </style>
     

@@ -238,8 +238,7 @@ export default class OpencgaSampleGrid extends LitElement {
             },
             onPostBody: (data) => {
                 // We call onLoadSuccess to select first row
-                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
-                // this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
+                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
             }
         });
     }

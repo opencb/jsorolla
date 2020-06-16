@@ -138,7 +138,8 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                     pageSize: 10,
                     pageList: [10, 25, 50],
                     detailView: false,
-                    multiSelection: false
+                    multiSelection: false,
+                    showDeleteButton: false
                 },
                 detail: {
                     title: "Clinical Analysis",

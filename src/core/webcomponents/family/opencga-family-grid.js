@@ -237,9 +237,8 @@ export default class OpencgaFamilyGrid extends LitElement {
             },
             onPostBody: (data) => {
                 // We call onLoadSuccess to select first row
-                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
-                this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
-                this.catalogUiUtils.addTooltip("div.membersTooltip", "Members");            }
+                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
+            }
         });
     }
 
@@ -330,22 +329,8 @@ export default class OpencgaFamilyGrid extends LitElement {
 
     membersFormatter(value, row) {
         if (UtilsNew.isNotEmptyArray(value)) {
-            let members = "";
-            for (const member of value) {
-                members += `<div style="padding: 5px">
-                                        <span>
-                                            ${member.id} (${member.sex})
-                                        </span>
-                                    </div>`;
-            }
-
-            const html = `<div class="membersTooltip" data-tooltip-text='${members}' align="center">
-                                    <a style="cursor: pointer">
-                                        ${value.length} members found
-                                    </a>
-                                </div>
-                    `;
-            return html;
+            const members = value.map( member => `<p>${member.id} (${member.sex})</p>`).join("");
+            return `<a tooltip-title="Members" tooltip-text="${members}"> ${value.length} members found </a>`;
         } else {
             return "No members found";
         }
@@ -365,27 +350,16 @@ export default class OpencgaFamilyGrid extends LitElement {
     }
 
     phenotypesFormatter(value, row) {
-        if (UtilsNew.isNotEmptyArray(value)) {
-            let phenotypeTooltipText = "";
-
-            for (const phenotype of value) {
-                phenotypeTooltipText += "<div style=\"padding: 5px\">";
-                if (UtilsNew.isNotUndefinedOrNull(phenotype.source) && phenotype.source.toUpperCase() === "HPO") {
-                    phenotypeTooltipText += `<span><a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})</span>
-                                `;
-                } else {
-                    phenotypeTooltipText += `<span>${phenotype.id} (${phenotype.status})</span>`;
-                }
-                phenotypeTooltipText += "</div>";
-            }
-
-            const html = `<div class="phenotypesTooltip" data-tooltip-text='${phenotypeTooltipText}' align="center">
-                                    <a style="cursor: pointer">
-                                        ${value.length} terms found
-                                    </a>
-                                </div>
-                    `;
-            return html;
+        if (value && value.length) {
+            const tooltip = value.map( phenotype => {
+                return `
+                    <div>
+                        ${phenotype.source && phenotype.source.toUpperCase() === "HPO" ? `
+                            <span><a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})</span>
+                        ` : `<span>${phenotype.id} (${phenotype.status})</span>`}
+                    </div>`
+            }).join("")
+            return `<a tooltip-title="Phenotypes" tooltip-text='${tooltip}'> ${value.length} term${value.length > 1 ? "s": ""} found </a>`;
         } else {
             return "-";
         }

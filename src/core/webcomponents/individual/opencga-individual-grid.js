@@ -140,7 +140,6 @@ export default class OpencgaIndividualGrid extends LitElement {
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 detailFormatter: this._config.detailFormatter,
-
                 gridContext: this,
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
 
@@ -201,7 +200,6 @@ export default class OpencgaIndividualGrid extends LitElement {
                 },
                 onPostBody: (data) => {
                     // Add tooltips
-                    this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
                 }
             });
         }
@@ -239,8 +237,7 @@ export default class OpencgaIndividualGrid extends LitElement {
             },
             onPostBody: (data) => {
                 // We call onLoadSuccess to select first row
-                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
-                this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
+                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
             }
         });
     }
