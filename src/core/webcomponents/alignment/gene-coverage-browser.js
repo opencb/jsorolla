@@ -148,7 +148,10 @@ export default class GeneCoverageBrowser extends LitElement {
                     <div class="col-md-6">
                         <feature-filter .cellbaseClient="${this.cellbaseClient}" @filterChange="${this.selectGene}"></feature-filter>
                 
-                        <disease-filter .opencgaSession="${this.opencgaSession}" .config="${this.config}" 
+                        <disease-filter .opencgaSession="${this.opencgaSession}" 
+                                        .diseasePanels="${this.opencgaSession.study.panels}" 
+                                        mode="gene"
+                                        .config="${this.config}" 
                                         @filterChange="${e => this.onFilterChange("panel", e.detail.value)}">
                         </disease-filter>
                     </div>
