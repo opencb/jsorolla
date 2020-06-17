@@ -303,7 +303,8 @@ export default class OpencgaSampleGrid extends LitElement {
                 },
                 {
                     title: "Status",
-                    field: "internal.status.name"
+                    field: "internal.status",
+                    formatter: field => `${field.name} (${UtilsNew.dateFormatter(field.date)})`
                 }
         ];
 

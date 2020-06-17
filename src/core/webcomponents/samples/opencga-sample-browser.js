@@ -168,15 +168,11 @@ export default class OpencgaSampleBrowser extends LitElement {
                         }
                     }
                 ],
-                result: {
-                    grid: {
-                        pageSize: 10,
-                        pageList: [10, 25, 50],
-                        multiSelection: false
-                    },
-                    sampleDetail: {
-                        showTitle: false
-                    }
+                grid: {
+                    pageSize: 10,
+                    pageList: [10, 25, 50],
+                    multiSelection: false,
+                    showSelectCheckbox: false
                 },
                 detail: {
                     title: "Sample",

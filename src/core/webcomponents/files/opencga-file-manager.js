@@ -199,7 +199,7 @@ export default class OpencgaFileManager extends LitElement {
         return html`
             <li class="file ${this.fileId === node.file.id ? "active" : ""}">
                 <a @click="${() => this.onClickFile(node.file.id)}">
-                    <span class="icon">${this.icon(node.file.format, 5)}<span class="format">${node.file.format}</span></span>
+                    <span class="icon">${this.icon(node.file.format, 5)}<span class="format">${node.file.format !== "UNKNOWN" ? node.file.format : ""}</span></span>
                     <span class="content">
                         <span class="name">
                             <span class="max-lines-2">
