@@ -33,6 +33,9 @@ export class JobMonitor extends LitElement {
         return {
             opencgaSession: {
                 type: Object
+            },
+            config: {
+                type: Object
             }
         };
     }
@@ -49,14 +52,29 @@ export class JobMonitor extends LitElement {
         this.jobs = [];
         this.filteredJobs = [];
         this.updatedCnt = 0;
+
+        this._config = this.getDefaultConfig();
     }
 
-    updated(_changedProperties) {
-        if (_changedProperties.has("opencgaSession")) {
-            this.interval = setInterval(() => {
-                this.lastJobs();
-            },5000);
+    updated(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.launchMonitor();
         }
+
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.launchMonitor();
+        }
+    }
+
+    launchMonitor() {
+        // Make a first query
+        this.fetchLastJobs();
+
+        // and then every 'interval' ms
+        this.interval = setInterval(() => {
+            this.fetchLastJobs();
+        },this._config.interval || 30000);
     }
 
     async applyUpdated() {
@@ -78,26 +96,34 @@ export class JobMonitor extends LitElement {
         this._jobs = this.jobs;
     }
 
-    lastJobs() {
-        const lastAccess = moment(this.opencgaSession.user.configs.IVA.lastAccess).format("YYYYMMDDHHmmss"); // NOTE: we use creationDate as we cannot query execution.end
-        const lastDays = moment(new Date());
-        const d = lastDays.subtract(10, "d").format("YYYYMMDD");
-        this.opencgaSession.opencgaClient.jobs().search({study: this.opencgaSession.study.fqn, internalStatus: "DONE,ERROR,PENDING,QUEUED,RUNNING", limit: 10, sort: "creationDate", order: -1}).then( restResponse => {
-            // first call
-            if (!this._jobs.length) {
-                this._jobs = restResponse.getResults();
-            }
-            this.jobs = restResponse.getResults();
-            //this.jobs.sort((a, b) => a.internal.status.name < b.internal?.status.name ? 1 : -1);
-            this.filteredJobs = this.jobs;
-            /*this.running = this.jobs.filter( job => ["PENDING", "QUEUED", "RUNNING"].includes(job?.internal?.status.name))
-            this.done = this.jobs.filter( job => ["DONE", "ERROR"].includes(job?.internal?.status.name) /!*job?.execution?.end >= lastDays.valueOf()*!/)
-            this.total = this.running.length + this.done.length;*/
-            this.requestUpdate();
-        }).catch( restResponse => {
-            console.error(restResponse)
-        })
-
+    fetchLastJobs() {
+        // const lastAccess = moment(this.opencgaSession.user.configs.IVA.lastAccess).format("YYYYMMDDHHmmss"); // NOTE: we use creationDate as we cannot query execution.end
+        // const lastDays = moment(new Date());
+        // const d = lastDays.subtract(10, "d").format("YYYYMMDD");
+        const query = {
+            study: this.opencgaSession.study.fqn,
+            internalStatus: "PENDING,QUEUED,RUNNING,REGISTERING,UNREGISTERED,DONE,ERROR,ABORTED",
+            limit: this._config.limit || 10,
+            sort: "creationDate",
+            order: -1
+        };
+        this.opencgaSession.opencgaClient.jobs().search(query)
+            .then( restResponse => {
+                // first call
+                if (!this._jobs.length) {
+                    this._jobs = restResponse.getResults();
+                }
+                this.jobs = restResponse.getResults();
+                //this.jobs.sort((a, b) => a.internal.status.name < b.internal?.status.name ? 1 : -1);
+                this.filteredJobs = this.jobs;
+                // this.running = this.jobs.filter( job => ["PENDING", "QUEUED", "RUNNING"].includes(job?.internal?.status.name))
+                // this.done = this.jobs.filter( job => ["DONE", "ERROR"].includes(job?.internal?.status.name) /!*job?.execution?.end >= lastDays.valueOf()*!/)
+                // this.total = this.running.length + this.done.length;
+                // this.requestUpdate();
+            })
+            .catch( restResponse => {
+                console.error(restResponse)
+            })
     }
 
     filterJobs(e) {
@@ -105,6 +131,13 @@ export class JobMonitor extends LitElement {
         const types = e.currentTarget.dataset?.type?.split(",");
         this.filteredJobs = this.jobs.filter( job => types?.includes(job.internal.status.name) ?? 1)
         this.requestUpdate();
+    }
+
+    getDefaultConfig() {
+        return {
+            limit: 10,
+            interval: 30000
+        }
     }
 
     render() {
@@ -118,35 +151,36 @@ export class JobMonitor extends LitElement {
                         <!-- <li class="info">Jobs done since your last access ${moment(this.opencgaSession.user.configs.IVA.lastAccess).format("DD-MM-YYYY HH:mm:ss")}</li> -->
                         <li class="info">
                             <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple">ALL</button>
-                            <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="PENDING,QUEUED,RUNNING">Running</button>
-                            <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="DONE,ERROR">Done</button>
+                            <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="PENDING,QUEUED,RUNNING,REGISTERING">Running</button>
+                            <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="UNREGISTERED,DONE,ERROR,ABORTED">Finished</button>
                         </li>
-                        ${this.filteredJobs.length ? this.filteredJobs.map(job => html`
-                            <li>
-                                <a href="javascript: void 0" class="${job.updated ? `updated status-${job?.internal?.status?.name}` : ""}">
-                                    <div class="media">
-                                        <div class="media-left">
-                                            <i class="fas fa-rocket"></i>
+                        ${this.filteredJobs.length 
+                            ? this.filteredJobs.map(job => html`
+                                <li>
+                                    <a href="javascript: void 0" class="${job.updated ? `updated status-${job?.internal?.status?.name}` : ""}">
+                                        <div class="media">
+                                            <div class="media-left">
+                                                <i class="fas fa-rocket"></i>
+                                            </div>
+                                            <div class="media-body">
+                                                ${job.updated ? html`<span class="badge">NEW</span>` : ""}
+                                                <h4 class="media-heading">${job.id}</h4>
+                                                <small>${job.tool.id}</small> |
+                                                <small>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
+                                                <p>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status?.name))}</p> 
+                                            </div>
                                         </div>
-                                        <div class="media-body">
-                                            ${job.updated ? html`<span class="badge">NEW</span>` : ""}
-                                            <small>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small> |
-                                            <small>${job.tool.id}</small>
-                                            <h4 class="media-heading">${job.id}</h4>
-                                            <p>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status?.name))}</p> 
-                                        </div>
-                                    </div>
-                                 </a>
-                            </li>
-                        `) : html`
-                            <li>
-                                <a> No jobs </a>
-                            </li>
-                        `}
+                                     </a>
+                                </li>`) 
+                            : html`
+                                <li>
+                                    <a> No jobs </a>
+                                </li>`
+                        }
                     </ul>
                 </li>
             </ul>
-            `;
+        `;
     }
 
 }
