@@ -48,6 +48,9 @@ export default class GeneCoverageBrowser extends LitElement {
             },*/
             panelIds: {
                 type: Object
+            },
+            file: {
+                type: String
             }
         };
     }
@@ -60,7 +63,7 @@ export default class GeneCoverageBrowser extends LitElement {
         this.activeTab = {};
         this.loading = false;
         this.transcriptCoverageDetail = {};
-        this.file = "SonsAlignedBamFile.bam";
+        // this.file = "SonsAlignedBamFile.bam";
     }
 
     connectedCallback() {
@@ -77,9 +80,10 @@ export default class GeneCoverageBrowser extends LitElement {
 
     selectGene(e) {
         console.log("selectGene", e)
+        debugger
         this.geneIds = e.detail.value.split(",");
-        this.fetchData(this.geneIds);
-        this.requestUpdate();
+        // this.fetchData(this.geneIds);
+        // this.requestUpdate();
     }
 
     onClickPill(e) {
@@ -116,6 +120,71 @@ export default class GeneCoverageBrowser extends LitElement {
             })
     }
 
+    onRun() {
+        this.geneIds;
+        debugger
+        this.fetchData(this.geneIds);
+        this.requestUpdate();
+    }
+
+    getGeneFilterConfig() {
+        return {
+            title: "QC Summary",
+            icon: "",
+            type: "form",
+            buttons: {
+                show: true,
+            },
+            display: {
+                labelWidth: 3,
+                defaultValue: "-",
+                defaultLayout: "horizontal"
+            },
+            sections: [
+                {
+                    title: "",
+                    elements: [
+                        {
+                            name: "Select Gene",
+                            type: "custom",
+                            display: {
+                                width: "9",
+                                render: () => {
+                                    return html`<feature-filter .cellbaseClient="${this.cellbaseClient}" @filterChange="${this.selectGene}"></feature-filter>`;
+                                }
+                            }
+                        },
+                        {
+                            name: "Select Disease Panel Gene",
+                            type: "custom",
+                            display: {
+                                render: () => {
+                                    return html`
+                                        <disease-filter .opencgaSession="${this.opencgaSession}" 
+                                                        .diseasePanels="${this.opencgaSession.study.panels}" 
+                                                        mode="gene"
+                                                        .config="${this.config}" 
+                                                        @filterChange="${e => this.onFilterChange("panel", e.detail.value)}">
+                                        </disease-filter>`
+                                }
+                            }
+                        },
+                        {
+                            name: "Select Gene by Disease",
+                            type: "custom",
+                            display: {
+                                width: "9",
+                                render: () => {
+                                    return html`<feature-filter .cellbaseClient="${this.cellbaseClient}"></feature-filter>`;
+                                }
+                            }
+                        },
+                    ]
+                }
+            ]
+        }
+    }
+
     getDefaultConfig() {
         return {
             title: "Gene Coverage Browser",
@@ -143,17 +212,12 @@ export default class GeneCoverageBrowser extends LitElement {
     render() {
         return this._config
             ? html`
-                <h3>Select a gene</h3>
                 <div class="row">
-                    <div class="col-md-6">
-                        <feature-filter .cellbaseClient="${this.cellbaseClient}" @filterChange="${this.selectGene}"></feature-filter>
-                
-                        <disease-filter .opencgaSession="${this.opencgaSession}" 
-                                        .diseasePanels="${this.opencgaSession.study.panels}" 
-                                        mode="gene"
-                                        .config="${this.config}" 
-                                        @filterChange="${e => this.onFilterChange("panel", e.detail.value)}">
-                        </disease-filter>
+                    <div class="col-md-10">
+                        <h3>Select a gene</h3>
+                        <div style="padding-left: 15px">
+                            <data-form .data="${{}}" .config="${this.getGeneFilterConfig()}" @submit="${this.onRun}"></data-form>
+                        </div>
                     </div>
                     
                     <div class="col-md-12">

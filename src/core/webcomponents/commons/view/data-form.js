@@ -843,14 +843,14 @@ export default class DataForm extends LitElement {
                             <div class="modal-body">
                                 ${this.renderData()}
                             </div>
-                            ${this.config.display && this.config.display.buttons && this.config.display.buttons.show
+                            ${this.config.buttons && this.config.buttons.show
                                 ? html`
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.onClear}">
-                                                ${this.config.display.buttons.cancelText ? this.config.display.buttons.cancelText : "Cancel"}
+                                                ${this.config.buttons.cancelText ? this.config.buttons.cancelText : "Cancel"}
                                             </button>
                                             <button type="button" class="btn btn-primary" @click="${this.onSubmit}">
-                                                ${this.config.display.buttons.okText ? this.config.display.buttons.okText : "OK"}
+                                                ${this.config.buttons.okText ? this.config.buttons.okText : "OK"}
                                             </button>
                                         </div>`
                                 : null
@@ -875,15 +875,15 @@ export default class DataForm extends LitElement {
             ${this.renderData()}
             
             <!-- Render buttons -->
-            ${this.config.display && this.config.display.buttons && this.config.display.buttons.show
+            ${this.config.buttons && this.config.buttons.show
                 ? html`
                     <div class="row">
                         <div class="${this.config.display.classes ? this.config.display.classes : "col-md-12"}" style="padding: 10px 40px">
                             <button type="button" class="btn btn-primary ripple" @click="${this.onClear}">
-                                ${this.config.display.buttons.cancelText ? this.config.display.buttons.cancelText : "Cancel"}
+                                ${this.config.buttons.cancelText ? this.config.buttons.cancelText : "Cancel"}
                             </button>
                             <button type="button" class="btn btn-primary ripple" @click="${this.onSubmit}">
-                                ${this.config.display.buttons.okText ? this.config.display.buttons.okText : "OK"}
+                                ${this.config.buttons.okText ? this.config.buttons.okText : "OK"}
                             </button>
                         </div>
                     </div>`

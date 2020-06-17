@@ -55,6 +55,7 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
         this._prefix = "vcis-" + UtilsNew.randomString(6);
 
         this._config = this.getDefaultConfig();
+        this.file = "SonsAlignedBamFile.bam";
     }
 
     connectedCallback() {
@@ -121,7 +122,8 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
                                         .cellbaseClient="${this.cellbaseClient}"
                                         .clinicalAnalysis="${this.clinicalAnalysis}"
                                         .geneIds="${this.geneIds}"
-                                        .panelIds="${this.diseasePanelIds}">
+                                        .panelIds="${this.diseasePanelIds}"
+                                        .file="${this.file}">
                 </gene-coverage-browser>
             </div>
         `;

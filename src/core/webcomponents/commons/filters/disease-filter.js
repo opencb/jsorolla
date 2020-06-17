@@ -169,7 +169,7 @@ export default class DiseaseFilter extends LitElement {
                             <option value="${panel.id}">
                                 ${panel.name}
                                 ${panel.source ? "v" + panel.source.version : ""}
-                                ${panel.stats ? `${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions` : ""}
+                                ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}
                             </option>
                         `)}
                     </select>
@@ -189,7 +189,7 @@ export default class DiseaseFilter extends LitElement {
                             <option value="${panel.id}">
                                 ${panel.name}
                                 ${panel.source ? "v" + panel.source.version : ""}
-                                ${panel.stats ? `${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions` : ""}
+                                ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}
                             </option>
                         `)}
                     </select>

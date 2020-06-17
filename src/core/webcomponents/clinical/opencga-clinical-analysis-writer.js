@@ -232,6 +232,11 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                     icon: ""
                 }
             ],
+            buttons: {
+                show: true,
+                clearText: "Clear",
+                submitText: "Create"
+            },
             display: {
                 // form: {
                 //     layout: "horizontal"
@@ -240,11 +245,6 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                 infoIcon: "",
                 labelAlign: "left",
                 defaultLayout: "vertical",
-                buttons: {
-                    show: true,
-                    clearText: "Clear",
-                    submitText: "Create"
-                }
             },
             sections: [
                 {

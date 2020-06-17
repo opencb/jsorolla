@@ -296,7 +296,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                     margin: 0 0 2px 0;
                 }
             </style>
-            <div class="form-group select-field-filter-autocomplete">
+            <div class="select-field-filter-autocomplete">
                 <form autocomplete="off" action="javascript:void 0">
                     <div class="${classMap({"input-group": this._config.addButton})}">
                         <input name="sample" type="text" class="form-control typeahead" data-provide="typeahead" autocomplete="off" placeholder="${this._config.placeholder || "Start typing"}" />

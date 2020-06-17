@@ -246,17 +246,17 @@ class VariantInterpreterLanding extends LitElement {
             icon: "",
             type: "form",
             description: "Sample Variant Stats description",
+            buttons: {
+                show: true,
+                clearText: "Clear",
+                submitText: "Open"
+            },
             display: {
                 showTitle: true,
                 infoIcon: "",
                 labelAlign: "left",
                 defaultLayout: "vertical",
                 classes: "col-md-4 col-md-offset-4",
-                buttons: {
-                    show: true,
-                    clearText: "Clear",
-                    submitText: "Open"
-                }
             },
             sections: [
                 {

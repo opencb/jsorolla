@@ -127,20 +127,20 @@ class VariantInterpreterQc extends LitElement {
             <div id="${this._prefix}QcTabs">
                 <div class="container">
                     <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
-                        <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["Summary"]})}">
-                            <a href="javascript: void 0" role="tab" data-id="Summary" @click="${this._changeTab}" class="tab-title">Summary
+                        <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["Overview"]})}">
+                            <a href="javascript: void 0" role="tab" data-id="Overview" @click="${this._changeTab}" class="tab-title">Overview
                             </a>
                         </li>
-                        <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Variants"]})}">
-                            <a href="javascript: void 0" role="tab" data-id="Variants" @click="${this._changeTab}" class="tab-title">Variant
+                        <li role="presentation" class="content-pills ${classMap({active: this.activeTab["VariantQc"]})}">
+                            <a href="javascript: void 0" role="tab" data-id="VariantQc" @click="${this._changeTab}" class="tab-title">Variant
                             </a>
                         </li>
-                        <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Alignment"]})}">
-                            <a href="javascript: void 0" role="tab" data-id="Alignment" @click="${this._changeTab}" class="tab-title">Alignment
+                        <li role="presentation" class="content-pills ${classMap({active: this.activeTab["AlignmentQc"]})}">
+                            <a href="javascript: void 0" role="tab" data-id="AlignmentQc" @click="${this._changeTab}" class="tab-title">Alignment
                             </a>
                         </li>
-                        <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Coverage"]})}">
-                            <a href="javascript: void 0" role="tab" data-id="Coverage" @click="${this._changeTab}" class="tab-title">Gene Coverage
+                        <li role="presentation" class="content-pills ${classMap({active: this.activeTab["GeneCoverage"]})}">
+                            <a href="javascript: void 0" role="tab" data-id="GeneCoverage" @click="${this._changeTab}" class="tab-title">Gene Coverage
                             </a>
                         </li>
                         ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY" ? html`
@@ -162,25 +162,25 @@ class VariantInterpreterQc extends LitElement {
                 </div>
                 
                 <div class="content-tab-wrapper">
-                    <div id="${this._prefix}Summary" role="tabpanel" class="tab-pane active container content-tab">
+                    <div id="${this._prefix}Overview" role="tabpanel" class="tab-pane active container content-tab">
                         <variant-interpreter-qc-summary .opencgaSession="${this.opencgaSession}" 
                                                         .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                        .active="${this.activeTab["Summary"]}">
+                                                        .active="${this.activeTab["Overview"]}">
                         </variant-interpreter-qc-summary>
                     </div>
-                    <div id="${this._prefix}Variants" role="tabpanel" class="tab-pane content-tab">
+                    <div id="${this._prefix}VariantQc" role="tabpanel" class="tab-pane content-tab">
                         <variant-interpreter-qc-variant .opencgaSession="${this.opencgaSession}" 
                                                         .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                        .active="${this.activeTab["Variants"]}">
+                                                        .active="${this.activeTab["VariantQc"]}">
                         </variant-interpreter-qc-variant>
                     </div>
-                    <div id="${this._prefix}Alignment" role="tabpanel" class="tab-pane container content-tab">
+                    <div id="${this._prefix}AlignmentQc" role="tabpanel" class="tab-pane container content-tab">
                         <variant-interpreter-qc-alignment   .opencgaSession="${this.opencgaSession}" 
                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            .active="${this.activeTab["Alignment"]}">
+                                                            .active="${this.activeTab["AlignmentQc"]}">
                         </variant-interpreter-qc-alignment>
                     </div>
-                    <div id="${this._prefix}Coverage" role="tabpanel" class="tab-pane container content-tab">
+                    <div id="${this._prefix}GeneCoverage" role="tabpanel" class="tab-pane container content-tab">
                         <variant-interpreter-qc-gene-coverage   .opencgaSession="${this.opencgaSession}" 
                                                                 .cellbaseClient="${this.cellbaseClient}"
                                                                 .clinicalAnalysis="${this.clinicalAnalysis}"
