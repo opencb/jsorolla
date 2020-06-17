@@ -45,14 +45,37 @@ export class JobMonitor extends LitElement {
             danger: "fa ffa fa-exclamation-circle fa-2x",
             error: "fa ffa fa-exclamation-circle fa-2x"
         };
+        this._jobs = [];
         this.jobs = [];
         this.filteredJobs = [];
+        this.updatedCnt = 0;
     }
 
     updated(_changedProperties) {
         if (_changedProperties.has("opencgaSession")) {
-            this.lastJobs();
+            this.interval = setInterval(() => {
+                this.lastJobs();
+            },5000);
         }
+    }
+
+    async applyUpdated() {
+        //oldList and newList are always the same length
+        const oldList = this._jobs;
+        const newList = this.jobs;
+        this.updatedCnt = 0;
+        // TODO nested loop for identify new jobs, not just state changes
+        this.jobs = oldList.map((a, i) => {
+            if (a.id !== newList[i].id || a.internal.status.name !== newList[i].internal.status.name) {
+                console.error("JOB UPDATED", a.id , newList[i].id)
+                this.updatedCnt++;
+                return {...newList[i], updated: true}
+            } else {
+                return {...newList[i], updated: false}
+            }
+        })
+        await this.requestUpdate();
+        this._jobs = this.jobs;
     }
 
     lastJobs() {
@@ -60,8 +83,12 @@ export class JobMonitor extends LitElement {
         const lastDays = moment(new Date());
         const d = lastDays.subtract(10, "d").format("YYYYMMDD");
         this.opencgaSession.opencgaClient.jobs().search({study: this.opencgaSession.study.fqn, internalStatus: "DONE,ERROR,PENDING,QUEUED,RUNNING", limit: 10, sort: "creationDate", order: -1}).then( restResponse => {
+            // first call
+            if (!this._jobs.length) {
+                this._jobs = restResponse.getResults();
+            }
             this.jobs = restResponse.getResults();
-            this.jobs.sort((a, b) => a.internal.status.name < b.internal?.status.name ? 1 : -1);
+            //this.jobs.sort((a, b) => a.internal.status.name < b.internal?.status.name ? 1 : -1);
             this.filteredJobs = this.jobs;
             /*this.running = this.jobs.filter( job => ["PENDING", "QUEUED", "RUNNING"].includes(job?.internal?.status.name))
             this.done = this.jobs.filter( job => ["DONE", "ERROR"].includes(job?.internal?.status.name) /!*job?.execution?.end >= lastDays.valueOf()*!/)
@@ -84,8 +111,8 @@ export class JobMonitor extends LitElement {
         return html`
             <ul class="nav navbar-nav navbar-right notification-nav">
                 <li class="notification">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                        <span class="badge badge-pill badge-primary ${!this.jobs.length > 0 ? "invisible" : ""}">${this.jobs.length}</span> <i class="fas fa-rocket"></i>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" @click="${this.applyUpdated}">
+                        <span class="badge badge-pill badge-primary ${this.updatedCnt > 0 ? "" : "invisible"}">${this.updatedCnt}</span> <i class="fas fa-rocket"></i>
                     </a>
                     <ul class="dropdown-menu">
                         <!-- <li class="info">Jobs done since your last access ${moment(this.opencgaSession.user.configs.IVA.lastAccess).format("DD-MM-YYYY HH:mm:ss")}</li> -->
@@ -96,14 +123,15 @@ export class JobMonitor extends LitElement {
                         </li>
                         ${this.filteredJobs.length ? this.filteredJobs.map(job => html`
                             <li>
-                                <a href="#">
+                                <a href="javascript: void 0" class="${job.updated ? `updated status-${job?.internal?.status?.name}` : ""}">
                                     <div class="media">
                                         <div class="media-left">
                                             <i class="fas fa-rocket"></i>
                                         </div>
                                         <div class="media-body">
-                                            <small>${job.tool.id}</small> | 
-                                            <small>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
+                                            ${job.updated ? html`<span class="badge">NEW</span>` : ""}
+                                            <small>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small> |
+                                            <small>${job.tool.id}</small>
                                             <h4 class="media-heading">${job.id}</h4>
                                             <p>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status?.name))}</p> 
                                         </div>
@@ -117,7 +145,7 @@ export class JobMonitor extends LitElement {
                         `}
                     </ul>
                 </li>
-            </ul>            
+            </ul>
             `;
     }
 

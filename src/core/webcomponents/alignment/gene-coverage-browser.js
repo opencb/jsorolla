@@ -223,7 +223,7 @@ export default class GeneCoverageBrowser extends LitElement {
                             <data-form .data="${{}}" .config="${this.getGeneFilterConfig()}" @submit="${this.onRun}"></data-form>
                         </div>
                     </div>
-                    this.geneIds ${JSON.stringify(this.geneIds)}
+
                     <div class="col-md-12">
                         <h3>Gene Coverage</h3>
                         ${this.loading ? html`
@@ -234,9 +234,14 @@ export default class GeneCoverageBrowser extends LitElement {
                             <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
                                 <div class="btn-group" role="group">
                                     ${this.geneIds && this.geneIds.length ? this.geneIds.map( id => html`
-                                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab[id]})}" @click="${this.onClickPill}" data-id="${id}">
-                                            <i class="fa fa-table icon-padding" aria-hidden="true"></i> ${id} 
-                                        </button><span class="close" data-id="${id}" @click="${this.removeGene}"><i class="fa fa-times-circle"></i></span>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab[id]})}" @click="${this.onClickPill}" data-id="${id}">
+                                                <i class="fa fa-table icon-padding" aria-hidden="true"></i> ${id} 
+                                            </button>
+                                            <button type="button" class="btn btn-success ripple">
+                                                <span class="close" data-id="${id}" @click="${this.removeGene}"><i class="fa fa-times-circle"></i></span>
+                                            </button>
+                                        </div>
                                     `) : null}
                                 </div>
                             </div>
