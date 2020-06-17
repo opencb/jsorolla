@@ -481,7 +481,8 @@ export default class OpencgaIndividualGrid extends LitElement {
             },
             {
                 title: "Status",
-                field: "status.name",
+                field: "internal.status",
+                formatter: field => `${field.name} (${UtilsNew.dateFormatter(field.date)})`,
                 halign: this._config.header.horizontalAlign
             }
         ];

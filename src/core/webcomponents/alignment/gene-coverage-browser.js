@@ -80,7 +80,7 @@ export default class GeneCoverageBrowser extends LitElement {
 
     selectGene(e) {
         console.log("selectGene", e)
-        debugger
+        //debugger
         this.geneIds = e.detail.value.split(",");
         // this.fetchData(this.geneIds);
         // this.requestUpdate();
@@ -89,6 +89,10 @@ export default class GeneCoverageBrowser extends LitElement {
     onClickPill(e) {
         // e.preventDefault();
         this._changeView(e.currentTarget.dataset.id);
+    }
+
+    removeGene(e) {
+        console.log("remove gene", e.currentTarget.dataset.id);
     }
 
     _changeView(tabId) {
@@ -121,8 +125,8 @@ export default class GeneCoverageBrowser extends LitElement {
     }
 
     onRun() {
-        this.geneIds;
-        debugger
+        //this.geneIds;
+        //debugger
         this.fetchData(this.geneIds);
         this.requestUpdate();
     }
@@ -219,8 +223,9 @@ export default class GeneCoverageBrowser extends LitElement {
                             <data-form .data="${{}}" .config="${this.getGeneFilterConfig()}" @submit="${this.onRun}"></data-form>
                         </div>
                     </div>
-                    
+                    this.geneIds ${JSON.stringify(this.geneIds)}
                     <div class="col-md-12">
+                        <h3>Gene Coverage</h3>
                         ${this.loading ? html`
                             <div id="loading">
                                 <loading-spinner></loading-spinner>
@@ -230,14 +235,13 @@ export default class GeneCoverageBrowser extends LitElement {
                                 <div class="btn-group" role="group">
                                     ${this.geneIds && this.geneIds.length ? this.geneIds.map( id => html`
                                         <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab[id]})}" @click="${this.onClickPill}" data-id="${id}">
-                                            <i class="fa fa-table icon-padding" aria-hidden="true"></i> ${id}
-                                        </button>
+                                            <i class="fa fa-table icon-padding" aria-hidden="true"></i> ${id} 
+                                        </button><span class="close" data-id="${id}" @click="${this.removeGene}"><i class="fa fa-times-circle"></i></span>
                                     `) : null}
                                 </div>
                             </div>
                             ${this.stats.map(geneCoverageStat => html`
                                 <div id="${geneCoverageStat.geneName}" class="content-tab ${classMap({active: this.activeTab[geneCoverageStat.geneName]})}">
-                                    <h3>Gene Coverage ${geneCoverageStat.geneName} </h3>
                                     <gene-coverage-grid .opencgaSession="${this.opencgaSession}"
                                                     .config="${this._config?.filter?.grid}"
                                                     .stats="${geneCoverageStat.stats}"

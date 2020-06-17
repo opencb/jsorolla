@@ -197,6 +197,12 @@ class VariantInterpreter extends LitElement {
         }
 
         return html`
+            <style>
+                variant-interpreter-interpretation .page-title {
+                    background: transparent;
+                }
+            </style>
+            
             <div class="row">
             ${this.clinicalAnalysis && this.clinicalAnalysis.id ? html`
                 <tool-header title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>` }" icon="${this._config.icon}"></tool-header>

@@ -215,7 +215,8 @@ export default class OpencgaIndividualBrowser extends LitElement {
                     pageSize: 10,
                     pageList: [10, 25, 50],
                     detailView: true,
-                    multiSelection: false
+                    multiSelection: false,
+                    showSelectCheckbox: false
                 },
                 gridComparator: {
                     pageSize: 5,

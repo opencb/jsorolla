@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
+import "../../text-icon.js";
 import "./opencga-analysis-tool-form.js";
 
 
@@ -84,12 +85,16 @@ export default class OpencgaAnalysisTool extends LitElement {
         }
 
         return html`
+            <tool-header title="${this.config.title}" icon="${this.config.icon}"></tool-header>
+            <!-- <tool-header title="${`<text-icon title="${this.config.title}" acronym="${this.config.acronym ? this.config.acronym : this.config.title[0] + this.config.title[1] + this.config.title[2].toLowerCase()}"></text-icon>` + this.config.title}"></tool-header> -->
+
+
             <div class="container">
-                <!-- Header -->
+                <!-- Header
                 <div style="padding: 20px">
                     <h2 class="list-item-arrow">${this.config.title}</h2>
-                </div>
-                
+                </div> -->
+                               
                 <opencga-analysis-tool-form .opencgaSession=${this.opencgaSession} 
                                             .config="${this.config.form}"
                                             @analysisRun="${this.onAnalysisRun}">

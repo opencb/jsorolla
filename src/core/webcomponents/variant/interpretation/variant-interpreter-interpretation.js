@@ -167,10 +167,10 @@ class VariantInterpreterInterpretation extends LitElement {
                 <div class="content-tab-wrapper">
                     ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
                         ? html`
-                            <div id="${this._prefix}RdTiering" role="tabpanel" class="tab-pane content-tab active">
+                            <div id="${this._prefix}RdTiering" role="tabpanel" class="tab-pane content-tab container active">
                                 <opencga-rd-tiering-analysis .opencgaSession="${this.opencgaSession}"></opencga-rd-tiering-analysis>
                             </div>
-                            <div id="${this._prefix}Zetta" role="tabpanel" class="tab-pane content-tab">
+                            <div id="${this._prefix}Zetta" role="tabpanel" class="tab-pane content-tab container">
                                 <opencga-rd-tiering-analysis .opencgaSession="${this.opencgaSession}"></opencga-rd-tiering-analysis>
                             </div>`
                         : ""

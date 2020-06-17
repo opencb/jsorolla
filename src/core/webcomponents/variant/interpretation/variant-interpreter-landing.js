@@ -218,7 +218,7 @@ class VariantInterpreterLanding extends LitElement {
         this.opencgaSession.opencgaClient.clinical().search({study: this.opencgaSession.study.fqn, limit: 10})
             .then(response => {
                 this.lastClinicalAnalysis = response.responses[0].results.map(value => value.id);
-                debugger
+                //debugger
                 this.requestUpdate();
             })
             .catch(response => {

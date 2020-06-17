@@ -18,14 +18,6 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../utilsNew.js";
 
-export class JobMonitorQ {
-
-    constructor() {
-    }
-
-
-}
-
 export class JobMonitor extends LitElement {
 
     constructor() {
@@ -59,17 +51,16 @@ export class JobMonitor extends LitElement {
 
     updated(_changedProperties) {
         if (_changedProperties.has("opencgaSession")) {
-            this.lastJobsDone();
+            this.lastJobs();
         }
     }
 
-    lastJobsDone() {
+    lastJobs() {
         const lastAccess = moment(this.opencgaSession.user.configs.IVA.lastAccess).format("YYYYMMDDHHmmss"); // NOTE: we use creationDate as we cannot query execution.end
         const lastDays = moment(new Date());
-        const d = lastDays.subtract(7, "d").format("YYYYMMDD");
-        this.opencgaSession.opencgaClient.jobs().search({study: this.opencgaSession.study.fqn, "internal.status.name": "DONE,ERROR,PENDING,QUEUED,RUNNING", creationDate: ">=" + d}).then( restResponse => {
+        const d = lastDays.subtract(10, "d").format("YYYYMMDD");
+        this.opencgaSession.opencgaClient.jobs().search({study: this.opencgaSession.study.fqn, internalStatus: "DONE,ERROR,PENDING,QUEUED,RUNNING", limit: 10, sort: "creationDate", order: -1}).then( restResponse => {
             this.jobs = restResponse.getResults();
-            console.log(this.jobs.map(job=>job.internal.status.name))
             this.jobs.sort((a, b) => a.internal.status.name < b.internal?.status.name ? 1 : -1);
             this.filteredJobs = this.jobs;
             /*this.running = this.jobs.filter( job => ["PENDING", "QUEUED", "RUNNING"].includes(job?.internal?.status.name))
@@ -97,36 +88,33 @@ export class JobMonitor extends LitElement {
                         <span class="badge badge-pill badge-primary ${!this.jobs.length > 0 ? "invisible" : ""}">${this.jobs.length}</span> <i class="fas fa-rocket"></i>
                     </a>
                     <ul class="dropdown-menu">
-                        ${this.jobs.length ? html`
-                            <!-- <li class="info">Jobs done since your last access ${moment(this.opencgaSession.user.configs.IVA.lastAccess).format("DD-MM-YYYY HH:mm:ss")}</li> -->
-                            <li class="info">
-                                <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple">ALL</button>
-                                <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="PENDING,QUEUED,RUNNING">Running</button>
-                                <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="DONE,ERROR">Done</button>
-                            </li>
-                            ${this.filteredJobs.length ? this.filteredJobs.map(job => html`
-                                <li>
-                                    <a href="#">
-                                        <div class="media">
-                                            <div class="media-left">
-                                                <i class="fas fa-rocket"></i>
-                                            </div>
-                                            <div class="media-body">
-                                                <h4 class="media-heading">${job.id}</h4>
-                                                <small>${job.tool.id}</small> | 
-                                                <small>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
-                                                <p>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status?.name))}</p> 
-                                            </div>
+                        <!-- <li class="info">Jobs done since your last access ${moment(this.opencgaSession.user.configs.IVA.lastAccess).format("DD-MM-YYYY HH:mm:ss")}</li> -->
+                        <li class="info">
+                            <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple">ALL</button>
+                            <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="PENDING,QUEUED,RUNNING">Running</button>
+                            <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="DONE,ERROR">Done</button>
+                        </li>
+                        ${this.filteredJobs.length ? this.filteredJobs.map(job => html`
+                            <li>
+                                <a href="#">
+                                    <div class="media">
+                                        <div class="media-left">
+                                            <i class="fas fa-rocket"></i>
                                         </div>
-                                     </a>
-                                </li>
-                            `) : html`
-                                <li>
-                                    <a> No jobs </a>
-                                </li>
-                            `}
-                        ` : null}
-                        
+                                        <div class="media-body">
+                                            <small>${job.tool.id}</small> | 
+                                            <small>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
+                                            <h4 class="media-heading">${job.id}</h4>
+                                            <p>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status?.name))}</p> 
+                                        </div>
+                                    </div>
+                                 </a>
+                            </li>
+                        `) : html`
+                            <li>
+                                <a> No jobs </a>
+                            </li>
+                        `}
                     </ul>
                 </li>
             </ul>            

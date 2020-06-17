@@ -88,7 +88,7 @@ export default class OpencgaSampleBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "Sample Browser",
-            icon: "fas fa-chart-bar",
+            icon: "fab fa-searchengin",
             searchButtonText: "Run",
             views: [
                 {
