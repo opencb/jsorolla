@@ -135,7 +135,14 @@ export default class DiseaseFilter extends LitElement {
     }
 
     filterChange(e) {
-        const select_vals = $("#" + this._prefix + "DiseasePanels").val() || [];
+        let select_vals;
+        if (this.mode === "gene") {
+            select_vals = [$("#" + this._prefix + "Genes").val()] || [];
+        } else {
+            select_vals = $("#" + this._prefix + "DiseasePanels").val() || [];
+        }
+
+        console.log(select_vals)
 
         // const select_vals = $("#" + this._prefix + "DiseasePanels").val() || [];
         const value = select_vals && select_vals.length ? select_vals.join(",") : null;

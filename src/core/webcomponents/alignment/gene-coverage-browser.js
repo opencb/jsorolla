@@ -43,12 +43,6 @@ export default class GeneCoverageBrowser extends LitElement {
             cellbaseClient: {
                 type: Object
             },
-            /*query: { //TODO is that supposed to be used to define the BAM file
-                type: Object
-            },*/
-            panelIds: {
-                type: Object
-            },
             file: {
                 type: String
             }
@@ -63,6 +57,7 @@ export default class GeneCoverageBrowser extends LitElement {
         this.activeTab = {};
         this.loading = false;
         this.transcriptCoverageDetail = {};
+        this.geneIds = [];
         // this.file = "SonsAlignedBamFile.bam";
     }
 
@@ -79,11 +74,11 @@ export default class GeneCoverageBrowser extends LitElement {
     }
 
     selectGene(e) {
-        console.log("selectGene", e)
-        debugger
-        this.geneIds = e.detail.value.split(",");
-        // this.fetchData(this.geneIds);
-        // this.requestUpdate();
+        this.selectedGene = e.detail.value;
+        //TODO this.geneIds is initialized, yet here is undefined
+        this.geneIds = [...this.geneIds, e.detail.value];
+        this.requestUpdate();
+        this.fetchData(this.geneIds);
     }
 
     onClickPill(e) {
@@ -109,7 +104,7 @@ export default class GeneCoverageBrowser extends LitElement {
         this.loading = true;
         //debugger
         await this.requestUpdate();
-        this.opencgaSession.opencgaClient.alignments().statsCoverage(this.file, geneIds, {study: this.opencgaSession.study.fqn})
+        this.opencgaSession.opencgaClient.alignments().statsCoverage(this.file, geneIds.join(","), {study: this.opencgaSession.study.fqn})
             .then( restResponse => {
                 if(restResponse.getResults().length > 0) {
                     this.stats = restResponse.getResults();
@@ -126,8 +121,9 @@ export default class GeneCoverageBrowser extends LitElement {
     }
 
     onRun() {
-        this.geneIds = ["BRCA2"];
-        this.fetchData(this.geneIds[0]);
+        //this.geneIds = ["BRCA2"];
+        //this.fetchData(this.geneIds[0]);
+        console.log("run! run!", this.geneIds)
         this.requestUpdate();
     }
 
@@ -138,6 +134,7 @@ export default class GeneCoverageBrowser extends LitElement {
             type: "form",
             buttons: {
                 show: true,
+                okText: "Confirm"
             },
             display: {
                 labelWidth: 3,
@@ -154,7 +151,7 @@ export default class GeneCoverageBrowser extends LitElement {
                             display: {
                                 width: "9",
                                 render: () => {
-                                    return html`<feature-filter .cellbaseClient="${this.cellbaseClient}" @filterChange="${this.selectGene}"></feature-filter>`;
+                                    return html`<feature-filter .cellbaseClient="${this.cellbaseClient}" .config=${{addButton: false}} @filterChange="${this.selectGene}"></feature-filter>`;
                                 }
                             }
                         },
@@ -168,7 +165,7 @@ export default class GeneCoverageBrowser extends LitElement {
                                                         .diseasePanels="${this.opencgaSession.study.panels}" 
                                                         mode="gene"
                                                         .config="${this.config}" 
-                                                        @filterChange="${e => this.onFilterChange("panel", e.detail.value)}">
+                                                        @filterChange="${this.selectGene}">
                                         </disease-filter>`
                                 }
                             }
@@ -178,6 +175,7 @@ export default class GeneCoverageBrowser extends LitElement {
                             type: "custom",
                             display: {
                                 width: "9",
+                                visible: false,
                                 render: () => {
                                     const config = {
                                         dataSource: (query, process) => {
@@ -277,7 +275,7 @@ export default class GeneCoverageBrowser extends LitElement {
                                     </gene-coverage-grid>
                                     <gene-coverage-detail .transcriptCoverageStat="${this.transcriptCoverageDetail?.[geneCoverageStat.geneName]}" .config="${this._config.filter.detail}" .opencgaSession="${this.opencgaSession}"></gene-coverage-detail>
                                 </div>
-                        `)}` : null}
+                        `)}` : html`<div class="alert alert-info" role="alert"><i class="fas fa-3x fa-info-circle align-middle"></i> Select a Gene. </div>`}
                     </div>
                 </div>`
             : null;

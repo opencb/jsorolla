@@ -83,12 +83,12 @@ export default class FeatureFilter extends LitElement {
     getDefaultConfig() {
         return {
             fields: item => ({
-                name: item.id
+                name: item.name
             }),
             dataSource: (query, process) => {
-                this.cellbaseClient.get("feature", "id", query.toUpperCase(), "starts_with", {limit: 50}, {})
+                this.cellbaseClient.get("feature", "id", query.toUpperCase(), "starts_with", {limit: 20}, {})
                     .then(restResponse => {
-                        process(restResponse.response[0].result);
+                        process(restResponse.response[0].result.map(this._config.fields));
                     });
             }
         };

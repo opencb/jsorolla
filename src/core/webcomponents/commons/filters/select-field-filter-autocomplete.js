@@ -87,7 +87,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
             autoSelect: true,
             displayText: item => {
                 const {name, ...rest} = item;
-                return name + (rest ? Object.entries(rest).map(([label, value]) => `<p class="dropdown-item-extra"><label>${label}</label> ${value}</p>`).join("") : "");
+                return name + (rest ? Object.entries(rest).map(([label, value]) => `<p class="dropdown-item-extra"><label>${label}</label> ${value || "-"}</p>`).join("") : "");
             },
             highlighter: Object,
             afterSelect: item => {
@@ -149,7 +149,9 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
 
     addTerm() {
         if (this.input.val()) {
-            this.selectionList.push(this.input.val().split(new RegExp("[,;]")).filter(Boolean));
+            // selection without addButton (straight in the dropdown) in selectpicker causes duplicates
+            const selection = [...this.selectionList, ...this.input.val().split(new RegExp("[,;]")).filter(Boolean)];
+            this.selectionList = [...new Set(selection)];
             this.filterChange();
 
             // addButton implies multiple mode
