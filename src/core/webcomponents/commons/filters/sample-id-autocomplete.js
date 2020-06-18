@@ -60,9 +60,7 @@ export default class SampleIdAutocomplete extends LitElement {
         return {
             fields: item => ({
                 name: item.id,
-                secondary: {
-                    "Individual ID": item?.attributes?.OPENCGA_INDIVIDUAL?.id || ""
-                }
+                "Individual ID": item?.attributes?.OPENCGA_INDIVIDUAL?.id || ""
             }),
             dataSource: (query, process) => {
                 const filters = {

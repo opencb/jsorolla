@@ -79,8 +79,7 @@ export default class GeneCoverageDetail extends LitElement {
                 },
                 {
                     id: "transcript-detail",
-                    name: "Details",
-                    active: true,
+                    name: "Low coverage",
                     render: (transcriptCoverageStat, active, opencgaSession) => {
                         return html`<gene-coverage-view .transcript="${transcriptCoverageStat}"></gene-coverage-view>`;
                     }

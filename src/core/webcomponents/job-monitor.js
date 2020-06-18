@@ -82,22 +82,28 @@ export class JobMonitor extends LitElement {
         const oldList = this._jobs;
         const newList = this.jobs;
         this.updatedCnt = 0;
-        // TODO nested loop for identify new jobs, not just state changes
-        this.jobs = oldList.map((a, i) => {
-            if (a.id !== newList[i].id || a.internal.status.name !== newList[i].internal.status.name) {
-                console.error("JOB UPDATED", a.id , newList[i].id)
-                this.updatedCnt++;
-                return {...newList[i], updated: true}
+        // k is the counter of the new jobs
+        const k = newList.findIndex(job => job.id === oldList[0].id) ?? 10;
+        this.jobs = newList.map((job, i) => {
+            if (i < k) {
+                //handle the new jobs
+                return {...job, updated: true};
             } else {
-                return {...newList[i], updated: false}
+                //handle the change of state
+                if (job.internal.status.name !== oldList[i - k].internal.status.name) {
+                    return {...job, updated: true};
+                } else {
+                    return {...job, updated: false};
+                }
             }
-        })
+        });
+        this.updatedCnt = k;
         await this.requestUpdate();
         this._jobs = this.jobs;
     }
 
     fetchLastJobs() {
-        // const lastAccess = moment(this.opencgaSession.user.configs.IVA.lastAccess).format("YYYYMMDDHHmmss"); // NOTE: we use creationDate as we cannot query execution.end
+        // const lastAccess = moment(this.opencgaSession.user.configs.IVA.lastAccess).format("YYYYMMDDHHmmss"); // NOTE: we use creationDate because we cannot query execution.end
         // const lastDays = moment(new Date());
         // const d = lastDays.subtract(10, "d").format("YYYYMMDD");
         const query = {
@@ -114,7 +120,6 @@ export class JobMonitor extends LitElement {
                     this._jobs = restResponse.getResults();
                 }
                 this.jobs = restResponse.getResults();
-                //this.jobs.sort((a, b) => a.internal.status.name < b.internal?.status.name ? 1 : -1);
                 this.filteredJobs = this.jobs;
                 // this.running = this.jobs.filter( job => ["PENDING", "QUEUED", "RUNNING"].includes(job?.internal?.status.name))
                 // this.done = this.jobs.filter( job => ["DONE", "ERROR"].includes(job?.internal?.status.name) /!*job?.execution?.end >= lastDays.valueOf()*!/)

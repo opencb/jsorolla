@@ -298,7 +298,7 @@ class VariantInterpreterLanding extends LitElement {
                                             };
                                             this.opencgaSession.opencgaClient.clinical().search(filters).then(restResponse => {
                                                 const results = restResponse.getResults();
-                                                process(results.map( item => ({name: item.id, secondary: {Proband: item?.proband?.id}})));
+                                                process(results.map( item => ({name: item.id, Proband: item?.proband?.id})));
                                             });
                                         }
                                     }

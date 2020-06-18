@@ -179,7 +179,18 @@ export default class GeneCoverageBrowser extends LitElement {
                             display: {
                                 width: "9",
                                 render: () => {
-                                    return html`<feature-filter .cellbaseClient="${this.cellbaseClient}"></feature-filter>`;
+                                    const config = {
+                                        dataSource: (query, process) => {
+                                            this.cellbaseClient.get("feature", "gene", null, "search", {limit: 10, "annotation.disease.id": "^" + query.toUpperCase()}, {})
+                                                .then(restResponse => {
+                                                    process(restResponse.response[0].result.map( item => ({
+                                                        name: item.id,
+                                                        //disease: "annotation.disease.id"
+                                                    })));
+                                                });
+                                        }
+                                    }
+                                    return html`<select-field-filter-autocomplete .config=${config} @filterChange="${this.selectGene}"></select-field-filter-autocomplete>`;
                                 }
                             }
                         },

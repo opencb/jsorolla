@@ -86,9 +86,8 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
             minLength: this._config.searchMinLength,
             autoSelect: true,
             displayText: item => {
-                //return this._config.template(item);
-                //return item.name + "<p class=\"dropdown-item-extra\"><label>Individual ID</label>" + item.individual + "</p>";
-                return item.name + (item.secondary ? Object.entries(item.secondary).map(([label, value]) => `<p class="dropdown-item-extra"><label>${label}</label> ${value}</p>`).join("") : "");
+                const {name, ...rest} = item;
+                return name + (rest ? Object.entries(rest).map(([label, value]) => `<p class="dropdown-item-extra"><label>${label}</label> ${value}</p>`).join("") : "");
             },
             highlighter: Object,
             afterSelect: item => {

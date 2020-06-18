@@ -63,10 +63,9 @@ export default class FileNameAutocomplete extends LitElement {
             placeholder: "eg. samples.tsv, phenotypes.vcf...",
             fields: item => ({
                 name: item.name,
-                secondary: {
-                    "Format": item.format || "",
-                    "Size": UtilsNew.getDiskUsage(item.size)
-                }
+                Format: item.format || "",
+                Size: UtilsNew.getDiskUsage(item.size)
+
             }),
             dataSource: (query, process) => {
                 const filters = {
