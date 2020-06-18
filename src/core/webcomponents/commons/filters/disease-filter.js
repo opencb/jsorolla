@@ -56,6 +56,7 @@ export default class DiseaseFilter extends LitElement {
         this._prefix = "ff-" + UtilsNew.randomString(6) + "_";
         this._panel = [];
         this._config = this.getDefaultConfig();
+        this.genes = [];
     }
 
     firstUpdated(_changedProperties) {
@@ -84,8 +85,8 @@ export default class DiseaseFilter extends LitElement {
             // $(`select#${this._prefix}DiseasePanels`).selectpicker("val", this._panel);
             // this.showPanelGenes(this._panel);
             if (this.diseasePanels) {
-                this.genes = this.diseasePanels && this.diseasePanels.genes ? this.diseasePanels.genes : ["AA"];
-                this.requestUpdate();
+                this.genes = this.diseasePanels?.[0].genes ?? [];
+                this.requestUpdate().then(() => $(`select#${this._prefix}Genes`, this).selectpicker("refresh"));
             }
         }
 
@@ -124,37 +125,35 @@ export default class DiseaseFilter extends LitElement {
         }
     }
 
+    panelChange(e) {
+        const select_val = $("#" + this._prefix + "DiseasePanels").val() || [];
+
+        this.genes = this.diseasePanels.find( diseasePanel => diseasePanel.id === select_val)?.genes ?? [];
+        // let genes = this.genes.map(gene => gene.name);
+        // $(`select#${this._prefix}Genes`).selectpicker('val', genes);
+        this.requestUpdate().then( () => $(`select#${this._prefix}Genes`).selectpicker("refresh"));
+    }
+
     filterChange(e) {
         const select_vals = $("#" + this._prefix + "DiseasePanels").val() || [];
-        if (this.mode === "gene") {
-            for (const diseasePanel of this.diseasePanels) {
-                if (diseasePanel.id === select_vals) {
-                    this.genes = diseasePanel.genes ? diseasePanel.genes : ["BB"];
-                    break;
-                }
-            }
-            // let genes = this.genes.map(gene => gene.name);
-            // $(`select#${this._prefix}Genes`).selectpicker('val', genes);
-            this.requestUpdate();
-            $(`select#${this._prefix}Genes`).selectpicker("refresh");
-        } else {
-            // const select_vals = $("#" + this._prefix + "DiseasePanels").val() || [];
-            const value = select_vals && select_vals.length ? select_vals.join(",") : null;
-            // this.showPanelGenes(select_vals);
-            const event = new CustomEvent("filterChange", {
-                detail: {
-                    value: value
-                },
-                bubbles: true,
-                composed: true
-            });
-            this.dispatchEvent(event);
-        }
+
+        // const select_vals = $("#" + this._prefix + "DiseasePanels").val() || [];
+        const value = select_vals && select_vals.length ? select_vals.join(",") : null;
+        // this.showPanelGenes(select_vals);
+        const event = new CustomEvent("filterChange", {
+            detail: {
+                value: value
+            },
+            bubbles: true,
+            composed: true
+        });
+        this.dispatchEvent(event);
+
     }
 
     getDefaultConfig() {
         return {
-            showSummary: false,
+            showSummary: false
         };
     }
 
@@ -164,7 +163,7 @@ export default class DiseaseFilter extends LitElement {
         if (this.mode !== "gene") {
             return html`
                 <div>
-                    <select id="${this._prefix}DiseasePanels" class="selectpicker" data-size="10" data-live-search="true" data-selected-text-format="count" multiple @change="${e => this.filterChange(e)}">
+                    <select id="${this._prefix}DiseasePanels" class="selectpicker" data-size="10" data-live-search="true" data-selected-text-format="count" multiple @change="${this.filterChange}">
                         ${this.diseasePanels && this.diseasePanels.length && this.diseasePanels.map(panel => html`
                             <option value="${panel.id}">
                                 ${panel.name}
@@ -175,16 +174,16 @@ export default class DiseaseFilter extends LitElement {
                     </select>
                     
                     ${this._config.showSummary
-                        ? html`
-                            <textarea id="${this._prefix}DiseasePanelsTextarea" class="form-control" rows="4" style="margin-top: 5px;background: #f7f7f7" disabled> </textarea>`
-                        : null
-                    }
+                ? html`
+                    <textarea id="${this._prefix}DiseasePanelsTextarea" class="form-control" rows="4" style="margin-top: 5px;background: #f7f7f7" disabled> </textarea>`
+                : null
+            }
                 </div>
         `;
         } else {
             return html`
                 <div>
-                    <select id="${this._prefix}DiseasePanels" class="selectpicker" data-size="10" data-live-search="true" @change="${e => this.filterChange(e)}">
+                    <select id="${this._prefix}DiseasePanels" class="selectpicker" data-size="10" data-live-search="true" @change="${this.panelChange}">
                         ${this.diseasePanels && this.diseasePanels.length && this.diseasePanels.map(panel => html`
                             <option value="${panel.id}">
                                 ${panel.name}
@@ -193,9 +192,8 @@ export default class DiseaseFilter extends LitElement {
                             </option>
                         `)}
                     </select>
-                 
-                    <select id="${this._prefix}Genes" class="selectpicker" data-size="10" data-live-search="true" @change="${e => this.filterChange(e)}">
-                        ${this.genes && this.genes.length && this.genes.map(gene => html`
+                    <select id="${this._prefix}Genes" class="selectpicker" data-size="10" data-live-search="true" @change="${this.filterChange}">
+                        ${this.genes.length && this.genes.map(gene => html`
                             <option value="${gene.name}">
                                 ${gene.name} (${gene.id})
                             </option>

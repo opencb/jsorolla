@@ -107,14 +107,13 @@ export default class GeneCoverageBrowser extends LitElement {
 
     async fetchData(geneIds) {
         this.loading = true;
-        debugger
+        //debugger
         await this.requestUpdate();
         this.opencgaSession.opencgaClient.alignments().statsCoverage(this.file, geneIds, {study: this.opencgaSession.study.fqn})
             .then( restResponse => {
                 if(restResponse.getResults().length > 0) {
                     this.stats = restResponse.getResults();
                     this.activeTab[this.stats[0].geneName] = true;
-                    debugger
                 } else {
                     this.stats = [];
                 }
@@ -224,6 +223,13 @@ export default class GeneCoverageBrowser extends LitElement {
     render() {
         return this._config
             ? html`
+                <style>
+                    
+                    .coverage-table-close {
+                        margin-left: 10px;
+                    }
+                </style>
+                
                 <div class="row">
                     <div class="col-md-10">
                         <h3>Select a gene</h3>
@@ -245,9 +251,7 @@ export default class GeneCoverageBrowser extends LitElement {
                                         <div class="btn-group">
                                             <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab[id]})}" @click="${this.onClickPill}" data-id="${id}">
                                                 <i class="fa fa-table icon-padding" aria-hidden="true"></i> ${id} 
-                                            </button>
-                                            <button type="button" class="btn btn-success ripple">
-                                                <span class="close" data-id="${id}" @click="${this.removeGene}"><i class="fa fa-times-circle"></i></span>
+                                                <span class="coverage-table-close close" data-id="${id}" @click="${this.removeGene}"><i class="fa fa-times-circle"></i></span>
                                             </button>
                                         </div>
                                     `) : null}
