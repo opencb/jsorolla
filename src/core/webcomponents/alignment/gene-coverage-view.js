@@ -109,8 +109,79 @@ export default class GeneCoverageView extends LitElement {
                             field: "lowCoverageThreshold"
                         },
                         {
+                            name: "Exons Stats",
+                            field: "exonStats",
+                            type: "table",
+                            display: {
+                                columns: [
+                                    {
+                                        name: "Exon ID",
+                                        type: "custom",
+                                        display: {
+                                            render: data => {
+                                                return html`<a href="http://www.ensembl.org/Homo_sapiens/Transcript/Exons?db=core;r=13:32315086-32400266;t=${this.transcript.id}" target="_blank">${data.id}</a>`;
+                                            }
+                                        }
+                                    },
+                                    {
+                                        name: "Region",
+                                        type: "complex",
+                                        display: {
+                                            template: "${chromosome}:${start}-${end}"
+                                        }
+                                    },
+                                    {
+                                        name: "Size",
+                                        type: "custom",
+                                        display: {
+                                            render: data => {
+                                                if (data) {
+                                                    return data.end - data.start + 1
+                                                } else {
+                                                    return "N/A";
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        name: "Mean Depth",
+                                        field: "depthAvg",
+                                        type: "custom",
+                                        display: {
+                                            render: field => {
+                                                let color = field < 20 ? "red" : field < 30 ? "darkorange" : "black";
+                                                return html`<span style="color: ${color}">${field.toFixed(2)}</span>`;
+                                            }
+                                        }
+                                    },
+                                    {
+                                        name: "Min Depth",
+                                        field: "depthMin",
+                                        type: "custom",
+                                        display: {
+                                            render: field => {
+                                                let color = field < 20 ? "red" : field < 30 ? "darkorange" : "black";
+                                                return html`<span style="color: ${color}">${field.toFixed(2)}</span>`;
+                                            }
+                                        }
+                                    },
+                                    {
+                                        name: "Max Depth",
+                                        field: "depthMax",
+                                        type: "custom",
+                                        display: {
+                                            render: field => {
+                                                let color = field < 20 ? "red" : field < 30 ? "darkorange" : "black";
+                                                return html`<span style="color: ${color}">${field.toFixed(2)}</span>`;
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
                             name: "Low Coverage Regions",
-                            field: "lowCoverageRegions",
+                            field: "lowCoverageRegionStats",
                             type: "table",
                             display: {
                                 columns: [
@@ -118,12 +189,11 @@ export default class GeneCoverageView extends LitElement {
                                         name: "Region",
                                         type: "complex",
                                         display: {
-                                            template: "<strong>${chromosome}:${start}-${end}</strong>"
+                                            template: "${chromosome}:${start}-${end}"
                                         }
                                     },
                                     {
                                         name: "Size",
-                                        // field: "",
                                         type: "custom",
                                         display: {
                                             render: data => {
@@ -137,12 +207,12 @@ export default class GeneCoverageView extends LitElement {
                                     },
                                     {
                                         name: "% of exon",
-                                        // field: "",
                                         type: "custom",
                                         display: {
                                             render: data => {
                                                 if (data) {
-                                                    return (data.end - data.start + 1) / this.transcript.length
+                                                    let perc = (data.end - data.start + 1) / this.transcript.length;
+                                                    return perc.toExponential(2);
                                                 } else {
                                                     return "N/A";
                                                 }

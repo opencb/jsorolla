@@ -62,7 +62,7 @@ export default class GeneCoverageGrid extends LitElement {
         this.errorState = false;
 
         // this.coverageArray = [1, 5, 10, 15, 20, 25, 30, 40, 50, 60];
-        this.coverageQuality = [100, 95, 90, 85, 80, 75, 70, 65, 60, 55];
+        this.coverageQuality = [100, 95, 90, 85, 80, 75, 70, 65, 60, 55, 50, 50];
     }
 
     connectedCallback() {
@@ -269,6 +269,18 @@ export default class GeneCoverageGrid extends LitElement {
                 field: "depths.9",
                 formatter: this.percentageFormatter,
                 cellStyle: this.cellStyle.bind(this)
+            },
+            {
+                title: "> 75x",
+                field: "depths.10",
+                formatter: this.percentageFormatter,
+                cellStyle: this.cellStyle.bind(this)
+            },
+            {
+                title: "> 100x",
+                field: "depths.11",
+                formatter: this.percentageFormatter,
+                cellStyle: this.cellStyle.bind(this)
             }
         ];
 
@@ -283,7 +295,7 @@ export default class GeneCoverageGrid extends LitElement {
         // Check if user clicked in Tab or JSON format
         if (e.detail.option.toLowerCase() === "tab") {
             dataString = [
-                ["transcript Id", "> 1x", "> 5x", "> 10x", "> 15x", "> 20x", "> 25x", "> 30x", "> 40x", "> 50x", "> 60x"].join("\t"),
+                ["transcript Id", "> 1x", "> 5x", "> 10x", "> 15x", "> 20x", "> 25x", "> 30x", "> 40x", "> 50x", "> 60x", , "> 75x", , "> 100x"].join("\t"),
                 ...result.map(_ => [
                     _.id,
                     ..._.depths

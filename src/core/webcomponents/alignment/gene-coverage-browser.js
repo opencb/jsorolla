@@ -80,7 +80,7 @@ export default class GeneCoverageBrowser extends LitElement {
 
     selectGene(e) {
         console.log("selectGene", e)
-        //debugger
+        debugger
         this.geneIds = e.detail.value.split(",");
         // this.fetchData(this.geneIds);
         // this.requestUpdate();
@@ -107,12 +107,14 @@ export default class GeneCoverageBrowser extends LitElement {
 
     async fetchData(geneIds) {
         this.loading = true;
+        debugger
         await this.requestUpdate();
         this.opencgaSession.opencgaClient.alignments().statsCoverage(this.file, geneIds, {study: this.opencgaSession.study.fqn})
             .then( restResponse => {
                 if(restResponse.getResults().length > 0) {
                     this.stats = restResponse.getResults();
                     this.activeTab[this.stats[0].geneName] = true;
+                    debugger
                 } else {
                     this.stats = [];
                 }
@@ -125,9 +127,8 @@ export default class GeneCoverageBrowser extends LitElement {
     }
 
     onRun() {
-        //this.geneIds;
-        //debugger
-        this.fetchData(this.geneIds);
+        this.geneIds = ["BRCA2"];
+        this.fetchData(this.geneIds[0]);
         this.requestUpdate();
     }
 
@@ -201,8 +202,15 @@ export default class GeneCoverageBrowser extends LitElement {
                     items: [
                         {
                             id: "transcript-detail",
-                            name: "Details",
+                            name: "Overview",
                             active: true,
+                            render: (transcriptCoverageStat, active, opencgaSession) => {
+                                return html`<gene-coverage-view .transcript="${transcriptCoverageStat}"></gene-coverage-view>`;
+                            }
+                        },
+                        {
+                            id: "transcript-detail",
+                            name: "Low Coverage Regions",
                             render: (transcriptCoverageStat, active, opencgaSession) => {
                                 return html`<gene-coverage-view .transcript="${transcriptCoverageStat}"></gene-coverage-view>`;
                             }
