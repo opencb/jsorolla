@@ -169,14 +169,14 @@ export default class OpencgaJobsGrid extends LitElement {
         }
     }
 
-    /**
+    /*/!**
      * If filters have been removed, clean the values from the forms.
-     */
+     *!/
     onFilterUpdate() {
-        // this.updateForms(this.filters); //TODO recheck, this shouldn't be necessary anymore (and it seems not)
-    }
+        this.updateForms(this.filters); //TODO recheck, this shouldn't be necessary anymore (and it seems not)
+    }*/
 
-    // TODO adapct to jobs
+    /*// TODO adapt to jobs
     onSearch() {
         // Convert the filters to an objectParam that can be directly send to the file search
         const filterParams = {};
@@ -213,18 +213,9 @@ export default class OpencgaJobsGrid extends LitElement {
             filterParams["variableSetId"] = this.filteredVariables.variableSet;
         }
         this.query = filterParams;
-    }
+    }*/
 
     _initTableColumns() {
-        const columns = [];
-        /* if (this._config.multiselection) {
-            columns.push({
-                field: {source: "state", context: this},
-                checkbox: true,
-                formatter: this.stateFormatter
-            });
-        }*/
-
         this._columns = [
             // name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid"
             {

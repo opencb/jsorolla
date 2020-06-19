@@ -182,6 +182,8 @@ export default class OpencgaBrowser extends LitElement {
                 field: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
             };
             this._changeView("facet-tab");
+        } else {
+           this.facetQuery = null;
         }
     }
 

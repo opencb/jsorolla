@@ -83,7 +83,7 @@ export class JobMonitor extends LitElement {
         const newList = this.jobs;
         this.updatedCnt = 0;
         // k counts the new jobs
-        const k = newList.findIndex(job => job.id === oldList[0].id) ?? 10;
+        const k = newList.findIndex(job => job.id === oldList[0].id) ?? newList.length;
         this.jobs = newList.map((job, i) => {
             if (i < k) {
                 //handle the new jobs
@@ -114,12 +114,13 @@ export class JobMonitor extends LitElement {
             order: -1
         };
         this.opencgaSession.opencgaClient.jobs().search(query)
-            .then( restResponse => {
+            .then( async restResponse => {
                 // first call
                 if (!this._jobs.length) {
                     this._jobs = restResponse.getResults();
                 }
                 this.jobs = restResponse.getResults();
+                await this.applyUpdated();
                 this.filteredJobs = this.jobs;
                 // this.running = this.jobs.filter( job => ["PENDING", "QUEUED", "RUNNING"].includes(job?.internal?.status.name))
                 // this.done = this.jobs.filter( job => ["DONE", "ERROR"].includes(job?.internal?.status.name) /!*job?.execution?.end >= lastDays.valueOf()*!/)
@@ -148,6 +149,10 @@ export class JobMonitor extends LitElement {
         }));
     }
 
+    toggleDropdown() {
+        this.dropdown = !this.dropdown;
+    }
+
     getDefaultConfig() {
         return {
             limit: 10,
@@ -159,7 +164,7 @@ export class JobMonitor extends LitElement {
         return html`
             <ul class="nav navbar-nav navbar-right notification-nav">
                 <li class="notification">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" @click="${this.applyUpdated}">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" @click="${this.toggleDropdown}">
                         <span class="badge badge-pill badge-primary ${this.updatedCnt > 0 ? "" : "invisible"}">${this.updatedCnt}</span> <i class="fas fa-rocket"></i>
                     </a>
                     <ul class="dropdown-menu">

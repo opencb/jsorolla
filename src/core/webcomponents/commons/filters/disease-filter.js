@@ -189,23 +189,21 @@ export default class DiseaseFilter extends LitElement {
         `;
         } else {
             return html`
-                <div>
-                    <select id="${this._prefix}DiseasePanels" class="selectpicker" data-size="10" data-live-search="true" @change="${this.panelChange}">
-                        ${this.diseasePanels && this.diseasePanels.length && this.diseasePanels.map(panel => html`
-                            <option value="${panel.id}">
-                                ${panel.name}
-                                ${panel.source ? "v" + panel.source.version : ""}
-                                ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}
-                            </option>
-                        `)}
-                    </select>
-                    <select id="${this._prefix}Genes" class="selectpicker" data-size="10" data-live-search="true" @change="${this.filterChange}">
-                        ${this.genes.length && this.genes.map(gene => html`
-                            <option value="${gene.name}">
-                                ${gene.name} (${gene.id})
-                            </option>
-                        `)}
-                    </select>
+                <div class="row">
+                    <div class="col-md-4">
+                        <select id="${this._prefix}DiseasePanels" class="selectpicker" data-size="10" data-live-search="true" @change="${this.panelChange}">
+                            ${this.diseasePanels && this.diseasePanels.length && this.diseasePanels.map(panel => html`
+                                <option value="${panel.id}">
+                                    ${panel.name}
+                                    ${panel.source ? "v" + panel.source.version : ""}
+                                    ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}
+                                </option>
+                            `)}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <select-field-filter .data="${this.genes.map( gene => ({id:gene.name, name: `${gene.name} (${gene.id})`}))}" @filterChange="${e => console.log(e)}"></select-field-filter>
+                    </div>
                 </div>
             `;
         }

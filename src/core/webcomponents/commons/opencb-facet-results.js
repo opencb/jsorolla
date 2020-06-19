@@ -76,7 +76,7 @@ class OpencbFacetResults extends LitElement {
 
         this._config = this.getDefaultConfig();
 
-        this.data = [];
+        this.facetResults = [];
     }
 
     firstUpdated(_changedProperties) {
@@ -87,6 +87,7 @@ class OpencbFacetResults extends LitElement {
             this.queryObserver();
         }
         if (changedProperties.has("query")) {
+            console.log("facet query changed", this.query)
             this.queryObserver();
         }
         if (changedProperties.has("config")) {
@@ -101,26 +102,30 @@ class OpencbFacetResults extends LitElement {
     queryObserver() {
         // executedQuery in opencga-variant-browser has changed so, if requested,  we have to repeat the facet query
         this.facetResults = [];
-        this.loading = true;
-        this.errorState = false;
         this.requestUpdate();
-        this.endpoint(this.resource).aggregationStats(this.query, {})
-            .then(restResponse => {
-                this.errorState = false;
-                this.facetResults = restResponse.getResults() || [];
-                console.log("this.facetResults", this.facetResults);
-            })
-            .catch(restResponse => {
-                if (restResponse.getEvents("ERROR").length) {
-                    console.log(restResponse.getEvents("ERROR").map(error => error.message).join("\n"));
-                } else {
-                    console.log("Unknown error");
-                }
-            })
-            .finally(() => {
-                this.loading = false;
-                this.requestUpdate();
-            });
+        if (this.query) {
+            this.loading = true;
+            this.errorState = false;
+            this.requestUpdate();
+            this.endpoint(this.resource).aggregationStats(this.query, {})
+                .then(restResponse => {
+                    this.errorState = false;
+                    this.facetResults = restResponse.getResults() || [];
+                })
+                .catch(restResponse => {
+                    if (restResponse.getEvents("ERROR").length) {
+                        console.log(restResponse.getEvents("ERROR"))
+                        this.errorState = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
+                    } else {
+                        console.log("Unknown error");
+                        this.errorState = "Unknown Server Error";
+                    }
+                })
+                .finally(() => {
+                    this.loading = false;
+                    this.requestUpdate();
+                });
+        }
     }
 
     configObserver() {
@@ -177,7 +182,6 @@ class OpencbFacetResults extends LitElement {
         this.requestUpdate();
     }
 
-    // TODO add default configuration for variant, file, sample, individual, family, cohort, clinical analysis
     getDefaultConfig() {
         return {
         };
@@ -186,17 +190,6 @@ class OpencbFacetResults extends LitElement {
     render() {
         return html`
         <style>
-            option:disabled {
-                font-size: 0.85em;
-                font-weight: bold;
-            }
-
-            .active-filter-button:hover {
-                text-decoration: line-through;
-            }
-            .deletable:hover {
-                text-decoration: line-through;
-            }
             #loading {
                 text-align: center;
                 margin-top: 40px;
@@ -213,7 +206,7 @@ class OpencbFacetResults extends LitElement {
                     ${this.errorState}
                 </div>
             ` : null}
-            ${this.facetResults?.length ? this.facetResults.map(item => html`
+            ${this.facetResults.length ? this.facetResults.map(item => html`
                 <div>
                     <h3>${item.name}</h3>
                     <opencga-facet-result-view .facetResult="${item}"

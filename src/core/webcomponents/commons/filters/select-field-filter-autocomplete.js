@@ -149,16 +149,17 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
 
     addTerm() {
         if (this.input.val()) {
-            // selection without addButton (straight in the dropdown) in selectpicker causes duplicates
-            const selection = [...this.selectionList, ...this.input.val().split(new RegExp("[,;]")).filter(Boolean)];
-            this.selectionList = [...new Set(selection)];
-            this.filterChange();
-
-            // addButton implies multiple mode
-            if(this._config.addButton) {
+            if(this._config.multiple) {
                 this.input.val("").change();
+                const selection = [...this.selectionList, ...this.input.val().split(new RegExp("[,;]")).filter(Boolean)];
+                // selection without addButton (straight in the dropdown) in selectpicker causes duplicates
+                this.selectionList = [...new Set(selection)];
+            } else {
+                //single item
+                this.selectionList = this.input.val().split(new RegExp("[,;]")).filter(Boolean);
             }
-            this.requestUpdate();
+            this.filterChange();
+            //this.requestUpdate();
         }
     }
 
@@ -211,6 +212,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
             fileUpload: false,
             showList: false,
             addButton: true,
+            multiple: true,
             fields: item => ({name: item.id}),
             dataSource: (query, process) => {
                 throw new Error("dataSource not defined");
