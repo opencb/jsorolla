@@ -684,7 +684,7 @@ export default class DataForm extends LitElement {
             }
         }
         if (data) {
-            return html`<simple-plot .active="${true}" type="${element.display.chart}" title="${element.name}" .data="${data}"></simple-plot>`;
+            return html`<simple-chart .active="${true}" type="${element.display.chart}" title="${element.name}" .data="${data}"></simple-chart>`;
         } else {
             return this._getErrorMessage(element);
         }

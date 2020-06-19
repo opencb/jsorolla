@@ -170,10 +170,10 @@ class SampleVariantStatsView extends LitElement {
                                         <div class="">
                                             <div class="row">
                                                 <div class="col-md-6">
-                                                    <simple-plot .active="${true}" type="pie" title="Genotypes" .data="${data.genotypeCount}"></simple-plot>
+                                                    <simple-chart .active="${true}" type="pie" title="Genotypes" .data="${data.genotypeCount}"></simple-chart>
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <simple-plot .active="${true}" type="pie" title="Filters" .data="${data.filterCount}"></simple-plot>
+                                                    <simple-chart .active="${true}" type="pie" title="Filters" .data="${data.filterCount}"></simple-chart>
                                                 </div>  
                                             </div>
                                         </div>
