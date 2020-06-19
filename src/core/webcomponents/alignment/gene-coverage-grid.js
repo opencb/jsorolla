@@ -42,7 +42,7 @@ export default class GeneCoverageGrid extends LitElement {
             geneIds: {
                 type: String
             },
-            stats: {
+            transcriptCoverageStats: {
                 type: Array
             },
             config: {
@@ -52,12 +52,12 @@ export default class GeneCoverageGrid extends LitElement {
     }
 
     _init() {
-        this._prefix = "gcgrid" + UtilsNew.randomString(6) + "_";
+        this._prefix = "gcgrid" + UtilsNew.randomString(6);
         this.gridId = this._prefix + "GeneBrowserGrid";
 
         this.file = "SonsAlignedBamFile.bam";
         //this.gene = "TP53"; // TODO remove
-        this.stats = null;
+        this.transcriptCoverageStats = null;
         this.loading = false;
         this.errorState = false;
 
@@ -81,29 +81,25 @@ export default class GeneCoverageGrid extends LitElement {
         if (changedProperties.has("opencgaSession") || changedProperties.has("geneIds")) {
             //this.renderTable();
         }
-        if (changedProperties.has("stats")) {
+        if (changedProperties.has("transcriptCoverageStats")) {
             this.renderLocalTable();
         }
         if (changedProperties.has("config")) {
-            this.configObserver();
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 
-    configObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
     renderLocalTable() {
-        console.log("renderLocalTable", this.stats)
+        console.log("renderLocalTable", this.transcriptCoverageStats)
         this.from = 1;
-        this.to = Math.min(this.stats.length, this._config.pageSize);
-        this.numTotalResultsText = this.stats.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        this.to = Math.min(this.transcriptCoverageStats.length, this._config.pageSize);
+        this.numTotalResultsText = this.transcriptCoverageStats.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            data: this.transcriptCoverageStats,
             columns: this._initTableColumns(),
-            data: this.stats,
             sidePagination: "local",
             // Set table properties, these are read from config property
             uniqueId: "id",
@@ -137,7 +133,7 @@ export default class GeneCoverageGrid extends LitElement {
                 this.errorState = false;
                 $(this.table).bootstrapTable("destroy");
                 $(this.table).bootstrapTable({
-                    //data: this.stats,
+                    //data: this.transcriptCoverageStats,
                     columns: this._columns,
                     uniqueId: "id",
                     // Table properties
@@ -151,8 +147,8 @@ export default class GeneCoverageGrid extends LitElement {
                     ajax: params => {
                         this.opencgaSession.opencgaClient.alignments().statsCoverage(this.file, this.geneIds, {study: this.opencgaSession.study.fqn})
                             .then( restResponse => {
-                                this.stats = restResponse.getResults()[0].stats;
-                                params.success(this.stats);
+                                this.transcriptCoverageStats = restResponse.getResults()[0].stats;
+                                params.success(this.transcriptCoverageStats);
                             })
                             .catch( e => console.error(e));
                     },
@@ -179,14 +175,17 @@ export default class GeneCoverageGrid extends LitElement {
             }
         } catch (e) {
             console.error(e);
-            this.stats = null;
+            this.transcriptCoverageStats = null;
             this.errorState = "Error from the Server";
             this.requestUpdate();
         }
     }
 
     transcriptIdFormatter(value, row) {
-        return row.id + "<br>" + row.biotype;
+        return `<a href="http://www.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=${row.id}" target="_blank">${row.id}</a>
+                <br>
+                <em>${row.biotype}</em>
+        `;
     }
 
     percentageFormatter(value) {
@@ -288,7 +287,7 @@ export default class GeneCoverageGrid extends LitElement {
     }
 
     onDownload(e) {
-        const result = this.stats;
+        const result = this.transcriptCoverageStats;
         let dataString = [];
         let mimeType = "";
         let extension = "";

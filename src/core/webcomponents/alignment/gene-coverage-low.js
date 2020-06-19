@@ -19,7 +19,7 @@ import UtilsNew from "../../utilsNew.js";
 import "../commons/view/data-form.js";
 
 
-export default class GeneCoverageView extends LitElement {
+export default class GeneCoverageLow extends LitElement {
 
     constructor() {
         super();
@@ -102,25 +102,23 @@ export default class GeneCoverageView extends LitElement {
                             field: "length"
                         },
                         {
-                            name: "Exons Stats",
-                            field: "exonStats",
+                            name: "Low Coverage Threshold",
+                            field: "lowCoverageThreshold"
+                        },
+                        {
+                            name: "Low Coverage Regions",
+                            field: "lowCoverageRegionStats",
                             type: "table",
                             display: {
                                 columns: [
                                     {
-                                        name: "Exon ID",
+                                        name: "Region",
                                         type: "custom",
                                         display: {
                                             render: data => {
-                                                return html`<a href="http://www.ensembl.org/Homo_sapiens/Transcript/Exons?db=core;r=13:32315086-32400266;t=${data.id}" target="_blank">${data.id}</a>`;
+                                                let region = `${data.chromosome}:${data.start}-${data.end}`;
+                                                return html`<a href="http://www.ensembl.org/Homo_sapiens/Location/View?db=core;r=${region}" target="_blank">${region}</a>`;
                                             }
-                                        }
-                                    },
-                                    {
-                                        name: "Region",
-                                        type: "complex",
-                                        display: {
-                                            template: "${chromosome}:${start}-${end}"
                                         }
                                     },
                                     {
@@ -137,41 +135,38 @@ export default class GeneCoverageView extends LitElement {
                                         }
                                     },
                                     {
-                                        name: "Mean Depth",
+                                        name: "% of exon",
+                                        type: "custom",
+                                        display: {
+                                            render: data => {
+                                                if (data) {
+                                                    let perc = (data.end - data.start + 1) / this.transcriptCoverageStats.length;
+                                                    return perc.toExponential(2);
+                                                } else {
+                                                    return "N/A";
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        name: "Mean depth",
                                         field: "depthAvg",
                                         type: "custom",
                                         display: {
-                                            render: field => {
-                                                let color = field < 20 ? "red" : field < 30 ? "darkorange" : "black";
-                                                return html`<span style="color: ${color}">${field.toFixed(2)}</span>`;
-                                            }
+                                            render: field => field.toFixed(2)
                                         }
                                     },
                                     {
-                                        name: "Min Depth",
+                                        name: "Min depth",
                                         field: "depthMin",
                                         type: "custom",
                                         display: {
-                                            render: field => {
-                                                let color = field < 20 ? "red" : field < 30 ? "darkorange" : "black";
-                                                return html`<span style="color: ${color}">${field.toFixed(2)}</span>`;
-                                            }
-                                        }
-                                    },
-                                    {
-                                        name: "Max Depth",
-                                        field: "depthMax",
-                                        type: "custom",
-                                        display: {
-                                            render: field => {
-                                                let color = field < 20 ? "red" : field < 30 ? "darkorange" : "black";
-                                                return html`<span style="color: ${color}">${field.toFixed(2)}</span>`;
-                                            }
+                                            render: field => field.toFixed(2)
                                         }
                                     }
                                 ]
                             }
-                        },
+                        }
                     ]
                 }
             ]
@@ -186,5 +181,4 @@ export default class GeneCoverageView extends LitElement {
 
 }
 
-customElements.define("gene-coverage-view", GeneCoverageView);
-
+customElements.define("gene-coverage-low", GeneCoverageLow);

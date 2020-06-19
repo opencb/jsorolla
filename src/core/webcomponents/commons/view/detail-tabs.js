@@ -84,7 +84,7 @@ export default class DetailTabs extends LitElement {
             ${this._config.showTitle 
                 ? html`
                     <div class="panel">
-                        <h2>&nbsp;${this._config.title} ${this.data.id}</h2>
+                        <h3>&nbsp;${this._config.title} ${this.data.id}</h3>
                     </div>` 
                 : null
             }
@@ -111,8 +111,6 @@ export default class DetailTabs extends LitElement {
                     : null}
                 </div>
             </div>
-            
-            
         `;
     }
 }

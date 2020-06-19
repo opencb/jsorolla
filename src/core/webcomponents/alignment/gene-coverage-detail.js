@@ -16,7 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-
+import "./gene-coverage-view.js";
+import "./gene-coverage-low.js";
 
 export default class GeneCoverageDetail extends LitElement {
 
@@ -34,7 +35,7 @@ export default class GeneCoverageDetail extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            transcriptCoverageStat: {
+            transcriptCoverageStats: {
                 type: Object
             },
             config: {
@@ -50,11 +51,11 @@ export default class GeneCoverageDetail extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.transcriptCoverageStat = null;
+            this.transcriptCoverageStats = null;
         }
 
-        if (changedProperties.has("transcriptCoverageStat") && this.transcriptCoverageStat) {
-            this._config.title = `Transcript ${this.transcriptCoverageStat.id}`;
+        if (changedProperties.has("transcriptCoverageStats") && this.transcriptCoverageStats) {
+            this._config.title = `Transcript ${this.transcriptCoverageStats.id}`;
             this.requestUpdate();
         }
 
@@ -70,18 +71,18 @@ export default class GeneCoverageDetail extends LitElement {
             showTitle: true,
             items: [
                 {
-                    id: "transcript-detail",
-                    name: "Details",
+                    id: "overview",
+                    name: "Overview",
                     active: true,
-                    render: (transcriptCoverageStat, active, opencgaSession) => {
-                        return html`<gene-coverage-view .transcript="${transcriptCoverageStat}"></gene-coverage-view>`;
+                    render: (transcriptCoverageStats, active, opencgaSession) => {
+                        return html`<gene-coverage-view .transcriptCoverageStats="${transcriptCoverageStats}"></gene-coverage-view>`;
                     }
                 },
                 {
-                    id: "transcript-detail",
-                    name: "Low coverage",
-                    render: (transcriptCoverageStat, active, opencgaSession) => {
-                        return html`<gene-coverage-view .transcript="${transcriptCoverageStat}"></gene-coverage-view>`;
+                    id: "low-coverage",
+                    name: "Low Coverage Regions",
+                    render: (transcriptCoverageStats, active, opencgaSession) => {
+                        return html`<gene-coverage-low .transcriptCoverageStats="${transcriptCoverageStats}"></gene-coverage-low>`;
                     }
                 }
             ]
@@ -89,9 +90,9 @@ export default class GeneCoverageDetail extends LitElement {
     }
 
     render() {
-        if (this.opencgaSession && this.transcriptCoverageStat) {
+        if (this.opencgaSession && this.transcriptCoverageStats) {
             return html`
-                <detail-tabs .data="${this.transcriptCoverageStat}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`;
+                <detail-tabs .data="${this.transcriptCoverageStats}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`;
         } else {
             return html`<h3>No valid session or transcript found</h3>`;
         }
