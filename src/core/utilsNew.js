@@ -1,4 +1,4 @@
-import {html} from "../../../../web_modules/lit-element.js";
+import {html} from "/web_modules/lit-element.js";
 
 export default class UtilsNew {
 

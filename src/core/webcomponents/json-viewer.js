@@ -51,15 +51,11 @@ export default class JsonViewer extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    firstUpdated(_changedProperties) {
-        if(this.data) {
-            $(".json-renderer", this).jsonViewer(this.data);
-        }
-    }
-
     updated(changedProperties) {
-        if(changedProperties.has("property")) {
-            //this.propertyObserver();
+        if(changedProperties.has("data")) {
+            if(this.data) {
+                $(".json-renderer", this).jsonViewer(this.data);
+            }
         }
     }
 

@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import "../json-viewer.js";
 import UtilsNew from "../../utilsNew.js";
 
 
@@ -76,13 +77,15 @@ export default class OpencgaFilePreview extends LitElement {
     fileObserver() {
         const params = {
             study: this.opencgaSession.study.fqn,
-            includeIndividual: true
+            includeIndividual: true,
+            lines: 200
         };
 
-        const extension = this.file.id.split(".").pop();
+        const extension = this.file.id.split(".").pop(); // TODO handle multiple dots extensions (vcf.gz)
         switch (extension) {
             case "log":
             case "err":
+            case "gz":
                 this.contentType = "text";
                 this.opencgaSession.opencgaClient.files().head(this.file.id, params)
                     .then( response => {
@@ -109,8 +112,17 @@ export default class OpencgaFilePreview extends LitElement {
                         //this.requestUpdate();
                     });
                 break;
+            case "bam":
+                this.contentType = "bam";
+                this.opencgaSession.opencgaClient.files().info(this.file.id, {study: this.opencgaSession.study.fqn})
+                    .then( response => {
+                        const {attributes} = response.getResult(0);
+                        this.content = attributes?.alignmentHeader ?? {content: "No content"};
+                        this.requestUpdate();
+                    })
+                break;
             default:
-                this.content = "Extension not recognized";
+                this.content = "Extension not recognized: " + extension;
         }
 
         this.url = this.opencgaSession.server.host + "/webservices/rest/" + this.opencgaSession.server.version + "/files/" + this.file.id + "/download?study=" + this.opencgaSession.study.fqn + "&sid=" + this.opencgaSession.token;
@@ -164,9 +176,9 @@ export default class OpencgaFilePreview extends LitElement {
                              
         </style>
         
-        <div class="button-wrapper">
+        <!--<div class="button-wrapper">
             <a class="btn btn-primary ripple" href="${this.url}">Download</a>
-        </div>
+        </div>-->
         ${this.file ? html`
             <div class="row" style="padding: 0px 10px">
                 <div class="col-md-12">
@@ -176,6 +188,9 @@ export default class OpencgaFilePreview extends LitElement {
                     ${this.contentType === "image" ? html`
                         <h3 class="section-title">Image</h3>
                         <img class="img-thumbnail" id="thumbnail" />` : null}
+                    ${this.contentType === "bam" ? html`
+                        <json-viewer .data="${this.content}"></json-viewer>'
+                        ` : null}
                 </div>
             </div>
         ` : null }

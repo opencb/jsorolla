@@ -264,6 +264,18 @@ export default class OpencgaFileGrid extends LitElement {
             {
                 title: "Index",
                 field: "internal.index.status.name"
+            },
+            {
+                title: "Manage",
+                field: "id",
+                formatter: (value, row) => {
+                    const url = this.opencgaSession.server.host + "/webservices/rest/" + this.opencgaSession.server.version + "/files/" + value + "/download?study=" + this.opencgaSession.study.fqn + "&sid=" + this.opencgaSession.token
+                    return `<a class="btn btn-small btn-default ripple" href="${url}"> <i class="fas fa-download"></i> Download</a>`
+                },
+                valign: "middle",
+                events: {
+                    "click button": this.downloadFile
+                }
             }
         ];
 
