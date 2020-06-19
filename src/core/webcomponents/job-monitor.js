@@ -141,7 +141,7 @@ export class JobMonitor extends LitElement {
     getDefaultConfig() {
         return {
             limit: 10,
-            interval: 30000
+            interval: 5000
         }
     }
 

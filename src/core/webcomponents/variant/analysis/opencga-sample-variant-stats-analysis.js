@@ -108,6 +108,7 @@ export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
                 }
             },
             execute: (opencgaSession, data, params) => {
+                params.index = true;
                 opencgaSession.opencgaClient.variants().runSampleStats(data, params);
             },
             result: {

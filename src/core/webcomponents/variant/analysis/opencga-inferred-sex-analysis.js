@@ -80,17 +80,17 @@ export default class OpencgaInferredSexAnalysis extends LitElement {
                         collapsed: false,
                         parameters: [
                             {
-                                id: "individual",
-                                title: "Select Individual",
-                                type: "INDIVIDUAL_FILTER",
+                                id: "sample",
+                                title: "Select samples",
+                                type: "SAMPLE_FILTER",
                                 showList: true,
                                 fileUpload: true
                                 // colspan: 6
                             },
                             {
-                                id: "sample",
-                                title: "Select samples",
-                                type: "SAMPLE_FILTER",
+                                id: "individual",
+                                title: "Select Individual",
+                                type: "INDIVIDUAL_FILTER",
                                 showList: true,
                                 fileUpload: true
                                 // colspan: 6
@@ -112,8 +112,12 @@ export default class OpencgaInferredSexAnalysis extends LitElement {
             execute: (opencgaSession, data, params) => {
                 let _data = {};
                 if (data) {
-                    _data.individual = data.individual.join(",");
-                    _data.sample = data.sample.join(",");
+                    if (data.individual) {
+                        _data.individual = data.individual.join(",");
+                    }
+                    if (data.sample) {
+                        _data.sample = data.sample.join(",");
+                    }
                 }
                 opencgaSession.opencgaClient.variants().runInferredSex(_data, params);
             },

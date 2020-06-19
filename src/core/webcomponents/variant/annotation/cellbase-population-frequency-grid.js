@@ -231,8 +231,8 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
     }
 
     render() {
-        if (this.populationFrequencies === undefined) {
-            return;
+        if (!this.populationFrequencies) {
+            return html`<div style="padding: 25px"><h3>No population frequencies found.</h3></div>`;
         }
         return html`
             <div style="padding: 20px">

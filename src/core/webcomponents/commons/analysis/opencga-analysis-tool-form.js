@@ -260,7 +260,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                                     </div>
                                     <div style="padding: 4px 20px; width: 480px">
                                         <label>Job tags</label>
-                                        <text-field-filter placeholder="job tags" .value="" @filterChange="${e => this.onJobFieldChange("jobTags", e.detail.value)}"></text-field-filter>
+                                        <text-field-filter placeholder="Comma-separated tags, eg. variant, stats, ... " .value="" @filterChange="${e => this.onJobFieldChange("jobTags", e.detail.value)}"></text-field-filter>
                                     </div>
                                     <div style="padding: 4px 20px; width: 480px">
                                         <label>Job Description</label>
