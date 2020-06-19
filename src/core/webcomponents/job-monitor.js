@@ -82,7 +82,7 @@ export class JobMonitor extends LitElement {
         const oldList = this._jobs;
         const newList = this.jobs;
         this.updatedCnt = 0;
-        // k is the counter of the new jobs
+        // k counts the new jobs
         const k = newList.findIndex(job => job.id === oldList[0].id) ?? 10;
         this.jobs = newList.map((job, i) => {
             if (i < k) {
@@ -138,6 +138,16 @@ export class JobMonitor extends LitElement {
         this.requestUpdate();
     }
 
+    openJob(jobId) {
+        this.dispatchEvent(new CustomEvent("jobSelected", {
+            detail: {
+                jobId: jobId
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
     getDefaultConfig() {
         return {
             limit: 10,
@@ -162,7 +172,7 @@ export class JobMonitor extends LitElement {
                         ${this.filteredJobs.length 
                             ? this.filteredJobs.map(job => html`
                                 <li>
-                                    <a href="javascript: void 0" class="${job.updated ? `updated status-${job?.internal?.status?.name}` : ""}">
+                                    <a href="#job-view" @click=${() => this.openJob(job.id)} class="${job.updated ? `updated status-${job?.internal?.status?.name}` : ""}">
                                         <div class="media">
                                             <div class="media-left">
                                                 <i class="fas fa-rocket"></i>

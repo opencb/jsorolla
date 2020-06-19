@@ -203,7 +203,7 @@ class VariantInterpreter extends LitElement {
                 }
             </style>
             
-            <div class="row">
+            <div class="">
             ${this.clinicalAnalysis && this.clinicalAnalysis.id ? html`
                 <tool-header title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>` }" icon="${this._config.icon}"></tool-header>
             ` : html`

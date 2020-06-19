@@ -137,6 +137,9 @@ export default class OpencgaJobsView extends LitElement {
                             name: "Tags",
                             field: "tags",
                             type: "list",
+                            display: {
+                                render: field => UtilsNew.renderHTML(`<span class="badge badge-pill badge-primary">${field}</span>`)
+                            },
                             defaultValue: "-"
                         },
                         {

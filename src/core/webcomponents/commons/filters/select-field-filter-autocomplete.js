@@ -206,7 +206,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
         return {
             limit: 10,
             searchMinLength: 1,
-            maxItems: 0,
+            //maxItems: 0,
             limitToShow: 3,
             fileUpload: false,
             showList: false,
