@@ -135,13 +135,13 @@ export default class GeneCoverageLow extends LitElement {
                                         }
                                     },
                                     {
-                                        name: "% of exon",
+                                        name: "% of Transcript",
                                         type: "custom",
                                         display: {
                                             render: data => {
                                                 if (data) {
-                                                    let perc = (data.end - data.start + 1) / this.transcriptCoverageStats.length;
-                                                    return perc.toExponential(2);
+                                                    let perc = (data.end - data.start + 1) * 100 / this.transcriptCoverageStats.length;
+                                                    return perc.toFixed(2);
                                                 } else {
                                                     return "N/A";
                                                 }

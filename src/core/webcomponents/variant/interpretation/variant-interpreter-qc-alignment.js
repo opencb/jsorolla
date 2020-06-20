@@ -16,7 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import "../../commons/view/data-form.js";
+import "../../alignment/alignment-stats-view.js";
+// import "../../commons/view/data-form.js";
 
 class VariantInterpreterQcAlignment extends LitElement {
 
@@ -50,59 +51,12 @@ class VariantInterpreterQcAlignment extends LitElement {
 
     _init() {
         this._prefix = "vcis-" + UtilsNew.randomString(6);
-        this.gridId = this._prefix + "GeneBrowserGrid";
         this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    firstUpdated(_changedProperties) {
-        this.alignmentStats = {
-            "fileId": "bam:SonsAlignedBamFile.bam",
-            "sampleId": "ISDBM322015",
-            "rawTotalSequences": 32116828,
-            "filteredSequences": 0,
-            "sequences": 32116828,
-            "isSorted": 1,
-            "firstFragments": 16058414,
-            "lastFragments": 16058414,
-            "readsMapped": 31299207,
-            "readsMappedAndPaired": 31120474,
-            "readsUnmapped": 817621,
-            "readsProperlyPaired": 30066492,
-            "readsPaired": 32116828,
-            "readsDuplicated": 1121410,
-            "readsMq0": 2369927,
-            "readsQcFailed": 0,
-            "nonPrimaryAlignments": 0,
-            "totalLength": -1404452776,
-            "totalFirstFragmentLength": 1445257260,
-            "totalLastFragmentLength": 1445257260,
-            "basesMapped": 2816928630,
-            "basesMappedCigar": 2812285689,
-            "basesTrimmed": 0,
-            "basesDuplicated": 100926900,
-            "mismatches": 8428924,
-            "errorRate": 0.002997179,
-            "averageLength": 90.0,
-            "averageFirstFragmentLength": 90.0,
-            "averageLastFragmentLength": 90.0,
-            "maximumLength": 90,
-            "maximumFirstFragmentLength": 90,
-            "maximumLastFragmentLength": 90,
-            "averageQuality": 34.8,
-            "insertSizeAverage": 153.6,
-            "insertSizeStandardDeviation": 46.3,
-            "inwardOrientedPairs": 15081995,
-            "outwardOrientedPairs": 452217,
-            "pairsWithOtherOrientation": 12645,
-            "pairsOnDifferentChromosomes": 13380,
-            "percentageOfProperlyPairedReads": 93.6
-        };
-        this.requestUpdate();
     }
 
     updated(changedProperties) {
@@ -124,7 +78,6 @@ class VariantInterpreterQcAlignment extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    // this.setProbandBamFile();
                     this.requestUpdate();
                 })
                 .catch(response => {
@@ -132,16 +85,6 @@ class VariantInterpreterQcAlignment extends LitElement {
                 });
         }
     }
-
-    // setProbandBamFile() {
-    //     if (this.clinicalAnalysis) {
-    //         for (let file of this.clinicalAnalysis.files) {
-    //             if () {
-    //
-    //             }
-    //         }
-    //     }
-    // }
 
     getDefaultConfig() {
         return {
@@ -354,12 +297,13 @@ class VariantInterpreterQcAlignment extends LitElement {
         // Alignment stats are the same for FAMILY and CANCER analysis
         return html`
             <div class="container" style="margin-bottom: 20px">
-                <div style="float: left">
-                    <h2>Alignment Stats</h2>
+                <div>
+                    <h2>QC Alignment Stats</h2>
                 </div>
                 <div>
-                    <table id="${this.gridId}"></table>
+                    <alignment-stats-view .alignmentStats="${this.alignmentStats}"></alignment-stats-view>
                 </div>
+                <!--
                 <div style="padding-left: 15px">
                     ${this.alignmentStats 
                         ? html`
@@ -367,6 +311,7 @@ class VariantInterpreterQcAlignment extends LitElement {
                         : html`No Stats available.`
                     }
                 </div>
+                -->
             </div>
         `;
     }

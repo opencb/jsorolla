@@ -102,7 +102,7 @@ export default class GeneCoverageView extends LitElement {
                             field: "length"
                         },
                         {
-                            name: "Exons Stats",
+                            name: "Exon Stats",
                             field: "exonStats",
                             type: "table",
                             display: {
