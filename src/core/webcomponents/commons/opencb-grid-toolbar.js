@@ -172,9 +172,9 @@ export default class OpencbGridToolbar extends LitElement {
                                            style="padding-right: 5px"></i> Download <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu btn-sm">
-                                        ${this._config.download.length && this._config.download.map(item => html`
+                                        ${this._config.download.length ? this._config.download.map(item => html`
                                                 <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownloadFile}">${item}</a></li>
-                                        `) }
+                                        `) : null}
                                     </ul>
                                 </div>
                 

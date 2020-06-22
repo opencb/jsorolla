@@ -54,6 +54,8 @@ export class JobMonitor extends LitElement {
         this.updatedCnt = 0;
 
         this._config = this.getDefaultConfig();
+
+        this.restCnt = 0;
     }
 
     updated(changedProperties) {
@@ -69,6 +71,8 @@ export class JobMonitor extends LitElement {
 
     launchMonitor() {
         // Make a first query
+        this._jobs = [];
+        this.jobs = [];
         this.fetchLastJobs();
 
         // and then every 'interval' ms
@@ -77,13 +81,15 @@ export class JobMonitor extends LitElement {
         },this._config.interval || 30000);
     }
 
+    // TODO evaluate to add another data-structure to keep track of the job that needs to be highlighted
     async applyUpdated() {
         //oldList and newList are always the same length
         const oldList = this._jobs;
         const newList = this.jobs;
         this.updatedCnt = 0;
-        // k counts the new jobs
-        const k = newList.findIndex(job => job.id === oldList[0].id) ?? newList.length;
+        // `index` is the position of the first job of oldList in newList (newly added jobs are index < k)
+        const index = newList.findIndex(job => job.id === oldList[0].id);
+        const k = index > -1 ? index : newList.length; // -1 occurs iff the whole list is made of new jobs
         this.jobs = newList.map((job, i) => {
             if (i < k) {
                 //handle the new jobs
@@ -113,8 +119,10 @@ export class JobMonitor extends LitElement {
             sort: "creationDate",
             order: -1
         };
+
         this.opencgaSession.opencgaClient.jobs().search(query)
             .then( async restResponse => {
+                console.log("restResponse", restResponse)
                 // first call
                 if (!this._jobs.length) {
                     this._jobs = restResponse.getResults();
@@ -130,6 +138,23 @@ export class JobMonitor extends LitElement {
             .catch( restResponse => {
                 console.error(restResponse)
             })
+
+        /*fetch("http://localhost:5000/" + (this.restCnt % 3))
+            .then( async restResponse => {
+                restResponse = await restResponse.json()
+                console.log("restResponse num.", this.restCnt % 3)
+                // first call
+                if (!this._jobs.length) {
+                    this._jobs = restResponse.responses[0].results;
+                }
+                this.jobs = restResponse.responses[0].results;
+                await this.applyUpdated();
+                this.filteredJobs = this.jobs;
+                this.restCnt++;
+            })
+            .catch( restResponse => {
+                console.error(restResponse)
+            })*/
     }
 
     filterJobs(e) {
@@ -140,6 +165,11 @@ export class JobMonitor extends LitElement {
     }
 
     openJob(jobId) {
+        // -> e.stopPropagation();
+        let job = this.jobs.find(job => job.id === jobId);
+        job.clicked = true;
+        this.requestUpdate();
+
         this.dispatchEvent(new CustomEvent("jobSelected", {
             detail: {
                 jobId: jobId
@@ -177,13 +207,13 @@ export class JobMonitor extends LitElement {
                         ${this.filteredJobs.length 
                             ? this.filteredJobs.map(job => html`
                                 <li>
-                                    <a href="#job-view" @click=${() => this.openJob(job.id)} class="${job.updated ? `updated status-${job?.internal?.status?.name}` : ""}">
+                                    <a href="#job-view" @click=${() => this.openJob(job.id)} class="${job.updated && !job.clicked ? `updated status-${job?.internal?.status?.name}` : ""}">
                                         <div class="media">
                                             <div class="media-left">
                                                 <i class="fas fa-rocket"></i>
                                             </div>
                                             <div class="media-body">
-                                                ${job.updated ? html`<span class="badge">NEW</span>` : ""}
+                                                ${job.updated && !job.clicked ? html`<span class="badge">NEW</span>` : ""}
                                                 <h4 class="media-heading">${job.id}</h4>
                                                 <small>${job.tool.id}</small> |
                                                 <small>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
