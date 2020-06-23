@@ -168,14 +168,14 @@ class AlignmentStatsView extends LitElement {
         if (e.currentTarget.dataset.downloadOption.toLowerCase() === "tab") {
             dataString = [
                 ["key", ...header].join("\t"),
-                d.join("\t")];
+                d.join("\n")];
             // console.log(dataString);
             mimeType = "text/plain";
             extension = ".txt";
         } else {
-            /*dataString = result.map( r => JSON.stringify(r, null, "\t"));
+            dataString = [JSON.stringify(this.alignmentStats, null, "\t")];
             mimeType = "application/json";
-            extension = ".json";*/
+            extension = ".json";
         }
 
         // Build file and anchor link

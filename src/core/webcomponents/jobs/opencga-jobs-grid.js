@@ -386,7 +386,6 @@ export default class OpencgaJobsGrid extends LitElement {
         // let params = urlQueryParams.queryParams;
         const filters = {
             limit: 1000,
-            //sid: this.opencgaSession.opencgaClient._config.sessionId,
             skip: 0,
             count: false,
             study: this.opencgaSession.study.fqn,
@@ -409,7 +408,7 @@ export default class OpencgaJobsGrid extends LitElement {
                                 _.priority,
                                 _.tags,
                                 _.creationDate,
-                                _["internal.status.name"],
+                                _.internal?.status?.name ?? "",
                                 _.visited
                             ].join("\t"))];
                         mimeType = "text/plain";

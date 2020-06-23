@@ -21,9 +21,9 @@ import "./opencb-facet-results.js";
 import "../loading-spinner.js";
 
 
-//TODO delete opencga-variant-facet-query and use this for variant too
-//TODO this components needs cleaning from the old code
-//TODO avg(popFreq__1kG_phase3__AFR)[0..1]:0.1>>avg(popFreq__GNOMAD_GENOMES__EAS[0..1]):0.1
+/**
+ * @deprecated
+ * */
 
 class OpencbFacetQuery extends LitElement {
 
@@ -153,7 +153,6 @@ class OpencbFacetQuery extends LitElement {
         // Join 'query' from left menu and facet filters
         let queryParams = {...this.query,
             study: this.opencgaSession.study.fqn,
-            sid: this.opencgaSession.opencgaClient._config.sessionId,
             fields: this.facetFilters.join(";"),
             timeout: 60000};
 

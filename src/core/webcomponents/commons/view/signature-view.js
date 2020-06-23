@@ -198,7 +198,9 @@ export default class SignatureView extends LitElement {
                     : this.signature ? html` <div id="signature-plot"></div>`
                     : html`<loading-spinner></loading-spinner>`
                 }
-            </div>`
+            </div>
+            <!-- list of files -->`
+
     }
 
 }

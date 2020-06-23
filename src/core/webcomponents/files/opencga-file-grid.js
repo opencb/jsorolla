@@ -270,7 +270,7 @@ export default class OpencgaFileGrid extends LitElement {
                 field: "id",
                 formatter: (value, row) => {
                     const url = this.opencgaSession.server.host + "/webservices/rest/" + this.opencgaSession.server.version + "/files/" + value + "/download?study=" + this.opencgaSession.study.fqn + "&sid=" + this.opencgaSession.token
-                    return `<a class="btn btn-small btn-default ripple" href="${url}"> <i class="fas fa-download"></i> Download</a>`
+                    return `<a class="btn btn-small btn-default ripple" target="_blank" href="${url}"> <i class="fas fa-download"></i> Download</a>`
                 },
                 valign: "middle",
                 events: {
@@ -293,21 +293,18 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     onDownload(e) {
-        // let urlQueryParams = this._getUrlQueryParams();
-        // let params = urlQueryParams.queryParams;
         const params = {
             ...this.query,
             limit: 1000,
-            sid: this.opencgaSession.opencgaClient._config.sessionId,
             skip: 0,
             count: false,
             study: this.opencgaSession.study.fqn,
-            include: "name,path,format,bioformat,creationDate,modificationDate,status",
+            include: "name,path,format,bioformat,size,creationDate,modificationDate,internal",
             type: "FILE"
         };
         this.opencgaSession.opencgaClient.files().search(params)
-            .then(response => {
-                const result = response.response[0].result;
+            .then(restResponse => {
+                const result = restResponse.getResults();
                 let dataString = [];
                 let mimeType = "";
                 let extension = "";
@@ -324,7 +321,7 @@ export default class OpencgaFileGrid extends LitElement {
                                 _.size,
                                 _.creationDate,
                                 _.modificationDate,
-                                _.status.name
+                                _.internal?.status?.name ?? "-"
                             ].join("\t"))];
                         // console.log(dataString);
                         mimeType = "text/plain";

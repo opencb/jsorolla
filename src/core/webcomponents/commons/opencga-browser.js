@@ -409,7 +409,7 @@ export default class OpencgaBrowser extends LitElement {
                         </div>
                         <ul class="nav nav-tabs left-menu-tabs" role="tablist">
                             <li role="presentation" class="active"><a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab">Filters</a></li>
-                            <li role="presentation"><a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">Aggregation</a></li>
+                            ${this._config.aggregation ? html`<li role="presentation"><a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">Aggregation</a></li>` : null}
                         </ul>
                         
                         <div class="tab-content">
@@ -488,12 +488,14 @@ export default class OpencgaBrowser extends LitElement {
                                 ` : null}                                
                             </div>
                             
-                            <div role="tabpanel" class="tab-pane" id="facet_tab" aria-expanded="true">
-                                <facet-filter .config="${this._config.aggregation}"
-                                              .selectedFacet="${this.selectedFacet}"
-                                              @facetQueryChange="${this.onFacetQueryChange}">
-                                </facet-filter>
-                            </div>
+                            ${this._config.aggregation ? html`
+                                <div role="tabpanel" class="tab-pane" id="facet_tab" aria-expanded="true">
+                                    <facet-filter .config="${this._config.aggregation}"
+                                                  .selectedFacet="${this.selectedFacet}"
+                                                  @facetQueryChange="${this.onFacetQueryChange}">
+                                    </facet-filter>
+                                </div>
+                            ` : null}
                         </div>
                     </div>
     

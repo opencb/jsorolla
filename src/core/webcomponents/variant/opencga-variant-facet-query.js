@@ -20,7 +20,9 @@ import PolymerUtils from "../PolymerUtils.js";
 import "../commons/opencga-facet-result-view.js";
 import "../loading-spinner.js";
 
-//TODO this components needs cleaning from the old code
+/**
+* @deprecated
+* */
 
 class OpencgaVariantFacetQuery extends LitElement {
 
@@ -144,7 +146,6 @@ class OpencgaVariantFacetQuery extends LitElement {
         // Join 'query' from left menu and facet filters
         let queryParams = {...this.query,
                 study: this.opencgaSession.study.fqn,
-                sid: this.opencgaSession.opencgaClient._config.sessionId,
                 fields: this.facetFilters.join(";"),
                 timeout: 60000};
 

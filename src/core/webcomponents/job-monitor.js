@@ -17,6 +17,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../utilsNew.js";
+import {classMap} from "/web_modules/lit-html/directives/class-map.js";
+import {NotificationQueue} from "./Notification.js";
 
 export class JobMonitor extends LitElement {
 
@@ -74,11 +76,11 @@ export class JobMonitor extends LitElement {
         this._jobs = [];
         this.jobs = [];
         this.fetchLastJobs();
-
         // and then every 'interval' ms
         this.interval = setInterval(() => {
             this.fetchLastJobs();
-        },this._config.interval || 30000);
+        }, this._config.interval || 30000);
+
     }
 
     // TODO evaluate to add another data-structure to keep track of the job that needs to be highlighted
@@ -86,29 +88,37 @@ export class JobMonitor extends LitElement {
         //oldList and newList are always the same length
         const oldList = this._jobs;
         const newList = this.jobs;
-        this.updatedCnt = 0;
         // `index` is the position of the first job of oldList in newList (newly added jobs are index < k)
         const index = newList.findIndex(job => job.id === oldList[0].id);
         const k = index > -1 ? index : newList.length; // -1 occurs iff the whole list is made of new jobs
         this.jobs = newList.map((job, i) => {
             if (i < k) {
                 //handle the new jobs
+                new NotificationQueue().push(`${job.id}`, `The job has been added`, "", "info");
                 return {...job, updated: true};
             } else {
                 //handle the change of state
                 if (job.internal.status.name !== oldList[i - k].internal.status.name) {
+                    new NotificationQueue().push(`${job.id}`, `The job has now status ${job?.internal?.status?.name}`, "info");
                     return {...job, updated: true};
                 } else {
-                    return {...job, updated: false};
+                    // if the ids are the same I want to keep the `updated` status
+                    //return {...job, updated: false};
+                    return {...oldList[i - k]};
                 }
             }
         });
-        this.updatedCnt = k;
+        // accumulate all the updated (not visited) status
+        this.updatedCnt = this.jobs.reduce((acc, job) => job.updated && !job._visited ? acc + 1 : acc, 0);
         await this.requestUpdate();
         this._jobs = this.jobs;
     }
 
     fetchLastJobs() {
+        if (!this.opencgaSession) {
+            clearInterval(this.interval);
+            return;
+        }
         // const lastAccess = moment(this.opencgaSession.user.configs.IVA.lastAccess).format("YYYYMMDDHHmmss"); // NOTE: we use creationDate because we cannot query execution.end
         // const lastDays = moment(new Date());
         // const d = lastDays.subtract(10, "d").format("YYYYMMDD");
@@ -121,24 +131,25 @@ export class JobMonitor extends LitElement {
         };
 
         this.opencgaSession.opencgaClient.jobs().search(query)
-            .then( async restResponse => {
-                console.log("restResponse", restResponse)
+            .then(async restResponse => {
+                console.log("restResponse", restResponse);
                 // first call
                 if (!this._jobs.length) {
                     this._jobs = restResponse.getResults();
                 }
                 this.jobs = restResponse.getResults();
-                await this.applyUpdated();
                 this.filteredJobs = this.jobs;
+                await this.applyUpdated();
                 // this.running = this.jobs.filter( job => ["PENDING", "QUEUED", "RUNNING"].includes(job?.internal?.status.name))
-                // this.done = this.jobs.filter( job => ["DONE", "ERROR"].includes(job?.internal?.status.name) /!*job?.execution?.end >= lastDays.valueOf()*!/)
+                // this.done = this.jobs.filter( job => ["DONE", "ERROR"].includes(job?.internal?.status.name) /*job?.execution?.end >= lastDays.valueOf()*/)
                 // this.total = this.running.length + this.done.length;
                 // this.requestUpdate();
             })
-            .catch( restResponse => {
-                console.error(restResponse)
-            })
+            .catch(restResponse => {
+                console.error(restResponse);
+            });
 
+        // mock server
         /*fetch("http://localhost:5000/" + (this.restCnt % 3))
             .then( async restResponse => {
                 restResponse = await restResponse.json()
@@ -160,14 +171,14 @@ export class JobMonitor extends LitElement {
     filterJobs(e) {
         e.stopPropagation();
         const types = e.currentTarget.dataset?.type?.split(",");
-        this.filteredJobs = this.jobs.filter( job => types?.includes(job.internal.status.name) ?? 1)
+        this.filteredJobs = this.jobs.filter(job => types?.includes(job.internal.status.name) ?? 1);
         this.requestUpdate();
     }
 
     openJob(jobId) {
         // -> e.stopPropagation();
         let job = this.jobs.find(job => job.id === jobId);
-        job.clicked = true;
+        job._visited = true;
         this.requestUpdate();
 
         this.dispatchEvent(new CustomEvent("jobSelected", {
@@ -187,7 +198,7 @@ export class JobMonitor extends LitElement {
         return {
             limit: 10,
             interval: 5000
-        }
+        };
     }
 
     render() {
@@ -198,22 +209,21 @@ export class JobMonitor extends LitElement {
                         <span class="badge badge-pill badge-primary ${this.updatedCnt > 0 ? "" : "invisible"}">${this.updatedCnt}</span> <i class="fas fa-rocket"></i>
                     </a>
                     <ul class="dropdown-menu">
-                        <!-- <li class="info">Jobs done since your last access ${moment(this.opencgaSession.user.configs.IVA.lastAccess).format("DD-MM-YYYY HH:mm:ss")}</li> -->
+                        <!-- <li class="info">Jobs done since your last access /*moment(this.opencgaSession.user.configs.IVA.lastAccess).format("DD-MM-YYYY HH:mm:ss") */</li> -->
                         <li class="info">
                             <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple">ALL</button>
                             <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="PENDING,QUEUED,RUNNING,REGISTERING">Running</button>
                             <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="UNREGISTERED,DONE,ERROR,ABORTED">Finished</button>
                         </li>
-                        ${this.filteredJobs.length 
-                            ? this.filteredJobs.map(job => html`
+                        ${this.filteredJobs.length ? this.filteredJobs.map(job => html`
                                 <li>
-                                    <a href="#job-view" @click=${() => this.openJob(job.id)} class="${job.updated && !job.clicked ? `updated status-${job?.internal?.status?.name}` : ""}">
+                                    <a href="#job-view" @click=${() => this.openJob(job.id)} class="${job.updated && !job._visited ? `updated status-${job?.internal?.status?.name}` : ""}">
                                         <div class="media">
-                                            <div class="media-left">
+                                            <div class="media-left ${classMap({"anim-spaceOutUp": job?.internal?.status?.name === "RUNNING"})}">
                                                 <i class="fas fa-rocket"></i>
                                             </div>
                                             <div class="media-body">
-                                                ${job.updated && !job.clicked ? html`<span class="badge">NEW</span>` : ""}
+                                                ${job.updated && !job._visited ? html`<span class="badge">NEW</span>` : ""}
                                                 <h4 class="media-heading">${job.id}</h4>
                                                 <small>${job.tool.id}</small> |
                                                 <small>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
@@ -221,12 +231,12 @@ export class JobMonitor extends LitElement {
                                             </div>
                                         </div>
                                      </a>
-                                </li>`) 
+                                </li>`)
                             : html`
                                 <li>
                                     <a> No jobs </a>
                                 </li>`
-                        }
+                            }
                     </ul>
                 </li>
             </ul>

@@ -80,8 +80,8 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
             case "boolean":
                 return html`<div class="form-horizontal">
                                 <div class="from-group form-inline">
-                                    <input class="magic-radio" type="radio" name="${fieldConfig.id}" id="${fieldConfig.id}yes" ?checked=${fieldConfig.value === "yes"} value="yes" @change="${e => this.onFilterChange(fieldConfig.id, "yes")}"><label class="magic-horizontal-label" for="${fieldConfig.id}yes"> Yes </label>
-                                    <input class="magic-radio" type="radio" name="${fieldConfig.id}" id="${fieldConfig.id}no" ?checked=${fieldConfig.value === "no"} value="no" @change="${e => this.onFilterChange(fieldConfig.id, "yes")}"> <label class="magic-horizontal-label" for="${fieldConfig.id}no"> No </label>
+                                    <input class="magic-radio" type="radio" name="${fieldConfig.id}" id="${this._prefix + fieldConfig.id}yes" ?checked=${fieldConfig.value === "yes"} value="yes" @change="${e => this.onFilterChange(fieldConfig.id, "yes")}"><label class="magic-horizontal-label" for="${this._prefix + fieldConfig.id}yes"> Yes </label>
+                                    <input class="magic-radio" type="radio" name="${fieldConfig.id}" id="${this._prefix + fieldConfig.id}no" ?checked=${fieldConfig.value === "no"} value="no" @change="${e => this.onFilterChange(fieldConfig.id, "yes")}"> <label class="magic-horizontal-label" for="${this._prefix + fieldConfig.id}no"> No </label>
                                 </div>
                             </div>`;
             case "SAMPLE_FILTER":
