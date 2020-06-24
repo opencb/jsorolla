@@ -85,7 +85,7 @@ export default class DiseaseFilter extends LitElement {
             // $(`select#${this._prefix}DiseasePanels`).selectpicker("val", this._panel);
             // this.showPanelGenes(this._panel);
             if (this.diseasePanels) {
-                this.genes = this.diseasePanels?.[0].genes ?? [];
+                this.genes = this.diseasePanels?.[0]?.genes ?? [];
                 this.requestUpdate().then(() => $(`select#${this._prefix}Genes`, this).selectpicker("refresh"));
             }
         }

@@ -114,7 +114,6 @@ class VariantInterpreterLanding extends LitElement {
         $("#variant-interpreter-landing > .content-tab-wrapper > .content-tab", this).hide();
         $(`.${tabId}-tab`).addClass("active");
         $("#" + tabId, this).show();
-
         for (const tab in this.activeTab) this.activeTab[tab] = false;
         this.activeTab[tabId] = true;
         this.requestUpdate();

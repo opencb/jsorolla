@@ -52,20 +52,21 @@ export default class OpencbGridToolbar extends LitElement {
         }
     }
 
-    createRenderRoot() {
-        return this;
-    }
-
     _init() {
         this._prefix = "dialog" + UtilsNew.randomString(6);
         this._config = this.getDefaultConfig();
         this.numTotalResultsText = "0"
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
+
     updated(changedProperties) {
         if(changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate(); //NOTE to avoid _config as prop!
         }
     }
 
@@ -113,7 +114,8 @@ export default class OpencbGridToolbar extends LitElement {
             label: "records",
             columns: [], // [{field: "fieldname", title: "title", visible: true, eligible: true}]
             download: ["Tab", "JSON"],
-            showShareLink: false
+            showShareLink: false,
+            showPaginationInfo: true
         };
     }
 
@@ -121,8 +123,12 @@ export default class OpencbGridToolbar extends LitElement {
         return html`
             <style>
 
-                opencb-grid-toolbar .checkbox-container label:before {
+                .opencb-grid-toolbar .checkbox-container label:before {
                     margin-top: 5px;
+                }
+                
+                .opencb-grid-toolbar {
+                    margin-bottom: 10px;
                 }
                 
                 .pagination-info {
@@ -132,59 +138,58 @@ export default class OpencbGridToolbar extends LitElement {
                 }
                 
             </style>
-            <div class="container-fluid">
+            <div class="opencb-grid-toolbar">
                 <div class="row">
-                    <div class="col-md-12" style="padding: 5px 0px 0px 0px">
-                        <div id="${this._prefix}ToolbarLeft" class="col-md-6" style="padding: 15px 0px 0px 0px">
-                                <span class="pagination-info">
-                                    Showing <label>${this.from}-${this.to}</label> of <label>${this.numTotalResultsText}</label> ${this._config.label}
-                                </span>
-                        </div>
-                
-                        <div id="${this._prefix}toolbar" class="col-md-6" style="padding: 0px">
-                
-                            <div class="form-inline text-right">
-                                ${this._config.columns.length ? html`
-                                        <div class="btn-group pull-right">
-                                            <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                <i id="${this._prefix}ColumnIcon" class="fa fa-columns" aria-hidden="true" style="padding-right: 5px"></i> Columns <span class="caret"></span>
-                                            </button>
-                                            <ul class="dropdown-menu btn-sm checkbox-container">
-                                                ${this._config.columns.length ?
-                                                    this._config.columns.map(item => this.isTrue(item.eligible) ? html`
-                                                        <li>
-                                                            <a data-column-id="${item.field}" @click="${this.onColumnClick}" style="cursor: pointer;">
-                                                                <input type="checkbox" @click="${this.checkboxToggle}" .checked="${this.isTrue(item.visible)}"/>
-                                                                <label class="checkmark-label">${item.title}</label>
-                                                            </a>
-                                                        </li>` : null)
-                                                    : null}
-                                            </ul>
-                                        </div>`
-                                : null }
-                
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
-                                            aria-haspopup="true" aria-expanded="false">
-                                        <i id="${this._prefix}DownloadRefresh" class="fa fa-refresh fa-spin" aria-hidden="true"
-                                           style="font-size:14px;display: none"></i>
-                                        <i id="${this._prefix}DownloadIcon" class="fa fa-download" aria-hidden="true"
-                                           style="padding-right: 5px"></i> Download <span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu btn-sm">
-                                        ${this._config.download.length ? this._config.download.map(item => html`
-                                                <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownloadFile}">${item}</a></li>
-                                        `) : null}
-                                    </ul>
-                                </div>
-                
-                                <!--Share URL-->
-                                ${this.showShareLink ? html`
-                                    <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" @click="onShareLink">
-                                        <i class="fa fa-share-alt" aria-hidden="true" style="padding-right: 5px"></i> Share
-                                    </button>
-                                ` : null }
+                    <div id="${this._prefix}ToolbarLeft" class="col-md-6">
+                        ${this._config.showPaginationInfo ? html`
+                            <span class="pagination-info">
+                                Showing <label>${this.from}-${this.to}</label> of <label>${this.numTotalResultsText}</label> ${this._config.label}
+                            </span>
+                        ` : null}
+                    </div>
+                    <div id="${this._prefix}toolbar" class="col-md-6">
+            
+                        <div class="form-inline text-right">
+                            ${this._config.columns.length ? html`
+                                    <div class="btn-group pull-right">
+                                        <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i id="${this._prefix}ColumnIcon" class="fa fa-columns" aria-hidden="true" style="padding-right: 5px"></i> Columns <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu btn-sm checkbox-container">
+                                            ${this._config.columns.length ?
+                                                this._config.columns.map(item => this.isTrue(item.eligible) ? html`
+                                                    <li>
+                                                        <a data-column-id="${item.field}" @click="${this.onColumnClick}" style="cursor: pointer;">
+                                                            <input type="checkbox" @click="${this.checkboxToggle}" .checked="${this.isTrue(item.visible)}"/>
+                                                            <label class="checkmark-label">${item.title}</label>
+                                                        </a>
+                                                    </li>` : null)
+                                                : null}
+                                        </ul>
+                                    </div>`
+                            : null }
+            
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false">
+                                    <i id="${this._prefix}DownloadRefresh" class="fa fa-refresh fa-spin" aria-hidden="true"
+                                       style="font-size:14px;display: none"></i>
+                                    <i id="${this._prefix}DownloadIcon" class="fa fa-download" aria-hidden="true"
+                                       style="padding-right: 5px"></i> Download <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu btn-sm">
+                                    ${this._config.download.length ? this._config.download.map(item => html`
+                                            <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownloadFile}">${item}</a></li>
+                                    `) : null}
+                                </ul>
                             </div>
+            
+                            <!--Share URL-->
+                            ${this.showShareLink ? html`
+                                <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" @click="onShareLink">
+                                    <i class="fa fa-share-alt" aria-hidden="true" style="padding-right: 5px"></i> Share
+                                </button>
+                            ` : null }
                         </div>
                     </div>
                 </div>

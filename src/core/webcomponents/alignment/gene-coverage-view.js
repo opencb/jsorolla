@@ -16,8 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import "../commons/view/data-form.js";
-
+import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 
 export default class GeneCoverageView extends LitElement {
 
@@ -35,17 +34,17 @@ export default class GeneCoverageView extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            transcriptCoverageStats: {
-                type: Object
-            },
             config: {
                 type: Object
-            }
-        };
+            },
+            geneCoverageStat: {
+                type: Object
+            },
+        }
     }
 
-    _init() {
-        this._config = this.getDefaultConfig();
+    _init(){
+        this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
     }
 
     connectedCallback() {
@@ -54,137 +53,34 @@ export default class GeneCoverageView extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+        if(changedProperties.has("geneCoverageStat")) {
+            console.log("this.geneCoverageStat", this.geneCoverageStat)
         }
+    }
+
+    onClickRow(e, geneId) {
+        this.transcriptCoverageStats = e.detail.row;
+        this.requestUpdate();
     }
 
     getDefaultConfig() {
         return {
-            title: "",
-            icon: "",
-            display: {
-                showTitle: false,
-                labelWidth: 2,
-                defaultValue: "-",
-                defaultLayout: "horizontal"
-            },
-            sections: [
-                {
-                    title: "",
-                    elements: [
-                        {
-                            name: "Transcript ID",
-                            field: "id",
-                            type: "custom",
-                            display: {
-                                render: id => {
-                                    return html`<a href="http://www.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=${id}" target="_blank">${id}</a>`;
-                                }
-                            }
-                        },
-                        {
-                            name: "Biotype",
-                            field: "biotype"
-                        },
-                        {
-                            name: "Region",
-                            type: "custom",
-                            display: {
-                                render: data => {
-                                    let region = `${data.chromosome}:${data.start}-${data.end}`;
-                                    return html`${region} <a href="http://www.ensembl.org/Homo_sapiens/Location/View?db=core;r=${region}" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i> Ensembl</a>`;
-                                }
-                            }
-                        },
-                        {
-                            name: "Length (bp)",
-                            field: "length"
-                        },
-                        {
-                            name: "Exon Stats",
-                            field: "exonStats",
-                            type: "table",
-                            display: {
-                                columns: [
-                                    {
-                                        name: "Exon ID",
-                                        type: "custom",
-                                        display: {
-                                            render: data => {
-                                                return html`<a href="http://www.ensembl.org/Homo_sapiens/Transcript/Exons?db=core;r=13:32315086-32400266;t=${data.id}" target="_blank">${data.id}</a>`;
-                                            }
-                                        }
-                                    },
-                                    {
-                                        name: "Region",
-                                        type: "complex",
-                                        display: {
-                                            template: "${chromosome}:${start}-${end}"
-                                        }
-                                    },
-                                    {
-                                        name: "Size (bp)",
-                                        type: "custom",
-                                        display: {
-                                            render: data => {
-                                                if (data) {
-                                                    return data.end - data.start + 1
-                                                } else {
-                                                    return "N/A";
-                                                }
-                                            }
-                                        }
-                                    },
-                                    {
-                                        name: "Mean Depth",
-                                        field: "depthAvg",
-                                        type: "custom",
-                                        display: {
-                                            render: field => {
-                                                let color = field < 20 ? "red" : field < 30 ? "darkorange" : "black";
-                                                return html`<span style="color: ${color}">${field.toFixed(2)}</span>`;
-                                            }
-                                        }
-                                    },
-                                    {
-                                        name: "Min Depth",
-                                        field: "depthMin",
-                                        type: "custom",
-                                        display: {
-                                            render: field => {
-                                                let color = field < 20 ? "red" : field < 30 ? "darkorange" : "black";
-                                                return html`<span style="color: ${color}">${field.toFixed(2)}</span>`;
-                                            }
-                                        }
-                                    },
-                                    {
-                                        name: "Max Depth",
-                                        field: "depthMax",
-                                        type: "custom",
-                                        display: {
-                                            render: field => {
-                                                let color = field < 20 ? "red" : field < 30 ? "darkorange" : "black";
-                                                return html`<span style="color: ${color}">${field.toFixed(2)}</span>`;
-                                            }
-                                        }
-                                    }
-                                ]
-                            }
-                        },
-                    ]
-                }
-            ]
-        };
+        }
     }
 
     render() {
         return html`
-            <data-form .data=${this.transcriptCoverageStats} .config="${this.getDefaultConfig()}"></data-form>
+            <gene-coverage-grid .opencgaSession="${this.opencgaSession}"
+                                .config="${this._config?.filter?.grid}"
+                                .transcriptCoverageStats="${this.geneCoverageStat.stats}"
+                                @selectrow="${e => this.onClickRow(e)}">
+            </gene-coverage-grid>
+            <gene-coverage-detail   .transcriptCoverageStats="${this.transcriptCoverageStats}" 
+                                    .config="${this._config.filter.detail}" .opencgaSession="${this.opencgaSession}">
+            </gene-coverage-detail>
         `;
     }
 
 }
 
 customElements.define("gene-coverage-view", GeneCoverageView);
-

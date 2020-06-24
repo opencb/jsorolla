@@ -132,7 +132,6 @@ class AlignmentStatsView extends LitElement {
         //     this.alignmentStats = [this.alignmentStats, this.alignmentStats, this.alignmentStats];
         // }
         if (this.alignmentStats && Array.isArray(this.alignmentStats)) {
-            debugger
             return html`
                 <table class="table table-hover table-no-bordered">
                     <thead>

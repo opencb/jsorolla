@@ -15,11 +15,12 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import UtilsNew from "../../utilsNew.js";
+import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import "../commons/opencga-browser.js";
 import "./gene-coverage-detail.js";
 import "./gene-coverage-grid.js";
+import "./gene-coverage-view.js";
 
 
 export default class GeneCoverageBrowser extends LitElement {
@@ -67,12 +68,6 @@ export default class GeneCoverageBrowser extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    onClickRow(e, geneId) {
-        this.transcriptCoverageStatsMap[geneId] = e.detail.row;
-        this.transcriptCoverageStatsMap = {...this.transcriptCoverageStatsMap};
-        this.requestUpdate();
-    }
-
     selectGene(e) {
         this.selectedGene = e.detail.value.split(",");
         //TODO this.geneIds is initialized, yet here is undefined
@@ -109,17 +104,6 @@ export default class GeneCoverageBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    removeGene(e) {
-        //console.log("remove gene", e.currentTarget.dataset.id);
-        //console.log("this.geneCoverageStats", this.geneCoverageStats)
-        delete this.geneCoverageStats[e.currentTarget.dataset.id];
-        //console.log("this.geneCoverageStats", this.geneCoverageStats)
-        this.geneCoverageStats = {...this.geneCoverageStats};
-        const geneIds = Object.keys(this.geneCoverageStats);
-        if(geneIds.length > 0) {
-            this._changeView(geneIds[0]);
-        }
-    }
 
     async fetchData(geneId) {
         if(this.geneCoverageStats[geneId]) {
@@ -133,8 +117,7 @@ export default class GeneCoverageBrowser extends LitElement {
             .then( restResponse => {
                 this.geneCoverageStats[geneId] = restResponse.getResult(0);
                 this.geneCoverageStats = {...this.geneCoverageStats};
-                //this.activeTab[this.selectedGene[0]] = true;
-                this._changeView(this.selectedGene[0]);
+                this._changeView(geneId);
             })
             .catch( e => {
                 console.error("fetchData failed")
@@ -231,6 +214,18 @@ export default class GeneCoverageBrowser extends LitElement {
         }
     }
 
+    removeGene(e) {
+        //console.log("remove gene", e.currentTarget.dataset.id);
+        //console.log("this.geneCoverageStats", this.geneCoverageStats)
+        delete this.geneCoverageStats[e.currentTarget.dataset.id];
+        //console.log("this.geneCoverageStats", this.geneCoverageStats)
+        this.geneCoverageStats = {...this.geneCoverageStats};
+        const geneIds = Object.keys(this.geneCoverageStats);
+        if (geneIds.length > 0) {
+            this._changeView(geneIds[0]);
+        }
+    }
+
     getDefaultConfig() {
         return {
             title: "Gene Coverage Browser",
@@ -246,14 +241,14 @@ export default class GeneCoverageBrowser extends LitElement {
                             name: "Overview",
                             active: true,
                             render: (transcriptCoverageStats, active, opencgaSession) => {
-                                return html`<gene-coverage-view .transcriptCoverageStats="${transcriptCoverageStats}"></gene-coverage-view>`;
+                                return html`<transcript-view .transcriptCoverageStats="${transcriptCoverageStats}"></transcript-view>`;
                             }
                         },
                         {
                             id: "low-coverage",
                             name: "Low Coverage Regions",
                             render: (transcriptCoverageStats, active, opencgaSession) => {
-                                return html`<gene-coverage-low .transcriptCoverageStats="${transcriptCoverageStats}"></gene-coverage-low>`;
+                                return html`<transcript-low .transcriptCoverageStats="${transcriptCoverageStats}"></transcript-low>`;
                             }
                         }
                     ]
@@ -272,24 +267,25 @@ export default class GeneCoverageBrowser extends LitElement {
                 </style>
                 
                 <div class="row">
-                    <div class="col-md-10">
+                    <div class="col-md-12">
                         <div class="panel">
                             <h3>Select a gene</h3>
                         </div>
-                        <div style="padding-left: 15px">
+                        <div>
                             <data-form .data=${{}} .config="${this.getGeneFilterConfig()}" @submit="${e => this.onRun(e)}"></data-form>
                         </div>
                     </div>
-
-                    <div class="col-md-12" style="margin-top: 20px">
-                        <div class="panel">
-                            <h3>Gene Coverage</h3>
-                        </div>
+                    
+                    <div class="col-md-12">
+                        
                         ${this.loading ? html`
                             <div id="loading">
                                 <loading-spinner></loading-spinner>
                             </div>
                         ` : !UtilsNew.isEmpty(this.geneCoverageStats) ? html`
+                            <div class="panel">
+                                <h3>Gene Coverage</h3>
+                            </div>
                             <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
                                 <div class="btn-group" role="group">
                                     ${Object.entries(this.geneCoverageStats).map( ([geneId, _]) => html`
@@ -304,19 +300,16 @@ export default class GeneCoverageBrowser extends LitElement {
                             </div>
                             ${Object.entries(this.geneCoverageStats).map( ([geneId, geneCoverageStat]) => html`
                                 <div id="${geneId}" class="content-tab ${classMap({active: this.activeTab[geneId]})}">
-                                    <gene-coverage-grid .opencgaSession="${this.opencgaSession}"
-                                                        .config="${this._config?.filter?.grid}"
-                                                        .transcriptCoverageStats="${geneCoverageStat.stats}"
-                                                        @selectrow="${e => this.onClickRow(e, geneId)}">
-                                    </gene-coverage-grid>
-                                    <gene-coverage-detail   .transcriptCoverageStats="${this.transcriptCoverageStatsMap?.[geneId]}" 
-                                                            .config="${this._config.filter.detail}" .opencgaSession="${this.opencgaSession}">
-                                    </gene-coverage-detail>
+                                    <gene-coverage-view .config=${this._config} .geneCoverageStat="${geneCoverageStat}" .opencgaSession="${this.opencgaSession}"></gene-coverage-view>
                                 </div>
-                        `)}` : html`<div class="alert alert-info" role="alert"><i class="fas fa-3x fa-info-circle align-middle"></i> Select a Gene. </div>`}
+                            `)}
+                            ` : html`
+                                <div class="alert alert-info" role="alert"><i class="fas fa-3x fa-info-circle align-middle"></i> Select a Gene. </div>
+                        `}
+                        
                     </div>
                 </div>`
-            : null;
+            : null
     }
 
 }

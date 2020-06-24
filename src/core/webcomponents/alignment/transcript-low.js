@@ -19,7 +19,7 @@ import UtilsNew from "../../utilsNew.js";
 import "../commons/view/data-form.js";
 
 
-export default class GeneCoverageLow extends LitElement {
+export default class TranscriptLow extends LitElement {
 
     constructor() {
         super();
@@ -181,4 +181,4 @@ export default class GeneCoverageLow extends LitElement {
 
 }
 
-customElements.define("gene-coverage-low", GeneCoverageLow);
+customElements.define("transcript-low", TranscriptLow);

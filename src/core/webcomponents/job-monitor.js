@@ -73,8 +73,10 @@ export class JobMonitor extends LitElement {
 
     launchMonitor() {
         // Make a first query
+        clearInterval(this.interval);
         this._jobs = [];
         this.jobs = [];
+        this.filteredJobs = [];
         this.fetchLastJobs();
         // and then every 'interval' ms
         this.interval = setInterval(() => {
@@ -83,7 +85,6 @@ export class JobMonitor extends LitElement {
 
     }
 
-    // TODO evaluate to add another data-structure to keep track of the job that needs to be highlighted
     async applyUpdated() {
         //oldList and newList are always the same length
         const oldList = this._jobs;
@@ -138,8 +139,8 @@ export class JobMonitor extends LitElement {
                     this._jobs = restResponse.getResults();
                 }
                 this.jobs = restResponse.getResults();
-                this.filteredJobs = this.jobs;
                 await this.applyUpdated();
+                this.filteredJobs = this.jobs.filter(job => this.filterTypes?.includes(job.internal.status.name) ?? 1);
                 // this.running = this.jobs.filter( job => ["PENDING", "QUEUED", "RUNNING"].includes(job?.internal?.status.name))
                 // this.done = this.jobs.filter( job => ["DONE", "ERROR"].includes(job?.internal?.status.name) /*job?.execution?.end >= lastDays.valueOf()*/)
                 // this.total = this.running.length + this.done.length;
@@ -170,8 +171,8 @@ export class JobMonitor extends LitElement {
 
     filterJobs(e) {
         e.stopPropagation();
-        const types = e.currentTarget.dataset?.type?.split(",");
-        this.filteredJobs = this.jobs.filter(job => types?.includes(job.internal.status.name) ?? 1);
+        this.filterTypes = e.currentTarget.dataset?.type?.split(",");
+        this.filteredJobs = this.jobs.filter(job => this.filterTypes?.includes(job.internal.status.name) ?? 1);
         this.requestUpdate();
     }
 

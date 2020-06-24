@@ -81,11 +81,11 @@ export default class OpencgaFilePreview extends LitElement {
             lines: 200
         };
 
-        const extension = this.file.id.split(".").pop(); // TODO handle multiple dots extensions (vcf.gz)
-        switch (extension) {
-            case "log":
-            case "err":
-            case "gz":
+        switch (this.file.format) {
+            case "PLAIN":
+            case "VCF":
+            case "UNKNOWN":
+            case "TAB_SEPARATED_VALUES":
                 this.contentType = "text";
                 this.opencgaSession.opencgaClient.files().head(this.file.id, params)
                     .then( response => {
@@ -100,7 +100,34 @@ export default class OpencgaFilePreview extends LitElement {
                         this.requestUpdate();
                     });
                 break;
-            case "png":
+            case "JSON":
+                this.contentType = "json";
+                this.opencgaSession.opencgaClient.files().head(this.file.id, params)
+                    .then( response => {
+                        const {content} = response.getResult(0);
+                        try {
+                            this.content = JSON.parse(content);
+                        } catch (e) {
+                            this.content = {content: "Error parsing data from the Server"};
+                        }
+                        this.requestUpdate();
+                    })
+                    .catch( response => {
+                        console.error(response);
+                        this.content = response.getEvents("ERROR").map( _ => _.message).join("\n");
+                        this.requestUpdate();
+                    });
+                break;
+            case "BAM":
+                this.contentType = "json";
+                this.opencgaSession.opencgaClient.files().info(this.file.id, {study: this.opencgaSession.study.fqn})
+                    .then( response => {
+                        const {attributes} = response.getResult(0);
+                        this.content = attributes?.alignmentHeader ?? {content: "No content"};
+                        this.requestUpdate();
+                    })
+                break;
+            case "IMAGE":
                 this.contentType = "image";
                 this.opencgaSession.opencgaClient.files().image(this.file.id, params)
                     .then( response => {
@@ -112,17 +139,8 @@ export default class OpencgaFilePreview extends LitElement {
                         //this.requestUpdate();
                     });
                 break;
-            case "bam":
-                this.contentType = "bam";
-                this.opencgaSession.opencgaClient.files().info(this.file.id, {study: this.opencgaSession.study.fqn})
-                    .then( response => {
-                        const {attributes} = response.getResult(0);
-                        this.content = attributes?.alignmentHeader ?? {content: "No content"};
-                        this.requestUpdate();
-                    })
-                break;
             default:
-                this.content = "Extension not recognized: " + extension;
+                this.content = "Format not recognized: " + this.file.format;
         }
 
         this.url = this.opencgaSession.server.host + "/webservices/rest/" + this.opencgaSession.server.version + "/files/" + this.file.id + "/download?study=" + this.opencgaSession.study.fqn + "&sid=" + this.opencgaSession.token;
@@ -180,7 +198,7 @@ export default class OpencgaFilePreview extends LitElement {
             <a class="btn btn-primary ripple" href="${this.url}">Download</a>
         </div>-->
         ${this.file ? html`
-            <div class="row" style="padding: 0px 10px">
+            <div class="row">
                 <div class="col-md-12">
                     ${this.contentType === "text" ? html`
                         <h3 class="section-title">Head</h3>
@@ -188,7 +206,7 @@ export default class OpencgaFilePreview extends LitElement {
                     ${this.contentType === "image" ? html`
                         <h3 class="section-title">Image</h3>
                         <img class="img-thumbnail" id="thumbnail" />` : null}
-                    ${this.contentType === "bam" ? html`
+                    ${this.contentType === "json" ? html`
                         <json-viewer .data="${this.content}"></json-viewer>'
                         ` : null}
                 </div>

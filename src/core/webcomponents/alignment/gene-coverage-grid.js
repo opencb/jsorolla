@@ -352,6 +352,7 @@ export default class GeneCoverageGrid extends LitElement {
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar .from="${this.from}"
                                     .to="${this.to}"
+                                    .config="${{showPaginationInfo: false}}"
                                     .numTotalResultsText="${this.numTotalResultsText}"
                                     @download="${this.onDownload}">
                 </opencb-grid-toolbar>`

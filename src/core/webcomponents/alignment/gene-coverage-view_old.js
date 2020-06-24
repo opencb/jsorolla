@@ -18,7 +18,9 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../cellbase/core/cellbase-gene-filter.js";
 
-
+/***
+ * @deprecated
+ */
 export default class GeneCoverageView_old extends LitElement {
 
     constructor() {

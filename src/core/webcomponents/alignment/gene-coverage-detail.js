@@ -16,8 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import "./gene-coverage-view.js";
-import "./gene-coverage-low.js";
+import "./transcript-view.js";
+import "./transcript-low.js";
 
 export default class GeneCoverageDetail extends LitElement {
 
