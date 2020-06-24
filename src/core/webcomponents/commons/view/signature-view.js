@@ -38,6 +38,9 @@ export default class SignatureView extends LitElement {
             active: {
                 type: Boolean
             },
+            mode: {
+                type: String // view | plot
+            },
             config: {
                 type: Object
             }
@@ -187,7 +190,7 @@ export default class SignatureView extends LitElement {
     getDefaultConfig() {
         return {
             //width: null, width is always 100% of the visible container
-            height: 240
+            height: 240,
         }
     }
 

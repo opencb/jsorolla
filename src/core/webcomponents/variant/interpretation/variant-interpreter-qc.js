@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import UtilsNew from "../../../utilsNew.js";
-import "./variant-interpreter-qc-summary.js";
+import "./variant-interpreter-qc-overview.js";
 import "./variant-interpreter-qc-variant.js";
 import "./variant-interpreter-qc-alignment.js";
 import "./variant-interpreter-qc-gene-coverage.js";
@@ -162,11 +162,11 @@ class VariantInterpreterQc extends LitElement {
                 </div>
                 
                 <div class="content-tab-wrapper">
-                    <div id="${this._prefix}Overview" role="tabpanel" class="tab-pane active container content-tab">
-                        <variant-interpreter-qc-summary .opencgaSession="${this.opencgaSession}" 
-                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                        .active="${this.activeTab["Overview"]}">
-                        </variant-interpreter-qc-summary>
+                    <div id="${this._prefix}Overview" role="tabpanel" class="tab-pane active col-md-10 col-md-offset-1 content-tab">
+                        <variant-interpreter-qc-overview .opencgaSession="${this.opencgaSession}" 
+                                                         .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                         .active="${this.activeTab["Overview"]}">
+                        </variant-interpreter-qc-overview>
                     </div>
                     <div id="${this._prefix}VariantQc" role="tabpanel" class="tab-pane content-tab">
                         <variant-interpreter-qc-variant .opencgaSession="${this.opencgaSession}" 

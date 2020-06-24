@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 
 
-class VariantInterpreterQcSummary extends LitElement {
+class VariantInterpreterQcOverview extends LitElement {
 
     constructor() {
         super();
@@ -99,7 +99,7 @@ class VariantInterpreterQcSummary extends LitElement {
             },
             sections: [
                 {
-                    title: "QC Summary",
+                    title: "Summary",
                     collapsed: false,
                     elements: [
                         {
@@ -134,6 +134,22 @@ class VariantInterpreterQcSummary extends LitElement {
                         },
                     ]
                 },
+            ]
+        }
+    }
+
+    getVariantConfig() {
+        return {
+            title: "Variant",
+            icon: "",
+            display: {
+                collapsable: true,
+                showTitle: false,
+                labelWidth: 2,
+                defaultValue: "-",
+                defaultLayout: "horizontal"
+            },
+            sections: [
                 {
                     title: "Variant Stats",
                     display: {
@@ -181,6 +197,23 @@ class VariantInterpreterQcSummary extends LitElement {
         }
     }
 
+    onSideNavClick(e) {
+        e.preventDefault();
+
+        // Remove button focus highlight
+        e.target.blur();
+
+        // Remove selected active button
+        document.querySelector(".side-nav-active").classList.add("side-nav");
+        document.querySelector(".side-nav-active").classList.remove("side-nav-active");
+        document.querySelectorAll(".tab-content").forEach(value => value.style.display = "none");
+
+        let option = e.currentTarget.dataset.id;
+        document.getElementById(this._prefix + option).classList.remove("side-nav");
+        document.getElementById(this._prefix + option).classList.add("side-nav-active");
+        document.getElementById(this._prefix + option + "Content").style.display = "block";
+    }
+
     render() {
         // Check Project exists
         if (!this.opencgaSession.project) {
@@ -193,13 +226,50 @@ class VariantInterpreterQcSummary extends LitElement {
         }
 
         return html`
-            <div class="container" style="margin-bottom: 20px">
-                <div style="float: left">
+            <style>
+                .side-nav {
+                    padding: 15px;
+                }
+                .side-nav-active {
+                    padding: 15px;
+                    font-weight: bold;
+                    background-color: #EEEEEE;
+                    border-left-color: darkorange;
+                }
+            </style>
+            <div class="row" style="margin: 10px">
+                <div class="col-md-8 col-md-offset-2">
                     <h2>Overview</h2>
                 </div>
                 
-                <div style="padding-left: 15px">
-                    <data-form .data=${this.clinicalAnalysis} .config="${this._config}"></data-form>
+                <div class="col-md-12">
+                    <div class="col-md-2" style="margin-top: 15px">
+                        <div class="list-group">
+                            <button id="${this._prefix}Summary" type="button" class="list-group-item side-nav-active" 
+                                  data-id="Summary" @click="${this.onSideNavClick}">Summary</button>
+                            <button id="${this._prefix}Variant" type="button" class="list-group-item side-nav" 
+                                  data-id="Variant" @click="${this.onSideNavClick}">Variant</button>
+                            <button id="${this._prefix}Alignment" type="button" class="list-group-item side-nav" 
+                                  data-id="Alignment" @click="${this.onSideNavClick}">Alignment</button>
+                            <button id="${this._prefix}Alignment" type="button" class="list-group-item side-nav" 
+                                  data-id="Alignment" @click="${this.onSideNavClick}">Manage</button>
+                        </div>
+                    </div>
+                    <div class="col-md-10">
+                        <div class="content-tab-wrapper" style="padding: 10px 15px">
+                            <div id="${this._prefix}SummaryContent" role="tabpanel" class="tab-pane tab-content">
+                                <data-form .data=${this.clinicalAnalysis} .config="${this._config}"></data-form>
+                            </div>
+                            
+                            <div id="${this._prefix}VariantContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
+                                <data-form .data=${this.clinicalAnalysis} .config="${this.getVariantConfig()}"></data-form>
+                            </div>
+                            
+                            <div id="${this._prefix}AlignmentContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
+                                <h3>Alignment QC</h3>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -207,4 +277,4 @@ class VariantInterpreterQcSummary extends LitElement {
 
 }
 
-customElements.define("variant-interpreter-qc-summary", VariantInterpreterQcSummary);
+customElements.define("variant-interpreter-qc-overview", VariantInterpreterQcOverview);
