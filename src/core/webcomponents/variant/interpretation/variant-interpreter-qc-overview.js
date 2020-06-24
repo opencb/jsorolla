@@ -265,6 +265,11 @@ class VariantInterpreterQcOverview extends LitElement {
                             
                             <div id="${this._prefix}VariantStatsContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
                                 <data-form .data=${this.clinicalAnalysis} .config="${this.getVariantConfig()}"></data-form>
+                                <!--
+                                <variant-interpreter-qc-variant-stats     .opencgaSession=${this.opencgaSession} 
+                                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
+                                </variant-interpreter-qc-variant-stats>
+                                -->
                             </div>
                             
                             <div id="${this._prefix}AlignmentStatsContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
@@ -276,6 +281,11 @@ class VariantInterpreterQcOverview extends LitElement {
                             
                             <div id="${this._prefix}GeneCoverageStatsContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
                                 <h3>Gene Coverage Stats</h3>
+                                <!--
+                                <variant-interpreter-qc-gene-coverage-stats     .opencgaSession=${this.opencgaSession} 
+                                                                                .clinicalAnalysis="${this.clinicalAnalysis}">
+                                </variant-interpreter-qc-gene-coverage-stats>
+                                -->
                             </div>
                             
                             <div id="${this._prefix}MendelianErrorsContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
