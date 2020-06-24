@@ -81,7 +81,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        $("#analysis-form").validator().on("submit", e => {
+        $(`#${this._prefix}analysis-form`).validator().on("submit", e => {
             if (e.isDefaultPrevented()) {
                 // handle the invalid form...
             } else {
@@ -218,7 +218,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                         ${JSON.stringify(this.config.sections, null, "\t")}
                     </pre>
                 -->
-                <form id="analysis-form" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
+                <form id="${this._prefix}analysis-form" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
                     ${this.config.sections.map( (section, i) => html`
                          <div class="panel panel-default shadow-sm">
                              <div class="panel-heading" role="tab" id="${this._prefix}Heading${i}">

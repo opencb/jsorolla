@@ -145,23 +145,23 @@ export default class OpencbGridToolbar extends LitElement {
                 
                             <div class="form-inline text-right">
                                 ${this._config.columns.length ? html`
-                                        <div class="btn-group">
+                                        <div class="btn-group pull-right">
                                             <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                 <i id="${this._prefix}ColumnIcon" class="fa fa-columns" aria-hidden="true" style="padding-right: 5px"></i> Columns <span class="caret"></span>
                                             </button>
                                             <ul class="dropdown-menu btn-sm checkbox-container">
                                                 ${this._config.columns.length ?
-        this._config.columns.map(item => this.isTrue(item.eligible) ? html`
+                                                    this._config.columns.map(item => this.isTrue(item.eligible) ? html`
                                                         <li>
                                                             <a data-column-id="${item.field}" @click="${this.onColumnClick}" style="cursor: pointer;">
                                                                 <input type="checkbox" @click="${this.checkboxToggle}" .checked="${this.isTrue(item.visible)}"/>
                                                                 <label class="checkmark-label">${item.title}</label>
                                                             </a>
                                                         </li>` : null)
-        : null}
+                                                    : null}
                                             </ul>
                                         </div>`
-        : null }
+                                : null }
                 
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
@@ -172,9 +172,9 @@ export default class OpencbGridToolbar extends LitElement {
                                            style="padding-right: 5px"></i> Download <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu btn-sm">
-                                        ${this._config.download.length && this._config.download.map(item => html`
+                                        ${this._config.download.length ? this._config.download.map(item => html`
                                                 <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownloadFile}">${item}</a></li>
-                                        `) }
+                                        `) : null}
                                     </ul>
                                 </div>
                 

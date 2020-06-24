@@ -98,11 +98,8 @@ export default class GeneCoverageBrowser extends LitElement {
         this._changeView(e.currentTarget.dataset.id);
     }
 
-    removeGene(e) {
-        console.log("remove gene", e.currentTarget.dataset.id);
-    }
-
     _changeView(tabId) {
+        console.log("changing to ", tabId)
         $(".content-pills", this).removeClass("active");
         $(".content-tab", this).removeClass("active");
         for (const tab in this.activeTab) this.activeTab[tab] = false;
@@ -110,6 +107,18 @@ export default class GeneCoverageBrowser extends LitElement {
         $("#" + tabId, this).addClass("active");
         this.activeTab[tabId] = true;
         this.requestUpdate();
+    }
+
+    removeGene(e) {
+        //console.log("remove gene", e.currentTarget.dataset.id);
+        //console.log("this.geneCoverageStats", this.geneCoverageStats)
+        delete this.geneCoverageStats[e.currentTarget.dataset.id];
+        //console.log("this.geneCoverageStats", this.geneCoverageStats)
+        this.geneCoverageStats = {...this.geneCoverageStats};
+        const geneIds = Object.keys(this.geneCoverageStats);
+        if(geneIds.length > 0) {
+            this._changeView(geneIds[0]);
+        }
     }
 
     async fetchData(geneId) {
@@ -124,7 +133,8 @@ export default class GeneCoverageBrowser extends LitElement {
             .then( restResponse => {
                 this.geneCoverageStats[geneId] = restResponse.getResult(0);
                 this.geneCoverageStats = {...this.geneCoverageStats};
-                this.activeTab[this.selectedGene[0]] = true;
+                //this.activeTab[this.selectedGene[0]] = true;
+                this._changeView(this.selectedGene[0]);
             })
             .catch( e => {
                 console.error("fetchData failed")

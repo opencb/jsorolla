@@ -322,17 +322,13 @@ export default class OpencgaSampleGrid extends LitElement {
     }
 
     onDownload(e) {
-        // let urlQueryParams = this._getUrlQueryParams();
-        // let params = urlQueryParams.queryParams;
-        // console.log(this.opencgaSession);
         const params = {
             ...this.query,
-            sid: this.opencgaSession.opencgaClient._config.sessionId,
             limit: 1000,
             skip: 0,
             includeIndividual: true,
             count: false,
-            include: "id,source,collection,processing,creationDate,status,type,version,release,individual.id"
+            include: "id,source,collection,processing,creationDate,status,type,version,release,individual.id,status"
         };
 
         this.opencgaSession.opencgaClient.samples().search(params)
@@ -349,13 +345,13 @@ export default class OpencgaSampleGrid extends LitElement {
                             ["Sample ID", "Individual ID", "Source", "Collection Method", "Preparation Method", "Cell Line", "Creation Date", "Status"].join("\t"),
                             ...result.map( _ => [
                                 _.id,
-                                _.attributes && _.attributes.OPENCGA_INDIVIDUAL ? _.attributes.OPENCGA_INDIVIDUAL.id : "",
+                                _.attributes?.OPENCGA_INDIVIDUAL?.id ?? "",
                                 _.source,
-                                _.collection && _.collection.method ? _.collection.method : "",
-                                _.processing && _.processing.preparationMethod ? _.processing.preparationMethod : "",
+                                _.collection?.method ?? "",
+                                _.processing?.preparationMethod ?? "",
                                 _.somatic ? "Somatic" : "Germline",
                                 _.creationDate,
-                                _.status.name
+                                _.internal?.status?.name ?? ""
                             ].join("\t"))];
                         // console.log(dataString);
                         mimeType = "text/plain";

@@ -340,10 +340,6 @@ export default class OpencgaVariantGrid extends LitElement {
             queryParams = Object.assign({}, this.query);
         }
 
-        // if (this.opencgaSession.opencgaClient._config.sessionId !== undefined) {
-        //     queryParams = Object.assign(queryParams, {sid: this.opencgaSession.opencgaClient._config.sessionId});
-        // }
-
         if (UtilsNew.isEmptyArray(this.samples)) {
             queryParams.summary = true;
             // queryParams.exclude = "annotation.geneExpression";

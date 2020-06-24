@@ -150,10 +150,10 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
     addTerm() {
         if (this.input.val()) {
             if(this._config.multiple) {
-                this.input.val("").change();
                 const selection = [...this.selectionList, ...this.input.val().split(new RegExp("[,;]")).filter(Boolean)];
                 // selection without addButton (straight in the dropdown) in selectpicker causes duplicates
                 this.selectionList = [...new Set(selection)];
+                this.input.val("").change();
             } else {
                 //single item
                 this.selectionList = this.input.val().split(new RegExp("[,;]")).filter(Boolean);

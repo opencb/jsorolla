@@ -451,7 +451,6 @@ export default class OpencgaFamilyGrid extends LitElement {
         const params = {
             ...this.query,
             study: this.opencgaSession.study.fqn,
-            sid: this.opencgaSession.opencgaClient._config.sessionId,
             limit: 1000,
             skip: 0,
             includeIndividual: true,

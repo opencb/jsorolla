@@ -545,7 +545,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             exclude: "files",
             limit: 100,
             order: "asc",
-            sid: this.opencgaSession.opencgaClient._config.token,
             skip: 0,
             count: true,
             study: this.opencgaSession.study.fqn

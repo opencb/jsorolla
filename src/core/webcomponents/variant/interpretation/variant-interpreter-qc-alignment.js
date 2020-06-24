@@ -301,7 +301,7 @@ class VariantInterpreterQcAlignment extends LitElement {
                     <h2>QC Alignment Stats</h2>
                 </div>
                 <div>
-                    <alignment-stats-view .alignmentStats="${this.alignmentStats}"></alignment-stats-view>
+                    <alignment-stats-view .opencgaSession=${this.opencgaSession} .alignmentStats="${this.alignmentStats}"></alignment-stats-view>
                 </div>
                 <!--
                 <div style="padding-left: 15px">

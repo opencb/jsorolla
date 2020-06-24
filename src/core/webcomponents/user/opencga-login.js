@@ -101,7 +101,8 @@ export default class OpencgaLogin extends LitElement {
 
                         this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
                             detail: {
-                                message: "Welcome " + user + ". Your session is valid until " + validTimeSessionId,
+                                title: "Login success",
+                                message: "Welcome, " + user + ". Your session is valid until " + validTimeSessionId,
                                 options: {
                                     icon: "fa fa-user-circle"
                                 },
@@ -114,10 +115,11 @@ export default class OpencgaLogin extends LitElement {
                 })
                 .catch( response => {
                     // response isn't necessarily a restResponse instance
-                    this.errorState = {name: "Login error", message: "Please check your credentials."};
+                    this.errorState = {title: "Login error", message: "Please check your credentials."};
                     this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
                         detail: {
-                            message: this.errorState,
+                            title: this.errorState.title,
+                            message: this.errorState.message,
                             type: UtilsNew.MESSAGE_ERROR
                         },
                         bubbles: true,
@@ -193,7 +195,7 @@ export default class OpencgaLogin extends LitElement {
         </div>
         ${this.errorState ? html`
             <div id="error" class="alert alert-danger" role="alert">
-                <p><strong>${this.errorState.name}</strong></p><p>${this.errorState.message}</p>
+                <p><strong>${this.errorState.title}</strong></p><p>${this.errorState.message}</p>
             </div>
         ` : null}
         `;

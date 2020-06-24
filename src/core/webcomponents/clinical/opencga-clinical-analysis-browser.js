@@ -156,7 +156,7 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                     ]
                 }
             },
-            aggregation: {
+            /*aggregation: {
                 default: [],
                 sections: [
                     {
@@ -555,7 +555,7 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                     }
 
                 ]
-            },
+            },*/
             // TODO recheck (they come from clinical-analysis-browser and used in opencga-clinical-analysis-filter and opencga-clinical-analysis-grid now they have been moved in config)
             analyses: [],
             analysis: {},

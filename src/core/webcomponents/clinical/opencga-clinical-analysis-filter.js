@@ -51,18 +51,6 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
     _init() {
         // super.ready();
         this._prefix = "osf-" + UtilsNew.randomString(6) + "_";
-
-        this.minYear = 1920;
-
-        this.annotationFilterConfig = {
-            class: "small",
-            buttonClass: "btn-sm",
-            inputClass: "input-sm"
-        };
-
-        this.dateFilterConfig = {
-            recentDays: 10
-        };
         this.query = {};
         this.preparedQuery = {};
     }
@@ -170,33 +158,6 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles">
-
-            span + span {
-                margin-left: 10px;
-            }
-
-            div.block {
-                overflow: hidden;
-            }
-
-            div.block label {
-                width: 80px;
-                display: block;
-                float: left;
-                text-align: left;
-                font-weight: normal;
-            }
-
-            select + select {
-                margin-left: 10px;
-            }
-
-            select + input {
-                margin-left: 10px;
-            }
-        </style>
-
         ${this.searchButton ? html`
             <div class="search-button-wrapper">
                 <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">

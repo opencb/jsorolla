@@ -50,16 +50,12 @@ class AlignmentStatsView extends LitElement {
     _init() {
         this._prefix = "vcis-" + UtilsNew.randomString(6);
 
-        this.gridId = this._prefix + "GeneBrowserGrid";
         this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    firstUpdated(_changedProperties) {
         this.alignmentStats = {
             "fileId": "bam:SonsAlignedBamFile.bam",
             "sampleId": "ISDBM322015",
@@ -102,14 +98,12 @@ class AlignmentStatsView extends LitElement {
             "pairsOnDifferentChromosomes": 13380,
             "percentageOfProperlyPairedReads": 93.6
         };
-        this.requestUpdate();
+    }
+
+    firstUpdated(_changedProperties) {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("alignmentStats")) {
-            this.renderTable();
-        }
-
         if (changedProperties.has("fileIds")) {
             this.fileIdsObserver();
         }
@@ -124,8 +118,7 @@ class AlignmentStatsView extends LitElement {
             this.opencgaSession.opencgaClient.alignments().infoStats(this.fileIds.join(","), {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.alignmentStats = response.responses[0].results;
-                    this.renderTable();
-                    // this.requestUpdate();
+                    this.requestUpdate();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -134,58 +127,75 @@ class AlignmentStatsView extends LitElement {
     }
 
     renderTable() {
+        //TODO when does this happens?
         if (!Array.isArray(this.alignmentStats)) {
             this.alignmentStats = [this.alignmentStats, this.alignmentStats, this.alignmentStats];
         }
 
         if (this.alignmentStats) {
-            let cols = [];
-            cols.push(`<th>Key</th>`);
-
-            // Read column name from configuration if exist, otherwise use sampleId from the stats object
-            if (this._config.cols && this._config.cols.length > 0) {
-                for (let col of this._config.cols) {
-                    cols.push(`<th class="${col.classes}">${col.name}</th>`);
-                }
-            } else {
-                for (let stat of this.alignmentStats) {
-                    cols.push(`<th>${stat.sampleId}</th>`);
-                }
-            }
-
-            let rows = [];
-            for (let variable of this._config.rows) {
-                let cells = [];
-                cells.push(`<td><label>${variable.name}</label></td>`);
-                for (let stat of this.alignmentStats) {
-                    if (stat[variable.field] !== undefined && stat[variable.field] != null) {
-                        cells.push(`<td>${stat[variable.field]}</td>`);
-                    } else {
-                        cells.push(`<td>N/A</td>`);
-                    }
-                }
-                rows.push(`<tr>${cells.join("")}</tr>`)
-            }
-
-            let tableHtml = `
-                <thead>
-                    <tr>
-                        ${cols.join("")}
-                    </tr>
-                </thead>
-                <tbody>
-                    ${rows.join("")}
-                </tbody>
-            `;
-
-            document.getElementById(this.gridId).innerHTML = tableHtml;
+            return html`
+                <table class="table table-hover table-no-bordered">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            ${// Read column name from configuration if exist, otherwise use sampleId from the stats object
+                            this._config?.columns?.length ?
+                                this._config.columns.map( col => html`<th class="${col.classes}">${col.name}</th>`)
+                                : this.alignmentStats.map( stat => html`<th>${stat.sampleId}</th>`)}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${this._config.rows.map(variable => html`
+                            <tr>
+                                <td>
+                                    <label>${variable.name}</label>
+                                </td>
+                                ${this.alignmentStats.map(stat => html`<td>${stat[variable.field] ?? "N/A"}</td>`) }
+                            </tr>
+                        `)}
+                    </tbody>
+                </table>`;
         }
     }
+
+    onDownload(e) {
+
+        console.log(e)
+        const header = this._config?.columns?.length ? this._config.columns.map( col => col.name) : this.alignmentStats.map( stat => stat.sampleId)
+        const d = this._config.rows.map(variable => [variable.name, ...this.alignmentStats.map(stat => stat[variable.field] ?? "N/A")].join("\t"))
+
+        let dataString, mimeType, extension;
+        if (e.currentTarget.dataset.downloadOption.toLowerCase() === "tab") {
+            dataString = [
+                ["key", ...header].join("\t"),
+                d.join("\n")];
+            // console.log(dataString);
+            mimeType = "text/plain";
+            extension = ".txt";
+        } else {
+            dataString = [JSON.stringify(this.alignmentStats, null, "\t")];
+            mimeType = "application/json";
+            extension = ".json";
+        }
+
+        // Build file and anchor link
+        const data = new Blob([dataString.join("\n")], {type: mimeType});
+        const file = window.URL.createObjectURL(data);
+        const a = document.createElement("a");
+        a.href = file;
+        a.download = this.opencgaSession.study.alias + extension;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() {
+            document.body.removeChild(a);
+        }, 0);
+    }
+
 
     getDefaultConfig() {
         return {
             title: "Samtools Stats",
-            cols: [
+            columns: [
                 {
                     name: "ISDBM322015",
                     classes: "text-danger"
@@ -360,7 +370,8 @@ class AlignmentStatsView extends LitElement {
                     name: "percentageOfProperlyPairedReads",
                     field: "percentageOfProperlyPairedReads"
                 }
-            ]
+            ],
+            download: ["Tab", "JSON"]
         };
     }
 
@@ -371,7 +382,20 @@ class AlignmentStatsView extends LitElement {
                 <h3>${this._config.title}</h3>
             </div>
             <div>
-                <table id="${this.gridId}" class="table table-hover table-no-bordered"></table>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-download" aria-hidden="true"
+                           style="padding-right: 5px"></i> Download <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu btn-sm">
+                        ${this._config.download.length ? this._config.download.map(item => html`
+                                <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>
+                        `) : null}
+                    </ul>
+                </div>
+                                
+                ${this.renderTable()}
             </div>
         `;
     }
