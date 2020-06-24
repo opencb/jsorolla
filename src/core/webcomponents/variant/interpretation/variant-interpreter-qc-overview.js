@@ -247,12 +247,14 @@ class VariantInterpreterQcOverview extends LitElement {
                         <div class="list-group">
                             <button id="${this._prefix}Summary" type="button" class="list-group-item side-nav-active" 
                                   data-id="Summary" @click="${this.onSideNavClick}">Summary</button>
-                            <button id="${this._prefix}Variant" type="button" class="list-group-item side-nav" 
-                                  data-id="Variant" @click="${this.onSideNavClick}">Variant</button>
-                            <button id="${this._prefix}Alignment" type="button" class="list-group-item side-nav" 
-                                  data-id="Alignment" @click="${this.onSideNavClick}">Alignment</button>
-                            <button id="${this._prefix}Alignment" type="button" class="list-group-item side-nav" 
-                                  data-id="Alignment" @click="${this.onSideNavClick}">Manage</button>
+                            <button id="${this._prefix}VariantStats" type="button" class="list-group-item side-nav" 
+                                  data-id="VariantStats" @click="${this.onSideNavClick}">Variant Stats</button>
+                            <button id="${this._prefix}AlignmentStats" type="button" class="list-group-item side-nav" 
+                                  data-id="AlignmentStats" @click="${this.onSideNavClick}">Alignment Stats</button>
+                            <button id="${this._prefix}GeneCoverageStats" type="button" class="list-group-item side-nav" 
+                                  data-id="GeneCoverageStats" @click="${this.onSideNavClick}">Gene Coverage Stats</button>
+                            <button id="${this._prefix}MendelianErrorsContent" type="button" class="list-group-item side-nav" 
+                                  data-id="MendelianErrors" @click="${this.onSideNavClick}">Mendelian Errors</button>
                         </div>
                     </div>
                     <div class="col-md-10">
@@ -261,12 +263,24 @@ class VariantInterpreterQcOverview extends LitElement {
                                 <data-form .data=${this.clinicalAnalysis} .config="${this._config}"></data-form>
                             </div>
                             
-                            <div id="${this._prefix}VariantContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
+                            <div id="${this._prefix}VariantStatsContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
                                 <data-form .data=${this.clinicalAnalysis} .config="${this.getVariantConfig()}"></data-form>
                             </div>
                             
-                            <div id="${this._prefix}AlignmentContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
+                            <div id="${this._prefix}AlignmentStatsContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
+                                <h3>Alignment Stats</h3>
+                                <variant-interpreter-qc-alignment   .opencgaSession=${this.opencgaSession} 
+                                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                                </variant-interpreter-qc-alignment>
+                            </div>
+                            
+                            <div id="${this._prefix}GeneCoverageStatsContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
+                                <h3>Gene Coverage Stats</h3>
+                            </div>
+                            
+                            <div id="${this._prefix}MendelianErrorsContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
                                 <h3>Alignment QC</h3>
+                                <alignment-stats-view .opencgaSession=${this.opencgaSession} .alignmentStats="${this.alignmentStats}"></alignment-stats-view>
                             </div>
                         </div>
                     </div>

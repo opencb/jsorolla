@@ -56,48 +56,48 @@ class AlignmentStatsView extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
-        this.alignmentStats = {
-            "fileId": "bam:SonsAlignedBamFile.bam",
-            "sampleId": "ISDBM322015",
-            "rawTotalSequences": 32116828,
-            "filteredSequences": 0,
-            "sequences": 32116828,
-            "isSorted": 1,
-            "firstFragments": 16058414,
-            "lastFragments": 16058414,
-            "readsMapped": 31299207,
-            "readsMappedAndPaired": 31120474,
-            "readsUnmapped": 817621,
-            "readsProperlyPaired": 30066492,
-            "readsPaired": 32116828,
-            "readsDuplicated": 1121410,
-            "readsMq0": 2369927,
-            "readsQcFailed": 0,
-            "nonPrimaryAlignments": 0,
-            "totalLength": -1404452776,
-            "totalFirstFragmentLength": 1445257260,
-            "totalLastFragmentLength": 1445257260,
-            "basesMapped": 2816928630,
-            "basesMappedCigar": 2812285689,
-            "basesTrimmed": 0,
-            "basesDuplicated": 100926900,
-            "mismatches": 8428924,
-            "errorRate": 0.002997179,
-            "averageLength": 90.0,
-            "averageFirstFragmentLength": 90.0,
-            "averageLastFragmentLength": 90.0,
-            "maximumLength": 90,
-            "maximumFirstFragmentLength": 90,
-            "maximumLastFragmentLength": 90,
-            "averageQuality": 34.8,
-            "insertSizeAverage": 153.6,
-            "insertSizeStandardDeviation": 46.3,
-            "inwardOrientedPairs": 15081995,
-            "outwardOrientedPairs": 452217,
-            "pairsWithOtherOrientation": 12645,
-            "pairsOnDifferentChromosomes": 13380,
-            "percentageOfProperlyPairedReads": 93.6
-        };
+        // this.alignmentStats = {
+        //     "fileId": "bam:SonsAlignedBamFile.bam",
+        //     "sampleId": "ISDBM322015",
+        //     "rawTotalSequences": 32116828,
+        //     "filteredSequences": 0,
+        //     "sequences": 32116828,
+        //     "isSorted": 1,
+        //     "firstFragments": 16058414,
+        //     "lastFragments": 16058414,
+        //     "readsMapped": 31299207,
+        //     "readsMappedAndPaired": 31120474,
+        //     "readsUnmapped": 817621,
+        //     "readsProperlyPaired": 30066492,
+        //     "readsPaired": 32116828,
+        //     "readsDuplicated": 1121410,
+        //     "readsMq0": 2369927,
+        //     "readsQcFailed": 0,
+        //     "nonPrimaryAlignments": 0,
+        //     "totalLength": -1404452776,
+        //     "totalFirstFragmentLength": 1445257260,
+        //     "totalLastFragmentLength": 1445257260,
+        //     "basesMapped": 2816928630,
+        //     "basesMappedCigar": 2812285689,
+        //     "basesTrimmed": 0,
+        //     "basesDuplicated": 100926900,
+        //     "mismatches": 8428924,
+        //     "errorRate": 0.002997179,
+        //     "averageLength": 90.0,
+        //     "averageFirstFragmentLength": 90.0,
+        //     "averageLastFragmentLength": 90.0,
+        //     "maximumLength": 90,
+        //     "maximumFirstFragmentLength": 90,
+        //     "maximumLastFragmentLength": 90,
+        //     "averageQuality": 34.8,
+        //     "insertSizeAverage": 153.6,
+        //     "insertSizeStandardDeviation": 46.3,
+        //     "inwardOrientedPairs": 15081995,
+        //     "outwardOrientedPairs": 452217,
+        //     "pairsWithOtherOrientation": 12645,
+        //     "pairsOnDifferentChromosomes": 13380,
+        //     "percentageOfProperlyPairedReads": 93.6
+        // };
     }
 
     firstUpdated(_changedProperties) {
@@ -128,20 +128,21 @@ class AlignmentStatsView extends LitElement {
 
     renderTable() {
         //TODO when does this happens?
-        if (!Array.isArray(this.alignmentStats)) {
-            this.alignmentStats = [this.alignmentStats, this.alignmentStats, this.alignmentStats];
-        }
-
-        if (this.alignmentStats) {
+        // if (!Array.isArray(this.alignmentStats)) {
+        //     this.alignmentStats = [this.alignmentStats, this.alignmentStats, this.alignmentStats];
+        // }
+        if (this.alignmentStats && Array.isArray(this.alignmentStats)) {
+            debugger
             return html`
                 <table class="table table-hover table-no-bordered">
                     <thead>
                         <tr>
                             <th></th>
                             ${// Read column name from configuration if exist, otherwise use sampleId from the stats object
-                            this._config?.columns?.length ?
-                                this._config.columns.map( col => html`<th class="${col.classes}">${col.name}</th>`)
-                                : this.alignmentStats.map( stat => html`<th>${stat.sampleId}</th>`)}
+                                this._config?.columns?.length 
+                                    ? this._config.columns.map( col => html`<th class="${col.classes}">${col.name}</th>`)
+                                    : this.alignmentStats.map( stat => html`<th>${stat.sampleId}</th>`)
+                            }
                         </tr>
                     </thead>
                     <tbody>
@@ -159,7 +160,6 @@ class AlignmentStatsView extends LitElement {
     }
 
     onDownload(e) {
-
         console.log(e)
         const header = this._config?.columns?.length ? this._config.columns.map( col => col.name) : this.alignmentStats.map( stat => stat.sampleId)
         const d = this._config.rows.map(variable => [variable.name, ...this.alignmentStats.map(stat => stat[variable.field] ?? "N/A")].join("\t"))
@@ -167,7 +167,7 @@ class AlignmentStatsView extends LitElement {
         let dataString, mimeType, extension;
         if (e.currentTarget.dataset.downloadOption.toLowerCase() === "tab") {
             dataString = [
-                ["key", ...header].join("\t"),
+                ["#key", ...header].join("\t"),
                 d.join("\n")];
             // console.log(dataString);
             mimeType = "text/plain";
@@ -194,21 +194,21 @@ class AlignmentStatsView extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Samtools Stats",
-            columns: [
-                {
-                    name: "ISDBM322015",
-                    classes: "text-danger"
-                },
-                {
-                    name: "ISDBM322016",
-                    classes: ""
-                },
-                {
-                    name: "ISDBM322017",
-                    classes: ""
-                }
-            ],
+            // title: "Samtools Stats",
+            // columns: [
+            //     {
+            //         name: "ISDBM322015",
+            //         classes: "text-danger"
+            //     },
+            //     {
+            //         name: "ISDBM322016",
+            //         classes: ""
+            //     },
+            //     {
+            //         name: "ISDBM322017",
+            //         classes: ""
+            //     }
+            // ],
             rows: [
                 {
                     name: "File",
@@ -378,11 +378,13 @@ class AlignmentStatsView extends LitElement {
     render() {
         // Alignment stats are the same for FAMILY and CANCER analysis
         return html`
+            <!--
             <div>
                 <h3>${this._config.title}</h3>
             </div>
+            -->
             <div>
-                <div class="btn-group">
+                <div class="btn-group pull-right">
                     <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
                         <i class="fa fa-download" aria-hidden="true"

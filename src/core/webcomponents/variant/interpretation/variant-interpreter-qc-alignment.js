@@ -61,7 +61,7 @@ class VariantInterpreterQcAlignment extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("clinicalAnalysis")) {
-            // this.setProbandBamFile();
+            this.setAlignmentstats();
         }
 
         if (changedProperties.has("clinicalAnalysisId")) {
@@ -78,12 +78,30 @@ class VariantInterpreterQcAlignment extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    this.requestUpdate();
+                    this.setAlignmentstats();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
                 });
         }
+    }
+
+    setAlignmentstats() {
+        if (this.clinicalAnalysis && this.clinicalAnalysis.files) {
+            let _alignmentStats = [];
+            for (let file of this.clinicalAnalysis.files) {
+                if (file.format === "BAM" && file.annotationSets) {
+                    for (let annotationSet of file.annotationSets) {
+                        if (annotationSet.id.toUpperCase() === "OPENCGA_ALIGNMENT_STATS") {
+                            _alignmentStats.push(annotationSet.annotations);
+                            break;
+                        }
+                    }
+                }
+            }
+            this.alignmentStats = _alignmentStats;
+        }
+        this.requestUpdate();
     }
 
     getDefaultConfig() {
@@ -297,9 +315,9 @@ class VariantInterpreterQcAlignment extends LitElement {
         // Alignment stats are the same for FAMILY and CANCER analysis
         return html`
             <div class="container" style="margin-bottom: 20px">
-                <div>
-                    <h2>QC Alignment Stats</h2>
-                </div>
+<!--                <div>-->
+<!--                    <h2>QC Alignment Stats</h2>-->
+<!--                </div>-->
                 <div>
                     <alignment-stats-view .opencgaSession=${this.opencgaSession} .alignmentStats="${this.alignmentStats}"></alignment-stats-view>
                 </div>
