@@ -16,9 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import PolymerUtils from "../../PolymerUtils.js";
 
-// TODO Refactor needed it needs updated() [never saw how does it looks in IVA]
+
 export default class CohortStatsFilter extends LitElement {
 
     constructor() {
@@ -58,26 +57,22 @@ export default class CohortStatsFilter extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
         this.cohortsPerStudy = this.cohorts ? this.cohorts[this.opencgaSession.study.id] : null;
+        this.state = {};
     }
 
     updated(_changedProperties) {
         if (_changedProperties.has("cohortStatsAlt")) {
-            let cohortArray = [];
-            // reset fields
-            $(`.${this._prefix}FilterTextInput`, this).val("");
-            $(`.${this._prefix}FilterSelect`, this).val("<");
-            if (this.cohortStatsAlt && this.cohortStatsAlt.length) {
-                cohortArray = this.cohortStatsAlt.split(new RegExp("[,;]"));
-                for (let i = 0; i < cohortArray.length; i++) {
-                    const [study, cohortFreq] = cohortArray[i].split(":");
-                    const [cohort, freq] = cohortFreq.split(/[<=>]+/);
-                    const operator = cohortFreq.split(/[-A-Za-z0-9._:]+/)[1];
-                    this.querySelector("#" + this._prefix + study + cohort + "Cohort").value = freq;
-                    this.querySelector("#" + this._prefix + study + cohort + "CohortOperator").value = operator;
-                }
+            this.state = {};
+            if (this.cohortStatsAlt) {
+                const cohorts = this.cohortStatsAlt.split(";");
+                cohorts.forEach(cohortStat => {
+                    const [project, study, cohortFreq] = cohortStat.split(":");
+                    const [cohort, operator, value] = cohortFreq.split(/(<=?|>=?)/);
+                    this.state[project + ":" + study] = {cohort, operator, value};
+                });
             }
+            this.requestUpdate();
         }
 
         if (_changedProperties.has("onlyCohortAll")) {
@@ -86,6 +81,7 @@ export default class CohortStatsFilter extends LitElement {
         }
 
         if (_changedProperties.has("opencgaSession")) {
+            this.state = {};
             this.cohortsPerStudy = this.cohorts ? this.cohorts[this.opencgaSession.project.id] : this._getCohortAll();
             this.requestUpdate();
         }
@@ -104,26 +100,19 @@ export default class CohortStatsFilter extends LitElement {
     }
 
     filterChange(e) {
-        let cohortStatsAlt;
-        let cohortFreq = [];
-        // if (this.cohorts) {
-        for (const studyId in this.cohortsPerStudy) {
-            for (const cohort of this.cohortsPerStudy[studyId]) {
-                const cohortInput = PolymerUtils.getElementById(this._prefix + studyId + cohort.id + "Cohort");
-                let operator = PolymerUtils.getElementById(this._prefix + studyId + cohort.id + "CohortOperator");
-                if (cohortInput !== null && UtilsNew.isNotEmpty(cohortInput.value)) {
-                    // TODO add  this.opencgaSession.project.id + ":" +
-                    cohortFreq.push(studyId + ":" + cohort.id + operator.value + cohortInput.value);
-                }
-            }
+        const {study, cohort, action} = e.target.dataset;
+        if (action === "operator") {
+            const operator = e.target.value;
+            this.state[study] = {...this.state[study], cohort, operator};
         }
-        // }
-        if (cohortFreq.length > 0) {
-            cohortStatsAlt = cohortFreq.join(";");
+        if (action === "value") {
+            const value = e.target.value;
+            this.state[study] = {...this.state[study], cohort, operator: this.state[study]?.operator ?? "<", value};
         }
+        const value = Object.entries(this.state).filter( ([,v]) => v.value).map( ([study,v]) => `${study}:${v.cohort}${v.operator}${v.value}`).join(";")
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: cohortStatsAlt ? cohortStatsAlt : null
+                value: value
             }
         });
         this.dispatchEvent(event);
@@ -137,24 +126,24 @@ export default class CohortStatsFilter extends LitElement {
                         <span style="font-style: italic">${study}</span> study:
                     </div>
                     <div class="form-horizontal">
-                        ${this.cohortsPerStudy[study] && this.cohortsPerStudy[study].map(cohort => html`
+                        ${this.cohortsPerStudy[study] ? this.cohortsPerStudy[study].map(cohort => html`
                             <div class="form-group" style="margin: 5px 0px">
                                 <span class="col-md-4 control-label">${cohort.name}</span>
                                 <div class="col-md-4" style="padding: 0px 10px">
                                     <select id="${this._prefix}${study}${cohort.id}CohortOperator" name="${cohort.id}Operator"
-                                            class="form-control input-sm ${this._prefix}FilterSelect" style="padding: 0px 5px" @change="${this.filterChange}">
-                                        <option value="<" selected>&lt;</option>
-                                        <option value="<=">&le;</option>
-                                        <option value=">">&gt;</option>
-                                        <option value=">=">&ge;</option>
+                                            class="form-control input-sm ${this._prefix}FilterSelect" style="padding: 0px 5px"
+                                            data-study="${study}"
+                                            data-cohort="${cohort.id}"
+                                            data-action="operator"
+                                            @change="${this.filterChange}">
+                                        ${["<", "<=", ">", ">="].map( (op, i) => html`<option .selected="${this.state[study]?.operator === op || i === 0}">${op}</option>`) }
                                     </select>
                                 </div>
                                 <div class="col-md-4" style="padding: 0px 10px">
-                                    <input type="text" value="" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                           name="${study}_${cohort.id}" id="${this._prefix}${study}${cohort.id}Cohort" @input="${this.filterChange}">
+                                    <input type="text" class="form-control input-sm ${this._prefix}FilterTextInput" data-study="${study}" data-cohort="${cohort.id}" data-action="value" @input="${this.filterChange}" .value="${this.state[study]?.value ?? ""}">
                                 </div>
                             </div>
-                        `)}
+                        `) : null}
                     </div>
                 </div>`)}
         ` : html`

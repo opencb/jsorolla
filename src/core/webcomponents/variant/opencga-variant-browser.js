@@ -218,6 +218,10 @@ export default class OpencgaVariantBrowser extends LitElement {
         }
     }
 
+    onClickPill(e) {
+        this._changeView(e.currentTarget.dataset.id);
+    }
+
     _changeView(tabId) {
         $(".content-pills", this).removeClass("active");
         $(".content-tab", this).removeClass("active");
@@ -661,10 +665,10 @@ export default class OpencgaVariantBrowser extends LitElement {
                     <div>
                         <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
                             <div class="btn-group" role="group" style="margin-left: 0px">
-                                <button type="button" class="btn btn-success active ripple content-pills" @click="${e => this._changeView(e.currentTarget.dataset.id)}" data-id="table-tab">
+                                <button type="button" class="btn btn-success active ripple content-pills" @click="${this.onClickPill}" data-id="table-tab">
                                     <i class="fa fa-table icon-padding" aria-hidden="true"></i> Table Result
                                 </button>
-                                <button type="button" class="btn btn-success ripple content-pills" @click="${e => this._changeView(e.currentTarget.dataset.id)}" data-id="facet-tab">
+                                <button type="button" class="btn btn-success ripple content-pills" @click="${this.onClickPill}" data-id="facet-tab">
                                     <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i> Aggregation Stats
                                 </button>
                             </div>

@@ -250,16 +250,16 @@ export default class OpencgaBrowser extends LitElement {
     renderView(entity) {
         // TODO be sure to EXECUTE this function each template update, otherwise props in the following components won't be updated.
         // possible modular solution (which still doesn't solve the update filter issue): map of TemplateResult: renderView(entity).mainView
-        const facetView = html`<div id="facet-tab" class="content-tab">
-                                    <opencb-facet-results
-                                                    resource="${this.resource}"
-                                                    .opencgaSession="${this.opencgaSession}" 
-                                                    .active="${this.activeTab["facet-tab"]}"
-                                                    .query="${this.facetQuery}"
-                                                    .data="${this.facetResults}">
-                                    </opencb-facet-results>
-                                </div>
-                        `;
+        const facetView = html`
+            <div id="facet-tab" class="content-tab">
+                <opencb-facet-results
+                                resource="${this.resource}"
+                                .opencgaSession="${this.opencgaSession}" 
+                                .active="${this.activeTab["facet-tab"]}"
+                                .query="${this.facetQuery}"
+                                .data="${this.facetResults}">
+                </opencb-facet-results>
+            </div>`;
         switch (entity) {
             case "files":
                 this.endpoint = this.opencgaSession.opencgaClient.files();
