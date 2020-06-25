@@ -17,9 +17,9 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import "../../alignment/alignment-stats-view.js";
-import "../../commons/view/data-form.js";
+// import "../../commons/view/data-form.js";
 
-class VariantInterpreterQcAlignment extends LitElement {
+class VariantInterpreterQcAlignmentStats extends LitElement {
 
     constructor() {
         super();
@@ -106,7 +106,7 @@ class VariantInterpreterQcAlignment extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Summary",
+            /*title: "Summary",
             icon: "",
             display: {
                 collapsable: true,
@@ -291,7 +291,7 @@ class VariantInterpreterQcAlignment extends LitElement {
                         }
                     ]
                 }
-            ]
+            ]*/
         };
     }
 
@@ -318,15 +318,18 @@ class VariantInterpreterQcAlignment extends LitElement {
 <!--                <div>-->
 <!--                    <h2>QC Alignment Stats</h2>-->
 <!--                </div>-->
-                ${this.alignmentStats 
+                <div>
+                    <alignment-stats-view .opencgaSession=${this.opencgaSession} .alignmentStats="${this.alignmentStats}"></alignment-stats-view>
+                </div>
+                <!-- ${this.alignmentStats 
                     ? html`
-                       <data-form .data="${this.alignmentStats[0]}" .config="${this._config}"></data-form>` 
+                       <data-form .data="${this.alignmentStats}" .config="${this._config}"></data-form>` 
                     : html`No Stats available.`
-                }
+                } -->
             </div>
         `;
     }
 
 }
 
-customElements.define("variant-interpreter-qc-alignment", VariantInterpreterQcAlignment);
+customElements.define("variant-interpreter-qc-alignment-stats", VariantInterpreterQcAlignmentStats);

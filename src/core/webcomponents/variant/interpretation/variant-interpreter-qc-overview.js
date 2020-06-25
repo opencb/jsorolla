@@ -16,7 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-
+import "./variant-interpreter-qc-alignment-stats.js";
+import "./variant-interpreter-qc-variant-stats.js";
 
 class VariantInterpreterQcOverview extends LitElement {
 
@@ -138,7 +139,7 @@ class VariantInterpreterQcOverview extends LitElement {
         }
     }
 
-    getVariantConfig() {
+    /*getVariantConfig() {
         return {
             title: "Variant",
             icon: "",
@@ -195,7 +196,7 @@ class VariantInterpreterQcOverview extends LitElement {
                 }
             ]
         }
-    }
+    }*/
 
     onSideNavClick(e) {
         e.preventDefault();
@@ -234,7 +235,7 @@ class VariantInterpreterQcOverview extends LitElement {
                     padding: 15px;
                     font-weight: bold;
                     background-color: #EEEEEE;
-                    border-left-color: darkorange;
+                    border-left-color: var(--main-bg-color);
                 }
             </style>
             <div class="row" style="margin: 10px">
@@ -264,19 +265,19 @@ class VariantInterpreterQcOverview extends LitElement {
                             </div>
                             
                             <div id="${this._prefix}VariantStatsContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
-                                <data-form .data=${this.clinicalAnalysis} .config="${this.getVariantConfig()}"></data-form>
-                                <!--
+                                <!--<data-form .data=${this.clinicalAnalysis} .config="${1||this.getVariantConfig()}"></data-form>-->
+                                
                                 <variant-interpreter-qc-variant-stats     .opencgaSession=${this.opencgaSession} 
                                                                         .clinicalAnalysis="${this.clinicalAnalysis}">
                                 </variant-interpreter-qc-variant-stats>
-                                -->
+                                
                             </div>
                             
                             <div id="${this._prefix}AlignmentStatsContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
                                 <h3>Alignment Stats</h3>
-                                <variant-interpreter-qc-alignment   .opencgaSession=${this.opencgaSession} 
-                                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
-                                </variant-interpreter-qc-alignment>
+                                <variant-interpreter-qc-alignment-stats .opencgaSession=${this.opencgaSession} 
+                                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
+                                </variant-interpreter-qc-alignment-stats>
                             </div>
                             
                             <div id="${this._prefix}GeneCoverageStatsContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
