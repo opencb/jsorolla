@@ -16,8 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import "./transcript-view.js";
-import "./transcript-low.js";
+import "./transcript-coverage-view.js";
+import "./transcript-coverage-low.js";
 
 export default class GeneCoverageDetail extends LitElement {
 
@@ -75,14 +75,14 @@ export default class GeneCoverageDetail extends LitElement {
                     name: "Overview",
                     active: true,
                     render: (transcriptCoverageStats, active, opencgaSession) => {
-                        return html`<gene-coverage-view .transcriptCoverageStats="${transcriptCoverageStats}"></gene-coverage-view>`;
+                        return html`<transcript-coverage-view .transcriptCoverageStats="${transcriptCoverageStats}"></transcript-coverage-view>`;
                     }
                 },
                 {
                     id: "low-coverage",
                     name: "Low Coverage Regions",
                     render: (transcriptCoverageStats, active, opencgaSession) => {
-                        return html`<gene-coverage-low .transcriptCoverageStats="${transcriptCoverageStats}"></gene-coverage-low>`;
+                        return html`<transcript-coverage-low .transcriptCoverageStats="${transcriptCoverageStats}"></transcript-coverage-low>`;
                     }
                 }
             ]

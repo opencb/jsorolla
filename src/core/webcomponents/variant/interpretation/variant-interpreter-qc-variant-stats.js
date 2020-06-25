@@ -59,7 +59,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("clinicalAnalysis")) {
-            this.setVariantStats();
+            this.clinicalAnalysisObserver();
         }
 
         if (changedProperties.has("clinicalAnalysisId")) {
@@ -76,7 +76,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    this.setVariantStats();
+                    // this.clinicalAnalysisObserver();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -84,14 +84,37 @@ class VariantInterpreterQcVariantStats extends LitElement {
         }
     }
 
-    setVariantStats() {
-        if (this.clinicalAnalysis?.proband?.samples?.length) {
-            this.stats = this.clinicalAnalysis.proband.samples[0].annotationSets.find( annotationSet => annotationSet.id === "opencga_sample_variant_stats");
-            if(!this.stats) {
+    clinicalAnalysisObserver() {
+        if (this.clinicalAnalysis) {
+            switch (this.clinicalAnalysis.type.toUpperCase()) {
+                case "FAMILY":
+                    this._samples = [this.clinicalAnalysis.proband.samples[0]];
+                    this._samples.push(...this.clinicalAnalysis.family.members
+                        .filter(member => member.id !== this.clinicalAnalysis.proband.id)
+                        .map(member => member.samples[0])
+                    );
+                    break;
+                case "CANCER":
+                    this._samples = this.clinicalAnalysis.proband.samples;
+                    break;
+
+            }
+        }
+
+        if (this._samples?.length) {
+            this.stats = this._samples[0].annotationSets.find( annotationSet => annotationSet.id.toUpperCase() === "OPENCGA_SAMPLE_VARIANT_STATS");
+            if (!this.stats) {
                 console.error("Sample variant stats unavailable")
             }
             this.requestUpdate();
         }
+    }
+
+    onSampleChange(e) {
+        let selectedSample = e.detail.value;
+        this.stats = this._samples.find(sample => sample.id === selectedSample)
+            .annotationSets.find( annotationSet => annotationSet.id.toUpperCase() === "OPENCGA_SAMPLE_VARIANT_STATS");
+        this.requestUpdate();
     }
 
     getDefaultConfig() {
@@ -119,8 +142,19 @@ class VariantInterpreterQcVariantStats extends LitElement {
 
         return html`
             <div class="container" style="margin-bottom: 20px">
-                <div>
-                    <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" .sampleVariantStats="${this.stats?.annotations}"> </sample-variant-stats-view>
+                <div class="row">
+                    <div class="col-md-12 pull-right">
+                        <form class="form-inline">
+                            <div class="form-group">
+                                <label for="${this._prefix}SampleSelect">Select Sample</label>
+                                <select-field-filter id="${this._prefix}SampleSelect" .data="${this._samples}" @filterChange="${this.onSampleChange}"></select-field-filter>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-12">
+                        <h3>Sample Variant Stats</h3>
+                        <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" .sampleVariantStats="${this.stats?.annotations}"> </sample-variant-stats-view>
+                    </div>
                 </div>
             </div>
         `;

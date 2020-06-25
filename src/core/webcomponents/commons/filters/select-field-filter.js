@@ -138,7 +138,7 @@ export default class SelectFieldFilter extends LitElement {
                                 </optgroup>
                                 ` : html` 
                                     ${UtilsNew.isObject(opt) ? html`
-                                        <option ?disabled="${opt.disabled}" ?selected="${opt.selected}" .value="${opt.id ? opt.id : opt.name}">${opt.name}</option>
+                                        <option ?disabled="${opt.disabled}" ?selected="${opt.selected}" .value="${opt.id ? opt.id : opt.name}">${opt.name ? opt.name : opt.id}</option>
                                     ` : html`
                                         <option>${opt}</option>
                                 `}

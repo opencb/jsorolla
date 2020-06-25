@@ -106,7 +106,7 @@ import "./core/webcomponents/opencga/catalog/family/opencga-family-facet.js";
 import "./core/webcomponents/opencga/catalog/opencga-login.js";
 import "./core/webcomponents/opencga/opencga-genome-browser.js";
 import "./core/webcomponents/opencga/opencga-gene-view.js";
-import "./core/webcomponents/opencga/opencga-transcript-view.js";
+import "./core/webcomponents/opencga/opencga-transcript-coverage-view.js";
 import "./core/webcomponents/opencga/opencga-protein-view.js";
 import "./core/webcomponents/opencga/clinical/clinical-interpretation-view.js";
 import "./core/webcomponents/opencga/clinical/opencga-clinical-analysis-facet.js";

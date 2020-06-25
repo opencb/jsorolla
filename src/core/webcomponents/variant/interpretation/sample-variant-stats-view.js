@@ -103,7 +103,7 @@ class SampleVariantStatsView extends LitElement {
             display: {
                 collapsable: true,
                 showTitle: false,
-                labelWidth: 2,
+                labelWidth: 3,
                 defaultValue: "-",
                 defaultLayout: "horizontal"
             },
@@ -113,15 +113,15 @@ class SampleVariantStatsView extends LitElement {
                     collapsed: false,
                     elements: [
                         {
-                            name: "ID",
+                            name: "Sample ID",
                             field: "id"
                         },
                         {
-                            name: "Number of variants",
+                            name: "Number of Variants",
                             field: "variantCount"
                         },
                         {
-                            name: "TiTvRatio",
+                            name: "Ti/Tv Ratio",
                             field: "tiTvRatio"
                         },
                         {

@@ -241,14 +241,14 @@ export default class GeneCoverageBrowser extends LitElement {
                             name: "Overview",
                             active: true,
                             render: (transcriptCoverageStats, active, opencgaSession) => {
-                                return html`<transcript-view .transcriptCoverageStats="${transcriptCoverageStats}"></transcript-view>`;
+                                return html`<transcript-coverage-view .transcriptCoverageStats="${transcriptCoverageStats}"></transcript-coverage-view>`;
                             }
                         },
                         {
                             id: "low-coverage",
                             name: "Low Coverage Regions",
                             render: (transcriptCoverageStats, active, opencgaSession) => {
-                                return html`<transcript-low .transcriptCoverageStats="${transcriptCoverageStats}"></transcript-low>`;
+                                return html`<transcript-coverage-low .transcriptCoverageStats="${transcriptCoverageStats}"></transcript-coverage-low>`;
                             }
                         }
                     ]

@@ -15,11 +15,10 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
 import "../commons/view/data-form.js";
 
 
-export default class TranscriptLow extends LitElement {
+export default class TranscriptCoverageView extends LitElement {
 
     constructor() {
         super();
@@ -102,23 +101,25 @@ export default class TranscriptLow extends LitElement {
                             field: "length"
                         },
                         {
-                            name: "Low Coverage Threshold",
-                            field: "lowCoverageThreshold"
-                        },
-                        {
-                            name: "Low Coverage Regions",
-                            field: "lowCoverageRegionStats",
+                            name: "Exon Stats",
+                            field: "exonStats",
                             type: "table",
                             display: {
                                 columns: [
                                     {
-                                        name: "Region",
+                                        name: "Exon ID",
                                         type: "custom",
                                         display: {
                                             render: data => {
-                                                let region = `${data.chromosome}:${data.start}-${data.end}`;
-                                                return html`<a href="http://www.ensembl.org/Homo_sapiens/Location/View?db=core;r=${region}" target="_blank">${region}</a>`;
+                                                return html`<a href="http://www.ensembl.org/Homo_sapiens/Transcript/Exons?db=core;r=13:32315086-32400266;t=${data.id}" target="_blank">${data.id}</a>`;
                                             }
+                                        }
+                                    },
+                                    {
+                                        name: "Region",
+                                        type: "complex",
+                                        display: {
+                                            template: "${chromosome}:${start}-${end}"
                                         }
                                     },
                                     {
@@ -135,38 +136,41 @@ export default class TranscriptLow extends LitElement {
                                         }
                                     },
                                     {
-                                        name: "% of Transcript",
+                                        name: "Mean Depth",
+                                        field: "depthAvg",
                                         type: "custom",
                                         display: {
-                                            render: data => {
-                                                if (data) {
-                                                    let perc = (data.end - data.start + 1) * 100 / this.transcriptCoverageStats.length;
-                                                    return perc.toFixed(2);
-                                                } else {
-                                                    return "N/A";
-                                                }
+                                            render: field => {
+                                                let color = field < 20 ? "red" : field < 30 ? "darkorange" : "black";
+                                                return html`<span style="color: ${color}">${field.toFixed(2)}</span>`;
                                             }
                                         }
                                     },
                                     {
-                                        name: "Mean depth",
-                                        field: "depthAvg",
-                                        type: "custom",
-                                        display: {
-                                            render: field => field.toFixed(2)
-                                        }
-                                    },
-                                    {
-                                        name: "Min depth",
+                                        name: "Min Depth",
                                         field: "depthMin",
                                         type: "custom",
                                         display: {
-                                            render: field => field.toFixed(2)
+                                            render: field => {
+                                                let color = field < 20 ? "red" : field < 30 ? "darkorange" : "black";
+                                                return html`<span style="color: ${color}">${field.toFixed(2)}</span>`;
+                                            }
+                                        }
+                                    },
+                                    {
+                                        name: "Max Depth",
+                                        field: "depthMax",
+                                        type: "custom",
+                                        display: {
+                                            render: field => {
+                                                let color = field < 20 ? "red" : field < 30 ? "darkorange" : "black";
+                                                return html`<span style="color: ${color}">${field.toFixed(2)}</span>`;
+                                            }
                                         }
                                     }
                                 ]
                             }
-                        }
+                        },
                     ]
                 }
             ]
@@ -181,4 +185,5 @@ export default class TranscriptLow extends LitElement {
 
 }
 
-customElements.define("transcript-low", TranscriptLow);
+customElements.define("transcript-coverage-view", TranscriptCoverageView);
+
