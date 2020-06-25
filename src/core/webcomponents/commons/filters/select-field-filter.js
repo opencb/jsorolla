@@ -128,7 +128,7 @@ export default class SelectFieldFilter extends LitElement {
                     ${this.data.map(opt => html`
                         ${opt.separator ? html`<option data-divider="true"></option>` : html`
                             ${opt.fields ? html`
-                                <optgroup label="${opt.name}">${opt.fields.map(subopt => html`
+                                <optgroup label="${opt.id ?? opt.name}">${opt.fields.map(subopt => html`
                                     ${UtilsNew.isObject(subopt) ? html`
                                         <option ?disabled="${subopt.disabled}" ?selected="${subopt.selected}" .value="${subopt.id ? subopt.id : subopt.name}">${subopt.name}</option>    
                                     ` : html`

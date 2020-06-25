@@ -279,7 +279,7 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
             icon: "fas fa-search",
             filter: {
                 title: "Filter",
-                searchButtonText: "Run",
+                searchButtonText: "Search",
                 activeFilters: {
                     alias: {
                         // Example:

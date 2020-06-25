@@ -25,7 +25,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
     constructor() {
         super();
-        
+
         this._init();
     }
 
@@ -479,7 +479,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
                     <div>
                         <opencga-clinical-analysis-grid .opencgaSession="${this.opencgaSession}"
-                                                        .query="${this._query}" style="font-size: 12px"
+                                                        .query="${this._query}"
                                                         .active="${this.active}"
                                                         .config="${this._config.grid}"
                                                         @selectrow="${this.onSelectClinicalAnalysis}">

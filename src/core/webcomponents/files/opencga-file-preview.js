@@ -80,13 +80,14 @@ export default class OpencgaFilePreview extends LitElement {
             includeIndividual: true,
             lines: 200
         };
-
+        this.title = null;
         switch (this.file.format) {
             case "PLAIN":
             case "VCF":
             case "UNKNOWN":
             case "TAB_SEPARATED_VALUES":
                 this.contentType = "text";
+                this.title = "Head";
                 this.opencgaSession.opencgaClient.files().head(this.file.id, params)
                     .then( response => {
                         const {format, content} = response.getResult(0);
@@ -129,6 +130,7 @@ export default class OpencgaFilePreview extends LitElement {
                 break;
             case "IMAGE":
                 this.contentType = "image";
+                this.title = "Image";
                 this.opencgaSession.opencgaClient.files().image(this.file.id, params)
                     .then( response => {
                         this.requestUpdate().then( () => this.querySelector("#thumbnail").src = "data:image/png;base64, " + response.getResult(0).content);
@@ -142,23 +144,7 @@ export default class OpencgaFilePreview extends LitElement {
             default:
                 this.content = "Format not recognized: " + this.file.format;
         }
-
-        this.url = this.opencgaSession.server.host + "/webservices/rest/" + this.opencgaSession.server.version + "/files/" + this.file.id + "/download?study=" + this.opencgaSession.study.fqn + "&sid=" + this.opencgaSession.token;
         this.requestUpdate();
-    }
-
-    async download() {
-        // TODO FIXME .gz files are broken
-        console.error()
-        /*let response = await this.opencgaSession.opencgaClient.files().download(this.file.id, {study: this.opencgaSession.study.fqn})
-        console.log("response", response)
-        const blob = new Blob([response]);
-        const downloadUrl = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = downloadUrl;
-        a.download = this.file.name;
-        document.body.appendChild(a);
-        a.click();*/
     }
 
     fileIdObserver() {
@@ -194,21 +180,19 @@ export default class OpencgaFilePreview extends LitElement {
                              
         </style>
         
-        <!--<div class="button-wrapper">
-            <a class="btn btn-primary ripple" href="${this.url}">Download</a>
-        </div>-->
+        
+        
         ${this.file ? html`
             <div class="row">
+                ${this.title ? html`<h3>${this.title}</h3>` : null}
                 <div class="col-md-12">
                     ${this.contentType === "text" ? html`
-                        <h3 class="section-title">Head</h3>
                         <pre class="cmd">${this.content}</pre>` : null}
                     ${this.contentType === "image" ? html`
-                        <h3 class="section-title">Image</h3>
                         <img class="img-thumbnail" id="thumbnail" />` : null}
                     ${this.contentType === "json" ? html`
                         <json-viewer .data="${this.content}"></json-viewer>'
-                        ` : null}
+                    ` : null}
                 </div>
             </div>
         ` : null }

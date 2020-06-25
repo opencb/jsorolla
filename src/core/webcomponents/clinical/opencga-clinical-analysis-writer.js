@@ -555,6 +555,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
             ],
             execute: (opencgaSession, clinicalAnalysis, params) => {
                 // Prepare the data for the REST create
+                // TODO validate data!
                 let data = {...clinicalAnalysis};
                 delete data._users;
                 data.proband = {

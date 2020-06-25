@@ -88,7 +88,7 @@ export default class OpencgaCohortBrowser extends LitElement {
         return {
             title: "Cohort Browser",
             icon: "fab fa-searchengin",
-            searchButtonText: "Run",
+            searchButtonText: "Search",
             views: [
                 {
                     id: "table-tab",

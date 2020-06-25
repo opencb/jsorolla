@@ -144,7 +144,7 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
             icon: "fas fa-search",
             filter: {
                 title: "Filter",
-                searchButtonText: "Run",
+                searchButtonText: "Search",
                 activeFilters: {
                     alias: {
                         // Example:

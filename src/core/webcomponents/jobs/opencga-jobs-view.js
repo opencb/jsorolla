@@ -208,7 +208,7 @@ export default class OpencgaJobsView extends LitElement {
                             display: {
                                 template: "<div class='cmd'>${commandLine}</div>",
                             }
-                        },
+                        },/*
                         {
                             name: "Dependencies",
                             field: "dependsOn",
@@ -219,7 +219,7 @@ export default class OpencgaJobsView extends LitElement {
                                     return {text: node.id, nodes: node.elements?.map(n => fn(n))};
                                 }
                             }
-                        }
+                        }*/
                     ]
                 },
                 {

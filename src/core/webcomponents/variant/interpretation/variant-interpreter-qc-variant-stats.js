@@ -50,6 +50,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
 
     _init() {
         this._prefix = "vcis-" + UtilsNew.randomString(6);
+        this.statsSelect = [];
     }
 
     connectedCallback() {
@@ -88,32 +89,49 @@ class VariantInterpreterQcVariantStats extends LitElement {
         if (this.clinicalAnalysis) {
             switch (this.clinicalAnalysis.type.toUpperCase()) {
                 case "FAMILY":
-                    this._samples = [this.clinicalAnalysis.proband.samples[0]];
-                    this._samples.push(...this.clinicalAnalysis.family.members
-                        .filter(member => member.id !== this.clinicalAnalysis.proband.id)
-                        .map(member => member.samples[0])
-                    );
+                    this.statsSelect = [
+                        {id: this.clinicalAnalysis.proband.samples[0].id, fields: this.clinicalAnalysis.proband.samples[0].annotationSets.map( set => ({id: this.clinicalAnalysis.proband.samples[0].id + ":" + set.id.toUpperCase(), name: set.name}))},
+                        ...this.clinicalAnalysis.family.members
+                            .filter(member => member.id !== this.clinicalAnalysis.proband.id)
+                            .map(member => ({
+                                id: member.samples[0].id,
+                                fields: member.samples[0].annotationSets.map( set => ({id: member.samples[0].id + ":" + set.id.toUpperCase(), name: set.name}))
+                            }))
+                    ];
                     break;
                 case "CANCER":
-                    this._samples = this.clinicalAnalysis.proband.samples;
+                    this.statsSelect = this.clinicalAnalysis.proband.samples[0].annotationSets.map( set => ({id: this.clinicalAnalysis.proband.samples[0].id + ":" + set.id.toUpperCase(), name: set.name}));
                     break;
 
             }
         }
 
-        if (this._samples?.length) {
-            this.stats = this._samples[0].annotationSets.find( annotationSet => annotationSet.id.toUpperCase() === "OPENCGA_SAMPLE_VARIANT_STATS");
-            if (!this.stats) {
-                console.error("Sample variant stats unavailable")
-            }
-            this.requestUpdate();
+        this.stats = this.clinicalAnalysis.proband.samples[0].annotationSets.find( annotationSet => annotationSet.id.toUpperCase() === "OPENCGA_SAMPLE_VARIANT_STATS");
+        if (!this.stats) {
+            console.error("Sample variant stats unavailable")
         }
+        this.requestUpdate();
     }
 
     onSampleChange(e) {
-        let selectedSample = e.detail.value;
-        this.stats = this._samples.find(sample => sample.id === selectedSample)
-            .annotationSets.find( annotationSet => annotationSet.id.toUpperCase() === "OPENCGA_SAMPLE_VARIANT_STATS");
+        let [sampleId, stats] = e.detail.value.split(":");
+        console.log(sampleId, stats)
+        this.stats = null;
+        for (let member of this.clinicalAnalysis.family.members) {
+            for (let sample of member.samples) {
+                if (sample.id === sampleId) {
+                    for (let annotationSet of sample.annotationSets) {
+                        if (annotationSet.id.toUpperCase() === stats) {
+                            this.stats = annotationSet;
+                        }
+                    }
+                }
+            }
+        }
+        if (!this.stats) {
+            console.error("No stats found");
+        }
+
         this.requestUpdate();
     }
 
@@ -141,20 +159,18 @@ class VariantInterpreterQcVariantStats extends LitElement {
         }
 
         return html`
-            <div class="container" style="margin-bottom: 20px">
+            <div class="container">
                 <div class="row">
                     <div class="col-md-12 pull-right">
                         <form class="form-inline">
                             <div class="form-group">
                                 <label for="${this._prefix}SampleSelect">Select Sample</label>
-                                <select-field-filter id="${this._prefix}SampleSelect" .data="${this._samples}" @filterChange="${this.onSampleChange}"></select-field-filter>
+                                <select-field-filter id="${this._prefix}SampleSelect" .data="${this.statsSelect}" @filterChange="${this.onSampleChange}"></select-field-filter>
                             </div>
                         </form>
                     </div>
-                    <div class="col-md-12">
-                        <h3>Sample Variant Stats</h3>
-                        <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" .sampleVariantStats="${this.stats?.annotations}"> </sample-variant-stats-view>
-                    </div>
+                    <h3>Sample Variant Stats</h3>
+                    <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" .sampleVariantStats="${this.stats?.annotations}"> </sample-variant-stats-view>
                 </div>
             </div>
         `;

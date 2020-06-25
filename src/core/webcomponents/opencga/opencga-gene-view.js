@@ -160,13 +160,13 @@ export default class OpencgaGeneView extends LitElement {
         </style>
 
         <div>
+            <tool-header title="${`Gene <span class="inverse"> ${this.geneObj.name} </span>` }" icon="${this._config.icon}"></tool-header>
+
             <div style="float: right;padding: 10px 5px 10px 5px">
                 <button type="button" class="btn btn-primary" @click="${this.showBrowser}">
                     <i class="fa fa-hand-o-left" aria-hidden="true"></i> Variant Browser
                 </button>
             </div>
-
-            <h2>${this.geneObj.name}</h2>
 
             <div class="row" style="padding: 5px 0px 25px 0px">
                 <div class="col-md-4">

@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../utilsNew.js";
 
+
 export default class SimpleChart extends LitElement {
 
     constructor() {
@@ -70,24 +71,21 @@ export default class SimpleChart extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    firstUpdated(_changedProperties) {
-        if(this.type && this.data) {
-            switch (this.type) {
-                case "column":
-                    this.barChart({title: this.title, data: this.data});
-                    break;
-                case "pie":
-                    this.pieChart({title: this.title, data: this.data});
-                    break;
-                default:
-                    throw new Error("Chart type not supported");
-            }
-        }
-    }
-
     updated(changedProperties) {
-        if(changedProperties.has("property")) {
-            //this.propertyObserver();
+        if(changedProperties.has("type") || changedProperties.has("data")) {
+            if(this.type && this.data) {
+                switch (this.type) {
+                    case "column":
+                        this.barChart({title: this.title, data: this.data});
+                        break;
+                    case "pie":
+                        this.pieChart({title: this.title, data: this.data});
+                        break;
+                    default:
+                        throw new Error("Chart type not supported");
+                }
+            }
+
         }
     }
 

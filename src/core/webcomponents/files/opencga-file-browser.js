@@ -91,7 +91,7 @@ export default class OpencgaFileBrowser extends LitElement {
             //active: false,
             icon: "fab fa-searchengin",
             description: "",
-            searchButtonText: "Run",
+            searchButtonText: "Search",
             views: [
                 {
                     id: "table-tab",

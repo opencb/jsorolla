@@ -178,14 +178,14 @@ export default class DataForm extends LitElement {
         // Render custom display.layout array when provided
         if (this.config?.display && this.config?.display.layout && Array.isArray(this.config?.display.layout)) {
             return html`
-                <div class="row">
+                <div class="">
                     ${this.config?.display.layout.map(section => section.id 
                         ? html`
-                            <div class="${section.classes}" style="padding-left: 25px">
+                            <section class="${section.classes}" style="padding-left: 25px">
                                 ${this._createSection(this.config.sections.find(s => s.id === section.id))}
-                            </div>` 
+                            </section>` 
                         : html`
-                            <div class="${section.classes}">
+                            <section class="${section.classes}">
                                 ${section.sections.map(subsection => subsection.id
                                     ? html`
                                         <div class="${subsection.classes}">
@@ -193,7 +193,7 @@ export default class DataForm extends LitElement {
                                         </div>` 
                                     : null
                                 )}
-                            </div>`
+                            </section>`
                     )}
                 </div>
             `;
@@ -203,19 +203,19 @@ export default class DataForm extends LitElement {
         let style = this.config?.display?.style ?? "";
         if (this.config.type === "form") {
             return html`
-                <div class="row">
+                <section>
                     <form class="${this.config?.display?.defaultLayout === "horizontal" ? "form-horizontal" : ""} ${classes}" style="${style}">
                         ${this.config.sections.map(section => this._createSection(section))}
                     </form>
-                </div>
+                </section>
             `;
         } else {
             return html`
-                <div class="row">
+                <section">
                     <div class="${classes}" style="${style}">
                         ${this.config.sections.map(section => this._createSection(section))}
                     </div>
-                </div>
+                </section>
             `;
         }
     }
@@ -235,9 +235,9 @@ export default class DataForm extends LitElement {
             const sectionWidth = section?.display?.width ? section?.display?.width : "12";
             return html`
                 <div class="row">
-                    <div class="col-md-${sectionWidth}">
-                        ${section.title ? html`<h3 class="${sectionTitleClass}" style="${sectionTitleStyle}">${section.title}</h3>` : null}
-                        <div class="container-fluid" style="padding: 10px">
+                    ${section.title ? html`<h3 class="${sectionTitleClass}" style="${sectionTitleStyle}">${section.title}</h3>` : null}
+                    <div class="col-md-${sectionWidth}">    
+                        <div class="">
                             ${section.elements.map(element => this._createElement(element))}
                         </div>
                     </div>
@@ -250,7 +250,7 @@ export default class DataForm extends LitElement {
             return html`
                 <div>
                     ${section.title ? html`<h3 class="${sectionTitleClass}" style="${sectionTitleStyle}">${section.title}</h3>` : null}
-                    <div class="container-fluid">
+                    <div class="">
                         <div class="row">
                             <div class="col-md-${leftColumnWidth}" style="${columnSeparatorStyle}">
                                 ${section.elements[0].map(element => this._createElement(element))}

@@ -347,7 +347,7 @@ class VariantInterpreterRdBrowser extends LitElement {
             showTitle: false,
             filter: {
                 title: "Filter",
-                searchButtonText: "Run",
+                searchButtonText: "Search",
                 activeFilters: {
                     alias: {
                         // Example:

@@ -334,7 +334,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                     <div class="selection-list">
                         <ul>
                             ${this.selectionList.slice(0, this._config.limitToShow).map(term => html`<li><span class="badge break-spaces">${term} <span class="close-icon" data-term=${term} @click="${this.remove}"><i class="fas fa-times"></i></span></span></li>`)}
-                            ${this.showAll ? this.selectionList.slice(this._config.limitToShow).map(term => html`<li><span class="badge break-spaces">${term} <span class="close-icon"><i class="fas fa-times"></i></span></span></li>`) : ""}
+                            ${this.showAll ? this.selectionList.slice(this._config.limitToShow).map(term => html`<li><span class="badge break-spaces">${term} <span class="close-icon" @click="${this.remove}"><i class="fas fa-times"></i></span></span></li>`) : ""}
                         </ul>
                         ${this.selectionList.length > this._config.limitToShow ? html`<button class="btn btn-small ripple" @click="${this.toggleList}">Show ${this.showAll ? "less" : "all"}</button>` : ""}
                     </div>` : null}

@@ -89,7 +89,7 @@ export default class OpencgaSampleBrowser extends LitElement {
         return {
             title: "Sample Browser",
             icon: "fab fa-searchengin",
-            searchButtonText: "Run",
+            searchButtonText: "Search",
             views: [
                 {
                     id: "table-tab",

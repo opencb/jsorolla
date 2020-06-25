@@ -83,7 +83,7 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                 }*/
             ],
             filter: {
-                searchButtonText: "Run",
+                searchButtonText: "Search",
                 sections: [
                     {
                         name: "section title",

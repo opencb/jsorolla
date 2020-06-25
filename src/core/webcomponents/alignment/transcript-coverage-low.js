@@ -19,7 +19,7 @@ import UtilsNew from "../../utilsNew.js";
 import "../commons/view/data-form.js";
 
 
-export default class TranscripCoveragetLow extends LitElement {
+export default class TranscripCoverageLow extends LitElement {
 
     constructor() {
         super();
@@ -181,4 +181,4 @@ export default class TranscripCoveragetLow extends LitElement {
 
 }
 
-customElements.define("transcript-coverage-low", TranscripCoveragetLow);
+customElements.define("transcript-coverage-low", TranscripCoverageLow);

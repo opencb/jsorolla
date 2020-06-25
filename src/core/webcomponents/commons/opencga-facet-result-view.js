@@ -19,7 +19,7 @@ import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 
 
-// TODO fixbug querying opencga-client PhastCons - 1kG_phase3_EAS
+// TODO refactor: this should preprocess data and call simple-chart
 
 export default class OpencgaFacetResultView extends LitElement {
 
@@ -458,7 +458,7 @@ export default class OpencgaFacetResultView extends LitElement {
                         [1, "rgb(240, 240, 255)"]
                     ]
                 },
-                borderWidth: 1,
+                borderWidth: 0,
                 //plotBackgroundColor: "rgba(255, 255, 255, .9)",
                 plotShadow: true,
                 plotBorderWidth: 1
