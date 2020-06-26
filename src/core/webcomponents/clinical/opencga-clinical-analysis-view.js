@@ -100,7 +100,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                 layout: [
                     {
                         id: "",
-                        classes: "col-md-12",
+                        classes: "row",
                         sections: [
                             {
                                 id: "detail",
@@ -114,11 +114,11 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                     },
                     {
                         id: "family",
-                        classes: "col-md-11"
+                        classes: ""
                     },
                     {
                         id: "files",
-                        classes: "col-md-11"
+                        classes: ""
                     }
                 ],
                 // layout: [

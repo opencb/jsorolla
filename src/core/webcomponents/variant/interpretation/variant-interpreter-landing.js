@@ -339,7 +339,7 @@ class VariantInterpreterLanding extends LitElement {
                 }
             </style>
             <div id="variant-interpreter-landing">
-                <div class="container">
+                <div>
                     <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
                         <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["landing-search"] || UtilsNew.isEmpty(this.activeTab)})}"">
                             <a href="javascript: void 0" role="tab" data-id="landing-search" @click="${this._changeTab}" class="tab-title">Select Case</a>
@@ -357,21 +357,21 @@ class VariantInterpreterLanding extends LitElement {
                     <div id="landing-search" role="tabpanel" class="tab-pane active content-tab">
                         ${this.clinicalAnalysis 
                             ? html`
-                                <div class="container" style="margin-bottom: 20px">
-                                    <div style="float: left">
-                                        <h2>Case ${this.clinicalAnalysis.id}</h2>
-                                    </div>
-                                    <div style="margin-top: 20px; float: right">
-                                        <button class="btn btn-primary" @click="${this.onCloseClinicalAnalysis}">
-                                            <i class="fas fa-times" style="padding-right: 10px"></i>Close
-                                        </button>
-                                    </div>
-                                </div>
                                 <div class="row">
                                     <div class="col-md-10 col-md-offset-1">
-                                        <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
-                                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
-                                        </opencga-clinical-analysis-view>
+                                    <!--<div style="float: left">
+                                        <h2>Case ${this.clinicalAnalysis.id}</h2>
+                                    </div> -->
+                                    <div class="row pad5">
+                                        <div class="pull-right">
+                                            <button class="btn btn-primary ripple" @click="${this.onCloseClinicalAnalysis}">
+                                                <i class="fas fa-times" style="padding-right: 10px"></i>Close
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
+                                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                                    </opencga-clinical-analysis-view>
                                     </div>
                                 </div>` 
                             : html`
@@ -385,14 +385,16 @@ class VariantInterpreterLanding extends LitElement {
                     </div>
                     
                     <div id="landing-create" role="tabpanel" class="tab-pane content-tab">
-                        <div class="container" style="margin-bottom: 20px">
-                            <div style="float: left">
-                                <h2>Case Case</h2>
-                            </div>
-                            <div style="margin-top: 20px; float: right">
-                                <button class="btn btn-primary" @click="${this.onCloseClinicalAnalysis}">
-                                    <i class="fas fa-erase" style="padding-right: 10px"></i>Clear
-                                </button>
+                        <div class="col-md-8 col-md-offset-2">
+                            <div class="row pad5">
+                                <!--<div style="float: left">
+                                    <h2>Create Case</h2>
+                                </div>-->
+                                <div class="pull-right">
+                                    <button class="btn btn-primary ripple" @click="${this.onCloseClinicalAnalysis}">
+                                        <i class="fas fa-eraser icon-padding"></i>Clear
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <div class="row">
@@ -408,7 +410,7 @@ class VariantInterpreterLanding extends LitElement {
                     
                     <div id="landing-help" role="tabpanel" class="tab-pane content-tab">
                         <div class="container">
-                            help
+                            
                         </div>
                         
                     </div>

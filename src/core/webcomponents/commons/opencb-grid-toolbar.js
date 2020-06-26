@@ -149,9 +149,9 @@ export default class OpencbGridToolbar extends LitElement {
                     </div>
                     <div id="${this._prefix}toolbar" class="col-md-6">
             
-                        <div class="form-inline text-right">
+                        <div class="form-inline text-right pull-right">
                             ${this._config.columns.length ? html`
-                                    <div class="btn-group pull-right">
+                                    <div class="btn-group">
                                         <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <i id="${this._prefix}ColumnIcon" class="fa fa-columns" aria-hidden="true" style="padding-right: 5px"></i> Columns <span class="caret"></span>
                                         </button>

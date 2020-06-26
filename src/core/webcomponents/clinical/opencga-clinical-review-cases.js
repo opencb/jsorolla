@@ -317,8 +317,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                         <!--<div class="panel-heading">Case Filters</div>-->
                         <div class="panel-body" style="padding: 10px">
 
-                            <div class="btn-group" style="padding-right: 20px">
-                                <label>Filters</label>
+                            <div class="btn-group">
+                                <p class="active-filter-label">Filters</p>
                             </div>
 
                             <!-- Case ID -->
@@ -440,18 +440,15 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                             </div>
 
                             <!-- Buttons -->
-                            <button class="btn btn-default" style="margin-left: 15px;" type="button" @click="${this.onClearQuery}">
-                                <i class="fa fa-times" aria-hidden="true"></i>
+                            <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.updateQuery}">
+                                    <i class="fa fa-search" aria-hidden="true" style="padding-right: 5px"></i> Search
                             </button>
-
-                            <button class="btn btn-default" type="button" @click="${this.updateQuery}">
-                                <i class="fa fa-search" aria-hidden="true"></i>
-                            </button>
-
-
-                            <!--<template is="dom-if" if="{{showSelectFilters(opencgaClient._config)}}">-->
-                            <div class="btn-group" style="float: right">
-                                <button type="button" class="btn btn-primary ripple dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            
+                            <div class="pull-right">
+                                <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.onClearQuery}">
+                                    <i class="fa fa-times" aria-hidden="true" style="padding-right: 5px"></i> Clear
+                                </button>
+                                <button type="button" class="btn btn-primary btn-sm dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i> Filters <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right">

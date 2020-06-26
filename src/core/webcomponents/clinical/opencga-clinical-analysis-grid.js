@@ -266,23 +266,18 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     familyFormatter(value, row) {
-        if (UtilsNew.isNotUndefinedOrNull(row)) {
+        if (row.family?.members.length) {
             return value + ` (${row.family?.members.length})`;
+        } else {
+            return "-";
         }
     }
 
     interpretationsFormatter(value, row) {
-        if (UtilsNew.isNotUndefinedOrNull(row) && UtilsNew.isNotEmptyArray(row.interpretations) ) {
-            let interpretationHtml = "<div>";
-            for (const interpretation of row.interpretations) {
-                interpretationHtml += `<div>
-                                                    <span>${interpretation.id}<span>
-                                               </div>`;
-            }
-            interpretationHtml += "</div>";
-            return interpretationHtml;
+        if (row?.interpretations) {
+            return row.interpretations.map(interpretation => `<div><span>${interpretation.id}<span></div>`).join("");
         } else {
-            return "<span title='No interpretations available'>NA</span>";
+            return "<span title='No interpretations available'>N/A</span>";
         }
     }
 
@@ -566,10 +561,10 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                             ...result.map( _ => [
                                 _.id,
                                 _.proband.id,
-                                _.family.id + "" + _.family.members.length,
+                                _.family?.id && _.family?.members.length ? `${_.family.id} (${_.family.members.length})` : "",
                                 _.disorder.id,
                                 _.type,
-                                _.interpretations.join(","),
+                                _.interpretations?.join(",") ?? "",
                                 _.status.name,
                                 _.priority,
                                 _.analyst.assignee,

@@ -277,7 +277,7 @@ export class OpenCGAClient {
         return new Promise((resolve, reject) => {
             // check that a session exists
             // TODO should we check the session has not expired?
-            //console.log("_this._config", _this._config); // ------------ TODO refreshing a page userId is empty
+            //console.log("_this._config", _this._config);
             if (UtilsNew.isNotUndefined(_this._config.token)) {
                 _this.users().info(_this._config.userId)
                     .then( async response => {

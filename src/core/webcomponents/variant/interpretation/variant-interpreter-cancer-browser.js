@@ -493,11 +493,7 @@ class VariantInterpreterCancerBrowser extends LitElement {
                     font-size: 115%;
                     font-weight: bold;
                 }
-    
-                .icon-padding {
-                    padding-left: 0px;
-                    padding-right: 5px;
-                }
+   
     
                 .form-section-title {
                     padding: 5px 0px;

@@ -159,164 +159,167 @@ export default class OpencgaGeneView extends LitElement {
             }
         </style>
 
-        <div>
-            <tool-header title="${`Gene <span class="inverse"> ${this.geneObj.name} </span>` }" icon="${this._config.icon}"></tool-header>
-
-            <div style="float: right;padding: 10px 5px 10px 5px">
-                <button type="button" class="btn btn-primary" @click="${this.showBrowser}">
-                    <i class="fa fa-hand-o-left" aria-hidden="true"></i> Variant Browser
-                </button>
-            </div>
-
-            <div class="row" style="padding: 5px 0px 25px 0px">
-                <div class="col-md-4">
-                    <h3>Summary</h3>
-                    <table width="100%">
-                        <tr>
-                            <td class="gene-summary-title" width="20%">Name</td>
-                            <td width="80%">${this.geneObj.name} (${this.geneObj.id})</td>
-                        </tr>
-                        <tr>
-                            <td class="gene-summary-title" width="20%">Biotype</td>
-                            <td width="80%">${this.geneObj.biotype}</td>
-                        </tr>
-                        <tr>
-                            <td class="gene-summary-title" width="20%">Description</td>
-                            <td width="80%">${this.geneObj.description}</td>
-                        </tr>
-                        <tr>
-                            <td class="gene-summary-title">Location</td>
-                            <td>${this.geneObj.chromosome}:${this.geneObj.start}-${this.geneObj.end} (${this.geneObj.strand})</td>
-                        </tr>
-                        <tr>
-                            <td class="gene-summary-title">Genome Browser</td>
-                            <td>
-                                <a target="_blank"
-                                   href="http://genomemaps.org/?region=${this.geneObj.chromosome}:${this.geneObj.start}-${this.geneObj.end}">
-                                    ${this.geneObj.chromosome}:${this.geneObj.start}-${this.geneObj.end}
-                                </a>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-
-                <div class="col-md-8">
-                    <h3>Transcripts</h3>
-                    <table class="table table-bordered" width="100%">
-                        <thead style="background-color: #eeeeee">
-                        <tr>
-                            <th>Name</th>
-                            <th>Ensembl ID</th>
-                            <th>Biotype</th>
-                            <th>Location</th>
-                            <th>Coding</th>
-                            <!--<th>cDNA</th>-->
-                            <!--<th>CDS Length</th>-->
-                            <th>Flags</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        ${this.geneObj.transcripts && this.geneObj.transcripts.length ? this.geneObj.transcripts.map( transcript => html`
-                            <tr>
-                                <td>${transcript.name}</td>
-                                <td>
-                                    <a href="#transcript/${this.project.alias}/${this.study.alias}/${transcript.id}">${transcript.id}</a>
-                                </td>
-                                <td>${transcript.biotype}</td>
-                                <td>
-                                    <a target="_blank"
-                                       href="http://genomemaps.org/?region=${transcript.chromosome}:${transcript.start}-${transcript.end}">
-                                        ${transcript.chromosome}:${transcript.start}-${transcript.end}
-                                    </a>
-                                </td>
-                                <td>
-                                    <a target="_blank"
-                                       href="http://genomemaps.org/?region=${transcript.chromosome}:${transcript.genomicCodingStart}-${transcript.genomicCodingEnd}">
-                                        ${transcript.genomicCodingStart}-${transcript.genomicCodingEnd}
-                                    </a>
-                                </td>
-                                <!--<td>-->
-                                <!--${transcript.cdnaCodingStart}-${transcript.cdnaCodingEnd}-->
-                                <!--</td>-->
-                                <!--<td>${transcript.cdsLength}</td>-->
-                                <td>${transcript.annotationFlags}</td>
-                            </tr>
-                        `) : null }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active">
-                <a href="#${this._prefix}Variants" role="tab" data-toggle="tab" class="gene-variant-tab-title">Variants</a>
-            </li>
-            <li role="presentation">
-                <a href="#${this._prefix}Protein" role="tab" data-toggle="tab" class="gene-variant-tab-title">Protein (Beta)</a>
-            </li>
-        </ul>
-
-        <div class="tab-content" style="height: 1024px">
-            <div role="tabpanel" class="tab-pane active" id="${this._prefix}Variants">
-                <div class="btn-group btn-group" role="group" aria-label="..." style="padding: 15px;float: right">
-                    <button id="${this._prefix}AllConsTypeButton" type="button" class="btn btn-default btn-warning gene-ct-buttons active" @click="${this.updateQuery}">
-                        All
-                    </button>
-                    <button id="${this._prefix}MissenseConsTypeButton" type="button" class="btn btn-default btn-warning gene-ct-buttons" @click="${this.updateQuery}">
-                        Missense
-                    </button>
-                    <button id="${this._prefix}LoFConsTypeButton" type="button" class="btn btn-default btn-warning gene-ct-buttons" @click="${this.updateQuery}">
-                        LoF
-                    </button>
-                </div>
-
-                <!--<br>-->
-                <br>
-                <opencga-variant-grid .opencgaSession="${this.opencgaSession}"
-                                      .query="${this.query}"
-                                      .populationFrequencies="${this.populationFrequencies}"
-                                      .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                      .consequenceTypes="${this.consequenceTypes}"
-                                      .summary="${this.summary}"
-                                      .config="${this.config}"
-                                      @selectrow="${this.onSelectVariant}">
-                </opencga-variant-grid>
-
-                ${this.checkVariant(this.variant) ? html`
-                    <!-- Bottom tabs with specific variant information -->
-                    <div style="padding-top: 20px; height: 400px">
-                        <h3>Advanced Annotation for Variant: ${this.variant}</h3>
-                        <cellbase-variantannotation-view _prefix="${this._prefix}"
-                                                         .data="${this.variant}"
-                                                         .cellbaseClient="${this.cellbaseClient}"
-                                                         .assembly=${this.opencgaSession.project.organism.assembly}
-                                                         .hashFragmentCredentials="${this.hashFragmentCredentials}"
-                                                         .populationFrequencies="${this.populationFrequencies}"
-                                                         .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                         .consequenceTypes="${this.consequenceTypes}"
-                                                         style="font-size: 12px">
-                        </cellbase-variantannotation-view>
+        <tool-header title="${`Gene <span class="inverse"> ${this.geneObj.name} </span>` }" icon="gene-view.svg"></tool-header>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-10 col-md-offset-1">
+                    <div style="float: right;padding: 10px 5px 10px 5px">
+                        <button type="button" class="btn btn-primary" @click="${this.showBrowser}">
+                            <i class="fa fa-hand-o-left" aria-hidden="true"></i> Variant Browser
+                        </button>
                     </div>
-                ` : html`
-                    <div>
-                        <br>
-                        <h3>Please select a variant to view the detailed annotation</h3>
+        
+                    <div class="row" style="padding: 5px 0px 25px 0px">
+                        <div class="col-md-4">
+                            <h3>Summary</h3>
+                            <table width="100%">
+                                <tr>
+                                    <td class="gene-summary-title" width="20%">Name</td>
+                                    <td width="80%">${this.geneObj.name} (${this.geneObj.id})</td>
+                                </tr>
+                                <tr>
+                                    <td class="gene-summary-title" width="20%">Biotype</td>
+                                    <td width="80%">${this.geneObj.biotype}</td>
+                                </tr>
+                                <tr>
+                                    <td class="gene-summary-title" width="20%">Description</td>
+                                    <td width="80%">${this.geneObj.description}</td>
+                                </tr>
+                                <tr>
+                                    <td class="gene-summary-title">Location</td>
+                                    <td>${this.geneObj.chromosome}:${this.geneObj.start}-${this.geneObj.end} (${this.geneObj.strand})</td>
+                                </tr>
+                                <tr>
+                                    <td class="gene-summary-title">Genome Browser</td>
+                                    <td>
+                                        <a target="_blank"
+                                           href="http://genomemaps.org/?region=${this.geneObj.chromosome}:${this.geneObj.start}-${this.geneObj.end}">
+                                            ${this.geneObj.chromosome}:${this.geneObj.start}-${this.geneObj.end}
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+        
+                        <div class="col-md-8">
+                            <h3>Transcripts</h3>
+                            <table class="table table-bordered" width="100%">
+                                <thead style="background-color: #eeeeee">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Ensembl ID</th>
+                                    <th>Biotype</th>
+                                    <th>Location</th>
+                                    <th>Coding</th>
+                                    <!--<th>cDNA</th>-->
+                                    <!--<th>CDS Length</th>-->
+                                    <th>Flags</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                ${this.geneObj.transcripts && this.geneObj.transcripts.length ? this.geneObj.transcripts.map( transcript => html`
+                                    <tr>
+                                        <td>${transcript.name}</td>
+                                        <td>
+                                            <a href="#transcript/${this.project.alias}/${this.study.alias}/${transcript.id}">${transcript.id}</a>
+                                        </td>
+                                        <td>${transcript.biotype}</td>
+                                        <td>
+                                            <a target="_blank"
+                                               href="http://genomemaps.org/?region=${transcript.chromosome}:${transcript.start}-${transcript.end}">
+                                                ${transcript.chromosome}:${transcript.start}-${transcript.end}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a target="_blank"
+                                               href="http://genomemaps.org/?region=${transcript.chromosome}:${transcript.genomicCodingStart}-${transcript.genomicCodingEnd}">
+                                                ${transcript.genomicCodingStart}-${transcript.genomicCodingEnd}
+                                            </a>
+                                        </td>
+                                        <!--<td>-->
+                                        <!--${transcript.cdnaCodingStart}-${transcript.cdnaCodingEnd}-->
+                                        <!--</td>-->
+                                        <!--<td>${transcript.cdsLength}</td>-->
+                                        <td>${transcript.annotationFlags}</td>
+                                    </tr>
+                                `) : null }
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                `}
-                
-
-                
-            </div>
-
-            <div role="tabpanel" class="tab-pane" id="${this._prefix}Protein">
-                <variant-protein-view .opencgaSession="${this.opencgaSession}"
-                                      .opencgaClient="${this.opencgaClient}"
-                                      .cellbaseClient="${this.cellbaseClient}"
-                                      .gene="${this.gene}"
-                                      .config="${this.config.protein}"
-                                      .summary="${this.summary}">
-                </variant-protein-view>
+        
+                    <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
+                        <li role="presentation" class="active">
+                            <a href="#${this._prefix}Variants" role="tab" data-toggle="tab" class="gene-variant-tab-title">Variants</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="#${this._prefix}Protein" role="tab" data-toggle="tab" class="gene-variant-tab-title">Protein (Beta)</a>
+                        </li>
+                    </ul>
+            
+                    <div class="tab-content" style="height: 1024px">
+                        <div role="tabpanel" class="tab-pane active" id="${this._prefix}Variants">
+                            <div class="btn-group btn-group" role="group" aria-label="..." style="padding: 15px;float: right">
+                                <button id="${this._prefix}AllConsTypeButton" type="button" class="btn btn-default btn-warning gene-ct-buttons active" @click="${this.updateQuery}">
+                                    All
+                                </button>
+                                <button id="${this._prefix}MissenseConsTypeButton" type="button" class="btn btn-default btn-warning gene-ct-buttons" @click="${this.updateQuery}">
+                                    Missense
+                                </button>
+                                <button id="${this._prefix}LoFConsTypeButton" type="button" class="btn btn-default btn-warning gene-ct-buttons" @click="${this.updateQuery}">
+                                    LoF
+                                </button>
+                            </div>
+            
+                            <!--<br>-->
+                            <br>
+                            <opencga-variant-grid .opencgaSession="${this.opencgaSession}"
+                                                  .query="${this.query}"
+                                                  .populationFrequencies="${this.populationFrequencies}"
+                                                  .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                  .consequenceTypes="${this.consequenceTypes}"
+                                                  .summary="${this.summary}"
+                                                  .config="${this.config}"
+                                                  @selectrow="${this.onSelectVariant}">
+                            </opencga-variant-grid>
+            
+                            ${this.checkVariant(this.variant) ? html`
+                                <!-- Bottom tabs with specific variant information -->
+                                <div style="padding-top: 20px; height: 400px">
+                                    <h3>Advanced Annotation for Variant: ${this.variant}</h3>
+                                    <cellbase-variantannotation-view _prefix="${this._prefix}"
+                                                                     .data="${this.variant}"
+                                                                     .cellbaseClient="${this.cellbaseClient}"
+                                                                     .assembly=${this.opencgaSession.project.organism.assembly}
+                                                                     .hashFragmentCredentials="${this.hashFragmentCredentials}"
+                                                                     .populationFrequencies="${this.populationFrequencies}"
+                                                                     .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                                     .consequenceTypes="${this.consequenceTypes}"
+                                                                     style="font-size: 12px">
+                                    </cellbase-variantannotation-view>
+                                </div>
+                            ` : html`
+                                <div>
+                                    <br>
+                                    <h3>Please select a variant to view the detailed annotation</h3>
+                                </div>
+                            `}
+                            
+            
+                            
+                        </div>
+            
+                        <div role="tabpanel" class="tab-pane" id="${this._prefix}Protein">
+                            <variant-protein-view .opencgaSession="${this.opencgaSession}"
+                                                  .opencgaClient="${this.opencgaClient}"
+                                                  .cellbaseClient="${this.cellbaseClient}"
+                                                  .gene="${this.gene}"
+                                                  .config="${this.config.protein}"
+                                                  .summary="${this.summary}">
+                            </variant-protein-view>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         ` : null;

@@ -454,68 +454,6 @@ export default class OpencgaActiveFilters extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles">
-            .active-filter-button:hover {
-                text-decoration: line-through;
-            }
-
-            .facet-wrapper{
-                margin: 20px 0 0 0;
-            }
-
-            .double-arrow {
-                transform: rotate(90deg);
-                width: 60px;
-                display: block;
-                margin: 0 auto;
-                height: 60px;
-            }
-
-            .double-arrow-wrapper {
-                display: flex;
-                margin: 5px 0;
-            }
-
-            .button-list{
-                padding-left: 20px;
-                display: inline-block;
-            }
-
-            .active-filter-label{
-                display: inline-block;
-                font-size: 15px;
-                text-transform: uppercase;
-                letter-spacing: 2px;
-                height: 34px;
-                line-height: 34px;
-                margin: 0;
-                padding-right: 10px;
-            }
-            
-            .lhs {
-                display: inline-block;
-                padding: 5px 0;
-            }
-            
-            .lhs .btn-group {
-                padding: 2px 0;
-            }
-            
-            .rhs {
-                float: right;
-                padding:5px
-            }
-
-            .rhs .dropdown {
-                display: inline-block;
-            }
-            
-            .filter-warning {
-                padding: 10px;
-                margin-bottom: 10px;
-                display: none;                
-            }
-        </style>
         ${ this.facetActive ? html`
             <div class="alert alert-warning filter-warning" role="alert" id="${this._prefix}Warning" style="">
                 <span><strong>Warning!</strong></span>&nbsp;&nbsp;Filters or Facet has changed, please click on <strong> RUN </strong> to update the results.
@@ -619,9 +557,11 @@ export default class OpencgaActiveFilters extends LitElement {
                                     </button>
                             `)}
                             </div>
-                            <button type="button" class="btn btn-primary ripple pull-right" @click="${this.clearFacet}">
-                                <i class="fa fa-eraser" aria-hidden="true" style="padding-right: 5px"></i> Clear
-                            </button>
+                            <div class="rhs">
+                                <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.clearFacet}">
+                                    <i class="fa fa-eraser" aria-hidden="true" style="padding-right: 5px"></i> Clear
+                                </button>
+                            </div>
                         </div>
                 ` : null }
             </div>

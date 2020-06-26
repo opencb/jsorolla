@@ -127,7 +127,7 @@ export default class VariantBeaconNetwork extends LitElement {
             justify-content: center;
             align-items: center;
             background: aliceblue;
-            margin: 10px;
+            margin: 10px 10px 10px 0;
             flex-flow: column;
             transition: all .7s ease-in-out;
         }
@@ -152,7 +152,7 @@ export default class VariantBeaconNetwork extends LitElement {
             </div>
 
             ${this._config.hosts && this._config.hosts.length && this._config.hosts.map( item => html`
-                <div class="beacon-square ${this._prefix}${item} shadow">
+                <div class="beacon-square ${this._prefix}${item} shadow-sm">
                     <span>${item}</span>
                     <span id="${this._prefix}${item}" class="beaconResponse"><i class="fa fa-spinner fa-spin loading-spinner" aria-hidden="true"></i></span>
                 </div> 

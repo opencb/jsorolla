@@ -108,7 +108,7 @@ export default class PedigreeView extends LitElement {
 
             // Render new Pedigree
             const querySelector = this.querySelector("#" + this.pedigreeId);
-            console.log("document.getElementById(this._prefix + \"PedigreeView\")", this.querySelector("#" + this.pedigreeId))
+            //console.log("document.getElementById(this._prefix + \"PedigreeView\")", this.querySelector("#" + this.pedigreeId))
             const pedigree = new Pedigree(family, {selectShowSampleNames: true});
             this.svg = pedigree.pedigreeFromFamily(pedigree.pedigree, {
                 width: this._config.width,

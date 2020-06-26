@@ -159,18 +159,26 @@ class VariantInterpreterQcVariantStats extends LitElement {
         }
 
         return html`
+            <style>
+                variant-interpreter-qc-variant-stats .select-field-filter {
+                    display: inline-block;
+                }
+            </style>
             <div class="container">
                 <div class="row">
-                    <div class="col-md-12 pull-right">
+                    <div class="col-md-12">
                         <form class="form-inline">
                             <div class="form-group">
-                                <label for="${this._prefix}SampleSelect">Select Sample</label>
-                                <select-field-filter id="${this._prefix}SampleSelect" .data="${this.statsSelect}" @filterChange="${this.onSampleChange}"></select-field-filter>
+                                <label>Select Sample</label>
+                                <select-field-filter .data="${this.statsSelect}" @filterChange="${this.onSampleChange}"></select-field-filter>
                             </div>
                         </form>
                     </div>
+                    </div>
+                    <div class="row">
                     <h3>Sample Variant Stats</h3>
                     <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" .sampleVariantStats="${this.stats?.annotations}"> </sample-variant-stats-view>
+                    </div>
                 </div>
             </div>
         `;

@@ -67,10 +67,12 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
         return {
             title: "Clinical Analysis Browser",
             icon: "fab fa-searchengin",
+            searchButtonText: "Search",
             views: [
                 {
                     id: "table-tab",
                     name: "Table result",
+                    icon: "fa fa-table",
                     active: true
                 },/*
                 {
@@ -83,7 +85,6 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                 }*/
             ],
             filter: {
-                searchButtonText: "Search",
                 sections: [
                     {
                         name: "section title",

@@ -178,6 +178,7 @@ class VariantInterpreter extends LitElement {
                     title: "Report",
                     acronym: "VB",
                     description: "",
+                    disabled: true,
                     icon: "fa fa-file-alt"
                 }
             ]
@@ -224,7 +225,7 @@ class VariantInterpreter extends LitElement {
                                 <!-- Controls aligned to the LEFT -->
                                 <div class="row hi-icon-wrap wizard hi-icon-animation">
                                 ${this._config.tools && this._config.tools.map( item => html`
-                                    <a class="icon-wrapper clinical-portal-step ${!this.clinicalAnalysis && item.id !== "select" ? "disabled" : ""}" href="javascript: void 0" data-view="${item.id}" @click="${this._changeView}">
+                                    <a class="icon-wrapper clinical-portal-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""}" href="javascript: void 0" data-view="${item.id}" @click="${this._changeView}">
                                         <div class="hi-icon ${item.icon}"></div>
                                         <p>${item.title}</p>
                                         <span class="smaller"></span>
@@ -319,7 +320,7 @@ class VariantInterpreter extends LitElement {
                                 }
                             </div>
                             
-                            <div id="${this._prefix}review" class="clinical-portal-content col-md-10 col-md-offset-1" style="${this._config.tools[0].id !== "review" ? "display: none" : ""}">
+                            <div id="${this._prefix}review" class="clinical-portal-content" style="${this._config.tools[0].id !== "review" ? "display: none" : ""}">
                                 <variant-interpreter-review .opencgaSession="${this.opencgaSession}"
                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                                             .cellbaseClient="${this.cellbaseClient}"

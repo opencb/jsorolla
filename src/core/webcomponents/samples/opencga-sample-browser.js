@@ -94,11 +94,13 @@ export default class OpencgaSampleBrowser extends LitElement {
                 {
                     id: "table-tab",
                     name: "Table result",
+                    icon: "fa fa-table",
                     active: true
                 },
                 {
                     id: "facet-tab",
-                    name: "Aggregation stats"
+                    name: "Aggregation stats",
+                    icon: "fas fa-chart-bar"
                 },/*
                 {
                     id: "comparator-tab",
