@@ -16,8 +16,9 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import "./variant-interpreter-qc-alignment-stats.js";
+import "./variant-interpreter-qc-summary.js";
 import "./variant-interpreter-qc-variant-stats.js";
+import "./variant-interpreter-qc-alignment-stats.js";
 
 class VariantInterpreterQcOverview extends LitElement {
 
@@ -250,18 +251,22 @@ class VariantInterpreterQcOverview extends LitElement {
                                   data-id="Summary" @click="${this.onSideNavClick}">Summary</button>
                             <button id="${this._prefix}VariantStats" type="button" class="list-group-item side-nav" 
                                   data-id="VariantStats" @click="${this.onSideNavClick}">Variant Stats</button>
+                            <button id="${this._prefix}MendelianErrorsContent" type="button" class="list-group-item side-nav" 
+                                  data-id="MendelianErrors" @click="${this.onSideNavClick}">Mendelian Errors</button>
                             <button id="${this._prefix}AlignmentStats" type="button" class="list-group-item side-nav" 
                                   data-id="AlignmentStats" @click="${this.onSideNavClick}">Alignment Stats</button>
                             <button id="${this._prefix}GeneCoverageStats" type="button" class="list-group-item side-nav" 
                                   data-id="GeneCoverageStats" @click="${this.onSideNavClick}">Gene Coverage Stats</button>
-                            <button id="${this._prefix}MendelianErrorsContent" type="button" class="list-group-item side-nav" 
-                                  data-id="MendelianErrors" @click="${this.onSideNavClick}">Mendelian Errors</button>
+                            
                         </div>
                     </div>
                     <div class="col-md-10">
                         <div class="content-tab-wrapper" style="padding: 10px 15px">
                             <div id="${this._prefix}SummaryContent" role="tabpanel" class="tab-pane tab-content">
-                                <data-form .data=${this.clinicalAnalysis} .config="${this._config}"></data-form>
+                                <variant-interpreter-qc-summary .opencgaSession=${this.opencgaSession} 
+                                                                .clinicalAnalysis=${this.clinicalAnalysis} 
+                                                                .config="${this._config}">
+                                </variant-interpreter-qc-summary>
                             </div>
                             
                             <div id="${this._prefix}VariantStatsContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
