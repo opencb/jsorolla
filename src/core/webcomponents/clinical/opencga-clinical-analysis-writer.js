@@ -61,11 +61,11 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
             // description: "Description"
         };
         this.mode = "create";
-        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
         super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {

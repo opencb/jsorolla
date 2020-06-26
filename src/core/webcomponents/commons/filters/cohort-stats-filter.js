@@ -82,7 +82,8 @@ export default class CohortStatsFilter extends LitElement {
 
         if (_changedProperties.has("opencgaSession")) {
             this.state = {};
-            this.cohortsPerStudy = this.cohorts ? this.cohorts[this.opencgaSession.project.id] : this._getCohortAll();
+            //this.cohortsPerStudy = this.cohorts ? this.cohorts[this.opencgaSession.project.id] : this._getCohortAll();
+            this.cohortsPerStudy = this._getCohortAll();
             this.requestUpdate();
         }
     }
@@ -119,36 +120,42 @@ export default class CohortStatsFilter extends LitElement {
     }
 
     render() {
-        return this.cohortsPerStudy ? html`
-            ${Object.keys(this.cohortsPerStudy).map(study => html`
-                <div style="padding: 5px 0px">
-                    <div style="padding-bottom: 5px">
-                        <span style="font-style: italic">${study}</span> study:
-                    </div>
-                    <div class="form-horizontal">
-                        ${this.cohortsPerStudy[study] ? this.cohortsPerStudy[study].map(cohort => html`
-                            <div class="form-group" style="margin: 5px 0px">
-                                <span class="col-md-4 control-label">${cohort.name}</span>
-                                <div class="col-md-4" style="padding: 0px 10px">
-                                    <select id="${this._prefix}${study}${cohort.id}CohortOperator" name="${cohort.id}Operator"
-                                            class="form-control input-sm ${this._prefix}FilterSelect" style="padding: 0px 5px"
-                                            data-study="${study}"
-                                            data-cohort="${cohort.id}"
-                                            data-action="operator"
-                                            @change="${this.filterChange}">
-                                        ${["<", "<=", ">", ">="].map( (op, i) => html`<option .selected="${this.state[study]?.operator === op || i === 0}">${op}</option>`) }
-                                    </select>
-                                </div>
-                                <div class="col-md-4" style="padding: 0px 10px">
-                                    <input type="text" class="form-control input-sm ${this._prefix}FilterTextInput" data-study="${study}" data-cohort="${cohort.id}" data-action="value" @input="${this.filterChange}" .value="${this.state[study]?.value ?? ""}">
-                                </div>
+        return this.cohortsPerStudy ? Object.entries(this.cohortsPerStudy).map( ([study,cohort]) => html`
+            <div style="padding: 5px 0px">
+                <div style="padding-bottom: 5px">
+                    <span style="font-style: italic">${study}</span> study:
+                </div>
+                <div class="form-horizontal">
+                    ${cohort.map(cohort => html`
+                        <div class="form-group" style="margin: 5px 0px">
+                            <span class="col-md-4 control-label">${cohort.name}</span>
+                            <div class="col-md-4" style="padding: 0px 10px">
+                                <select id="${this._prefix}${study}${cohort.id}CohortOperator" name="${cohort.id}Operator"
+                                        class="form-control input-sm ${this._prefix}FilterSelect" style="padding: 0px 5px"
+                                        data-study="${study}"
+                                        data-cohort="${cohort.id}"
+                                        data-action="operator"
+                                        @change="${this.filterChange}">
+                                    ${["<", "<=", ">", ">="].map( (op, i) => html`
+                                        <option .selected="${this.state[study]?.operator === op || i === 0}">${op}</option>
+                                    `)}
+                                </select>
                             </div>
-                        `) : null}
-                    </div>
-                </div>`)}
-        ` : html`
-            <span>Project not found</span>
-        `;
+                            <div class="col-md-4" style="padding: 0px 10px">
+                                <input type="text" class="form-control input-sm ${this._prefix}FilterTextInput"
+                                data-study="${study}"
+                                data-cohort="${cohort.id}"
+                                data-action="value"
+                                .value="${this.state[study]?.value ?? ""}"
+                                @input="${this.filterChange}">
+                            </div>
+                        </div>
+                    `)}
+                </div>
+            </div>`)
+            : html`
+                <span>Project not found</span>
+            `;
     }
 
 }
