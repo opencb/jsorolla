@@ -102,14 +102,14 @@ export default class FileQualityFilter extends LitElement {
                 <div id="${this._prefix}FilePassCheckboxDiv" class="subsection-content form-group">
                     <input id="${this._prefix}FilePassCheckbox" type="checkbox" class="${this._prefix}FilterCheckbox" 
                             @change="${this.filterChange}" .checked="${this.filter === "PASS"}">
-                    <span style="padding-left: 5px">Include only <span style="font-weight: bold;">PASS</span> variants</span>
+                    <span>Include only <span style="font-weight: bold;">PASS</span> variants</span>
                 </div>
                 <form class="form-horizontal subsection-content">
                     <div class="form-group row">
                         <div class="col-md-8">
                             <input id="${this._prefix}FileQualCheckbox" type="checkbox" class="${this._prefix}FilterCheckBox" 
                                     @change="${this.onChangeQualCheckBox}" .checked="${this.qualEnabled}">
-                            <span style="padding-left: 5px">Introduce min. <span style="font-weight: bold;">QUAL</span></span>
+                            <span>Introduce min. <span style="font-weight: bold;">QUAL</span></span>
                         </div>
                         <div class="col-md-4">
                             <input id="${this._prefix}FileQualInput" type="number" class="form-control input-sm ${this._prefix}FilterTextInput" .disabled="${!this.qualEnabled}" @input="${this.filterChange}">

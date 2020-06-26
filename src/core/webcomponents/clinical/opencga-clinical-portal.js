@@ -120,7 +120,7 @@ export default class OpencgaClinicalPortal extends LitElement {
             <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
 
             <div class="row">
-                <div id="${this._prefix}ClinicalPortal"  class="col-md-10 col-md-offset-1">
+                <div id="${this._prefix}ClinicalPortal" class="col-md-10 col-md-offset-1">
                     
                     <nav class="navbar">
                         <ul class="nav navbar-nav navbar-right" style="padding: 0px 20px">

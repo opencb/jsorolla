@@ -241,7 +241,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                 // form: {
                 //     layout: "horizontal"
                 // },
-                showTitle: true,
+                showTitle: false,
                 infoIcon: "",
                 labelAlign: "left",
                 defaultLayout: "vertical",
@@ -251,8 +251,8 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                     title: "Case Information",
                     display: {
                         collapsed: false,
-                        leftColumnWith: 5,
-                        rightColumnWith: 5
+                        leftColumnWith: 6,
+                        rightColumnWith: 6
                     },
                     elements: [
                         [

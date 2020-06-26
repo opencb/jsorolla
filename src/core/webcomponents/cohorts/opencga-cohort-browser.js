@@ -100,12 +100,13 @@ export default class OpencgaCohortBrowser extends LitElement {
                     id: "facet-tab",
                     name: "Aggregation stats",
                     icon: "fas fa-chart-bar",
-                },
+                },/*
                 {
                     id: "comparator-tab",
                     name: "Comparator",
-                    icon: "fas fa-clone"
-                }
+                    icon: "fas fa-clone",
+                    disabled: true
+                }*/
             ],
             filter: {
                 sections: [

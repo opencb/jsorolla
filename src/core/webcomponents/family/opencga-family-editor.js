@@ -287,7 +287,6 @@ export default class OpencgaFamilyEditor extends LitElement {
 
         <div class="row">
             <div class="col-md-10 col-md-offset-1">
-
                 <div class="browser-subsection">
                     <h3>Family Info</h3>
                 </div>
