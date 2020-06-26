@@ -347,8 +347,8 @@ class VariantInterpreterLanding extends LitElement {
                         <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing-create"]})}"">
                             <a href="javascript: void 0" role="tab" data-id="landing-create" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Create Case</a>
                         </li>
-                        <li role="presentation" class="content-pills pull-right ${classMap({active: this.activeTab["landing-help"]})}">
-                            <a href="javascript: void 0" role="tab" data-id="landing-help" @click="${this._changeTab}" class="tab-title">Help</a>
+                        <li role="presentation" class="content-pills help-pill ${classMap({active: this.activeTab["landing-help"]})}">
+                            <a href="javascript: void 0" role="tab" data-id="landing-help" @click="${this._changeTab}" class="tab-title"><i class="fas fa-question-circle"></i> Help</a>
                         </li>
                     </ul>
                 </div>
