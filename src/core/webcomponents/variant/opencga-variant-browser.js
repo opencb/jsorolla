@@ -308,9 +308,9 @@ export default class OpencgaVariantBrowser extends LitElement {
             title: "Variant Browser",
             icon: "variant_browser.svg",
             active: false,
+            searchButtonText: "Search",
             filter: {
                 title: "Filter",
-                searchButtonText: "Search",
                 activeFilters: {
                     alias: {
                         // Example:
@@ -597,14 +597,6 @@ export default class OpencgaVariantBrowser extends LitElement {
         };
     }
 
-    static get styles() {
-        return css`
-            .content-tab { 
-                padding-top: 20px; 
-            }
-        `;
-    }
-
     render() {
         // Check if there is any project available
         if (!this.opencgaSession || !this.opencgaSession.project) {
@@ -623,7 +615,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                 
                     <div class="search-button-wrapper">
                         <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">
-                            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this._config.filter.searchButtonText}
+                            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this._config.searchButtonText}
                         </button>
                     </div>
                     

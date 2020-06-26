@@ -125,12 +125,12 @@ export default class OpencgaClinicalPortal extends LitElement {
                     <nav class="navbar">
                         <ul class="nav navbar-nav navbar-right" style="padding: 0px 20px">
                             <li>
-                                <button type="button" class="btn btn-success ripple clinical-portal-button active " style="font-size: 1.1em" data-view="ReviewCases" @click="${this._changeView}" active>
+                                <button type="button" class="btn btn-success ripple clinical-portal-button active " data-view="ReviewCases" @click="${this._changeView}" active>
                                     <i class="fa fa-list clinical-portal-button" style="padding: 0px 5px" data-view="ReviewCases" @click="${this._changeView}"></i>Review Cases
                                 </button>
                             </li>
                             <li>
-                                <button type="button" class="btn btn-success ripple clinical-portal-button" style="font-size: 1.1em" data-view="CreateCase" @click="${this._changeView}">
+                                <button type="button" class="btn btn-success ripple clinical-portal-button" data-view="CreateCase" @click="${this._changeView}">
                                     <i class="fa fa-file clinical-portal-button" style="padding: 0px 5px" data-view="CreateCase" @click="${this._changeView}"></i>Create Case
                                 </button>
                             </li>

@@ -404,7 +404,7 @@ export default class OpencgaBrowser extends LitElement {
                     <div class="col-md-2">
                         <div class="search-button-wrapper">
                             <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">
-                                <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this._config.filter.searchButtonText || "Run"}
+                                <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this._config.searchButtonText || "Run"}
                             </button>
                         </div>
                         <ul class="nav nav-tabs left-menu-tabs" role="tablist">
@@ -505,7 +505,7 @@ export default class OpencgaBrowser extends LitElement {
                             <div class="btn-group" role="group" style="margin-left: 0px">
                                 ${this._config.views && this._config.views.length ? this._config.views.map( tab => html`
                                     <button type="button" class="btn btn-success ripple content-pills ${tab.active ? "active" : ""}" @click="${this.onClickPill}" data-id="${tab.id}">
-                                        <i class="fa fa-table icon-padding" aria-hidden="true"></i> ${tab.name}
+                                        <i class="${tab.icon ?? "fa fa-table"} icon-padding" aria-hidden="true"></i> ${tab.name}
                                     </button>
                                 `) : html`No view has been configured`}
                             </div>

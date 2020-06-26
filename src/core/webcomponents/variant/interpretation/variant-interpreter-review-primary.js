@@ -510,65 +510,64 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     <i class="fas fa-save" style="padding-right: 10px"></i>Save
                 </button>
             </div>
-        </div>
-        
-        <div class="row" style="padding: 0px 10px">
-            <div id="${this._prefix}SaveInterpretation">
-                <div class="col-md-12">
-                    ${this.messageError ? html ` 
-                        <div class="alert alert-danger" role="alert" id="${this._prefix}messageError" style="margin:5px auto;">${this.messageErrorText}</div>
-                    ` : null}
-                    ${this.messageSuccess ? html `
-                        <div class="alert alert-success" role="alert" id="${this._prefix}messageSuccess" style="margin:5px auto;">${this.messageSuccessText}</div>
-                    ` : null}
-                </div>
-
-                <div class="col-md-12">
-                    <div style="padding-top: 5px">
-
-                        <div id="${this._prefix}collapsibleVariants" class="collapse in">
-                            ${this.clinicalAnalysis && this.clinicalAnalysis.interpretation 
-                                ? html`
-                                    <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
-                                                              .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                              .consequenceTypes="${consequenceTypes}"
-                                                              .populationFrequencies="${populationFrequencies}"
-                                                              .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                              .config="${this._config.result.grid}"
-                                                              @selected="${this.selectedGene}"
-                                                              @selectrow="${this.onSelectVariant}"
-                                                              @checkvariant="${this.onCheckVariant}"
-                                                              @reviewvariant="${this.onReviewVariant}"
-                                                              @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
-                                    </variant-interpreter-grid>
+            <div class="row">
+                <div id="${this._prefix}SaveInterpretation">
+                    <div class="col-md-12">
+                        ${this.messageError ? html ` 
+                            <div class="alert alert-danger" role="alert" id="${this._prefix}messageError" style="margin:5px auto;">${this.messageErrorText}</div>
+                        ` : null}
+                        ${this.messageSuccess ? html `
+                            <div class="alert alert-success" role="alert" id="${this._prefix}messageSuccess" style="margin:5px auto;">${this.messageSuccessText}</div>
+                        ` : null}
+                    </div>
     
-                                    <variant-interpreter-detail .opencgaSession="${this.opencgaSession}"
-                                                                .variant="${this.variant}"
-                                                                .cellbaseClient="${this.cellbaseClient}"
-                                                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                .consequenceTypes="${this.consequenceTypes}"
-                                                                .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                                .config="${this._config.detail}">
-                                    </variant-interpreter-detail>` 
-                                : html`
-                                    <h4 style="padding: 20px">No Selected variants</h4>`
-                            }
+                    <div class="col-md-12">
+                        <div style="padding-top: 5px">
+    
+                            <div id="${this._prefix}collapsibleVariants" class="collapse in">
+                                ${this.clinicalAnalysis && this.clinicalAnalysis.interpretation 
+                                    ? html`
+                                        <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
+                                                                  .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                  .consequenceTypes="${consequenceTypes}"
+                                                                  .populationFrequencies="${populationFrequencies}"
+                                                                  .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                                  .config="${this._config.result.grid}"
+                                                                  @selected="${this.selectedGene}"
+                                                                  @selectrow="${this.onSelectVariant}"
+                                                                  @checkvariant="${this.onCheckVariant}"
+                                                                  @reviewvariant="${this.onReviewVariant}"
+                                                                  @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
+                                        </variant-interpreter-grid>
+        
+                                        <variant-interpreter-detail .opencgaSession="${this.opencgaSession}"
+                                                                    .variant="${this.variant}"
+                                                                    .cellbaseClient="${this.cellbaseClient}"
+                                                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                    .consequenceTypes="${this.consequenceTypes}"
+                                                                    .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                                    .config="${this._config.detail}">
+                                        </variant-interpreter-detail>` 
+                                    : html`
+                                        <h4 style="padding: 20px">No Selected variants</h4>`
+                                }
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="col-md-12">
-                    ${this.interpretationView ? html`
-                        <clinical-interpretation-view id="id"
-                                                      interpretation="${this.interpretationView}"
-                                                      .opencgaSession="${this.opencgaSession}"
-                                                      .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                      .cellbaseClient="${this.cellbaseClient}"
-                                                      .consequenceTypes="${this.consequenceTypes}"
-                                                      .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                      style="font-size: 12px">
-                        </clinical-interpretation-view>
-                    ` : null}
+    
+                    <div class="col-md-12">
+                        ${this.interpretationView ? html`
+                            <clinical-interpretation-view id="id"
+                                                          interpretation="${this.interpretationView}"
+                                                          .opencgaSession="${this.opencgaSession}"
+                                                          .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                                          .cellbaseClient="${this.cellbaseClient}"
+                                                          .consequenceTypes="${this.consequenceTypes}"
+                                                          .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                          style="font-size: 12px">
+                            </clinical-interpretation-view>
+                        ` : null}
+                    </div>
                 </div>
             </div>
         </div>

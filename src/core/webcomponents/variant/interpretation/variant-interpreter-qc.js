@@ -58,7 +58,7 @@ class VariantInterpreterQc extends LitElement {
 
     _init() {
         this._prefix = "vcis-" + UtilsNew.randomString(6);
-        this.activeTab = {"Summary": true}; //default active tab
+        this.activeTab = {"Overview": true}; //default active tab
     }
 
     connectedCallback() {
@@ -125,9 +125,9 @@ class VariantInterpreterQc extends LitElement {
 
         return this.clinicalAnalysis ? html`
             <div id="${this._prefix}QcTabs">
-                <div class="container">
+                <div class="">
                     <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
-                        <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["Overview"]})}">
+                        <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Overview"]})}">
                             <a href="javascript: void 0" role="tab" data-id="Overview" @click="${this._changeTab}" class="tab-title">Overview
                             </a>
                         </li>

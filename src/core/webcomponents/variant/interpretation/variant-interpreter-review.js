@@ -425,7 +425,7 @@ export default class VariantInterpreterReview extends LitElement {
 
         return html`
             <div id="${this._prefix}ReviewTabs">
-                <div class="container">
+                <div>
                     <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
                         <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["GeneralInfo"]})}">
                             <a href="javascript: void 0" role="tab" data-id="GeneralInfo" @click="${this._changeTab}" class="tab-title">General Info</a>
@@ -439,8 +439,8 @@ export default class VariantInterpreterReview extends LitElement {
                     </ul>
                 </div>
                 
-                <div class="content-tab-wrapper">
-                    <div id="${this._prefix}GeneralInfo" role="tabpanel" class="tab-pane container active content-tab">
+                <div class="content-tab-wrapper container">
+                    <div id="${this._prefix}GeneralInfo" role="tabpanel" class="tab-pane active content-tab">
                         <variant-interpreter-review-summary .opencgaSession="${this.opencgaSession}" 
                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                                             .active="${this.activeTab["GeneralInfo"]}">

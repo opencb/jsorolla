@@ -139,7 +139,7 @@ class VariantInterpreterInterpretation extends LitElement {
 
         return this.clinicalAnalysis ? html`
             <div id="${this._prefix}QcTabs">
-                <div class="container">
+                <div>
                     <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
                         ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY" 
                             ? html`
