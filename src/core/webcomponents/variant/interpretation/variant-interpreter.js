@@ -135,7 +135,7 @@ class VariantInterpreter extends LitElement {
     getDefaultConfig() {
         return {
             title: "Variant Interpreter",
-            icon: "genome_browser.svg",
+            icon: "fas fa-user-md",
             active: false,
             tools: [
                 {

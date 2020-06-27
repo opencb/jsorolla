@@ -549,42 +549,42 @@ export default class OpencgaProjects extends LitElement {
              <tool-header title="Projects summary" icon="fa fa-search"></tool-header>
 
             <div class="panel-container">
-                <div class="panel panel-default shadow">
+                <div class="panel panel-default shadow-sm">
                     <div class="panel-body">
                         <p class="counter" id="files-count"></p>
                         <p class="counter-title">Files</p>
                     </div>
                 </div>
             
-                <div class="panel panel-default shadow">
+                <div class="panel panel-default shadow-sm">
                     <div class="panel-body">
                         <p class="counter" id="samples-count"></p>
                         <p class="counter-title">Samples</p>
                     </div>
                 </div>
                 
-                <div class="panel panel-default shadow">
+                <div class="panel panel-default shadow-sm">
                     <div class="panel-body">
                         <p class="counter" id="jobs-count"></p>
                         <p class="counter-title">Jobs</p>
                     </div>
                 </div>
                 
-                <div class="panel panel-default shadow">
+                <div class="panel panel-default shadow-sm">
                     <div class="panel-body">
                         <p class="counter" id="individuals-count"></p>
                         <p class="counter-title">Individuals</p>
                     </div>
                 </div>
                 
-                <div class="panel panel-default shadow">
+                <div class="panel panel-default shadow-sm">
                     <div class="panel-body">
                         <p class="counter" id="cohorts-count"></p>
                         <p class="counter-title">Cohorts</p>
                     </div>
                 </div>
                 
-                <div class="panel panel-default shadow">
+                <div class="panel panel-default shadow-sm">
                     <div class="panel-body">
                         <p class="counter" id="variants-count">-</p>
                         <p class="counter-title">Variants</p>
@@ -593,7 +593,7 @@ export default class OpencgaProjects extends LitElement {
             </div>
            
             <div class="v-space"></div>
-            <ul class="nav nav-tabs" role="tablist">
+            <ul class="nav nav-tabs nav-center tablist" role="tablist">
                 ${this.data ? Object.entries(this.data).map((project, i) => html`
                     <li role="presentation" class="${i === 0 ? "active" : ""}"><a href="#${project[0]}" @click="${e => console.log(e)}" aria-controls="profile" role="tab" data-toggle="tab">${project[1].name}</a></li>
                 `) : null}

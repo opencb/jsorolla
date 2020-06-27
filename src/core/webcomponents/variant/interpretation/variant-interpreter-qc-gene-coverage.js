@@ -112,7 +112,7 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
                     <h2>Gene Coverage Stats</h2>
                 </div>
                 <div style="margin-top: 20px; float: right">
-                    <button class="btn btn-primary" @click="${this.onCloseClinicalAnalysis}">
+                    <button class="btn btn-primary ripple" @click="${this.onCloseClinicalAnalysis}">
                         <i class="fas fa-save" style="padding-right: 10px"></i>Save
                     </button>
                 </div>
