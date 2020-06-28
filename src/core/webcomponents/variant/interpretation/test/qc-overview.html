@@ -90,15 +90,7 @@
     <link rel="stylesheet" href="../../../../../../node_modules/sweetalert2/dist/sweetalert2.css">
     <!-- /build -->
 
-    <!-- Load IVA CSS styles -->
-    <!-- build:css[assets/css/styles.css] -->
-<!--    <link rel="stylesheet" href="../lib/jsorolla/styles/css/style.css">-->
-<!--    <link rel="stylesheet" href="../styles/toggle-switch.css">-->
-<!--    <link rel="stylesheet" href="styles/magic-check.css">-->
-<!--    <link rel="stylesheet" href="styles/global.css">-->
-    <!-- /build -->
-
-    <script type="module" src="../variant-interpreter-qc-alignment.js"></script>
+    <script type="module" src="../variant-interpreter-qc-overview.js"></script>
 </head>
 
 <body>
@@ -107,7 +99,7 @@
             import {OpenCGAClient} from "../../../../clients/opencga/opencga-client.js";
             import {responses} from "./clinical_analysis.js";
 
-            class QcAlignmentTest extends LitElement {
+            class QcOverviewTest extends LitElement {
 
                 constructor() {
                     super();
@@ -127,7 +119,7 @@
                     this.opencgaClient = new OpenCGAClient({
                         host: "http://bioinfo.hpc.cam.ac.uk/opencga-prod-legacy",
                         version: "v2",
-                        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+                        token: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpbWVkaW5hIiwiYXVkIjoiT3BlbkNHQSB1c2VycyIsImlhdCI6MTU5MzM2MzQ2NCwiZXhwIjoxNTkzMzY3MDY0fQ.54UCbukfjVcHlFpekvXzs0FSuke1o9XLvf0shF5-INU",
                         userId: "imedina",
                         cookies: {active: true, prefix: "test"},
                     });
@@ -143,17 +135,22 @@
                     };
 
                     return html`
-                        <variant-interpreter-qc-alignment   .opencgaSession="${this.opencgaSession}"
-                                                            .clinicalAnalysis="${responses[0].results[0]}">
-                        </variant-interpreter-qc-alignment>
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-md-10 col-md-offset-1">
+                                    <variant-interpreter-qc-overview    .opencgaSession="${this.opencgaSession}"
+                                                                        .clinicalAnalysis="${responses[0].results[0]}">
+                                    </variant-interpreter-qc-overview>
+                                </div>
+                        </div>
                     `;
                 }
             }
 
-            customElements.define("variant-interpreter-qc-alignment-test", QcAlignmentTest);
+            customElements.define("variant-interpreter-qc-overview-test", QcOverviewTest);
     </script>
 
-    <variant-interpreter-qc-alignment-test></variant-interpreter-qc-alignment-test>
+    <variant-interpreter-qc-overview-test></variant-interpreter-qc-overview-test>
 
 </body>
 </html>

@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import "../../commons/view/data-form.js";
+import "../../individual/opencga-individual-inferred-sex-view.js";
 
 class VariantInterpreterQcSummary extends LitElement {
 
@@ -59,9 +59,9 @@ class VariantInterpreterQcSummary extends LitElement {
     }
 
     updated(changedProperties) {
-        // if (changedProperties.has("clinicalAnalysis")) {
-        //     this.setAlignmentstats();
-        // }
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.getIndividuals();
+        }
 
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
@@ -77,7 +77,7 @@ class VariantInterpreterQcSummary extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    this.requestUpdate();
+                    this.getIndividuals();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -85,55 +85,25 @@ class VariantInterpreterQcSummary extends LitElement {
         }
     }
 
+    getIndividuals() {
+        if (this.clinicalAnalysis) {
+            let _individuals = [];
+            switch (this.clinicalAnalysis.type.toUpperCase()) {
+                case "SINGLE":
+                case "CANCER":
+                    _individuals = this.clinicalAnalysis.proband;
+                    break;
+                case "FAMILY":
+                    _individuals = this.clinicalAnalysis.family.members;
+                    break;
+            }
+            this.individuals = _individuals;
+        }
+        this.requestUpdate();
+    }
+
     getDefaultConfig() {
         return {
-            title: "QC Summary",
-            icon: "",
-            display: {
-                collapsable: true,
-                showTitle: false,
-                labelWidth: 2,
-                defaultValue: "-",
-                defaultLayout: "horizontal"
-            },
-            sections: [
-                {
-                    title: "Summary",
-                    collapsed: false,
-                    elements: [
-                        {
-                            name: "Analysis ID",
-                            field: "id"
-                        },
-                        {
-                            name: "Proband",
-                            field: "proband.id",
-                            type: "custom",
-                            display: {
-                                render: probandId => html`<strong>${probandId}</strong>`
-                            }
-                        },
-                        {
-                            name: "Disorder",
-                            field: "disorder",
-                            type: "custom",
-                            display: {
-                                render: disorder => {
-                                    let id = disorder.id;
-                                    if (disorder.id.startsWith("OMIM:")) {
-                                        id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
-                                    }
-                                    return html`${disorder.name || "-"} (${id})`
-                                },
-                            }
-                        },
-                        {
-                            name: "Analysis Type",
-                            field: "type"
-                        },
-                    ]
-                },
-            ]
         }
     }
 
@@ -156,12 +126,10 @@ class VariantInterpreterQcSummary extends LitElement {
 
         // Alignment stats are the same for FAMILY and CANCER analysis
         return html`
-            <div class="container" style="margin-bottom: 20px">
-                <data-form .data=${this.clinicalAnalysis} .config="${this._config}"></data-form>
-            </div>
+            <opencga-individual-inferred-sex-view .individuals="${this.individuals}"></opencga-individual-inferred-sex-view>
         `;
     }
 
 }
 
-customElements.define("variant-interpreter-qc-summary", VariantInterpreterQcSummary);
+customElements.define("variant-interpreter-qc-inferred-sex", VariantInterpreterQcSummary);

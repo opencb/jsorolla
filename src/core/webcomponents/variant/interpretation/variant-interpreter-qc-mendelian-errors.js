@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import "../../commons/view/data-form.js";
 
-class VariantInterpreterQcSummary extends LitElement {
+class VariantInterpreterQcMendelianErrors extends LitElement {
 
     constructor() {
         super();
@@ -164,4 +164,4 @@ class VariantInterpreterQcSummary extends LitElement {
 
 }
 
-customElements.define("variant-interpreter-qc-summary", VariantInterpreterQcSummary);
+customElements.define("variant-interpreter-qc-mendelian-errors", VariantInterpreterQcMendelianErrors);
