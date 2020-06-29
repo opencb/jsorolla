@@ -147,7 +147,7 @@ class VariantInterpreterQcOverview extends LitElement {
     onSideNavClick(e) {
         e.preventDefault();
         // Remove button focus highlight
-        e.target.blur();
+        e.currentTarget.blur();
         const tabId = e.currentTarget.dataset.id;
         $(".interpreter-side-nav > button", this).removeClass("active");
         $(`.interpreter-side-nav > button[data-id=${tabId}]`, this).addClass("active");
@@ -171,21 +171,29 @@ class VariantInterpreterQcOverview extends LitElement {
 
         return html`
             <style>
-                .side-nav button{
+                .variant-interpreter-overview .side-nav button{
                     padding: 15px;
                 }
-                .side-nav button.active {
+                
+                .variant-interpreter-overview .side-nav button.active {
                     padding: 15px;
                     font-weight: bold;
                     background-color: #EEEEEE;
-                    border-left-color: var(--main-bg-color);
+                    color: #555;
+                    border-color: #ddd #ddd #ddd var(--main-bg-color);
                 }
+                
+                .variant-interpreter-overview .side-nav button:focus {
+                    border-color: #ddd;
+                    outline: 0;
+                }
+                
             </style>
             <div class="row variant-interpreter-overview" style="margin: 10px">
-                <div class="col-md-9 col-md-offset-1">
+                <div class="col-md-9 col-md-offset-2">
                     <h2>Overview</h2>
                 </div>
-                <div class="col-md-2 list-group interpreter-side-nav">
+                <div class="col-md-2 list-group interpreter-side-nav side-nav">
                     <button type="button" class="list-group-item" 
                           data-id="Summary" @click="${this.onSideNavClick}">Summary</button>
                     <button type="button" class="list-group-item" 
