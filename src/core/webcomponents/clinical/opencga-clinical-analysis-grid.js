@@ -336,9 +336,9 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     // }
 
     interpretationFormatter(value, row) {
-        return `<div style="padding: 5px">
-                    <a style="cursor: pointer" href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-                        <i class="fa fa-filter" aria-hidden="true"></i> Go To Interpreter 
+        return `<div>
+                    <a href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
+                        <i class="fas fa-user-md" aria-hidden="true"></i> Go To Interpreter 
                     </a> 
                 </div>
         `;

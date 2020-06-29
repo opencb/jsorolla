@@ -125,8 +125,8 @@ export default class VariantGridFormatter {
                             ${snpLinkHtml}
                 `;
 
-        return `<div class="variant-tooltip" data-tooltip-text='${tooltipText}'>
-                    <a style="cursor: pointer">
+        return `<div>
+                    <a tooltip-title='Links' tooltip-text='${tooltipText}'>
                         ${row.chromosome}:${row.start}&nbsp;&nbsp;${ref}/${alt}
                     </a>
                 </div>`;
