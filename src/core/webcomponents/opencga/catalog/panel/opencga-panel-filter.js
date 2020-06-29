@@ -133,10 +133,6 @@ export default class OpencgaPanelFilter extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles">
-        </style>
-
-        <br>
         <div style="width: 60%;margin: 0 auto">
             <button type="button" class="btn btn-primary" style="width: 100%" @click="${this.onSearchClick}">
                 <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px 0px 5px"></i>

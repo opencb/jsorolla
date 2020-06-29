@@ -340,13 +340,6 @@ export default class OpencgaPanelSummary extends LitElement {
 
     render() {
         return html`
-<style include="jso-styles">
-            .div-margin {
-                margin-top: 20px;
-            }
-        </style>
-
-
         <div style="padding-top: 20px">
             <ul id="${this._prefix}ManualTabs" class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active">

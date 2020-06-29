@@ -270,18 +270,7 @@ class OpencbFacetQuery extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles">
-            option:disabled {
-                font-size: 0.85em;
-                font-weight: bold;
-            }
-
-            .active-filter-button:hover {
-                text-decoration: line-through;
-            }
-            .deletable:hover {
-                text-decoration: line-through;
-            }
+        <style>
             #loading {
                 text-align: center;
                 margin-top: 40px;

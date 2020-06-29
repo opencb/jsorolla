@@ -264,7 +264,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles">
+        <style>
             .ocap-text-button {
                 display: inline-block;
                 overflow: hidden;

@@ -328,22 +328,20 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                         </opencga-active-filters>
                         
                         <div class="main-view">
-                            <div class="row" style="padding: 10px">
-                                <div class="col-md-12">
-                                    <div class="col-md-6">
-                                        <h3>Genotype</h3>
-                                        <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[0]}"
-                                                .config="${this.facetConfig}"
-                                                ?active="${this.facetActive}">
-                                        </opencga-facet-result-view>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h3>Type</h3>
-                                        <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[1]}"
-                                                .config="${this.facetConfig}"
-                                                ?active="${this.facetActive}">
-                                        </opencga-facet-result-view>
-                                    </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h3>Genotype</h3>
+                                    <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[0]}"
+                                            .config="${this.facetConfig}"
+                                            ?active="${this.facetActive}">
+                                    </opencga-facet-result-view>
+                                </div>
+                                <div class="col-md-6">
+                                    <h3>Type</h3>
+                                    <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[1]}"
+                                            .config="${this.facetConfig}"
+                                            ?active="${this.facetActive}">
+                                    </opencga-facet-result-view>
                                 </div>
                                 <div class="col-md-12">
                                     <h3>Biotype</h3>

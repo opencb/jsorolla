@@ -443,10 +443,7 @@ export default class OpencgaAnnotationViewer extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles"></style>
-
         <div style="padding: 15px 20px">
-
             <div id="${this._prefix}-main-annotation-comparator-div">
                 
                 ${this.variableSets && this.variableSets.length ? html`

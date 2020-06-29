@@ -193,7 +193,7 @@ export default class GeneCoverageGrid extends LitElement {
     cellStyle(value, row, index, field) {
         let coverage = Number.parseInt(field.split(".")[1]);
         let thresholdValue = this.coverageQuality ? this.coverageQuality[coverage] : 80;
-        const color = value >= thresholdValue ? "rgba(176, 255, 199, 0.2)" : "rgba(255,194,194,0.2)";
+        const color = value >= thresholdValue ? "#e7f7ec" : "#fef3f3";
         return {
             css: {
                 background: `linear-gradient(90deg, ${color} 0%, ${color} ${value}%, transparent ${value}%, transparent 100%)`
@@ -355,7 +355,7 @@ export default class GeneCoverageGrid extends LitElement {
                                     @download="${this.onDownload}">
                 </opencb-grid-toolbar>`
             : null}
-            <div>
+            <div class="gene-coverage-grid">
                 <table id="${this.gridId}"></table>
             </div>
             ${this.errorState ? html`

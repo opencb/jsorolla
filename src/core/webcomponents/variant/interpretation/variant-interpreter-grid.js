@@ -1058,7 +1058,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
     render() {
         return html`
-            <style include="jso-styles">
+            <style>
                 .variant-link-dropdown:hover .dropdown-menu {
                     display: block;
                 }

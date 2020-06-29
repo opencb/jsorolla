@@ -198,7 +198,7 @@ export default class OpencgaFacetViewSelector extends LitElement {
 
     render() {
         return html`
-<style include="jso-styles">
+        <style>
 
             /* Select picker optgroup header */
             .dropdown-header>span {

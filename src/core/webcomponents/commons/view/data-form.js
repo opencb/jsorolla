@@ -211,7 +211,7 @@ export default class DataForm extends LitElement {
             `;
         } else {
             return html`
-                <section">
+                <section>
                     <div class="${classes}" style="${style}">
                         ${this.config.sections.map(section => this._createSection(section))}
                     </div>

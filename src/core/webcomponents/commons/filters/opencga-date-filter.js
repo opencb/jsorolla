@@ -288,7 +288,7 @@ export default class OpencgaDateFilter extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles">
+        <style>
             .range-box:nth-child(2) {
                 margin-top: 20px;
             }

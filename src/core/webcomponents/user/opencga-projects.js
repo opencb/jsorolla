@@ -511,7 +511,7 @@ export default class OpencgaProjects extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles">
+        <style>
             .center {
                 margin: auto;
                 text-align: justify;

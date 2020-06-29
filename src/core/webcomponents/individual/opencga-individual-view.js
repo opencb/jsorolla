@@ -190,7 +190,7 @@ export default class OpencgaIndividualView extends LitElement {
                             field: "modificationDate",
                             type: "custom",
                             display: {
-                                render: field => field?.name ? html`${field.name} (${UtilsNew.dateFormatter(field.modificationDate)})` : ""
+                                render: field => field ? html`${UtilsNew.dateFormatter(field)}` : ""
                             }
                         },
                         {

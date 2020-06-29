@@ -403,8 +403,6 @@ export default class VariantGenomeBrowser extends LitElement {
 
     render_NEW() {
         return html`
-                <style include="jso-styles"></style>
-
         <!--<div class="alert alert-warning" role="alert" id="${this._prefix}Warning" style="padding: 10px">-->
         <!--<span style="font-weight: bold;font-size: 1.20em">Warning!</span>&nbsp;&nbsp;Genome Browser is not fully integrated yet, this is just a prototype.-->
         <!--</div>-->

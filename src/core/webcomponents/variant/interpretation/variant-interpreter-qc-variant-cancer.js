@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import Circos from "./test/circos.js";
+//import Circos from "./test/circos.js";
 import "./variant-interpreter-qc-cancer-plots.js";
 import "../opencga-variant-filter.js";
 import "../../commons/opencga-active-filters.js";

@@ -702,9 +702,6 @@ export default class OpencgaPanelEditor extends LitElement {
 
     render() {
         return html`
-<style include="jso-styles">
-
-        </style>
         <div style="padding-top: 20px" >
             <h3>Editor</h3>
             <div style="padding-top: 20px">

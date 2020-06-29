@@ -493,8 +493,6 @@ export default class OpencgaCohortGrid extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles"></style>
-
         <opencb-grid-toolbar .from="${this.from}"
                              .to="${this.to}"
                              numTotalResultsText="${this.numTotalResultsText}"

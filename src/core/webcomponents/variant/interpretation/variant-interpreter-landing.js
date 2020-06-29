@@ -151,8 +151,8 @@ class VariantInterpreterLanding extends LitElement {
     }
 
     onProbandIdChange(key, value) {
-        this.probandId = value;
-        this.clinicalAnalysisId = null;
+        //this.probandId = value;
+        this.clinicalAnalysisId = value;
     }
 
     onClinicalAnalysisChange() {
@@ -288,6 +288,7 @@ class VariantInterpreterLanding extends LitElement {
                                 render: () => {
                                     const config = {
                                         addButton: false,
+                                        multiple: false,
                                         dataSource: (query, process) => {
                                             const filters = {
                                                 study: this.opencgaSession.study.fqn,

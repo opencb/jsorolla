@@ -301,7 +301,6 @@ export default class VariantSampleSelector extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles"></style>
         <div>
             <div class="col-md-3">
                 <opencga-sample-filter .opencgaClient="${this.opencgaClient}" .query="${this.query}" .search="${this.search}}"></opencga-sample-filter>

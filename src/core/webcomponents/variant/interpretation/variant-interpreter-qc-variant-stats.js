@@ -163,12 +163,21 @@ class VariantInterpreterQcVariantStats extends LitElement {
                 variant-interpreter-qc-variant-stats .select-field-filter {
                     display: inline-block;
                 }
+                
+                
+                variant-interpreter-qc-variant-stats .gene-selector {
+                    padding: 0 0 15px 0;
+                }
+                
+                variant-interpreter-qc-variant-stats .gene-selector label {
+                    margin-right: 15px;
+                }
             </style>
             <div class="container">
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="">
                         <form class="form-inline">
-                            <div class="form-group">
+                            <div class="form-group gene-selector">
                                 <label>Select Stat</label>
                                 <select-field-filter .data="${this.statsSelect}" @filterChange="${this.onSampleChange}"></select-field-filter>
                             </div>
