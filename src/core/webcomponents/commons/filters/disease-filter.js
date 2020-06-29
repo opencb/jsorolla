@@ -86,7 +86,7 @@ export default class DiseaseFilter extends LitElement {
             // this.showPanelGenes(this._panel);
             if (this.diseasePanels) {
                 this.genes = this.diseasePanels?.[0]?.genes ?? [];
-                this.requestUpdate().then(() => $(`select#${this._prefix}Genes`, this).selectpicker("refresh"));
+                this.requestUpdate().then(() => $(`select#${this._prefix}DiseasePanels`, this).selectpicker("refresh"));
             }
         }
 
@@ -165,8 +165,16 @@ export default class DiseaseFilter extends LitElement {
     }
 
     render() {
-        // this.opencgaSession.study.panels;
-        // debugger
+        this.diseasePanels = this.diseasePanels.sort( (a, b) => {
+            if (a.name < b.name) {
+                return -1;
+            }
+            if (a.name > b.name) {
+                return 1;
+            }
+            return 0;
+        });
+        debugger
         if (this.mode !== "gene") {
             return html`
                 <div>
@@ -174,7 +182,7 @@ export default class DiseaseFilter extends LitElement {
                         ${this.diseasePanels && this.diseasePanels.length && this.diseasePanels.map(panel => html`
                             <option value="${panel.id}">
                                 ${panel.name}
-                                ${panel.source ? "v" + panel.source.version : ""}
+                                ${panel.source ? ` - ${panel.source.project || panel.source.id} ${panel.source.version ? "v" + panel.source.version : ""}` : ""}
                                 ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}
                             </option>
                         `)}

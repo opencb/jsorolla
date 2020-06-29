@@ -342,6 +342,7 @@ export class OpenCGAClient {
                                     for (const study of studies) {
                                         const promise = _this.panels().search({
                                             study: study,
+                                            limit: 2000,
                                             include: "id,name,stats,source,genes.id,genes.name,regions.id"
                                         }).then(function(response) {
                                             return new RestResponse(response).getResults();
