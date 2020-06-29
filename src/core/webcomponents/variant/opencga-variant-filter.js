@@ -486,69 +486,69 @@ export default class OpencgaVariantFilter extends LitElement {
 
     render() {
         return html`
-            <style include="jso-styles">
-            .browser-ct-scroll {
-                /*max-height: 450px;*/
-                /*overflow-y: scroll;*/
-                overflow-x: scroll;
-            }
-
-            .browser-ct-tree-view,
-            .browser-ct-tree-view * {
-                padding: 0;
-                margin: 0;
-                list-style: none;
-            }
-
-            .browser-ct-tree-view li ul {
-                margin: 0 0 0 22px;
-            }
-
-            .browser-ct-tree-view * {
-                vertical-align: middle;
-            }
-
-            .browser-ct-tree-view {
-                /*font-size: 14px;*/
-            }
-
-            .browser-ct-tree-view input[type="checkbox"] {
-                cursor: pointer;
-            }
-
-            .browser-ct-item {
-                white-space: nowrap;
-                display: inline
-            }
-
-            div.block {
-                overflow: hidden;
-            }
-
-            div.block label {
-                width: 80px;
-                display: block;
-                float: left;
-                text-align: left;
-                font-weight: normal;
-            }
-        </style>
-        <div>
-            ${this.searchButton ? html`
-            <div class="search-button-wrapper">
-                <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
-                    <i class="fa fa-search" aria-hidden="true"></i> ${this.config.searchButtonText || "Search"}
-                </button>
-            </div>
-            ` : null}
-
-            <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true" style="padding-top: 5px">
-                <div id="FilterMenu">
-                ${this._renderFilterMenu()}
+            <style>
+                .browser-ct-scroll {
+                    /*max-height: 450px;*/
+                    /*overflow-y: scroll;*/
+                    overflow-x: scroll;
+                }
+    
+                .browser-ct-tree-view,
+                .browser-ct-tree-view * {
+                    padding: 0;
+                    margin: 0;
+                    list-style: none;
+                }
+    
+                .browser-ct-tree-view li ul {
+                    margin: 0 0 0 22px;
+                }
+    
+                .browser-ct-tree-view * {
+                    vertical-align: middle;
+                }
+    
+                .browser-ct-tree-view {
+                    /*font-size: 14px;*/
+                }
+    
+                .browser-ct-tree-view input[type="checkbox"] {
+                    cursor: pointer;
+                }
+    
+                .browser-ct-item {
+                    white-space: nowrap;
+                    display: inline
+                }
+    
+                div.block {
+                    overflow: hidden;
+                }
+    
+                div.block label {
+                    width: 80px;
+                    display: block;
+                    float: left;
+                    text-align: left;
+                    font-weight: normal;
+                }
+            </style>
+            <div>
+                ${this.searchButton ? html`
+                <div class="search-button-wrapper">
+                    <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
+                        <i class="fa fa-search" aria-hidden="true"></i> ${this.config.searchButtonText || "Search"}
+                    </button>
+                </div>
+                ` : null}
+    
+                <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true" style="padding-top: 5px">
+                    <div id="FilterMenu">
+                    ${this._renderFilterMenu()}
+                    </div>
                 </div>
             </div>
-        </div>
-        `;
+            `;
     }
 
 }

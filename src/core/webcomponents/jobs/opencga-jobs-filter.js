@@ -180,7 +180,7 @@ export default class OpencgaJobsFilter extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles">
+        <style>
             .label-opencga-file-filter {
                 padding-top: 10px;
             }

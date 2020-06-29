@@ -148,7 +148,7 @@ export default class OpencgaGeneView extends LitElement {
 
     render() {
         return this.geneObj ? html`
-        <style include="jso-styles">
+        <style>
             .gene-variant-tab-title {
                 font-size: 150%;
                 font-weight: bold;

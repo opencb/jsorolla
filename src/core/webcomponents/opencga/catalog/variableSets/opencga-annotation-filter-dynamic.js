@@ -384,7 +384,7 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles">
+        <style>
             .plus-button {
                 color: #00AA33;
                 cursor: pointer;

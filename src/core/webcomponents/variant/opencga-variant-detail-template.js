@@ -112,8 +112,6 @@ class OpencgaVariantDetailTemplate extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles"></style>
-
         <div id="${this._prefix}UniqueId" style="padding: 20px">
             <p>Put your HTML here. You can use opencgaSession, cellbaseClient, variant and _config objects</p>
             <p>Example:</p>

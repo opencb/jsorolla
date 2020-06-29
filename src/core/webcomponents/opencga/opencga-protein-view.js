@@ -221,15 +221,10 @@ export default class OpencgaProteinView extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles">
+        <style>
             .protein-variant-tab-title {
                 font-size: 150%;
                 font-weight: bold;
-            }
-
-            div.block {
-                overflow: hidden;
-                width: 100%
             }
 
             .protein-align-left {

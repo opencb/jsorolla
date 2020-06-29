@@ -212,7 +212,7 @@ export default class OpencgaTranscriptView extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles">
+        <style>
             .transcript-variant-tab-title {
                 font-size: 150%;
                 font-weight: bold;

@@ -127,8 +127,6 @@ export default class VariantBeacon extends LitElement {
 
     render() {
         return html`
-            <style include="jso-styles"></style>
-    
             ${this.checkProjects ? html`
                 <tool-header title="GA4GH Beacon" icon="fa fa-share-alt"></tool-header>
     

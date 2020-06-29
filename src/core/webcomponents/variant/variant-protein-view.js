@@ -148,8 +148,6 @@ export default class VariantProteinView extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles"></style>
-
         <!--<h4>{{study.alias}} - {{protein.id}}</h4>-->
 
         <ul class="nav nav-pills">

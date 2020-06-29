@@ -201,39 +201,12 @@ export default class OpencgaIndividualFilter extends LitElement {
 
     render() {
         return html`
-            <style include="jso-styles">
-
-            span + span {
-                margin-left: 10px;
-            }
-
-            div.block {
-                overflow: hidden;
-            }
-
-            div.block label {
-                width: 80px;
-                display: block;
-                float: left;
-                text-align: left;
-                font-weight: normal;
-            }
-
-            select + select {
-                margin-left: 10px;
-            }
-
-            select + input {
-                margin-left: 10px;
-            }
-        </style>
-
-        ${this.searchButton ? html`
-            <div class="search-button-wrapper">
-                <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
-                    <i class="fa fa-search" aria-hidden="true"></i> Search
-                </button>
-            </div>
+            ${this.searchButton ? html`
+                <div class="search-button-wrapper">
+                    <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
+                        <i class="fa fa-search" aria-hidden="true"></i> Search
+                    </button>
+                </div>
             ` : null}
 
         <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true" style="padding-top: 20px">

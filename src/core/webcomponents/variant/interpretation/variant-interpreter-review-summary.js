@@ -341,7 +341,7 @@ export default class VariantInterpreterReviewSummary extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles">
+        <style>
             .prioritization-center {
                 margin: auto;
                 text-align: justify;

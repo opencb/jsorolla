@@ -477,7 +477,7 @@ class VariantInterpreterCancerBrowser extends LitElement {
         // }
 
         return html`
-            <style include="jso-styles">
+            <style>
                 .prioritization-center {
                     margin: auto;
                     text-align: justify;

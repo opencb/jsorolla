@@ -399,11 +399,6 @@ export default class OpencgaPanelGrid extends LitElement {
 
     render() {
         return html`
-        <style include="jso-styles">
-            .div-margin {
-                margin-top: 20px;
-            }
-        </style>
         <div id="${this._prefix}PanelsDiv">
             <h2>Panels</h2>
             <table id="${this._prefix}PanelsGrid" data-pagination="true" data-page-list="[5, 10, 25, 50]" data-show-refresh="true">
