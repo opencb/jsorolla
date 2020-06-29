@@ -141,6 +141,7 @@ export class JobMonitor extends LitElement {
                 this.jobs = restResponse.getResults();
                 await this.applyUpdated();
                 this.filteredJobs = this.jobs.filter(job => this.filterTypes?.includes(job.internal.status.name) ?? 1);
+                this.requestUpdate();
                 // this.running = this.jobs.filter( job => ["PENDING", "QUEUED", "RUNNING"].includes(job?.internal?.status.name))
                 // this.done = this.jobs.filter( job => ["DONE", "ERROR"].includes(job?.internal?.status.name) /*job?.execution?.end >= lastDays.valueOf()*/)
                 // this.total = this.running.length + this.done.length;

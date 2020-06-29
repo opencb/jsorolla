@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import Circos from "./test/circos.js";
+//import Circos from "./test/circos.js";
 import "../opencga-variant-filter.js";
 import "../../commons/opencga-active-filters.js";
 import "../../commons/visualisation/circos-view.js";
@@ -59,7 +59,7 @@ export default class VariantInterpreterQcCancerPlots extends LitElement {
         this._prefix = "sf-" + UtilsNew.randomString(6);
 
         this.preparedQuery = {};
-        this.base64 = "data:image/png;base64, " + Circos.base64;
+        //this.base64 = "data:image/png;base64, " + Circos.base64;
     }
 
     connectedCallback() {
