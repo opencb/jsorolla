@@ -309,6 +309,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
         // Add tooltips
         if (this.variantGridFormatter) {
+            // TODO remove the following lines and use UtilsNew.initTooltip
             this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
             this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
             this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "File metrics", "", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
@@ -572,6 +573,7 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     studyCohortsFormatter(value, row) {
+        //console.log("value, row",value, row)
         if (typeof row !== "undefined" && typeof row.studies !== "undefined" && this.variantGridFormatter) {
             const cohorts = [];
             const cohortMap = new Map();
@@ -579,7 +581,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 const arr = study.studyId.split(":");
                 const s = arr[arr.length - 1] + ":ALL";
                 cohorts.push(s);
-                cohortMap.set(s, Number(study.stats[0].altAlleleFreq).toFixed(4));
+                cohortMap.set(s, study.stats.length ? Number(study.stats[0].altAlleleFreq).toFixed(4) : "-");
             }
 
             return this.variantGridFormatter.createPopulationFrequenciesTable(cohorts, cohortMap, this.populationFrequencies?.style);

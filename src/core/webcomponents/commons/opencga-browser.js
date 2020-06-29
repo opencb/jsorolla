@@ -229,20 +229,18 @@ export default class OpencgaBrowser extends LitElement {
 
     onActiveFacetChange(e) {
         this.selectedFacet = {...e.detail};
-        //$("#" + this._prefix + "FacetField", this).selectpicker("val", Object.keys(this.selectedFacet)); //TODO recheck it seems not necessary (the facet select is now in facet-filter)
         this.onRun(); // TODO the query should be repeated every action on active-filter (delete, clear, load from Saved filter)
         this.requestUpdate();
     }
 
     onActiveFacetClear(e) {
         this.selectedFacet = {};
-        //$("#" + this._prefix + "FacetField", this).selectpicker("deselectAll"); //TODO recheck it seems not necessary (the facet select is now in facet-filter)
         this.onRun();
         this.requestUpdate();
     }
 
     onClickRow(e, resource) {
-        console.log(e);
+        //console.log(e);
         this.detail = {...this.detail, [resource]: e.detail.row};
         this.requestUpdate();
     }

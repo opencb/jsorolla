@@ -271,8 +271,7 @@ export default class OpencgaActiveFilters extends LitElement {
         // Reset selected filters to none
         PolymerUtils.addStyleByClass("filtersLink", "color", "black");
 
-        const name = e.target.dataset.filterName;
-        const value = e.target.dataset.filterValue;
+        const {filterName: name, filterValue: value} = e.target.dataset
         console.log("onQueryFilterDelete", name, value);
 
         if (UtilsNew.isEmpty(value)) {
@@ -287,22 +286,35 @@ export default class OpencgaActiveFilters extends LitElement {
         } else {
             //                    let filterFields = _queryList[name].split(new RegExp("[,;]"));
             let filterFields;
-            if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(name) !== -1) {
+
+            /**
+             * TODO refactor
+             * QUICKFIX: `sample` has semicolons and commas both, it needs a custom logic
+             */
+            if (name === "sample") {
                 filterFields = _queryList[name].split(new RegExp(";"));
-            } else {
-                filterFields = _queryList[name].split(new RegExp("[,;]"));
-            }
-
-            const indexOfValue = filterFields.indexOf(value);
-            filterFields.splice(indexOfValue, 1);
-
-            if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(name) !== -1) {
+                const indexOfValue = filterFields.indexOf(value);
+                filterFields.splice(indexOfValue, 1);
                 _queryList[name] = filterFields.join(";");
+
             } else {
-                if (_queryList[name].indexOf(",") !== -1) {
-                    _queryList[name] = filterFields.join(",");
+                if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(name) !== -1) {
+                    filterFields = _queryList[name].split(new RegExp(";"));
                 } else {
+                    filterFields = _queryList[name].split(new RegExp("[,;]"));
+                }
+
+                const indexOfValue = filterFields.indexOf(value);
+                filterFields.splice(indexOfValue, 1);
+
+                if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(name) !== -1) {
                     _queryList[name] = filterFields.join(";");
+                } else {
+                    if (_queryList[name].indexOf(",") !== -1) {
+                        _queryList[name] = filterFields.join(",");
+                    } else {
+                        _queryList[name] = filterFields.join(";");
+                    }
                 }
             }
         }
@@ -369,24 +381,24 @@ export default class OpencgaActiveFilters extends LitElement {
                 // in case of annotation
                 if (key === "annotation") {
                     filterFields = value.split(";");
-                } else {
-                    // If we find a field with both ; and , or the field has been defined as complex, we will only
-                    // separate by ;
-                    if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(key) !== -1) {
-                        filterFields = value.split(new RegExp(";"));
-                    } else {
-                        filterFields = value.split(new RegExp("[,;]"));
-                    }
-                }
-                // We fist have need to remove defaultStudy from 'filterFields' and 'value'
-                if (key === "study") {
+                } else if (key === "study") {
+                    // We fist have need to remove defaultStudy from 'filterFields' and 'value'
                     filterFields = value.split(/[,;]/).filter(fqn => fqn !== this.defaultStudy);
                     // defaultStudy was the only one present so no need to render anything
                     if (!filterFields.length) {
                         continue;
                     }
                     value = filterFields.join(/[,;]/);
+                } else {
+                    // If we find a field with both ; and , or the field has been defined as complex, we will only
+                    // separate by ;.
+                    if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(key) !== -1) {
+                        filterFields = value.split(new RegExp(";"));
+                    } else {
+                        filterFields = value.split(new RegExp("[,;]"));
+                    }
                 }
+
 
                 const locked = UtilsNew.isNotUndefinedOrNull(this.lockedFieldsMap[key]);
                 const lockedTooltip = UtilsNew.isNotUndefinedOrNull(this.lockedFieldsMap[key]) ? this.lockedFieldsMap[key].message : "";

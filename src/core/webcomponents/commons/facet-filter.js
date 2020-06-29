@@ -110,14 +110,14 @@ export default class FacetFilter extends LitElement {
     }
 
     async onFacetFieldChange(e) {
-        // since select-field-filter fires a filterChange event with all the selected values while we need here just the new selected (deselected) item, we compute the difference between the 2 sets
+        // select-field-filter fires a filterChange event with all the selected values. Here we need here just the new selected (deselected) item, so we compute the difference between the 2 sets
         const currentSelectionNames = e.detail.value ? e.detail.value.split(",") : [];
         // compute the symmetric difference between this.selectedFacet and currentSelectionNames
         const differences = Object.keys(this.selectedFacet)
             .filter(a => !currentSelectionNames.includes(a))
             .concat(currentSelectionNames.filter(name => !Object.keys(this.selectedFacet).includes(name)));
 
-        // the difference involves one item a time
+        // the difference involves one item at a time
         if (differences.length > 1) console.error("Difference error!", this.selectedFacet, currentSelectionNames);
 
         const difference = differences[0];
@@ -235,7 +235,7 @@ export default class FacetFilter extends LitElement {
                             <a class="btn btn-small collapsed" role="button" data-collapse="#${facet.id}_nested" @click="${this.toggleCollapse}"> <i class="fas fa-arrow-alt-circle-down"></i> Nested Facet (optional) </a>
                             <div class="collapse ${this.selectedFacet[facet.id].nested ? "in" : ""}" id="${facet.id}_nested"> 
                                 <div class="">
-                                    <select-field-filter multiple .data="${this.config.sections.map(section => ({...section, fields: section.fields.map(item => ({...item, disabled: item.id === facet.id})) }))}" .value=${this.selectedFacet[facet.id].nested ? this.selectedFacet[facet.id].nested.id : null} @filterChange="${e => this.onNestedFacetFieldChange(e, facet.id)}"></select-field-filter>
+                                    <select-field-filter .data="${this.config.sections.map(section => ({...section, fields: section.fields.map(item => ({...item, disabled: item.id === facet.id})) }))}" .value=${this.selectedFacet[facet.id].nested ? this.selectedFacet[facet.id].nested.id : null} @filterChange="${e => this.onNestedFacetFieldChange(e, facet.id)}"></select-field-filter>
                                     <div class="row facet-row nested">
                                         ${this.renderNestedField(this.selectedFacet[facet.id].nested, facet.id)}
                                     </div>                                

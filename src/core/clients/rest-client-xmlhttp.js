@@ -134,7 +134,7 @@ export class RestClientXmlhttp {
                 }
             };
 
-            console.log("CALL [method, url, options]", method, url, options)
+            //console.log("CALL [method, url, options]", method, url, options)
             request.open(method, url, async);
             if (typeof options !== "undefined" && options.hasOwnProperty("token")) {
                 request.setRequestHeader("Authorization", `Bearer ${options["token"]}`);

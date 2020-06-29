@@ -78,11 +78,11 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
         this.mode = "CUSTOM";
 
         // this._query = {};
-        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     connectedCallback() {
         super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
@@ -200,9 +200,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
 
         //this.pedigreeRender();
 
-        // TODO temp commented
-        console.warn("sampleFiltersChange temp. commented");
-        // this.sampleFiltersChange();
+        this.notifySampleFilterChange();
     }
 
     /**
@@ -427,6 +425,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
         return {
             defaultGenotypes: ["0/1", "1/1"],
             // defaultGenotypes: [],
+            showPedigree: false,
             sexIconMap: {
                 MALE: "fa-mars",
                 FEMALE: "fa-venus",
@@ -568,7 +567,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                                         </td>
                                         <td style="padding-left: 10px">
                                             <input id="${this._prefix}${sampleFilter.id}DP" type="text" value="${sampleFilter.dp !== undefined && sampleFilter.dp > 0 ? sampleFilter.dp : ""}"
-                                                   class="form-control input-sm sample-dp-textbox" aria-label="..." placeholder="e.g. 15"
+                                                   class="form-control input-sm sample-dp-textbox" aria-label="..." placeholder="e.g. 15" data-sample-id="${sampleFilter.id}"
                                                    style="width: 60px" @input="${this.onSampleTableChange}">
                                         </td>
                                     </tr>
@@ -589,19 +588,12 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
             
             
             
-                <div class="col-md-12">
-                    <h4 style="padding-top: 5px; padding-bottom: 10px">Pedigree</h4>
-                    <pedigree-view .family="${this.clinicalAnalysis.family}"></pedigree-view>
-                </div>
-                            
-            <!-- <div class="col-md-12" style="padding: 10px 20px">
-                <div style="padding: 0 25px">
-                    <label>Other options</label>
-                </div>
-                <div style="padding: 5px 30px">
-                    <input id="${this._prefix}MissingCheckbox" type="checkbox" @click="${this.notifySampleFilterChange}"><span style="padding-left: 5px">Include parent missing (non-ref) allele calls</span>
-                </div>
-            </div> -->
+                ${this._config.showPedigree ? html`
+                    <div class="col-md-12">
+                        <h4 style="padding-top: 5px; padding-bottom: 10px">Pedigree</h4>
+                        <pedigree-view .family="${this.clinicalAnalysis.family}"></pedigree-view>
+                    </div>`
+                : null}
             </div>
         `;
     }

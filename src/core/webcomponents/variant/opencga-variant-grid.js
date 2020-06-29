@@ -302,8 +302,9 @@ export default class OpencgaVariantGrid extends LitElement {
                         }
                     });
 
+                    // TODO continue. remove the following lines and use UtilsNew.initTooltip
                     // Add tooltips
-                    _this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
+                    //_this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
                     _this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
                     _this.variantGridFormatter.addCohortStatsInfoTooltip("cohortStatsInfoIcon", _this.populationFrequencies);
                     _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", _this.populationFrequencies);

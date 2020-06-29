@@ -80,7 +80,7 @@ export default class OpencgaFilePreview extends LitElement {
             includeIndividual: true,
             lines: 200
         };
-        this.title = null;
+        this.title = "";
         switch (this.file.format) {
             case "PLAIN":
             case "VCF":
@@ -142,6 +142,7 @@ export default class OpencgaFilePreview extends LitElement {
                     });
                 break;
             default:
+                this.contentType = "unsupported";
                 this.content = "Format not recognized: " + this.file.format;
         }
         this.requestUpdate();
@@ -184,8 +185,10 @@ export default class OpencgaFilePreview extends LitElement {
         
         ${this.file ? html`
             <div class="row">
-                ${this.title ? html`<h3>${this.title}</h3>` : null}
+                ${this.title ? html`<h3>${this.title}</h3>` : ""}
                 <div class="col-md-12">
+                    ${this.contentType === "unsupported" ? html`
+                        <p class="alert alert-warning">${this.content}</p>` : null}
                     ${this.contentType === "text" ? html`
                         <pre class="cmd">${this.content}</pre>` : null}
                     ${this.contentType === "image" ? html`

@@ -118,9 +118,14 @@ export default class GeneCoverageBrowser extends LitElement {
                 this.geneCoverageStats = {...this.geneCoverageStats};
                 this._changeView(geneId);
             })
-            .catch( e => {
+            .catch( restResponse => {
+                if (restResponse.getEvents("ERROR").length) {
+                    this.errorState = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
+                } else {
+                    this.errorState = "Error fetching data";
+                }
                 console.error("fetchData failed")
-                console.error(e)
+                console.error(restResponse)
             })
             .finally( () => {
                 this.loading = false;
@@ -274,9 +279,7 @@ export default class GeneCoverageBrowser extends LitElement {
                             <data-form .data=${{}} .config="${this.getGeneFilterConfig()}" @submit="${e => this.onRun(e)}"></data-form>
                         </div>
                     </div>
-                    
                     <div class="col-md-12">
-                        
                         ${this.loading ? html`
                             <div id="loading">
                                 <loading-spinner></loading-spinner>
@@ -302,9 +305,13 @@ export default class GeneCoverageBrowser extends LitElement {
                                     <gene-coverage-view .config=${this._config} .geneCoverageStats="${geneCoverageStat}" .opencgaSession="${this.opencgaSession}"></gene-coverage-view>
                                 </div>
                             `)}
-                            ` : html`
-                                <div class="alert alert-info" role="alert"><i class="fas fa-3x fa-info-circle align-middle"></i> Select a Gene. </div>
-                        `}
+                            ` : this.errorState ? html`
+                                <div id="error" class="alert alert-danger" role="alert">
+                                    ${this.errorState}
+                                </div>
+                                ` : html`<div class="alert alert-info" role="alert"><i class="fas fa-3x fa-info-circle align-middle"></i> Select a Gene. </div>`
+                        }
+                        
                         
                     </div>
                 </div>`

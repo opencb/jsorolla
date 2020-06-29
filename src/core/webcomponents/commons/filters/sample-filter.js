@@ -54,6 +54,10 @@ export default class SampleFilter extends LitElement {
     _init() {
         this._prefix = "sgf-" + UtilsNew.randomString(6) + "_";
         // this._query = {}; //this refer and it is used just for the 3 fields of sample-filter (sample, genotype, format)
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -74,7 +78,7 @@ export default class SampleFilter extends LitElement {
     }
 
     queryObserver(){
-        this.updateClinicalQueryTable(); //TODO recheck if this needs to be executed on clinicalAnalysis update
+        //this.updateClinicalQueryTable(); //TODO recheck if this needs to be executed on clinicalAnalysis update
         //this.requestUpdate();
     }
 
@@ -130,7 +134,7 @@ export default class SampleFilter extends LitElement {
         }
 
         this.query = {...this.query, ..._query};
-        this.updateClinicalQueryTable();
+        //this.updateClinicalQueryTable();
         //this.requestUpdate();
         this.sampleFilterChange(_query);
     }
@@ -145,7 +149,8 @@ export default class SampleFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
-    updateClinicalQueryTable() {
+    /*updateClinicalQueryTable() {
+        debugger
         if (this.clinicalAnalysis) {
             // Get Individuals (and samples) from Clinical Analysis
             this.individuals = [];
@@ -173,7 +178,7 @@ export default class SampleFilter extends LitElement {
             //TODO this cause a bug (the table in variant-filter-clinical is not updated correctly changing GT checkboxes), but commenting this line the table in sample-filter is not updated on its end (changing active-filters)
             this.requestUpdate();
         }
-    }
+    }*/
 
     getDefaultConfig() {
         return {
@@ -213,7 +218,7 @@ export default class SampleFilter extends LitElement {
                 </div>
             </div>
             
-            ${false && this._config.showSummary 
+            ${this._config.showSummary 
                 ? html`
                     <div style="padding: 10px 0px 5px 0px">
                         <div style="padding: 15px 0px;">
