@@ -16,14 +16,13 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import "../../commons/view/data-form.js";
+import "../../individual/opencga-individual-mendelian-errors-view.js";
 
 class VariantInterpreterQcMendelianErrors extends LitElement {
 
     constructor() {
         super();
 
-        // Set status and init private properties
         this._init();
     }
 
@@ -55,14 +54,11 @@ class VariantInterpreterQcMendelianErrors extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
-        // if (changedProperties.has("clinicalAnalysis")) {
-        //     this.setAlignmentstats();
-        // }
-
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
@@ -87,53 +83,6 @@ class VariantInterpreterQcMendelianErrors extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "QC Summary",
-            icon: "",
-            display: {
-                collapsable: true,
-                showTitle: false,
-                labelWidth: 2,
-                defaultValue: "-",
-                defaultLayout: "horizontal"
-            },
-            sections: [
-                {
-                    title: "Summary",
-                    collapsed: false,
-                    elements: [
-                        {
-                            name: "Analysis ID",
-                            field: "id"
-                        },
-                        {
-                            name: "Proband",
-                            field: "proband.id",
-                            type: "custom",
-                            display: {
-                                render: probandId => html`<strong>${probandId}</strong>`
-                            }
-                        },
-                        {
-                            name: "Disorder",
-                            field: "disorder",
-                            type: "custom",
-                            display: {
-                                render: disorder => {
-                                    let id = disorder.id;
-                                    if (disorder.id.startsWith("OMIM:")) {
-                                        id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
-                                    }
-                                    return html`${disorder.name || "-"} (${id})`
-                                },
-                            }
-                        },
-                        {
-                            name: "Analysis Type",
-                            field: "type"
-                        },
-                    ]
-                },
-            ]
         }
     }
 
@@ -141,24 +90,25 @@ class VariantInterpreterQcMendelianErrors extends LitElement {
         // Check Project exists
         if (!this.opencgaSession.project) {
             return html`
-                    <div>
-                        <h3><i class="fas fa-lock"></i> No public projects available to browse. Please login to continue</h3>
-                    </div>`;
+                <div>
+                    <h3><i class="fas fa-lock"></i> No public projects available to browse. Please login to continue</h3>
+                </div>
+            `;
         }
 
         // Check Clinical Analysis exist
         if (!this.clinicalAnalysis) {
             return html`
-                    <div>
-                        <h3><i class="fas fa-lock"></i> No Case open</h3>
-                    </div>`;
+                <div>
+                    <h3><i class="fas fa-lock"></i> No Case open</h3>
+                </div>
+            `;
         }
 
-        // Alignment stats are the same for FAMILY and CANCER analysis
         return html`
-            <div class="container" style="margin-bottom: 20px">
-                <data-form .data=${this.clinicalAnalysis} .config="${this._config}"></data-form>
-            </div>
+            <opencga-individual-mendelian-errors-view   .opencgaSession="${this.opencgaSession}" 
+                                                        .individual="${this.clinicalAnalysis.proband}">
+            </opencga-individual-mendelian-errors-view>
         `;
     }
 

@@ -78,30 +78,13 @@ class VariantInterpreterQcRelatedness extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    // this.getIndividuals();
+                    this.requestUpdate();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
                 });
         }
     }
-
-    // getIndividuals() {
-    //     if (this.clinicalAnalysis) {
-    //         let _individuals = [];
-    //         switch (this.clinicalAnalysis.type.toUpperCase()) {
-    //             case "SINGLE":
-    //             case "CANCER":
-    //                 _individuals = this.clinicalAnalysis.proband;
-    //                 break;
-    //             case "FAMILY":
-    //                 _individuals = this.clinicalAnalysis.family.members;
-    //                 break;
-    //         }
-    //         this.individuals = _individuals;
-    //     }
-    //     this.requestUpdate();
-    // }
 
     getDefaultConfig() {
         return {

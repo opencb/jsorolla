@@ -19,7 +19,7 @@ import UtilsNew from "../../utilsNew.js";
 import "../commons/view/data-form.js";
 
 
-export default class OpencgaIndividualInferredSexView extends LitElement {
+export default class OpencgaIndividualMendelianErrorsView extends LitElement {
 
     constructor() {
         super();
@@ -41,9 +41,6 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
             },
             individual: {
                 type: Object
-            },
-            individuals: {
-                type: Array
             },
             config: {
                 type: Object
@@ -84,56 +81,76 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
     }
 
     renderTable() {
-        if (this.individuals && Array.isArray(this.individuals)) {
+        if (this.individual) {
+            let mendelianErrorReport = this.individual.qualityControl.metrics[0].mendelianErrorReport;
+            let sampleAggregation = mendelianErrorReport.sampleAggregation.find(sampleAggregation => sampleAggregation.sample === this.individual.id);
+
+            let roles = {};
+            roles[this.individual.father?.id] = "FATHER";
+            roles[this.individual.mother?.id] = "MOTHER";
+
             let _cellPadding = "padding: 0px 15px";
             return html`
+                <h4>Sample Summary</h4>
                 <table class="table table-hover table-no-bordered">
                     <thead>
                         <tr>
-                            <th style="text-align: center">Individual ID</th>
-                            <th style="text-align: center">Sample ID</th>
-                            <th style="text-align: center">Reported Phenotypic Sex</th>
-                            <th style="text-align: center">Reported Karyotypic Sex</th>
-                            <th style="text-align: center">Ratio (avg. chrX/auto)</th>
-                            <th style="text-align: center">Ratio (avg. chrY/auto)</th>
-                            <th style="text-align: center">Inferred Karyotypic Sex</th>
-                            <th style="text-align: center">Status</th>
+                            <th>Sample ID</th>
+                            <th>Role</th>
+                            <th>Number of Mendelian Errors</th>
+                            <th>Rate of Mendelian Errors</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${this.individuals.map(individual => {
-                            let metrics = individual.qualityControl.metrics[0];
-                            return html`
-                                <tr>
-                                    <td style="${_cellPadding}">
-                                        <label>${individual.id}</label>
-                                    </td>
-                                    <td style="${_cellPadding}">${individual.qualityControl.metrics[0].sampleId}</td>
-                                    <td style="${_cellPadding}">${individual.sex}</td>
-                                    <td style="${_cellPadding}">
-                                        <span style="color: ${individual.karyotypicSex === metrics.inferredSexReport.inferredKaryotypicSex ? "black" : "red"}">
-                                            ${individual.karyotypicSex}
-                                        </span>
-                                    </td>
-                                    <td style="text-align: right; ${_cellPadding}">${metrics.inferredSexReport.values.ratioX}</td>
-                                    <td style="text-align: right; ${_cellPadding}">${metrics.inferredSexReport.values.ratioY}</td>
-                                    <td style="${_cellPadding}">
-                                        <span style="color: ${individual.karyotypicSex === metrics.inferredSexReport.inferredKaryotypicSex ? "black" : "red"}">
-                                            ${metrics.inferredSexReport.inferredKaryotypicSex}
-                                        </span>
-                                    </td>
-                                    <td style="text-align: center; ${_cellPadding}">
-                                        <span>${individual.karyotypicSex === metrics.inferredSexReport.inferredKaryotypicSex
+                        ${mendelianErrorReport.sampleAggregation.map(sampleAggregation => html`
+                            <tr>
+                                <td style="${_cellPadding}">
+                                    <label>${sampleAggregation.sample}</label>
+                                </td>
+                                <td style="${_cellPadding}">${roles[sampleAggregation.sample] || "-"}</td>
+                                <td style="${_cellPadding}">${sampleAggregation.numErrors}</td>
+                                <td style="${_cellPadding}">${sampleAggregation.ratio}</td>
+                                <td style="${_cellPadding}">
+                                    <span>
+                                        ${sampleAggregation.ratio < 0.05
                                             ? html`<i class='fa fa-check' style='color: green'></i>`
                                             : html`<i class='fa fa-times' style='color: red'></i>`
                                         }
-                                        </span>
+                                    </span>
+                                </td>
+                            </tr>
+                        `)}
+                    </tbody>
+                </table>
+                
+                <!-- Print errors for Individual -->
+                <h4 style="padding-top: 15px">Mendelian Errors of ${this.individual.id}</h4>
+                <table class="table table-hover table-no-bordered">
+                    <thead>
+                        <tr>
+                            <th>Sample ID</th>
+                            <th>Chromosome</th>
+                            <th>Error Code</th>
+                            <th>Number of Mendelian Errors</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sampleAggregation.chromAggregation.map(chromAggregation => {
+                            return Object.keys(chromAggregation.errorCodeAggregation).map(key => html`
+                                <tr>
+                                    <td style="${_cellPadding}">
+                                        <label>${this.individual.id}</label>
                                     </td>
-                                </tr>
-                            `})
+                                    <td style="${_cellPadding}">${chromAggregation.chromosome}</td>
+                                    <td style="${_cellPadding}">${key}</td>
+                                    <td style="${_cellPadding}">${chromAggregation.errorCodeAggregation[key]}</td>
+                                </tr>`)
+                            })
                         }
                     </tbody>
-                </table>`;
+                </table>
+            `;
         }
     }
 
@@ -143,7 +160,7 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
     }
 
     render() {
-        if (!this.individual && !this.individuals) {
+        if (!this.individual) {
             return html`<div><h3>No valid individual provided.</h3></div>`;
         }
 
@@ -169,4 +186,4 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
 
 }
 
-customElements.define("opencga-individual-inferred-sex-view", OpencgaIndividualInferredSexView);
+customElements.define("opencga-individual-mendelian-errors-view", OpencgaIndividualMendelianErrorsView);

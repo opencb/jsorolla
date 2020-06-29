@@ -1654,7 +1654,55 @@ export const responses = [
                 ]
               },
               "mendelianErrorReport": {
-
+                "numErrors": 12311,
+                "sampleAggregation": [
+                  {
+                    "sample": "ISDBM322015",
+                    "numErrors": 1212,
+                    "ratio": 0.087,
+                    "chromAggregation": [
+                      {
+                        "chromosome": "1",
+                        "numErrors": 65,
+                        "errorCodeAggregation": {
+                          "2": 12,
+                          "3": 3,
+                          "5": 7
+                        }
+                      },
+                      {
+                        "chromosome": "2",
+                        "numErrors": 65,
+                        "errorCodeAggregation": {
+                          "2": 12,
+                          "3": 3,
+                          "5": 7
+                        }
+                      },
+                      {
+                        "chromosome": "3",
+                        "numErrors": 65,
+                        "errorCodeAggregation": {
+                          "2": 12,
+                          "3": 3,
+                          "5": 7
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "sample": "ISDBM322016",
+                    "numErrors": 2242,
+                    "ratio": 0.047,
+                    "chromAggregation": []
+                  },
+                  {
+                    "sample": "ISDBM322018",
+                    "numErrors": 2212,
+                    "ratio": 0.097,
+                    "chromAggregation": []
+                  }
+                ]
               }
             }
           ]

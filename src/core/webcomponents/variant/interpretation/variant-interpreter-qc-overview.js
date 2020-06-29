@@ -19,6 +19,7 @@ import UtilsNew from "../../../utilsNew.js";
 import "./variant-interpreter-qc-summary.js";
 import "./variant-interpreter-qc-inferred-sex.js";
 import "./variant-interpreter-qc-relatedness.js";
+import "./variant-interpreter-qc-mendelian-errors.js";
 import "./variant-interpreter-qc-variant-stats.js";
 import "./variant-interpreter-qc-alignment-stats.js";
 
@@ -298,16 +299,18 @@ class VariantInterpreterQcOverview extends LitElement {
                             
                             <div id="${this._prefix}MendelianErrorsContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
                                 <h3>Mendelian Errors</h3>
-                                <variant-interpreter-qc-mendelian-errors    .opencgaSession=${this.opencgaSession} 
-                                                                            .clinicalAnalysis="${this.clinicalAnalysis}">
-                                </variant-interpreter-qc-mendelian-errors>
+                                <div style="padding: 15px 0px">
+                                    <variant-interpreter-qc-mendelian-errors    .opencgaSession=${this.opencgaSession} 
+                                                                                .clinicalAnalysis="${this.clinicalAnalysis}">
+                                    </variant-interpreter-qc-mendelian-errors>
+                                </div>
                             </div>
                             
                             <div id="${this._prefix}AlignmentStatsContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
                                 <h3>Alignment Stats</h3>
                                 <variant-interpreter-qc-alignment-stats .opencgaSession=${this.opencgaSession} 
                                                                         .clinicalAnalysis="${this.clinicalAnalysis}">
-                                </variant-interpreter-qc-alignment-stats>
+                                </variant-interpreter-qc-alignment-stats>                                
                             </div>
                             
                             <div id="${this._prefix}GeneCoverageStatsContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
