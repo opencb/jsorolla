@@ -18,6 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "./transcript-coverage-view.js";
 import "./transcript-coverage-low.js";
+import "../commons/view/detail-tabs.js";
 
 export default class GeneCoverageDetail extends LitElement {
 
@@ -61,7 +62,6 @@ export default class GeneCoverageDetail extends LitElement {
 
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
         }
     }
 

@@ -178,8 +178,10 @@ export default class TranscriptCoverageView extends LitElement {
     }
 
     render() {
+        // this.transcriptCoverageStats
+        // debugger
         return html`
-            <data-form .data=${this.transcriptCoverageStats} .config="${this.getDefaultConfig()}"></data-form>
+            <data-form .data=${this.transcriptCoverageStats} .config="${this._config}"></data-form>
         `;
     }
 

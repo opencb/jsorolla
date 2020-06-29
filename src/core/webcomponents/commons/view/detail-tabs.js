@@ -37,10 +37,10 @@ export default class DetailTabs extends LitElement {
             cellbaseClient: {
                 type: Object
             },
-            config: {
+            data: {
                 type: Object
             },
-            data: {
+            config: {
                 type: Object
             }
         }

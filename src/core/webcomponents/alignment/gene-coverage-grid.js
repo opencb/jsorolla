@@ -15,12 +15,12 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import {RestResponse} from "../../clients/rest-response.js";
+// import {RestResponse} from "../../clients/rest-response.js";
 import UtilsNew from "../../utilsNew.js";
 import GridCommons from "../variant/grid-commons.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
-import DATA from "./data.js";
+// import DATA from "./data.js";
 
 export default class GeneCoverageGrid extends LitElement {
 
@@ -90,7 +90,6 @@ export default class GeneCoverageGrid extends LitElement {
     }
 
     renderLocalTable() {
-        console.log("renderLocalTable", this.transcriptCoverageStats)
         this.from = 1;
         this.to = Math.min(this.transcriptCoverageStats.length, this._config.pageSize);
         this.numTotalResultsText = this.transcriptCoverageStats.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -133,7 +132,6 @@ export default class GeneCoverageGrid extends LitElement {
                 this.errorState = false;
                 $(this.table).bootstrapTable("destroy");
                 $(this.table).bootstrapTable({
-                    //data: this.transcriptCoverageStats,
                     columns: this._columns,
                     uniqueId: "id",
                     // Table properties

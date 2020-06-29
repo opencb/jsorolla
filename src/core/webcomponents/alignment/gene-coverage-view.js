@@ -16,7 +16,9 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import {classMap} from "/web_modules/lit-html/directives/class-map.js";
+import "../alignment/gene-coverage-grid.js";
+import "../alignment/gene-coverage-detail.js";
+
 
 export default class GeneCoverageView extends LitElement {
 
@@ -34,10 +36,10 @@ export default class GeneCoverageView extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
+            geneCoverageStats: {
                 type: Object
             },
-            geneCoverageStat: {
+            config: {
                 type: Object
             },
         }
@@ -49,12 +51,14 @@ export default class GeneCoverageView extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
-        if(changedProperties.has("geneCoverageStat")) {
-            console.log("this.geneCoverageStat", this.geneCoverageStat)
+        if (changedProperties.has("geneCoverageStats")) {
+            this.transcriptCoverageStats = this.geneCoverageStats.stats[0];
+            this.requestUpdate();
         }
     }
 
@@ -69,14 +73,17 @@ export default class GeneCoverageView extends LitElement {
     }
 
     render() {
+        // this.geneCoverageStats
+        // this.transcriptCoverageStats
+        // debugger
         return html`
             <gene-coverage-grid .opencgaSession="${this.opencgaSession}"
                                 .config="${this._config?.filter?.grid}"
-                                .transcriptCoverageStats="${this.geneCoverageStat.stats}"
+                                .transcriptCoverageStats="${this.geneCoverageStats?.stats}"
                                 @selectrow="${e => this.onClickRow(e)}">
             </gene-coverage-grid>
             <gene-coverage-detail   .transcriptCoverageStats="${this.transcriptCoverageStats}" 
-                                    .config="${this._config.filter.detail}" .opencgaSession="${this.opencgaSession}">
+                                    .config="${this._config}" .opencgaSession="${this.opencgaSession}">
             </gene-coverage-detail>
         `;
     }

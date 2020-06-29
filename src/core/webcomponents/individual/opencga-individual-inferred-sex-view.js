@@ -143,8 +143,9 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
     }
 
     render() {
+        debugger
         if (!this.individual && !this.individuals) {
-            return html`<div><h3>No valid individual provided.</h3></div>`;
+            return html`<div><h4>No valid individual provided.</h4></div>`;
         }
 
         return html`
@@ -156,7 +157,7 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
                            style="padding-right: 5px"></i> Download <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu btn-sm">
-                        ${this._config.download && this._config.download.length ? this._config.download.map(item => html`
+                        ${this._config?.download && this._config?.download?.length ? this._config.download.map(item => html`
                                 <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>
                         `) : null}
                     </ul>

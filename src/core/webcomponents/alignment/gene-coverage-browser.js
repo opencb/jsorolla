@@ -299,7 +299,7 @@ export default class GeneCoverageBrowser extends LitElement {
                             </div>
                             ${Object.entries(this.geneCoverageStats).map( ([geneId, geneCoverageStat]) => html`
                                 <div id="${geneId}" class="content-tab ${classMap({active: this.activeTab[geneId]})}">
-                                    <gene-coverage-view .config=${this._config} .geneCoverageStat="${geneCoverageStat}" .opencgaSession="${this.opencgaSession}"></gene-coverage-view>
+                                    <gene-coverage-view .config=${this._config} .geneCoverageStats="${geneCoverageStat}" .opencgaSession="${this.opencgaSession}"></gene-coverage-view>
                                 </div>
                             `)}
                             ` : html`

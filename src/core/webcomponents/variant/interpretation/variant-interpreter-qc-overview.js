@@ -22,6 +22,7 @@ import "./variant-interpreter-qc-relatedness.js";
 import "./variant-interpreter-qc-mendelian-errors.js";
 import "./variant-interpreter-qc-variant-stats.js";
 import "./variant-interpreter-qc-alignment-stats.js";
+import "./variant-interpreter-qc-gene-coverage-stats.js";
 
 class VariantInterpreterQcOverview extends LitElement {
 
@@ -143,65 +144,6 @@ class VariantInterpreterQcOverview extends LitElement {
         }
     }
 
-    /*getVariantConfig() {
-        return {
-            title: "Variant",
-            icon: "",
-            display: {
-                collapsable: true,
-                showTitle: false,
-                labelWidth: 2,
-                defaultValue: "-",
-                defaultLayout: "horizontal"
-            },
-            sections: [
-                {
-                    title: "Variant Stats",
-                    display: {
-                        visible: data => data.type === "FAMILY",
-                    },
-                    elements: [
-                        {
-                            name: "Proband Stats",
-                            // field: "proband.id",
-                            type: "custom",
-                            showLabel: false,
-                            display: {
-                                width: 12,
-                                render: data => {
-                                    console.log("data",data)
-                                    if (data.proband && data.proband.samples && data.proband.samples.length > 0) {
-                                        const stats = data.proband.samples[0].annotationSets.find( annotationSet => annotationSet.id === "opencga_sample_variant_stats");
-                                        if(!stats) {
-                                            console.error("Sample variant stats unavailable")
-                                        }
-                                        return html`
-                                            <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" .sampleVariantStats="${stats?.annotations}"> </sample-variant-stats-view>
-                                        `;
-                                    }
-                                },
-                            }
-                        },
-                    ]
-                },
-                {
-                    title: "Files",
-                    elements: [
-                        {
-                            name: "File",
-                            field: "files",
-                            type: "list",
-                            display: {
-                                contentLayout: "bullets",
-                                template: "${name}"
-                            }
-                        }
-                    ]
-                }
-            ]
-        }
-    }*/
-
     onSideNavClick(e) {
         e.preventDefault();
 
@@ -285,15 +227,14 @@ class VariantInterpreterQcOverview extends LitElement {
                             
                             <div id="${this._prefix}RelatednessContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
                                 <h3>Relatedness</h3>
-                                <variant-interpreter-qc-relatedness  .opencgaSession=${this.opencgaSession} 
-                                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                                <variant-interpreter-qc-relatedness     .opencgaSession=${this.opencgaSession} 
+                                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
                                 </variant-interpreter-qc-relatedness>
                             </div>
                             
                             <div id="${this._prefix}VariantStatsContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
-                                <!--<data-form .data=${this.clinicalAnalysis} .config="${1||this.getVariantConfig()}"></data-form>-->
                                 <variant-interpreter-qc-variant-stats     .opencgaSession=${this.opencgaSession} 
-                                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
+                                                                            .clinicalAnalysis="${this.clinicalAnalysis}">
                                 </variant-interpreter-qc-variant-stats>
                             </div>
                             
@@ -315,11 +256,9 @@ class VariantInterpreterQcOverview extends LitElement {
                             
                             <div id="${this._prefix}GeneCoverageStatsContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
                                 <h3>Gene Coverage Stats</h3>
-                                <!--
                                 <variant-interpreter-qc-gene-coverage-stats     .opencgaSession=${this.opencgaSession} 
                                                                                 .clinicalAnalysis="${this.clinicalAnalysis}">
                                 </variant-interpreter-qc-gene-coverage-stats>
-                                -->
                             </div>
 
                         </div>
