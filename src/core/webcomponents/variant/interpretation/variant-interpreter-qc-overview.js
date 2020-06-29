@@ -146,19 +146,16 @@ class VariantInterpreterQcOverview extends LitElement {
 
     onSideNavClick(e) {
         e.preventDefault();
-
         // Remove button focus highlight
         e.target.blur();
-
-        // Remove selected active button
-        document.querySelector(".side-nav-active").classList.add("side-nav");
-        document.querySelector(".side-nav-active").classList.remove("side-nav-active");
-        document.querySelectorAll(".tab-content").forEach(value => value.style.display = "none");
-
-        let option = e.currentTarget.dataset.id;
-        document.getElementById(this._prefix + option).classList.remove("side-nav");
-        document.getElementById(this._prefix + option).classList.add("side-nav-active");
-        document.getElementById(this._prefix + option + "Content").style.display = "block";
+        const tabId = e.currentTarget.dataset.id;
+        $(".interpreter-side-nav > button", this).removeClass("active");
+        $(`.interpreter-side-nav > button[data-id=${tabId}]`, this).addClass("active");
+        $(".interpreter-content-tab > div[role=tabpanel]", this).hide();
+        $("#" + this._prefix + tabId, this).show();
+        //for (const tab in this.activeTab) this.activeTab[tab] = false;
+        //this.activeTab[tabId] = true;
+        this.requestUpdate();
     }
 
     render() {
@@ -174,94 +171,88 @@ class VariantInterpreterQcOverview extends LitElement {
 
         return html`
             <style>
-                .side-nav {
+                .side-nav button{
                     padding: 15px;
                 }
-                .side-nav-active {
+                .side-nav button.active {
                     padding: 15px;
                     font-weight: bold;
                     background-color: #EEEEEE;
                     border-left-color: var(--main-bg-color);
                 }
             </style>
-            <div class="row" style="margin: 10px">
-                <div class="col-md-8 col-md-offset-2">
+            <div class="row variant-interpreter-overview" style="margin: 10px">
+                <div class="col-md-9 col-md-offset-1">
                     <h2>Overview</h2>
                 </div>
-                
-                <div class="col-md-12">
-                    <div class="col-md-2" style="margin-top: 15px">
-                        <div class="list-group">
-                            <button id="${this._prefix}Summary" type="button" class="list-group-item side-nav-active" 
-                                  data-id="Summary" @click="${this.onSideNavClick}">Summary</button>
-                            <button id="${this._prefix}InferredSex" type="button" class="list-group-item side-nav" 
-                                  data-id="InferredSex" @click="${this.onSideNavClick}">Sex</button>
-                            <button id="${this._prefix}Relatedness" type="button" class="list-group-item side-nav" 
-                                  data-id="Relatedness" @click="${this.onSideNavClick}">Relatedness</button>
-                            <button id="${this._prefix}VariantStats" type="button" class="list-group-item side-nav" 
-                                  data-id="VariantStats" @click="${this.onSideNavClick}">Variant Stats</button>
-                            <button id="${this._prefix}MendelianErrors" type="button" class="list-group-item side-nav" 
-                                  data-id="MendelianErrors" @click="${this.onSideNavClick}">Mendelian Errors</button>
-                            <button id="${this._prefix}AlignmentStats" type="button" class="list-group-item side-nav" 
-                                  data-id="AlignmentStats" @click="${this.onSideNavClick}">Alignment Stats</button>
-                            <button id="${this._prefix}GeneCoverageStats" type="button" class="list-group-item side-nav" 
-                                  data-id="GeneCoverageStats" @click="${this.onSideNavClick}">Gene Coverage Stats</button>
-                            
+                <div class="col-md-2 list-group interpreter-side-nav">
+                    <button type="button" class="list-group-item" 
+                          data-id="Summary" @click="${this.onSideNavClick}">Summary</button>
+                    <button type="button" class="list-group-item" 
+                          data-id="InferredSex" @click="${this.onSideNavClick}">Sex</button>
+                    <button type="button" class="list-group-item" 
+                          data-id="Relatedness" @click="${this.onSideNavClick}">Relatedness</button>
+                    <button type="button" class="list-group-item" 
+                          data-id="VariantStats" @click="${this.onSideNavClick}">Variant Stats</button>
+                    <button type="button" class="list-group-item" 
+                          data-id="MendelianErrors" @click="${this.onSideNavClick}">Mendelian Errors</button>
+                    <button type="button" class="list-group-item" 
+                          data-id="AlignmentStats" @click="${this.onSideNavClick}">Alignment Stats</button>
+                    <button type="button" class="list-group-item" 
+                          data-id="GeneCoverageStats" @click="${this.onSideNavClick}">Gene Coverage Stats</button>
+                </div>
+                <div class="col-md-10">
+                    <div class="content-tab-wrapper interpreter-content-tab" style="padding: 10px 15px">
+                        <div id="${this._prefix}Summary" role="tabpanel" class="tab-pane content-tab active">
+                            <variant-interpreter-qc-summary .opencgaSession=${this.opencgaSession}
+                                                            .clinicalAnalysis=${this.clinicalAnalysis} 
+                                                            .config="${this._config}">
+                            </variant-interpreter-qc-summary>
                         </div>
-                    </div>
-                    <div class="col-md-10">
-                        <div class="content-tab-wrapper" style="padding: 10px 15px">
-                            <div id="${this._prefix}SummaryContent" role="tabpanel" class="tab-pane tab-content">
-                                <variant-interpreter-qc-summary .opencgaSession=${this.opencgaSession} 
-                                                                .clinicalAnalysis=${this.clinicalAnalysis} 
-                                                                .config="${this._config}">
-                                </variant-interpreter-qc-summary>
-                            </div>
-                            
-                            <div id="${this._prefix}InferredSexContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
-                                <h3>Inferred Sex</h3>
-                                <variant-interpreter-qc-inferred-sex    .opencgaSession=${this.opencgaSession} 
+                        
+                        <div id="${this._prefix}InferredSex" role="tabpanel" class="tab-pane content-tab">
+                            <h3>Inferred Sex</h3>
+                            <variant-interpreter-qc-inferred-sex    .opencgaSession=${this.opencgaSession} 
+                                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                            </variant-interpreter-qc-inferred-sex>
+                        </div>
+                        
+                        <div id="${this._prefix}Relatedness" role="tabpanel" class="tab-pane content-tab">
+                            <h3>Relatedness</h3>
+                            <variant-interpreter-qc-relatedness     .opencgaSession=${this.opencgaSession} 
+                                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                            </variant-interpreter-qc-relatedness>
+                        </div>
+                        
+                        <div id="${this._prefix}VariantStats" role="tabpanel" class="tab-pane content-tab">
+                            <variant-interpreter-qc-variant-stats     .opencgaSession=${this.opencgaSession} 
                                                                         .clinicalAnalysis="${this.clinicalAnalysis}">
-                                </variant-interpreter-qc-inferred-sex>
-                            </div>
-                            
-                            <div id="${this._prefix}RelatednessContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
-                                <h3>Relatedness</h3>
-                                <variant-interpreter-qc-relatedness     .opencgaSession=${this.opencgaSession} 
-                                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
-                                </variant-interpreter-qc-relatedness>
-                            </div>
-                            
-                            <div id="${this._prefix}VariantStatsContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
-                                <variant-interpreter-qc-variant-stats     .opencgaSession=${this.opencgaSession} 
+                            </variant-interpreter-qc-variant-stats>
+                        </div>
+                        
+                        <div id="${this._prefix}MendelianErrors" role="tabpanel" class="tab-pane content-tab">
+                            <h3>Mendelian Errors</h3>
+                            <div style="padding: 15px 0px">
+                                <variant-interpreter-qc-mendelian-errors    .opencgaSession=${this.opencgaSession} 
                                                                             .clinicalAnalysis="${this.clinicalAnalysis}">
-                                </variant-interpreter-qc-variant-stats>
+                                </variant-interpreter-qc-mendelian-errors>
                             </div>
-                            
-                            <div id="${this._prefix}MendelianErrorsContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
-                                <h3>Mendelian Errors</h3>
-                                <div style="padding: 15px 0px">
-                                    <variant-interpreter-qc-mendelian-errors    .opencgaSession=${this.opencgaSession} 
-                                                                                .clinicalAnalysis="${this.clinicalAnalysis}">
-                                    </variant-interpreter-qc-mendelian-errors>
-                                </div>
-                            </div>
-                            
-                            <div id="${this._prefix}AlignmentStatsContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
-                                <h3>Alignment Stats</h3>
-                                <variant-interpreter-qc-alignment-stats .opencgaSession=${this.opencgaSession} 
-                                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
-                                </variant-interpreter-qc-alignment-stats>                                
-                            </div>
-                            
-                            <div id="${this._prefix}GeneCoverageStatsContent" role="tabpanel" class="tab-pane tab-content" style="display: none">
-                                <h3>Gene Coverage Stats</h3>
-                                <variant-interpreter-qc-gene-coverage-stats     .opencgaSession=${this.opencgaSession} 
-                                                                                .clinicalAnalysis="${this.clinicalAnalysis}">
-                                </variant-interpreter-qc-gene-coverage-stats>
-                            </div>
-
                         </div>
+                        
+                        <div id="${this._prefix}AlignmentStats" role="tabpanel" class="tab-pane content-tab">
+                            <h3>Alignment Stats</h3>
+                            <variant-interpreter-qc-alignment-stats .opencgaSession=${this.opencgaSession} 
+                                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                            </variant-interpreter-qc-alignment-stats>                                
+                        </div>
+                        
+                        <div id="${this._prefix}GeneCoverageStats" role="tabpanel" class="tab-pane content-tab">
+                            <h3>Gene Coverage Stats</h3>
+                            <variant-interpreter-qc-gene-coverage-stats  .opencgaSession=${this.opencgaSession} 
+                                                                         .clinicalAnalysis="${this.clinicalAnalysis}">
+                            </variant-interpreter-qc-gene-coverage-stats>
+                        </div>
+
                     </div>
                 </div>
             </div>

@@ -143,7 +143,6 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
     }
 
     render() {
-        debugger
         if (!this.individual && !this.individuals) {
             return html`<div><h4>No valid individual provided.</h4></div>`;
         }

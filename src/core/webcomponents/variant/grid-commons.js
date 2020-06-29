@@ -67,6 +67,8 @@ export default class GridCommons {
     onClickRow(rowId, row, selectedElement) {
         $("#" + this.gridId + " tr").removeClass("success");
         $(selectedElement).addClass("success");
+        //$("#" + this.gridId + " tr td").removeClass("success");
+        //$("td", selectedElement).addClass("success");
 
         this.context.dispatchEvent(new CustomEvent("selectrow", {
             detail: {

@@ -55,7 +55,7 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
         this._prefix = "vcis-" + UtilsNew.randomString(6);
 
         this._config = this.getDefaultConfig();
-        this.file = "SonsAlignedBamFile.bam";
+        //this.file = "SonsAlignedBamFile.bam";
     }
 
     connectedCallback() {
@@ -72,6 +72,10 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
             this.clinicalAnalysisIdObserver();
         }
 
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
+        }
+
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
@@ -80,14 +84,21 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession && this.clinicalAnalysisId) {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    this.clinicalAnalysis = response.responses[0].results[0];
-                    this.requestUpdate();
+                .then(restResponse => {
+                    this.clinicalAnalysis = restResponse.getResult(0);
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
                 });
         }
+    }
+
+    clinicalAnalysisObserver() {
+        this.file = this.clinicalAnalysis.files.find( file => file.format === "BAM")?.id;
+        if (!this.file) {
+            console.error("BAM file not found");
+        }
+        this.requestUpdate();
     }
 
     getDefaultConfig() {
