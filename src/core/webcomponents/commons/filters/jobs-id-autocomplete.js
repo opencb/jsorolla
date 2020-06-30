@@ -68,7 +68,7 @@ export default class JobsIdAutocomplete extends LitElement {
                     limit: 5,
                     count: false,
                     // include: "id,individual.id",
-                    id: "^" + query.toUpperCase()
+                    id: "~^" + query.toUpperCase()
                 };
                 this.opencgaSession.opencgaClient.jobs().search(filters).then(restResponse => {
                     const results = restResponse.getResults();

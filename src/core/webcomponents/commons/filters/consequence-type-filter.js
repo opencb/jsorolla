@@ -19,9 +19,9 @@ import Utils from "./../../../utils.js";
 import UtilsNew from "../../../utilsNew.js";
 
 /**
-    @deprecated
+ * Consequence type filter as list of checkboxes. This has been deprecated in favor of consequence-type-select-filter
+ * @deprecated
  */
-
 export default class ConsequenceTypeFilter extends LitElement {
 
     constructor() {

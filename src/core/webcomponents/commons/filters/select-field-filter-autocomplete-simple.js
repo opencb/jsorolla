@@ -76,7 +76,7 @@ export default class SelectFieldFilterAutocompleteSimple extends LitElement {
                     limit: this._config.limit,
                     count: false,
                     // include: "id,individual.id",
-                    id: "^" + query.toUpperCase()
+                    id: "~^" + query.toUpperCase()
                 };
                 this.client().search(filters).then(restResponse => {
                     const results = restResponse.getResults();

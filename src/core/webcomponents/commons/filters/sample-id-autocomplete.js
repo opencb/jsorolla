@@ -68,7 +68,7 @@ export default class SampleIdAutocomplete extends LitElement {
                     limit: 5,
                     count: false,
                     // include: "id,individual.id",
-                    id: "^" + query.toUpperCase()
+                    id: "~^" + query.toUpperCase()
                 };
                 this.opencgaSession.opencgaClient.samples().search(filters).then(restResponse => {
                     const results = restResponse.getResults();

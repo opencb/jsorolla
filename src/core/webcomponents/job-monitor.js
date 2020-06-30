@@ -17,7 +17,6 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../utilsNew.js";
-import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import {NotificationQueue} from "./Notification.js";
 
 export class JobMonitor extends LitElement {
@@ -95,7 +94,7 @@ export class JobMonitor extends LitElement {
         this.jobs = newList.map((job, i) => {
             if (i < k) {
                 //handle the new jobs
-                new NotificationQueue().push(`${job.id}`, `The job has been added`, "", "info");
+                new NotificationQueue().push(`${job.id}`, "The job has been added", "", "info");
                 return {...job, updated: true};
             } else {
                 //handle the change of state
@@ -205,7 +204,7 @@ export class JobMonitor extends LitElement {
 
     render() {
         return html`
-            <ul class="nav navbar-nav navbar-right notification-nav">
+            <ul id="job-monitor" class="nav navbar-nav notification-nav">
                 <li class="notification">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" @click="${this.toggleDropdown}">
                         <span class="badge badge-pill badge-primary ${this.updatedCnt > 0 ? "" : "invisible"}">${this.updatedCnt}</span> <i class="fas fa-rocket"></i>
@@ -219,9 +218,9 @@ export class JobMonitor extends LitElement {
                         </li>
                         ${this.filteredJobs.length ? this.filteredJobs.map(job => html`
                                 <li>
-                                    <a href="#job-view" @click=${() => this.openJob(job.id)} class="${job.updated && !job._visited ? `updated status-${job?.internal?.status?.name}` : ""}">
+                                    <a href="#job-view" @click=${() => this.openJob(job.id)} class="job-monitor-item ${job.updated && !job._visited ? `updated status-${job?.internal?.status?.name}` : ""}">
                                         <div class="media">
-                                            <div class="media-left ${classMap({"anim-spaceOutUp": job?.internal?.status?.name === "RUNNING"})}">
+                                            <div class="media-left rocket-${job?.internal?.status?.name ?? "default"}">
                                                 <i class="fas fa-rocket"></i>
                                             </div>
                                             <div class="media-body">

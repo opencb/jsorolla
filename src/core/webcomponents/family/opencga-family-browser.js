@@ -170,7 +170,8 @@ export default class OpencgaFamilyBrowser extends LitElement {
                     pageSize: 10,
                     pageList: [10, 25, 50],
                     detailView: true,
-                    multiSelection: false
+                    multiSelection: false,
+                    showSelectCheckbox: false
                 },
                 detail: {
                     title: "Family",

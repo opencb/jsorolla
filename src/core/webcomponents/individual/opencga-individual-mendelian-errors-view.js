@@ -160,8 +160,8 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
     }
 
     render() {
-        if (!this.individual) {
-            return html`<div><h3>No valid individual provided.</h3></div>`;
+        if (!this.individual?.qualityControl?.metrics?.[0]?.mendelianErrorReport) {
+            return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>`;
         }
 
         return html`
@@ -174,7 +174,7 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
                     </button>
                     <ul class="dropdown-menu btn-sm">
                         ${this._config.download && this._config.download.length ? this._config.download.map(item => html`
-                                <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>
+                                <li><a href="javascript: void 0" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>
                         `) : null}
                     </ul>
                 </div>

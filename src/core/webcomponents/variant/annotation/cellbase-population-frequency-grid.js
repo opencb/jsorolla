@@ -232,7 +232,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
 
     render() {
         if (!this.populationFrequencies) {
-            return html`<div style="padding: 25px"><h3>No population frequencies found.</h3></div>`;
+            return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No population frequencies found.</div>`;
         }
         return html`
             <div style="padding: 20px">

@@ -59,20 +59,8 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
         }
     }
 
-    // ready() {
-    //     super.ready();
-    //
-    //     if (typeof this._prefix === "undefined" || this._prefix === "") {
-    //         this._prefix = "annotation" + UtilsNew.randomString(6);
-    //     }
-    // }
-
     isTranscriptAvailable(item) {
         return item !== "";
-    }
-
-    isDataEmpty(data) {
-        return typeof data === "undefined";
     }
 
     setColors() {

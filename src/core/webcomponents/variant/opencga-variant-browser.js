@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html, css} from "/web_modules/lit-element.js";
+import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "./../tool-header.js";
 import "./opencga-variant-filter.js";
@@ -108,7 +108,27 @@ export default class OpencgaVariantBrowser extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+    }
 
+    updated(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+        }
+
+        if (changedProperties.has("query")) {
+            this.queryObserver();
+        }
+
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+        }
+    }
+
+    opencgaSessionObserver() {
+        if (this.opencgaSession && this.opencgaSession.project) {
+            this.query = {study: this.opencgaSession.study.fqn};
+        }
         // if cohort filter exists but this.cohorts is not defined then we add cohorts ALL to the 'filter' menu itself
         let _tempConfig = {...this.getDefaultConfig(), ...this.config};
         for (let section of _tempConfig.filter.sections) {
@@ -117,6 +137,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                     if (field.cohorts === undefined) {
                         let _cohorts = {};
                         // in case of no public project this.opencgaSession is being created, but the prop projects won't
+                        // TODO NOTE this.opencgaSession is undefined in connectedCallback() method
                         if (this.opencgaSession && this.opencgaSession.projects) {
                             for (let project of this.opencgaSession.projects) {
                                 _cohorts[project.id] = {};
@@ -141,6 +162,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                         }
                         // if we are here is because this.cohorts is undefined
                         this.cohorts = _cohorts;
+                        this.requestUpdate()
                     } else {
                         field.cohorts = this.cohorts;
                     }
@@ -149,27 +171,6 @@ export default class OpencgaVariantBrowser extends LitElement {
             }
         }
         this._config = _tempConfig;
-    }
-
-    updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
-        }
-
-        if (changedProperties.has("query")) {
-            this.queryObserver();
-        }
-
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            // this.requestUpdate();
-        }
-    }
-
-    opencgaSessionObserver() {
-        if (this.opencgaSession && this.opencgaSession.project) {
-            this.query = {study: this.opencgaSession.study.fqn};
-        }
     }
     queryObserver() {
         // Query passed is executed and set to variant-filter, active-filters and variant-grid components
@@ -344,7 +345,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                                 title: "Cohort Alternate Stats",
                                 onlyCohortAll: true,
                                 tooltip: tooltips.cohort,
-                                // cohorts: this.cohorts
+                                cohorts: this.cohorts
                             }
                         ]
                     },
@@ -394,7 +395,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                                 id: "consequenceTypeSelect",
                                 title: "Select SO terms",
                                 tooltip: tooltips.consequenceTypeSelect
-                            },
+                            }
                         ]
                     },
                     {
@@ -510,7 +511,8 @@ export default class OpencgaVariantBrowser extends LitElement {
                         {
                             id: "cohortStats",
                             title: "Cohort Stats",
-                            cohorts: this.cohorts
+                            onlyCohortAll: true,
+                            //cohorts: this.cohorts
                         },
                         {
                             id: "samples",

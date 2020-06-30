@@ -52,11 +52,6 @@ export default class OpencgaLogin extends LitElement {
         };
     }
 
-    // TODO recheck
-    ready() {
-        super.ready();
-    }
-
     firstUpdated(changedProperties) {
         $("#formLogin").validator("update");
         $("#formLogin").validator().on("submit", e => this.submitLogin(e));
@@ -170,7 +165,7 @@ export default class OpencgaLogin extends LitElement {
                                 <span class="input-group-addon" id="username">
                                     <i class="fa fa-user fa-lg"></i>
                                 </span>
-                                <input id="opencgaUser" value="${this.userName}" type="text" pattern="^[_\\-A-z0-9]+$" maxlength="20" class="form-control input-login"
+                                <input id="opencgaUser" value="${this.userName}" type="text" pattern="^[_\\-A-z0-9]+$" maxlength="30" class="form-control input-login"
                                        placeholder="User ID (case sensitive)" aria-label="Recipient's username" aria-describedby="username" required data-required-error="This field is required">
                             </div>
                             <div class="help-block with-errors"></div>
