@@ -191,13 +191,13 @@ class VariantInterpreterQcOverview extends LitElement {
             </style>
             <div class="row variant-interpreter-overview" style="margin: 10px">
                 <div class="col-md-9 col-md-offset-2">
-                    <h2>Overview</h2>
+                    <h2>Quality Control Overview</h2>
                 </div>
                 <div class="col-md-2 list-group interpreter-side-nav side-nav">
                     <button type="button" class="list-group-item" 
                           data-id="Summary" @click="${this.onSideNavClick}">Summary</button>
                     <button type="button" class="list-group-item" 
-                          data-id="InferredSex" @click="${this.onSideNavClick}">Sex</button>
+                          data-id="InferredSex" @click="${this.onSideNavClick}">Sex Inference</button>
                     <button type="button" class="list-group-item" 
                           data-id="Relatedness" @click="${this.onSideNavClick}">Relatedness</button>
                     <button type="button" class="list-group-item" 

@@ -59,9 +59,9 @@ export default class DownloadButton extends LitElement {
 
     render() {
         return html`
-        <div>
-            <button class="btn btn-primary ripple" @click="${this.download}"><i class="fa fa-download" aria-hidden="true"></i> ${this.name}</button>
-        </div>
+            <div>
+                <button class="btn btn-primary ripple" @click="${this.download}"><i class="fa fa-download" aria-hidden="true"></i> ${this.name}</button>
+            </div>
         `;
     }
 }

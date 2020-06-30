@@ -858,6 +858,7 @@ export default class OpencgaVariantGrid extends LitElement {
         let isCohortPresent = false;
         // if (typeof this._columns !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0
         //     && this.config.filter.menu.skipSubsections !== undefined && !this.config.filter.menu.skipSubsections.includes("cohort")) {
+        debugger
         if (typeof this._columns !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0 &&
             typeof this.cohorts[this.opencgaSession.project.id] !== "undefined") {
             isCohortPresent = true;

@@ -133,7 +133,6 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
     }
 
     onActiveFilterClear() {
-        console.log("onActiveFilterClear");
         this.query = {study: this.opencgaSession.study.fqn};
         this.requestUpdate();
     }
@@ -242,55 +241,6 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                     grid: {}
                 },
                 detail: {
-                    title: "Selected Variant",
-                    views: [
-                        {
-                            id: "annotationSummary",
-                            title: "Summary",
-                            active: true
-                        },
-                        {
-                            id: "annotationConsType",
-                            title: "Consequence Type"
-                        },
-                        {
-                            id: "annotationPropFreq",
-                            title: "Population Frequencies"
-                        },
-                        {
-                            id: "annotationClinical",
-                            title: "Clinical"
-                        },
-                        {
-                            id: "cohortStats",
-                            title: "Cohort Stats"
-                            //cohorts: this.cohorts
-                        },
-                        {
-                            id: "samples",
-                            title: "Samples"
-                        },
-                        {
-                            id: "beacon",
-                            // component: "variant-beacon-network",
-                            title: "Beacon"
-                            // Uncomment and edit Beacon hosts to change default hosts
-                            // hosts: [
-                            //     "brca-exchange", "cell_lines", "cosmic", "wtsi", "wgs", "ncbi", "ebi", "ega", "broad", "gigascience", "ucsc",
-                            //     "lovd", "hgmd", "icgc", "sahgp"
-                            // ]
-                        },
-                        {
-                            id: "network",
-                            // component: "reactome-variant-network",
-                            title: "Reactome Pathways"
-                        }
-                        // {
-                        //     id: "template",
-                        //     component: "opencga-variant-detail-template",
-                        //     title: "Template"
-                        // }
-                    ]
                 }
             }
         }

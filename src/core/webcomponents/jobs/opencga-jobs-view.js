@@ -98,15 +98,14 @@ export default class OpencgaJobsView extends LitElement {
             display: {
                 collapsable: true,
                 showTitle: false,
-                labelWidth: 2,
+                labelWidth: 3,
                 defaultLayout: "horizontal",
                 defaultValue: "-"
             },
             sections: [
                 {
-                    title: "Details",
+                    title: "Summary",
                     display: {
-                        collapsed: false,
                     },
                     elements: [
                         {
@@ -118,7 +117,7 @@ export default class OpencgaJobsView extends LitElement {
                             field: "userId"
                         },
                         {
-                            name: "Tool",
+                            name: "Tool ID",
                             field: "tool.id"
                         },
                         {
@@ -144,15 +143,10 @@ export default class OpencgaJobsView extends LitElement {
                         },
                         {
                             name: "Submitted Date",
-                            // field: "creationDate",
                             type: "custom",
                             display: {
                                 render: job => html`${UtilsNew.dateFormatter(job.creationDate, "D MMM YYYY, h:mm:ss a")}`
                             }
-                        },
-                        {
-                            name: "Output Directory",
-                            field: "outDir.uri"
                         },
                         {
                             name: "Description",
@@ -167,7 +161,7 @@ export default class OpencgaJobsView extends LitElement {
                     },
                     elements: [
                         {
-                            name: "Start-End",
+                            name: "Start-End Date",
                             // field: "execution",
                             type: "custom",
                             display: {
@@ -175,7 +169,7 @@ export default class OpencgaJobsView extends LitElement {
                             }
                         },
                         {
-                            name: "Parameters",
+                            name: "Input Parameters",
                             // field: "params",
                             type: "custom",
                             display: {
@@ -191,6 +185,37 @@ export default class OpencgaJobsView extends LitElement {
                                 template: "${name}",
                                 contentLayout: "bullets",
                             }
+                        },
+                        // {
+                        //     name: "Output Files",
+                        //     field: "output",
+                        //     type: "table",
+                        //     defaultValue: "N/A",
+                        //     display: {
+                        //         columns: [
+                        //             {
+                        //                 name: "File Name", field: "name"
+                        //             },
+                        //             {
+                        //                 name: "Size", field: "size"
+                        //             },
+                        //             {
+                        //                 name: "Download", display: {
+                        //                     render: file => {
+                        //                         debugger
+                        //                         return html`<download-button .name="${file.name}" .json="${file}"></download-button>`
+                        //                     },
+                        //                 }
+                        //                 //format: ${UtilsNew.renderHTML(this.statusFormatter(status.name))}
+                        //             }
+                        //         ],
+                        //         border: true
+                        //         // contentLayout: "bullets",
+                        //     }
+                        // },
+                        {
+                            name: "Output Directory",
+                            field: "outDir.path"
                         },
                         {
                             name: "Output Files",
@@ -208,24 +233,12 @@ export default class OpencgaJobsView extends LitElement {
                             display: {
                                 template: "<div class='cmd'>${commandLine}</div>",
                             }
-                        },/*
-                        {
-                            name: "Dependencies",
-                            field: "dependsOn",
-                            type: "tree",
-                            display: {
-                                //apply: this.dependsOnMap.bind(this)
-                                apply: function fn(node) {
-                                    return {text: node.id, nodes: node.elements?.map(n => fn(n))};
-                                }
-                            }
-                        }*/
+                        },
                     ]
                 },
                 {
-                    title: "Dependencies",
+                    title: "Job Dependencies",
                     display: {
-
                     },
                     elements: [
                         {
@@ -236,7 +249,7 @@ export default class OpencgaJobsView extends LitElement {
                             display: {
                                 columns: [
                                     {
-                                        name: "ID", field: "id"
+                                        name: "Job ID", field: "id"
                                     },
                                     {
                                         name: "Name", field: "uuid"

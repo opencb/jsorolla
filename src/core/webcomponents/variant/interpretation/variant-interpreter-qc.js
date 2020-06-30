@@ -132,7 +132,7 @@ class VariantInterpreterQc extends LitElement {
                             </a>
                         </li>
                         <li role="presentation" class="content-pills ${classMap({active: this.activeTab["VariantQc"]})}">
-                            <a href="javascript: void 0" role="tab" data-id="VariantQc" @click="${this._changeTab}" class="tab-title">Variant
+                            <a href="javascript: void 0" role="tab" data-id="VariantQc" @click="${this._changeTab}" class="tab-title">Variant Aggregator
                             </a>
                         </li>
                         <li role="presentation" class="content-pills ${classMap({active: this.activeTab["AlignmentQc"]})}">
@@ -140,15 +140,16 @@ class VariantInterpreterQc extends LitElement {
                             </a>
                         </li>
                         <li role="presentation" class="content-pills ${classMap({active: this.activeTab["GeneCoverage"]})}">
-                            <a href="javascript: void 0" role="tab" data-id="GeneCoverage" @click="${this._changeTab}" class="tab-title">Gene Coverage
+                            <a href="javascript: void 0" role="tab" data-id="GeneCoverage" @click="${this._changeTab}" class="tab-title">Gene Coverage Stats
                             </a>
                         </li>
+                        <!-- 
                         ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY" ? html`
                             <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Upd"]})}">
                                 <a href="javascript: void 0" role="tab" data-id="Upd" @click="${this._changeTab}" class="tab-title disabled">UPD (coming soon)
                                 </a>
                             </li>` : null }
-                        <!-- 
+                        
                         <li role="presentation" class="content-pills ${classMap({active: this.activeTab["GenomeBrowser"]})}">
                             <a href="javascript: void 0" role="tab" data-id="GenomeBrowser" @click="${this._changeTab}" class="tab-title">Genome Browser
                             </a>
