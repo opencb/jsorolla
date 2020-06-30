@@ -372,7 +372,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 render: (data) => {
                                     return html`
                                         <individual-id-autocomplete 
-                                            .opencgaSession="${this.opencgaSession}" ?disabled=${this.mode === "update"} .config=${null} @filterChange="${e => this.onIndividualChange(e)}">
+                                            .opencgaSession="${this.opencgaSession}" ?disabled=${this.mode === "update"} .config=${{addButton: false, multiple: false}} @filterChange="${e => this.onIndividualChange(e)}">
                                         </individual-id-autocomplete>`
                                 },
                             }
@@ -415,7 +415,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 render: (data) => {
                                     return html`
                                         <family-id-autocomplete 
-                                            .opencgaSession="${this.opencgaSession}" ?disabled=${this.mode === "update"} .config=${null} @filterChange="${e => this.onFamilyChange(e)}">
+                                            .opencgaSession="${this.opencgaSession}" ?disabled=${this.mode === "update"} .config=${{addButton: false, multiple: false}} @filterChange="${e => this.onFamilyChange(e)}">
                                         </family-id-autocomplete>`
                                 },
                             }
@@ -506,7 +506,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             display: {
                                 width: 5,
                                 render: data => {
-                                    return html`<individual-id-autocomplete .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onCancerChange(e)}"></individual-id-autocomplete>`
+                                    return html`<individual-id-autocomplete .opencgaSession="${this.opencgaSession}" .config=${{addButton: false, multiple: false}} @filterChange="${e => this.onCancerChange(e)}"></individual-id-autocomplete>`
                                 }
                             }
                         },
@@ -560,26 +560,26 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                 console.log("data",data)
                 delete data._users;
                 data.proband = {
-                    id: data.proband ? data.proband.id : null
+                    id: clinicalAnalysis.proband ? clinicalAnalysis.proband.id : null
                 };
                 data.disorder = {
-                    id: data.disorder.id
+                    id: clinicalAnalysis.disorder.id
                 }
                 // Flags are optional, it can be empty
                 if (data.flags) {
-                    data.flags = data.flags.split(",");
+                    data.flags = clinicalAnalysis.flags.split(",");
                 }
 
                 if (data.type === "FAMILY") {
                     data.family = {
-                        id: data.family.id,
-                        members: data.family.members.map(e => {return {id: e.id}}),
+                        id: clinicalAnalysis.family.id,
+                        members: clinicalAnalysis.family.members.map(e => ({id: e.id}))
                     };
                 }
 
                 let _this = this;
                 if (this.mode === "create") {
-                    debugger
+                    //debugger
                     opencgaSession.opencgaClient.clinical().create(data, {study: opencgaSession.study.fqn})
                         .then(function(response) {
                             new NotificationQueue().push(`Clinical analysis ${response.responses[0].results[0].id} created successfully`, null,"success");

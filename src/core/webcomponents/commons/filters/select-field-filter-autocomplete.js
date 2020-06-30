@@ -130,8 +130,11 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
             $(".typeahead", this).attr("disabled", this.disabled);
         }
         if (_changedProperties.has("value")) {
-            console.log("new value from active filter", this.value);
             this.selectionList = this.value ? this.value.split(",") : [];
+            if(!this._config.multiple) {
+                this.input.val(this.value).change();
+            }
+
             this.requestUpdate();
         }
     }
