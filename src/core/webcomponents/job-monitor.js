@@ -95,7 +95,7 @@ export class JobMonitor extends LitElement {
         this.jobs = newList.map((job, i) => {
             if (i < k) {
                 //handle the new jobs
-                new NotificationQueue().push(`${job.id}`, `The job has been added`, "", "info");
+                new NotificationQueue().push(`${job.id}`, "The job has been added", "", "info");
                 return {...job, updated: true};
             } else {
                 //handle the change of state
@@ -205,7 +205,7 @@ export class JobMonitor extends LitElement {
 
     render() {
         return html`
-            <ul class="nav navbar-nav navbar-right notification-nav">
+            <ul class="nav navbar-nav notification-nav">
                 <li class="notification">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" @click="${this.toggleDropdown}">
                         <span class="badge badge-pill badge-primary ${this.updatedCnt > 0 ? "" : "invisible"}">${this.updatedCnt}</span> <i class="fas fa-rocket"></i>

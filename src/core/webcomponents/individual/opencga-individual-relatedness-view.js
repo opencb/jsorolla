@@ -152,8 +152,8 @@ export default class OpencgaIndividualRelatednessView extends LitElement {
     }
 
     render() {
-        if (!this.individual) {
-            return html`<div><h3>No valid individual provided.</h3></div>`;
+        if (!this.individual?.qualityControl?.metrics?.[0]?.relatednessReport) {
+            return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>`;
         }
 
         return html`

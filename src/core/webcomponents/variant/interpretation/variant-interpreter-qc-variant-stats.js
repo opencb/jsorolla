@@ -175,14 +175,16 @@ class VariantInterpreterQcVariantStats extends LitElement {
             </style>
             <div class="container">
                 <div class="row">
-                    <div class="">
-                        <form class="form-inline">
-                            <div class="form-group gene-selector">
-                                <label>Select Stat</label>
-                                <select-field-filter .data="${this.statsSelect}" @filterChange="${this.onSampleChange}"></select-field-filter>
-                            </div>
-                        </form>
-                    </div>
+                    ${this.statsSelect.length ? html`
+                        <div class="">
+                            <form class="form-inline">
+                                <div class="form-group gene-selector">
+                                    <label>Select Stat</label>
+                                    <select-field-filter .data="${this.statsSelect}" @filterChange="${this.onSampleChange}"></select-field-filter>
+                                </div>
+                            </form>
+                        </div>
+                    ` : null}
                     </div>
                     <div class="row">
                     <h3>Sample Variant Stats</h3>

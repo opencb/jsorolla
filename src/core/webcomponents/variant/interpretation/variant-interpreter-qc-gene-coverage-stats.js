@@ -152,7 +152,7 @@ class VariantInterpreterQcGeneCoverageStats extends LitElement {
                     <gene-coverage-view .opencgaSession="${this.opencgaSession}" 
                                         .geneCoverageStats="${this._geneCoverageStats}">
                     </gene-coverage-view>` 
-                : html`<h4>No data available</h4>`
+                : html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No data are available yet.</div>`
             }
         `;
     }

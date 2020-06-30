@@ -139,7 +139,7 @@ export default class DiseaseFilter extends LitElement {
         if (this.mode === "gene") {
             select_vals = [$("#" + this._prefix + "Genes").val()] || [];
         } else {
-            select_vals = $("#" + this._prefix + "DiseasePanels").val() || [];
+            select_vals = [$("#" + this._prefix + "DiseasePanels").val()] || [];
         }
 
         console.log(select_vals)
@@ -167,27 +167,7 @@ export default class DiseaseFilter extends LitElement {
     render() {
         // this.opencgaSession.study.panels;
         // debugger
-        if (this.mode !== "gene") {
-            return html`
-                <div>
-                    <select id="${this._prefix}DiseasePanels" class="selectpicker" data-size="10" data-live-search="true" data-selected-text-format="count" multiple @change="${this.filterChange}">
-                        ${this.diseasePanels && this.diseasePanels.length && this.diseasePanels.map(panel => html`
-                            <option value="${panel.id}">
-                                ${panel.name}
-                                ${panel.source ? "v" + panel.source.version : ""}
-                                ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}
-                            </option>
-                        `)}
-                    </select>
-                    
-                    ${this._config.showSummary
-                ? html`
-                    <textarea id="${this._prefix}DiseasePanelsTextarea" class="form-control" rows="4" style="margin-top: 5px;background: #f7f7f7" disabled> </textarea>`
-                : null
-            }
-                </div>
-        `;
-        } else {
+        if (this.mode === "gene") {
             return html`
                 <div class="row">
                     <div class="col-md-4">
@@ -206,6 +186,25 @@ export default class DiseaseFilter extends LitElement {
                     </div>
                 </div>
             `;
+        } else {
+            return html`
+                <div>
+                    <select id="${this._prefix}DiseasePanels" class="selectpicker" data-size="10" data-live-search="true" data-selected-text-format="count" multiple @change="${this.filterChange}">
+                        ${this.diseasePanels && this.diseasePanels.length && this.diseasePanels.map(panel => html`
+                            <option value="${panel.id}">
+                                ${panel.name}
+                                ${panel.source ? "v" + panel.source.version : ""}
+                                ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}
+                            </option>
+                        `)}
+                    </select>
+                    
+                ${this._config.showSummary
+                    ? html`
+                        <textarea id="${this._prefix}DiseasePanelsTextarea" class="form-control" rows="4" style="margin-top: 5px;background: #f7f7f7" disabled> </textarea>`
+                    : null
+                }
+                </div>`;
         }
 
         // return html`

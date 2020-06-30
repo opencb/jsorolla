@@ -100,8 +100,6 @@ export default class OpencgaCohortDetail extends LitElement {
                         return html`
                             <opencga-sample-grid    .opencgaSession="${opencgaSession}"
                                                     .query="${{id: cohort.samples.map(sample => sample.id).join(",")}}"
-                                                    .config="${1}"
-                                                    .samples="${1}"
                                                     .active="${active}">
                             </opencga-sample-grid>
                         `;
