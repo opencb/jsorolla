@@ -744,19 +744,19 @@ export default class OpencgaVariantGrid extends LitElement {
                     halign: "center"
                 },
                 {
-                    title: "Deleteriousness <a data-toggle=\"tooltip\" title=\"SIFT scores are classified into tolerated and deleterious. " +
-                        "Polyphen scores are classified into benign, possibly damaging, probably damaging and possibly & probably damaging. " +
-                        "Please, leave the cursor over each tag to visualize the actual score value. " +
-                        "SIFT score takes values in the range [0, infinite[, the lower the values, the more damaging the prediction. " +
-                        "Polyphen score takes values in the range [0, 1[, the closer to 2, the more damaging the prediction.\">" +
-                        "<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>",
+                    title: `Deleteriousness <a tooltip-title="Deleteriousness" tooltip-text="SIFT scores are classified into tolerated and deleterious.
+                        Polyphen scores are classified into benign, possibly damaging, probably damaging and possibly & probably damaging.
+                        Please, leave the cursor over each tag to visualize the actual score value.
+                        SIFT score takes values in the range [0, infinite[, the lower the values, the more damaging the prediction.
+                        Polyphen score takes values in the range [0, 1[, the closer to 2, the more damaging the prediction.">
+                        <i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     field: "deleteriousness",
                     rowspan: 1,
                     colspan: 3,
                     align: "center"
                 },
                 {
-                    title: "Conservation  <a data-toggle=\"tooltip\" title=\"Positive PhyloP scores measure conservation which is slower evolution than expected, at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent -log p-values under a null hypothesis of neutral evolution. The phastCons scores represent probabilities of negative selection and range between 0 and 1. Positive GERP scores represent a substitution deficit and thus indicate that a site may be under evolutionary constraint. Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while still strongly enriching for truly constrained sites\"><i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>",
+                    title: `Conservation  <a tooltip-title='Conservation' tooltip-text="Positive PhyloP scores measure conservation which is slower evolution than expected, at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent -log p-values under a null hypothesis of neutral evolution. The phastCons scores represent probabilities of negative selection and range between 0 and 1. Positive GERP scores represent a substitution deficit and thus indicate that a site may be under evolutionary constraint. Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while still strongly enriching for truly constrained sites"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     field: "Conservation",
                     rowspan: 1,
                     colspan: 3,

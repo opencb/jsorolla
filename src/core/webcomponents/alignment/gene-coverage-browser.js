@@ -65,6 +65,9 @@ export default class GeneCoverageBrowser extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
+        if (!this.file) {
+            this.errorState = "BAM file not available.";
+        }
     }
 
     selectGene(e) {

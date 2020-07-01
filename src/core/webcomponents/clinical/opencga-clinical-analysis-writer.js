@@ -111,7 +111,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                 this.clinicalAnalysis.priority = e.detail.value;
                 break;
             case "dueDate":
-                this.clinicalAnalysis.dueDate = UtilsNew.getDatetime(e.detail.value);
+                this.clinicalAnalysis.dueDate = e.detail.value;
                 break;
             case "analyst.assignee":
                 this.clinicalAnalysis.analyst = {assignee: e.detail.value};
@@ -320,6 +320,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 name: "Assigned To",
                                 field: "analyst.assignee",
                                 type: "select",
+                                defaultValue: this.opencgaSession?.user?.id,
                                 allowedValues: "_users",
                                 display: {
                                     // width: 9,
@@ -340,7 +341,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 name: "Due Date",
                                 field: "dueDate",
                                 type: "input-date",
-                                defaultValue: "",
+                                defaultValue: moment().format("YYYYMMDDHHMMSS"),
                                 display: {
                                     // width: 9,
                                 }

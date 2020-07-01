@@ -399,7 +399,7 @@ export default class VariantGridFormatter {
     addCohortStatsInfoTooltip(div, populationFrequencies) {
         $("#" + div).qtip({
             content: {
-                title: "Population Frequencies",
+                title: "Cohort Stats",
                 text: function(event, api) {
                     return `One coloured square is shown for each cohort. Frequencies are coded with colours which classify values 
                             into 'very rare', 'rare', 'average', 'common' or 'missing', see 
@@ -414,23 +414,10 @@ export default class VariantGridFormatter {
                             <div><span><i class="fa fa-square" style="color: black" aria-hidden="true"></i> Not observed</span></div>`
                 },
             },
-            position: {
-                target: "mouse",
-                adjust: {
-                    x: 2, y: 2,
-                    mouse: false
-                }
-            },
-            style: {
-                width: "240px",
-            },
-            show: {
-                delay: 200
-            },
-            hide: {
-                fixed: true,
-                // delay: 300
-            }
+            position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
+            style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
+            show: {delay: 200},
+            hide: {fixed: true, delay: 300}
         });
     }
 
@@ -464,7 +451,6 @@ export default class VariantGridFormatter {
         return htmlPopFreqTable;
     }
 
-
     addPopulationFrequenciesInfoTooltip(selector, populationFrequencies) {
         $(selector).qtip({
             content: {
@@ -483,23 +469,10 @@ export default class VariantGridFormatter {
                             <div><span><i class="fa fa-square" style="color: black" aria-hidden="true"></i> Not observed</span></div>`
                 },
             },
-            position: {
-                target: "mouse",
-                adjust: {
-                    x: 2, y: 2,
-                    mouse: false
-                }
-            },
-            style: {
-                width: "240px",
-            },
-            show: {
-                delay: 200
-            },
-            hide: {
-                fixed: true,
-                delay: 300
-            }
+            position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
+            style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
+            show: {delay: 200},
+            hide: {fixed: true, delay: 300}
         });
     }
 
@@ -613,24 +586,10 @@ export default class VariantGridFormatter {
                            `
                 },
             },
-            position: {
-                target: "mouse",
-                my: "top right",
-                adjust: {
-                    x: 2, y: 2,
-                    mouse: false
-                }
-            },
-            style: {
-                width: "240px",
-            },
-            show: {
-                delay: 200
-            },
-            hide: {
-                fixed: true,
-                delay: 300
-            }
+            position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
+            style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
+            show: {delay: 200},
+            hide: {fixed: true, delay: 300}
         });
     }
 

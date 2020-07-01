@@ -55,14 +55,10 @@ export default class DataForm extends LitElement {
     firstUpdated(_changedProperties) {
 
         $("#" + this._prefix + "DuePickerDate").datetimepicker({
-            format: "DD/MM/YYYY"
+            format: "YYYYMMDDHHMMSS"
         });
         $("#" + this._prefix + "DuePickerDate").on("dp.change", (e) => {
-            // $('#datetimepicker7').data("DateTimePicker").minDate(e.date);
-            if (e.oldDate) {
-                let timeStamp = e.timeStamp;
-                this.onFilterChange(e.currentTarget.dataset.field, timeStamp);
-            }
+             this.onFilterChange(e.currentTarget.dataset.field, e.date.format("YYYYMMDDHHMMSS"));
         });
     }
 
@@ -438,7 +434,7 @@ export default class DataForm extends LitElement {
 
         return html`
             <div class='input-group date' id="${this._prefix}DuePickerDate" data-field="${element.field}">
-                <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" data-field="${element.field}" ?disabled="${disabled}">
+                <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" data-field="${element.field}" ?disabled="${disabled}" >
                 <span class="input-group-addon">
                         <span class="fa fa-calendar"></span>
                 </span>
