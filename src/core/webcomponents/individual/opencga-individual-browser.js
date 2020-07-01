@@ -243,98 +243,188 @@ export default class OpencgaIndividualBrowser extends LitElement {
                 }
             },
             aggregation: {
-                default: ["type", "format", "bioformat"],
+                default: ["creationYear>>creationMonth", "status", "ethnicity", "population", "lifeStatus", "phenotypes", "sex", "numSamples[0..10]:1"],
                 result: {
                     numColumns: 2
                 },
                 sections: [
                     {
-                        name: "section title",
+                        name: "Individual Attributes",
                         fields: [
                             {
-                                id: "study",
-                                name: "study",
+                                id: "studyId",
+                                name: "Study id",
                                 type: "string",
                                 description: "Study [[user@]project:]study where study and project can be either the ID or UUID"
                             },
                             {
-                                id: "source",
-                                name: "source",
-                                type: "string",
-                                description: "Source"
-                            },
-                            {
                                 id: "creationYear",
-                                name: "creationYear",
+                                name: "Creation Year",
                                 type: "string",
                                 description: "Creation year"
                             },
                             {
                                 id: "creationMonth",
-                                name: "creationMonth",
-                                type: "string",
+                                name: "Creation Month",
+                                type: "category",
+                                allowedValues: ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"],
                                 description: "Creation month (JANUARY, FEBRUARY...)"
                             },
                             {
                                 id: "creationDay",
-                                name: "creationDay",
-                                type: "string",
+                                name: "Creation Day",
+                                type: "category",
+                                allowedValues: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"],
                                 description: "Creation day"
                             },
                             {
                                 id: "creationDayOfWeek",
-                                name: "creationDayOfWeek",
-                                type: "string",
+                                name: "Creation Day Of Week",
+                                type: "category",
+                                allowedValues: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"],
                                 description: "Creation day of week (MONDAY, TUESDAY...)"
                             },
                             {
                                 id: "status",
-                                name: "status",
-                                type: "string",
+                                name: "Status",
+                                type: "category",
+                                allowedValues: ["READY", "DELETED", "TRASHED", "STAGE", "MISSING", "PENDING_DELETE", "DELETING", "REMOVED"],
                                 description: "Status"
                             },
                             {
-                                id: "type",
-                                name: "type",
-                                type: "string",
-                                description: "type"
-                            },
-                            {
-                                id: "phenotypes",
-                                name: "phenotypes",
-                                type: "string",
-                                description: "Phenotypes"
-                            },
-                            {
                                 id: "release",
-                                name: "release",
+                                name: "Release",
                                 type: "string",
                                 description: "Release"
                             },
                             {
                                 id: "version",
-                                name: "version",
+                                name: "Version",
                                 type: "string",
                                 description: "Version"
                             },
                             {
-                                id: "somatic",
-                                name: "somatic",
+                                id: "hasFather",
+                                name: "Has Father",
                                 type: "category",
                                 allowedValues: ["true", "false"],
-                                multiple: false,
-                                defaultValue: "false",
-                                description: "Somatic"
+                                description: "Has father"
                             },
                             {
-                                id: "annotation",
-                                name: "annotation",
-                                type: "string",
-                                description: "Annotation, e.g: key1=value(,key2=value)"
+                                id: "hasMother",
+                                name: "Has Mother",
+                                type: "category",
+                                allowedValues: ["true", "false"],
+                                description: "Has mother"
                             },
+                            {
+                                id: "locationCity",
+                                name: "Location City",
+                                type: "string",
+                                description: "Location city"
+                            },
+                            {
+                                id: "locationState",
+                                name: "Location State",
+                                type: "string",
+                                description: "Location state"
+                            },
+                            {
+                                id: "locationCountry",
+                                name: "Location Country",
+                                type: "string",
+                                description: "Location country"
+                            },
+                            {
+                                id: "yearOfBirth",
+                                name: "Year Of Birth",
+                                type: "string",
+                                description: "Year of birth"
+                            },
+                            {
+                                id: "monthOfBirth",
+                                name: "Month Of Birth",
+                                type: "category",
+                                allowedValues: ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"],
+                                description: "Month of birth (JANUARY, FEBRUARY...)"
+                            },
+                            {
+                                id: "dayOfBirth",
+                                name: "Day Of Birth",
+                                type: "category",
+                                allowedValues: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"],
+                                description: "Day of birth"
+                            },
+                            {
+                                id: "sex",
+                                name: "Sex",
+                                type: "string",
+                                description: "Sex"
+                            },
+                            {
+                                id: "karyotypicSex",
+                                name: "Laryotypic Sex",
+                                type: "string",
+                                description: "Karyotypic sex"
+                            },
+                            {
+                                id: "ethnicity",
+                                name: "Ethnicity",
+                                type: "string",
+                                description: "Ethnicity"
+                            },
+                            {
+                                id: "population",
+                                name: "Population",
+                                type: "string",
+                                description: "Population"
+                            },
+                            {
+                                id: "lifeStatus",
+                                name: "Life Status",
+                                type: "category",
+                                allowedValues: ["ALIVE", "ABORTED", "DECEASED", "UNBORN", "STILLBORN", "MISCARRIAGE", "UNKNOWN"],
+                                description: "Life status"
+                            },
+                            {
+                                id: "phenotypes",
+                                name: "Phenotypes",
+                                type: "string",
+                                description: "Phenotypes"
+                            },
+                            {
+                                id: "disorders",
+                                name: "Disorders",
+                                type: "string",
+                                description: "Disorders"
+                            },
+                            {
+                                id: "numSamples",
+                                name: "Number Of Samples",
+                                type: "string",
+                                description: "Number Of Samples"
+                            },
+                            {
+                                id: "parentalConsanguinity",
+                                name: "Parental Consanguinity",
+                                type: "category",
+                                allowedValues: ["true", "false"],
+                                description: "Parental consanguinity"
+                            },
+                            {
+                                id: "annotations",
+                                name: "Annotations",
+                                type: "string",
+                                description: "Annotations, e.g: key1=value(,key2=value)"
+                            }
+                        ]
+                    },
+                    {
+                        name: "Advanced",
+                        fields: [
                             {
                                 id: "field",
-                                name: "field",
+                                name: "Field",
                                 type: "string",
                                 description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
                             }
