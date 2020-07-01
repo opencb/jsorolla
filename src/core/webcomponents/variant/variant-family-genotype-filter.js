@@ -499,7 +499,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
 <!--                                <th rowspan="2">Father</th>-->
 <!--                                <th rowspan="2">Mother</th>-->
                                 <th rowspan="1" colspan="3" style="text-align: center">Genotypes</th>
-                                <th rowspan="2">Min. Depth</th>
+                               <!--  <th rowspan="2">Min. Depth</th> -->
                             </tr>
                             <tr>
                                 <th scope="col">HOM_REF</th>
@@ -565,11 +565,11 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                                             <input id="${this._prefix}${sampleFilter.id}11" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="1/1" data-sample-id="${sampleFilter.id}"
                                                    .checked="${sampleFilter.genotypes.includes("1/1")}" ?disabled="${this.mode !== "CUSTOM"}" @change="${this.onSampleTableChange}">
                                         </td>
-                                        <td style="padding-left: 10px">
+                                        <!--<td style="padding-left: 10px">
                                             <input id="${this._prefix}${sampleFilter.id}DP" type="text" value="${sampleFilter.dp !== undefined && sampleFilter.dp > 0 ? sampleFilter.dp : ""}"
                                                    class="form-control input-sm sample-dp-textbox" aria-label="..." placeholder="e.g. 15" data-sample-id="${sampleFilter.id}"
                                                    style="width: 60px" @input="${this.onSampleTableChange}">
-                                        </td>
+                                        </td>-->
                                     </tr>
                                  `) : ""}
                             </tbody>

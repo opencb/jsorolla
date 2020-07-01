@@ -233,7 +233,6 @@ export default class OpencgaVariantGrid extends LitElement {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (_this._config.detailView) {
-                        // TODO refactor this omg!
                         if (element[0].innerHTML.includes("icon-plus")) {
                             $("#" + _this.gridId).bootstrapTable("expandRow", element[0].dataset.index);
                         } else {

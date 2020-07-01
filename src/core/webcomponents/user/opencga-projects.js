@@ -593,83 +593,85 @@ export default class OpencgaProjects extends LitElement {
             </div>
            
             <div class="v-space"></div>
-            <ul class="nav nav-tabs nav-center tablist" role="tablist">
-                ${this.data ? Object.entries(this.data).map((project, i) => html`
-                    <li role="presentation" class="${i === 0 ? "active" : ""}"><a href="#${project[0]}" @click="${e => console.log(e)}" aria-controls="profile" role="tab" data-toggle="tab">${project[1].name}</a></li>
-                `) : null}
-            </ul>
-            <pre id="errors" class="alert alert-warning" role="alert" style="display: ${this.errors ? "block" : "none"}">${this.errors}</pre>      
-            <div class="tab-content">
-                ${this.data ? Object.entries(this.data).map(([id, project], i) => html`
-                    <div role="tabpanel" class="tab-pane ${i === 0 ? "active" : ""}" id="${id}">
-                        <div><h4>${project.name} (${project.uuid})</h4></div>
-                        ${project.description ? html`<div><label>Description:</label> ${project.description}</div>` : ""}
-                        <div class="container-fluid">
-                            <div class="row">
-                                ${project.studies ? project.studies.map(study => {
-                                    return html`
-                                        <div class="panel panel-default col-md-12 study-panel">
-                                            <div class="panel-body">
-                                                <p class="study-title">Study: ${study.name}</p>
-                                                <p class="study-description">${study.description}</p>
+            <div class="detail-tabs">
+                <ul class="nav nav-tabs nav-center tablist" role="tablist">
+                    ${this.data ? Object.entries(this.data).map((project, i) => html`
+                        <li role="presentation" class="${i === 0 ? "active" : ""}"><a href="#${project[0]}" @click="${e => console.log(e)}" aria-controls="profile" role="tab" data-toggle="tab">${project[1].name}</a></li>
+                    `) : null}
+                </ul>
+                <pre id="errors" class="alert alert-warning" role="alert" style="display: ${this.errors ? "block" : "none"}">${this.errors}</pre>      
+                <div class="tab-content">
+                    ${this.data ? Object.entries(this.data).map(([id, project], i) => html`
+                        <div role="tabpanel" class="tab-pane ${i === 0 ? "active" : ""}" id="${id}">
+                            <div><h3>${project.name} (${project.uuid})</h3></div>
+                            ${project.description ? html`<div><label>Description:</label> ${project.description}</div>` : ""}
+                            <div class="container-fluid">
+                                <div class="row">
+                                    ${project.studies ? project.studies.map(study => {
+                                        return html`
+                                            <div class="panel panel-default col-md-12 study-panel">
+                                                <div class="panel-body">
+                                                    <p class="study-title">Study: ${study.name}</p>
+                                                    <p class="study-description">${study.description}</p>
+                                                </div>
+                                                 ${Object.entries(study.stats).map(([resource, stat]) => html`
+                                                    ${stat.results.map(facetResult => this.plots.includes(facetResult.name) ? html`
+                                                        <div class="col-md-4">
+                                                            <opencga-facet-result-view .facetResult="${facetResult}">
+                                                            </opencga-facet-result-view>
+                                                        </div>`: null )}
+                                                 `)}
                                             </div>
-                                             ${Object.entries(study.stats).map(([resource, stat]) => html`
-                                                ${stat.results.map(facetResult => this.plots.includes(facetResult.name) ? html`
-                                                    <div class="col-md-4">
-                                                        <opencga-facet-result-view .facetResult="${facetResult}">
-                                                        </opencga-facet-result-view>
-                                                    </div>`: null )}
-                                             `)}
-                                        </div>
-                                        `;
-        }) : "-"}
+                                            `;
+                                    }) : "-"}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `) : null}
-            </div>
-            
-            <div id="loading" style="display: none">
-                <loading-spinner></loading-spinner>
-            </div>
-            <div id="facetChart"></div>    
-            <div id="containerChart"></div>
-            <div>
-                <!--<br>-->
-                <table class="table" style="display: none">
-                    <thead class="thead-inverse">
-                    <tr>
-                        <th colspan="5">Project</th>
-                        <th>Study</th>
-                        <th>Date</th>
-                        <th>Files</th>
-                        <th>Samples</th>
-                        <!--<th>Jobs</th>-->
-                        <!--<th>Individuals</th>-->
-                    </tr>
-                    </thead>
-                    <tbody>
-                    ${this._studies && this._studies.length ? this._studies.map(summaries => html`
-                        <tr>
-                            <td rowspan="${summaries.rowspan}" colspan="5">
-                                ${summaries.name}
-                               
-                            </td>
-                        </tr>
-                        ${summaries.studies && summaries.studies.length ? summaries.studies.map(item => html`
-                            <tr>
-                                <td>${item.name}</td>
-                                <td>${item.creationDate}</td>
-                                <td>${item.files}</td>
-                                <td>${item.samples}</td>
-                                <!--<td>{{item.jobs}}</td>-->
-                                <!--<td>{{item.individuals}}</td>-->
-                            </tr>
-                        `) : null}
                     `) : null}
-                    
-                    </tbody>
-                </table>
+                </div>
+                
+                <div id="loading" style="display: none">
+                    <loading-spinner></loading-spinner>
+                </div>
+                <div id="facetChart"></div>    
+                <div id="containerChart"></div>
+                <div>
+                    <!--<br>-->
+                    <table class="table" style="display: none">
+                        <thead class="thead-inverse">
+                        <tr>
+                            <th colspan="5">Project</th>
+                            <th>Study</th>
+                            <th>Date</th>
+                            <th>Files</th>
+                            <th>Samples</th>
+                            <!--<th>Jobs</th>-->
+                            <!--<th>Individuals</th>-->
+                        </tr>
+                        </thead>
+                        <tbody>
+                        ${this._studies && this._studies.length ? this._studies.map(summaries => html`
+                            <tr>
+                                <td rowspan="${summaries.rowspan}" colspan="5">
+                                    ${summaries.name}
+                                   
+                                </td>
+                            </tr>
+                            ${summaries.studies && summaries.studies.length ? summaries.studies.map(item => html`
+                                <tr>
+                                    <td>${item.name}</td>
+                                    <td>${item.creationDate}</td>
+                                    <td>${item.files}</td>
+                                    <td>${item.samples}</td>
+                                    <!--<td>{{item.jobs}}</td>-->
+                                    <!--<td>{{item.individuals}}</td>-->
+                                </tr>
+                            `) : null}
+                        `) : null}
+                        
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         `;

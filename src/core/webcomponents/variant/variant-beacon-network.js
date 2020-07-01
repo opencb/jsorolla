@@ -52,9 +52,14 @@ export default class VariantBeaconNetwork extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
     updated(changedProperties) {
-        if (changedProperties.has("clear")) {
-            this.clearResponse();
+        if (changedProperties.has("variant")) {
+            this.variantObserver();
         }
         if (changedProperties.has("config")) {
             this.configObserver();
@@ -65,15 +70,17 @@ export default class VariantBeaconNetwork extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    clearResponse() {
-        // Empty previous response
-        PolymerUtils.innerHtmlByClass("beaconResponse", "");
+    variantObserver() {
+        $(".beacon-loading-spinner", this).css("display", "none");
+        $(".host", this).removeClass("false");
+        $(".host", this).removeClass("true");
+        $(".beaconResponse").empty();
     }
 
     async searchBeaconNetwork() {
         if (this._config.hosts !== undefined && this.variant !== undefined && this.variant.split(":").length > 2) {
             const [chromosome, position, reference, alternate] = this.variant.split(":");
-            $(".loading-spinner").css("display", "block");
+            $(".beacon-loading-spinner", this).css("display", "block");
             //$("#" + this._prefix + "spinGif").show();
             // url to search : https://beacon-network.org/api/responses?allele=C&beacon=[cosmic]&chrom=1&pos=99999&ref=GRCh37
             // TODO: Assembly is hardcoded for now. It has to be taken care in the future
@@ -89,7 +96,10 @@ export default class VariantBeaconNetwork extends LitElement {
                             for (const r of response) {
                                 console.log(r);
                                 const host = this.querySelector("." + this._prefix + this._config.hosts[i]);
-                                host.querySelector(".loading-spinner").style.display = "none";
+                                console.log("host", host)
+                                if (host) {
+                                    host.querySelector(".beacon-loading-spinner").style.display = "none";
+                                }
                                 host.classList.add(r.response || "false");
                                 if (r.response === null) {
                                     // null from server
@@ -131,30 +141,32 @@ export default class VariantBeaconNetwork extends LitElement {
             flex-flow: column;
             transition: all .7s ease-in-out;
         }
+        
         .beacon-square.false {
             background: #cfffc7;
         }
+        
         .beacon-square.true {
-            background: red;
+            background: #ff3030;
         }
         
-        #variant-beacon-network .loading-spinner {
+        #variant-beacon-network .beacon-loading-spinner {
             display: none;
         }
         
         </style>
-
         <div id="variant-beacon-network">
             <div>
                 <p>Beacon Network is a search engine across the world's public beacons. You can find it here <a href="https://beacon-network.org">beacon-network.org</a>.</p>
                 <br>
                 <button class="btn btn-primary ripple" type="button" @click="${this.searchBeaconNetwork}">Search Beacon Network</button>
             </div>
-
-            ${this._config.hosts && this._config.hosts.length && this._config.hosts.map( item => html`
-                <div class="beacon-square ${this._prefix}${item} shadow-sm">
+            ${this._config.hosts && this._config.hosts.length && this._config.hosts.map(item => html`
+                <div class="beacon-square host ${this._prefix}${item} shadow-sm">
                     <span>${item}</span>
-                    <span id="${this._prefix}${item}" class="beaconResponse"><i class="fa fa-spinner fa-spin loading-spinner" aria-hidden="true"></i></span>
+                    <span id="${this._prefix}${item}" class="beaconResponse badge">
+                    </span>
+                    <i class="fa fa-spinner fa-spin beacon-loading-spinner" aria-hidden="true"></i>
                 </div> 
             `)}
         </div>
