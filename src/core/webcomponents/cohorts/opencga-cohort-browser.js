@@ -190,77 +190,87 @@ export default class OpencgaCohortBrowser extends LitElement {
                 }
             },
             aggregation: {
-                default: ["name"],
+                default: ["creationYear>>creationMonth", "status", "numSamples[0..10]:1"],
                 result: {
                     numColumns: 2
                 },
                 sections: [
                     {
-                        name: "section title",
+                        name: "Cohort Attributes",
                         fields: [
                             {
-                                id: "study",
-                                name: "study",
+                                id: "studyId",
+                                name: "Study id",
                                 type: "string",
                                 description: "Study [[user@]project:]study where study and project can be either the ID or UUID"
                             },
                             {
-                                id: "type",
-                                name: "type",
-                                type: "string",
-                                description: "type"
-                            },
-                            {
                                 id: "creationYear",
-                                name: "creationYear",
+                                name: "Creation Year",
                                 type: "string",
                                 description: "Creation year"
                             },
                             {
                                 id: "creationMonth",
-                                name: "creationMonth",
-                                type: "string",
+                                name: "Creation Month",
+                                type: "category",
+                                allowedValues: ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"],
                                 description: "Creation month (JANUARY, FEBRUARY...)"
                             },
                             {
                                 id: "creationDay",
-                                name: "creationDay",
-                                type: "string",
+                                name: "Creation Day",
+                                type: "category",
+                                allowedValues: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"],
                                 description: "Creation day"
                             },
                             {
                                 id: "creationDayOfWeek",
-                                name: "creationDayOfWeek",
-                                type: "string",
+                                name: "Creation Day Of Week",
+                                type: "category",
+                                allowedValues: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"],
                                 description: "Creation day of week (MONDAY, TUESDAY...)"
                             },
                             {
-                                id: "numSamples",
-                                name: "numSamples",
-                                type: "string",
-                                description: "Number of samples"
-                            },
-                            {
                                 id: "status",
-                                name: "status",
-                                type: "string",
+                                name: "Status",
+                                type: "category",
+                                allowedValues: ["READY", "DELETED", "TRASHED", "STAGE", "MISSING", "PENDING_DELETE", "DELETING", "REMOVED"],
                                 description: "Status"
                             },
                             {
                                 id: "release",
-                                name: "release",
+                                name: "Release",
                                 type: "string",
                                 description: "Release"
                             },
                             {
-                                id: "annotation",
-                                name: "annotation",
-                                type: "string",
-                                description: "Annotation, e.g: key1=value(,key2=value)"
+                                id: "type",
+                                name: "Type",
+                                type: "category",
+                                allowedValues: ["CASE_CONTROL", "CASE_SET", "CONTROL_SET", "PAIRED", "PAIRED_TUMOR", "AGGREGATE", "TIME_SERIES", "FAMILY", "TRIO", "COLLECTION"],
+                                description: "Type"
                             },
                             {
+                                id: "numSamples",
+                                name: "Number Of Samples",
+                                type: "string",
+                                description: "Number of samples"
+                            },
+                            {
+                                id: "annotations",
+                                name: "Aannotations",
+                                type: "string",
+                                description: "Annotations, e.g: key1=value(,key2=value)"
+                            }
+                        ]
+                    },
+                    {
+                        name: "Advanced",
+                        fields: [
+                            {
                                 id: "field",
-                                name: "field",
+                                name: "Field",
                                 type: "string",
                                 description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
                             }

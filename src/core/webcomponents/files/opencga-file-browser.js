@@ -204,7 +204,7 @@ export default class OpencgaFileBrowser extends LitElement {
                 }
             },
             aggregation: {
-                default: ["type", "format"],
+                default: ["creationYear>>creationMonth", "format", "bioformat", "format>>bioformat", "status", "size[0..214748364800]:10737418240", "numSamples[0..10]:1"],
                 result: {
                     numColumns: 2
                 },
@@ -214,21 +214,62 @@ export default class OpencgaFileBrowser extends LitElement {
                         // collapsed: false,
                         fields: [
                             {
-                                id: "study",
-                                name: "study",
+                                id: "studyId",
+                                name: "Study id",
                                 type: "string",
                                 description: "Study [[user@]project:]study where study and project can be either the ID or UUID"
                             },
                             {
+                                id: "creationYear",
+                                name: "Creation Year",
+                                type: "string",
+                                description: "Creation year"
+                            },
+                            {
+                                id: "creationMonth",
+                                name: "Creation Month",
+                                type: "category",
+                                allowedValues: ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"],
+                                description: "Creation month (JANUARY, FEBRUARY...)"
+                            },
+                            {
+                                id: "creationDay",
+                                name: "Creation Day",
+                                type: "category",
+                                allowedValues: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"],
+                                description: "Creation day"
+                            },
+                            {
+                                id: "creationDayOfWeek",
+                                name: "Creation Day Of Week",
+                                type: "category",
+                                allowedValues: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"],
+                                description: "Creation day of week (MONDAY, TUESDAY...)"
+                            },
+                            {
+                                id: "status",
+                                name: "Status",
+                                type: "category",
+                                allowedValues: ["READY", "DELETED", "TRASHED", "STAGE", "MISSING", "PENDING_DELETE", "DELETING", "REMOVED"],
+                                description: "Status"
+                            },
+                            {
+                                id: "release",
+                                name: "Release",
+                                type: "string",
+                                description: "Release"
+                            },
+                            {
                                 id: "name",
-                                name: "name",
+                                name: "Name",
                                 type: "string",
                                 description: "Name"
                             },
                             {
                                 id: "type",
-                                name: "type",
-                                type: "string",
+                                name: "Type",
+                                type: "category",
+                                allowedValues: ["FILE", "DIRECTORY"],
                                 description: "Type"
                             },
                             {
@@ -236,54 +277,18 @@ export default class OpencgaFileBrowser extends LitElement {
                                 name: "Format",
                                 type: "category",
                                 allowedValues: ["VCF", "BCF", "GVCF", "TBI", "BIGWIG", "SAM", "BAM", "BAI", "CRAM", "CRAI", "FASTQ", "FASTA", "PED", "TAB_SEPARATED_VALUES", "COMMA_SEPARATED_VALUES", "XML", "PROTOCOL_BUFFER", "JSON", "AVRO", "PARQUET", "IMAGE", "PLAIN", "BINARY", "EXECUTABLE", "GZIP", "NONE", "UNKNOWN"],
-                                placeholder: "genomes/resources/files/...",
-                                description: ""
+                                description: "Format"
                             },
                             {
                                 id: "bioformat",
-                                name: "bioformat",
-                                type: "string",
+                                name: "Bioformat",
+                                type: "category",
+                                allowedValues: ["MICROARRAY_EXPRESSION_ONECHANNEL_AGILENT", "MICROARRAY_EXPRESSION_ONECHANNEL_AFFYMETRIX", "MICROARRAY_EXPRESSION_ONECHANNEL_GENEPIX", "MICROARRAY_EXPRESSION_TWOCHANNELS_AGILENT", "MICROARRAY_EXPRESSION_TWOCHANNELS_GENEPIX", "DATAMATRIX_EXPRESSION", "IDLIST", "IDLIST_RANKED", "ANNOTATION_GENEVSANNOTATION", "OTHER_NEWICK", "OTHER_BLAST", "OTHER_INTERACTION", "OTHER_GENOTYPE", "OTHER_PLINK", "OTHER_VCF", "OTHER_PED", "VARIANT", "ALIGNMENT", "COVERAGE", "SEQUENCE", "PEDIGREE", "REFERENCE_GENOME", "NONE", "UNKNOWN"],
                                 description: "Bioformat"
                             },
                             {
-                                id: "creationYear",
-                                name: "creationYear",
-                                type: "string",
-                                description: "Creation year"
-                            },
-                            {
-                                id: "creationMonth",
-                                name: "creationMonth",
-                                type: "string",
-                                description: "Creation month (JANUARY, FEBRUARY...)"
-                            },
-                            {
-                                id: "creationDay",
-                                name: "creationDay",
-                                type: "string",
-                                description: "Creation day"
-                            },
-                            {
-                                id: "creationDayOfWeek",
-                                name: "creationDayOfWeek",
-                                type: "string",
-                                description: "Creation day of week (MONDAY, TUESDAY...)"
-                            },
-                            {
-                                id: "status",
-                                name: "status",
-                                type: "string",
-                                description: "Status"
-                            },
-                            {
-                                id: "release",
-                                name: "release",
-                                type: "string",
-                                description: "Release"
-                            },
-                            {
                                 id: "external",
-                                name: "external",
+                                name: "External",
                                 type: "category",
                                 allowedValues: ["true", "false"],
                                 defaultValue: "false",
@@ -291,39 +296,99 @@ export default class OpencgaFileBrowser extends LitElement {
                             },
                             {
                                 id: "size",
-                                name: "size",
+                                name: "Size",
                                 type: "string",
                                 description: "Size"
                             },
                             {
-                                id: "software",
-                                name: "software",
+                                id: "softwareName",
+                                name: "Software Name",
                                 type: "string",
-                                description: "Software"
+                                description: "Software name"
                             },
                             {
-                                id: "experiment",
-                                name: "experiment",
+                                id: "softwareVersion",
+                                name: "Software Version",
                                 type: "string",
-                                description: "Experiment"
+                                description: "Software version"
+                            },
+                            {
+                                id: "experimentTechnology",
+                                name: "Experiment Technology",
+                                type: "string",
+                                description: "Experiment technology"
+                            },
+                            {
+                                id: "experimentMethod",
+                                name: "Experiment Method",
+                                type: "string",
+                                description: "Experiment method"
+                            },
+                            {
+                                id: "experimentNucleicAcidType",
+                                name: "Experiment Nucleic Acid Type",
+                                type: "string",
+                                description: "Experiment nucleic acid type"
+                            },
+                            {
+                                id: "experimentManufacturer",
+                                name: "Experiment Manufacturer",
+                                type: "string",
+                                description: "Experiment manufacturer"
+                            },
+                            {
+                                id: "experimentPlatform",
+                                name: "Experiment Platform",
+                                type: "string",
+                                description: "Experiment platform"
+                            },
+                            {
+                                id: "experimentLibrary",
+                                name: "Experiment Library",
+                                type: "string",
+                                description: "Experiment library"
+                            },
+                            {
+                                id: "experimentCenter",
+                                name: "Experiment Center",
+                                type: "string",
+                                description: "Experiment center"
+                            },
+                            {
+                                id: "experimentLab",
+                                name: "Experiment Lab",
+                                type: "string",
+                                description: "Experiment lab"
+                            },
+                            {
+                                id: "experimentResponsible",
+                                name: "Experiment Responsible",
+                                type: "string",
+                                description: "Experiment responsible"
+                            },
+                            {
+                                id: "tags",
+                                name: "Tags",
+                                type: "string",
+                                description: "Tags"
                             },
                             {
                                 id: "numSamples",
-                                name: "numSamples",
+                                name: "Number Of Samples",
                                 type: "string",
                                 description: "Number of samples"
                             },
                             {
                                 id: "numRelatedFiles",
-                                name: "numRelatedFiles",
+                                name: "Number Of Related Files",
                                 type: "string",
                                 description: "Number of related files"
                             },
                             {
-                                id: "annotation",
-                                name: "annotation",
+                                id: "annotations",
+                                name: "Annotations",
                                 type: "string",
-                                description: "Annotation, e.g: key1=value(,key2=value)"
+                                description: "Annotations, e.g: key1=value(,key2=value)"
                             }
                         ]
                     },
@@ -332,7 +397,7 @@ export default class OpencgaFileBrowser extends LitElement {
                         fields: [
                             {
                                 id: "field",
-                                name: "field",
+                                name: "Field",
                                 type: "string",
                                 description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
                             }
