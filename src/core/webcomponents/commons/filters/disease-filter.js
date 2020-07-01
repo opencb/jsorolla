@@ -174,29 +174,9 @@ export default class DiseaseFilter extends LitElement {
             }
             return 0;
         });
-        
+
         debugger
-        if (this.mode !== "gene") {
-            return html`
-                <div>
-                    <select id="${this._prefix}DiseasePanels" class="selectpicker" data-size="10" data-live-search="true" data-selected-text-format="count" multiple @change="${this.filterChange}">
-                        ${this.diseasePanels && this.diseasePanels.length && this.diseasePanels.map(panel => html`
-                            <option value="${panel.id}">
-                                ${panel.name}
-                                ${panel.source ? ` - ${panel.source.project || panel.source.id} ${panel.source.version ? "v" + panel.source.version : ""}` : ""}
-                                ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}
-                            </option>
-                        `)}
-                    </select>
-                    
-                    ${this._config.showSummary
-                ? html`
-                    <textarea id="${this._prefix}DiseasePanelsTextarea" class="form-control" rows="4" style="margin-top: 5px;background: #f7f7f7" disabled> </textarea>`
-                : null
-            }
-                </div>
-        `;
-        } else {
+        if (this.mode === "gene") {
             return html`
                 <div class="row">
                     <div class="col-md-4">
@@ -204,7 +184,7 @@ export default class DiseaseFilter extends LitElement {
                             ${this.diseasePanels && this.diseasePanels.length && this.diseasePanels.map(panel => html`
                                 <option value="${panel.id}">
                                     ${panel.name}
-                                    ${panel.source ? "v" + panel.source.version : ""}
+                                    ${panel.source ? ` - ${panel.source.project || panel.source.id} ${panel.source.version ? "v" + panel.source.version : ""}` : ""}
                                     ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}
                                 </option>
                             `)}
@@ -222,18 +202,18 @@ export default class DiseaseFilter extends LitElement {
                         ${this.diseasePanels && this.diseasePanels.length && this.diseasePanels.map(panel => html`
                             <option value="${panel.id}">
                                 ${panel.name}
-                                ${panel.source ? "v" + panel.source.version : ""}
+                                ${panel.source ? ` - ${panel.source.project || panel.source.id} ${panel.source.version ? "v" + panel.source.version : ""}` : ""}
                                 ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}
                             </option>
                         `)}
                     </select>
-                    
-                ${this._config.showSummary
-                    ? html`
-                        <textarea id="${this._prefix}DiseasePanelsTextarea" class="form-control" rows="4" style="margin-top: 5px;background: #f7f7f7" disabled> </textarea>`
-                    : null
-                }
-                </div>`;
+                    ${this._config.showSummary
+                        ? html`
+                            <textarea id="${this._prefix}DiseasePanelsTextarea" class="form-control" rows="4" style="margin-top: 5px;background: #f7f7f7" disabled> </textarea>`
+                        : null
+                    }
+                </div>
+        `;
         }
 
         // return html`
