@@ -112,9 +112,12 @@ export default class OpencgaVariantGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") || changedProperties.has("data")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("data")) {
             this.propertyObserver();
             this.renderVariants();
+        }
+        if (changedProperties.has("config")) {
+            this._config = Object.assign(this.getDefaultConfig(), this.config);
         }
     }
 
@@ -159,11 +162,12 @@ export default class OpencgaVariantGrid extends LitElement {
         // } else {
         //     this.renderVariantTable();
         // }
+        this.requestUpdate();
     }
 
     renderVariantTable() {
         this.from = 1;
-        this.to = 10;
+        this.to = this._config.pageSize;
         this.approximateCountResult = false;
 
         // TODO quickfix. The check on query is required because the study is in the query object. A request without the study returns the error "Multiple projects found"
@@ -212,13 +216,14 @@ export default class OpencgaVariantGrid extends LitElement {
                     // }
 
                     this.opencgaSession.opencgaClient.variants().query(filters)
-                        .then( res => params.success(res));
+                        .then( res => params.success(res))
+                        .catch( e => console.error(e));
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     this.from = result.from || this.from;
                     this.to = result.to || this.to;
-                    this.numTotalResultsText = result.numTotalResultsText;
+                    this.numTotalResultsText = result.numTotalResultsText || this.numTotalResultsText;
                     this.approximateCountResult = result.approximateCountResult;
                     this.requestUpdate();
                     return result.response;
@@ -858,7 +863,6 @@ export default class OpencgaVariantGrid extends LitElement {
         let isCohortPresent = false;
         // if (typeof this._columns !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0
         //     && this.config.filter.menu.skipSubsections !== undefined && !this.config.filter.menu.skipSubsections.includes("cohort")) {
-        debugger
         if (typeof this._columns !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0 &&
             typeof this.cohorts[this.opencgaSession.project.id] !== "undefined") {
             isCohortPresent = true;

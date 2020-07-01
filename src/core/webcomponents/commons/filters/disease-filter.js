@@ -175,7 +175,6 @@ export default class DiseaseFilter extends LitElement {
             return 0;
         });
 
-        debugger
         if (this.mode === "gene") {
             return html`
                 <div class="row">

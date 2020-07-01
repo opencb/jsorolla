@@ -172,6 +172,7 @@ export default class OpencgaVariantBrowser extends LitElement {
         }
         this._config = _tempConfig;
     }
+
     queryObserver() {
         // Query passed is executed and set to variant-filter, active-filters and variant-grid components
         // (it checks just for undefined, empty object is a valid value)
