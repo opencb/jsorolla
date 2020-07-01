@@ -64,6 +64,16 @@ export default class OpencgaProjects extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
+
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+        }
+    }
+
+    opencgaSessionObserver() {
         this.filesCount = new CountUp("files-count", 0);
         this.filesCount.start();
         this.samplesCount = new CountUp("samples-count", 0);
@@ -79,27 +89,7 @@ export default class OpencgaProjects extends LitElement {
 
         // this.loadHighcharts();
         // firstUpdated() like every other props related methods is executed once for each prop
-        if (!this.requestDone) {
-            this.facetQuery();
-            this.requestDone = true;
-        }
-    }
-
-    updated(changedProperties) {
-        if (changedProperties.has("projects")) {
-            // this.projectsChanged();
-        }
-        if (changedProperties.has("studySummaries")) {
-            this.summariesChanged();
-        }
-    }
-
-    _isFirstRow(indexStudy) {
-        if (UtilsNew.isNotUndefinedOrNull(indexStudy) && indexStudy === 0) {
-            return "block";
-        }
-
-        return "none";
+        this.facetQuery();
     }
 
     _changeBottomTab(e) {
@@ -112,212 +102,10 @@ export default class OpencgaProjects extends LitElement {
         this.activeTab[tabId] = true;
         this.requestUpdate();
     }
-    /*
-    loadHighcharts() {
-
-        const colors = Highcharts.getOptions().colors;
-
-        //                    let categories = ['MSIE', 'Firefox', 'Chrome', 'Safari', 'Opera'];
-        const categories = this.projects.map(element => {
-            return element.name;
-        });
-        const data = [];
-        const _this = this;
-        const total = 0;
-        const numberOfStudies = this.projects.reduce((total, element) => {
-            return total + element.studies.length;
-        }, 0);
-
-        this.projects.forEach((element, index) => {
-            const studies = element.studies.map(study => {
-                return study.name;
-            });
-            const creationDate = element.studies.map(study => {
-                return study.creationDate;
-            });
-
-            const projectPercent = studies.length * 100 / numberOfStudies;
-            data.push({
-                y: projectPercent,
-                color: colors[index],
-                drilldown: {
-                    name: element.name,
-                    categories: studies,
-                    color: colors[0],
-                    data: element.studies.map(study => {
-                        return projectPercent / studies.length;
-                    }),
-                    creationDate: creationDate
-                }
-            });
-        });
-        const browserData = [];
-        const versionsData = [];
-        let i;
-        let j;
-        const dataLen = categories.length;
-        let drillDataLen;
-        let brightness;
-
-
-        // Build the data arrays
-        for (i = 0; i < dataLen; i += 1) {
-
-            // add browser data
-            browserData.push({
-                name: categories[i],
-                y: data[i].y,
-                color: data[i].color
-            });
-
-            // add version data
-            drillDataLen = data[i].drilldown.data.length;
-            for (j = 0; j < drillDataLen; j += 1) {
-                brightness = 0.2 - (j / drillDataLen) / 5;
-                versionsData.push({
-                    name: data[i].drilldown.categories[j],
-                    y: data[i].drilldown.data[j],
-                    color: Highcharts.Color(data[i].color).brighten(brightness).get(),
-                    creationDate: data[i].drilldown.creationDate[j]
-                });
-            }
-        }
-
-        // Create the chart
-        Highcharts.chart("containerChart", {
-            chart: {
-                type: "pie"
-            },
-            title: {
-                text: "Iva Projects"
-            },
-            subtitle: {
-                text: "<a href=\"https://github.com/opencb\">OpenCB</a>"
-            },
-            yAxis: {
-                title: {
-                    text: "Total percent market share"
-                }
-            },
-            plotOptions: {
-                pie: {
-                    shadow: false,
-                    center: ["50%", "50%"],
-                    size: 100
-                }
-            },
-            tooltip: {
-                valueSuffix: "%",
-                formatter: function() {
-                    let s = "<b>" + this.key + "</b>";
-
-                    s += "<br/>" + this.percentage.toFixed(2) + "%";
-                    if (UtilsNew.isNotUndefinedOrNull(this.point.creationDate)) {
-                        s += "<br/>" + moment(this.point.creationDate, "YYYYMMDDHHmmss").format("HH:mm:ss MMM/D/YY");
-                    }
-                    return s;
-                },
-                footerFormat: true
-
-            },
-            series: [{
-                name: "Browsddders",
-                data: browserData,
-                size: "60%",
-                dataLabels: {
-                    formatter: function() {
-                        return this.y > 5 ? this.point.name : null;
-                    },
-                    color: "#ffffff",
-                    distance: -30
-                }
-            }, {
-                name: "Versions",
-                data: versionsData,
-                size: "80%",
-                innerSize: "60%",
-                dataLabels: {
-                    formatter: function() {
-                        // display only if larger than 1
-                        return this.y > 1 ? "<b>" + this.point.name + "</b> ": null;
-                    }
-                },
-                id: "versions"
-            }],
-            responsive: {
-                rules: [{
-                    condition: {
-                        maxWidth: 800
-                    },
-                    chartOptions: {
-                        series: [{
-                            id: "versions",
-                            dataLabels: {
-                                enabled: false
-                            }
-                        }]
-                    }
-                }]
-            }
-        });
-    }*/
-
-    /*
-    projectsChanged() {
-        if (UtilsNew.isNotUndefined(this.opencgaClient) && this.opencgaClient instanceof OpenCGAClient &&
-            UtilsNew.isNotUndefined(this.projects) && this.projects.length > 0) {
-            const _this = this;
-
-            if (true) {
-                const projectPromises = [];
-                this.projects.forEach(function(project) {
-                    const studyPromises = [];
-                    project.studies.forEach(function(study) {
-                        const studyPromise = _this.opencgaClient.studies().summary(project.alias + ":" + study.alias)
-                            .then(function(response) {
-                                // We add the id to the summary
-                                response.response[0].result[0].id = this.studyId;
-                                response.response[0].result[0].acl = study.acl;
-                                return response;
-                            }.bind({studyId: study.id}));
-                        studyPromises.push(studyPromise);
-                    });
-                    projectPromises.push(Promise.all(studyPromises)
-                        .then(function(responses) {
-                            const studies = [];
-                            responses.forEach(function(response) {
-                                const study = response.response[0].result[0];
-                                study.creationDate = moment(study.creationDate, "YYYYMMDDHHmmss").format("D MMM YY");
-                                studies.push(study);
-                            });
-                            return studies;
-                        }));
-                });
-
-                const _studySummaries = [];
-                Promise.all(projectPromises)
-                    .then(function(responses) {
-                        for (let i = 0; i < responses.length; i++) {
-                            _studySummaries.push({
-                                id: _this.projects[i].id,
-                                alias: _this.projects[i].alias,
-                                name: _this.projects[i].name,
-                                rowspan: responses[i].length + 1,
-                                studies: responses[i]
-                            });
-                        }
-                        _this.loadHighcharts();
-                        _this.renderTable(_studySummaries);
-                        _this.requestUpdate();
-                    });
-            }
-        }
-    }*/
 
     async facetQuery() {
         // this.clearPlots();
-        console.log("projects", this.projects);
-        console.log("this.opencgaSession", this.opencgaSession);
+        console.log("this.opencgaSession", this.opencgaSession.projects);
         this.querySelector("#loading").style.display = "block";
         const sleep = s => new Promise(resolve => setTimeout(() => resolve(), s * 1000));
         this.errors = "";
@@ -325,7 +113,7 @@ export default class OpencgaProjects extends LitElement {
         const _this = this;
 
         let done = 0;
-        this.projects.forEach(project => {
+        this.opencgaSession.projects.forEach(project => {
             // let studyPromises = [];
             console.log("prj", project);
             this.data[project.id] = {
@@ -384,7 +172,7 @@ export default class OpencgaProjects extends LitElement {
                     this.errors += `Unknown error requiring stats for ${project.name}\n`;
                 }
             }).finally( () => {
-                if (++done === this.projects.length) {
+                if (++done === this.opencgaSession.projects.length) {
                     this.querySelector("#loading").style.display = "none";
                 }
                 this.requestUpdate();

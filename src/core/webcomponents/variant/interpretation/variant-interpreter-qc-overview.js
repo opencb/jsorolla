@@ -171,29 +171,13 @@ class VariantInterpreterQcOverview extends LitElement {
 
         return html`
             <style>
-                .variant-interpreter-overview .side-nav button{
-                    padding: 15px;
-                }
-                
-                .variant-interpreter-overview .side-nav button.active {
-                    padding: 15px;
-                    font-weight: bold;
-                    background-color: #EEEEEE;
-                    color: #555;
-                    border-color: #ddd #ddd #ddd var(--main-bg-color);
-                }
-                
-                .variant-interpreter-overview .side-nav button:focus {
-                    border-color: #ddd;
-                    outline: 0;
-                }
                 
             </style>
             <div class="row variant-interpreter-overview" style="margin: 10px">
                 <div class="col-md-9 col-md-offset-2">
                     <h2>Quality Control Overview</h2>
                 </div>
-                <div class="col-md-2 list-group interpreter-side-nav side-nav">
+                <div class="col-md-2 list-group interpreter-side-nav side-tabs side-nav">
                     <button type="button" class="list-group-item active" 
                           data-id="Summary" @click="${this.onSideNavClick}">Summary</button>
                     <button type="button" class="list-group-item" 
