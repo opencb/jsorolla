@@ -55,7 +55,7 @@ export default class DataForm extends LitElement {
     firstUpdated(_changedProperties) {
 
         $("#" + this._prefix + "DuePickerDate").datetimepicker({
-            format: "YYYYMMDDHHmmss"
+            format: "DD/MM/YYYY"
         });
         $("#" + this._prefix + "DuePickerDate").on("dp.change", (e) => {
              this.onFilterChange(e.currentTarget.dataset.field, e.date.format("YYYYMMDDHHmmss"));
@@ -424,9 +424,13 @@ export default class DataForm extends LitElement {
     _createInputDateElement(element) {
         let value = this.getValue(element.field) || this._getDefaultValue(element);
         if (typeof value !== "undefined" && value !== null) {
-            let date = this.querySelector("#" + this._prefix + "DueDate");
-            if (date) {
-                date.value = value;
+            let inputDate = this.querySelector("#" + this._prefix + "DueDate");
+            if (inputDate) {
+                if(typeof element?.display?.render === "function") {
+                    inputDate.value = element.display.render(value);
+                } else {
+                    inputDate.value = value;
+                }
             }
         }
         let disabled = this._getBooleanValue(element.display.disabled, false);

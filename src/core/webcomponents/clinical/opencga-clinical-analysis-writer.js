@@ -343,9 +343,9 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 type: "input-date",
                                 defaultValue: moment().format("YYYYMMDDHHmmss"),
                                 display: {
-                                    // width: 9,
+                                    render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
                                 }
-                            },
+                            }
 
                         ]
                     ]
