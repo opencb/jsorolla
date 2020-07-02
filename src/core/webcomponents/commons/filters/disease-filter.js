@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 
-// TODO proper functionality check
+
 export default class DiseaseFilter extends LitElement {
 
     constructor() {
@@ -38,12 +38,11 @@ export default class DiseaseFilter extends LitElement {
                 type: Object
             },
             panel: {
-                 type: Array
+                type: Array
             },
             diseasePanels: {
                 type: Array
             },
-            // },
             mode: {
                 type: String
             },
@@ -55,43 +54,25 @@ export default class DiseaseFilter extends LitElement {
 
     _init() {
         this._prefix = "ff-" + UtilsNew.randomString(6) + "_";
-        this._panel = [];
-        this._config = this.getDefaultConfig();
+        this.panel = [];
         this.genes = [];
     }
 
-    firstUpdated(_changedProperties) {
-        $(`select#${this._prefix}DiseasePanels`).selectpicker("render");
-        $(`select#${this._prefix}DiseasePanels`).selectpicker({
-            iconBase: "fa",
-            tickIcon: "fa-check"
-        });
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
 
-        if (this.mode === "gene") {
-            $(`select#${this._prefix}Genes`).selectpicker("render");
-            $(`select#${this._prefix}Genes`).selectpicker({
-                iconBase: "fa",
-                tickIcon: "fa-check"
-            });
-        }
     }
 
     updated(changedProperties) {
         if (changedProperties.has("panel") ) {
-            // TODO fix this
-            //console.error("this.panel", this.panel)
-            //$("#" + this._prefix + "DiseasePanels").val("val", this.panel.split(",") || [])
         }
 
         if (changedProperties.has("diseasePanels") ) {
             if (this.diseasePanels) {
                 this.genes = this.diseasePanels?.[0]?.genes ?? [];
-                this.requestUpdate().then(() => $(`select#${this._prefix}DiseasePanels`, this).selectpicker("refresh"));
+                this.requestUpdate();
             }
-        }
-
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 
@@ -126,12 +107,9 @@ export default class DiseaseFilter extends LitElement {
     }
 
     panelChange(e) {
-        const select_vals = $("#" + this._prefix + "DiseasePanels").val() || null;
-
+        const select_vals = e.detail.value || null;
         this.genes = this.diseasePanels.find( diseasePanel => diseasePanel.id === select_vals)?.genes ?? [];
-        // let genes = this.genes.map(gene => gene.name);
-        // $(`select#${this._prefix}Genes`).selectpicker('val', genes);
-        this.requestUpdate().then( () => $(`select#${this._prefix}Genes`).selectpicker("refresh"));
+        this.requestUpdate();
     }
 
     filterChange(e) {
@@ -162,7 +140,7 @@ export default class DiseaseFilter extends LitElement {
     }
 
     render() {
-        this.diseasePanels = this.diseasePanels.sort( (a, b) => {
+        this.diseasePanels.sort( (a, b) => {
             if (a.name < b.name) {
                 return -1;
             }
@@ -172,49 +150,31 @@ export default class DiseaseFilter extends LitElement {
             return 0;
         });
 
+        const opts = this.diseasePanels.map(panel => ({
+            id: panel.id,
+            name: `${panel.name}
+                          ${panel.source ? ` - ${panel.source.project || panel.source.id} ${panel.source.version ? "v" + panel.source.version : ""}` : ""}
+                          ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}`
+        }))
+
         if (this.mode === "gene") {
             return html`
                 <div class="row">
                     <div class="col-md-4">
-                        <select id="${this._prefix}DiseasePanels" class="selectpicker" data-size="10" data-live-search="true" @change="${this.panelChange}">
-                            ${this.diseasePanels && this.diseasePanels.length && this.diseasePanels.map(panel => html`
-                                <option value="${panel.id}">
-                                    ${panel.name}
-                                    ${panel.source ? ` - ${panel.source.project || panel.source.id} ${panel.source.version ? "v" + panel.source.version : ""}` : ""}
-                                    ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}
-                                </option>
-                            `)}
-                        </select>
+                        <select-field-filter .liveSearch=${"true"} .data="${opts}" .value=${this.panel} @filterChange="${this.panelChange}"></select-field-filter>
                     </div>
                     <div class="col-md-4">
-                        <select-field-filter .data="${this.genes.map( gene => ({id:gene.name, name: `${gene.name} (${gene.id})`}))}" @filterChange="${e => console.log(e)}"></select-field-filter>
+                        <select-field-filter .data="${this.genes.map( gene => ({id:gene.name, name: `${gene.name} (${gene.id})`}))}" @filterChange="${this.filterChange}"></select-field-filter>
                     </div>
                 </div>
             `;
         } else {
-            const opts = this.diseasePanels.map(panel => ({
-                    id: panel.id,
-                    name: `${panel.name}
-                          ${panel.source ? ` - ${panel.source.project || panel.source.id} ${panel.source.version ? "v" + panel.source.version : ""}` : ""}
-                          ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}`
-            }))
-
             return html`
                 <div>
-                    <!-- <select-field-filter multiple .liveSearch=${"true"} .data="${opts}" .value=${this.panel} @filterChange="${this.filterChange}"></select-field-filter> -->
-
-                    <select id="${this._prefix}DiseasePanels" class="selectpicker" data-size="10" data-live-search="true" data-selected-text-format="count" multiple @change="${this.filterChange}">
-                        ${this.diseasePanels && this.diseasePanels.length && this.diseasePanels.map(panel => html`
-                            <option value="${panel.id}">
-                                ${panel.name}
-                                ${panel.source ? ` - ${panel.source.project || panel.source.id} ${panel.source.version ? "v" + panel.source.version : ""}` : ""}
-                                ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}
-                            </option>
-                        `)}
-                    </select>
+                    <select-field-filter multiple .liveSearch=${"true"} .data="${opts}" .value=${this.panel} @filterChange="${this.filterChange}"></select-field-filter>
                     ${this._config.showSummary
                         ? html`
-                            <textarea id="${this._prefix}DiseasePanelsTextarea" class="form-control" rows="4" style="margin-top: 5px;background: #f7f7f7" disabled> </textarea>`
+                            <textarea class="form-control" rows="4" style="margin-top: 5px;background: #f7f7f7" disabled>${this.panel}</textarea>`
                         : null
                     }
                 </div>
