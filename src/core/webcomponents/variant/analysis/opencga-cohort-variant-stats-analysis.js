@@ -92,7 +92,13 @@ export default class OpencgaCohortVariantStatsAnalysis extends LitElement {
                                 type: "SAMPLE_FILTER",
                                 showList: true,
                                 fileUpload: true
-                            },
+                            }
+                        ]
+                    },
+                    {
+                        title: "Configuration Parameters",
+                        collapsed: false,
+                        parameters: [
                             {
                                 id: "sampleAnnotation",
                                 title: "Samples query selecting samples of the control cohort, e.g.: age>30;gender=FEMALE",

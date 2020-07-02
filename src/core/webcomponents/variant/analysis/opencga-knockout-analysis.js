@@ -89,7 +89,14 @@ export default class OpencgaKnockoutAnalysis extends LitElement {
                             {
                                 id: "gene",
                                 title: "Select gene",
-                                type: "text",
+                                type: "text"
+                            },
+                            {
+                                id: "panel",
+                                title: "Select panel",
+                                type: "PANEL_FILTER",
+                                showList: true,
+                                fileUpload: true
                             }
                         ]
                     },
@@ -100,11 +107,6 @@ export default class OpencgaKnockoutAnalysis extends LitElement {
                             {
                                 id: "biotype",
                                 title: "Select biotype",
-                                type: "text",
-                            },
-                            {
-                                id: "gene",
-                                title: "Select gene",
                                 type: "category",
                                 defaultValue: "protein_coding",
                                 allowedValues: ["3prime_overlapping_ncrna", "IG_C_gene", "IG_C_pseudogene", "IG_D_gene", "IG_J_gene",
@@ -114,31 +116,22 @@ export default class OpencgaKnockoutAnalysis extends LitElement {
                                     "processed_transcript", "protein_coding", "pseudogene", "rRNA", "retained_intron", "sense_intronic",
                                     "sense_overlapping", "snRNA", "snoRNA", "transcribed_processed_pseudogene", "transcribed_unprocessed_pseudogene",
                                     "translated_processed_pseudogene", "unitary_pseudogene", "unprocessed_pseudogene"
-                                ],
+                                ]
                             },
                             {
                                 id: "consequenceType",
                                 title: "Select consequence type",
-                                type: "category",
-                                defaultValue: "protein_coding",
-                                allowedValues: ["3prime_overlapping_ncrna", "IG_C_gene", "IG_C_pseudogene", "IG_D_gene", "IG_J_gene",
-                                    "IG_J_pseudogene", "IG_V_gene", "IG_V_pseudogene", "Mt_rRNA", "Mt_tRNA", "TR_C_gene", "TR_D_gene",
-                                    "TR_J_gene", "TR_J_pseudogene", "TR_V_gene", "TR_V_pseudogene", "antisense", "lincRNA", "miRNA",
-                                    "misc_RNA", "non_stop_decay", "nonsense_mediated_decay", "polymorphic_pseudogene", "processed_pseudogene",
-                                    "processed_transcript", "protein_coding", "pseudogene", "rRNA", "retained_intron", "sense_intronic",
-                                    "sense_overlapping", "snRNA", "snoRNA", "transcribed_processed_pseudogene", "transcribed_unprocessed_pseudogene",
-                                    "translated_processed_pseudogene", "unitary_pseudogene", "unprocessed_pseudogene"
-                                ],
+                                type: "text"
                             },
                             {
                                 id: "filter",
                                 title: "Select filter",
-                                type: "text",
+                                type: "text"
                             },
                             {
                                 id: "qual",
-                                title: "Select qual",
-                                type: "number",
+                                title: "Select quality",
+                                type: "number"
                             }
                         ]
                     }

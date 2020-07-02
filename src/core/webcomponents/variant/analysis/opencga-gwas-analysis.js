@@ -76,19 +76,34 @@ export default class OpencgaGwasAnalysis extends LitElement {
             form: {
                 sections: [
                     {
-                        title: "Input Parameters",
+                        title: "Case Cohort Parameters",
                         collapsed: false,
                         parameters: [
                             {
-                                id: "sample",
-                                title: "Select samples",
-                                type: "SAMPLE_FILTER",
+                                id: "caseCohort",
+                                title: "Select cohort",
+                                type: "COHORT_FILTER",
                                 showList: true,
                                 fileUpload: true
-                                // colspan: 6
                             },
                             {
-                                id: "cohort",
+                                id: "caseCohortSamples",
+                                title: "Select cohort samples",
+                                type: "text"
+                            },
+                            {
+                                id: "caseCohortSamplesAnnotation",
+                                title: "Select cohort sample annotation",
+                                type: "text"
+                            }
+                        ]
+                    },
+                    {
+                        title: "Control Cohort Parameters",
+                        collapsed: false,
+                        parameters: [
+                            {
+                                id: "controlCohort",
                                 title: "Select cohort",
                                 type: "COHORT_FILTER",
                                 showList: true,
@@ -96,10 +111,14 @@ export default class OpencgaGwasAnalysis extends LitElement {
                                 // colspan: 6
                             },
                             {
-                                id: "phenotype",
-                                title: "Select phenotype",
-                                type: "string",
-                                // colspan: 6
+                                id: "controlCohortSamples",
+                                title: "Select cohort samples",
+                                type: "text"
+                            },
+                            {
+                                id: "controlCohortSamplesAnnotation",
+                                title: "Select cohort sample annotation",
+                                type: "text"
                             }
                         ]
                     },
@@ -108,44 +127,41 @@ export default class OpencgaGwasAnalysis extends LitElement {
                         collapsed: false,
                         parameters: [
                             {
-                                id: "assoc",
+                                id: "method",
                                 title: "Select association test",
                                 type: "category",
                                 required: true,
-                                defaultValue: "Fisher",
-                                allowedValues: ["Fisher", "Chi", "LR"],
+                                defaultValue: "FISHER_TEST",
+                                allowedValues: ["FISHER_TEST", "CHI_SQUARE_TEST"],
                                 multiple: false,
                                 // colspan: 6
                                 //maxOptions: 1 //you don't need to define maxOptions if multiple=false
                             },
                             {
-                                id: "fisher-test",
+                                id: "fisherMode",
                                 title: "Select Fisher mode",
                                 type: "category",
-                                defaultValue: "GT",
-                                allowedValues: ["GT", "LT"],
+                                defaultValue: "GREATER",
+                                allowedValues: ["GREATER", "LESS", "TWO_SIDED"],
                                 multiple: false,
                                 // colspan: 6,
                                 dependsOn: "assoc == Fisher"
                             },
-                            // {
-                            //     id: "freq",
-                            //     title: "Filter by frequency",
-                            //     type: "number",
-                            //     required: true,
-                            //     defaultValue: "0.01",
-                            //     allowedValues: [0, 1],
-                            //     colspan: 6
-                            // },
-                            // {
-                            //     id: "gene",
-                            //     title: "Filter by Genes",
-                            //     type: "string",
-                            //     required: true,
-                            //     defaultValue: "default String",
-                            //     // colspan: 6,
-                            //     dependsOn: config => {console.warn("dependsOn Callback", config); return true}
-                            // }
+                            {
+                                id: "phenotype",
+                                title: "Select phenotype",
+                                type: "text"
+                            },
+                            {
+                                id: "index",
+                                title: "Index results",
+                                type: "boolean"
+                            },
+                            {
+                                id: "indexScoreId",
+                                title: "Index score id",
+                                type: "text"
+                            }
                         ]
                     }
                 ],
