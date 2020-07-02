@@ -64,7 +64,7 @@ export default class IndividualIdAutocomplete extends LitElement {
             dataSource: (query, process) => {
                 const filters = {
                     study: this.opencgaSession.study.fqn,
-                    limit: 5,
+                    limit: 20,
                     count: false,
                     // include: "id,individual.id",
                     id: "~^" + query.toUpperCase()

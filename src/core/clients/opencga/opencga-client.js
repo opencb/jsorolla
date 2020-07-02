@@ -61,7 +61,8 @@ export class OpenCGAClient {
     }
 
     // TODO check OpeCGA URL and other variables.
-    check() {}
+    check() {
+    }
 
     /*
      * Client singleton functions
@@ -271,7 +272,7 @@ export class OpenCGAClient {
      * opencgaClient object itself.
      * @returns {Promise<any>}
      */
-    // TODO refactor
+    // TODO urgent refactor
     createSession() {
         const _this = this;
         return new Promise((resolve, reject) => {
@@ -280,7 +281,7 @@ export class OpenCGAClient {
             //console.log("_this._config", _this._config);
             if (UtilsNew.isNotUndefined(_this._config.token)) {
                 _this.users().info(_this._config.userId)
-                    .then( async response => {
+                    .then(async response => {
                         const session = {};
                         session.user = response.getResult(0);
                         session.token = _this._config.token;
@@ -299,73 +300,78 @@ export class OpenCGAClient {
                         // Fetch authorised Projects and Studies
                         _this.projects().search({})
                             .then(async function(response) {
-                                session.projects = response.response[0].result;
-                                if (UtilsNew.isNotEmptyArray(session.projects) && UtilsNew.isNotEmptyArray(session.projects[0].studies)) {
-                                    const studies = [];
-                                    // FIXME This is needed to keep backward compatibility with OpenCGA 1.3.x
-                                    for (const project of session.projects) {
-                                        project.alias = project.alias || project.fqn || null;
-                                        if (project.studies !== undefined) {
-                                            for (const study of project.studies) {
-                                                // If study.alias does not exist we are NOT in version 1.3, we set fqn from 1.4
-                                                if (study.alias === undefined || study.alias === "") {
-                                                    if (study.fqn.includes(":")) {
-                                                        study.alias = study.fqn.split(":")[1];
-                                                    } else {
-                                                        study.alias = study.fqn;
-                                                    }
-                                                    const acl = await _this.studies().acl(study.fqn, {member:session.user.id});
-                                                    study.acl = acl.getResult(0)?.[session.user.id] || [];
 
-                                                    // default study from config
-                                                    if (project.id + ":" + study.id === application.defaultStudy) {
-                                                        session.project = project;
-                                                        session.study = study;
+                                try {
+                                    session.projects = response.response[0].result;
+                                    if (UtilsNew.isNotEmptyArray(session.projects) && UtilsNew.isNotEmptyArray(session.projects[0].studies)) {
+                                        const studies = [];
+                                        // FIXME This is needed to keep backward compatibility with OpenCGA 1.3.x
+                                        for (const project of session.projects) {
+                                            project.alias = project.alias || project.fqn || null;
+                                            if (project.studies !== undefined) {
+                                                for (const study of project.studies) {
+                                                    // If study.alias does not exist we are NOT in version 1.3, we set fqn from 1.4
+                                                    if (study.alias === undefined || study.alias === "") {
+                                                        if (study.fqn.includes(":")) {
+                                                            study.alias = study.fqn.split(":")[1];
+                                                        } else {
+                                                            study.alias = study.fqn;
+                                                        }
+                                                        const acl = await _this.studies().acl(study.fqn, {member: session.user.id});
+                                                        study.acl = acl.getResult(0)?.[session.user.id] || [];
+
+                                                        // default study from config
+                                                        if (project.id + ":" + study.id === application.defaultStudy) {
+                                                            session.project = project;
+                                                            session.study = study;
+                                                        }
                                                     }
+                                                    // Keep track of the studies to fetch Disease Panels
+                                                    studies.push(project.id + ":" + study.id);
                                                 }
-                                                // Keep track of the studies to fetch Disease Panels
-                                                studies.push(project.id + ":" + study.id);
                                             }
                                         }
-                                    }
 
-                                    // this sets the current active project and study (commented as application.defaultStudy is used now)
-                                    session.project = session.project ?? session.projects[0];
-                                    session.study = session.study ?? session.projects[0].studies[0];
+                                        // this sets the current active project and study (commented as application.defaultStudy is used now)
+                                        session.project = session.project ?? session.projects[0];
+                                        session.study = session.study ?? session.projects[0].studies[0];
 
-                                    if (!session.project || !session.study) {
-                                        throw new Error("Default study not found");
-                                    }
+                                        if (!session.project || !session.study) {
+                                            throw new Error("Default study not found");
+                                        }
 
-                                    // Fetch the Disease Panels for each Study
-                                    const panelPromises = [];
-                                    for (const study of studies) {
-                                        const promise = _this.panels().search({
-                                            study: study,
-                                            limit: 2000,
-                                            include: "id,name,stats,source,genes.id,genes.name,regions.id"
-                                        }).then(function(response) {
-                                            return new RestResponse(response).getResults();
-                                        });
-                                        panelPromises.push(promise);
-                                    }
-
-                                    Promise.all(panelPromises)
-                                        .then(function(values) {
-                                            const studiesMap = {};
-                                            for (let i = 0; i < studies.length; i++) {
-                                                studiesMap[studies[i]] = values[i];
+                                        // Fetch the Disease Panels for each Study
+                                        const panelPromises = [];
+                                        for (const study of studies) {
+                                            const promise = _this.panels().search({
+                                                study: study,
+                                                limit: 2000,
+                                                include: "id,name,stats,source,genes.id,genes.name,regions.id"
+                                            })
+                                            panelPromises.push(promise);
+                                        }
+                                        const panelResponses = await Promise.all(panelPromises);
+                                        for (let i = 0, t = 0; i < session.projects.length; i++) {
+                                            for (let x = 0; x < session.projects[i].studies.length; x++, t++) {
+                                                session.projects[i].studies[x].panels = panelResponses[t].getResults()
                                             }
-                                            // This set the panels in the object reference of the session object
-                                            for (const project of session.projects) {
-                                                for (const study of project.studies) {
-                                                    study.panels = studiesMap[project.id + ":" + study.id];
-                                                }
-                                            }
-                                        });
+                                        }/*
+                                        for (const project of session.projects) {
+                                            project.studies = project.studies.map((study, i) => ({
+                                                ...study,
+                                                panels: panelResponses[i].getResults()
+                                            }));
+                                        }*/
+                                    }
+                                    // _this.session = session;
+                                    resolve(session);
+                                } catch (e) {
+                                    console.error("Error getting study permissions / study panels");
+                                    console.error(e);
+                                    reject({message: "Error getting study permissions / study panels", value: e});
                                 }
-                                // _this.session = session;
-                                resolve(session);
+
+
                             })
                             .catch(function(response) {
                                 reject({message: "An error when getting user projects", value: response});
@@ -394,7 +400,7 @@ export class OpenCGAClient {
     }
 
     getUserConfigs() {
-        return this.users().configs(this._config.userId, "IVA")
+        return this.users().configs(this._config.userId, "IVA");
     }
 
     updateUserConfigs(data) {

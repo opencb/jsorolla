@@ -292,7 +292,7 @@ class VariantInterpreterLanding extends LitElement {
                                         dataSource: (query, process) => {
                                             const filters = {
                                                 study: this.opencgaSession.study.fqn,
-                                                limit: 5,
+                                                limit: 20,
                                                 count: false,
                                                 proband: "^" + query.toUpperCase()
                                             };

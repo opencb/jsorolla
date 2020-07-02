@@ -37,8 +37,9 @@ export default class DiseaseFilter extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            // panels: {
-            //     type: Array
+            panel: {
+                 type: Array
+            },
             diseasePanels: {
                 type: Array
             },
@@ -76,14 +77,16 @@ export default class DiseaseFilter extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("diseasePanels")) {
-            // if (this.diseasePanels) {
-            //     this._panel = this.panel.split(",");
-            // } else {
-            //     this._panel = [];
-            // }
-            // $(`select#${this._prefix}DiseasePanels`).selectpicker("val", this._panel);
-            // this.showPanelGenes(this._panel);
+        if (changedProperties.has("panel") ) {
+            console.error("this.panel", this.panel)
+            /*if (this.panel) {
+                $("#" + this._prefix + "DiseasePanels").val(this.panel.split(","))
+            } else {
+
+            }*/
+        }
+
+        if (changedProperties.has("diseasePanels") ) {
             if (this.diseasePanels) {
                 this.genes = this.diseasePanels?.[0]?.genes ?? [];
                 this.requestUpdate().then(() => $(`select#${this._prefix}DiseasePanels`, this).selectpicker("refresh"));

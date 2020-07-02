@@ -421,7 +421,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 break;
             case "diseasePanels":
                 content = html`<disease-filter .opencgaSession="${this.opencgaSession}" .config="${this.config}" 
-                                    .diseasePanels="${this.opencgaSession.study.panels}" 
+                                    .diseasePanels="${this.opencgaSession.study.panels}" .panel="${this.preparedQuery.panel}" 
                                 @filterChange="${e => this.onFilterChange("panel", e.detail.value)}"></disease-filter>`;
                 break;
             case "biotype":
