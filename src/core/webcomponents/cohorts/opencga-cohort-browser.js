@@ -235,7 +235,7 @@ export default class OpencgaCohortBrowser extends LitElement {
                                 id: "status",
                                 name: "Status",
                                 type: "category",
-                                allowedValues: ["READY", "DELETED", "TRASHED", "STAGE", "MISSING", "PENDING_DELETE", "DELETING", "REMOVED"],
+                                allowedValues: ["READY", "DELETED", "NONE", "CALCULATING", "INVALID"],
                                 description: "Status"
                             },
                             {

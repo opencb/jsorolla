@@ -277,7 +277,7 @@ export default class OpencgaJobsBrowser extends LitElement {
                                 id: "status",
                                 name: "Status",
                                 type: "category",
-                                allowedValues: ["READY", "DELETED", "TRASHED", "STAGE", "MISSING", "PENDING_DELETE", "DELETING", "REMOVED"],
+                                allowedValues: ["PENDING", "QUEUED", "RUNNING", "DONE", "ERROR", "UNKNOWN", "REGISTERING", "UNREGISTERED", "ABORTED", "DELETED"],
                                 description: "Status"
                             },
                             {

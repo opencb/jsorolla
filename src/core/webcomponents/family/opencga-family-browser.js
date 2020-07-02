@@ -236,7 +236,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
                                 id: "status",
                                 name: "Status",
                                 type: "category",
-                                allowedValues: ["READY", "DELETED", "TRASHED", "STAGE", "MISSING", "PENDING_DELETE", "DELETING", "REMOVED"],
+                                allowedValues: ["READY", "DELETED", "INCOMPLETE"],
                                 description: "Status"
                             },
                             {
