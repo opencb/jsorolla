@@ -55,10 +55,10 @@ export default class DataForm extends LitElement {
     firstUpdated(_changedProperties) {
 
         $("#" + this._prefix + "DuePickerDate").datetimepicker({
-            format: "YYYYMMDDHHMMSS"
+            format: "YYYYMMDDHHmmss"
         });
         $("#" + this._prefix + "DuePickerDate").on("dp.change", (e) => {
-             this.onFilterChange(e.currentTarget.dataset.field, e.date.format("YYYYMMDDHHMMSS"));
+             this.onFilterChange(e.currentTarget.dataset.field, e.date.format("YYYYMMDDHHmmss"));
         });
     }
 

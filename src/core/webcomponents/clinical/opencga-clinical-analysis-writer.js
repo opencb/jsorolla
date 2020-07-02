@@ -341,7 +341,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 name: "Due Date",
                                 field: "dueDate",
                                 type: "input-date",
-                                defaultValue: moment().format("YYYYMMDDHHMMSS"),
+                                defaultValue: moment().format("YYYYMMDDHHmmss"),
                                 display: {
                                     // width: 9,
                                 }
