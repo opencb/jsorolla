@@ -19,7 +19,7 @@ import UtilsNew from "./../../../utilsNew.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
 
 
-export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
+export default class OpencgaIndividualRelatednessAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -61,15 +61,15 @@ export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
 
     getDefaultConfig() {
         return {
-            id: "sample-variant-stats",
-            title: "Sample Variant Stats",
+            id: "individual-relatedness",
+            title: "Individual Relatedness",
             icon: "",
             requires: "2.0.0",
-            description: "Sample Variant Stats description",
+            description: "Compute a score to quantify relatedness between samples",
             links: [
                 {
                     title: "OpenCGA",
-                    url: "http://docs.opencb.org/display/opencga/Sample+Stats",
+                    url: "http://docs.opencb.org/display/opencga/Genome-Wide+Association+Study",
                     icon: ""
                 }
             ],
@@ -80,16 +80,16 @@ export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
                         collapsed: false,
                         parameters: [
                             {
-                                id: "sample",
-                                title: "Select samples",
-                                type: "SAMPLE_FILTER",
+                                id: "individuals",
+                                title: "Select individuals",
+                                type: "INDIVIDUAL_FILTER",
                                 showList: true,
                                 fileUpload: true
                             },
                             {
-                                id: "family",
-                                title: "Select family",
-                                type: "FAMILY_FILTER",
+                                id: "samples",
+                                title: "Select samples",
+                                type: "SAMPLE_FILTER",
                                 showList: true,
                                 fileUpload: true
                             }
@@ -100,13 +100,13 @@ export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
                         collapsed: false,
                         parameters: [
                             {
-                                id: "index",
-                                title: "Index results in catalog",
-                                type: "boolean"
+                                id: "method",
+                                title: "Select method",
+                                type: "text"
                             },
                             {
-                                id: "sampleAnnotation",
-                                title: "Write sample annotation",
+                                id: "minorAlleleFreq",
+                                title: "Select minor allele frequency",
                                 type: "text"
                             }
                         ]
@@ -114,7 +114,7 @@ export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
                 ],
                 job: {
                     title: "Job Info",
-                    id: "sample-variant-stats-$DATE",
+                    id: "relatedness-$DATE",
                     tags: "",
                     description: "",
                     validation: function(params) {
@@ -124,8 +124,7 @@ export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
                 }
             },
             execute: (opencgaSession, data, params) => {
-                params.index = true;
-                opencgaSession.opencgaClient.variants().runSampleStats(data, params);
+                opencgaSession.opencgaClient.variants().runRelatedness(data, params);
             },
             result: {
             }
@@ -139,4 +138,4 @@ export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
     }
 }
 
-customElements.define("opencga-sample-variant-stats-analysis", OpencgaSampleVariantStatsAnalysis);
+customElements.define("opencga-individual-relatedness-analysis", OpencgaIndividualRelatednessAnalysis);

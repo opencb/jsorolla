@@ -19,7 +19,7 @@ import UtilsNew from "./../../../utilsNew.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
 
 
-export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
+export default class OpencgaIndividualMendelianErrorAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -61,15 +61,15 @@ export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
 
     getDefaultConfig() {
         return {
-            id: "sample-variant-stats",
-            title: "Sample Variant Stats",
+            id: "mendelian-errors",
+            title: "Individual Mendelian Errors",
             icon: "",
             requires: "2.0.0",
-            description: "Sample Variant Stats description",
+            description: "Run mendelian error analysis to infer uniparental disomy regions",
             links: [
                 {
                     title: "OpenCGA",
-                    url: "http://docs.opencb.org/display/opencga/Sample+Stats",
+                    url: "http://docs.opencb.org/display/opencga/Genome-Wide+Association+Study",
                     icon: ""
                 }
             ],
@@ -80,41 +80,32 @@ export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
                         collapsed: false,
                         parameters: [
                             {
-                                id: "sample",
-                                title: "Select samples",
-                                type: "SAMPLE_FILTER",
-                                showList: true,
-                                fileUpload: true
-                            },
-                            {
                                 id: "family",
                                 title: "Select family",
                                 type: "FAMILY_FILTER",
                                 showList: true,
                                 fileUpload: true
-                            }
-                        ]
-                    },
-                    {
-                        title: "Configuration Parameters",
-                        collapsed: false,
-                        parameters: [
-                            {
-                                id: "index",
-                                title: "Index results in catalog",
-                                type: "boolean"
                             },
                             {
-                                id: "sampleAnnotation",
-                                title: "Write sample annotation",
-                                type: "text"
+                                id: "individual",
+                                title: "Select individual",
+                                type: "INDIVIDUAL_FILTER",
+                                showList: true,
+                                fileUpload: true
+                            },
+                            {
+                                id: "sample",
+                                title: "Select sample",
+                                type: "SAMPLE_FILTER",
+                                showList: true,
+                                fileUpload: true
                             }
                         ]
                     }
                 ],
                 job: {
                     title: "Job Info",
-                    id: "sample-variant-stats-$DATE",
+                    id: "relatedness-$DATE",
                     tags: "",
                     description: "",
                     validation: function(params) {
@@ -124,8 +115,7 @@ export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
                 }
             },
             execute: (opencgaSession, data, params) => {
-                params.index = true;
-                opencgaSession.opencgaClient.variants().runSampleStats(data, params);
+                opencgaSession.opencgaClient.variants().runMendelianError(data, params);
             },
             result: {
             }
@@ -139,4 +129,4 @@ export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
     }
 }
 
-customElements.define("opencga-sample-variant-stats-analysis", OpencgaSampleVariantStatsAnalysis);
+customElements.define("opencga-individual-mendelian-error-analysis", OpencgaIndividualMendelianErrorAnalysis);
