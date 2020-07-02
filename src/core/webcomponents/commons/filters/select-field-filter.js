@@ -60,6 +60,9 @@ export default class SelectFieldFilter extends LitElement {
             maxOptions: {
                 type: Number
             },
+            liveSearch: {
+                type: Boolean
+            },
             // the expected format is either an array of string or an array of objects {id, name}
             data: {
                 type: Object
@@ -122,6 +125,7 @@ export default class SelectFieldFilter extends LitElement {
                         multiple
                         ?disabled=${this.disabled}
                         ?required=${this.required}
+                        data-live-search=${this.liveSearch ? "true" : "false"}
                         title="${this.placeholder ? this.placeholder : "Select an option"}"
                         data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}" 
                         @change="${this.filterChange}" data-width="100%">
