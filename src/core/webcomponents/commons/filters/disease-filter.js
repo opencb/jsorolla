@@ -78,12 +78,8 @@ export default class DiseaseFilter extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("panel") ) {
-            console.error("this.panel", this.panel)
-            /*if (this.panel) {
-                $("#" + this._prefix + "DiseasePanels").val(this.panel.split(","))
-            } else {
-
-            }*/
+            // TODO fix this
+            //$("#" + this._prefix + "DiseasePanels").val("val", this.panel.split(",") || [])
         }
 
         if (changedProperties.has("diseasePanels") ) {
@@ -140,13 +136,10 @@ export default class DiseaseFilter extends LitElement {
     filterChange(e) {
         let select_vals;
         if (this.mode === "gene") {
-            select_vals = [$("#" + this._prefix + "Genes").val()] || [];
+            select_vals = $("#" + this._prefix + "Genes").val() || [];
         } else {
-            select_vals = [$("#" + this._prefix + "DiseasePanels").val()] || [];
+            select_vals = $("#" + this._prefix + "DiseasePanels").val() || [];
         }
-
-        console.log(select_vals)
-
         // const select_vals = $("#" + this._prefix + "DiseasePanels").val() || [];
         const value = select_vals && select_vals.length ? select_vals.join(",") : null;
         // this.showPanelGenes(select_vals);
