@@ -137,7 +137,7 @@ export default class VariantAnnotationClinicalView extends LitElement {
         if (value) {
             for (let moi of value) {
                 if (moi.inheritanceMode) {
-                    result = moi.inheritanceMode + "<br>";
+                    result += moi.inheritanceMode + "<br>";
                 }
             }
         }
