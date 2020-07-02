@@ -49,6 +49,7 @@ export default class OpencgaVariantSamples extends LitElement {
 
         this.active = false;
         this.gridId = this._prefix + "SampleTable";
+        this.config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
@@ -170,6 +171,9 @@ export default class OpencgaVariantSamples extends LitElement {
             return;
         }
 
+        this.from = 1;
+        this.to = this.config.pageSize;
+
         $("#" + this.gridId).bootstrapTable("destroy");
         $("#" + this.gridId).bootstrapTable({
             pagination: true,
@@ -183,7 +187,7 @@ export default class OpencgaVariantSamples extends LitElement {
                 let query = {
                     variant: this.variantId,
                     study: this.opencgaSession.study.fqn,
-                    // genotype: "0/1,0|1",
+                    genotype: "0/1,1/1,0/2,1/2,2/2",
                     skip: skip,
                     limit: limit
                 };
@@ -195,7 +199,7 @@ export default class OpencgaVariantSamples extends LitElement {
 
                         // Get the total number of samples
                         // TODO count only the genotypes filtered
-                        _this.numSamples = 0;
+                        _this.numSamples = result.studies[0].samples.length;
                         let stats = result.studies[0].stats;
                         for (let stat of stats) {
                             if (stat.cohortId === "ALL") {

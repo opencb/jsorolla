@@ -132,6 +132,18 @@ export default class VariantAnnotationClinicalView extends LitElement {
         return result;
     }
 
+    inheritanceModeFormatter(value, row, index) {
+        let result = "-";
+        if (value) {
+            for (let moi of value) {
+                if (moi.inheritanceMode) {
+                    result = moi.inheritanceMode + "<br>";
+                }
+            }
+        }
+        return result;
+    }
+
     alleleOriginFormatter(value, row, index) {
         if (value) {
             return value.join("<br>");
@@ -209,6 +221,14 @@ export default class VariantAnnotationClinicalView extends LitElement {
                         rowspan: 2,
                         colspan: 1,
                         formatter: this.heritableTraitsFormatter,
+                        halign: "center"
+                    },
+                    {
+                        title: 'Mode of Inheritance',
+                        field: 'heritableTraits',
+                        rowspan: 2,
+                        colspan: 1,
+                        formatter: this.inheritanceModeFormatter,
                         halign: "center"
                     },
                     {
