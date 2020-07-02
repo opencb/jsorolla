@@ -19,7 +19,7 @@ import UtilsNew from "./../../../utilsNew.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
 
 
-export default class OpencgaIndividualMendelianErrorAnalysis extends LitElement {
+export default class OpencgaVariantExporterAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -61,11 +61,11 @@ export default class OpencgaIndividualMendelianErrorAnalysis extends LitElement 
 
     getDefaultConfig() {
         return {
-            id: "mendelian-errors",
-            title: "Individual Mendelian Errors",
+            id: "variant-exporter",
+            title: "Variant Exporter",
             icon: "",
             requires: "2.0.0",
-            description: "Run mendelian error analysis to infer uniparental disomy regions",
+            description: "Filter and export variants from the variant storage to a file",
             links: [
                 {
                     title: "OpenCGA",
@@ -79,33 +79,18 @@ export default class OpencgaIndividualMendelianErrorAnalysis extends LitElement 
                         title: "Input Parameters",
                         collapsed: false,
                         parameters: [
-                            {
-                                id: "family",
-                                title: "Select family",
-                                type: "FAMILY_FILTER",
-                                showList: true,
-                                fileUpload: true
-                            },
-                            {
-                                id: "individual",
-                                title: "Select individual",
-                                type: "INDIVIDUAL_FILTER",
-                                showList: true,
-                                fileUpload: true
-                            },
-                            {
-                                id: "sample",
-                                title: "Select sample",
-                                type: "SAMPLE_FILTER",
-                                showList: true,
-                                fileUpload: true
-                            }
+                        ]
+                    },
+                    {
+                        title: "Output Parameters",
+                        collapsed: false,
+                        parameters: [
                         ]
                     }
                 ],
                 job: {
                     title: "Job Info",
-                    id: "mendelian-error-$DATE",
+                    id: "variant-exporter-$DATE",
                     tags: "",
                     description: "",
                     validation: function(params) {
@@ -115,7 +100,7 @@ export default class OpencgaIndividualMendelianErrorAnalysis extends LitElement 
                 }
             },
             execute: (opencgaSession, data, params) => {
-                opencgaSession.opencgaClient.variants().runMendelianError(data, params);
+                opencgaSession.opencgaClient.variants().runGwas(data, params);
             },
             result: {
             }
@@ -129,4 +114,4 @@ export default class OpencgaIndividualMendelianErrorAnalysis extends LitElement 
     }
 }
 
-customElements.define("opencga-individual-mendelian-error-analysis", OpencgaIndividualMendelianErrorAnalysis);
+customElements.define("opencga-variant-exporter-analysis", OpencgaVariantExporterAnalysis);

@@ -19,7 +19,7 @@ import UtilsNew from "./../../../utilsNew.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
 
 
-export default class OpencgaKnockoutAnalysis extends LitElement {
+export default class OpencgaPlinkAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -59,17 +59,19 @@ export default class OpencgaKnockoutAnalysis extends LitElement {
         }
     }
 
+
+
     getDefaultConfig() {
         return {
-            id: "knockout",
-            title: "Knockout Analysis",
+            id: "plink",
+            title: "Plink",
             icon: "",
             requires: "2.0.0",
-            description: "Sample Variant Stats description",
+            description: "Plink is a whole genome association analysis toolset, designed to perform a range of basic, large-scale analyses.",
             links: [
                 {
                     title: "OpenCGA",
-                    url: "http://docs.opencb.org/display/opencga/Sample+Stats",
+                    url: "http://docs.opencb.org/display/opencga/Genome-Wide+Association+Study",
                     icon: ""
                 }
             ],
@@ -80,22 +82,25 @@ export default class OpencgaKnockoutAnalysis extends LitElement {
                         collapsed: false,
                         parameters: [
                             {
-                                id: "sample",
-                                title: "Select samples",
-                                type: "SAMPLE_FILTER",
+                                id: "tpedFile",
+                                title: "Select tped file",
+                                type: "FILE_FILTER",
                                 showList: true,
                                 fileUpload: true
                             },
                             {
-                                id: "gene",
-                                title: "Select gene",
-                                type: "text"
+                                id: "tfamFile",
+                                title: "Select tfam file",
+                                type: "FILE_FILTER",
+                                showList: true,
+                                fileUpload: true
                             },
                             {
-                                id: "panel",
-                                title: "Select panel",
-                                type: "DISEASE_PANEL_FILTER",
-                                showList: true
+                                id: "covarFile",
+                                title: "Select covar file",
+                                type: "FILE_FILTER",
+                                showList: true,
+                                fileUpload: true
                             }
                         ]
                     },
@@ -104,50 +109,26 @@ export default class OpencgaKnockoutAnalysis extends LitElement {
                         collapsed: false,
                         parameters: [
                             {
-                                id: "biotype",
-                                title: "Select biotype",
-                                type: "category",
-                                defaultValue: "protein_coding",
-                                allowedValues: ["3prime_overlapping_ncrna", "IG_C_gene", "IG_C_pseudogene", "IG_D_gene", "IG_J_gene",
-                                    "IG_J_pseudogene", "IG_V_gene", "IG_V_pseudogene", "Mt_rRNA", "Mt_tRNA", "TR_C_gene", "TR_D_gene",
-                                    "TR_J_gene", "TR_J_pseudogene", "TR_V_gene", "TR_V_pseudogene", "antisense", "lincRNA", "miRNA",
-                                    "misc_RNA", "non_stop_decay", "nonsense_mediated_decay", "polymorphic_pseudogene", "processed_pseudogene",
-                                    "processed_transcript", "protein_coding", "pseudogene", "rRNA", "retained_intron", "sense_intronic",
-                                    "sense_overlapping", "snRNA", "snoRNA", "transcribed_processed_pseudogene", "transcribed_unprocessed_pseudogene",
-                                    "translated_processed_pseudogene", "unitary_pseudogene", "unprocessed_pseudogene"
-                                ]
-                            },
-                            {
-                                id: "consequenceType",
-                                title: "Select consequence type",
+                                id: "plinkParams",
+                                title: "Plink parameters",
                                 type: "text"
-                            },
-                            {
-                                id: "filter",
-                                title: "Select filter",
-                                type: "text"
-                            },
-                            {
-                                id: "qual",
-                                title: "Select quality",
-                                type: "number"
                             }
                         ]
                     }
                 ],
                 job: {
                     title: "Job Info",
-                    id: "knockout-$DATE",
+                    id: "plink-$DATE",
                     tags: "",
                     description: "",
-                    button: "Run",
-                    validate: function(params) {
+                    validation: function(params) {
                         alert("test:" + params);
                     },
+                    button: "Run"
                 }
             },
             execute: (opencgaSession, data, params) => {
-                opencgaSession.opencgaClient.variants().runKnockout(data, params);
+                opencgaSession.opencgaClient.variants().runFamilyQc(data, params);
             },
             result: {
             }
@@ -161,4 +142,4 @@ export default class OpencgaKnockoutAnalysis extends LitElement {
     }
 }
 
-customElements.define("opencga-knockout-analysis", OpencgaKnockoutAnalysis);
+customElements.define("opencga-plink-analysis", OpencgaPlinkAnalysis);

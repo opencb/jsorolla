@@ -19,7 +19,7 @@ import UtilsNew from "./../../../utilsNew.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
 
 
-export default class OpencgaGwasAnalysis extends LitElement {
+export default class OpencgaGatkAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -59,13 +59,15 @@ export default class OpencgaGwasAnalysis extends LitElement {
         }
     }
 
+
+
     getDefaultConfig() {
         return {
-            id: "gwas",
-            title: "GWAS",
+            id: "gatk",
+            title: "GATK",
             icon: "",
             requires: "2.0.0",
-            description: "GWAS description",
+            description: "GATK is a Genome Analysis Toolkit for variant discovery in high-throughput sequencing data.",
             links: [
                 {
                     title: "OpenCGA",
@@ -76,49 +78,22 @@ export default class OpencgaGwasAnalysis extends LitElement {
             form: {
                 sections: [
                     {
-                        title: "Case Cohort Parameters",
+                        title: "Input Parameters",
                         collapsed: false,
                         parameters: [
                             {
-                                id: "caseCohort",
-                                title: "Select cohort",
-                                type: "COHORT_FILTER",
+                                id: "fastaFile",
+                                title: "Select fasta file",
+                                type: "FILE_FILTER",
                                 showList: true,
                                 fileUpload: true
                             },
                             {
-                                id: "caseCohortSamples",
-                                title: "Select cohort samples",
-                                type: "text"
-                            },
-                            {
-                                id: "caseCohortSamplesAnnotation",
-                                title: "Select cohort sample annotation",
-                                type: "text"
-                            }
-                        ]
-                    },
-                    {
-                        title: "Control Cohort Parameters",
-                        collapsed: false,
-                        parameters: [
-                            {
-                                id: "controlCohort",
-                                title: "Select cohort",
-                                type: "COHORT_FILTER",
+                                id: "bamFile",
+                                title: "Select bam file",
+                                type: "FILE_FILTER",
                                 showList: true,
                                 fileUpload: true
-                                // colspan: 6
-                            },
-                            {
-                                id: "controlCohortSamples",
-                                title: "Select cohort samples",
-                                type: "text"
-                            },
-                            {
-                                id: "controlCohortSamplesAnnotation",
-                                title: "Select cohort sample annotation",
-                                type: "text"
                             }
                         ]
                     },
@@ -127,39 +102,18 @@ export default class OpencgaGwasAnalysis extends LitElement {
                         collapsed: false,
                         parameters: [
                             {
-                                id: "method",
-                                title: "Select association test",
-                                type: "category",
-                                required: true,
-                                defaultValue: "FISHER_TEST",
-                                allowedValues: ["FISHER_TEST", "CHI_SQUARE_TEST"],
-                                multiple: false,
-                                // colspan: 6
-                                //maxOptions: 1 //you don't need to define maxOptions if multiple=false
-                            },
-                            {
-                                id: "fisherMode",
-                                title: "Select Fisher mode",
-                                type: "category",
-                                defaultValue: "GREATER",
-                                allowedValues: ["GREATER", "LESS", "TWO_SIDED"],
-                                multiple: false,
-                                // colspan: 6,
-                                dependsOn: "method == FISHER_TEST"
-                            },
-                            {
-                                id: "phenotype",
-                                title: "Select phenotype",
+                                id: "vcfFilename",
+                                title: "VCF file name",
                                 type: "text"
                             },
                             {
-                                id: "index",
-                                title: "Index results",
-                                type: "boolean"
+                                id: "command",
+                                title: "Command",
+                                type: "text"
                             },
                             {
-                                id: "indexScoreId",
-                                title: "Index score id",
+                                id: "gatkParams",
+                                title: "GATK parameters",
                                 type: "text"
                             }
                         ]
@@ -167,7 +121,7 @@ export default class OpencgaGwasAnalysis extends LitElement {
                 ],
                 job: {
                     title: "Job Info",
-                    id: "gwas-$DATE",
+                    id: "gatk-$DATE",
                     tags: "",
                     description: "",
                     validation: function(params) {
@@ -177,7 +131,7 @@ export default class OpencgaGwasAnalysis extends LitElement {
                 }
             },
             execute: (opencgaSession, data, params) => {
-                opencgaSession.opencgaClient.variants().runGwas(data, params);
+                opencgaSession.opencgaClient.variants().runFamilyQc(data, params);
             },
             result: {
             }
@@ -191,4 +145,4 @@ export default class OpencgaGwasAnalysis extends LitElement {
     }
 }
 
-customElements.define("opencga-gwas-analysis", OpencgaGwasAnalysis);
+customElements.define("opencga-gatk-analysis", OpencgaGatkAnalysis);

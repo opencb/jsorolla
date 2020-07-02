@@ -98,9 +98,12 @@ export default class OpencgaRdTieringAnalysis extends LitElement {
                                 showList: true
                             },
                             {
-                                id: "phenotype",
-                                title: "Select phenotype",
-                                type: "string",
+                                id: "penetrance",
+                                title: "Select penetrance",
+                                type: "category",
+                                defaultValue: "UNKNOWN",
+                                allowedValues: ["COMPLETE", "INCOMPLETE", "UNKNOWN"],
+                                multiple: false,
                             },
                             {
                                 id: "secondary",
@@ -117,7 +120,7 @@ export default class OpencgaRdTieringAnalysis extends LitElement {
                 ],
                 job: {
                     title: "Job Info",
-                    id: "gwas-$DATE",
+                    id: "rd-tiering-$DATE",
                     tags: "",
                     description: "",
                     validation: function(params) {
