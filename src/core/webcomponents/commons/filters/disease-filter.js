@@ -37,8 +37,9 @@ export default class DiseaseFilter extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            // panels: {
-            //     type: Array
+            panel: {
+                 type: Array
+            },
             diseasePanels: {
                 type: Array
             },
@@ -76,14 +77,13 @@ export default class DiseaseFilter extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("diseasePanels")) {
-            // if (this.diseasePanels) {
-            //     this._panel = this.panel.split(",");
-            // } else {
-            //     this._panel = [];
-            // }
-            // $(`select#${this._prefix}DiseasePanels`).selectpicker("val", this._panel);
-            // this.showPanelGenes(this._panel);
+        if (changedProperties.has("panel") ) {
+            // TODO fix this
+            //console.error("this.panel", this.panel)
+            //$("#" + this._prefix + "DiseasePanels").val("val", this.panel.split(",") || [])
+        }
+
+        if (changedProperties.has("diseasePanels") ) {
             if (this.diseasePanels) {
                 this.genes = this.diseasePanels?.[0]?.genes ?? [];
                 this.requestUpdate().then(() => $(`select#${this._prefix}DiseasePanels`, this).selectpicker("refresh"));
@@ -137,13 +137,10 @@ export default class DiseaseFilter extends LitElement {
     filterChange(e) {
         let select_vals;
         if (this.mode === "gene") {
-            select_vals = [$("#" + this._prefix + "Genes").val()] || [];
+            select_vals = $("#" + this._prefix + "Genes").val() || [];
         } else {
-            select_vals = [$("#" + this._prefix + "DiseasePanels").val()] || [];
+            select_vals = $("#" + this._prefix + "DiseasePanels").val() || [];
         }
-
-        console.log(select_vals)
-
         // const select_vals = $("#" + this._prefix + "DiseasePanels").val() || [];
         const value = select_vals && select_vals.length ? select_vals.join(",") : null;
         // this.showPanelGenes(select_vals);
@@ -195,8 +192,17 @@ export default class DiseaseFilter extends LitElement {
                 </div>
             `;
         } else {
+            const opts = this.diseasePanels.map(panel => ({
+                    id: panel.id,
+                    name: `${panel.name}
+                          ${panel.source ? ` - ${panel.source.project || panel.source.id} ${panel.source.version ? "v" + panel.source.version : ""}` : ""}
+                          ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}`
+            }))
+
             return html`
                 <div>
+                    <!-- <select-field-filter multiple .liveSearch=${"true"} .data="${opts}" .value=${this.panel} @filterChange="${this.filterChange}"></select-field-filter> -->
+
                     <select id="${this._prefix}DiseasePanels" class="selectpicker" data-size="10" data-live-search="true" data-selected-text-format="count" multiple @change="${this.filterChange}">
                         ${this.diseasePanels && this.diseasePanels.length && this.diseasePanels.map(panel => html`
                             <option value="${panel.id}">

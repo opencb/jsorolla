@@ -70,7 +70,7 @@ export default class FileNameAutocomplete extends LitElement {
             dataSource: (query, process) => {
                 const filters = {
                     study: this.opencgaSession.study.fqn,
-                    limit: 5,
+                    limit: 20,
                     count: false,
                     type: "FILE",
                     // include: "id,individual.id",

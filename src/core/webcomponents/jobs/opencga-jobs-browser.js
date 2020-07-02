@@ -181,7 +181,7 @@ export default class OpencgaJobsBrowser extends LitElement {
                                 allowedValues: ["true", "false"],
                                 defaultValue: "",
                                 description: "Visited status of job"
-                            },
+                            }
                         ]
                     }
                 ],
@@ -199,6 +199,9 @@ export default class OpencgaJobsBrowser extends LitElement {
                         }
                     }
                 ],
+                grid: {
+                    order: "AAAA"
+                },
                 result: {
                     grid: {}
                 },

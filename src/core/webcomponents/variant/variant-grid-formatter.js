@@ -198,7 +198,7 @@ export default class VariantGridFormatter {
                                         `;
 
                         geneLinks.push(`<span class="gene-tooltip" data-tooltip-text='${tooltipText}' style="margin-left: 2px">
-                                            <a style="cursor: pointer">
+                                            <a>
                                                 ${geneName}
                                             </a>
                                         </span>`);
@@ -534,23 +534,10 @@ export default class VariantGridFormatter {
                     return html;
                 }
             },
-            position: {
-                target: "mouse",
-                adjust: {
-                    x: 2, y: 2,
-                    mouse: false
-                }
-            },
-            style: {
-                width: "240px",
-            },
-            show: {
-                delay: 200
-            },
-            hide: {
-                fixed: true,
-                delay: 300
-            }
+            position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
+            style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
+            show: {delay: 200},
+            hide: {fixed: true, delay: 300}
         });
     }
 
@@ -854,25 +841,10 @@ export default class VariantGridFormatter {
                     }
                 }
             },
-            position: {
-                target: "mouse",
-                my: (config !== undefined && config.position !== undefined && config.position.my !== undefined) ? config.position.my : "top left",
-                adjust: {
-                    x: 2, y: 2,
-                    mouse: false
-                }
-            },
-            style: {
-                classes: (config !== undefined && config.style !== undefined && config.style.classes !== undefined) ? config.style.classes : "qtip-light qtip-rounded qtip-shadow qtip-custom-class",
-                width: "260px",
-            },
-            show: {
-                delay: 250
-            },
-            hide: {
-                fixed: true,
-                delay: 300
-            }
+            position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
+            style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
+            show: {delay: 200},
+            hide: {fixed: true, delay: 300}
         });
     }
 
