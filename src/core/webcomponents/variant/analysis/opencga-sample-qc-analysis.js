@@ -67,7 +67,7 @@ export default class OpencgaSampleQcAnalysis extends LitElement {
             title: "Sample Quality Control",
             icon: "",
             requires: "2.0.0",
-            description: "Sample Quality Control, you need special permission for running this analysis",
+            description: "Run quality control (QC) for a given sample. It includes variant stats, FastQC,samtools/flagstat, picard/CollectHsMetrics and gene coverage stats; and for somatic samples, mutational signature",
             links: [
                 {
                     title: "OpenCGA",
@@ -92,42 +92,78 @@ export default class OpencgaSampleQcAnalysis extends LitElement {
                         ]
                     },
                     {
-                        // "variantStatsId": "string",
-                        // "variantStatsDecription": "string",
-                        // "variantStatsQuery": {},
                         title: "Variant Stats Parameters",
                         collapsed: false,
                         parameters: [
-
+                            {
+                                id: "variantStatsId",
+                                title: "Choose variant stats id",
+                                type: "text"
+                            },
+                            {
+                                id: "variantStatsDescription",
+                                title: "Variant stats description",
+                                type: "text"
+                            },
+                            {
+                                id: "variantStatsQuery",
+                                title: "Variant stats query",
+                                type: "text"
+                            }
                         ]
                     },
                     {
-                        // "signatureId": "string",
-                        // "signatureQuery": {},
                         title: "Signature Parameters",
                         collapsed: false,
                         parameters: [
-
+                            {
+                                id: "signatureId",
+                                title: "Choose signature id",
+                                type: "text"
+                            },
+                            {
+                                id: "signatureQuery",
+                                title: "Signature query",
+                                type: "text"
+                            }
                         ]
                     },
                     {
-                        // "genesForCoverageStats": [
-                        //     "string"
-                        // ],
                         title: "Gene Coverage Parameters",
                         collapsed: false,
                         parameters: [
-
+                            {
+                                id: "genesForCoverageStats",
+                                title: "List of genes for coverage stats",
+                                type: "text"
+                            }
                         ]
                     },
                     {
-                        // "fastaFile": "string",
-                        // "baitFile": "string",
-                        // "targetFile": "string",
                         title: "Piccard HsMetrics Parameters",
                         collapsed: false,
                         parameters: [
-
+                            {
+                                id: "fastaFile",
+                                title: "Fasta file",
+                                type: "FILE_FILTER",
+                                showList: true,
+                                fileUpload: true
+                            },
+                            {
+                                id: "baitFile",
+                                title: "Bait file",
+                                type: "FILE_FILTER",
+                                showList: true,
+                                fileUpload: true
+                            },
+                            {
+                                id: "targetFile",
+                                title: "Target file",
+                                type: "FILE_FILTER",
+                                showList: true,
+                                fileUpload: true
+                            }
                         ]
                     }
                 ],
