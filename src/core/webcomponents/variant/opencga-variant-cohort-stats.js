@@ -67,19 +67,19 @@ export default class OpencgaVariantCohortStats extends LitElement {
             //         cohorts[studyCohorts].add(cohort.id);
             //     }
             // }
-            const _this = this;
+            // const _this = this;
             const params = {
                 id: this.variantId,
-                study: this.opencgaSession.project.id + ":" + this.opencgaSession.study.id,
+                study: this.opencgaSession.study.fqn,
                 includeStudy: "all",
                 exclude: "annotation,studies.files,studies.samples,studies.scores,studies.issues",
                 useSearchIndex: "no"
             };
             this.opencgaSession.opencgaClient.variants().query(params)
-                .then(function(response) {
-                    if (typeof response.responses[0].results[0] !== "undefined") {
-                        _this.studies = response.responses[0].results[0].studies;
-                        _this.requestUpdate();
+                .then(response => {
+                    if (response.responses[0].results[0]) {
+                        this.studies = response.responses[0].results[0].studies;
+                        this.requestUpdate();
                     }
                 })
                 .catch(function(reason) {
@@ -88,24 +88,20 @@ export default class OpencgaVariantCohortStats extends LitElement {
         }
     }
 
-    // TODO remove this function in OpenCGA 1.4.x since we will use new Study.id instead of Study.alias
-    getStudy(study) {
-        if (study !== undefined) {
-            const fields = study.split(":");
-            return fields[fields.length - 1];
-        }
-        return "";
-    }
-
     render() {
+        let studyNames = {};
+        for (let study of this.opencgaSession.project.studies) {
+            studyNames[study.id] = study.name;
+            studyNames[study.fqn] = study.name;
+        }
         return html`
-                ${this.studies && this.studies.length && this.studies.map(study => html`
-                    <h3 > 
-                        &nbsp;${this.getStudy(study.studyId)}
-                    </h3>
-                    
-                    <opencga-cohort-variant-stats .stats="${study.stats}"></opencga-cohort-variant-stats>
-                `)}
+            ${this.studies && this.studies.length && this.studies.map(study => html`
+                <h3> 
+                    ${studyNames[study.studyId]}
+                </h3>
+                
+                <opencga-cohort-variant-stats .stats="${study.stats}"></opencga-cohort-variant-stats>
+            `)}
         `;
     }
 }
