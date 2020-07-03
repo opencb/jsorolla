@@ -68,14 +68,18 @@ export default class OpencgaClinicalAnalysisDetail extends LitElement {
     }
 
     clinicalAnalysisIdObserver() {
-        if (this.opencgaSession && this.clinicalAnalysisId) {
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-                .then(restResponse => {
-                    this.clinicalAnalysis = restResponse.getResult(0);
-                })
-                .catch(restResponse => {
-                    console.error(restResponse);
-                });
+        if (this.opencgaSession) {
+            if (this.clinicalAnalysisId) {
+                this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                    .then(restResponse => {
+                        this.clinicalAnalysis = restResponse.getResult(0);
+                    })
+                    .catch(restResponse => {
+                        console.error(restResponse);
+                    });
+            } else {
+                this.clinicalAnalysis = null;
+            }
         }
     }
 

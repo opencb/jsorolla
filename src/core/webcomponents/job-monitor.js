@@ -206,7 +206,7 @@ export class JobMonitor extends LitElement {
         return html`
             <ul id="job-monitor" class="nav navbar-nav notification-nav">
                 <li class="notification">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" @click="${this.toggleDropdown}">
+                    <a href="#" class="dropdown-toggle" title="Job Monitor" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" @click="${this.toggleDropdown}">
                         <span class="badge badge-pill badge-primary ${this.updatedCnt > 0 ? "" : "invisible"}">${this.updatedCnt}</span> <i class="fas fa-rocket"></i>
                     </a>
                     <ul class="dropdown-menu">

@@ -240,7 +240,6 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     onClickRow(e, resource) {
-        //console.log(e);
         this.detail = {...this.detail, [resource]: e.detail.row};
         this.requestUpdate();
     }

@@ -69,14 +69,19 @@ export default class OpencgaJobsDetail extends LitElement {
     }
 
     jobIdObserver() {
-        if (this.opencgaSession && this.jobId) {
-            this.opencgaSession.opencgaClient.jobs().info(this.jobId, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    this.job = response.getResult(0);
-                })
-                .catch(function(reason) {
-                    console.error(reason);
-                });
+        if (this.opencgaSession) {
+            if (this.jobId) {
+                this.opencgaSession.opencgaClient.jobs().info(this.jobId, {study: this.opencgaSession.study.fqn})
+                    .then(response => {
+                        this.job = response.getResult(0);
+                    })
+                    .catch(function(reason) {
+                        console.error(reason);
+                    });
+            } else {
+                this.job = null;
+            }
+
         }
     }
 

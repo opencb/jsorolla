@@ -68,14 +68,19 @@ export default class OpencgaFileDetail extends LitElement {
     }
 
     fileIdObserver() {
-        if (this.opencgaSession && this.fileId) {
-            this.opencgaSession.opencgaClient.files().info(this.fileId, {study: this.opencgaSession.study.fqn})
-                .then(restResponse => {
-                    this.file = restResponse.getResult(0);
-                })
-                .catch(restResponse => {
-                    console.error(restResponse);
-                });
+        if (this.opencgaSession) {
+            if(this.fileId) {
+                this.opencgaSession.opencgaClient.files().info(this.fileId, {study: this.opencgaSession.study.fqn})
+                    .then(restResponse => {
+                        this.file = restResponse.getResult(0);
+                    })
+                    .catch(restResponse => {
+                        console.error(restResponse);
+                    });
+            } else {
+                this.file = null;
+            }
+
         }
     }
 

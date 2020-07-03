@@ -300,7 +300,6 @@ export default class OpencgaVariantBrowser extends LitElement {
     onSelectVariant(e) {
         this.variantId = e.detail.id;
         this.variant = e.detail.row;
-
         this.requestUpdate();
     }
 

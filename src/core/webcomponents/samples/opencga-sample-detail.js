@@ -69,14 +69,18 @@ export default class OpencgaSampleDetail extends LitElement {
     }
 
     sampleIdObserver() {
-        if (this.opencgaSession && this.sampleId) {
-            this.opencgaSession.opencgaClient.samples().info(this.sampleId, {study: this.opencgaSession.study.fqn, includeIndividual: true})
-                .then(response => {
-                    this.sample = response.getResult(0);
-                })
-                .catch(reason => {
-                    console.error(reason);
-                });
+        if (this.opencgaSession) {
+            if (this.sampleId) {
+                this.opencgaSession.opencgaClient.samples().info(this.sampleId, {study: this.opencgaSession.study.fqn, includeIndividual: true})
+                    .then(response => {
+                        this.sample = response.getResult(0);
+                    })
+                    .catch(reason => {
+                        console.error(reason);
+                    });
+            }
+        } else {
+            this.sample = null;
         }
     }
 
