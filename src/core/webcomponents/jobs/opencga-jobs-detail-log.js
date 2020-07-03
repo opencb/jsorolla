@@ -170,7 +170,7 @@ export default class OpencgaJobsDetailLog extends LitElement {
 
     onScroll(e) {
         //TODO custom infinite scroll
-        console.log(e)
+        //console.log(e)
     }
 
     getDefaultConfig() {

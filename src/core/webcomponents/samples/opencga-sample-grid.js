@@ -253,7 +253,7 @@ export default class OpencgaSampleGrid extends LitElement {
     }
 
     individualFormatter(value, row) {
-        return row?.attributes?.OPENCGA_INDIVIDUAL?.id || "-";
+        return row?.individualId ?? "-";
     }
 
     fileFormatter(values, row) {

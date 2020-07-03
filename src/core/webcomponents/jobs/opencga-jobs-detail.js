@@ -95,7 +95,7 @@ export default class OpencgaJobsDetail extends LitElement {
                     name: "Overview",
                     active: true,
                     render: (job, active, opencgaSession) => {
-                        return html`<opencga-jobs-view .opencgaSession=${opencgaSession} .job="${job}"></opencga-jobs-view>`;
+                        return html`<opencga-jobs-view .opencgaSession=${opencgaSession} mode="simple" .job="${job}"></opencga-jobs-view>`;
                     }
                 },
                 {
