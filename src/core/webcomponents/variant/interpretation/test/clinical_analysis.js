@@ -3239,6 +3239,1251 @@ export const responses = [
             "uid" : 0,
             "id" : "ISDBM322015",
             "studyUid" : 0,
+            "qualityControl": {
+              "metrics": [
+                {
+                  "bamFile": "SonsAlignedBamFile.bam",
+                  "variantStats": [
+                    {
+                      "id": "ALL",
+                      "query": {},
+                      "stats": {
+                        "tiTvRatio" : 2.184589,
+                        "biotypeCount" : {
+                          "IG_V_pseudogene" : 471,
+                          "TR_J_pseudogene" : 8,
+                          "nonsense_mediated_decay" : 38790,
+                          "snRNA" : 1289,
+                          "IG_V_gene" : 536,
+                          "unitary_pseudogene" : 294,
+                          "TR_V_gene" : 261,
+                          "non_stop_decay" : 252,
+                          "processed_pseudogene" : 13581,
+                          "sense_overlapping" : 554,
+                          "lincRNA" : 10046,
+                          "misc_RNA" : 1455,
+                          "miRNA" : 3205,
+                          "IG_C_pseudogene" : 51,
+                          "IG_J_pseudogene" : 7,
+                          "protein_coding" : 117967,
+                          "rRNA" : 431,
+                          "TR_V_pseudogene" : 52,
+                          "IG_D_gene" : 72,
+                          "Mt_rRNA" : 10,
+                          "retained_intron" : 43383,
+                          "3prime_overlapping_ncrna" : 66,
+                          "Mt_tRNA" : 26,
+                          "snoRNA" : 1301,
+                          "transcribed_processed_pseudogene" : 785,
+                          "pseudogene" : 577,
+                          "transcribed_unprocessed_pseudogene" : 2866,
+                          "IG_J_gene" : 29,
+                          "IG_C_gene" : 137,
+                          "sense_intronic" : 795,
+                          "TR_C_gene" : 49,
+                          "unprocessed_pseudogene" : 5287,
+                          "translated_processed_pseudogene" : 1,
+                          "TR_J_gene" : 77,
+                          "processed_transcript" : 51934,
+                          "antisense" : 13692,
+                          "polymorphic_pseudogene" : 437
+                        },
+                        "genotypeCount" : {
+                          "0/1" : 56550,
+                          "1/1" : 115739,
+                          "1/2" : 324,
+                          "1/3" : 5
+                        },
+                        "chromosomeCount" : {
+                          "22" : 4095,
+                          "X" : 2377,
+                          "Y" : 437,
+                          "10" : 8451,
+                          "11" : 9511,
+                          "12" : 8233,
+                          "13" : 4339,
+                          "14" : 5891,
+                          "15" : 5804,
+                          "16" : 6749,
+                          "17" : 8074,
+                          "18" : 3711,
+                          "MT" : 26,
+                          "19" : 8629,
+                          "1" : 15814,
+                          "2" : 12636,
+                          "3" : 9349,
+                          "4" : 8176,
+                          "5" : 8052,
+                          "6" : 9712,
+                          "7" : 8812,
+                          "8" : 6821,
+                          "9" : 7318,
+                          "20" : 4502,
+                          "21" : 2657
+                        },
+                        "variantCount" : 172618,
+                        "consequenceTypeCount" : {
+                          "intergenic_variant" : 28802,
+                          "frameshift_variant" : 175,
+                          "3_prime_UTR_variant" : 7978,
+                          "2KB_downstream_variant" : 30855,
+                          "splice_acceptor_variant" : 95,
+                          "intron_variant" : 105346,
+                          "splice_region_variant" : 2905,
+                          "upstream_gene_variant" : 28712,
+                          "5_prime_UTR_variant" : 3311,
+                          "non_coding_transcript_exon_variant" : 27805,
+                          "stop_gained" : 114,
+                          "non_coding_transcript_variant" : 57030,
+                          "2KB_upstream_variant" : 27239,
+                          "start_lost" : 30,
+                          "splice_donor_variant" : 84,
+                          "NMD_transcript_variant" : 31871,
+                          "synonymous_variant" : 11338,
+                          "missense_variant" : 10527,
+                          "mature_miRNA_variant" : 6,
+                          "feature_truncation" : 1,
+                          "stop_lost" : 45,
+                          "regulatory_region_variant" : 142317,
+                          "downstream_gene_variant" : 32859,
+                          "stop_retained_variant" : 26,
+                          "TF_binding_site_variant" : 20588,
+                          "coding_sequence_variant" : 11,
+                          "inframe_deletion" : 87,
+                          "inframe_insertion" : 64,
+                          "incomplete_terminal_codon_variant" : 6
+                        },
+                        "indelLengthCount" : {
+                          "lt20" : 15,
+                          "lt10" : 63,
+                          "gte20" : 11,
+                          "lt5" : 7114,
+                          "lt15" : 17
+                        },
+                        "qualityStdDev" : 1507.8727,
+                        "mendelianErrorCount" : {
+                          "1" : 649
+                        },
+                        "heterozygosityRate" : 0.32950792,
+                        "id" : "ISDBM322015",
+                        "typeCount" : {
+                          "INSERTION" : 1,
+                          "SNV" : 165398,
+                          "DELETION" : 1,
+                          "INDEL" : 7218
+                        },
+                        "qualityAvg" : 805.0968,
+                        "filterCount" : {
+                          "PASS" : 153588.0
+                        }
+                      }
+                    },
+                  ],
+                  "mutationalSignatures" : [
+                    {
+
+                    }
+                  ],
+                  "fastqc": {},
+                  "hsMetrics": {},
+                  "samtoolsFlagStats": {},
+                  "geneCoverageStats": [
+                    {
+                      "sampleId" : "ISDBM322015",
+                      "geneName" : "CEL",
+                      "stats" : [ {
+                        "id" : "ENST00000372080",
+                        "name" : "CEL-001",
+                        "biotype" : "protein_coding",
+                        "chromosome" : "9",
+                        "start" : 135937365,
+                        "end" : 135947248,
+                        "length" : 2384,
+                        "depths" : [ 88.96812080536914, 77.09731543624162, 69.21140939597315, 60.90604026845637, 55.28523489932886, 48.86744966442953, 45.93120805369127, 36.91275167785235, 26.090604026845636, 21.686241610738254, 10.234899328859061, 6.9630872483221475 ],
+                        "lowCoverageThreshold" : 30,
+                        "lowCoverageRegionStats" : [ {
+                          "chromosome" : "9",
+                          "start" : 135937365,
+                          "end" : 135937455,
+                          "depthAvg" : 0.0,
+                          "depthMin" : 0.0
+                        }, {
+                          "chromosome" : "9",
+                          "start" : 135939791,
+                          "end" : 135939874,
+                          "depthAvg" : 23.44047619047619,
+                          "depthMin" : 18.0
+                        }, {
+                          "chromosome" : "9",
+                          "start" : 135939876,
+                          "end" : 135939878,
+                          "depthAvg" : 30.0,
+                          "depthMin" : 30.0
+                        }, {
+                          "chromosome" : "9",
+                          "start" : 135939889,
+                          "end" : 135939892,
+                          "depthAvg" : 30.0,
+                          "depthMin" : 30.0
+                        }, {
+                          "chromosome" : "9",
+                          "start" : 135939895,
+                          "end" : 135939897,
+                          "depthAvg" : 30.0,
+                          "depthMin" : 30.0
+                        }, {
+                          "chromosome" : "9",
+                          "start" : 135939925,
+                          "end" : 135939941,
+                          "depthAvg" : 27.58823529411765,
+                          "depthMin" : 23.0
+                        }, {
+                          "chromosome" : "9",
+                          "start" : 135942225,
+                          "end" : 135942332,
+                          "depthAvg" : 9.50925925925926,
+                          "depthMin" : 6.0
+                        }, {
+                          "chromosome" : "9",
+                          "start" : 135942500,
+                          "end" : 135942592,
+                          "depthAvg" : 14.67741935483871,
+                          "depthMin" : 4.0
+                        }, {
+                          "chromosome" : "9",
+                          "start" : 135944638,
+                          "end" : 135944646,
+                          "depthAvg" : 28.555555555555557,
+                          "depthMin" : 24.0
+                        }, {
+                          "chromosome" : "9",
+                          "start" : 135945848,
+                          "end" : 135945870,
+                          "depthAvg" : 24.08695652173913,
+                          "depthMin" : 20.0
+                        }, {
+                          "chromosome" : "9",
+                          "start" : 135946374,
+                          "end" : 135947248,
+                          "depthAvg" : 7.410285714285714,
+                          "depthMin" : 0.0
+                        } ],
+                        "exonStats" : [ {
+                          "id" : "ENSE00001662100",
+                          "chromosome" : "9",
+                          "start" : 135937365,
+                          "end" : 135937455,
+                          "depthAvg" : 0.0,
+                          "depthMin" : 0.0,
+                          "depthMax" : 0.0
+                        }, {
+                          "id" : "ENSE00001136823",
+                          "chromosome" : "9",
+                          "start" : 135939791,
+                          "end" : 135939941,
+                          "depthAvg" : 26.52980132450331,
+                          "depthMin" : 18.0,
+                          "depthMax" : 33.0
+                        }, {
+                          "id" : "ENSE00001136821",
+                          "chromosome" : "9",
+                          "start" : 135940027,
+                          "end" : 135940149,
+                          "depthAvg" : 44.50406504065041,
+                          "depthMin" : 35.0,
+                          "depthMax" : 51.0
+                        }, {
+                          "id" : "ENSE00001136814",
+                          "chromosome" : "9",
+                          "start" : 135940427,
+                          "end" : 135940624,
+                          "depthAvg" : 173.96464646464648,
+                          "depthMin" : 45.0,
+                          "depthMax" : 257.0
+                        }, {
+                          "id" : "ENSE00001136809",
+                          "chromosome" : "9",
+                          "start" : 135941917,
+                          "end" : 135942047,
+                          "depthAvg" : 54.458015267175576,
+                          "depthMin" : 35.0,
+                          "depthMax" : 68.0
+                        }, {
+                          "id" : "ENSE00001136804",
+                          "chromosome" : "9",
+                          "start" : 135942225,
+                          "end" : 135942332,
+                          "depthAvg" : 9.50925925925926,
+                          "depthMin" : 6.0,
+                          "depthMax" : 13.0
+                        }, {
+                          "id" : "ENSE00001136798",
+                          "chromosome" : "9",
+                          "start" : 135942475,
+                          "end" : 135942592,
+                          "depthAvg" : 18.440677966101696,
+                          "depthMin" : 4.0,
+                          "depthMax" : 34.0
+                        }, {
+                          "id" : "ENSE00001679789",
+                          "chromosome" : "9",
+                          "start" : 135944059,
+                          "end" : 135944245,
+                          "depthAvg" : 65.75935828877006,
+                          "depthMin" : 47.0,
+                          "depthMax" : 77.0
+                        }, {
+                          "id" : "ENSE00001593673",
+                          "chromosome" : "9",
+                          "start" : 135944443,
+                          "end" : 135944646,
+                          "depthAvg" : 39.495098039215684,
+                          "depthMin" : 24.0,
+                          "depthMax" : 48.0
+                        }, {
+                          "id" : "ENSE00001240014",
+                          "chromosome" : "9",
+                          "start" : 135945848,
+                          "end" : 135946045,
+                          "depthAvg" : 59.843434343434346,
+                          "depthMin" : 20.0,
+                          "depthMax" : 83.0
+                        }, {
+                          "id" : "ENSE00001456865",
+                          "chromosome" : "9",
+                          "start" : 135946374,
+                          "end" : 135947248,
+                          "depthAvg" : 7.410285714285714,
+                          "depthMin" : 0.0,
+                          "depthMax" : 27.0
+                        } ]
+                      }, {
+                        "id" : "ENST00000351304",
+                        "name" : "CEL-201",
+                        "biotype" : "protein_coding",
+                        "chromosome" : "9",
+                        "start" : 135937365,
+                        "end" : 135947248,
+                        "length" : 2186,
+                        "depths" : [ 87.96889295516927, 75.02287282708143, 66.42268984446477, 57.36505032021958, 51.23513266239708, 44.69350411710887, 42.086001829826166, 32.7996340347667, 21.7291857273559, 18.7099725526075, 8.325709057639525, 7.593778591033852 ],
+                        "lowCoverageThreshold" : 30,
+                        "lowCoverageRegionStats" : [ {
+                          "chromosome" : "9",
+                          "start" : 135937365,
+                          "end" : 135937455,
+                          "depthAvg" : 0.0,
+                          "depthMin" : 0.0
+                        }, {
+                          "chromosome" : "9",
+                          "start" : 135939791,
+                          "end" : 135939874,
+                          "depthAvg" : 23.44047619047619,
+                          "depthMin" : 18.0
+                        }, {
+                          "chromosome" : "9",
+                          "start" : 135939876,
+                          "end" : 135939878,
+                          "depthAvg" : 30.0,
+                          "depthMin" : 30.0
+                        }, {
+                          "chromosome" : "9",
+                          "start" : 135939889,
+                          "end" : 135939892,
+                          "depthAvg" : 30.0,
+                          "depthMin" : 30.0
+                        }, {
+                          "chromosome" : "9",
+                          "start" : 135939895,
+                          "end" : 135939897,
+                          "depthAvg" : 30.0,
+                          "depthMin" : 30.0
+                        }, {
+                          "chromosome" : "9",
+                          "start" : 135939925,
+                          "end" : 135939941,
+                          "depthAvg" : 27.58823529411765,
+                          "depthMin" : 23.0
+                        }, {
+                          "chromosome" : "9",
+                          "start" : 135942225,
+                          "end" : 135942332,
+                          "depthAvg" : 9.50925925925926,
+                          "depthMin" : 6.0
+                        }, {
+                          "chromosome" : "9",
+                          "start" : 135942500,
+                          "end" : 135942592,
+                          "depthAvg" : 14.67741935483871,
+                          "depthMin" : 4.0
+                        }, {
+                          "chromosome" : "9",
+                          "start" : 135944638,
+                          "end" : 135944646,
+                          "depthAvg" : 28.555555555555557,
+                          "depthMin" : 24.0
+                        }, {
+                          "chromosome" : "9",
+                          "start" : 135946374,
+                          "end" : 135947248,
+                          "depthAvg" : 7.410285714285714,
+                          "depthMin" : 0.0
+                        } ],
+                        "exonStats" : [ {
+                          "id" : "ENSE00001662100",
+                          "chromosome" : "9",
+                          "start" : 135937365,
+                          "end" : 135937455,
+                          "depthAvg" : 0.0,
+                          "depthMin" : 0.0,
+                          "depthMax" : 0.0
+                        }, {
+                          "id" : "ENSE00001136823",
+                          "chromosome" : "9",
+                          "start" : 135939791,
+                          "end" : 135939941,
+                          "depthAvg" : 26.52980132450331,
+                          "depthMin" : 18.0,
+                          "depthMax" : 33.0
+                        }, {
+                          "id" : "ENSE00001136821",
+                          "chromosome" : "9",
+                          "start" : 135940027,
+                          "end" : 135940149,
+                          "depthAvg" : 44.50406504065041,
+                          "depthMin" : 35.0,
+                          "depthMax" : 51.0
+                        }, {
+                          "id" : "ENSE00001136814",
+                          "chromosome" : "9",
+                          "start" : 135940427,
+                          "end" : 135940624,
+                          "depthAvg" : 173.96464646464648,
+                          "depthMin" : 45.0,
+                          "depthMax" : 257.0
+                        }, {
+                          "id" : "ENSE00001136809",
+                          "chromosome" : "9",
+                          "start" : 135941917,
+                          "end" : 135942047,
+                          "depthAvg" : 54.458015267175576,
+                          "depthMin" : 35.0,
+                          "depthMax" : 68.0
+                        }, {
+                          "id" : "ENSE00001136804",
+                          "chromosome" : "9",
+                          "start" : 135942225,
+                          "end" : 135942332,
+                          "depthAvg" : 9.50925925925926,
+                          "depthMin" : 6.0,
+                          "depthMax" : 13.0
+                        }, {
+                          "id" : "ENSE00001136798",
+                          "chromosome" : "9",
+                          "start" : 135942475,
+                          "end" : 135942592,
+                          "depthAvg" : 18.440677966101696,
+                          "depthMin" : 4.0,
+                          "depthMax" : 34.0
+                        }, {
+                          "id" : "ENSE00001679789",
+                          "chromosome" : "9",
+                          "start" : 135944059,
+                          "end" : 135944245,
+                          "depthAvg" : 65.75935828877006,
+                          "depthMin" : 47.0,
+                          "depthMax" : 77.0
+                        }, {
+                          "id" : "ENSE00001593673",
+                          "chromosome" : "9",
+                          "start" : 135944443,
+                          "end" : 135944646,
+                          "depthAvg" : 39.495098039215684,
+                          "depthMin" : 24.0,
+                          "depthMax" : 48.0
+                        }, {
+                          "id" : "ENSE00001456865",
+                          "chromosome" : "9",
+                          "start" : 135946374,
+                          "end" : 135947248,
+                          "depthAvg" : 7.410285714285714,
+                          "depthMin" : 0.0,
+                          "depthMax" : 27.0
+                        } ]
+                      } ]
+                    },
+                    {
+                      "sampleId" : "ISDBM322015",
+                      "geneName" : "ADSL",
+                      "stats" : [ {
+                        "id" : "ENST00000216194",
+                        "name" : "ADSL-001",
+                        "biotype" : "protein_coding",
+                        "chromosome" : "22",
+                        "start" : 40742507,
+                        "end" : 40763008,
+                        "length" : 1993,
+                        "depths" : [ 88.10837932764677, 77.27044656297039, 67.23532363271451, 66.4826894129453, 63.07074761665831, 59.85950827897641, 56.84897139989965, 45.60963371801304, 33.81836427496237, 29.75413948820873, 24.234821876567988, 11.138986452584044 ],
+                        "lowCoverageThreshold" : 30,
+                        "lowCoverageRegionStats" : [ {
+                          "chromosome" : "22",
+                          "start" : 40742507,
+                          "end" : 40742715,
+                          "depthAvg" : 5.559808612440191,
+                          "depthMin" : 2.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40745836,
+                          "end" : 40745855,
+                          "depthAvg" : 27.15,
+                          "depthMin" : 25.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40745873,
+                          "end" : 40745876,
+                          "depthAvg" : 30.0,
+                          "depthMin" : 30.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40746022,
+                          "end" : 40746039,
+                          "depthAvg" : 25.444444444444443,
+                          "depthMin" : 21.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40755026,
+                          "end" : 40755029,
+                          "depthAvg" : 30.0,
+                          "depthMin" : 30.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40755031,
+                          "end" : 40755039,
+                          "depthAvg" : 28.333333333333332,
+                          "depthMin" : 26.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40760280,
+                          "end" : 40760369,
+                          "depthAvg" : 18.666666666666668,
+                          "depthMin" : 14.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40762440,
+                          "end" : 40762463,
+                          "depthAvg" : 27.208333333333332,
+                          "depthMin" : 24.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40762506,
+                          "end" : 40763008,
+                          "depthAvg" : 3.234592445328032,
+                          "depthMin" : 0.0
+                        } ],
+                        "exonStats" : [ {
+                          "id" : "ENSE00001803419",
+                          "chromosome" : "22",
+                          "start" : 40742507,
+                          "end" : 40742715,
+                          "depthAvg" : 5.559808612440191,
+                          "depthMin" : 2.0,
+                          "depthMax" : 7.0
+                        }, {
+                          "id" : "ENSE00002140508",
+                          "chromosome" : "22",
+                          "start" : 40745836,
+                          "end" : 40746039,
+                          "depthAvg" : 39.48039215686274,
+                          "depthMin" : 21.0,
+                          "depthMax" : 59.0
+                        }, {
+                          "id" : "ENSE00002160623",
+                          "chromosome" : "22",
+                          "start" : 40749077,
+                          "end" : 40749121,
+                          "depthAvg" : 34.977777777777774,
+                          "depthMin" : 32.0,
+                          "depthMax" : 37.0
+                        }, {
+                          "id" : "ENSE00003149424",
+                          "chromosome" : "22",
+                          "start" : 40750252,
+                          "end" : 40750331,
+                          "depthAvg" : 221.3,
+                          "depthMin" : 178.0,
+                          "depthMax" : 243.0
+                        }, {
+                          "id" : "ENSE00002187494",
+                          "chromosome" : "22",
+                          "start" : 40754868,
+                          "end" : 40755039,
+                          "depthAvg" : 56.151162790697676,
+                          "depthMin" : 26.0,
+                          "depthMax" : 82.0
+                        }, {
+                          "id" : "ENSE00003503675",
+                          "chromosome" : "22",
+                          "start" : 40755264,
+                          "end" : 40755310,
+                          "depthAvg" : 97.65957446808511,
+                          "depthMin" : 86.0,
+                          "depthMax" : 104.0
+                        }, {
+                          "id" : "ENSE00003459954",
+                          "chromosome" : "22",
+                          "start" : 40756406,
+                          "end" : 40756496,
+                          "depthAvg" : 43.26373626373626,
+                          "depthMin" : 35.0,
+                          "depthMax" : 48.0
+                        }, {
+                          "id" : "ENSE00002197530",
+                          "chromosome" : "22",
+                          "start" : 40757277,
+                          "end" : 40757346,
+                          "depthAvg" : 112.98571428571428,
+                          "depthMin" : 88.0,
+                          "depthMax" : 136.0
+                        }, {
+                          "id" : "ENSE00000654864",
+                          "chromosome" : "22",
+                          "start" : 40757492,
+                          "end" : 40757639,
+                          "depthAvg" : 86.45270270270271,
+                          "depthMin" : 37.0,
+                          "depthMax" : 134.0
+                        }, {
+                          "id" : "ENSE00000654865",
+                          "chromosome" : "22",
+                          "start" : 40758985,
+                          "end" : 40759075,
+                          "depthAvg" : 61.76923076923077,
+                          "depthMin" : 43.0,
+                          "depthMax" : 75.0
+                        }, {
+                          "id" : "ENSE00000654866",
+                          "chromosome" : "22",
+                          "start" : 40760280,
+                          "end" : 40760369,
+                          "depthAvg" : 18.666666666666668,
+                          "depthMin" : 14.0,
+                          "depthMax" : 22.0
+                        }, {
+                          "id" : "ENSE00000654867",
+                          "chromosome" : "22",
+                          "start" : 40760884,
+                          "end" : 40761060,
+                          "depthAvg" : 84.15254237288136,
+                          "depthMin" : 43.0,
+                          "depthMax" : 105.0
+                        }, {
+                          "id" : "ENSE00001838342",
+                          "chromosome" : "22",
+                          "start" : 40762440,
+                          "end" : 40763008,
+                          "depthAvg" : 6.483304042179262,
+                          "depthMin" : 0.0,
+                          "depthMax" : 37.0
+                        } ]
+                      }, {
+                        "id" : "ENST00000466863",
+                        "name" : "ADSL-003",
+                        "biotype" : "retained_intron",
+                        "chromosome" : "22",
+                        "start" : 40742522,
+                        "end" : 40746327,
+                        "length" : 686,
+                        "depths" : [ 97.667638483965, 61.80758017492711, 33.965014577259474, 31.195335276967928, 30.174927113702626, 28.425655976676385, 25.364431486880466, 15.160349854227405, 4.373177842565598, 0.0, 0.0, 0.0 ],
+                        "lowCoverageThreshold" : 30,
+                        "lowCoverageRegionStats" : [ {
+                          "chromosome" : "22",
+                          "start" : 40742522,
+                          "end" : 40742715,
+                          "depthAvg" : 5.762886597938144,
+                          "depthMin" : 4.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40745836,
+                          "end" : 40745855,
+                          "depthAvg" : 27.15,
+                          "depthMin" : 25.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40745873,
+                          "end" : 40745876,
+                          "depthAvg" : 30.0,
+                          "depthMin" : 30.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40746022,
+                          "end" : 40746327,
+                          "depthAvg" : 4.369281045751634,
+                          "depthMin" : 0.0
+                        } ],
+                        "exonStats" : [ {
+                          "id" : "ENSE00002726378",
+                          "chromosome" : "22",
+                          "start" : 40742522,
+                          "end" : 40742715,
+                          "depthAvg" : 5.762886597938144,
+                          "depthMin" : 4.0,
+                          "depthMax" : 7.0
+                        }, {
+                          "id" : "ENSE00001838642",
+                          "chromosome" : "22",
+                          "start" : 40745836,
+                          "end" : 40746327,
+                          "depthAvg" : 18.15650406504065,
+                          "depthMin" : 0.0,
+                          "depthMax" : 59.0
+                        } ]
+                      }, {
+                        "id" : "ENST00000454266",
+                        "name" : "ADSL-201",
+                        "biotype" : "protein_coding",
+                        "chromosome" : "22",
+                        "start" : 40742532,
+                        "end" : 40762618,
+                        "length" : 1620,
+                        "depths" : [ 95.86419753086419, 91.85185185185185, 79.93827160493827, 79.01234567901234, 74.81481481481481, 70.86419753086419, 67.1604938271605, 56.111111111111114, 41.604938271604944, 36.60493827160494, 29.814814814814817, 13.703703703703704 ],
+                        "lowCoverageThreshold" : 30,
+                        "lowCoverageRegionStats" : [ {
+                          "chromosome" : "22",
+                          "start" : 40742532,
+                          "end" : 40742715,
+                          "depthAvg" : 5.820652173913044,
+                          "depthMin" : 4.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40745836,
+                          "end" : 40745855,
+                          "depthAvg" : 27.15,
+                          "depthMin" : 25.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40745873,
+                          "end" : 40745876,
+                          "depthAvg" : 30.0,
+                          "depthMin" : 30.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40746022,
+                          "end" : 40746039,
+                          "depthAvg" : 25.444444444444443,
+                          "depthMin" : 21.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40749337,
+                          "end" : 40749423,
+                          "depthAvg" : 0.22988505747126436,
+                          "depthMin" : 0.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40755026,
+                          "end" : 40755029,
+                          "depthAvg" : 30.0,
+                          "depthMin" : 30.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40755031,
+                          "end" : 40755039,
+                          "depthAvg" : 28.333333333333332,
+                          "depthMin" : 26.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40760280,
+                          "end" : 40760369,
+                          "depthAvg" : 18.666666666666668,
+                          "depthMin" : 14.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40762440,
+                          "end" : 40762463,
+                          "depthAvg" : 27.208333333333332,
+                          "depthMin" : 24.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40762506,
+                          "end" : 40762618,
+                          "depthAvg" : 12.451327433628318,
+                          "depthMin" : 1.0
+                        } ],
+                        "exonStats" : [ {
+                          "id" : "ENSE00001789077",
+                          "chromosome" : "22",
+                          "start" : 40742532,
+                          "end" : 40742715,
+                          "depthAvg" : 5.820652173913044,
+                          "depthMin" : 4.0,
+                          "depthMax" : 7.0
+                        }, {
+                          "id" : "ENSE00002140508",
+                          "chromosome" : "22",
+                          "start" : 40745836,
+                          "end" : 40746039,
+                          "depthAvg" : 39.48039215686274,
+                          "depthMin" : 21.0,
+                          "depthMax" : 59.0
+                        }, {
+                          "id" : "ENSE00001632428",
+                          "chromosome" : "22",
+                          "start" : 40749337,
+                          "end" : 40749423,
+                          "depthAvg" : 0.22988505747126436,
+                          "depthMin" : 0.0,
+                          "depthMax" : 1.0
+                        }, {
+                          "id" : "ENSE00003149424",
+                          "chromosome" : "22",
+                          "start" : 40750252,
+                          "end" : 40750331,
+                          "depthAvg" : 221.3,
+                          "depthMin" : 178.0,
+                          "depthMax" : 243.0
+                        }, {
+                          "id" : "ENSE00002187494",
+                          "chromosome" : "22",
+                          "start" : 40754868,
+                          "end" : 40755039,
+                          "depthAvg" : 56.151162790697676,
+                          "depthMin" : 26.0,
+                          "depthMax" : 82.0
+                        }, {
+                          "id" : "ENSE00003503675",
+                          "chromosome" : "22",
+                          "start" : 40755264,
+                          "end" : 40755310,
+                          "depthAvg" : 97.65957446808511,
+                          "depthMin" : 86.0,
+                          "depthMax" : 104.0
+                        }, {
+                          "id" : "ENSE00003459954",
+                          "chromosome" : "22",
+                          "start" : 40756406,
+                          "end" : 40756496,
+                          "depthAvg" : 43.26373626373626,
+                          "depthMin" : 35.0,
+                          "depthMax" : 48.0
+                        }, {
+                          "id" : "ENSE00002197530",
+                          "chromosome" : "22",
+                          "start" : 40757277,
+                          "end" : 40757346,
+                          "depthAvg" : 112.98571428571428,
+                          "depthMin" : 88.0,
+                          "depthMax" : 136.0
+                        }, {
+                          "id" : "ENSE00000654864",
+                          "chromosome" : "22",
+                          "start" : 40757492,
+                          "end" : 40757639,
+                          "depthAvg" : 86.45270270270271,
+                          "depthMin" : 37.0,
+                          "depthMax" : 134.0
+                        }, {
+                          "id" : "ENSE00000654865",
+                          "chromosome" : "22",
+                          "start" : 40758985,
+                          "end" : 40759075,
+                          "depthAvg" : 61.76923076923077,
+                          "depthMin" : 43.0,
+                          "depthMax" : 75.0
+                        }, {
+                          "id" : "ENSE00000654866",
+                          "chromosome" : "22",
+                          "start" : 40760280,
+                          "end" : 40760369,
+                          "depthAvg" : 18.666666666666668,
+                          "depthMin" : 14.0,
+                          "depthMax" : 22.0
+                        }, {
+                          "id" : "ENSE00000654867",
+                          "chromosome" : "22",
+                          "start" : 40760884,
+                          "end" : 40761060,
+                          "depthAvg" : 84.15254237288136,
+                          "depthMin" : 43.0,
+                          "depthMax" : 105.0
+                        }, {
+                          "id" : "ENSE00002255094",
+                          "chromosome" : "22",
+                          "start" : 40762440,
+                          "end" : 40762618,
+                          "depthAvg" : 19.379888268156424,
+                          "depthMin" : 1.0,
+                          "depthMax" : 37.0
+                        } ]
+                      }, {
+                        "id" : "ENST00000342312",
+                        "name" : "ADSL-002",
+                        "biotype" : "protein_coding",
+                        "chromosome" : "22",
+                        "start" : 40742536,
+                        "end" : 40763000,
+                        "length" : 1779,
+                        "depths" : [ 87.12759977515458, 75.99775154581225, 65.37380550871276, 64.53063518830804, 60.70826306913997, 57.11073636874649, 53.7380550871276, 41.14671163575042, 28.3867341202923, 24.45193929173693, 19.224283305227654, 11.973018549747048 ],
+                        "lowCoverageThreshold" : 30,
+                        "lowCoverageRegionStats" : [ {
+                          "chromosome" : "22",
+                          "start" : 40742536,
+                          "end" : 40742715,
+                          "depthAvg" : 5.838888888888889,
+                          "depthMin" : 4.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40745836,
+                          "end" : 40745855,
+                          "depthAvg" : 27.15,
+                          "depthMin" : 25.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40745873,
+                          "end" : 40745876,
+                          "depthAvg" : 30.0,
+                          "depthMin" : 30.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40746022,
+                          "end" : 40746039,
+                          "depthAvg" : 25.444444444444443,
+                          "depthMin" : 21.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40755026,
+                          "end" : 40755029,
+                          "depthAvg" : 30.0,
+                          "depthMin" : 30.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40755031,
+                          "end" : 40755039,
+                          "depthAvg" : 28.333333333333332,
+                          "depthMin" : 26.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40760280,
+                          "end" : 40760369,
+                          "depthAvg" : 18.666666666666668,
+                          "depthMin" : 14.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40762440,
+                          "end" : 40762463,
+                          "depthAvg" : 27.208333333333332,
+                          "depthMin" : 24.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40762506,
+                          "end" : 40763000,
+                          "depthAvg" : 3.286868686868687,
+                          "depthMin" : 0.0
+                        } ],
+                        "exonStats" : [ {
+                          "id" : "ENSE00001928680",
+                          "chromosome" : "22",
+                          "start" : 40742536,
+                          "end" : 40742715,
+                          "depthAvg" : 5.838888888888889,
+                          "depthMin" : 4.0,
+                          "depthMax" : 7.0
+                        }, {
+                          "id" : "ENSE00002140508",
+                          "chromosome" : "22",
+                          "start" : 40745836,
+                          "end" : 40746039,
+                          "depthAvg" : 39.48039215686274,
+                          "depthMin" : 21.0,
+                          "depthMax" : 59.0
+                        }, {
+                          "id" : "ENSE00002160623",
+                          "chromosome" : "22",
+                          "start" : 40749077,
+                          "end" : 40749121,
+                          "depthAvg" : 34.977777777777774,
+                          "depthMin" : 32.0,
+                          "depthMax" : 37.0
+                        }, {
+                          "id" : "ENSE00003149424",
+                          "chromosome" : "22",
+                          "start" : 40750252,
+                          "end" : 40750331,
+                          "depthAvg" : 221.3,
+                          "depthMin" : 178.0,
+                          "depthMax" : 243.0
+                        }, {
+                          "id" : "ENSE00002187494",
+                          "chromosome" : "22",
+                          "start" : 40754868,
+                          "end" : 40755039,
+                          "depthAvg" : 56.151162790697676,
+                          "depthMin" : 26.0,
+                          "depthMax" : 82.0
+                        }, {
+                          "id" : "ENSE00003503675",
+                          "chromosome" : "22",
+                          "start" : 40755264,
+                          "end" : 40755310,
+                          "depthAvg" : 97.65957446808511,
+                          "depthMin" : 86.0,
+                          "depthMax" : 104.0
+                        }, {
+                          "id" : "ENSE00003459954",
+                          "chromosome" : "22",
+                          "start" : 40756406,
+                          "end" : 40756496,
+                          "depthAvg" : 43.26373626373626,
+                          "depthMin" : 35.0,
+                          "depthMax" : 48.0
+                        }, {
+                          "id" : "ENSE00002197530",
+                          "chromosome" : "22",
+                          "start" : 40757277,
+                          "end" : 40757346,
+                          "depthAvg" : 112.98571428571428,
+                          "depthMin" : 88.0,
+                          "depthMax" : 136.0
+                        }, {
+                          "id" : "ENSE00000654864",
+                          "chromosome" : "22",
+                          "start" : 40757492,
+                          "end" : 40757639,
+                          "depthAvg" : 86.45270270270271,
+                          "depthMin" : 37.0,
+                          "depthMax" : 134.0
+                        }, {
+                          "id" : "ENSE00000654865",
+                          "chromosome" : "22",
+                          "start" : 40758985,
+                          "end" : 40759075,
+                          "depthAvg" : 61.76923076923077,
+                          "depthMin" : 43.0,
+                          "depthMax" : 75.0
+                        }, {
+                          "id" : "ENSE00000654866",
+                          "chromosome" : "22",
+                          "start" : 40760280,
+                          "end" : 40760369,
+                          "depthAvg" : 18.666666666666668,
+                          "depthMin" : 14.0,
+                          "depthMax" : 22.0
+                        }, {
+                          "id" : "ENSE00001826622",
+                          "chromosome" : "22",
+                          "start" : 40762440,
+                          "end" : 40763000,
+                          "depthAvg" : 6.575757575757576,
+                          "depthMin" : 0.0,
+                          "depthMax" : 37.0
+                        } ]
+                      }, {
+                        "id" : "ENST00000477111",
+                        "name" : "ADSL-005",
+                        "biotype" : "retained_intron",
+                        "chromosome" : "22",
+                        "start" : 40745887,
+                        "end" : 40755306,
+                        "length" : 592,
+                        "depths" : [ 100.0, 98.1418918918919, 88.68243243243244, 84.7972972972973, 77.53378378378379, 71.95945945945947, 68.58108108108108, 54.560810810810814, 34.29054054054054, 25.675675675675674, 19.08783783783784, 3.209459459459459 ],
+                        "lowCoverageThreshold" : 30,
+                        "lowCoverageRegionStats" : [ {
+                          "chromosome" : "22",
+                          "start" : 40746022,
+                          "end" : 40746039,
+                          "depthAvg" : 25.444444444444443,
+                          "depthMin" : 21.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40755026,
+                          "end" : 40755029,
+                          "depthAvg" : 30.0,
+                          "depthMin" : 30.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40755031,
+                          "end" : 40755204,
+                          "depthAvg" : 13.75287356321839,
+                          "depthMin" : 4.0
+                        } ],
+                        "exonStats" : [ {
+                          "id" : "ENSE00001834725",
+                          "chromosome" : "22",
+                          "start" : 40745887,
+                          "end" : 40746039,
+                          "depthAvg" : 42.59477124183007,
+                          "depthMin" : 21.0,
+                          "depthMax" : 59.0
+                        }, {
+                          "id" : "ENSE00001850340",
+                          "chromosome" : "22",
+                          "start" : 40754868,
+                          "end" : 40755306,
+                          "depthAvg" : 44.523917995444194,
+                          "depthMin" : 4.0,
+                          "depthMax" : 104.0
+                        } ]
+                      }, {
+                        "id" : "ENST00000480775",
+                        "name" : "ADSL-006",
+                        "biotype" : "processed_transcript",
+                        "chromosome" : "22",
+                        "start" : 40754972,
+                        "end" : 40757594,
+                        "length" : 564,
+                        "depths" : [ 100.0, 98.04964539007092, 91.48936170212765, 89.8936170212766, 89.00709219858156, 87.7659574468085, 84.75177304964538, 73.75886524822694, 54.78723404255319, 52.304964539007095, 48.40425531914894, 31.914893617021278 ],
+                        "lowCoverageThreshold" : 30,
+                        "lowCoverageRegionStats" : [ {
+                          "chromosome" : "22",
+                          "start" : 40755026,
+                          "end" : 40755029,
+                          "depthAvg" : 30.0,
+                          "depthMin" : 30.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40755031,
+                          "end" : 40755039,
+                          "depthAvg" : 28.333333333333332,
+                          "depthMin" : 26.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40757092,
+                          "end" : 40757169,
+                          "depthAvg" : 11.487179487179487,
+                          "depthMin" : 2.0
+                        } ],
+                        "exonStats" : [ {
+                          "id" : "ENSE00001925305",
+                          "chromosome" : "22",
+                          "start" : 40754972,
+                          "end" : 40755039,
+                          "depthAvg" : 37.25,
+                          "depthMin" : 26.0,
+                          "depthMax" : 47.0
+                        }, {
+                          "id" : "ENSE00003676673",
+                          "chromosome" : "22",
+                          "start" : 40755264,
+                          "end" : 40755310,
+                          "depthAvg" : 97.65957446808511,
+                          "depthMin" : 86.0,
+                          "depthMax" : 104.0
+                        }, {
+                          "id" : "ENSE00003647656",
+                          "chromosome" : "22",
+                          "start" : 40756406,
+                          "end" : 40756496,
+                          "depthAvg" : 43.26373626373626,
+                          "depthMin" : 35.0,
+                          "depthMax" : 48.0
+                        }, {
+                          "id" : "ENSE00001919861",
+                          "chromosome" : "22",
+                          "start" : 40757092,
+                          "end" : 40757346,
+                          "depthAvg" : 71.17647058823529,
+                          "depthMin" : 2.0,
+                          "depthMax" : 138.0
+                        }, {
+                          "id" : "ENSE00001924350",
+                          "chromosome" : "22",
+                          "start" : 40757492,
+                          "end" : 40757594,
+                          "depthAvg" : 104.63106796116504,
+                          "depthMin" : 58.0,
+                          "depthMax" : 134.0
+                        } ]
+                      }, {
+                        "id" : "ENST00000498234",
+                        "name" : "ADSL-010",
+                        "biotype" : "protein_coding",
+                        "chromosome" : "22",
+                        "start" : 40761043,
+                        "end" : 40786467,
+                        "length" : 315,
+                        "depths" : [ 25.71428571428571, 25.71428571428571, 25.71428571428571, 25.71428571428571, 25.71428571428571, 25.07936507936508, 18.73015873015873, 5.714285714285714, 3.1746031746031744, 0.0, 0.0, 0.0 ],
+                        "lowCoverageThreshold" : 30,
+                        "lowCoverageRegionStats" : [ {
+                          "chromosome" : "22",
+                          "start" : 40762440,
+                          "end" : 40762463,
+                          "depthAvg" : 27.208333333333332,
+                          "depthMin" : 24.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40786234,
+                          "end" : 40786467,
+                          "depthAvg" : 0.0,
+                          "depthMin" : 0.0
+                        } ],
+                        "exonStats" : [ {
+                          "id" : "ENSE00001916199",
+                          "chromosome" : "22",
+                          "start" : 40761043,
+                          "end" : 40761060,
+                          "depthAvg" : 49.72222222222222,
+                          "depthMin" : 43.0,
+                          "depthMax" : 57.0
+                        }, {
+                          "id" : "ENSE00001691760",
+                          "chromosome" : "22",
+                          "start" : 40762440,
+                          "end" : 40762502,
+                          "depthAvg" : 31.253968253968253,
+                          "depthMin" : 24.0,
+                          "depthMax" : 37.0
+                        }, {
+                          "id" : "ENSE00001896352",
+                          "chromosome" : "22",
+                          "start" : 40786234,
+                          "end" : 40786467,
+                          "depthAvg" : 0.0,
+                          "depthMin" : 0.0,
+                          "depthMax" : 0.0
+                        } ]
+                      }, {
+                        "id" : "ENST00000423176",
+                        "name" : "ADSL-009",
+                        "biotype" : "retained_intron",
+                        "chromosome" : "22",
+                        "start" : 40761329,
+                        "end" : 40765371,
+                        "length" : 3073,
+                        "depths" : [ 17.83273673934266, 4.067686300032541, 3.0914415880247317, 2.8961926456231692, 2.668402212821347, 1.9850309144158802, 1.3342011064106736, 0.0, 0.0, 0.0, 0.0, 0.0 ],
+                        "lowCoverageThreshold" : 30,
+                        "lowCoverageRegionStats" : [ {
+                          "chromosome" : "22",
+                          "start" : 40761329,
+                          "end" : 40762463,
+                          "depthAvg" : 1.5277533039647577,
+                          "depthMin" : 0.0
+                        }, {
+                          "chromosome" : "22",
+                          "start" : 40763473,
+                          "end" : 40765371,
+                          "depthAvg" : 0.1416535018430753,
+                          "depthMin" : 0.0
+                        } ],
+                        "exonStats" : [ {
+                          "id" : "ENSE00001787493",
+                          "chromosome" : "22",
+                          "start" : 40761329,
+                          "end" : 40762502,
+                          "depthAvg" : 2.597955706984668,
+                          "depthMin" : 0.0,
+                          "depthMax" : 37.0
+                        }, {
+                          "id" : "ENSE00001695427",
+                          "chromosome" : "22",
+                          "start" : 40763473,
+                          "end" : 40765371,
+                          "depthAvg" : 0.1416535018430753,
+                          "depthMin" : 0.0,
+                          "depthMax" : 2.0
+                        } ]
+                      } ]
+                    }
+                  ]
+                }
+              ]
+            },
             "annotationSets" : [ {
               "id" : "opencga_sample_variant_stats",
               "name" : "opencga_sample_variant_stats",
