@@ -189,11 +189,11 @@ export default class OpencgaVariantDetail extends LitElement {
                     //     "lovd", "hgmd", "icgc", "sahgp"
                     // ]
                 },
-                {
-                    id: "network",
-                    component: "reactome-variant-network",
-                    title: "Reactome Pathways"
-                }
+                // {
+                //     id: "network",
+                //     component: "reactome-variant-network",
+                //     title: "Reactome Pathways"
+                // }
             ]
         };
     }
@@ -294,7 +294,7 @@ export default class OpencgaVariantDetail extends LitElement {
                                         </div>
                                         
             
-                                        <!-- Reactome network tab -->
+                                        <!-- Reactome network tab
                                         <div id="${this._prefix}network" role="tabpanel" class="tab-pane">
                                             <div style="width: 75%;padding-top: 8px">
                                                 <reactome-variant-network .opencgaSession="${this.opencgaSession}"
@@ -304,7 +304,7 @@ export default class OpencgaVariantDetail extends LitElement {
                                                 </reactome-variant-network>
                                             </div>
                                         </div>
-                                        
+                                         -->
             
                                         <!-- Example Template Tab
                                         <div id="${this._prefix}template" role="tabpanel" class="tab-pane">

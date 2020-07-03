@@ -1,5 +1,5 @@
-/**
- * Copyright 2015-2019 OpenCB
+/*
+ * Copyright 2015-2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import UtilsNew from "../../utilsNew.js";
 import "../commons/view/data-form.js";
 
 
-export default class OpencgaIndividualRelatednessView extends LitElement {
+export default class OpencgaFamilyRelatednessView extends LitElement {
 
     constructor() {
         super();
@@ -36,10 +36,10 @@ export default class OpencgaIndividualRelatednessView extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            individualId: {
+            familyId: {
                 type: String
             },
-            individual: {
+            family: {
                 type: Object
             },
             config: {
@@ -59,19 +59,19 @@ export default class OpencgaIndividualRelatednessView extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("individualId")) {
-            this.individualIdObserver();
+        if (changedProperties.has("familyId")) {
+            this.familyIdObserver();
         }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 
-    individualIdObserver() {
-        if (this.opencgaSession && this.individualId) {
-            this.opencgaSession.opencgaClient.individuals().info(this.individualId, {study: this.opencgaSession.study.fqn})
+    familyIdObserver() {
+        if (this.opencgaSession && this.familyId) {
+            this.opencgaSession.opencgaClient.families().info(this.familyId, {study: this.opencgaSession.study.fqn})
                 .then( response => {
-                    this.individual = response.responses[0].results[0];
+                    this.family = response.responses[0].results[0];
                     this.requestUpdate();
                 })
                 .catch(function(reason) {
@@ -81,16 +81,18 @@ export default class OpencgaIndividualRelatednessView extends LitElement {
     }
 
     renderTable() {
-        if (this.individual && this.individual.qualityControl.metrics && this.individual.qualityControl.metrics[0].relatednessReport) {
+        if (this.family && this.family.qualityControl?.relatedness) {
             // Prepare roles
             let roles = {};
-            roles[this.individual.id + "-" + this.individual.father?.id] = "FATHER";
-            roles[this.individual.id + "-" + this.individual.mother?.id] = "MOTHER";
-            roles[this.individual.father?.id + "-" + this.individual.mother?.id] = "SPOUSE";
-            roles[this.individual.mother?.id + "-" + this.individual.father?.id] = "HUSBAND";
+            for (let member of this.family.members) {
+                roles[member.id + "-" + member.father?.id] = "FATHER";
+                roles[member.id + "-" + member.mother?.id] = "MOTHER";
+                roles[member.father?.id + "-" + member.mother?.id] = "SPOUSE";
+                roles[member.mother?.id + "-" + member.father?.id] = "HUSBAND";
+            }
 
             let _cellPadding = "padding: 0px 15px";
-            let relatednessReport = this.individual.qualityControl.metrics[0].relatednessReport;
+            let relatedness = this.family.qualityControl.relatedness;
             return html`
                 <table class="table table-hover table-no-bordered">
                     <thead>
@@ -107,7 +109,7 @@ export default class OpencgaIndividualRelatednessView extends LitElement {
                         </tr>
                     </thead>
                     <tbody>
-                        ${relatednessReport.scores.map(score => {
+                        ${relatedness.scores.map(score => {
                             let role = roles[score.sampleId1 + "-" + score.sampleId2];
                             return html`
                                 <tr>
@@ -152,7 +154,7 @@ export default class OpencgaIndividualRelatednessView extends LitElement {
     }
 
     render() {
-        if (!this.individual?.qualityControl?.metrics?.[0]?.relatednessReport) {
+        if (!this.family?.qualityControl?.relatedness) {
             return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>`;
         }
 
@@ -177,4 +179,4 @@ export default class OpencgaIndividualRelatednessView extends LitElement {
 
 }
 
-customElements.define("opencga-individual-relatedness-view", OpencgaIndividualRelatednessView);
+customElements.define("opencga-family-relatedness-view", OpencgaFamilyRelatednessView);

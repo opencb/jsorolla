@@ -233,8 +233,12 @@ export default class VariantGridFormatter {
 
     typeFormatter(value, row, index) {
         if (row !== undefined) {
+            let type = row.type;
             let color = "";
             switch (row.type) {
+                case "SNP":
+                    type = "SNV";
+                    break;
                 case "INDEL":
                 case "MNV":
                     color = "darkorange";
@@ -247,8 +251,7 @@ export default class VariantGridFormatter {
                     color = "black";
                     break;
             }
-
-            return `<span style="color: ${color}">${row.type}</span>`;
+            return `<span style="color: ${color}">${type}</span>`;
         } else {
             return "-";
         }

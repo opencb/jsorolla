@@ -216,9 +216,9 @@ export default class OpencgaVariantSamples extends LitElement {
 
                         // Prepare sample variant data for next query
                         let variantSamples = result.studies[0].samples;
-                        let variantSampleInfo = {};
-                        let sampleIds = [];
-                        if (variantSamples) {
+                        if (variantSamples && variantSamples.length > 0) {
+                            let variantSampleInfo = {};
+                            let sampleIds = [];
                             for (let variantSample of variantSamples) {
                                 sampleIds.push(variantSample.sampleId);
                                 variantSampleInfo[variantSample.sampleId] = {
@@ -228,23 +228,25 @@ export default class OpencgaVariantSamples extends LitElement {
                                     data: variantSample.data,
                                 };
                             }
-                        }
 
-                        _this.opencgaSession.opencgaClient.samples().info(sampleIds.join(","),
-                            {
-                                study: _this.opencgaSession.study.fqn,
-                                includeIndividual: true
-                            })
-                            .then(function (resp) {
-                                let samples = resp.responses[0].results;
-                                for (let sample of samples) {
-                                    sample.attributes.OPENCGA_VARIANT = variantSampleInfo[sample.id];
-                                }
-                                params.success(samples);
-                            })
-                            .catch(function (reason) {
-                                console.error(reason);
-                            });
+                            _this.opencgaSession.opencgaClient.samples().info(sampleIds.join(","),
+                                {
+                                    study: _this.opencgaSession.study.fqn,
+                                    includeIndividual: true
+                                })
+                                .then(function (resp) {
+                                    let samples = resp.responses[0].results;
+                                    for (let sample of samples) {
+                                        sample.attributes.OPENCGA_VARIANT = variantSampleInfo[sample.id];
+                                    }
+                                    params.success(samples);
+                                })
+                                .catch(function (reason) {
+                                    console.error(reason);
+                                });
+                        } else {
+                            params.error("No samples found");
+                        }
                     });
             },
             responseHandler: response => {

@@ -81,8 +81,8 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
     }
 
     renderTable() {
-        if (this.individual) {
-            let mendelianErrorReport = this.individual.qualityControl.metrics[0].mendelianErrorReport;
+        if (this.individual && this.individual.qualityControl?.mendelianErrorReport) {
+            let mendelianErrorReport = this.individual.qualityControl.mendelianErrorReport;
             let sampleAggregation = mendelianErrorReport.sampleAggregation.find(sampleAggregation => sampleAggregation.sample === this.individual.id);
 
             let roles = {};
@@ -160,7 +160,7 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
     }
 
     render() {
-        if (!this.individual?.qualityControl?.metrics?.[0]?.mendelianErrorReport) {
+        if (!this.individual?.qualityControl?.mendelianErrorReport) {
             return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>`;
         }
 

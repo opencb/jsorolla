@@ -523,11 +523,10 @@ export default class OpencgaVariantBrowser extends LitElement {
                             id: "beacon",
                             title: "Beacon"
                         },
-                        {
-                            id: "network",
-                            // component: "reactome-variant-network",
-                            title: "Reactome Pathways"
-                        },
+                        // {
+                        //     id: "network",
+                        //     title: "Reactome Pathways"
+                        // },
                     ]
                 }
             },

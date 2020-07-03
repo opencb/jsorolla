@@ -496,21 +496,21 @@ export default class OpencgaVariantGrid extends LitElement {
         return "-";
     }
 
-    caddScaledFormatter(value, row, index) {
-        if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.functionalScore !== "undefined") {
-            for (let i = 0; i < row.annotation.functionalScore.length; i++) {
-                if (typeof row.annotation.functionalScore[i] !== "undefined" && row.annotation.functionalScore[i].source === "cadd_scaled" && row.type !== "INDEL") {
-                    const value = Number(row.annotation.functionalScore[i].score).toFixed(2);
-                    if (value < 15) {
-                        return value;
-                    } else {
-                        return "<span style=\"color: red\">" + value + "</span>";
-                    }
-                }
-            }
-        }
-        return "-";
-    }
+    // caddScaledFormatter(value, row, index) {
+    //     if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.functionalScore !== "undefined") {
+    //         for (let i = 0; i < row.annotation.functionalScore.length; i++) {
+    //             if (typeof row.annotation.functionalScore[i] !== "undefined" && row.annotation.functionalScore[i].source === "cadd_scaled" && row.type !== "INDEL") {
+    //                 const value = Number(row.annotation.functionalScore[i].score).toFixed(2);
+    //                 if (value < 15) {
+    //                     return value;
+    //                 } else {
+    //                     return "<span style=\"color: red\">" + value + "</span>";
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return "-";
+    // }
 
     conservationFormatter(value, row, index) {
         if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.conservation !== "undefined") {
@@ -752,7 +752,7 @@ export default class OpencgaVariantGrid extends LitElement {
                         <i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     field: "deleteriousness",
                     rowspan: 1,
-                    colspan: 3,
+                    colspan: 2,
                     align: "center"
                 },
                 {
@@ -787,15 +787,15 @@ export default class OpencgaVariantGrid extends LitElement {
                     formatter: this.polyphenProteinScoreFormatter.bind(this),
                     halign: "center"
                 },
-                {
-                    title: "CADD",
-                    field: "cadd",
-                    colspan: 1,
-                    rowspan: 1,
-                    formatter: this.caddScaledFormatter,
-                    align: "right",
-                    halign: "center"
-                },
+                // {
+                //     title: "CADD",
+                //     field: "cadd",
+                //     colspan: 1,
+                //     rowspan: 1,
+                //     formatter: this.caddScaledFormatter,
+                //     align: "right",
+                //     halign: "center"
+                // },
                 {
                     title: "PhyloP",
                     field: "phylop",
@@ -866,7 +866,7 @@ export default class OpencgaVariantGrid extends LitElement {
             typeof this.cohorts[this.opencgaSession.project.id] !== "undefined") {
             isCohortPresent = true;
             const cohortStudyIdx = 7;
-            const cohortIdx = 6;
+            const cohortIdx = 5;
             const cohortStudies = Object.keys(this.cohorts[this.opencgaSession.project.id]);
 
             this._columns[0].splice(cohortStudyIdx, 0, {
@@ -897,7 +897,7 @@ export default class OpencgaVariantGrid extends LitElement {
 
         if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
             const popIdx = isCohortPresent ? 8 : 7;
-            const subPopIdx = isCohortPresent ? 6 + Object.keys(this.cohorts[this.opencgaSession.project.id]).length : 6;
+            const subPopIdx = isCohortPresent ? 5 + Object.keys(this.cohorts[this.opencgaSession.project.id]).length : 5;
 
             // Just one column called 'Population Frequencies'
             this._columns[0].splice(popIdx, 0, {

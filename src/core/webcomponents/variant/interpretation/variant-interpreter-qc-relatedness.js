@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import "../../individual/opencga-individual-relatedness-view.js";
+import "../../family/opencga-family-relatedness-view.js";
 
 class VariantInterpreterQcRelatedness extends LitElement {
 
@@ -109,9 +109,9 @@ class VariantInterpreterQcRelatedness extends LitElement {
         }
 
         return html`
-            <opencga-individual-relatedness-view    .opencgaSession="${this.opencgaSession}" 
-                                                    .individual="${this.clinicalAnalysis.proband}">
-            </opencga-individual-relatedness-view>
+            <opencga-family-relatedness-view    .opencgaSession="${this.opencgaSession}" 
+                                                .family="${this.clinicalAnalysis.family}">
+            </opencga-family-relatedness-view>
         `;
     }
 

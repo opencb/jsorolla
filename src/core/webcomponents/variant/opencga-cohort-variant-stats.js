@@ -168,7 +168,7 @@ class CohortVariantStats extends LitElement {
                     halign: "center"
                 },
                 {
-                    title: "MAF",
+                    title: "MAF (Allele)",
                     field: "maf",
                     rowspan: 2,
                     colspan: 1,
@@ -279,9 +279,9 @@ class CohortVariantStats extends LitElement {
 
     render() {
         return html`
-                <div>
-                    <table id="${this._prefix}CohortStatsGrid" data-buttons-toolbar="#toolbar"></table>
-                </div>
+            <div>
+                <table id="${this._prefix}CohortStatsGrid" data-buttons-toolbar="#toolbar"></table>
+            </div>
         `;
     }
 }
