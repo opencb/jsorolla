@@ -136,7 +136,7 @@ export default class DiseaseFilter extends LitElement {
         const opts = this.diseasePanels.map(panel => ({
             id: panel.id,
             name: `${panel.name}
-                          ${panel.source ? ` - ${panel.source.project || panel.source.id} ${panel.source.version ? "v" + panel.source.version : ""}` : ""}
+                          ${panel.source ? ` - ${panel.source.author} ${panel.source.project} ${panel.source.version ? "v" + panel.source.version : ""}` : ""}
                           ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}`
         }))
 
