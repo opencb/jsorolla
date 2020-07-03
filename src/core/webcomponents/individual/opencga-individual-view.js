@@ -218,7 +218,7 @@ export default class OpencgaIndividualView extends LitElement {
                                         name: "Phenotypes", field: "phenotypes", defaultValue: "-", display: {
                                             render: data => html`${data.map(d => d.id).join(", ")}`
                                         }
-                                    },
+                                    }
                                 ],
                                 defaultValue: "No phenotypes found"
                             }
