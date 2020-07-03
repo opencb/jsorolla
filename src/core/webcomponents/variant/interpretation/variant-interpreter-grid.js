@@ -99,11 +99,14 @@ export default class VariantInterpreterGrid extends LitElement {
         // if (changedProperties.has("clinicalAnalysis")) {
         //     this.clinicalAnalysisObserver();
         // }
-        if (changedProperties.has("opencgaSession") || changedProperties.has("clinicalAnalysis") || changedProperties.has("query")
-            || changedProperties.has("config")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("clinicalAnalysis") || changedProperties.has("query")) {
             this.opencgaSessionObserver();
             this.clinicalAnalysisObserver();
             this.renderVariants();
+        }
+
+        if (changedProperties.has("config")) {
+            this._config = Object.assign(this.getDefaultConfig(), this.config);
         }
     }
 
@@ -206,7 +209,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     this.to = result.to || this.to;
                     this.numTotalResultsText = result.numTotalResultsText;
                     this.approximateCountResult = result.approximateCountResult;
-                    // this.requestUpdate();
+                    this.requestUpdate();
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),

@@ -417,16 +417,16 @@ class VariantInterpreterRdBrowser extends LitElement {
                         title: "Consequence Type",
                         collapsed: true,
                         fields: [
-                            // {
-                            //     id: "consequenceType",
-                            //     title: "Select SO terms",
-                            //     tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                            // },
                             {
-                                id: "consequenceTypeSelect",
+                                id: "consequenceType",
                                 title: "Select SO terms",
-                                tooltip: tooltips.consequenceTypeSelect
+                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
                             },
+                            // {
+                            //     id: "consequenceTypeSelect",
+                            //     title: "Select SO terms",
+                            //     tooltip: tooltips.consequenceTypeSelect
+                            // },
                         ]
                     },
                     {
