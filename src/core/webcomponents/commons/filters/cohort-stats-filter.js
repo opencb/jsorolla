@@ -123,7 +123,7 @@ export default class CohortStatsFilter extends LitElement {
         return this.cohortsPerStudy ? Object.entries(this.cohortsPerStudy).map( ([study,cohort]) => html`
             <div style="padding: 5px 0px">
                 <div style="padding-bottom: 5px">
-                    <span style="font-style: italic">${study}</span> study:
+                    <span class="break-word"><i>${study}</i></span> study:
                 </div>
                 <div class="form-horizontal">
                     ${cohort.map(cohort => html`

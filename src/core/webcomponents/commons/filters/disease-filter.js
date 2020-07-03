@@ -113,24 +113,7 @@ export default class DiseaseFilter extends LitElement {
     }
 
     filterChange(e) {
-        let select_vals;
-        if (this.mode === "gene") {
-            select_vals = $("#" + this._prefix + "Genes").val() || [];
-        } else {
-            select_vals = $("#" + this._prefix + "DiseasePanels").val() || [];
-        }
-        // const select_vals = $("#" + this._prefix + "DiseasePanels").val() || [];
-        const value = select_vals && select_vals.length ? select_vals.join(",") : null;
-        // this.showPanelGenes(select_vals);
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: value
-            },
-            bubbles: true,
-            composed: true
-        });
-        this.dispatchEvent(event);
-
+        //select-field-filter already emits a bubbled filterChange event.
     }
 
     getDefaultConfig() {

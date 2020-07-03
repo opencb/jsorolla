@@ -65,39 +65,14 @@ export default class BiotypeFilter extends LitElement {
             ]
         };
     }
-    firstUpdated(_changedProperties) {
-        $("#" + this._prefix + "GeneBiotypes").selectpicker("val", []);
-    }
-
-    updated(_changedProperties) {
-        if (_changedProperties.has("biotype")) {
-            if (this.biotype) {
-                $("#" + this._prefix + "GeneBiotypes").selectpicker("val", this.biotype.split(","));
-            } else {
-                $("#" + this._prefix + "GeneBiotypes").selectpicker("val", []);
-            }
-        }
-    }
 
     filterChange(e) {
-        const value = $(e.target).val() ? $(e.target).val().join(",") : null;
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: value
-            }
-        });
-        this.dispatchEvent(event);
+        //select-field-filter already emits a bubbled filterChange event.
     }
 
     render() {
         return html`
-            <select class="selectpicker" id="${this._prefix}GeneBiotypes" data-size="10" data-live-search="true"
-                            data-selected-text-format="count" multiple @change="${this.filterChange}"
-                            >
-                            ${this._config.biotypes.length && this._config.biotypes.map( biotype => html`
-                                <option value="${biotype}">${biotype}</option>
-                            `)}
-            </select>
+            <select-field-filter multiple .data="${this._config.biotypes}" .value=${this.biotype} @filterChange="${this.filterChange}"></select-field-filter>
         `;
     }
 
