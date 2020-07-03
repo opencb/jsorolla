@@ -102,28 +102,28 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
                     </thead>
                     <tbody>
                         ${this.individuals.map(individual => {
-                            let metrics = individual.qualityControl.metrics[0];
+                            let inferredSex = individual.qualityControl.inferredSexReport;
                             return html`
                                 <tr>
                                     <td style="${_cellPadding}">
                                         <label>${individual.id}</label>
                                     </td>
-                                    <td style="${_cellPadding}">${individual.qualityControl.metrics[0].sampleId}</td>
+                                    <td style="${_cellPadding}">${individual.qualityControl.sampleId}</td>
                                     <td style="${_cellPadding}">${individual.sex}</td>
                                     <td style="${_cellPadding}">
-                                        <span style="color: ${individual.karyotypicSex === metrics.inferredSexReport.inferredKaryotypicSex ? "black" : "red"}">
+                                        <span style="color: ${individual.karyotypicSex === inferredSex.inferredKaryotypicSex ? "black" : "red"}">
                                             ${individual.karyotypicSex}
                                         </span>
                                     </td>
-                                    <td style="text-align: right; ${_cellPadding}">${metrics.inferredSexReport.values.ratioX}</td>
-                                    <td style="text-align: right; ${_cellPadding}">${metrics.inferredSexReport.values.ratioY}</td>
+                                    <td style="text-align: right; ${_cellPadding}">${inferredSex.values.ratioX}</td>
+                                    <td style="text-align: right; ${_cellPadding}">${inferredSex.values.ratioY}</td>
                                     <td style="${_cellPadding}">
-                                        <span style="color: ${individual.karyotypicSex === metrics.inferredSexReport.inferredKaryotypicSex ? "black" : "red"}">
-                                            ${metrics.inferredSexReport.inferredKaryotypicSex}
+                                        <span style="color: ${individual.karyotypicSex === inferredSex.inferredKaryotypicSex ? "black" : "red"}">
+                                            ${inferredSex.inferredKaryotypicSex}
                                         </span>
                                     </td>
                                     <td style="text-align: center; ${_cellPadding}">
-                                        <span>${individual.karyotypicSex === metrics.inferredSexReport.inferredKaryotypicSex
+                                        <span>${individual.karyotypicSex === inferredSex.inferredKaryotypicSex
                                             ? html`<i class='fa fa-check' style='color: green'></i>`
                                             : html`<i class='fa fa-times' style='color: red'></i>`
                                         }

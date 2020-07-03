@@ -1593,119 +1593,66 @@ export const responses = [
           "parentalConsanguinity" : false
         },
         "qualityControl": {
-          "metrics": [
-            {
-              "sampleId": "ISDBM322015",
-              "inferredSexReport": {
-                "method": "Plink/IBD",
-                "inferredKaryotypicSex": "XY",
-                "values": {
-                  "ratioX": 0.509,
-                  "ratioY": 0.411
-                }
-              },
-              "relatednessReport": {
-                "method": "Plink/IBD",
-                "scores": [
-                  {
-                    "sampleId1": "ISDBM322015",
-                    "sampleId2": "ISDBM322016",
-                    "inferredRelationship": "FATHER",
-                    "values": {
-                      "IBD0": 1,
-                      "IBD1": 0,
-                      "IBD2": 0,
-                      "PiHat": 0,
-                    }
-                  },
-                  {
-                    "sampleId1": "ISDBM322015",
-                    "sampleId2": "ISDBM322018",
-                    "inferredRelationship": "MOTHER",
-                    "values": {
-                      "IBD0": 0.1,
-                      "IBD1": 0.9,
-                      "IBD2": 0,
-                      "PiHat": 0,
-                    }
-                  },
-                  {
-                    "sampleId1": "ISDBM322016",
-                    "sampleId2": "ISDBM322018",
-                    "inferredRelationship": "COUSIN",
-                    "values": {
-                      "IBD0": 0.98,
-                      "IBD1": 0.02,
-                      "IBD2": 0,
-                      "PiHat": 0,
-                    }
-                  },
-                  {
-                    "sampleId1": "ISDBM322015",
-                    "sampleId2": "ISDBM322017",
-                    "inferredRelationship": "SISTER",
-                    "values": {
-                      "IBD0": 0.5,
-                      "IBD1": 0.5,
-                      "IBD2": 0,
-                      "PiHat": 0,
-                    }
-                  }
-                ]
-              },
-              "mendelianErrorReport": {
-                "numErrors": 12311,
-                "sampleAggregation": [
-                  {
-                    "sample": "ISDBM322015",
-                    "numErrors": 1212,
-                    "ratio": 0.087,
-                    "chromAggregation": [
-                      {
-                        "chromosome": "1",
-                        "numErrors": 65,
-                        "errorCodeAggregation": {
-                          "2": 12,
-                          "3": 3,
-                          "5": 7
-                        }
-                      },
-                      {
-                        "chromosome": "2",
-                        "numErrors": 65,
-                        "errorCodeAggregation": {
-                          "2": 12,
-                          "3": 3,
-                          "5": 7
-                        }
-                      },
-                      {
-                        "chromosome": "3",
-                        "numErrors": 65,
-                        "errorCodeAggregation": {
-                          "2": 12,
-                          "3": 3,
-                          "5": 7
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "sample": "ISDBM322016",
-                    "numErrors": 2242,
-                    "ratio": 0.047,
-                    "chromAggregation": []
-                  },
-                  {
-                    "sample": "ISDBM322018",
-                    "numErrors": 2212,
-                    "ratio": 0.097,
-                    "chromAggregation": []
-                  }
-                ]
-              }
+          "sampleId": "ISDBM322015",
+          "inferredSexReport": {
+            "method": "Plink/IBD",
+            "inferredKaryotypicSex": "XY",
+            "values": {
+              "ratioX": 0.509,
+              "ratioY": 0.411
             }
-          ]
+          },
+          "mendelianErrorReport": {
+            "numErrors": 12311,
+            "sampleAggregation": [
+              {
+                "sample": "ISDBM322015",
+                "numErrors": 1212,
+                "ratio": 0.087,
+                "chromAggregation": [
+                  {
+                    "chromosome": "1",
+                    "numErrors": 65,
+                    "errorCodeAggregation": {
+                      "2": 12,
+                      "3": 3,
+                      "5": 7
+                    }
+                  },
+                  {
+                    "chromosome": "2",
+                    "numErrors": 65,
+                    "errorCodeAggregation": {
+                      "2": 12,
+                      "3": 3,
+                      "5": 7
+                    }
+                  },
+                  {
+                    "chromosome": "3",
+                    "numErrors": 65,
+                    "errorCodeAggregation": {
+                      "2": 12,
+                      "3": 3,
+                      "5": 7
+                    }
+                  }
+                ]
+              },
+              {
+                "sample": "ISDBM322016",
+                "numErrors": 2242,
+                "ratio": 0.047,
+                "chromAggregation": []
+              },
+              {
+                "sample": "ISDBM322018",
+                "numErrors": 2212,
+                "ratio": 0.097,
+                "chromAggregation": []
+              }
+            ]
+          }
         },
         "location" : { },
         "sex" : "MALE",
@@ -3245,71 +3192,18 @@ export const responses = [
             "parentalConsanguinity" : false
           },
           "qualityControl": {
-            "metrics": [
-              {
-                "sampleId": "ISDBM322015",
-                "inferredSexReport": {
-                  "method": "Ratio",
-                  "inferredKaryotypicSex": "XY",
-                  "values": {
-                    "ratioX": 0.509,
-                    "ratioY": 0.411
-                  }
-                },
-                "relatednessReport": {
-                  "method": "Plink/IBD",
-                  "scores": [
-                    {
-                      "sampleId1": "ISDBM322015",
-                      "sampleId2": "ISDBM322016",
-                      "inferredRelationship": "FATHER",
-                      "values": {
-                        "IBD0": 1,
-                        "IBD1": 0,
-                        "IBD2": 0,
-                        "PiHat": 0,
-                      }
-                    },
-                    {
-                      "sampleId1": "ISDBM322015",
-                      "sampleId2": "ISDBM322018",
-                      "inferredRelationship": "MOTHER",
-                      "values": {
-                        "IBD0": 0.1,
-                        "IBD1": 0.9,
-                        "IBD2": 0,
-                        "PiHat": 0,
-                      }
-                    },
-                    {
-                      "sampleId1": "ISDBM322016",
-                      "sampleId2": "ISDBM322018",
-                      "inferredRelationship": "COUSIN",
-                      "values": {
-                        "IBD0": 0.98,
-                        "IBD1": 0.02,
-                        "IBD2": 0,
-                        "PiHat": 0,
-                      }
-                    },
-                    {
-                      "sampleId1": "ISDBM322015",
-                      "sampleId2": "ISDBM322017",
-                      "inferredRelationship": "SISTER",
-                      "values": {
-                        "IBD0": 0.5,
-                        "IBD1": 0.5,
-                        "IBD2": 0,
-                        "PiHat": 0,
-                      }
-                    }
-                  ]
-                },
-                "mendelianErrorReport": {
-
-                }
+            "sampleId": "ISDBM322015",
+            "inferredSexReport": {
+              "method": "Ratio",
+              "inferredKaryotypicSex": "XY",
+              "values": {
+                "ratioX": 0.509,
+                "ratioY": 0.411
               }
-            ]
+            },
+            "mendelianErrorReport": {
+
+            }
           },
           "location" : { },
           "sex" : "MALE",
@@ -3592,25 +3486,18 @@ export const responses = [
             "parentalConsanguinity" : false
           },
           "qualityControl": {
-            "metrics": [
-              {
-                "sampleId": "ISDBM322016",
-                "inferredSexReport": {
-                  "method": "Ratio",
-                  "inferredKaryotypicSex": "XY",
-                  "values": {
-                    "ratioX": 0.986,
-                    "ratioY": 0.016
-                  }
-                },
-                "relatednessReport": {
-
-                },
-                "mendelianErrorReport": {
-
-                }
+            "sampleId": "ISDBM322016",
+            "inferredSexReport": {
+              "method": "Ratio",
+              "inferredKaryotypicSex": "XY",
+              "values": {
+                "ratioX": 0.986,
+                "ratioY": 0.016
               }
-            ]
+            },
+            "mendelianErrorReport": {
+
+            }
           },
           "location" : { },
           "sex" : "MALE",
@@ -4007,25 +3894,18 @@ export const responses = [
             "parentalConsanguinity" : false
           },
           "qualityControl": {
-            "metrics": [
-              {
-                "sampleId": "ISDBM322018",
-                "inferredSexReport": {
-                  "method": "Ratio",
-                  "inferredKaryotypicSex": "XY",
-                  "values": {
-                    "ratioX": 0.503,
-                    "ratioY": 0.406
-                  }
-                },
-                "relatednessReport": {
-
-                },
-                "mendelianErrorReport": {
-
-                }
+            "sampleId": "ISDBM322018",
+            "inferredSexReport": {
+              "method": "Ratio",
+              "inferredKaryotypicSex": "XY",
+              "values": {
+                "ratioX": 0.503,
+                "ratioY": 0.406
               }
-            ]
+            },
+            "mendelianErrorReport": {
+
+            }
           },
           "location" : { },
           "sex" : "FEMALE",
@@ -4414,25 +4294,18 @@ export const responses = [
             "parentalConsanguinity" : false
           },
           "qualityControl": {
-            "metrics": [
-              {
-                "sampleId": "ISDBM322017",
-                "inferredSexReport": {
-                  "method": "Ratio",
-                  "inferredKaryotypicSex": "XY",
-                  "values": {
-                    "ratioX": 0.509,
-                    "ratioY": 0.411
-                  }
-                },
-                "relatednessReport": {
-
-                },
-                "mendelianErrorReport": {
-
-                }
+            "sampleId": "ISDBM322017",
+            "inferredSexReport": {
+              "method": "Ratio",
+              "inferredKaryotypicSex": "XY",
+              "values": {
+                "ratioX": 0.509,
+                "ratioY": 0.411
               }
-            ]
+            },
+            "mendelianErrorReport": {
+
+            }
           },
           "location" : { },
           "sex" : "FEMALE",
@@ -4800,6 +4673,57 @@ export const responses = [
           },
           "attributes" : { }
         } ],
+        "qualityControl" : {
+          "relatedness": {
+            "method": "Plink/IBD",
+            "scores": [
+              {
+                "sampleId1": "ISDBM322015",
+                "sampleId2": "ISDBM322016",
+                "inferredRelationship": "FATHER",
+                "values": {
+                  "IBD0": 1,
+                  "IBD1": 0,
+                  "IBD2": 0,
+                  "PiHat": 0,
+                }
+              },
+              {
+                "sampleId1": "ISDBM322015",
+                "sampleId2": "ISDBM322018",
+                "inferredRelationship": "MOTHER",
+                "values": {
+                  "IBD0": 0.1,
+                  "IBD1": 0.9,
+                  "IBD2": 0,
+                  "PiHat": 0,
+                }
+              },
+              {
+                "sampleId1": "ISDBM322016",
+                "sampleId2": "ISDBM322018",
+                "inferredRelationship": "COUSIN",
+                "values": {
+                  "IBD0": 0.98,
+                  "IBD1": 0.02,
+                  "IBD2": 0,
+                  "PiHat": 0,
+                }
+              },
+              {
+                "sampleId1": "ISDBM322015",
+                "sampleId2": "ISDBM322017",
+                "inferredRelationship": "SISTER",
+                "values": {
+                  "IBD0": 0.5,
+                  "IBD1": 0.5,
+                  "IBD2": 0,
+                  "PiHat": 0,
+                }
+              }
+            ]
+          }
+        },
         "phenotypes" : [ {
           "id" : "HP:00005456",
           "name" : "Myopia",
