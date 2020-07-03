@@ -43,40 +43,42 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
 
     _init() {
         this._prefix = "crf-" + UtilsNew.randomString(6) + "_";
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.selectId = "#" + this._prefix + "GeneBiotypes"
+        this._ct = []; //this.ct is a comma separated list, this._ct is an array of the same data
+        this.options = [];
+        this.LofEnabled = false;
     }
 
-    firstUpdated(_changedProperties) {
-        $(this.selectId).selectpicker("val", []);
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.options = this._config.categories.map( item => (
+            item.title ? {
+                id: item.title.toUpperCase(),
+                fields:  item.terms.map( term => ({id: term.name, name: `${term.name} ${term.id}`}))
+            } : {id: item.id, name: `${item.name} ${item.id}`}
+        ))
     }
 
     updated(_changedProperties) {
         if (_changedProperties.has("ct")) {
             if (this.ct) {
-                $(this.selectId).selectpicker("val", this.ct.split(","));
+                this._ct = this.ct.split(",");
+                this.LofEnabled = this._config.lof.every( v => this.ct.indexOf(v) > -1)
+                // check all this.ct for this._config.lof
             } else {
-                $(this.selectId).selectpicker("val", []);
+                this._ct = [];
+                this.LofEnabled = false;
+                // uncheck checkbox
             }
+
+            this.requestUpdate();
         }
     }
 
     filterChange(e) {
-        /*e.preventDefault();
-        console.log("target", e.target.value)
-        console.log("before", $(e.target).val() || [])
-        // in case of select in multiple mode "e.target.value" returns just the first selected of the list. It is useless
-        if(e.target.value === "LoF") {
-            $(this.selectId).selectpicker("val", [...$(e.target).val(), ...this._config.lof]);
-        } else {
-            $(this.selectId).selectpicker("val", [...($(e.target).val() || []).filter(selected => !this._config.lof.includes(selected))]);
-        }
-        console.log("after", $(e.target).val())*/
-
-        const value = $(this.selectId).val() ? $(this.selectId).val().join(",") : null;
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: value
+                value: e.detail.value
             }
         });
         this.dispatchEvent(event);
@@ -84,11 +86,11 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
 
     toggleLof(e) {
         if (e.currentTarget.checked) {
-            $(this.selectId).selectpicker("val", [...($(this.selectId).val() || []), ...this._config.lof])
+            this._ct = [...this._ct, ...this._config.lof];
         } else {
-            $(this.selectId).selectpicker("val", ($(this.selectId).val() || []).filter(selected => !this._config.lof.includes(selected)))
+            this._ct = this._ct.filter(selected => !this._config.lof.includes(selected));
         }
-        this.filterChange();
+        this.filterChange({detail: {value: this._ct.join(",")}});
     }
 
     getDefaultConfig() {
@@ -371,23 +373,10 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
         };
     }
 
-    render() {
-        return html`
-                <style>
-                    .checkbox
-                </style>
-                <select class="selectpicker" id="${this._prefix}GeneBiotypes" data-size="20" data-live-search="true"
-                            data-selected-text-format="count > 5" multiple @change="${this.filterChange}">
-                    ${this._config.categories.length && this._config.categories.map( category => html`
-                        <optgroup label='${category.title.toUpperCase()}'>
-                            ${category.terms !== undefined && category.terms.map( term =>
-                                html`<option value="${term.name}">${term.name} (${term.id})</option>`
-                            )}
-                        </optgroup>;
-                    `)}
-                </select>
+    render() {  return html`
+                <select-field-filter multiple liveSearch=${"true"} .data="${this.options}" .value=${this._ct} @filterChange="${this.filterChange}"></select-field-filter>
                 <div class="form-group">
-                    <input class="magic-checkbox" type="checkbox" name="layout" id="lof" value="lof" @click="${this.toggleLof}">
+                    <input class="magic-checkbox" type="checkbox" name="layout" id="lof" value="lof" @click="${this.toggleLof}" .checked="${this.LofEnabled}" >
                     <label class="pull-left text" for="lof">
                         Loss of Functions
                     </label>

@@ -48,12 +48,12 @@ export default class DetailTabs extends LitElement {
 
     _init(){
         this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
-        this.activeTab = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
+        this.activeTab = Object.assign({}, ...this._config.items.map( item => ({[item.id]: item.active ?? false}))); // this makes "active" field in config consistent with this.activeTab state. this.activeTab is the unique source of truth.
     }
 
     updated(changedProperties) {
@@ -88,12 +88,11 @@ export default class DetailTabs extends LitElement {
                     </div>` 
                 : null
             }
-            
             <div class="detail-tabs">
                 <ul class="nav nav-tabs" role="tablist">
                     ${this._config.items.length && this._config.items.map(item => 
                         html`
-                            <li role="presentation" class="${classMap({active: item.active})}">
+                            <li role="presentation" class="${classMap({active: this.activeTab[item.id]})}">
                                 <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}" @click="${this._changeBottomTab}">
                                     <span>${item.name}</span>
                                 </a>
