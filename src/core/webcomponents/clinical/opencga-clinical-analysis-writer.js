@@ -557,15 +557,19 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
             execute: (opencgaSession, clinicalAnalysis, params) => {
                 // Prepare the data for the REST create
                 // TODO validate data!
+                // debugger
                 let data = {...clinicalAnalysis};
                 console.log("data",data)
                 delete data._users;
                 data.proband = {
                     id: clinicalAnalysis.proband ? clinicalAnalysis.proband.id : null
                 };
-                data.disorder = {
-                    id: clinicalAnalysis.disorder.id
+                if (clinicalAnalysis?.disorder?.id) {
+                    data.disorder = {
+                        id: clinicalAnalysis.disorder.id
+                    }
                 }
+
                 // Flags are optional, it can be empty
                 if (data.flags) {
                     data.flags = clinicalAnalysis.flags.split(",");
@@ -580,7 +584,6 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
 
                 let _this = this;
                 if (this.mode === "create") {
-                    //debugger
                     opencgaSession.opencgaClient.clinical().create(data, {study: opencgaSession.study.fqn})
                         .then(function(response) {
                             new NotificationQueue().push(`Clinical analysis ${response.responses[0].results[0].id} created successfully`, null,"success");

@@ -98,7 +98,17 @@ class VariantInterpreterLanding extends LitElement {
         if (this.opencgaSession.user.id === _studyOwner) {
             this.editMode = true;
         } else {
-            this.editMode = this.opencgaSession.study.acl.includes("WRITE_CLINICAL_ANALYSIS");
+            let _editMode = false;
+            for (let group of this.opencgaSession.study.groups) {
+                if (group.id === "@admins") {
+                    _editMode = group.userIds.includes(this.opencgaSession.user.id);
+                    break;
+                }
+            }
+            if (!_editMode) {
+                _editMode = this.opencgaSession.study.acl.includes("WRITE_CLINICAL_ANALYSIS");
+            }
+            this.editMode = _editMode;
         }
 
         this.getLastClinicalAnalysis();
