@@ -67,14 +67,19 @@ export default class OpencgaFamilyDetail extends LitElement {
     }
 
     familyIdObserver() {
-        if (this.opencgaSession && this.familyId) {
-            this.opencgaSession.opencgaClient.family().info(this.familyId, {study: this.opencgaSession.study.fqn})
-                .then(restResponse => {
-                    this.family = restResponse.getResult(0);
-                })
-                .catch(restResponse => {
-                    console.error(restResponse);
-                });
+        if (this.opencgaSession) {
+            if (this.familyId) {
+                this.opencgaSession.opencgaClient.family().info(this.familyId, {study: this.opencgaSession.study.fqn})
+                    .then(restResponse => {
+                        this.family = restResponse.getResult(0);
+                    })
+                    .catch(restResponse => {
+                        console.error(restResponse);
+                    });
+            } else {
+                this.family = null;
+            }
+
         }
     }
 

@@ -168,6 +168,11 @@ export default class OpencgaJobsDetailLog extends LitElement {
         });
     }
 
+    onScroll(e) {
+        //TODO custom infinite scroll
+        //console.log(e)
+    }
+
     getDefaultConfig() {
         return {
             command: "head",
@@ -256,7 +261,7 @@ export default class OpencgaJobsDetailLog extends LitElement {
                 </div>
             </div>                    
         </div>
-        <pre class="cmd log-wrapper ${this._config.command}">${this.content}\n${this.loading || (this.content && this._config.command === "tail") ? html`<div class="cursor"></div>` : ""}</pre>
+        <pre class="cmd log-wrapper ${this._config.command}" @scroll="${this.onScroll}">${this.content}\n${this.loading || (this.content && this._config.command === "tail") ? html`<div class="cursor"></div>` : ""}</pre>
         `;
     }
 

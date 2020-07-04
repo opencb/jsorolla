@@ -70,6 +70,10 @@ export default class OpencgaJobsView extends LitElement {
             this._config = {...this.getDefaultConfig(), ...this.config};
             this.requestUpdate();
         }
+
+        if (changedProperties.has("mode")) {
+
+        }
     }
 
     jobIdObserver() {
@@ -263,6 +267,22 @@ export default class OpencgaJobsView extends LitElement {
                             }
                         },
 
+                    ]
+                }, {
+                    title: "Job log",
+                    visible: this.mode === "full",
+                    elements: [
+                        {
+                            name: "Log",
+                            type: "custom",
+                            display: {
+                                render: job => html`<opencga-jobs-detail-log
+                                                        .opencgaSession=${this.opencgaSession}
+                                                        .active="${true}"
+                                                        .job="${job}">
+                                                    </opencga-jobs-detail-log>`
+                            }
+                        }
                     ]
                 }
             ]

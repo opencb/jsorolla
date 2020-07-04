@@ -190,7 +190,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                             </div>`;
                 break;
             case "CATEGORICAL":
-                content = `<select id="${this._prefix}-categorical-selector" class="selectpicker ${variable.id}" multiple @change="${this.addCategoricalFilter}" data-variable-set-id="${variableSet.id}" data-width="100%">
+                content = html`<select id="${this._prefix}-categorical-selector" class="selectpicker ${variable.id}" multiple @change="${this.addCategoricalFilter}" data-variable-set-id="${variableSet.id}" data-width="100%">
                 ${variable.allowedValues && variable.allowedValues.length && variable.allowedValues.map(item => html`
                     <option value="${item}">${item}</option>
                     `)}

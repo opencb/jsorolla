@@ -151,6 +151,13 @@ export default class GridCommons {
                     row: data.rows[0]
                 }
             }));
+        } else {
+            this.context.dispatchEvent(new CustomEvent("selectrow", {
+                detail: {
+                    id: null,
+                    row: null
+                }
+            }));
         }
         UtilsNew.initTooltip(this.context);
         /*$("a[tooltip-title]", this.context).each(function() {

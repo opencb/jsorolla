@@ -68,14 +68,18 @@ export default class OpencgaIndividualDetail extends LitElement {
     }
 
     individualIdObserver() {
-        if (this.opencgaSession && this.individualId) {
-            this.opencgaSession.opencgaClient.individuals().info(this.individualId, {study: this.opencgaSession.study.fqn})
-                .then(restResponse => {
-                    this.individual = restResponse.getResult(0);
-                })
-                .catch(restResponse => {
-                    console.error(restResponse);
-                });
+        if (this.opencgaSession) {
+            if (this.individualId) {
+                this.opencgaSession.opencgaClient.individuals().info(this.individualId, {study: this.opencgaSession.study.fqn})
+                    .then(restResponse => {
+                        this.individual = restResponse.getResult(0);
+                    })
+                    .catch(restResponse => {
+                        console.error(restResponse);
+                    });
+            } else {
+                this.individual = null;
+            }
         }
     }
 

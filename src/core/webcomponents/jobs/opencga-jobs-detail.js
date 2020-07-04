@@ -69,14 +69,19 @@ export default class OpencgaJobsDetail extends LitElement {
     }
 
     jobIdObserver() {
-        if (this.opencgaSession && this.jobId) {
-            this.opencgaSession.opencgaClient.jobs().info(this.jobId, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    this.job = response.getResult(0);
-                })
-                .catch(function(reason) {
-                    console.error(reason);
-                });
+        if (this.opencgaSession) {
+            if (this.jobId) {
+                this.opencgaSession.opencgaClient.jobs().info(this.jobId, {study: this.opencgaSession.study.fqn})
+                    .then(response => {
+                        this.job = response.getResult(0);
+                    })
+                    .catch(function(reason) {
+                        console.error(reason);
+                    });
+            } else {
+                this.job = null;
+            }
+
         }
     }
 
@@ -90,7 +95,7 @@ export default class OpencgaJobsDetail extends LitElement {
                     name: "Overview",
                     active: true,
                     render: (job, active, opencgaSession) => {
-                        return html`<opencga-jobs-view .opencgaSession=${opencgaSession} .job="${job}"></opencga-jobs-view>`;
+                        return html`<opencga-jobs-view .opencgaSession=${opencgaSession} mode="simple" .job="${job}"></opencga-jobs-view>`;
                     }
                 },
                 {

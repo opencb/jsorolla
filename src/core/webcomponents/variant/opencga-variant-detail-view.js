@@ -83,24 +83,27 @@ export default class OpenCGAVariantDetailView extends LitElement {
     }
 
     variantIdObserver() {
-        let _this = this;
-        if (this.cellbaseClient && this.variantId) {
-            this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", {assembly: this.opencgaSession.project.organism.assembly}, {})
-                .then( response => {
-                    this.variant = {id: this.variantId, annotation: response.responses[0].results[0]};
-                    this.variantAnnotation = response.response[0].result[0];
-                    this.numberConsequenceTypes = 0;
-                    this.numberPopulationFrequencies = 0;
-                    this.numberVTA = 0;
-                    this.numberGTA = 0;
+        if (this.cellbaseClient) {
+            if (this.variantId) {
+                this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", {assembly: this.opencgaSession.project.organism.assembly}, {})
+                    .then( response => {
+                        this.variant = {id: this.variantId, annotation: response.responses[0].results[0]};
+                        this.variantAnnotation = response.response[0].result[0];
+                        this.numberConsequenceTypes = 0;
+                        this.numberPopulationFrequencies = 0;
+                        this.numberVTA = 0;
+                        this.numberGTA = 0;
 
-                    if (this.variantAnnotation.geneTraitAssociation != null) {
-                        this.numberConsequenceTypes = this.variantAnnotation.consequenceTypes.length;
-                        this.numberPopulationFrequencies = UtilsNew.isNotEmptyArray(this.variantAnnotation.populationFrequencies) ? this.variantAnnotation.populationFrequencies.length : 0;
-                        this.numberVTA = UtilsNew.isNotUndefinedOrNull(this.variantAnnotation.traitAssociation) ? this.variantAnnotation.traitAssociation.length : 0;
-                        this.numberGTA = UtilsNew.isNotUndefinedOrNull(this.variantAnnotation.geneTraitAssociation) ? this.variantAnnotation.geneTraitAssociation.length : 0;
-                    }
-                });
+                        if (this.variantAnnotation.geneTraitAssociation != null) {
+                            this.numberConsequenceTypes = this.variantAnnotation.consequenceTypes.length;
+                            this.numberPopulationFrequencies = UtilsNew.isNotEmptyArray(this.variantAnnotation.populationFrequencies) ? this.variantAnnotation.populationFrequencies.length : 0;
+                            this.numberVTA = UtilsNew.isNotUndefinedOrNull(this.variantAnnotation.traitAssociation) ? this.variantAnnotation.traitAssociation.length : 0;
+                            this.numberGTA = UtilsNew.isNotUndefinedOrNull(this.variantAnnotation.geneTraitAssociation) ? this.variantAnnotation.geneTraitAssociation.length : 0;
+                        }
+                    });
+            } else {
+                this.variant = null;
+            }
         }
     }
 
@@ -114,7 +117,7 @@ export default class OpenCGAVariantDetailView extends LitElement {
     }
 
     render() {
-        if (this.variant === undefined || this.variant.annotation === undefined) {
+        if (!this.variant?.annotation) {
             return;
         }
 

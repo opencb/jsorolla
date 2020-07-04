@@ -205,7 +205,7 @@ export default class OpencgaJobsBrowser extends LitElement {
                 result: {
                     grid: {}
                 },
-                detail: {
+                /*detail: {
                     title: "Job",
                     showTitle: true,
                     items: [
@@ -232,7 +232,7 @@ export default class OpencgaJobsBrowser extends LitElement {
                             }
                         }
                     ]
-                }
+                }*/
             },
             aggregation: {
                 default: ["creationYear>>creationMonth", "toolId>>executorId"],

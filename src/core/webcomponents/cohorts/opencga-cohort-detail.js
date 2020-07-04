@@ -69,14 +69,19 @@ export default class OpencgaCohortDetail extends LitElement {
     }
 
     cohortIdObserver() {
-        if (this.opencgaSession && this.cohortId) {
-            this.opencgaSession.opencgaClient.cohorts().info(this.cohortId, {study: this.opencgaSession.study.fqn})
-                .then(restResponse => {
-                    this.cohort = restResponse.getResult(0);
-                })
-                .catch(restResponse => {
-                    console.error(restResponse);
-                });
+        if (this.opencgaSession) {
+            if (this.cohortId) {
+                this.opencgaSession.opencgaClient.cohorts().info(this.cohortId, {study: this.opencgaSession.study.fqn})
+                    .then(restResponse => {
+                        this.cohort = restResponse.getResult(0);
+                    })
+                    .catch(restResponse => {
+                        console.error(restResponse);
+                    });
+            } else {
+                this.cohort = null;
+            }
+
         }
     }
 
