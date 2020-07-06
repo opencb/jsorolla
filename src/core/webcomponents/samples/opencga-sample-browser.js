@@ -133,11 +133,6 @@ export default class OpencgaSampleBrowser extends LitElement {
                                 description: ""
                             },
                             {
-                                id: "annotations",
-                                name: "Sample annotations",
-                                description: ""
-                            },
-                            {
                                 id: "phenotypes",
                                 name: "Phenotypes",
                                 placeholder: "Full-text search, e.g. melanoma",
@@ -151,6 +146,11 @@ export default class OpencgaSampleBrowser extends LitElement {
                             {
                                 id: "date",
                                 name: "Date",
+                                description: ""
+                            },
+                            {
+                                id: "annotations",
+                                name: "Family Annotations",
                                 description: ""
                             }
                         ]

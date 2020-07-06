@@ -140,13 +140,13 @@ export default class OpencgaFamilyBrowser extends LitElement {
                                 description: ""
                             },
                             {
-                                id: "annotations",
-                                name: "Family Annotations",
+                                id: "date",
+                                name: "Date",
                                 description: ""
                             },
                             {
-                                id: "date",
-                                name: "Date",
+                                id: "annotations",
+                                name: "Family Annotations",
                                 description: ""
                             }
                         ]

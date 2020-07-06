@@ -129,12 +129,6 @@ export default class OpencgaCohortBrowser extends LitElement {
                                 description: ""
                             },
                             {
-                                id: "annotations",
-                                name: "Cohort annotations",
-                                placeholder: "Full-text search, e.g. *melanoma*",
-                                description: ""
-                            },
-                            {
                                 id: "type",
                                 name: "Type",
                                 multiple: true,
@@ -144,6 +138,12 @@ export default class OpencgaCohortBrowser extends LitElement {
                             {
                                 id: "date",
                                 name: "Date",
+                                description: ""
+                            },
+                            {
+                                id: "annotations",
+                                name: "Cohort annotations",
+                                placeholder: "Full-text search, e.g. *melanoma*",
                                 description: ""
                             }
                         ]

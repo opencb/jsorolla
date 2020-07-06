@@ -191,6 +191,11 @@ export class JobMonitor extends LitElement {
         }));
     }
 
+    forceRefresh(e) {
+        e.stopPropagation();
+        this.fetchLastJobs();
+    }
+
     toggleDropdown() {
         this.dropdown = !this.dropdown;
     }
@@ -215,6 +220,8 @@ export class JobMonitor extends LitElement {
                             <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple">ALL</button>
                             <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="PENDING,QUEUED,RUNNING,REGISTERING">Running</button>
                             <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="UNREGISTERED,DONE,ERROR,ABORTED">Finished</button>
+                            <button @click="${this.forceRefresh}" class="btn btn-small btn-default ripple pull-right" title="Force immediate refresh"><i class="fas fa-sync-alt"></i></button>
+                            
                         </li>
                         ${this.filteredJobs.length ? this.filteredJobs.map(job => html`
                                 <li>

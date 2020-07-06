@@ -112,11 +112,6 @@ export default class OpencgaFileBrowser extends LitElement {
                         collapsed: false,
                         fields: [
                             {
-                                id: "annotations",
-                                name: "File annotations",
-                                description: ""
-                            },
-                            {
                                 id: "name",
                                 name: "Name",
                                 type: "string",
@@ -162,6 +157,11 @@ export default class OpencgaFileBrowser extends LitElement {
                                 id: "date",
                                 name: "Date",
                                 type: "date",
+                                description: ""
+                            },
+                            {
+                                id: "annotations",
+                                name: "Family Annotations",
                                 description: ""
                             }
                         ]
