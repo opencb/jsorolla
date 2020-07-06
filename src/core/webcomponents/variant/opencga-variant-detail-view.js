@@ -197,7 +197,7 @@ export default class OpenCGAVariantDetailView extends LitElement {
                                         
                                         <!-- Cohort Stats Tab -->
                                         <div id="${this._prefix}cohortStats" role="tabpanel" class="tab-pane">
-                                            <div style="width: 75%;padding-top: 8px">
+                                            <div style="width: 90%;padding: 15px">
                                                 <opencga-variant-cohort-stats   .opencgaSession="${this.opencgaSession}"
                                                                                 variantId="${this.variant.id}"
                                                                                 .active="${this.detailActiveTabs.cohortStats}"
@@ -208,7 +208,7 @@ export default class OpenCGAVariantDetailView extends LitElement {
 
                                         <!-- Samples Tab -->
                                         <div id="${this._prefix}samples" role="tabpanel" class="tab-pane">
-                                            <div style="width: 75%;padding-top: 8px">
+                                            <div style="width: 90%;padding-top: 8px">
                                                 <opencga-variant-samples .opencgaSession="${this.opencgaSession}"
                                                                          variantId="${this.variant.id}"
                                                                          .active="${this.detailActiveTabs.samples}">
@@ -218,7 +218,7 @@ export default class OpenCGAVariantDetailView extends LitElement {
             
                                         <!-- Beacon Network Tab -->
                                         <div id="${this._prefix}beacon" role="tabpanel" class="tab-pane">
-                                            <div style="width: 75%;padding-top: 8px">
+                                            <div style="width: 90%;padding-top: 8px">
                                                 <variant-beacon-network variant="${this.variant.id}"
                                                                         .config="${this.beaconConfig}">
                                                 </variant-beacon-network>

@@ -264,9 +264,9 @@ export default class OpencgaVariantDetail extends LitElement {
                                         
                                         <!-- Cohort Stats Tab -->
                                         <div id="${this._prefix}cohortStats" role="tabpanel" class="tab-pane">
-                                            <div style="width: 75%;padding-top: 8px">
+                                            <div style="width: 75%;padding: 15px">
                                                 <opencga-variant-cohort-stats   .opencgaSession="${this.opencgaSession}"
-                                                                                variantId="${this.variant.id}"
+                                                                                .variantId="${this.variant.id}"
                                                                                 .active="${this.detailActiveTabs.cohortStats}"
                                                                                 .config="${this.cohortConfig}">
                                                 </opencga-variant-cohort-stats>
@@ -277,7 +277,7 @@ export default class OpencgaVariantDetail extends LitElement {
                                         <div id="${this._prefix}samples" role="tabpanel" class="tab-pane">
                                             <div style="width: 75%;padding-top: 8px">
                                                 <opencga-variant-samples .opencgaSession="${this.opencgaSession}"
-                                                                         variantId="${this.variant.id}"
+                                                                         .variantId="${this.variant.id}"
                                                                          .active="${this.detailActiveTabs.samples}">
                                                 </opencga-variant-samples>
                                             </div>

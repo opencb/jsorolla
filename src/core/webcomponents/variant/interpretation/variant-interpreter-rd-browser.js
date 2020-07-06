@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import "./variant-interpreter-grid.js";
@@ -90,6 +91,8 @@ class VariantInterpreterRdBrowser extends LitElement {
         this.query = {};
         this.search = {};
 
+        this.activeFilterFilters = [];
+
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -101,6 +104,10 @@ class VariantInterpreterRdBrowser extends LitElement {
         if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
             this.requestUpdate();
+        }
+
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.updateActiveFilterFilters();
         }
 
         if (changedProperties.has("clinicalAnalysisId")) {
@@ -133,12 +140,32 @@ class VariantInterpreterRdBrowser extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
+                    this.updateActiveFilterFilters();
                     this.requestUpdate();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
                 });
         }
+    }
+
+    updateActiveFilterFilters() {
+        let sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis);
+        let _activeFilterFilters = [];
+        if (sampleQc?.metrics?.length > 0) {
+            let variantStats = sampleQc.metrics[0].variantStats;
+            if (variantStats && variantStats.length > 0) {
+                for (let variantStat of variantStats) {
+                    _activeFilterFilters.push(
+                        {
+                            name: variantStats.id,
+                            query: variantStats.query
+                        }
+                    );
+                }
+            }
+        }
+        this.activeFilterFilters = _activeFilterFilters && _activeFilterFilters.length > 0 ? _activeFilterFilters : this._config.filter.examples;
     }
 
     onSelectVariant(e) {
@@ -355,7 +382,7 @@ class VariantInterpreterRdBrowser extends LitElement {
                         // "gene": "Gene",
                         "ct": "Consequence Types",
                     },
-                    complexFields: ["genotype"],
+                    complexFields: ["sample", "genotype"],
                     hiddenFields: []
                 },
                 sections: [
@@ -680,11 +707,11 @@ class VariantInterpreterRdBrowser extends LitElement {
                                                     .defaultStudy="${this.opencgaSession.study.fqn}"
                                                     .query="${this.preparedQuery}"
                                                     .refresh="${this.executedQuery}"
-                                                    .filters="${this._config.filter ? this._config.filter.examples : null}"
+                                                    .filters="${this.activeFilterFilters}"
                                                     .alias="${this._config.activeFilterAlias}"
                                                     .genotypeSamples="${this.genotypeSamples}"
                                                     .modeInheritance="${this.modeInheritance}"
-                                                    .config="${this._config.activeFilters}"
+                                                    .config="${this._config.filter.activeFilters}"
                                                     @activeFilterChange="${this.onActiveFilterChange}"
                                                     @activeFilterClear="${this.onActiveFilterClear}">
                             </opencga-active-filters>

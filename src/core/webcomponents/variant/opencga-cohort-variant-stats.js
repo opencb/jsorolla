@@ -112,6 +112,10 @@ class CohortVariantStats extends LitElement {
         return content;
     }
 
+    idFormatter(value, row, index) {
+        return `<span style="font-weight: bold">${value}</span>`;
+    }
+
     statsFormatter(value, row, index) {
         let freq, count;
         switch (this.field) {
@@ -165,6 +169,7 @@ class CohortVariantStats extends LitElement {
                     field: "cohortId",
                     rowspan: 2,
                     colspan: 1,
+                    formatter: this.idFormatter,
                     halign: "center"
                 },
                 {

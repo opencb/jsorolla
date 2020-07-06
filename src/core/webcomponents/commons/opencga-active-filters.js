@@ -391,7 +391,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     value = filterFields.join(/[,;]/);
                 } else {
                     // If we find a field with both ; and , or the field has been defined as complex, we will only
-                    // separate by ;.
+                    // separate by ;
                     if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(key) !== -1) {
                         filterFields = value.split(new RegExp(";"));
                     } else {

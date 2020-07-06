@@ -122,6 +122,7 @@ export default class OpencgaVariantSamples extends LitElement {
     }
 
     sexFormatter(value, row, index) {
+        debugger
         if (value) {
             return `${value.sex} (${value.karyotypicSex})`;
         } else {
@@ -199,7 +200,8 @@ export default class OpencgaVariantSamples extends LitElement {
 
                         // Get the total number of samples
                         // TODO count only the genotypes filtered
-                        _this.numSamples = result.studies[0].samples.length;
+                        // _this.numSamples = result.studies[0].samples.length;
+                        _this.numSamples = 0;
                         let stats = result.studies[0].stats;
                         for (let stat of stats) {
                             if (stat.cohortId === "ALL") {

@@ -99,8 +99,9 @@ export default class OpencgaVariantCohortStats extends LitElement {
                 <h3> 
                     ${studyNames[study.studyId]}
                 </h3>
-                
-                <opencga-cohort-variant-stats .stats="${study.stats}"></opencga-cohort-variant-stats>
+                <div style="padding: 10px">
+                    <opencga-cohort-variant-stats .stats="${study.stats}"></opencga-cohort-variant-stats>
+                </div>
             `)}
         `;
     }

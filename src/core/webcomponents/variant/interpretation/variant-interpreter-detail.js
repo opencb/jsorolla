@@ -183,7 +183,7 @@ export default class VariantInterpreterDetail extends LitElement {
                     </ul>
 
                     <div class="tab-content" style="height: 680px">
-                    <!-- Annotation Tab -->
+                        <!-- Annotation Tab -->
                         <!--
                             <div id="${this._prefix}annotation" role="tabpanel" class="tab-pane active">
                                 <div style="width: 75%;padding-top: 8px">
@@ -209,27 +209,27 @@ export default class VariantInterpreterDetail extends LitElement {
                             </div>
                         </div>
 
-                         <div id="${this._prefix}annotationConsType" role="tabpanel" class="tab-pane">
+                        <div id="${this._prefix}annotationConsType" role="tabpanel" class="tab-pane">
                             <div style="width: 90%;padding-top: 8px">
                                 <variant-consequence-type-view  .consequenceTypes="${this.variant.annotation.consequenceTypes}" .active="${this.detailActiveTabs.annotationConsType}">
                                 </variant-consequence-type-view>
                             </div>
-                         </div>
+                        </div>
                                         
-                         <div id="${this._prefix}annotationPropFreq" role="tabpanel" class="tab-pane">
+                        <div id="${this._prefix}annotationPropFreq" role="tabpanel" class="tab-pane">
                             <div style="width: 90%;padding-top: 8px">
                                 <cellbase-population-frequency-grid .populationFrequencies="${this.variant.annotation.populationFrequencies}" .active="${this.detailActiveTabs.annotationPropFreq}">
                                 </cellbase-population-frequency-grid>
                             </div>
-                         </div>
+                        </div>
                          
-                              <div id="${this._prefix}annotationClinical" role="tabpanel" class="tab-pane">
-                                            <div style="width: 90%;padding-top: 8px">
-                                                <variant-annotation-clinical-view   .traitAssociation="${this.variant.annotation.traitAssociation}"
-                                                                                    .geneTraitAssociation="${this.variant.annotation.geneTraitAssociation}">
-                                                </variant-annotation-clinical-view>
-                                            </div>
-                                        </div>
+                        <div id="${this._prefix}annotationClinical" role="tabpanel" class="tab-pane">
+                            <div style="width: 90%;padding-top: 8px">
+                                <variant-annotation-clinical-view   .traitAssociation="${this.variant.annotation.traitAssociation}"
+                                                                    .geneTraitAssociation="${this.variant.annotation.geneTraitAssociation}">
+                                </variant-annotation-clinical-view>
+                            </div>
+                        </div>
                                         
                         <!-- Cohort Stats Tab -->
                         <div id="${this._prefix}fileMetrics" role="tabpanel" class="tab-pane">
@@ -243,9 +243,9 @@ export default class VariantInterpreterDetail extends LitElement {
     
                         <!-- Cohort Stats Tab -->
                         <div id="${this._prefix}cohortStats" role="tabpanel" class="tab-pane">
-                            <div style="width: 75%;padding-top: 8px">
+                            <div style="width: 90%;padding: 15px">
                                 <opencga-variant-cohort-stats .opencgaSession="${this.opencgaSession}"
-                                                              .variant="${this.variant.id}"
+                                                              .variantId="${this.variant.id}"
                                                               .active="${this.detailActiveTabs.cohortStats}">
                                 </opencga-variant-cohort-stats>
                             </div>
@@ -253,7 +253,7 @@ export default class VariantInterpreterDetail extends LitElement {
     
                         <!-- Samples Tab -->
                         <div id="${this._prefix}samples" role="tabpanel" class="tab-pane">
-                            <div style="width: 75%;padding-top: 8px">
+                            <div style="width: 90%;padding-top: 8px">
                                 <opencga-variant-samples .opencgaSession="${this.opencgaSession}"
                                                          .variant="${this.variant.id}"
                                                          .active="${this.detailActiveTabs.samples}">
@@ -263,7 +263,7 @@ export default class VariantInterpreterDetail extends LitElement {
     
                         <!-- Beacon Network Tab-->
                         <div id="${this._prefix}beacon" role="tabpanel" class="tab-pane">
-                            <div style="width: 75%;padding-top: 8px">
+                            <div style="width: 90%;padding-top: 8px">
                                 <variant-beacon-network .variant="${this.variant.id}" .clear="${this.variant.id}" .config="${this.beaconConfig}">
                                 </variant-beacon-network>
                             </div>
@@ -271,7 +271,7 @@ export default class VariantInterpreterDetail extends LitElement {
     
                         <!-- Example Template Tab-->
                         <div id="${this._prefix}template" role="tabpanel" class="tab-pane">
-                            <div style="width: 75%;padding-top: 8px">
+                            <div style="width: 90%;padding-top: 8px">
                                 <opencga-variant-detail-template .opencgaSession="${this.opencgaSession}"
                                                                  .variant="${this.variant.id}"
                                                                  .active="${this.detailActiveTabs.template}">
