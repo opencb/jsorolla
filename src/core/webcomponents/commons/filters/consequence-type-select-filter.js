@@ -63,7 +63,7 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
         if (_changedProperties.has("ct")) {
             if (this.ct) {
                 this._ct = this.ct.split(",");
-                this.LofEnabled = this._config.lof.every( v => this.ct.indexOf(v) > -1)
+                this.LofEnabled = this._config.lof.every( v => this.ct.indexOf(v) > -1);
                 // check all this.ct for this._config.lof
             } else {
                 this._ct = [];
@@ -90,7 +90,8 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
         } else {
             this._ct = this._ct.filter(selected => !this._config.lof.includes(selected));
         }
-        this.filterChange({detail: {value: this._ct.join(",")}});
+
+        this.filterChange({detail: {value: [...new Set(this._ct)].join(",")}});
     }
 
     getDefaultConfig() {
@@ -373,7 +374,7 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
         };
     }
 
-    render() {  return html`
+    render() {  return html` ${JSON.stringify(this.LofEnabled)}
                 <select-field-filter multiple liveSearch=${"true"} .data="${this.options}" .value=${this._ct} @filterChange="${this.filterChange}"></select-field-filter>
                 <div class="form-group">
                     <input class="magic-checkbox" type="checkbox" name="layout" id="lof" value="lof" @click="${this.toggleLof}" .checked="${this.LofEnabled}" >

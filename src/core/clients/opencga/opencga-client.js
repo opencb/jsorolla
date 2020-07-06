@@ -321,7 +321,7 @@ export class OpenCGAClient {
                                                         study.acl = acl.getResult(0)?.[session.user.id] || [];
 
                                                         // default study from config
-                                                        if (project.id + ":" + study.id === application.defaultStudy) {
+                                                        if (study.fqn === application.defaultStudy) {
                                                             session.project = project;
                                                             session.study = study;
                                                         }

@@ -91,10 +91,6 @@ export default class OpencgaActiveFilters extends LitElement {
         this._config = this.getDefaultConfig();
         this.filters = [];
 
-        // todo recheck why function?
-        this.opencgaClient = function() {
-            return {"_config": {}};
-        };
         this.query = {};
         this.lockedFieldsMap = {};
         this.facetQuery = {};

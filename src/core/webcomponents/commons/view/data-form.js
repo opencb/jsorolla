@@ -489,7 +489,7 @@ export default class DataForm extends LitElement {
                     if (typeof element.allowedValues === "function") {
                         let values = element.allowedValues(this.data);
                         if (values) {
-                            allowedValues = values.allowedValues;
+                            allowedValues = values;
                             if (values.defaultValue) {
                                 defaultValue = values.defaultValue;
                             } else {

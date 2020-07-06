@@ -127,11 +127,6 @@ class AlignmentStatsView extends LitElement {
     }
 
     renderTable() {
-        //TODO when does this happens?
-        // if (!Array.isArray(this.alignmentStats)) {
-        //     this.alignmentStats = [this.alignmentStats, this.alignmentStats, this.alignmentStats];
-        // }
-        if (this.alignmentStats && Array.isArray(this.alignmentStats)) {
             return html`
                 <table class="table table-hover table-no-bordered">
                     <thead>
@@ -155,7 +150,6 @@ class AlignmentStatsView extends LitElement {
                         `)}
                     </tbody>
                 </table>`;
-        }
     }
 
     onDownload(e) {
@@ -383,20 +377,23 @@ class AlignmentStatsView extends LitElement {
             </div>
             -->
             <div>
-                <div class="btn-group pull-right">
-                    <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-download" aria-hidden="true"
-                           style="padding-right: 5px"></i> Download <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu btn-sm">
-                        ${this._config.download.length ? this._config.download.map(item => html`
-                                <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>
-                        `) : null}
-                    </ul>
-                </div>
-                                
-                ${this.renderTable()}
+                ${this.alignmentStats?.length > 0 ? html`
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-download" aria-hidden="true"
+                               style="padding-right: 5px"></i> Download <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu btn-sm">
+                            ${this._config.download.length ? this._config.download.map(item => html`
+                                    <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>
+                            `) : null}
+                        </ul>
+                    </div>
+                    ${this.renderTable()}
+                `: html`
+                    <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>
+                ` }
             </div>
         `;
     }

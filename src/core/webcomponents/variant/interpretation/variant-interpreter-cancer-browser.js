@@ -577,7 +577,7 @@ class VariantInterpreterCancerBrowser extends LitElement {
                         <div id="${this._prefix}ActiveFilters">
                             <opencga-active-filters .opencgaSession="${this.opencgaSession}"
                                                     .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                    .defaultStudy="${this.opencgaSession.study.id}"
+                                                    .defaultStudy="${this.opencgaSession.study.fqn}"
                                                     .query="${this.preparedQuery}"
                                                     .refresh="${this.executedQuery}"
                                                     .filters="${this.activeFilterFilters}"

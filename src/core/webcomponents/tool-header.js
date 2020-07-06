@@ -37,13 +37,16 @@ export default class ToolHeader extends LitElement {
             },
             icon: {
                 type: String
+            },
+            class: {
+                type: String
             }
         }
     }
 
     render() {
         return html`
-            <div class="page-title">
+            <div class="page-title ${this.class ?? ""}">
                 <h2>
                     ${this.icon ? this.icon.match(/\./)?.length ? html`
                         <img src="img/tools/icons/${this.icon}" alt="${this.title}">

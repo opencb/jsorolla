@@ -436,7 +436,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
                     
                         <opencga-active-filters .opencgaSession="${this.opencgaSession}"
                                                 .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                .defaultStudy="${this.opencgaSession.study.alias}"
+                                                .defaultStudy="${this.opencgaSession.study.fqn}"
                                                 .query="${this.preparedQuery}"
                                                 .refresh="${this.executedQuery}"
                                                 .filters="${this._config.filter.examples}"

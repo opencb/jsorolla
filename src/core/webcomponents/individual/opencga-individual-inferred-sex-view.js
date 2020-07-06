@@ -62,6 +62,9 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
     }
 
     updated(changedProperties) {
+        if (changedProperties.has("individuals")) {
+        }
+
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
@@ -87,7 +90,7 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
         if (this.individuals && Array.isArray(this.individuals)) {
             let _cellPadding = "padding: 0px 15px";
             return html`
-                <table class="table table-hover table-no-bordered">
+                <table class="table table-hover table-no-bordered text-center">
                     <thead>
                         <tr>
                             <th style="text-align: center">Individual ID</th>
@@ -102,33 +105,39 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
                     </thead>
                     <tbody>
                         ${this.individuals.map(individual => {
-                            let inferredSex = individual.qualityControl.inferredSexReport;
+                            let inferredSex = individual?.qualityControl?.inferredSexReport;
                             return html`
                                 <tr>
-                                    <td style="${_cellPadding}">
+                                    <td>
                                         <label>${individual.id}</label>
                                     </td>
-                                    <td style="${_cellPadding}">${individual.qualityControl.sampleId}</td>
-                                    <td style="${_cellPadding}">${individual.sex}</td>
-                                    <td style="${_cellPadding}">
-                                        <span style="color: ${individual.karyotypicSex === inferredSex.inferredKaryotypicSex ? "black" : "red"}">
-                                            ${individual.karyotypicSex}
-                                        </span>
-                                    </td>
-                                    <td style="text-align: right; ${_cellPadding}">${inferredSex.values.ratioX}</td>
-                                    <td style="text-align: right; ${_cellPadding}">${inferredSex.values.ratioY}</td>
-                                    <td style="${_cellPadding}">
-                                        <span style="color: ${individual.karyotypicSex === inferredSex.inferredKaryotypicSex ? "black" : "red"}">
-                                            ${inferredSex.inferredKaryotypicSex}
-                                        </span>
-                                    </td>
-                                    <td style="text-align: center; ${_cellPadding}">
-                                        <span>${individual.karyotypicSex === inferredSex.inferredKaryotypicSex
-                                            ? html`<i class='fa fa-check' style='color: green'></i>`
-                                            : html`<i class='fa fa-times' style='color: red'></i>`
-                                        }
-                                        </span>
-                                    </td>
+                                    <td>${individual?.qualityControl?.sampleId ?? "N/A"}</td>
+                                    <td>${individual.sex}</td>
+                                    
+                                    ${inferredSex ? html`
+                                        <td>
+                                            <span style="color: ${individual.karyotypicSex === inferredSex.inferredKaryotypicSex ? "black" : "red"}">
+                                                ${individual.karyotypicSex}
+                                            </span>
+                                        </td>
+                                        <td>${inferredSex.values.ratioX}</td>
+                                        <td>${inferredSex.values.ratioY}</td>
+                                        <td>
+                                            <span style="color: ${individual.karyotypicSex === inferredSex.inferredKaryotypicSex ? "black" : "red"}">
+                                                ${inferredSex.inferredKaryotypicSex}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span>${individual.karyotypicSex === inferredSex.inferredKaryotypicSex
+                                                ? html`<i class='fa fa-check' style='color: green'></i>`
+                                                : html`<i class='fa fa-times' style='color: red'></i>`
+                                            }
+                                            </span>
+                                        </td>
+                                    ` : html`
+                                        <td colspan="5"><div class="alert-warning text-center"><i class="fas fa-info-circle align-middle"></i> Inferred Sex data not available.</div></td>
+                                    `}
+                                    
                                 </tr>
                             `})
                         }
@@ -143,7 +152,8 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
     }
 
     render() {
-        if (!this.individual && !this.individuals) {
+
+        if (!this.individual && !this.individuals.length) {
             return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>`;
         }
 

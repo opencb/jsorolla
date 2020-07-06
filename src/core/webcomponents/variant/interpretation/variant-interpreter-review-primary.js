@@ -500,16 +500,15 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             }
         </style>
 
-        <div class="container" style="margin-bottom: 20px">
-            <div style="float: left">
-                <h2>Primary Findings</h2>
-            </div>
-            <div style="margin-top: 20px; float: right">
-                <button type="button" class="btn btn-primary" @click="${this.onViewInterpretation}">Preview</button>
-                <button class="btn btn-primary" @click="${this.onSaveInterpretation}">
-                    <i class="fas fa-save" style="padding-right: 10px"></i>Save
+        <div class="container">
+            <div class="pull-right save-button">
+                <button type="button" class="btn btn-primary ripple" @click="${this.onViewInterpretation}">Preview</button>
+                <button class="btn btn-primary ripple" @click="${this.onSaveInterpretation}">
+                    <i class="fas fa-save icon-padding"></i>Save
                 </button>
             </div>
+            <tool-header title="Primary Findings" class="bg-white" icon="${this._config.icon}"></tool-header>
+
             <div class="row">
                 <div id="${this._prefix}SaveInterpretation">
                     <div class="col-md-12">

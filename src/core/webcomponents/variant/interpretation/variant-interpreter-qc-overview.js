@@ -175,8 +175,9 @@ class VariantInterpreterQcOverview extends LitElement {
             </style>
             <div class="row variant-interpreter-overview" style="margin: 10px">
                 <div class="col-md-9 col-md-offset-2">
-                    <h2>Quality Control Overview</h2>
+                    <tool-header title="Quality Control Overview" class="bg-white" icon="${this._config.icon}"></tool-header>
                 </div>
+
                 <div class="col-md-2 list-group interpreter-side-nav side-tabs side-nav">
                     <button type="button" class="list-group-item active" 
                           data-id="Summary" @click="${this.onSideNavClick}">Summary</button>

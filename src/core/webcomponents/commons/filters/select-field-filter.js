@@ -92,6 +92,10 @@ export default class SelectFieldFilter extends LitElement {
         if (_changedProperties.has("value")) {
             const val = this.value ? (this.multiple ? Array.isArray(this.value) ? this.value : this.value.split(",") : this.value) : ""
             this.selectPicker.selectpicker("val", val);
+
+            //console.log("value changes")
+            //this.filterChange(); //TODO this would solve the "Recent created Analysis" bug in variant-interpreter-landing page, but would implies double fire of filterChange every time
+
             //this.requestUpdate()
             //$(".selectpicker", this).selectpicker("refresh");
         }
@@ -106,6 +110,8 @@ export default class SelectFieldFilter extends LitElement {
         if (selection && selection.length) {
             val = this.multiple ? selection.join(",") : selection[0];
         }
+        //console.error("filterChange val", val)
+
         //this.value = val ? val : null; // this allow users to get the selected values using DOMElement.value
         const event = new CustomEvent("filterChange", {
             detail: {

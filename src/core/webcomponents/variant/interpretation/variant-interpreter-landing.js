@@ -16,10 +16,10 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
+import UtilsNew from "../../../utilsNew.js";
 import "../../clinical/opencga-clinical-analysis-writer.js";
 import "../../commons/filters/clinical-analysis-id-autocomplete.js";
-import UtilsNew from "../../../utilsNew.js";
-
+import "../../commons/view/data-form.js";
 
 class VariantInterpreterLanding extends LitElement {
 
@@ -291,7 +291,7 @@ class VariantInterpreterLanding extends LitElement {
                             }
                         },
                         {
-                            name: "Proband ID",
+                            name: "Individual ID",
                             field: "proband.id",
                             type: "custom",
                             display: {
@@ -320,8 +320,9 @@ class VariantInterpreterLanding extends LitElement {
                             name: "Recent Analysis created",
                             field: "id",
                             type: "select",
+                            //defaultValue: this.lastClinicalAnalysis ? this.lastClinicalAnalysis[0] : null,
                             allowedValues: data => {
-                                return {allowedValues: this.lastClinicalAnalysis};
+                                return this.lastClinicalAnalysis;
                             },
                             display: {
                             }

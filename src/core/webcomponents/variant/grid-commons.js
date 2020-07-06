@@ -29,6 +29,12 @@ export default class GridCommons {
         // this.bootstrapTableConfig = this.bootstrapTable.bootstrapTable("getOptions");
     }
 
+    defaultConfig() {
+        return {
+
+        }
+    }
+
     responseHandler(response, bootstrapTableConfig) {
         let numMatches, from, to, numTotalResultsText, approximateCountResult;
         numMatches = this.context.numMatches || 0;
@@ -185,7 +191,7 @@ export default class GridCommons {
 
     // overrides the pagination info in bootstrap-table
     formatShowingRows(pageFrom, pageTo, totalRows, totalNotFiltered) {
-        return `Showing ${pageFrom} to ${pageTo} of ${Number(totalRows).toLocaleString()} records`
+        return `Showing <b>${pageFrom}</b> to <b>${pageTo}</b> of <b>${Number(totalRows).toLocaleString()}</b> records`
     }
 
 }

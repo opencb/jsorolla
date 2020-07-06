@@ -180,6 +180,7 @@ export class JobMonitor extends LitElement {
         // -> e.stopPropagation();
         let job = this.jobs.find(job => job.id === jobId);
         job._visited = true;
+        this.jobs = [...this.jobs];
         this.requestUpdate();
 
         this.dispatchEvent(new CustomEvent("jobSelected", {

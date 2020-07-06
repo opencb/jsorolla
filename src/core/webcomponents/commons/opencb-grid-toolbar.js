@@ -115,7 +115,7 @@ export default class OpencbGridToolbar extends LitElement {
             columns: [], // [{field: "fieldname", title: "title", visible: true, eligible: true}]
             download: ["Tab", "JSON"],
             showShareLink: false,
-            showPaginationInfo: true
+            showPaginationInfo: false
         };
     }
 
@@ -129,12 +129,6 @@ export default class OpencbGridToolbar extends LitElement {
                 
                 .opencb-grid-toolbar {
                     margin-bottom: 10px;
-                }
-                
-                .pagination-info {
-                    line-height: 34px;
-                    margin-right: 5px;
-                    font-size: 12px;
                 }
                 
             </style>

@@ -158,6 +158,13 @@ class VariantInterpreterInterpretation extends LitElement {
                                 </li>`
                             : null
                         }
+                        ${this.clinicalAnalysis.type.toUpperCase() === "SINGLE"
+                            ? html`
+                                                <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Upd"]})}">
+                                                    <a href="javascript: void 0" role="tab" data-id="Upd" @click="${this._changeTab}" class="tab-title disabled">UPD (coming soon)</a>
+                                                </li>`
+                            : null
+                        }                        
                         <!--<li role="presentation" class="content-pills help-pill ${classMap({active: this.activeTab["help"]})}">
                             <a href="javascript: void 0" role="tab" data-id="Help" @click="${this._changeTab}" class="tab-title"><i class="fas fa-question-circle"></i> Help</a>
                         </li>-->
@@ -166,6 +173,16 @@ class VariantInterpreterInterpretation extends LitElement {
                 
                 <div class="content-tab-wrapper">
                     ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
+                        ? html`
+                            <div id="${this._prefix}RdTiering" role="tabpanel" class="tab-pane content-tab container active">
+                                <opencga-rd-tiering-analysis .opencgaSession="${this.opencgaSession}"></opencga-rd-tiering-analysis>
+                            </div>
+                            <div id="${this._prefix}Zetta" role="tabpanel" class="tab-pane content-tab container">
+                                <opencga-rd-tiering-analysis .opencgaSession="${this.opencgaSession}"></opencga-rd-tiering-analysis>
+                            </div>`
+                        : ""
+                    }
+                    ${this.clinicalAnalysis.type.toUpperCase() === "SINGLE"
                         ? html`
                             <div id="${this._prefix}RdTiering" role="tabpanel" class="tab-pane content-tab container active">
                                 <opencga-rd-tiering-analysis .opencgaSession="${this.opencgaSession}"></opencga-rd-tiering-analysis>

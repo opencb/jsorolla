@@ -114,17 +114,17 @@ class VariantInterpreterQcAlignmentStats extends LitElement {
         // Check Project exists
         if (!this.opencgaSession.project) {
             return html`
-                    <div>
-                        <h3><i class="fas fa-lock"></i> No public projects available to browse. Please login to continue</h3>
-                    </div>`;
+                <div>
+                    <h3><i class="fas fa-lock"></i> No public projects available to browse. Please login to continue</h3>
+                </div>`;
         }
 
         // Check Clinical Analysis exist
         if (!this.clinicalAnalysis) {
             return html`
-                    <div>
-                        <h3><i class="fas fa-lock"></i> No Case open</h3>
-                    </div>`;
+                <div>
+                    <h3><i class="fas fa-lock"></i> No Case open</h3>
+                </div>`;
         }
 
         // Alignment stats are the same for FAMILY and CANCER analysis

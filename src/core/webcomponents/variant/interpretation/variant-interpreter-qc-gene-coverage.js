@@ -118,16 +118,13 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
         }
 
         return html`
-            <div class="container" style="margin-bottom: 20px">
-                <div style="float: left">
-                    <h2>Gene Coverage Stats</h2>
-                </div>
-                <div style="margin-top: 20px; float: right">
-                    <button class="btn btn-primary ripple" @click="${this.onCloseClinicalAnalysis}">
-                        <i class="fas fa-save" style="padding-right: 10px"></i>Save
-                    </button>
-                </div>
+            <div class="pull-right save-button">
+                <button class="btn btn-primary ripple" @click="${this.onCloseClinicalAnalysis}">
+                    <i class="fas fa-save" style="padding-right: 10px"></i>Save
+                </button>
             </div>
+            <tool-header title="Gene Coverage Stats" class="bg-white" icon="${this._config.icon}"></tool-header>
+            
             <div class="container">
                 <gene-coverage-browser  .opencgaSession="${this.opencgaSession}"
                                         .cellbaseClient="${this.cellbaseClient}"
