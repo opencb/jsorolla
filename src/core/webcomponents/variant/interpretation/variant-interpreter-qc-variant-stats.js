@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./sample-variant-stats-view.js";
 
@@ -112,9 +113,12 @@ class VariantInterpreterQcVariantStats extends LitElement {
             }
         }
         // this.stats = this.clinicalAnalysis.proband.samples[0].annotationSets.find( annotationSet => annotationSet.id.toUpperCase() === "OPENCGA_SAMPLE_VARIANT_STATS");
-        this.variantStats = this.clinicalAnalysis.proband.samples[0].qualityControl.metrics[0].variantStats[0];
-        if (!this.variantStats) {
-            console.error("Sample variant stats unavailable")
+        let sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis);
+        if (sampleQc?.metrics.length > 0) {
+            this.variantStats = sampleQc.metrics[0].variantStats[0];
+            if (!this.variantStats) {
+                console.error("Sample variant stats unavailable")
+            }
         }
         this.requestUpdate();
     }

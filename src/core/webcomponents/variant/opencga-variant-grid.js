@@ -117,7 +117,7 @@ export default class OpencgaVariantGrid extends LitElement {
             this.renderVariants();
         }
         if (changedProperties.has("config")) {
-            this._config = Object.assign(this.getDefaultConfig(), this.config);
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 

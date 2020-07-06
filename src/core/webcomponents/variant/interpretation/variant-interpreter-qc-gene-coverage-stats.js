@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
+import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import "../../alignment/gene-coverage-view.js";
 
@@ -89,8 +90,11 @@ class VariantInterpreterQcGeneCoverageStats extends LitElement {
     }
 
     prepareGeneCoverageStats() {
-        this.geneCoverageStats = this.clinicalAnalysis.proband.samples[0].qualityControl.metrics[0].geneCoverageStats;
-        this._geneCoverageStats = this.geneCoverageStats[0];
+        let sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis);
+        if (sampleQc?.metrics.length > 0) {
+            this.geneCoverageStats = sampleQc.metrics[0].geneCoverageStats;
+            this._geneCoverageStats = this.geneCoverageStats[0];
+        }
         this.requestUpdate();
     }
 

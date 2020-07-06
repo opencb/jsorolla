@@ -368,7 +368,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             field: "proband.id",
                             type: "custom",
                             display: {
-                                width: 5,
+                                width: 6,
                                 visible: data => this.mode === "create",
                                 render: (data) => {
                                     return html`
@@ -385,7 +385,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             allowedValues: "proband.disorders",
                             required: true,
                             display: {
-                                width: 5,
+                                width: 6,
                                 apply: (disorder) => `${disorder.name} (${disorder.id})`,
                                 errorMessage: "No family selected"
                             }
