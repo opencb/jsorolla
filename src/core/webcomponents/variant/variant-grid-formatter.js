@@ -178,7 +178,7 @@ export default class VariantGridFormatter {
 
         // Check 'query' is passed through formatter bind()
         // Keep a map of genes and the SO accessions and names
-        if (this.query.ct) {
+        if (this.query?.ct) {
             queryCtArray = this.query.ct.split(",");
             geneToSo = {};
             for (let ct of row.annotation.consequenceTypes) {

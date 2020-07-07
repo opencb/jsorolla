@@ -279,12 +279,23 @@ class VariantInterpreterLanding extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => {
-                                    return html`
-                                        <select-field-filter-autocomplete-simple resource="clinical-analysis"
-                                                .opencgaSession="${this.opencgaSession}" 
-                                                @filterChange="${e => this.onClinicalAnalysisIdChange("clinicalAnalysisId", e.detail.value)}">
-                                        </select-field-filter-autocomplete-simple>
-                                    `;
+                                    const config = {
+                                        addButton: false,
+                                        multiple: false,
+                                        dataSource: (query, process) => {
+                                            const filters = {
+                                                study: this.opencgaSession.study.fqn,
+                                                limit: 20,
+                                                count: false,
+                                                id: "~^" + query.toUpperCase()
+                                            };
+                                            this.opencgaSession.opencgaClient.clinical().search(filters).then(restResponse => {
+                                                const results = restResponse.getResults();
+                                                process(results.map( item => ({name: item.id, Type: item?.type, "Proband Id": item?.proband?.id})));
+                                            });
+                                        }
+                                    }
+                                    return html`<clinical-analysis-id-autocomplete .config=${config} .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onClinicalAnalysisIdChange("clinicalAnalysisId", e.detail.value)}"></clinical-analysis-id-autocomplete>`;
                                 },
                                 placeholder: "eg. AN-3",
                                 errorMessage: ""
@@ -304,7 +315,7 @@ class VariantInterpreterLanding extends LitElement {
                                                 study: this.opencgaSession.study.fqn,
                                                 limit: 20,
                                                 count: false,
-                                                proband: "^" + query.toUpperCase()
+                                                proband: "~^" + query.toUpperCase()
                                             };
                                             this.opencgaSession.opencgaClient.clinical().search(filters).then(restResponse => {
                                                 const results = restResponse.getResults();

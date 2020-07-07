@@ -108,10 +108,10 @@ export default class GeneCoverageBrowser extends LitElement {
 
     _changeView(tabId) {
         console.log("changing to ", tabId)
-        $(".gene-coverage-browser .content-pills", this).removeClass("active");
-        $(".gene-coverage-browser .content-tab", this).removeClass("active");
+        $(`.${this._prefix}gene-coverage-browser .content-pills`, this).removeClass("active");
+        $(`.${this._prefix}gene-coverage-browser .content-tab`, this).removeClass("active");
         for (const tab in this.activeTab) this.activeTab[tab] = false;
-        $(`.gene-coverage-browser button.content-pills[data-id=${tabId}]`, this).addClass("active");
+        $(`.${this._prefix}gene-coverage-browser button.content-pills[data-id=${tabId}]`, this).addClass("active");
         $("#" + tabId, this).addClass("active");
         this.activeTab[tabId] = true;
         this.requestUpdate();
@@ -206,7 +206,7 @@ export default class GeneCoverageBrowser extends LitElement {
                                 render: () => {
                                     const config = {
                                         dataSource: (query, process) => {
-                                            this.cellbaseClient.get("feature", "gene", null, "search", {limit: 10, "annotation.disease.id": "^" + query.toUpperCase()}, {})
+                                            this.cellbaseClient.get("feature", "gene", null, "search", {limit: 10, "annotation.disease.id": "~^" + query.toUpperCase()}, {})
                                                 .then(restResponse => {
                                                     process(restResponse.response[0].result.map( item => ({
                                                         name: item.id,
@@ -240,6 +240,7 @@ export default class GeneCoverageBrowser extends LitElement {
         this.geneCoverageStats = {...this.geneCoverageStats};
         const geneIds = Object.keys(this.geneCoverageStats);
         if (geneIds.length > 0) {
+            console.error("changing view to ", geneIds[0])
             this._changeView(geneIds[0]);
         }
     }
@@ -276,8 +277,8 @@ export default class GeneCoverageBrowser extends LitElement {
     }
 
     render() {
-        return this._config
-            ? html`
+        if (this._config && this.file) {
+            return html`
                 <style>
                     .coverage-table-close {
                         margin-left: 10px;
@@ -293,7 +294,7 @@ export default class GeneCoverageBrowser extends LitElement {
                             <data-form .data=${{}} .config="${this.getGeneFilterConfig()}" @submit="${e => this.onRun(e)}"></data-form>
                         </div>
                     </div>
-                    <div class="col-md-12 gene-coverage-browser">
+                    <div class="col-md-12 ${this._prefix}gene-coverage-browser">
                         ${this.loading ? html`
                             <div id="loading">
                                 <loading-spinner></loading-spinner>
@@ -304,7 +305,7 @@ export default class GeneCoverageBrowser extends LitElement {
                             </div>
                             <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
                                 <div class="btn-group" role="group">
-                                    ${Object.entries(this.geneCoverageStats).map( ([geneId, _]) => html`
+                                    ${Object.entries(this.geneCoverageStats).map(([geneId, _]) => html`
                                         <div class="btn-group">
                                             <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab[geneId]})}" @click="${this.onClickPill}" data-id="${geneId}">
                                                 <i class="fa fa-table icon-padding" aria-hidden="true"></i> ${geneId} 
@@ -315,7 +316,7 @@ export default class GeneCoverageBrowser extends LitElement {
                                 </div>
                             </div>
                             <div class="content-tab-wrapper">
-                                ${Object.entries(this.geneCoverageStats).map( ([geneId, geneCoverageStat]) => html`
+                                ${Object.entries(this.geneCoverageStats).map(([geneId, geneCoverageStat]) => html`
                                     <div id="${geneId}" class="content-tab ${classMap({active: this.activeTab[geneId]})}">
                                         <gene-coverage-view .config=${this._config} .geneCoverageStats="${geneCoverageStat}" .opencgaSession="${this.opencgaSession}"></gene-coverage-view>
                                     </div>
@@ -326,12 +327,18 @@ export default class GeneCoverageBrowser extends LitElement {
                                     ${this.errorState}
                                 </div>
                                 ` : html`<div class="alert alert-info" role="alert"><i class="fas fa-3x fa-info-circle align-middle"></i> Select a Gene. </div>`
-                        }
-                        
-                        
+                            }
                     </div>
                 </div>`
-            : null
+        } else {
+            return html`
+                <div id="error" class="alert alert-danger" role="alert">
+                    No BAM file found
+                </div>`;
+        }
+
+
+
     }
 
 }

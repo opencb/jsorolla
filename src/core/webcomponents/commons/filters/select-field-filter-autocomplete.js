@@ -73,7 +73,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                     count: false,
                     ...this._config.query,
                     // include: "id,individual.id",
-                    [this._config.searchOn || "id"]: "^" + query.toUpperCase()
+                    [this._config.searchOn || "id"]: "~^" + query.toUpperCase()
                 };
                 this.client().search(filters).then(restResponse => {
                     const results = restResponse.getResults();

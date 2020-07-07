@@ -73,6 +73,57 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
         }
     }
 
+    onDownload(e) {
+        let dataString = [];
+        let mimeType = "";
+        let extension = "";
+        // Check if user clicked in Tab or JSON format
+        if (e.currentTarget.dataset.downloadOption.toLowerCase() === "tab") {
+
+            const data = this.individuals.map(individual => {
+                let inferredSex = individual?.qualityControl?.inferredSexReports[0];
+                return [
+                    individual.id,
+                    individual?.qualityControl?.sampleId ?? "N/A",
+                    individual.karyotypicSex,
+                    ...(inferredSex ?
+                        [
+                            inferredSex.values.ratioX.toFixed(4),
+                            inferredSex.values.ratioY.toFixed(4),
+                            inferredSex.inferredKaryotypicSex ?? "-",
+                            inferredSex.method
+                        ] : ["-", "-", "-", "-"])
+                ].join("\t")
+            });
+
+            dataString = [
+                ["Individual ID", "Sample ID", "Sex", "Reported Phenotypic Sex", "Reported Karyotypic Sex", "Ratio (avg. chrX/auto)", "Ratio (avg. chrY/auto)", "Inferred Karyotypic Sex", "Method"].join("\t"),
+                data.join("\n")
+            ];
+            //console.log(dataString);
+            mimeType = "text/plain";
+            extension = ".txt";
+        } else {
+            /*for (const res of result) {
+                dataString.push(JSON.stringify(res, null, "\t"));
+            }
+            mimeType = "application/json";
+            extension = ".json";*/
+        }
+
+        // Build file and anchor link
+        const data = new Blob([dataString.join("\n")], {type: mimeType});
+        const file = window.URL.createObjectURL(data);
+        const a = document.createElement("a");
+        a.href = file;
+        a.download = this.opencgaSession.study.alias + extension;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() {
+            document.body.removeChild(a);
+        }, 0);
+    }
+
     individualIdObserver() {
         if (this.opencgaSession && this.individualId) {
             this.opencgaSession.opencgaClient.individuals().info(this.individualId, {study: this.opencgaSession.study.fqn})
@@ -93,15 +144,15 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
                 <table class="table table-hover table-no-bordered text-center">
                     <thead>
                         <tr>
-                            <th style="text-align: center">Individual ID</th>
-                            <th style="text-align: center">Sample ID</th>
-                            <th style="text-align: center">Reported Phenotypic Sex</th>
-                            <th style="text-align: center">Reported Karyotypic Sex</th>
-                            <th style="text-align: center">Ratio (avg. chrX/auto)</th>
-                            <th style="text-align: center">Ratio (avg. chrY/auto)</th>
-                            <th style="text-align: center">Inferred Karyotypic Sex</th>
-                            <th style="text-align: center">Method</th>
-                            <!-- <th style="text-align: center">Status</th> -->
+                            <th>Individual ID</th>
+                            <th>Sample ID</th>
+                            <th>Reported Phenotypic Sex</th>
+                            <th>Reported Karyotypic Sex</th>
+                            <th>Ratio (avg. chrX/auto)</th>
+                            <th>Ratio (avg. chrY/auto)</th>
+                            <th>Inferred Karyotypic Sex</th>
+                            <th>Method</th>
+                            <!-- <th>Status</th> -->
                         </tr>
                     </thead>
                     <tbody>
@@ -113,7 +164,7 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
                                         <label>${individual.id}</label>
                                     </td>
                                     <td>${individual?.qualityControl?.sampleId ?? "N/A"}</td>
-                                    <td>${individual.sex}</td>
+                                    <td>${individual.sex}</td>       
                                     <td>
                                         <span style="color: ${!inferredSex || individual.karyotypicSex === inferredSex?.inferredKaryotypicSex ? "black" : "red"}">
                                             ${individual.karyotypicSex}
@@ -150,6 +201,7 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
 
     getDefaultConfig() {
         return {
+            download: ["Tab", "JSON"]
         }
     }
 

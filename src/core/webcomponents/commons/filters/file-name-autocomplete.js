@@ -74,7 +74,7 @@ export default class FileNameAutocomplete extends LitElement {
                     count: false,
                     type: "FILE",
                     // include: "id,individual.id",
-                    name: "^" + query
+                    name: "~^" + query
                 };
                 this.opencgaSession.opencgaClient.files().search(filters).then(restResponse => {
                     const results = restResponse.getResults();

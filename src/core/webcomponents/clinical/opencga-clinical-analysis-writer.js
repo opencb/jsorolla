@@ -601,9 +601,13 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             _this.notifyClinicalAnalysisWrite();
                             _this.onClear();
                         })
-                        .catch(function(response) {
-                            console.error(response);
-                            new NotificationQueue().push(response.error, null, "ERROR");
+                        .catch( restResponse => {
+                            console.error(restResponse);
+                            if (restResponse?.getEvents("ERROR")?.length) {
+                                new NotificationQueue().push("Error creating Clinical Analysis", restResponse.getEvents("ERROR").map(error => error.message).join("<br>"), "ERROR");
+                            } else {
+                                new NotificationQueue().push("Error creating Clinical Analysis", null, "ERROR");
+                            }
                         });
                 }
             },

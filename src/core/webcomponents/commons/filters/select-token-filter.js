@@ -72,7 +72,7 @@ export default class SelectTokenFilter extends LitElement {
                     limit: this._config.limit,
                     count: false,
                     // include: "id",
-                    id: "^" + term.toUpperCase()
+                    id: "~^" + term.toUpperCase()
                 };
                 this.client().search(filters).then( restResponse => {
                     const results = restResponse.getResults();

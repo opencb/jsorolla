@@ -408,6 +408,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             name: "Pedigree",
                             type: "custom",
                             display: {
+                                visible: data => data?.family?.members?.length > 2,
                                 layout: "vertical",
                                 render: clinicalAnalysis => html`<pedigree-view .family="${clinicalAnalysis.family}"></pedigree-view>`
                             }

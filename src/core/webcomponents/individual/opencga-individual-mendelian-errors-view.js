@@ -88,8 +88,6 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
             let roles = {};
             roles[this.individual.father?.id] = "FATHER";
             roles[this.individual.mother?.id] = "MOTHER";
-
-            let _cellPadding = "padding: 0px 15px";
             return html`
                 <h4>Sample Summary</h4>
                 <table class="table table-hover table-no-bordered">
@@ -105,13 +103,13 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
                     <tbody>
                         ${mendelianErrorReport.sampleAggregation.map(sampleAggregation => html`
                             <tr>
-                                <td style="${_cellPadding}">
+                                <td>
                                     <label>${sampleAggregation.sample}</label>
                                 </td>
-                                <td style="${_cellPadding}">${roles[sampleAggregation.sample] || "-"}</td>
-                                <td style="${_cellPadding}">${sampleAggregation.numErrors}</td>
-                                <td style="${_cellPadding}">${sampleAggregation.ratio}</td>
-                                <td style="${_cellPadding}">
+                                <td>${roles[sampleAggregation.sample] || "-"}</td>
+                                <td>${sampleAggregation.numErrors}</td>
+                                <td>${sampleAggregation.ratio}</td>
+                                <td>
                                     <span>
                                         ${sampleAggregation.ratio < 0.05
                                             ? html`<i class='fa fa-check' style='color: green'></i>`
@@ -139,12 +137,12 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
                         ${sampleAggregation?.chromAggregation.map(chromAggregation => {
                             return Object.keys(chromAggregation.errorCodeAggregation).map(key => html`
                                 <tr>
-                                    <td style="${_cellPadding}">
+                                    <td>
                                         <label>${this.individual.id}</label>
                                     </td>
-                                    <td style="${_cellPadding}">${chromAggregation.chromosome}</td>
-                                    <td style="${_cellPadding}">${key}</td>
-                                    <td style="${_cellPadding}">${chromAggregation.errorCodeAggregation[key]}</td>
+                                    <td>${chromAggregation.chromosome}</td>
+                                    <td>${key}</td>
+                                    <td>${chromAggregation.errorCodeAggregation[key]}</td>
                                 </tr>`)
                             })
                         }

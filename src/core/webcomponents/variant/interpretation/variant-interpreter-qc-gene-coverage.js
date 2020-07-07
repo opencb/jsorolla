@@ -118,11 +118,14 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
         }
 
         return html`
-            <div class="pull-right save-button">
-                <button class="btn btn-primary ripple" @click="${this.onCloseClinicalAnalysis}">
-                    <i class="fas fa-save" style="padding-right: 10px"></i>Save
-                </button>
-            </div>
+            
+            ${this.file ? html`
+                <div class="pull-right save-button">
+                    <button class="btn btn-primary ripple" @click="${this.onCloseClinicalAnalysis}">
+                        <i class="fas fa-save" style="padding-right: 10px"></i>Save
+                    </button>
+                </div>
+            ` : null}
             <tool-header title="Gene Coverage Stats" class="bg-white" icon="${this._config.icon}"></tool-header>
             
             <div class="container">

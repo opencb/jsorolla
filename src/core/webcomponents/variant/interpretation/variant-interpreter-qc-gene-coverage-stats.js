@@ -137,27 +137,37 @@ class VariantInterpreterQcGeneCoverageStats extends LitElement {
                     </div>`;
         }
 
+        if (!this.geneCoverageStats || Object.keys(this.geneCoverageStats).length) {
+            return html`
+                <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No data are available yet.</div>
+            `
+        }
+
         return html`
-            <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
-                <div class="btn-group" role="group">
-                    ${this.geneCoverageStats 
-                        ? this.geneCoverageStats.map( geneCoverageStats => html`
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab[geneCoverageStats.geneName]})}" 
-                                        @click="${this.onClickPill}" data-id="${geneCoverageStats.geneName}" style="margin: 0px 1px">
-                                    ${geneCoverageStats.geneName} 
-                                </button>
-                            </div>`) 
-                        : null}
+            <div class="gene-coverage-stats">
+                <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
+                    <div class="btn-group" role="group">
+                        ${this.geneCoverageStats 
+                            ? this.geneCoverageStats.map( geneCoverageStats => html`
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab[geneCoverageStats.geneName]})}" 
+                                            @click="${this.onClickPill}" data-id="${geneCoverageStats.geneName}" style="margin: 0px 1px">
+                                        ${geneCoverageStats.geneName} 
+                                    </button>
+                                </div>`) 
+                            : null}
+                    </div>
+                </div>
+                <div class="content-tab-wrapper">
+                    <div class="content-tab-wrapper">
+                        ${Object.entries(this.geneCoverageStats).map(([geneId, geneCoverageStat]) => html`
+                            <div id="${geneId}" class="content-tab ${classMap({active: this.activeTab[geneId]})}">
+                                <gene-coverage-view .config=${this._config} .geneCoverageStats="${geneCoverageStat}" .opencgaSession="${this.opencgaSession}"></gene-coverage-view>
+                            </div>
+                        `)}
+                    </div>
                 </div>
             </div>
-            ${this._geneCoverageStats 
-                ? html`
-                    <gene-coverage-view .opencgaSession="${this.opencgaSession}" 
-                                        .geneCoverageStats="${this._geneCoverageStats}">
-                    </gene-coverage-view>` 
-                : html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No data are available yet.</div>`
-            }
         `;
     }
 
