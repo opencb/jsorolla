@@ -97,10 +97,8 @@ export default class OpencgaAnalysisToolForm extends LitElement {
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.params["study"] = this.opencgaSession.study.fqn;
-
             // Check logged user is the study owner
             let loggedUser = this.opencgaSession.user.id;
-
             // Check if user is the Study owner
             let _studyOwner = this.opencgaSession.study.fqn.split("@")[0];
             if (this.opencgaSession.user.id === _studyOwner) {

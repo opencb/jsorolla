@@ -317,8 +317,15 @@ export class OpenCGAClient {
                                                         } else {
                                                             study.alias = study.fqn;
                                                         }
-                                                        const acl = await _this.studies().acl(study.fqn, {});
-                                                        // study.acl = acl.getResult(0)?.[session.user.id] || [];
+
+                                                        // FIXME Undo this week
+                                                        let admins = study.groups.find(g => g.id === "@admins");
+                                                        let acl = null;
+                                                        if (admins.userIds?.includes(session.user.id)) {
+                                                            acl = await _this.studies().acl(study.fqn, {});
+                                                        } else {
+                                                            acl = await _this.studies().acl(study.fqn, {member: session.user.id});
+                                                        }
                                                         study.acl = acl.getResult(0, 0);
 
                                                         // default study from config
