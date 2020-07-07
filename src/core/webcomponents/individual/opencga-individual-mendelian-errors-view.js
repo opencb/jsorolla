@@ -81,7 +81,7 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
     }
 
     renderTable() {
-        if (this.individual && this.individual.qualityControl?.mendelianErrorReport) {
+        if (this.individual && this.individual?.qualityControl?.mendelianErrorReport) {
             let mendelianErrorReport = this.individual.qualityControl.mendelianErrorReport;
             let sampleAggregation = mendelianErrorReport.sampleAggregation.find(sampleAggregation => sampleAggregation.sample === this.individual.id);
 
@@ -136,7 +136,7 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
                         </tr>
                     </thead>
                     <tbody>
-                        ${sampleAggregation.chromAggregation.map(chromAggregation => {
+                        ${sampleAggregation?.chromAggregation.map(chromAggregation => {
                             return Object.keys(chromAggregation.errorCodeAggregation).map(key => html`
                                 <tr>
                                     <td style="${_cellPadding}">
@@ -160,7 +160,8 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
     }
 
     render() {
-        if (!this.individual?.qualityControl?.mendelianErrorReport) {
+        if (!this.individual?.qualityControl?.mendelianErrorReport?.sampleAggregation
+            || this.individual.qualityControl.mendelianErrorReport.sampleAggregation.length === 0) {
             return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>`;
         }
 
@@ -169,13 +170,14 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
                 <div class="btn-group pull-right">
                     <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-download" aria-hidden="true"
-                           style="padding-right: 5px"></i> Download <span class="caret"></span>
+                        <i class="fa fa-download" aria-hidden="true" style="padding-right: 5px"></i> Download <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu btn-sm">
-                        ${this._config.download && this._config.download.length ? this._config.download.map(item => html`
-                                <li><a href="javascript: void 0" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>
-                        `) : null}
+                        ${this._config.download && this._config.download.length 
+                            ? this._config.download.map(item => html`
+                                <li><a href="javascript: void 0" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>`) 
+                            : null
+                        }
                     </ul>
                 </div>
                                 

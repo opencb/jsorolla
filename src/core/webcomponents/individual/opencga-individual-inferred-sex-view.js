@@ -88,7 +88,7 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
 
     renderTable() {
         if (this.individuals && Array.isArray(this.individuals)) {
-            let _cellPadding = "padding: 0px 15px";
+            // let _cellPadding = "padding: 0px 15px";
             return html`
                 <table class="table table-hover table-no-bordered text-center">
                     <thead>
@@ -100,12 +100,13 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
                             <th style="text-align: center">Ratio (avg. chrX/auto)</th>
                             <th style="text-align: center">Ratio (avg. chrY/auto)</th>
                             <th style="text-align: center">Inferred Karyotypic Sex</th>
-                            <th style="text-align: center">Status</th>
+                            <th style="text-align: center">Method</th>
+                            <!-- <th style="text-align: center">Status</th> -->
                         </tr>
                     </thead>
                     <tbody>
                         ${this.individuals.map(individual => {
-                            let inferredSex = individual?.qualityControl?.inferredSexReport;
+                            let inferredSex = individual?.qualityControl?.inferredSexReports[0];
                             return html`
                                 <tr>
                                     <td>
@@ -113,31 +114,32 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
                                     </td>
                                     <td>${individual?.qualityControl?.sampleId ?? "N/A"}</td>
                                     <td>${individual.sex}</td>
-                                    
+                                    <td>
+                                        <span style="color: ${!inferredSex || individual.karyotypicSex === inferredSex?.inferredKaryotypicSex ? "black" : "red"}">
+                                            ${individual.karyotypicSex}
+                                        </span>
+                                    </td>
                                     ${inferredSex ? html`
+                                        <td>${inferredSex.values.ratioX.toFixed(4)}</td>
+                                        <td>${inferredSex.values.ratioY.toFixed(4)}</td>
                                         <td>
                                             <span style="color: ${individual.karyotypicSex === inferredSex.inferredKaryotypicSex ? "black" : "red"}">
-                                                ${individual.karyotypicSex}
+                                                ${inferredSex.inferredKaryotypicSex || "-"}
                                             </span>
                                         </td>
-                                        <td>${inferredSex.values.ratioX}</td>
-                                        <td>${inferredSex.values.ratioY}</td>
-                                        <td>
-                                            <span style="color: ${individual.karyotypicSex === inferredSex.inferredKaryotypicSex ? "black" : "red"}">
-                                                ${inferredSex.inferredKaryotypicSex}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span>${individual.karyotypicSex === inferredSex.inferredKaryotypicSex
-                                                ? html`<i class='fa fa-check' style='color: green'></i>`
-                                                : html`<i class='fa fa-times' style='color: red'></i>`
-                                            }
-                                            </span>
-                                        </td>
+                                        <td>${inferredSex.method}</td>
+                                        <!--
+                                            <td>
+                                                <span>${individual.karyotypicSex === inferredSex.inferredKaryotypicSex
+                                                    ? html`<i class='fa fa-check' style='color: green'></i>`
+                                                    : html`<i class='fa fa-times' style='color: red'></i>`
+                                                }
+                                                </span>
+                                            </td>
+                                        -->
                                     ` : html`
-                                        <td colspan="5"><div class="alert-warning text-center"><i class="fas fa-info-circle align-middle"></i> Inferred Sex data not available.</div></td>
+                                        <td colspan="4"><div class="alert-warning text-center"><i class="fas fa-info-circle align-middle"></i> Inferred Sex data not available.</div></td>
                                     `}
-                                    
                                 </tr>
                             `})
                         }
@@ -152,7 +154,6 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
     }
 
     render() {
-
         if (!this.individual && !this.individuals.length) {
             return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>`;
         }
@@ -162,8 +163,7 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
                 <div class="btn-group pull-right">
                     <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-download" aria-hidden="true"
-                           style="padding-right: 5px"></i> Download <span class="caret"></span>
+                        <i class="fa fa-download" aria-hidden="true" style="padding-right: 5px"></i> Download <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu btn-sm">
                         ${this._config?.download && this._config?.download?.length ? this._config.download.map(item => html`
@@ -171,8 +171,10 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
                         `) : null}
                     </ul>
                 </div>
-                                
-                ${this.renderTable()}
+                
+                <div style="margin: 20px 10px">
+                    ${this.renderTable()}
+                </div>
             </div>
         `;
     }

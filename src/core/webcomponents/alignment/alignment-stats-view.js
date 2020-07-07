@@ -369,31 +369,27 @@ class AlignmentStatsView extends LitElement {
     }
 
     render() {
+        if (this.alignmentStats?.length === 0) {
+            return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>`;
+        }
+
         // Alignment stats are the same for FAMILY and CANCER analysis
         return html`
-            <!--
             <div>
-                <h3>${this._config.title}</h3>
-            </div>
-            -->
-            <div>
-                ${this.alignmentStats?.length > 0 ? html`
-                    <div class="btn-group pull-right">
-                        <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
+                <div class="btn-group pull-right">
+                    <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
                                 aria-haspopup="true" aria-expanded="false">
-                            <i class="fa fa-download" aria-hidden="true"
-                               style="padding-right: 5px"></i> Download <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu btn-sm">
-                            ${this._config.download.length ? this._config.download.map(item => html`
-                                    <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>
-                            `) : null}
-                        </ul>
-                    </div>
-                    ${this.renderTable()}
-                `: html`
-                    <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>
-                ` }
+                        <i class="fa fa-download" aria-hidden="true"style="padding-right: 5px"></i> Download <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu btn-sm">
+                        ${this._config.download.length 
+                            ? this._config.download.map(item => html`
+                                <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>`) 
+                            : null
+                        }
+                    </ul>
+                </div>
+                ${this.renderTable()}
             </div>
         `;
     }

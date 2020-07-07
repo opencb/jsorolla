@@ -91,7 +91,8 @@ class VariantInterpreterQcSummary extends LitElement {
             switch (this.clinicalAnalysis.type.toUpperCase()) {
                 case "SINGLE":
                 case "CANCER":
-                    _individuals = this.clinicalAnalysis.proband;
+                    // _individuals must be an array
+                    _individuals = [this.clinicalAnalysis.proband];
                     break;
                 case "FAMILY":
                     _individuals = this.clinicalAnalysis.family.members;
