@@ -155,7 +155,7 @@ export default class OpencgaVariantSamples extends LitElement {
     }
 
     disorderFormatter(value, row, index) {
-        if (value) {
+        if (value && value.disorders) {
             let disordersHtml = "<div>";
             for (const disorder of value.disorders) {
                 disordersHtml += `<span>${disorder.id}</span>`;

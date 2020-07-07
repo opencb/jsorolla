@@ -55,6 +55,7 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
     _init(){
         this._prefix = "sf-" + UtilsNew.randomString(6);
 
+        this.save = {};
         this.preparedQuery = {};
     }
 
@@ -120,7 +121,6 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
         this.opencgaSession.opencgaClient.variants().aggregationStats(params)
             .then(response => {
                 this.aggregationStatsResults = response.responses[0].results;
-                debugger
                 this.requestUpdate();
             });
 
@@ -135,6 +135,83 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
     onActiveFilterClear() {
         this.query = {study: this.opencgaSession.study.fqn};
         this.requestUpdate();
+    }
+
+    onSave(e) {
+        this.save.sampleId = this.clinicalAnalysis.proband.samples[0].id;
+        this.save.query = this.executedQuery ? this.executedQuery : {};
+        console.log(e.detail);
+        debugger
+        this.opencgaSession.opencgaClient.clinical().updateQualityControl(this.clinicalAnalysis.id, {
+            study: this.opencgaSession.study.fqn,
+            ...this.query
+        }).then( restResult => {
+            debugger
+            this.signature = restResult.getResult(0).signature;
+        }).catch( restResponse => {
+            this.signature = {
+                errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
+            };
+        }).finally( () => {
+            this.requestUpdate();
+        })
+    }
+
+    getSaveConfig() {
+        return {
+            title: "Save",
+            icon: "fas fa-save",
+            type: "form",
+            buttons: {
+                show: true,
+                cancelText: "Cancel",
+                okText: "Save",
+            },
+            display: {
+                // classes: "col-md-10 col-md-offset-1",
+                style: "margin: 0px 25px 0px 0px",
+                mode: {
+                    type: "modal",
+                    title: "Save",
+                    // buttonClass: "btn-default btn-lg"
+                },
+                buttons: {
+                    show: true,
+                    cancelText: "Cancel",
+                    okText: "Save",
+                },
+                // showTitle: true,
+                labelWidth: 3,
+                labelAlign: "right",
+                defaultValue: "",
+                defaultLayout: "horizontal",
+            },
+            sections: [
+                {
+                    display: {
+                    },
+                    elements: [
+                        {
+                            name: "Filter ID",
+                            field: "id",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a filter ID",
+                            }
+                        },
+                        {
+                            name: "Description",
+                            field: "description",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a filter description",
+                                rows: 2
+                            }
+                        },
+                    ]
+                }
+            ]
+        }
     }
 
     getDefaultConfig() {
@@ -277,6 +354,14 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                                                 @activeFilterClear="${this.onActiveFilterClear}">
                         </opencga-active-filters>
                         
+                        <div class="col-md-12">
+                            <div style="padding: 5px 25px;float: right">
+                                <data-form  .data=${this.save} .config="${this.getSaveConfig()}" 
+                                            @fieldChange="${e => this.onSaveFieldChange(e)}" @submit="${this.onSave}">
+                                </data-form>
+                            </div>
+                        </div>
+                        
                         <div class="main-view">
                             <div class="row">
                                 <div class="col-md-6">
@@ -308,7 +393,7 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                                     </opencga-facet-result-view>
                                 </div>
                                 <div class="col-md-12">
-                                    <h3>Clinical Signficance</h3>
+                                    <h3>Clinical Significance</h3>
                                     <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[4]}"
                                             .config="${this.facetConfig}"
                                             ?active="${this.facetActive}">

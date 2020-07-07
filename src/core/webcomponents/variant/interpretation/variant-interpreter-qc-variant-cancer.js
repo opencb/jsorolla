@@ -367,6 +367,7 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
 
     render() {
         return html`
+
             <div class="row">
                 <div class="col-md-3 left-menu">
                     <opencga-variant-filter .opencgaSession=${this.opencgaSession}
