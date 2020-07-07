@@ -5927,9 +5927,9 @@ export const responses = [
                 "sampleId2": "ISDBM322016",
                 "inferredRelationship": "FATHER",
                 "values": {
-                  "IBD0": 1,
-                  "IBD1": 0,
-                  "IBD2": 0,
+                  "z0": 1,
+                  "z1": 0,
+                  "z2": 0,
                   "PiHat": 0,
                 }
               },
@@ -5938,9 +5938,9 @@ export const responses = [
                 "sampleId2": "ISDBM322018",
                 "inferredRelationship": "MOTHER",
                 "values": {
-                  "IBD0": 0.1,
-                  "IBD1": 0.9,
-                  "IBD2": 0,
+                  "z0": 0.1,
+                  "z1": 0.9,
+                  "z2": 0,
                   "PiHat": 0,
                 }
               },
@@ -5949,9 +5949,9 @@ export const responses = [
                 "sampleId2": "ISDBM322018",
                 "inferredRelationship": "COUSIN",
                 "values": {
-                  "IBD0": 0.98,
-                  "IBD1": 0.02,
-                  "IBD2": 0,
+                  "z0": 0.98,
+                  "z1": 0.02,
+                  "z2": 0,
                   "PiHat": 0,
                 }
               },
@@ -5960,9 +5960,9 @@ export const responses = [
                 "sampleId2": "ISDBM322017",
                 "inferredRelationship": "SISTER",
                 "values": {
-                  "IBD0": 0.5,
-                  "IBD1": 0.5,
-                  "IBD2": 0,
+                  "z0": 0.5,
+                  "z1": 0.5,
+                  "z2": 0,
                   "PiHat": 0,
                 }
               }

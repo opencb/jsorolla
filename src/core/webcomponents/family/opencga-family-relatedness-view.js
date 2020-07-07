@@ -92,7 +92,7 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
             }
 
             let _cellPadding = "padding: 0px 15px";
-            let relatedness = this.family.qualityControl.relatedness;
+            let relatedness = this.family.qualityControl.relatedness[0];
             return html`
                 <table class="table table-hover table-no-bordered">
                     <thead>
@@ -103,7 +103,7 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
                             <th style="text-align: center">IBD0</th>
                             <th style="text-align: center">IBD1</th>
                             <th style="text-align: center">IBD2</th>
-                            <th style="text-align: center">Pi-Hat</th>
+                            <th style="text-align: center">PiHat</th>
                             <th>Inferred Relationship</th>
                             <th style="text-align: center">Status</th>
                         </tr>
@@ -124,9 +124,9 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
                                             ${role ? role : "-"}
                                         </span>
                                     </td>
-                                    <td style="text-align: right; ${_cellPadding}">${score.values.IBD0}</td>
-                                    <td style="text-align: right; ${_cellPadding}">${score.values.IBD1}</td>
-                                    <td style="text-align: right; ${_cellPadding}">${score.values.IBD2}</td>
+                                    <td style="text-align: right; ${_cellPadding}">${score.values.z0}</td>
+                                    <td style="text-align: right; ${_cellPadding}">${score.values.z1}</td>
+                                    <td style="text-align: right; ${_cellPadding}">${score.values.z2}</td>
                                     <td style="text-align: right; ${_cellPadding}">${score.values.PiHat}</td>
                                     <td style="${_cellPadding}">
                                         <span style="color: ${role === score.inferredRelationship ? "black" : "red"}">
@@ -171,8 +171,33 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
                         `) : null}
                     </ul>
                 </div>
-                                
-                ${this.renderTable()}
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="col-md-2">
+                            <label>Method:</label>
+                        </div>
+                        <div class="col-md-10">
+                            <span>${this.family.qualityControl.relatedness[0].method}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="col-md-2">
+                            <label>MAF:</label>
+                        </div>
+                        <div class="col-md-10">
+                            <span>${this.family.qualityControl.relatedness[0].maf || "-"}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="col-md-12">
+                            <label>Results:</label>
+                        </div>
+                        <div class="col-md-12">
+                            ${this.renderTable()}
+                        </div>
+                    </div>
+                </div>
             </div>
         `;
     }

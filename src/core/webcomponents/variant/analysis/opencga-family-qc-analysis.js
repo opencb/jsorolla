@@ -119,7 +119,14 @@ export default class OpencgaFamilyQcAnalysis extends LitElement {
                 }
             },
             execute: (opencgaSession, data, params) => {
-                opencgaSession.opencgaClient.variants().runFamilyQc(data, params);
+                let body = {};
+                if (data.family) {
+                    body.family = data.family[0]
+                }
+                if (data.relatednessMaf) {
+                    body.relatednessMaf = data.relatednessMaf[0]
+                }
+                opencgaSession.opencgaClient.variants().runFamilyQc(body, params);
             },
             result: {
             }

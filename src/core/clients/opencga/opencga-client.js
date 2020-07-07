@@ -317,8 +317,9 @@ export class OpenCGAClient {
                                                         } else {
                                                             study.alias = study.fqn;
                                                         }
-                                                        const acl = await _this.studies().acl(study.fqn, {member: session.user.id});
-                                                        study.acl = acl.getResult(0)?.[session.user.id] || [];
+                                                        const acl = await _this.studies().acl(study.fqn, {});
+                                                        // study.acl = acl.getResult(0)?.[session.user.id] || [];
+                                                        study.acl = acl.getResult(0, 0);
 
                                                         // default study from config
                                                         if (study.fqn === application.defaultStudy) {
