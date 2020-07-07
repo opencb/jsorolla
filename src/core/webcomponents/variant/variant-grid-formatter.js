@@ -173,38 +173,88 @@ export default class VariantGridFormatter {
     }
 
     geneFormatter(value, row, index) {
+        let geneToSo = null;
+        let queryCtArray = null;
+        
+        // Check 'query' is passed through formatter bind()
+        // Keep a map of genes and the SO accessions and names
+        if (this.query.ct) {
+            queryCtArray = this.query.ct.split(",");
+            geneToSo = {};
+            for (let ct of row.annotation.consequenceTypes) {
+                let geneName = ct.geneName;
+                if (typeof geneToSo[geneName] === "undefined") {
+                    geneToSo[geneName] = [];
+                }
+                for (let so of ct.sequenceOntologyTerms) {
+                    geneToSo[geneName].push(so.accession);
+                    geneToSo[geneName].push(so.name);
+                }
+            }
+        }
+
         if (typeof row !== "undefined" && row.annotation !== undefined && UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
             let visited = {};
             let geneLinks = [];
+            let geneWithSoLinks = [];
             for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                 let geneName = row.annotation.consequenceTypes[i].geneName;
+
+                // We process Genes just one time
                 if (UtilsNew.isNotEmpty(geneName) && typeof visited[geneName] === "undefined") {
-                    if (typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study !== "undefined") {
-                        let genomeBrowserMenuLink = "";
-                        if (this.config && this.config.showGenomeBrowser) {
-                            genomeBrowserMenuLink = `<div>
-                                                        <a class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
-                                                            Genome Browser
-                                                        </a>
-                                                     </div>`;
+                    let geneViewMenuLink = "";
+                    let genomeBrowserMenuLink = "";
+
+                    if (this.config && this.config.showGenomeBrowser) {
+                        genomeBrowserMenuLink = `<div>
+                                                    <a class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
+                                                        Genome Browser
+                                                    </a>
+                                                 </div>`;
+                    }
+
+                    if (this.opencgaSession.project && this.opencgaSession.study) {
+                        geneViewMenuLink = `<div style="padding: 5px"><a style="cursor: pointer" href="#gene/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${geneName}">Gene View</a></div>`;
+                    }
+
+                    let tooltipText = `${geneViewMenuLink}
+                                       ${genomeBrowserMenuLink}
+                                       <div class="dropdown-header" style="padding-left: 10px">External Links</div>
+                                       <div style="padding: 5px"><a target="_blank" href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneName}">Ensembl</a></div>
+                                       <div style="padding: 5px"><a target="_blank" href="https://cancer.sanger.ac.uk/cosmic/gene/analysis?ln=${geneName}">COSMIC</a></div>
+                                       <div style="padding: 5px"><a target="_blank" href="https://www.uniprot.org/uniprot/?sort=score&query=${geneName}">UniProt</a></div>`;
+
+                    // If query.ct exists
+                    if (geneToSo) {
+                        let geneContainSo = false;
+                        for (let so of queryCtArray) {
+                            if (geneToSo[geneName].includes(so)) {
+                                geneContainSo = true;
+                                break;
+                            }
                         }
 
-                        let tooltipText = `<div style="padding: 5px"><a style="cursor: pointer" href="#gene/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${geneName}">Gene View</a></div>
-                                            ${genomeBrowserMenuLink}
-                                            <div class="dropdown-header" style="padding-left: 10px">External Links</div>
-                                            <div style="padding: 5px"><a target="_blank" href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneName}">Ensembl</a></div>
-                                            <div style="padding: 5px"><a target="_blank" href="https://cancer.sanger.ac.uk/cosmic/gene/analysis?ln=${geneName}">COSMIC</a></div>
-                                            <div style="padding: 5px"><a target="_blank" href="https://www.uniprot.org/uniprot/?sort=score&query=${geneName}">UniProt</a></div>
-                                        `;
-
+                        // If gene contains one of the query.ct
+                        if (geneContainSo) {
+                            geneWithSoLinks.push(`<span class="gene-tooltip" data-tooltip-text='${tooltipText}' style="margin-left: 2px;">
+                                                    <a>
+                                                        ${geneName}
+                                                    </a>
+                                                 </span>`);
+                        } else {
+                            geneLinks.push(`<span class="gene-tooltip" data-tooltip-text='${tooltipText}' style="margin-left: 2px;color: darkgray;font-style: italic">
+                                                <span>
+                                                    ${geneName}
+                                                </span>
+                                            </span>`);
+                        }
+                    } else {
+                        // No query.ct passed
                         geneLinks.push(`<span class="gene-tooltip" data-tooltip-text='${tooltipText}' style="margin-left: 2px">
                                             <a>
                                                 ${geneName}
                                             </a>
                                         </span>`);
-
-                    } else {
-                        geneLinks.push(`<a style="cursor: pointer">${geneName}</a>`)
                     }
                     visited[geneName] = true;
                 }
@@ -212,6 +262,19 @@ export default class VariantGridFormatter {
 
             // Do not write more than 4 genes per line, this could be easily configurable
             let resultHtml = "";
+
+            // First, print Genes with query CT
+            if (geneToSo) {
+                for (let i = 0; i < geneWithSoLinks.length; i++) {
+                    resultHtml += geneWithSoLinks[i];
+                    if (i + 1 !== geneWithSoLinks.length) {
+                        resultHtml += ",";
+                    }
+                }
+                resultHtml += "<br>";
+            }
+
+            // Second, the other genes
             for (let i = 0; i < geneLinks.length; i++) {
                 resultHtml += geneLinks[i];
                 if (i + 1 !== geneLinks.length) {
