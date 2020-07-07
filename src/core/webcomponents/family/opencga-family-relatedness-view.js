@@ -94,18 +94,18 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
             let _cellPadding = "padding: 0px 15px";
             let relatedness = this.family.qualityControl.relatedness[0];
             return html`
-                <table class="table table-hover table-no-bordered">
+                <table class="table table-hover table-no-bordered text-center">
                     <thead>
                         <tr>
                             <th>Sample ID 1</th>
                             <th>Sample ID 2</th>
                             <th>Reported Relationship</th>
-                            <th style="text-align: center">IBD0</th>
-                            <th style="text-align: center">IBD1</th>
-                            <th style="text-align: center">IBD2</th>
-                            <th style="text-align: center">PiHat</th>
+                            <th>IBD0</th>
+                            <th>IBD1</th>
+                            <th>IBD2</th>
+                            <th>PiHat</th>
                             <th>Inferred Relationship</th>
-                            <th style="text-align: center">Status</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -113,27 +113,27 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
                             let role = roles[score.sampleId1 + "-" + score.sampleId2];
                             return html`
                                 <tr>
-                                    <td style="${_cellPadding}">
+                                    <td>
                                         <label>${score.sampleId1}</label>
                                     </td>
-                                    <td style="${_cellPadding}">
+                                    <td>
                                         <label>${score.sampleId2}</label>
                                     </td>
-                                    <td style="${_cellPadding}">
+                                    <td>
                                         <span style="color: ${role === score.inferredRelationship ? "black" : "red"}">
                                             ${role ? role : "-"}
                                         </span>
                                     </td>
-                                    <td style="text-align: right; ${_cellPadding}">${score.values.z0}</td>
-                                    <td style="text-align: right; ${_cellPadding}">${score.values.z1}</td>
-                                    <td style="text-align: right; ${_cellPadding}">${score.values.z2}</td>
-                                    <td style="text-align: right; ${_cellPadding}">${score.values.PiHat}</td>
-                                    <td style="${_cellPadding}">
+                                    <td style="text-align: right;">${score.values.z0}</td>
+                                    <td style="text-align: right;">${score.values.z1}</td>
+                                    <td style="text-align: right;">${score.values.z2}</td>
+                                    <td style="text-align: right;">${score.values.PiHat}</td>
+                                    <td>
                                         <span style="color: ${role === score.inferredRelationship ? "black" : "red"}">
                                             ${score.inferredRelationship}
                                         </span>
                                     </td>
-                                    <td style="text-align: center; ${_cellPadding}">
+                                    <td>
                                         <span>${role === score.inferredRelationship
                                             ? html`<i class='fa fa-check' style='color: green'></i>`
                                             : html`<i class='fa fa-times' style='color: red'></i>`

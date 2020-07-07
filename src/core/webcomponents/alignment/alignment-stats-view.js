@@ -379,7 +379,7 @@ class AlignmentStatsView extends LitElement {
                 <div class="btn-group pull-right">
                     <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
                                 aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-download" aria-hidden="true"style="padding-right: 5px"></i> Download <span class="caret"></span>
+                        <i class="fa fa-download pad5" aria-hidden="true"></i> Download <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu btn-sm">
                         ${this._config.download.length 

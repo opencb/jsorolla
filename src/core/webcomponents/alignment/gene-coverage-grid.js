@@ -55,7 +55,7 @@ export default class GeneCoverageGrid extends LitElement {
         this._prefix = "gcgrid" + UtilsNew.randomString(6);
         this.gridId = this._prefix + "GeneBrowserGrid";
 
-        this.file = "SonsAlignedBamFile.bam";
+        //this.file = "SonsAlignedBamFile.bam"; // TODO remove
         //this.gene = "TP53"; // TODO remove
         this.transcriptCoverageStats = null;
         this.loading = false;

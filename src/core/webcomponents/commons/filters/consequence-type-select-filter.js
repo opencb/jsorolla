@@ -374,14 +374,15 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
         };
     }
 
-    render() {  return html` ${JSON.stringify(this.LofEnabled)}
-                <select-field-filter multiple liveSearch=${"true"} .data="${this.options}" .value=${this._ct} @filterChange="${this.filterChange}"></select-field-filter>
-                <div class="form-group">
-                    <input class="magic-checkbox" type="checkbox" name="layout" id="lof" value="lof" @click="${this.toggleLof}" .checked="${this.LofEnabled}" >
-                    <label class="pull-left text" for="lof">
-                        Loss of Functions
-                    </label>
-                </div>
+    render() {
+        return html`
+            <select-field-filter multiple liveSearch=${"true"} .data="${this.options}" .value=${this._ct} @filterChange="${this.filterChange}"></select-field-filter>
+            <div class="form-group">
+                <input class="magic-checkbox" type="checkbox" name="layout" id="lof" value="lof" @click="${this.toggleLof}" .checked="${this.LofEnabled}" >
+                <label class="pull-left text" for="lof">
+                    Loss of Functions
+                </label>
+            </div>
         `;
     }
 }
