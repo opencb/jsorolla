@@ -80,8 +80,58 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
         }
     }
 
+    onDownload(e) {
+        let dataString = [];
+        let mimeType = "";
+        let extension = "";
+        // Check if user clicked in Tab or JSON format
+        if (e.currentTarget.dataset.downloadOption.toLowerCase() === "tab") {
+
+            const relatedness = this.family?.qualityControl?.relatedness[0];
+
+            const data = relatedness.scores.map(score => {
+                return [
+                    score.sampleId1,
+                    score.sampleId2,
+                    score.inferredRelationship,
+                    score?.values?.z0,
+                    score?.values?.z1,
+                    score?.values?.z2,
+                    score?.values?.PiHat,
+                    score?.inferredRelationship
+                ].join("\t")
+            });
+
+            dataString = [
+                [
+                    "Sample ID 1", "Sample ID 2", "Reported Relationship", "IBD0",	"IBD1",	"IBD2",	"PiHat", "Inferred Relationship"
+                ].join("\t"),
+                data.join("\n")
+            ];
+            //console.log(dataString);
+            mimeType = "text/plain";
+            extension = ".txt";
+        } else {
+            dataString = [JSON.stringify(this.family?.qualityControl?.relatedness[0], null, "\t")];
+            mimeType = "application/json";
+            extension = ".json";
+        }
+
+        // Build file and anchor link
+        const data = new Blob([dataString.join("\n")], {type: mimeType});
+        const file = window.URL.createObjectURL(data);
+        const a = document.createElement("a");
+        a.href = file;
+        a.download = this.opencgaSession.study.alias + extension;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() {
+            document.body.removeChild(a);
+        }, 0);
+    }
+
     renderTable() {
-        if (this.family && this.family.qualityControl?.relatedness && this.family.qualityControl.relatedness.length > 0) {
+        if (this.family?.qualityControl?.relatedness?.length > 0) {
             // Prepare roles
             let roles = {};
             for (let member of this.family.members) {
@@ -91,7 +141,6 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
                 roles[member.mother?.id + "-" + member.father?.id] = "HUSBAND";
             }
 
-            let _cellPadding = "padding: 0px 15px";
             let relatedness = this.family.qualityControl.relatedness[0];
             return html`
                 <table class="table table-hover table-no-bordered text-center">
@@ -150,6 +199,7 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
 
     getDefaultConfig() {
         return {
+            download: ["Tab", "JSON"]
         }
     }
 
@@ -166,7 +216,7 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
                         <i class="fa fa-download pad5" aria-hidden="true"></i> Download <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu btn-sm">
-                        ${this._config.download && this._config.download.length ? this._config.download.map(item => html`
+                        ${this._config?.download && this._config?.download?.length ? this._config.download.map(item => html`
                                 <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>
                         `) : null}
                     </ul>

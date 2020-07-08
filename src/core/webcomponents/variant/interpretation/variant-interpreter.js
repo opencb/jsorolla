@@ -67,6 +67,7 @@ class VariantInterpreter extends LitElement {
 
     _init() {
         this._prefix = "vgi-" + UtilsNew.randomString(6);
+        this.activeTab = {};
     }
 
     connectedCallback() {
@@ -89,6 +90,7 @@ class VariantInterpreter extends LitElement {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.clinicalAnalysis = null;
+        this._changeView(this._config?.tools[0].id)
         this.requestUpdate();
     }
 
@@ -105,7 +107,24 @@ class VariantInterpreter extends LitElement {
         }
     }
 
-    _changeView(e) {
+    onClickSection(e) {
+        // e.preventDefault();
+        this._changeView(e.currentTarget.dataset.view);
+    }
+
+    _changeView(tabId) {
+        console.log("changing to ", tabId)
+        $(`.clinical-portal-step`, this).removeClass("active");
+        $(`.clinical-portal-content`, this).hide(); // hides all content divs
+        for (const tab in this.activeTab) this.activeTab[tab] = false;
+
+        $(`.clinical-portal-step[data-view=${tabId}]`, this).addClass("active");
+        $("#" + this._prefix + tabId, this).show();
+        this.activeTab[tabId] = true;
+        this.requestUpdate();
+    }
+
+    /*_changeView(e) {
         e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
 
         if (e.currentTarget?.dataset?.view && !e.currentTarget.className.includes("disabled")) {
@@ -118,7 +137,7 @@ class VariantInterpreter extends LitElement {
             // $(e.target).addClass("active");
             $(e.currentTarget).addClass("active");
         }
-    }
+    }*/
 
     onClinicalAnalysisUpdate (e) {
         this.clinicalAnalysis = {...e.detail.clinicalAnalysis};
@@ -225,7 +244,7 @@ class VariantInterpreter extends LitElement {
                                 <!-- Controls aligned to the LEFT -->
                                 <div class="row hi-icon-wrap wizard hi-icon-animation">
                                 ${this._config.tools && this._config.tools.map( item => html`
-                                    <a class="icon-wrapper clinical-portal-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""}" href="javascript: void 0" data-view="${item.id}" @click="${this._changeView}">
+                                    <a class="icon-wrapper clinical-portal-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""}" href="javascript: void 0" data-view="${item.id}" @click="${this.onClickSection}">
                                         <div class="hi-icon ${item.icon}"></div>
                                         <p>${item.title}</p>
                                         <span class="smaller"></span>
