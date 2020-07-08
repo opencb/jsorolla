@@ -586,7 +586,7 @@ export default class OpencgaVariantGrid extends LitElement {
                             break;
                         case "LIKELY_BENIGN":
                             code = "LB";
-                            color = "orange";
+                            color = "brown";
                             tooltip = "Classified as likely benign following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
                             break;
                         case "VUS":

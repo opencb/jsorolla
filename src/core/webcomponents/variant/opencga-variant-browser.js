@@ -411,7 +411,23 @@ export default class OpencgaVariantBrowser extends LitElement {
                         ]
                     },
                     {
-                        title: "Phenotype-Disease",
+                        title: "Clinical and Disease",
+                        collapsed: true,
+                        fields: [
+                            {
+                                id: "clinvar",
+                                title: "ClinVar Accessions",
+                                tooltip: tooltips.clinvar
+                            },
+                            {
+                                id: "fullTextSearch",
+                                title: "Full-text search on HPO, ClinVar, protein domains or keywords. Some OMIM and Orphanet IDs are also supported",
+                                tooltip: tooltips.fullTextSearch
+                            }
+                        ]
+                    },
+                    {
+                        title: "Phenotype",
                         collapsed: true,
                         fields: [
                             {
@@ -423,16 +439,6 @@ export default class OpencgaVariantBrowser extends LitElement {
                                 id: "hpo",
                                 title: "HPO Accessions",
                                 tooltip: tooltips.hpo
-                            },
-                            {
-                                id: "clinvar",
-                                title: "ClinVar Accessions",
-                                tooltip: tooltips.clinvar
-                            },
-                            {
-                                id: "fullTextSearch",
-                                title: "Full-text search on HPO, ClinVar, protein domains or keywords. Some OMIM and Orphanet IDs are also supported",
-                                tooltip: tooltips.fullTextSearch
                             }
                         ]
                     },
