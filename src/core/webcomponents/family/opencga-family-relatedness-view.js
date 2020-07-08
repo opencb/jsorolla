@@ -81,7 +81,7 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
     }
 
     renderTable() {
-        if (this.family && this.family.qualityControl?.relatedness) {
+        if (this.family && this.family.qualityControl?.relatedness && this.family.qualityControl.relatedness.length > 0) {
             // Prepare roles
             let roles = {};
             for (let member of this.family.members) {
@@ -154,7 +154,7 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
     }
 
     render() {
-        if (!this.family?.qualityControl?.relatedness) {
+        if (!this.family?.qualityControl?.relatedness || this.family.qualityControl.relatedness.length === 0) {
             return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>`;
         }
 

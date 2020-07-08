@@ -83,7 +83,23 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
     renderTable() {
         if (this.individual && this.individual?.qualityControl?.mendelianErrorReport) {
             let mendelianErrorReport = this.individual.qualityControl.mendelianErrorReport;
-            let sampleAggregation = mendelianErrorReport.sampleAggregation.find(sampleAggregation => sampleAggregation.sample === this.individual.id);
+            let sampleAggregation = mendelianErrorReport.sampleAggregation
+                .find(sampleAggregation => sampleAggregation.sample === this.individual.samples[0].id);
+            // sampleAggregation.chromAggregation = sampleAggregation.chromAggregation.sort((a, b) => {
+            //     if (Number.isInteger(a.chromosome) && !Number.isInteger(b.chromosome)) {
+            //         return true;
+            //     } else {
+            //         if (!Number.isInteger(a.chromosome) && Number.isInteger(b.chromosome)) {
+            //             return false;
+            //         } else {
+            //             if (Number.isInteger(a.chromosome) && Number.isInteger(b.chromosome)) {
+            //                 return Number.parseInt(a.chromosome) < Number.parseInt(b.chromosome);
+            //             } else {
+            //                 return a.chromosome < b.chromosome;
+            //             }
+            //         }
+            //     }
+            // });
 
             let roles = {};
             roles[this.individual.father?.id] = "FATHER";
@@ -108,7 +124,7 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
                                 </td>
                                 <td>${roles[sampleAggregation.sample] || "-"}</td>
                                 <td>${sampleAggregation.numErrors}</td>
-                                <td>${sampleAggregation.ratio}</td>
+                                <td>${sampleAggregation.ratio.toFixed(4)}</td>
                                 <td>
                                     <span>
                                         ${sampleAggregation.ratio < 0.05
@@ -138,7 +154,7 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
                             return Object.keys(chromAggregation.errorCodeAggregation).map(key => html`
                                 <tr>
                                     <td>
-                                        <label>${this.individual.id}</label>
+                                        <label>${sampleAggregation.sample}</label>
                                     </td>
                                     <td>${chromAggregation.chromosome}</td>
                                     <td>${key}</td>
