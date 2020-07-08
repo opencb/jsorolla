@@ -41,6 +41,9 @@ export default class ClinvarAccessionsFilter extends LitElement {
             },
             clinvar: {
                 type: Object
+            },
+            clinicalSignificance: {
+                type: Object
             }
         };
     }
@@ -48,6 +51,8 @@ export default class ClinvarAccessionsFilter extends LitElement {
     _init() {
         this._prefix = "cvaf-" + UtilsNew.randomString(6) + "_";
         this.placeholder = "RCV000058226";
+        this._config = this.getDefaultConfig();
+
     }
 
     updated(_changedProperties) {
@@ -56,24 +61,64 @@ export default class ClinvarAccessionsFilter extends LitElement {
         }
     }
 
-    filterChange(e) {
+    clinVarChange(e) {
+        const textArea = e.target.value;
+        this._clinVar = textArea?.trim()?.replace(/\r?\n/g, ",").replace(/\s/g, "");
+        this.filterChange();
+    }
+
+    clinicalSignificanceChange(e) {
+        this.clinicalSignificance = e.detail.value;
+        this.filterChange()
+    }
+
+    filterChange(e,field) {
+        console.log("field", field);
+        console.log()
         let _clinvar;
-        const inputTextArea = PolymerUtils.getElementById(this._prefix + "ClinVarTextarea");
-        if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
-            _clinvar = inputTextArea.value.trim();
-            _clinvar = _clinvar.replace(/\r?\n/g, ",").replace(/\s/g, "");
+        if (field === "clinvar") {
+            const textArea = e.target.value;
+            this._clinVar = textArea?.trim()?.replace(/\r?\n/g, ",").replace(/\s/g, "");
+
+        } else if (field === "clinicalSignificance"){
+            this.clinicalSignificance = e.detail.value;
+
         }
-        console.log("filterChange", _clinvar);
+        e.stopPropagation();
+
+        //console.log(this.clinVar, this.clinicalSignificance)
+
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: _clinvar || null
+                value: {
+                    clinvar: this._clinVar || null,
+                    clinicalSignificance: this.clinicalSignificance || null
+                }
             }
         });
         this.dispatchEvent(event);
     }
 
+    getDefaultConfig() {
+        return {
+            clinicalSignificanceValues: {
+                BB: "Benign",
+                LB: "Likely benign",
+                US: "Uncertain significance",
+                LP: "Likely pathogenic",
+                PP: "Pathogenic"
+            }
+        };
+    }
+
     render() {
-        return html`<textarea id="${this._prefix}ClinVarTextarea" class="form-control clearable ${this._prefix}FilterTextInput" rows="3" name="clinvar" placeholder="${this.placeholder}" @keyup="${this.filterChange}"></textarea>`;
+        return html`
+            <div class="form-group">
+                <select-field-filter multiple .data="${Object.entries(this._config.clinicalSignificanceValues).map( ([code, label]) => ({id: code, name: label}))}" .value=${this.clinicalSignificance} @filterChange="${e => this.filterChange(e, "clinicalSignificance")}"></select-field-filter>
+            </div>
+            <div class="form-group">
+                <textarea id="${this._prefix}ClinVarTextarea" class="form-control clearable ${this._prefix}FilterTextInput" rows="3" name="clinvar" placeholder="${this.placeholder}" @keyup="${e => this.filterChange(e, "clinvar")}"></textarea>
+            </div>`;
     }
 
 }

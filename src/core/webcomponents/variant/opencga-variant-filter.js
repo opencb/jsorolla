@@ -458,7 +458,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 content = html`<hpo-accessions-filter .annot-hpo="${this.preparedQuery["annot-hpo"]}" @ontologyModalOpen="${this.onOntologyModalOpen}" @filterChange="${e => this.onFilterChange("annot-hpo", e.detail.value)}"></hpo-accessions-filter>`;
                 break;
             case "clinvar":
-                content = html`<clinvar-accessions-filter .clinvar="${this.preparedQuery.clinvar}" @filterChange="${e => this.onFilterChange("clinvar", e.detail.value)}"></clinvar-accessions-filter>`;
+                content = html`<clinvar-accessions-filter .clinvar="${this.preparedQuery.clinvar}" .clinicalSignificance="${this.preparedQuery.clinicalSignificance}" @filterChange="${e => this.onFilterChange({clinvar: "clinvar", clinicalSignificance: "clinicalSignificance"}, e.detail.value)}"></clinvar-accessions-filter>`;
                 break;
             case "fullTextSearch":
                 content = html`<fulltext-search-accessions-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></fulltext-search-accessions-filter>`;

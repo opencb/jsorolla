@@ -97,18 +97,33 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
             });
 
             dataString = [
-                ["Individual ID", "Sample ID", "Sex", "Reported Phenotypic Sex", "Reported Karyotypic Sex", "Ratio (avg. chrX/auto)", "Ratio (avg. chrY/auto)", "Inferred Karyotypic Sex", "Method"].join("\t"),
+                [
+                    "Individual ID",
+                    "Sample ID", "Sex",
+                    "Reported Phenotypic Sex",
+                    "Reported Karyotypic Sex",
+                    "Ratio (avg. chrX/auto)",
+                    "Ratio (avg. chrY/auto)",
+                    "Inferred Karyotypic Sex",
+                    "Method"
+                ].join("\t"),
                 data.join("\n")
             ];
             //console.log(dataString);
             mimeType = "text/plain";
             extension = ".txt";
         } else {
-            /*for (const res of result) {
-                dataString.push(JSON.stringify(res, null, "\t"));
-            }
+            const data = this.individuals.map(individual => {
+                return {
+                    id: individual.id,
+                    sampleId: individual?.qualityControl?.sampleId ?? "N/A",
+                    karyotypicSex: individual.karyotypicSex,
+                    ...individual?.qualityControl?.inferredSexReports[0]
+                };
+            });
+            dataString = [JSON.stringify(data, null, "\t")];
             mimeType = "application/json";
-            extension = ".json";*/
+            extension = ".json";
         }
 
         // Build file and anchor link
@@ -215,7 +230,7 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
                 <div class="btn-group pull-right">
                     <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-download" aria-hidden="true" style="padding-right: 5px"></i> Download <span class="caret"></span>
+                        <i class="fa fa-download pad5" aria-hidden="true"></i> Download <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu btn-sm">
                         ${this._config?.download && this._config?.download?.length ? this._config.download.map(item => html`
