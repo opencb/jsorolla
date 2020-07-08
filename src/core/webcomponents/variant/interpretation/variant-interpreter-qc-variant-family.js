@@ -70,8 +70,11 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("query") || changedProperties.has("sampleId")) {
-            this.propertyObserver();
+        if (changedProperties.has("sampleId")) {
+            this.sampleIdObserver();
+        }
+        if (changedProperties.has("query")) {
+            this.queryObserver();
         }
     }
 
@@ -83,23 +86,21 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
         this.requestUpdate();
     }
 
-    async propertyObserver() {
-        this.signature = null;
-        await this.requestUpdate();
-        this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
-            study: this.opencgaSession.study.fqn,
-            fitting: false,
-            sample: this.sampleId,
-            ...this.query
-        }).then( restResult => {
-            this.signature = restResult.getResult(0).signature;
-            }).catch( restResponse => {
-            this.signature = {
-                errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
+    sampleIdObserver() {
+        if (this.opencgaSession && this.sampleId) {
+            const query = {
+                study: this.opencgaSession.study.fqn,
+                includeIndividual: true
             };
-        }).finally( () => {
-            this.requestUpdate();
-        })
+            this.opencgaSession.opencgaClient.samples().info(this.sampleId, query)
+                .then(response => {
+                    this.sample = response.responses[0].results[0];
+                    this.requestUpdate();
+                })
+                .catch(reason => {
+                    console.error(reason);
+                });
+        }
     }
 
     onVariantFilterChange(e) {
@@ -114,13 +115,42 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
 
         let params = {
             study: this.opencgaSession.study.fqn,
-            fields: "genotype;type;biotype;consequenceType;clinicalSignificance;depth",
-            sample: this.sampleId,
+            fields: "chromosome;genotype;type;biotype;consequenceType;clinicalSignificance;depth",
+            sample: this.sample.id,
             ...this.query
         };
         this.opencgaSession.opencgaClient.variants().aggregationStats(params)
             .then(response => {
                 this.aggregationStatsResults = response.responses[0].results;
+
+                // Parse aggregationStatsResults and create a sampleVariantStats
+                this.sampleVariantStats = {
+                    id: this.sample.id
+                };
+                for (let aggregatedResult of this.aggregationStatsResults) {
+                    let values = {};
+                    for (let bucket of aggregatedResult.buckets) {
+                        values[bucket.value] = bucket.count;
+                    }
+                    switch (aggregatedResult.name) {
+                        case "chromosome":
+                            this.sampleVariantStats.variantCount = aggregatedResult.count;
+                            this.sampleVariantStats.chromosomeCount = values;
+                            break;
+                        case "genotype":
+                            this.sampleVariantStats.genotypeCount = values;
+                            break;
+                        case "type":
+                            this.sampleVariantStats.typeCount = values;
+                            break;
+                        case "biotype":
+                            this.sampleVariantStats.biotypeCount = values;
+                            break;
+                        case "consequenceType":
+                            this.sampleVariantStats.consequenceTypeCount = values;
+                            break;
+                    }
+                }
                 this.requestUpdate();
             });
 
@@ -137,24 +167,36 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
         this.requestUpdate();
     }
 
+
+    onSaveFieldChange(e) {
+        switch (e.detail.param) {
+            case "id":
+                this.save.id = e.detail.value;
+                break;
+            case "description":
+                this.save.description = e.detail.value;
+                break;
+        }
+    }
+
     onSave(e) {
-        this.save.sampleId = this.clinicalAnalysis.proband.samples[0].id;
-        this.save.query = this.executedQuery ? this.executedQuery : {};
-        console.log(e.detail);
-        debugger
-        this.opencgaSession.opencgaClient.clinical().updateQualityControl(this.clinicalAnalysis.id, {
-            study: this.opencgaSession.study.fqn,
-            ...this.query
-        }).then( restResult => {
-            debugger
-            this.signature = restResult.getResult(0).signature;
-        }).catch( restResponse => {
-            this.signature = {
-                errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
-            };
-        }).finally( () => {
-            this.requestUpdate();
-        })
+        let variantStats = {
+            id: this.save.id,
+            query: this.executedQuery,
+            description: this.save.description,
+            stats: this.sampleVariantStats
+        };
+        this.sample.qualityControl.metrics[0].variantStats.push(variantStats);
+        this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})
+            .then( restResult => {
+                debugger
+            })
+            .catch( restResponse => {
+                console.log(restResponse);
+            })
+            .finally( () => {
+                this.requestUpdate();
+            })
     }
 
     getSaveConfig() {
@@ -168,19 +210,12 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                 okText: "Save",
             },
             display: {
-                // classes: "col-md-10 col-md-offset-1",
                 style: "margin: 0px 25px 0px 0px",
                 mode: {
                     type: "modal",
-                    title: "Save",
-                    // buttonClass: "btn-default btn-lg"
+                    title: "Save Variant Stats",
+                    buttonClass: "btn btn-default "
                 },
-                buttons: {
-                    show: true,
-                    cancelText: "Cancel",
-                    okText: "Save",
-                },
-                // showTitle: true,
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultValue: "",
@@ -188,8 +223,6 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
             },
             sections: [
                 {
-                    display: {
-                    },
                     elements: [
                         {
                             name: "Filter ID",
@@ -207,7 +240,7 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                                 placeholder: "Add a filter description",
                                 rows: 2
                             }
-                        },
+                        }
                     ]
                 }
             ]

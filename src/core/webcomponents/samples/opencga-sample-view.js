@@ -70,18 +70,17 @@ export default class OpencgaSampleView extends LitElement {
     }
 
     sampleIdObserver() {
-        if (this.sampleId) {
+        if (this.opencgaSession && this.sampleId) {
             const query = {
                 study: this.opencgaSession.study.fqn,
                 includeIndividual: true
             };
-            let _this = this;
             this.opencgaSession.opencgaClient.samples().info(this.sampleId, query)
-                .then(function(response) {
-                    _this.sample = response.responses[0].results[0];
-                    _this.requestUpdate();
+                .then(response => {
+                    this.sample = response.responses[0].results[0];
+                    this.requestUpdate();
                 })
-                .catch(function(reason) {
+                .catch(reason => {
                     console.error(reason);
                 });
         }

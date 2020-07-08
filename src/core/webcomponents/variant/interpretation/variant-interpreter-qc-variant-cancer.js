@@ -173,20 +173,18 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
             title: "Settings",
             icon: "fas fa-cog",
             type: "form",
+            buttons: {
+                show: true,
+                cancelText: "Cancel",
+                okText: "OK",
+            },
             display: {
-                classes: "col-md-10 col-md-offset-1",
-                // style: "padding: 5px 25px",
+                style: "margin: 0px 25px 0px 0px",
                 mode: {
                     type: "modal",
                     title: "Display Settings",
-                    // buttonClass: "btn-default"
+                    buttonClass: "btn btn-default"
                 },
-                buttons: {
-                    show: true,
-                    cancelText: "Cancel",
-                    okText: "OK",
-                },
-                // showTitle: true,
                 labelWidth: 4,
                 labelAlign: "right",
                 defaultValue: "",
@@ -195,8 +193,6 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
             sections: [
                 {
                     title: "Circos",
-                    display: {
-                    },
                     elements: [
                         {
                             name: "Rain Plot Density",
@@ -227,19 +223,18 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
             title: "Save",
             icon: "fas fa-save",
             type: "form",
+            buttons: {
+                show: true,
+                cancelText: "Cancel",
+                okText: "Save",
+            },
             display: {
-                classes: "col-md-10 col-md-offset-1",
+                style: "margin: 0px 25px 0px 0px",
                 mode: {
                     type: "modal",
-                    title: "Save",
-                    // buttonClass: "btn-default btn-lg"
+                    title: "Save Variant Stats",
+                    buttonClass: "btn btn-default"
                 },
-                buttons: {
-                    show: true,
-                    cancelText: "Cancel",
-                    okText: "Save",
-                },
-                // showTitle: true,
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultValue: "",
@@ -247,8 +242,6 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
             },
             sections: [
                 {
-                    display: {
-                    },
                     elements: [
                         {
                             name: "Filter ID",
@@ -266,7 +259,7 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                                 placeholder: "Add a filter description",
                                 rows: 2
                             }
-                        },
+                        }
                     ]
                 }
             ]
@@ -400,7 +393,7 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                         </div>
                        
                         <div class="col-md-12">
-                            <div style="padding: 5px 25px;float: left">
+                            <div style="padding: 5px 25px;float: right">
                                 <data-form  .data=${this.settings} .config="${this.getSettingsConfig()}" 
                                             @fieldChange="${e => this.onSettingsFieldChange(e)}" @submit="${this.onSettingsOk}">
                                 </data-form>

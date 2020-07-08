@@ -102,7 +102,7 @@ export default class VariantInterpreterQcCancerPlots extends LitElement {
     statsQuery() {
         let params = {
             study: this.opencgaSession.study.fqn,
-            fields: "genotype;type;biotype;consequenceType;clinicalSignificance;depth",
+            fields: "chromosome;genotype;type;biotype;consequenceType;clinicalSignificance;depth",
             sample: this.sampleId,
             ...this.query
         };
