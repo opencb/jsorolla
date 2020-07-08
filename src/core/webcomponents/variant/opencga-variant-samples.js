@@ -17,6 +17,7 @@
 import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../loading-spinner.js";
+import GridCommons from "./grid-commons.js";
 
 export default class OpencgaVariantSamples extends LitElement {
 
@@ -36,10 +37,10 @@ export default class OpencgaVariantSamples extends LitElement {
                 type: Object
             },
             variantId: {
-                type: String,
+                type: String
             },
             active: {
-                type: Boolean,
+                type: Boolean
             }
         };
     }
@@ -60,32 +61,7 @@ export default class OpencgaVariantSamples extends LitElement {
 
     firstUpdated(_changedProperties) {
         this.table = this.querySelector("#" + this.gridId);
-    }
-
-    _downloadSamples() {
-        let dataString = [];
-        dataString.push("#Sample ID\tIndividual ID\tGenotype\tDisorders\tPhenotypes");
-        for (let sample of this.samplesHet) {
-            dataString.push(`${sample.id}\t${sample.individualId}\t0/1\t${sample.disorders !== undefined ? sample.disorders.join(",") : ""}\t${sample.phenotypes !== undefined ? sample.phenotypes.join(",") : ""}`);
-        }
-        for (let sample of this.samplesHomAlt) {
-            dataString.push(`${sample.id}\t${sample.individualId}\t1/1\t${sample.disorders !== undefined ? sample.disorders.join(",") : ""}\t${sample.phenotypes !== undefined ? sample.phenotypes.join(",") : ""}`);
-        }
-        for (let sample of this.samplesNA) {
-            dataString.push(`${sample.id}\t${sample.individualId}\tNA\t${sample.disorders !== undefined ? sample.disorders.join(",") : ""}\t${sample.phenotypes !== undefined ? sample.phenotypes.join(",") : ""}`);
-        }
-
-        let data = new Blob([dataString.join("\n")], {type: "text/plain"});
-        let file = window.URL.createObjectURL(data);
-        let a = document.createElement("a");
-        a.href = file;
-        a.download = this.opencgaSession.study.alias + "_sample_genotypes.txt";
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(function() {
-            document.body.removeChild(a);
-        }, 0);
-
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     genoypeFormatter(value, row, index) {
@@ -122,7 +98,7 @@ export default class OpencgaVariantSamples extends LitElement {
     }
 
     sexFormatter(value, row, index) {
-        debugger
+        //debugger
         if (value) {
             return `${value.sex} (${value.karyotypicSex})`;
         } else {
@@ -130,38 +106,25 @@ export default class OpencgaVariantSamples extends LitElement {
         }
     }
 
-    // TODO replace with phenotypesFormatter in the other browsers
-    phenotypeFormatter(value, row, index) {
-        if (value && value.phenotypes) {
-            let phenotypeTooltipText = "";
-            for (const phenotype of value.phenotypes) {
-                phenotypeTooltipText += "<div style=\"padding: 5px\">";
-                if (UtilsNew.isNotUndefinedOrNull(phenotype.source) && phenotype.source.toUpperCase() === "HPO") {
-                    phenotypeTooltipText += `<span>
-                                                <a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})
-                                             </span>`;
-                } else {
-                    phenotypeTooltipText += `<span>${phenotype.id} (${phenotype.status})</span>`;
-                }
-                phenotypeTooltipText += "</div>";
-            }
-
-            return `<div class="phenotypesTooltip" data-tooltip-text='${phenotypeTooltipText}' align="center">
-                        <a style="cursor: pointer">${value.phenotypes.length} terms found</a>
-                    </div>`;
+    phenotypesFormatter(value, row) {
+        if (value && value.length) {
+            const tooltip = value.map( phenotype => {
+                return `
+                    <div>
+                        ${phenotype.source && phenotype.source.toUpperCase() === "HPO" ? `
+                            <span><a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})</span>
+                        ` : `<span>${phenotype.id} (${phenotype.status})</span>`}
+                    </div>`
+            }).join("")
+            return `<a tooltip-title="Phenotypes" tooltip-text='${tooltip}'> ${value.length} term${value.length > 1 ? "s": ""} found </a>`;
         } else {
             return "-";
         }
     }
 
     disorderFormatter(value, row, index) {
-        if (value && value.disorders) {
-            let disordersHtml = "<div>";
-            for (const disorder of value.disorders) {
-                disordersHtml += `<span>${disorder.id}</span>`;
-            }
-            disordersHtml += "</div>";
-            return disordersHtml;
+        if (value && value.length) {
+            return value.map( disorder => `<p>${disorder.id}</p>`).join("");
         } else {
             return "-";
         }
@@ -180,11 +143,11 @@ export default class OpencgaVariantSamples extends LitElement {
             pagination: true,
             sidePagination: "server",
             columns: this.getColumns(),
-            formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: params => {
                 let tableOptions = $(this.table).bootstrapTable("getOptions");
                 let limit = tableOptions.pageSize || 10;
-                let skip = tableOptions.pageNumber ? tableOptions.pageNumber * limit - limit :  0;
+                let skip = tableOptions.pageNumber ? tableOptions.pageNumber * limit - limit : 0;
                 let query = {
                     variant: this.variantId,
                     study: this.opencgaSession.study.fqn,
@@ -227,7 +190,7 @@ export default class OpencgaVariantSamples extends LitElement {
                                     id: variantSample.sampleId,
                                     file: result.studies[0].files[variantSample.fileIndex],
                                     dataKeys: result.studies[0].sampleDataKeys,
-                                    data: variantSample.data,
+                                    data: variantSample.data
                                 };
                             }
 
@@ -236,14 +199,16 @@ export default class OpencgaVariantSamples extends LitElement {
                                     study: _this.opencgaSession.study.fqn,
                                     includeIndividual: true
                                 })
-                                .then(function (resp) {
+                                .then(function(resp) {
                                     let samples = resp.responses[0].results;
                                     for (let sample of samples) {
                                         sample.attributes.OPENCGA_VARIANT = variantSampleInfo[sample.id];
                                     }
+
+                                    console.error(samples)
                                     params.success(samples);
                                 })
-                                .catch( e => {
+                                .catch(e => {
                                     console.error(e);
                                     params.error(e);
                                 });
@@ -261,7 +226,10 @@ export default class OpencgaVariantSamples extends LitElement {
                 return {
                     total: this.numSamples,
                     rows: response
-                }
+                };
+            },
+            onLoadSuccess: data => {
+                this.gridCommons.onLoadSuccess(data, 2);
             },
         });
     }
@@ -320,15 +288,15 @@ export default class OpencgaVariantSamples extends LitElement {
                 },
                 {
                     title: "Phenotypes",
-                    field: "attributes.OPENCGA_INDIVIDUAL",
+                    field: "attributes.OPENCGA_INDIVIDUAL.phenotypes",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: this.phenotypeFormatter,
+                    formatter: this.phenotypesFormatter,
                     halign: "center"
                 },
                 {
                     title: "Disorders",
-                    field: "attributes.OPENCGA_INDIVIDUAL",
+                    field: "attributes.OPENCGA_INDIVIDUAL.disorders",
                     colspan: 1,
                     rowspan: 1,
                     formatter: this.disorderFormatter,
@@ -336,6 +304,91 @@ export default class OpencgaVariantSamples extends LitElement {
                 }
             ]
         ];
+    }
+
+    async onDownload(e) {
+        try {
+            let samples;
+            let query = {
+                variant: this.variantId,
+                study: this.opencgaSession.study.fqn,
+                genotype: "0/1,1/1,0/2,1/2,2/2",
+                limit: 1000
+            };
+            let response = await this.opencgaSession.opencgaClient.variants().querySample(query);
+            let result = response.getResult(0);
+            // Prepare sample variant data for next query
+            let variantSamples = result.studies[0].samples;
+            if (variantSamples && variantSamples.length > 0) {
+                let variantSampleInfo = {};
+                let sampleIds = [];
+                for (let variantSample of variantSamples) {
+                    sampleIds.push(variantSample.sampleId);
+                    variantSampleInfo[variantSample.sampleId] = {
+                        id: variantSample.sampleId,
+                        file: result.studies[0].files[variantSample.fileIndex],
+                        dataKeys: result.studies[0].sampleDataKeys,
+                        data: variantSample.data
+                    };
+                }
+                let sampleData = await this.opencgaSession.opencgaClient.samples().info(sampleIds.join(","),
+                    {
+                        study: this.opencgaSession.study.fqn,
+                        includeIndividual: true
+                    });
+                samples = sampleData.responses[0].results;
+                for (let sample of samples) {
+                    sample.attributes.OPENCGA_VARIANT = variantSampleInfo[sample.id];
+                }
+            } else {
+                console.error("No samples found");
+            }
+
+            const header = ["Sample ID", "Genotype", "Variant Data", "Individual ID", "Individual Sex", "Phenotypes", "Disorders"];
+            const rows = samples.map( sample => {
+                return  [
+                    sample.id,
+                    sample?.attributes?.OPENCGA_VARIANT.data[0],
+                    this.variantFormatter(sample?.attributes?.OPENCGA_VARIANT),
+                    sample.individualId,
+                    this.sexFormatter(sample?.attributes?.OPENCGA_INDIVIDUAL),
+                    sample?.attributes?.OPENCGA_INDIVIDUAL?.phenotypes.map( p => p.id),
+                    sample?.attributes?.OPENCGA_INDIVIDUAL?.disorders.map( d => d.id)
+                ].join("\t");
+
+            })
+            let dataString, mimeType, extension;
+            if (e.detail.option.toLowerCase() === "tab") {
+                dataString = [
+                    header.join("\t"),
+                    rows.join("\n")];
+                // console.log(dataString);
+                mimeType = "text/plain";
+                extension = ".txt";
+            } else {
+                dataString = [JSON.stringify(samples, null, "\t")];
+                mimeType = "application/json";
+                extension = ".json";
+            }
+
+            // Build file and anchor link
+            const data = new Blob([dataString.join("\n")], {type: mimeType});
+            const file = window.URL.createObjectURL(data);
+            const a = document.createElement("a");
+            a.href = file;
+            a.download = this.opencgaSession.study.alias + extension;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function() {
+                document.body.removeChild(a);
+            }, 0);
+
+
+
+        } catch (e) {
+            console.error(e);
+        }
+
     }
 
     getDefaultConfig() {
@@ -355,7 +408,7 @@ export default class OpencgaVariantSamples extends LitElement {
                                      .numTotalResultsText="${this.numTotalResultsText}"
                                      .config="${this.toolbarConfig}"
                                      @columnChange="${this.onColumnChange}"
-                                     @download="${this._downloadSamples}"
+                                     @download="${this.onDownload}"
                                      @sharelink="${this.onShare}">
                 </opencb-grid-toolbar>
                 <div>
