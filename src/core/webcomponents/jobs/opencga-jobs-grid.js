@@ -144,7 +144,12 @@ export default class OpencgaJobsGrid extends LitElement {
                         include: "id,userId,tool,priority,tags,creationDate,visited,dependsOn,outDir,internal,execution,params,input",
                         ...this.query
                     };
-                    this.opencgaSession.opencgaClient.jobs().search(filters).then( res => params.success(res));
+                    this.opencgaSession.opencgaClient.jobs().search(filters)
+                        .then( res => params.success(res))
+                        .catch( e => {
+                            console.error(e);
+                            params.error(e);
+                        });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));

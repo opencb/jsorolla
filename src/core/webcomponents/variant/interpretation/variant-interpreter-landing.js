@@ -93,6 +93,7 @@ class VariantInterpreterLanding extends LitElement {
     }
 
     opencgaSessionObserver() {
+        this.onCloseClinicalAnalysis();
         // Check logged user is the study owner
         let _studyOwner = this.opencgaSession.study.fqn.split("@")[0];
         if (this.opencgaSession.user.id === _studyOwner) {

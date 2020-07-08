@@ -159,7 +159,10 @@ export default class OpencgaSampleGrid extends LitElement {
                     this.lastFilters = {..._filters};
                     this.opencgaSession.opencgaClient.samples().search(_filters)
                         .then( res => params.success(res))
-                        .catch( e => console.error(e));
+                        .catch( e => {
+                            console.error(e);
+                            params.error(e);
+                        });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));

@@ -107,10 +107,8 @@ class VariantInterpreterQcVariant extends LitElement {
         // Variant stats are different for SINGLE, FAMILY and CANCER analysis, this does not happens with Alignment
         if (this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY") {
             return html`
-                <div class="container" style="margin-bottom: 20px">
-                    <div style="float: left">
-                        <h2>RD Variant Stats</h2>
-                    </div>
+                <div class="container">
+                    
                     <!--
                     <div style="margin-top: 20px; float: right">
                         <button class="btn btn-primary" @click="${this.onCloseClinicalAnalysis}">
@@ -121,6 +119,8 @@ class VariantInterpreterQcVariant extends LitElement {
                 </div>
                 <div class="row">
                     <div class="col-md-10 col-md-offset-1">
+                        <tool-header title="RD Variant Stats" class="bg-white"></tool-header>
+
                         <variant-interpreter-qc-variant-family  .opencgaSession="${this.opencgaSession}" 
                                                                 .sampleId="${this.clinicalAnalysis.proband.samples[0].id}" 
                                                                 ?active="${this.active}">
@@ -132,10 +132,7 @@ class VariantInterpreterQcVariant extends LitElement {
 
         if (this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
             return html`
-                <div class="container" style="margin-bottom: 20px">
-                    <div style="float: left">
-                        <h2>Cancer Variant Stats</h2>
-                    </div>
+                <div class="container">
                     <!--
                     <div style="margin-top: 20px; float: right">
                         <button class="btn btn-primary" @click="${this.onCloseClinicalAnalysis}">
@@ -146,6 +143,7 @@ class VariantInterpreterQcVariant extends LitElement {
                 </div>
                 <div class="row">
                     <div class="col-md-10 col-md-offset-1">
+                        <tool-header title="RD Variant Stats" class="bg-white"></tool-header>
                         <variant-interpreter-qc-variant-cancer  .clinicalAnalysis="${this.clinicalAnalysis}" 
                                                                 .opencgaSession="${this.opencgaSession}" 
                                                                 .sampleId="${this.clinicalAnalysis.proband.samples[0].id}" 

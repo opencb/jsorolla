@@ -848,10 +848,10 @@ export default class DataForm extends LitElement {
                             ${this.config.buttons && this.config.buttons.show
                                 ? html`
                                         <div class="modal-footer">
-                                            <button type="button" class="${this.config.buttons.classes ? this.config.buttons.classes : "btn btn-primary"}" data-dismiss="modal" @click="${this.onClear}">
+                                            <button type="button" class="${this.config.buttons.classes ? this.config.buttons.classes : "btn btn-primary ripple"}" data-dismiss="modal" @click="${this.onClear}">
                                                 ${this.config.buttons.cancelText ? this.config.buttons.cancelText : "Cancel"}
                                             </button>
-                                            <button type="button" class="${this.config.buttons.classes ? this.config.buttons.classes : "btn btn-primary"}" @click="${this.onSubmit}">
+                                            <button type="button" class="${this.config.buttons.classes ? this.config.buttons.classes : "btn btn-primary ripple"}" @click="${this.onSubmit}">
                                                 ${this.config.buttons.okText ? this.config.buttons.okText : "OK"}
                                             </button>
                                         </div>`

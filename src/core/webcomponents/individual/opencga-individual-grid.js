@@ -145,6 +145,8 @@ export default class OpencgaIndividualGrid extends LitElement {
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
 
                 ajax: params => {
+                    console.log("params")
+                    console.log(params)
                     const _filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
@@ -156,7 +158,10 @@ export default class OpencgaIndividualGrid extends LitElement {
                     this.lastFilters = {..._filters};
                     this.opencgaSession.opencgaClient.individuals().search(_filters)
                         .then( res => params.success(res))
-                        .catch( e => console.error(e));
+                        .catch( e => {
+                            console.error(e);
+                            params.error(e);
+                        });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
@@ -193,6 +198,10 @@ export default class OpencgaIndividualGrid extends LitElement {
                 },
                 onLoadSuccess: data => {
                     this.gridCommons.onLoadSuccess(data, 1);
+                },
+                onLoadError: function(status, res) {
+                    console.error(status)
+                    console.error(res)
                 },
                 onPageChange: (page, size) => {
                     const result = this.gridCommons.onPageChange(page, size);

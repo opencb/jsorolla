@@ -214,7 +214,7 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                 mode: {
                     type: "modal",
                     title: "Save Variant Stats",
-                    buttonClass: "btn btn-default "
+                    buttonClass: "btn btn-default ripple"
                 },
                 labelWidth: 3,
                 labelAlign: "right",
@@ -386,59 +386,61 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                                                 @activeFilterChange="${this.onActiveFilterChange}"
                                                 @activeFilterClear="${this.onActiveFilterClear}">
                         </opencga-active-filters>
-                        
-                        <div class="col-md-12">
-                            <div style="padding: 5px 25px;float: right">
-                                <data-form  .data=${this.save} .config="${this.getSaveConfig()}" 
-                                            @fieldChange="${e => this.onSaveFieldChange(e)}" @submit="${this.onSave}">
-                                </data-form>
-                            </div>
-                        </div>
-                        
+                      
                         <div class="main-view">
                             <div class="row">
-                                <div class="col-md-6">
-                                    <h3>Genotype</h3>
-                                    <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[0]}"
-                                            .config="${this.facetConfig}"
-                                            ?active="${this.facetActive}">
-                                    </opencga-facet-result-view>
-                                </div>
-                                <div class="col-md-6">
-                                    <h3>Type</h3>
-                                    <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[1]}"
-                                            .config="${this.facetConfig}"
-                                            ?active="${this.facetActive}">
-                                    </opencga-facet-result-view>
-                                </div>
-                                <div class="col-md-12">
-                                    <h3>Biotype</h3>
-                                    <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[2]}"
-                                            .config="${this.facetConfig}"
-                                            ?active="${this.facetActive}">
-                                    </opencga-facet-result-view>
-                                </div>
-                                <div class="col-md-12">
-                                    <h3>Consequence Type</h3>
-                                    <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[3]}"
-                                            .config="${this.facetConfig}"
-                                            ?active="${this.facetActive}">
-                                    </opencga-facet-result-view>
-                                </div>
-                                <div class="col-md-12">
-                                    <h3>Clinical Significance</h3>
-                                    <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[4]}"
-                                            .config="${this.facetConfig}"
-                                            ?active="${this.facetActive}">
-                                    </opencga-facet-result-view>
-                                </div>
-                                <div class="col-md-12">
-                                    <h3>Depth</h3>
-                                    <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[5]}"
-                                            .config="${this.facetConfig}"
-                                            ?active="${this.facetActive}">
-                                    </opencga-facet-result-view>
-                                </div>
+                                ${!this.aggregationStatsResults ? html`
+                                <div class="alert alert-info" role="alert"><i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.</div>
+                                ` : html`
+                                    <div class="col-md-12">
+                                        <div class="pull-right">
+                                            <data-form  .data=${this.save} .config="${this.getSaveConfig()}" 
+                                                        @fieldChange="${e => this.onSaveFieldChange(e)}" @submit="${this.onSave}">
+                                            </data-form>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h3>Genotype</h3>
+                                        <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[0]}"
+                                                .config="${this.facetConfig}"
+                                                ?active="${this.facetActive}">
+                                        </opencga-facet-result-view>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h3>Type</h3>
+                                        <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[1]}"
+                                                .config="${this.facetConfig}"
+                                                ?active="${this.facetActive}">
+                                        </opencga-facet-result-view>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <h3>Biotype</h3>
+                                        <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[2]}"
+                                                .config="${this.facetConfig}"
+                                                ?active="${this.facetActive}">
+                                        </opencga-facet-result-view>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <h3>Consequence Type</h3>
+                                        <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[3]}"
+                                                .config="${this.facetConfig}"
+                                                ?active="${this.facetActive}">
+                                        </opencga-facet-result-view>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <h3>Clinical Significance</h3>
+                                        <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[4]}"
+                                                .config="${this.facetConfig}"
+                                                ?active="${this.facetActive}">
+                                        </opencga-facet-result-view>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <h3>Depth</h3>
+                                        <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[5]}"
+                                                .config="${this.facetConfig}"
+                                                ?active="${this.facetActive}">
+                                        </opencga-facet-result-view>
+                                    </div>`}
                             </div>                            
                         </div>
                     </div>

@@ -148,7 +148,10 @@ export default class GeneCoverageGrid extends LitElement {
                                 this.transcriptCoverageStats = restResponse.getResults()[0].stats;
                                 params.success(this.transcriptCoverageStats);
                             })
-                            .catch( e => console.error(e));
+                            .catch( e => {
+                                console.error(e);
+                                params.error(e);
+                            });
                     },
                     onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                     onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),

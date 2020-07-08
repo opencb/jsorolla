@@ -243,8 +243,9 @@ export default class OpencgaVariantSamples extends LitElement {
                                     }
                                     params.success(samples);
                                 })
-                                .catch(function (reason) {
-                                    console.error(reason);
+                                .catch( e => {
+                                    console.error(e);
+                                    params.error(e);
                                 });
                         } else {
                             params.error("No samples found");

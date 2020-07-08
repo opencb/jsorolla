@@ -156,7 +156,10 @@ export default class OpencgaFamilyGrid extends LitElement {
                     };
                     this.opencgaSession.opencgaClient.families().search(_filters)
                         .then( res => params.success(res))
-                        .catch( e => console.error(e));
+                        .catch( e => {
+                            console.error(e);
+                            params.error(e);
+                        });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));

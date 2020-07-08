@@ -202,7 +202,7 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
                 // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
                 variantGrid: _this,
 
-                ajax: (params) => {
+                ajax: params => {
                     // if (this.pageNumber > 1) {
                     //     skipCount = true;
                     // }
@@ -219,7 +219,11 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
                     // this.opencgaSession.opencgaClient.clinical().primaryFindingsInterpretation(filters)
                     //     .then( res => params.success(res));
                     this.opencgaSession.opencgaClient.variants().query(filters)
-                        .then( res => params.success(res));
+                        .then( res => params.success(res))
+                        .catch( e => {
+                            console.error(e);
+                            params.error(e);
+                        });
                 },
                 // ajax: params => {
                 //     let filters = {

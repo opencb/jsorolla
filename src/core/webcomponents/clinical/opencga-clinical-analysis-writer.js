@@ -51,16 +51,8 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
 
     _init() {
         this._prefix = "oga-" + UtilsNew.randomString(6);
-
-        this.clinicalAnalysis = {
-            // id: "AN-3",
-            // disorder: {id: "OMIM:300125"}
-            type: "FAMILY",
-            priority: "MEDIUM",
-            // flags: ["low_tumour_purity", "uniparental_isodisomy"],
-            // description: "Description"
-        };
         this.mode = "create";
+        this.clinicalAnalysis = {};
     }
 
     connectedCallback() {
@@ -75,7 +67,19 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
             if (this.opencgaSession && this.opencgaSession.study) {
                 for (let group of this.opencgaSession.study.groups) {
                     if (group.id === "@members") {
-                        this.clinicalAnalysis._users = group.userIds.filter(user => user !== "*");
+                        this.clinicalAnalysis = {
+                            // id: "AN-3",
+                            // disorder: {id: "OMIM:300125"}
+                            type: "FAMILY",
+                            priority: "MEDIUM",
+                            analyst: {
+                                assignee: this.opencgaSession?.user?.id
+                            },
+                            dueDate: moment().format("YYYYMMDDHHmmss"),
+                            _users: group.userIds.filter(user => user !== "*")
+                            // flags: ["low_tumour_purity", "uniparental_isodisomy"],
+                            // description: "Description"
+                        };
                         this.clinicalAnalysis = {...this.clinicalAnalysis};
                     }
                 }
@@ -341,7 +345,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 name: "Due Date",
                                 field: "dueDate",
                                 type: "input-date",
-                                defaultValue: moment().format("YYYYMMDDHHmmss"),
+                                //defaultValue: moment().format("YYYYMMDDHHmmss"),
                                 display: {
                                     render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
                                 }

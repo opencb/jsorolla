@@ -122,7 +122,12 @@ export default class OpencgaFileGrid extends LitElement {
                         include: "name,path,uuid,samples,status,format,bioformat,size,creationDate,modificationDate,internal",
                         ...this.query
                     };
-                    this.opencgaSession.opencgaClient.files().search(filters).then( res => params.success(res));
+                    this.opencgaSession.opencgaClient.files().search(filters)
+                        .then( res => params.success(res))
+                        .catch( e => {
+                            console.error(e);
+                            params.error(e);
+                        });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));

@@ -127,6 +127,7 @@ export class JobMonitor extends LitElement {
             internalStatus: "PENDING,QUEUED,RUNNING,REGISTERING,UNREGISTERED,DONE,ERROR,ABORTED",
             limit: this._config.limit || 10,
             sort: "creationDate",
+            include: "id,internal.status.name,tool,creationDate",
             order: -1
         };
 

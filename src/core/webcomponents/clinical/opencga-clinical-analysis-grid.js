@@ -135,7 +135,12 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                         exclude: "files",
                         ...this.query
                     };
-                    this.opencgaSession.opencgaClient.clinical().search(filters).then( res => params.success(res));
+                    this.opencgaSession.opencgaClient.clinical().search(filters)
+                        .then( res => params.success(res))
+                        .catch( e => {
+                            console.error(e);
+                            params.error(e);
+                        });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));

@@ -122,11 +122,11 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
             ${this.file ? html`
                 <div class="pull-right save-button">
                     <button class="btn btn-primary ripple" @click="${this.onCloseClinicalAnalysis}">
-                        <i class="fas fa-save" style="padding-right: 10px"></i>Save
+                        <i class="fas fa-save pad5"></i>Save
                     </button>
                 </div>
             ` : null}
-            <tool-header title="Gene Coverage Stats" class="bg-white" icon="${this._config.icon}"></tool-header>
+            <tool-header title="Gene Coverage Stats" class="bg-white"></tool-header>
             
             <div class="container">
                 <gene-coverage-browser  .opencgaSession="${this.opencgaSession}"

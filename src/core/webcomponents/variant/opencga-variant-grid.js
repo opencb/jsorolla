@@ -218,7 +218,10 @@ export default class OpencgaVariantGrid extends LitElement {
 
                     this.opencgaSession.opencgaClient.variants().query(filters)
                         .then( res => params.success(res))
-                        .catch( e => console.error(e));
+                        .catch( e => {
+                            console.error(e);
+                            params.error(e);
+                        });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));

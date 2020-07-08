@@ -185,7 +185,7 @@ export default class OpencgaFileManager extends LitElement {
         return html`
             <li class="folder">
                 <a @click="${() => this.route(node.file.id)}">
-                    <span class="icon"><i class="fas fa-folder fa-5x"></i></span>
+                    <span class="icon"><i class="fas fa-folder fa-4x"></i></span>
                     <span class="content">
                         <span class="name"><span class="max-lines-2"> ${node.file.name} </span>
                         <span class="details">${node.children.length} items</span>
@@ -199,7 +199,7 @@ export default class OpencgaFileManager extends LitElement {
         return html`
             <li class="file ${this.fileId === node.file.id ? "active" : ""}">
                 <a @click="${() => this.onClickFile(node.file.id)}">
-                    <span class="icon">${this.icon(node.file.format, 5)}<span class="format">${node.file.format !== "UNKNOWN" ? node.file.format : ""}</span></span>
+                    <span class="icon">${this.icon(node.file.format, 4)}<span class="format">${node.file.format !== "UNKNOWN" ? node.file.format : ""}</span></span>
                     <span class="content">
                         <span class="name">
                             <span class="max-lines-2">
@@ -260,24 +260,28 @@ export default class OpencgaFileManager extends LitElement {
 
     render() {
         return html`
-            <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
+            <div class="opencga-file-manager">
+                <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
             
-            <div class="row">
-                <div class="col-md-3 left-menu file-manager-tree" style="padding: 10px">
-                    ${this.tree ? html`${this.renderTree(this.tree)}` : null}
+                <div class="row">
+                    <div class="file-manager-tree left-menu col-md-3">
+                        ${this.tree ? html`${this.renderTree(this.tree)}` : null}
+                    </div>
+    
+                    <div class="file-manager-grid col-md-9">
+                        ${this.currentRoot 
+                            ? html`
+                                <div>
+                                    ${this.renderFileManager(this.currentRoot)}
+                                </div>
+                                <div class="opencga-file-view">
+                                    <opencga-file-view .opencgaSession="${this.opencgaSession}" .fileId="${this.fileId}"></opencga-file-view>
+                                </div>` 
+                            : html`<loading-spinner></loading-spinner>`
+                        }
+                    </div>
                 </div>
-
-                <div class="col-md-9">
-                    ${this.currentRoot 
-                        ? html`
-                            <div>
-                                ${this.renderFileManager(this.currentRoot)}
-                            </div>
-                            <opencga-file-view .opencgaSession="${this.opencgaSession}" .fileId="${this.fileId}"></opencga-file-view>` 
-                        : html`<loading-spinner></loading-spinner>`
-                    }
-                </div>
-            </div>            
+            </div>
         `;
     }
 

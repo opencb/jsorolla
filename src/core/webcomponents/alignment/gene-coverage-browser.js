@@ -332,9 +332,8 @@ export default class GeneCoverageBrowser extends LitElement {
                 </div>`
         } else {
             return html`
-                <div id="error" class="alert alert-danger" role="alert">
-                    No BAM file found
-                </div>`;
+                <div id="error" class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No BAM file available.</div>
+            `;
         }
 
 

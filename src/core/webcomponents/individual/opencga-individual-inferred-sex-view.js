@@ -163,7 +163,7 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
                                     <td>
                                         <label>${individual.id}</label>
                                     </td>
-                                    <td>${individual?.qualityControl?.sampleId ?? "N/A"}</td>
+                                    <td>${individual?.qualityControl?.sample ?? "N/A"}</td>
                                     <td>${individual.sex}</td>       
                                     <td>
                                         <span style="color: ${!inferredSex || individual.karyotypicSex === inferredSex?.inferredKaryotypicSex ? "black" : "red"}">
