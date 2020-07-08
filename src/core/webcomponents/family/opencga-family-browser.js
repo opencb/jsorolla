@@ -185,6 +185,14 @@ export default class OpencgaFamilyBrowser extends LitElement {
                             render: (family, active, opencgaSession) => {
                                 return html`<opencga-family-view .opencgaSession="${opencgaSession}" .family="${family}"></opencga-family-view>`;
                             }
+                        },
+                        {
+                            id: "json-view",
+                            name: "JSON Data",
+                            mode: "development",
+                            render: (family, active, opencgaSession) => {
+                                return html`<json-viewer .data="${family}"></json-viewer>`;
+                            }
                         }
                     ]
                 }

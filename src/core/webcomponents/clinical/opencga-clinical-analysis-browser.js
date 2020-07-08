@@ -153,6 +153,14 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                             render: (clinicalAnalysis, active, opencgaSession) => {
                                 return html`<opencga-clinical-analysis-view .opencgaSession="${opencgaSession}" .clinicalAnalysis="${clinicalAnalysis}"></opencga-clinical-analysis-view>`;
                             }
+                        },
+                        {
+                            id: "json-view",
+                            name: "JSON Data",
+                            mode: "development",
+                            render: (clinicalAnalysis, active, opencgaSession) => {
+                                return html`<json-viewer .data="${clinicalAnalysis}"></json-viewer>`;
+                            }
                         }
                     ]
                 }

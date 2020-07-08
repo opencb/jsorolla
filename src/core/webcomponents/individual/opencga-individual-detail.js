@@ -95,6 +95,14 @@ export default class OpencgaIndividualDetail extends LitElement {
                     render: (individual, active, opencgaSession) => {
                         return html`<opencga-individual-view .individual="${individual}" .opencgaSession="${opencgaSession}"></opencga-individual-view>`;
                     }
+                },
+                {
+                    id: "json-view",
+                    name: "JSON Data",
+                    active: false,
+                    render: (individual, active, opencgaSession) => {
+                        return html`<json-viewer .data="${individual}"></json-viewer>`;
+                    }
                 }
             ]
         };

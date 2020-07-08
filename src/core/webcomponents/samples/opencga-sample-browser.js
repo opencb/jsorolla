@@ -208,6 +208,14 @@ export default class OpencgaSampleBrowser extends LitElement {
                             render: (sample, active, opencgaSession) => {
                                 return html`<opencga-file-grid .opencgaSession="${opencgaSession}" .query="${{samples: sample.id}}" .search="${{samples: sample.id}}"></opencga-file-grid>`;
                             }
+                        },
+                        {
+                            id: "json-view",
+                            name: "JSON Data",
+                            mode: "development",
+                            render: (sample, active, opencgaSession) => {
+                                return html`<json-viewer .data="${sample}"></json-viewer>`;
+                            }
                         }
                     ]
                 }

@@ -205,7 +205,7 @@ export default class OpencgaJobsBrowser extends LitElement {
                 result: {
                     grid: {}
                 },
-                /*detail: {
+                detail: {
                     title: "Job",
                     showTitle: true,
                     items: [
@@ -213,26 +213,32 @@ export default class OpencgaJobsBrowser extends LitElement {
                             id: "job-view",
                             name: "Overview",
                             active: true,
-                            // visible:
                             render: (job, active, opencgaSession) => {
-                                return html`<opencga-jobs-view .opencgaSession=${opencgaSession} .job="${job}"></opencga-jobs-view>`;
+                                return html`<opencga-jobs-view .opencgaSession=${opencgaSession} mode="simple" .job="${job}"></opencga-jobs-view>`;
                             }
                         },
                         {
                             id: "job-log",
                             name: "Logs",
-                            // visible:
                             render: (job, active, opencgaSession) => {
                                 return html`
-                            <opencga-jobs-detail-log .opencgaSession=${opencgaSession}
-                                                    .active="${active}"
-                                                    .job="${job}">
-                            </opencga-jobs-detail-log>
-                        `;
+                                    <opencga-jobs-detail-log    .opencgaSession=${opencgaSession}
+                                                                .active="${active}"
+                                                                .job="${job}">
+                                    </opencga-jobs-detail-log>
+                                `;
+                            }
+                        },
+                        {
+                            id: "json-view",
+                            name: "JSON Data",
+                            mode: "development",
+                            render: (job, active, opencgaSession) => {
+                                return html`<json-viewer .data="${job}"></json-viewer>`;
                             }
                         }
                     ]
-                }*/
+                }
             },
             aggregation: {
                 default: ["creationYear>>creationMonth", "toolId>>executorId"],

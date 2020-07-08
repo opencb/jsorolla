@@ -90,24 +90,26 @@ export default class DetailTabs extends LitElement {
             }
             <div class="detail-tabs">
                 <ul class="nav nav-tabs" role="tablist">
-                    ${this._config.items.length && this._config.items.map(item => 
-                        html`
-                            <li role="presentation" class="${classMap({active: this.activeTab[item.id]})}">
-                                <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}" @click="${this._changeBottomTab}">
-                                    <span>${item.name}</span>
-                                </a>
-                            </li>
-                        `)
-                    }
+                    ${this._config.items.length && this._config.items.map(item => {
+                        if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
+                            return html`
+                                <li role="presentation" class="${classMap({active: this.activeTab[item.id]})}">
+                                    <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}" @click="${this._changeBottomTab}">
+                                        <span>${item.name}</span>
+                                    </a>
+                                </li>`
+                        }
+                    })}
                 </ul>
                 <div class="tab-content">
-                    ${this._config.items.length ? this._config.items.map(item =>
-                        html`
-                            <div id="${item.id}-tab" class="tab-pane ${classMap({active: item.active})}" role="tabpanel">
-                                ${item.render(this.data, this.activeTab[item.id], this.opencgaSession )}
-                            </div>
-                        `)
-                    : null}
+                    ${this._config.items.length && this._config.items.map(item => {
+                        if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
+                            return html`
+                                <div id="${item.id}-tab" class="tab-pane ${classMap({active: item.active})}" role="tabpanel">
+                                    ${item.render(this.data, this.activeTab[item.id], this.opencgaSession)}
+                                </div>`
+                        }
+                    })}
                 </div>
             </div>
         `;
