@@ -848,7 +848,7 @@ export default class VariantInterpreterGrid extends LitElement {
             let sampleInfo = {};
             if (this.clinicalAnalysis.family && this.clinicalAnalysis.family.members) {
                 for (const individual of this.clinicalAnalysis.family.members) {
-                    if (individual.samples) {
+                    if (individual.samples && individual.samples.length > 0) {
                         samples.push(individual.samples[0]);
                         sampleInfo[individual.samples[0].id] = {
                             proband: individual.id === this.clinicalAnalysis.proband.id,
