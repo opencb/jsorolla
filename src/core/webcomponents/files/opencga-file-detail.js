@@ -76,11 +76,11 @@ export default class OpencgaFileDetail extends LitElement {
                     })
                     .catch(restResponse => {
                         console.error(restResponse);
+                        this.file = null;
                     });
             } else {
                 this.file = null;
             }
-
         }
     }
 

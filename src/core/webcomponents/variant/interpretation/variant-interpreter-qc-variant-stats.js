@@ -52,6 +52,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
     _init() {
         this._prefix = "vcis-" + UtilsNew.randomString(6);
         this.statsSelect = [];
+        this.variantStats = null;
     }
 
     connectedCallback() {
@@ -91,11 +92,19 @@ class VariantInterpreterQcVariantStats extends LitElement {
         if (this.clinicalAnalysis) {
             switch (this.clinicalAnalysis.type.toUpperCase()) {
                 case "SINGLE":
+                    this.statsSelect = [
+                        {
+                            id: this.clinicalAnalysis.proband.samples[0].id,
+                            fields: this.clinicalAnalysis.proband?.samples[0]?.qualityControl?.metrics[0]?.variantStats
+                                .map( vStats => ({id: this.clinicalAnalysis.proband.samples[0].id + ":" + vStats.id.toUpperCase(), name: vStats.id}))
+                        }
+                    ];
+                    break;
                 case "FAMILY":
                     this.statsSelect = [
                         {
                             id: this.clinicalAnalysis.proband.samples[0].id,
-                            fields: this.clinicalAnalysis.proband.samples[0].qualityControl.metrics[0].variantStats
+                            fields: this.clinicalAnalysis.proband?.samples[0]?.qualityControl?.metrics[0]?.variantStats
                                 .map( vStats => ({id: this.clinicalAnalysis.proband.samples[0].id + ":" + vStats.id.toUpperCase(), name: vStats.id}))
                         },
                         ...this.clinicalAnalysis?.family?.members
@@ -103,25 +112,32 @@ class VariantInterpreterQcVariantStats extends LitElement {
                             .map(member => (
                                 {
                                     id: member.samples[0].id,
-                                    fields: member.samples[0].qualityControl.metrics[0].variantStats
+                                    fields: member.samples[0].qualityControl?.metrics[0]?.variantStats
                                         .map( vStats => ({id: member.samples[0].id + ":" + vStats.id.toUpperCase(), name: vStats.id}))
                                 })
                             )
                     ];
                     break;
                 case "CANCER":
-                    this.statsSelect = this.clinicalAnalysis.proband.samples[0].qualityControl.metrics[0].variantStats.map( vStats => ({id: this.clinicalAnalysis.proband.samples[0].id + ":" + vStats.id.toUpperCase(), name: vStats.id}));
+                    this.statsSelect = this.clinicalAnalysis.proband.samples[0].qualityControl?.metrics[0]?.variantStats.map( vStats => (
+                        {
+                            id: this.clinicalAnalysis.proband.samples[0].id + ":" + vStats.id.toUpperCase(),
+                            name: vStats.id
+                        }));
                     break;
             }
         }
         let sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis);
-        if (sampleQc?.metrics.length > 0) {
+        // in any case we must have at least 1 variant stat for the proband
+        if (sampleQc?.metrics?.length > 0) {
             this.variantStats = sampleQc.metrics[0].variantStats[0];
 
             this.selectedStat = this.clinicalAnalysis.proband.samples[0].id + ":" + this.variantStats.id.toUpperCase();
             if (!this.variantStats) {
                 console.error("Sample variant stats unavailable")
             }
+        } else {
+            this.variantStats = null;
         }
         this.requestUpdate();
     }
@@ -130,7 +146,8 @@ class VariantInterpreterQcVariantStats extends LitElement {
         this.selectedStat = e.detail.value;
         let [sampleId, statsId] = this.selectedStat.split(":");
         this.stats = null;
-        for (let member of this.clinicalAnalysis.family.members) {
+        const individuals = this.clinicalAnalysis.type.toUpperCase() === "FAMILY" ? this.clinicalAnalysis.family.members : [this.clinicalAnalysis.proband]
+        for (let member of individuals) {
             const vStat = member.samples[0].qualityControl?.metrics[0]?.variantStats.find( vStat => vStat.id === statsId);
             if (member.samples[0].id === sampleId && vStat) {
                 this.variantStats = vStat;
@@ -179,50 +196,30 @@ class VariantInterpreterQcVariantStats extends LitElement {
                     margin-right: 15px;
                 }
             </style>
-            <div class="container">
-                <!--
-                <div class="row">
-                    <h4>Select Sample</h4>
-                    ${this.statsSelect.length 
-                        ? html`
-                            <div class="">
-                                <form class="form-inline">
-                                    <div class="form-group gene-selector">
-                                        <label>Select Stat</label>
-                                        <select-field-filter .data="${this.statsSelect}" @filterChange="${this.onSampleChange}"></select-field-filter>
-                                    </div>
-                                </form>
-                            </div>` 
-                        : null
-                    }
-                </div>
-                -->
-                <div class="row">
-                    <h3>Select Sample Stats</h3>
-                    
-                    <div class="">
-                        <form class="form-inline">
-                            <div class="form-group gene-selector">
-                                <label>Select Stat</label>
-                                <select-field-filter .data="${this.statsSelect}" .value=${this.selectedStat} @filterChange="${this.onSampleChange}"></select-field-filter>
-                            </div>
-                            
-                        </form>
+                    ${this.variantStats ? html`
+                        <h3>Select Sample Stats</h3>
                         
-                        ${this.variantStats?.query ? html`
-                            <div class="form-group gene-selector">
-                                <form>
-                                    <label>Stats Query</label>
-                                        <span>${this.variantStats?.query.map( q => html`<span class="badge">${q}</span>`)}</span>
-                                    </div>
-                                </form>
-                            </div>
-                        ` : null}
-
-                    <h3>Variant Stats</h3>
-                    <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" .sampleVariantStats="${this.variantStats?.stats}"> </sample-variant-stats-view>
-                </div>
-            </div>
+                        <div class="">
+                            <form class="form-inline">
+                                <div class="form-group gene-selector">
+                                    <label>Select Stat</label>
+                                    <select-field-filter .data="${this.statsSelect}" .value=${this.selectedStat} @filterChange="${this.onSampleChange}"></select-field-filter>
+                                </div>
+                            </form>
+                            ${this.variantStats?.query ? html`
+                                <div class="form-group gene-selector">
+                                    <form>
+                                        <label>Stats Query</label>
+                                            <span>${this.variantStats?.query.map( q => html`<span class="badge">${q}</span>`)}</span>
+                                        </div>
+                                    </form>
+                                </div>
+                            ` : null}
+    
+                        <h3>Variant Stats</h3>
+                        <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" .sampleVariantStats="${this.variantStats?.stats}"> </sample-variant-stats-view>
+                    ` : html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>`}
+                    
         `;
     }
 

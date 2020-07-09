@@ -246,9 +246,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     }
                     this.gridCommons.onLoadSuccess(data, 2);
                 },
-                onLoadError: function(status, res) {
-                    console.trace(res);
-                },
+                onLoadError: data => this.gridCommons.onLoadError(),
                 onPageChange: (page, size) => {
                     this.from = (page - 1) * size + 1;
                     this.to = page * size;

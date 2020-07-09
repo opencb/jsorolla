@@ -78,9 +78,9 @@ export default class OpencgaSampleDetail extends LitElement {
                     .catch(reason => {
                         console.error(reason);
                     });
+            } else {
+                this.sample = null;
             }
-        } else {
-            this.sample = null;
         }
     }
 
@@ -123,12 +123,10 @@ export default class OpencgaSampleDetail extends LitElement {
     }
 
     render() {
-        if (this.opencgaSession && this.sample) {
-            return html`
-                <detail-tabs .data="${this.sample}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`;
-        } else {
-            return html`<h3>No valid session or sample found</h3>`;
-        }
+            return this.opencgaSession && this.sample ?
+                html`
+                    <detail-tabs .data="${this.sample}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>
+                ` : null;
     }
 }
 

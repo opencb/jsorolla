@@ -166,6 +166,7 @@ export default class OpencgaJobsGrid extends LitElement {
                 onUncheck: (row, $element) => this.gridCommons.onUncheck(row.id, row),
                 onUncheckAll: rows => this.gridCommons.onUncheckAll(rows),
                 onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
+                onLoadError: data => this.gridCommons.onLoadError(),
                 onPageChange: (page, size) => {
                     const result = this.gridCommons.onPageChange(page, size);
                     this.from = result.from || this.from;

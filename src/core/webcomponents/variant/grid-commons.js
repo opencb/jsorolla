@@ -137,6 +137,7 @@ export default class GridCommons {
     }
 
     onLoadSuccess(data, firstRowIndex = 2, idField) {
+        // TODO the event `selectrow` with null values is fired in case of empty result and in case of error both. Create a common method.
         if (data.rows && data.rows.length > 0) {
 
             let table = $("#" + this.gridId);
@@ -178,6 +179,15 @@ export default class GridCommons {
                 hide: {fixed: true, delay: 300}
             });
         });*/
+    }
+
+    onLoadError() {
+        this.context.dispatchEvent(new CustomEvent("selectrow", {
+            detail: {
+                id: null,
+                row: null
+            }
+        }));
     }
 
     onPageChange(page, size) {

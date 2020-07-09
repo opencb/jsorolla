@@ -306,6 +306,7 @@ export default class OpencgaCohortGrid extends LitElement {
                     }
                 },
                 onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
+                onLoadError: data => this.gridCommons.onLoadError(),
                 onPageChange: (page, size) => this.gridCommons.onPageChange(page, size)
             });
         } else {

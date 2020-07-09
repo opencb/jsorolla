@@ -229,6 +229,7 @@ export default class OpencgaVariantSamples extends LitElement {
             onLoadSuccess: data => {
                 this.gridCommons.onLoadSuccess(data, 2);
             },
+            onLoadError: data => this.gridCommons.onLoadError()
         });
     }
 

@@ -471,6 +471,7 @@ export default class OpencgaActiveFilters extends LitElement {
             </div>
         `}
         
+        <!-- <div class="alert alert-info">${JSON.stringify(this.queryList)}</div> --> 
 
         <div class="panel panel-default">
             <div class="panel-body" style="padding: 8px 10px">

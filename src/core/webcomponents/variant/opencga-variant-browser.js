@@ -176,9 +176,14 @@ export default class OpencgaVariantBrowser extends LitElement {
     queryObserver() {
         // Query passed is executed and set to variant-filter, active-filters and variant-grid components
         // (it checks just for undefined, empty object is a valid value)
-        if (this.opencgaSession && this.query) {
-            this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
-            this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+        if (this.opencgaSession) {
+            if(this.query) {
+                this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+                this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+            } else {
+                this.preparedQuery = {study: this.opencgaSession.study.fqn};
+                this.executedQuery = {study: this.opencgaSession.study.fqn};
+            }
         }
         // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
         this.dispatchEvent(new CustomEvent("queryChange", {

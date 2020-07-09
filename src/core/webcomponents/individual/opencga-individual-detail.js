@@ -109,12 +109,9 @@ export default class OpencgaIndividualDetail extends LitElement {
     }
 
     render() {
-        if (this.opencgaSession && this.individual) {
-            return html`
-                <detail-tabs .data="${this.individual}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`;
-        } else {
-            return html`<h3>No valid session or individual found</h3>`;
-        }
+        return this.opencgaSession && this.individual ?
+            html`<detail-tabs .data="${this.individual}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`
+            : null
     }
 }
 

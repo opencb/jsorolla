@@ -178,6 +178,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 onLoadSuccess: data => {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
+                onLoadError: data => this.gridCommons.onLoadError(),
                 onPageChange: (page, size) => {
                     const result = this.gridCommons.onPageChange(page, size);
                     this.from = result.from || this.from;
@@ -625,7 +626,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             detailView: false,
             detailFormatter: this.detailFormatter, // function with the detail formatter
             showSelectCheckbox: false,
-            showDeleteButton: true,
+            showDeleteButton: false,
             showToolbar: true,
             header: {
                 horizontalAlign: "center",
