@@ -224,9 +224,9 @@ class VariantInterpreter extends LitElement {
             
             <div class="">
                 ${this.clinicalAnalysis && this.clinicalAnalysis.id ? html`
-                    <tool-header title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>` }" icon="${this._config.icon}"></tool-header>
+                    <tool-header .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>` }" icon="${this._config.icon}"></tool-header>
                 ` : html`
-                    <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
+                    <tool-header .title="${this._config.title}" icon="${this._config.icon}"></tool-header>
                 `}
             
                 <div class="col-md-10 col-md-offset-1">
