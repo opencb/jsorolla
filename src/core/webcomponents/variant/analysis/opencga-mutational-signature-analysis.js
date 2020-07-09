@@ -101,11 +101,9 @@ export default class OpencgaMutationalSignatureAnalysis extends LitElement {
                 }
             },
             execute: (opencgaSession, data, params) => {
-                let _data = {};
-                if (data) {
-                    _data.sample = data.sample.join(",");
-                }
-                opencgaSession.opencgaClient.variants().runMutationalSignature(_data, params);
+                let body = {};
+                data.sample ? body.sample = data.sample.join(",") : null;
+                opencgaSession.opencgaClient.variants().runMutationalSignature(body, params);
             },
             result: {
             }

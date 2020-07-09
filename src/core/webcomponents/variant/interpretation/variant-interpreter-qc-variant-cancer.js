@@ -498,7 +498,7 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                             </div>
                         </div>
                        
-                        <div class="col-md-12"> 
+                        <div class="col-md-12" style="padding: 0px 15px"> 
                             <variant-interpreter-qc-cancer-plots    .opencgaSession="${this.opencgaSession}"
                                                                     .query="${this.executedQuery}"
                                                                     .sampleId="${this.sample?.id}"

@@ -124,7 +124,10 @@ export default class OpencgaIndividualRelatednessAnalysis extends LitElement {
                 }
             },
             execute: (opencgaSession, data, params) => {
-                opencgaSession.opencgaClient.variants().runRelatedness(data, params);
+                let body = {};
+                data.samples ? body.samples = data.samples.join(",") : null;
+                data.individuals ? body.individuals = data.individuals.join(",") : null;
+                opencgaSession.opencgaClient.variants().runRelatedness(body, params);
             },
             result: {
             }

@@ -55,7 +55,6 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
         this._prefix = "vcis-" + UtilsNew.randomString(6);
 
         this._config = this.getDefaultConfig();
-        //this.file = "SonsAlignedBamFile.bam";
     }
 
     connectedCallback() {
@@ -73,7 +72,8 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
         }
 
         if (changedProperties.has("clinicalAnalysis")) {
-            this.clinicalAnalysisObserver();
+            this.file = this.clinicalAnalysis.files.find( file => file.format === "BAM");
+            this.requestUpdate();
         }
 
         if (changedProperties.has("config")) {
@@ -86,6 +86,8 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(restResponse => {
                     this.clinicalAnalysis = restResponse.getResult(0);
+                    this.file = this.clinicalAnalysis.files.find( file => file.format === "BAM");
+                    this.requestUpdate();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -93,12 +95,47 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
         }
     }
 
-    clinicalAnalysisObserver() {
-        this.file = this.clinicalAnalysis.files.find( file => file.format === "BAM")?.id;
-        if (!this.file) {
-            console.error("BAM file not found");
+    onSave(e) {
+        // Search bamFile for the sample
+        let bamFile = this.clinicalAnalysis.files.find(file => file.format === "BAM" && file.samples.some(sample => sample.id === this.sample.id));
+        let variantStats = {
+            id: this.save.id,
+            query: this.executedQuery || {},
+            description: this.save.description || "",
+            stats: this.sampleVariantStats
+        };
+
+        // Check if a metric object for that bamFileId exists
+        let metric = this.sample?.qualityControl?.metrics.find(metric => metric.bamFileId === bamFile.id);
+        if (metric) {
+            // Push the stats and signature in the existing metric object
+            metric.variantStats.push(variantStats);
+        } else {
+            // create a new metric
+            metric = {
+                bamFileId: bamFile.id,
+                variantStats: [variantStats],
+            }
+            // Check if this is the first metric object
+            if (this.sample?.qualityControl?.metrics) {
+                this.sample.qualityControl.metrics.push(metric);
+            } else {
+                this.sample["qualityControl"] = {
+                    metrics: [metric]
+                };
+            }
         }
-        this.requestUpdate();
+
+        this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})
+            .then( restResponse => {
+                console.log(restResponse);
+            })
+            .catch( restResponse => {
+                console.error(restResponse);
+            })
+            .finally( () => {
+                this.requestUpdate();
+            })
     }
 
     getDefaultConfig() {
@@ -118,23 +155,22 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
         }
 
         return html`
-            
             ${this.file ? html`
-                <div class="pull-right save-button">
-                    <button class="btn btn-primary ripple" @click="${this.onCloseClinicalAnalysis}">
+                <div class="pull-right save-button" style="margin: 20px">
+                    <button class="btn btn-default ripple" @click="${this.onSave}">
                         <i class="fas fa-save pad5"></i>Save
                     </button>
                 </div>
             ` : null}
-            <tool-header title="Gene Coverage Stats" class="bg-white"></tool-header>
             
-            <div class="container">
+            <tool-header title="Gene Coverage Stats - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
+            <div style="padding: 0px 15px">
                 <gene-coverage-browser  .opencgaSession="${this.opencgaSession}"
-                                        .cellbaseClient="${this.cellbaseClient}"
                                         .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .cellbaseClient="${this.cellbaseClient}"
                                         .geneIds="${this.geneIds}"
                                         .panelIds="${this.diseasePanelIds}"
-                                        .file="${this.file}">
+                                        .fileId="${this.file?.id}">
                 </gene-coverage-browser>
             </div>
         `;

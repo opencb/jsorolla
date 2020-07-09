@@ -127,11 +127,11 @@ export default class OpencgaKnockoutAnalysis extends LitElement {
                                 title: "Select filter",
                                 type: "text"
                             },
-                            {
-                                id: "qual",
-                                title: "Select quality",
-                                type: "number"
-                            }
+                            // {
+                            //     id: "qual",
+                            //     title: "Select quality",
+                            //     type: "number"
+                            // }
                         ]
                     }
                 ],
@@ -147,7 +147,13 @@ export default class OpencgaKnockoutAnalysis extends LitElement {
                 }
             },
             execute: (opencgaSession, data, params) => {
-                opencgaSession.opencgaClient.variants().runKnockout(data, params);
+                let body = {};
+                data.sample ? body.sample = data.sample.join(",") : null;
+                data.gene ? body.gene = data.gene.join(",") : null;
+                data.biotype ? body.biotype = data.biotype.join(",") : null;
+                data.consequenceType ? body.consequenceType = data.consequenceType.join(",") : null;
+                data.filter ? body.filter = data.filter.join(",") : null;
+                opencgaSession.opencgaClient.variants().runKnockout(body, params);
             },
             result: {
             }

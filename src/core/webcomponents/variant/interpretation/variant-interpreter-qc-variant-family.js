@@ -220,6 +220,7 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
         this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})
             .then( restResponse => {
                 console.log(restResponse);
+                // this.opencgaSession.opencgaClient.
             })
             .catch( restResponse => {
                 console.error(restResponse);
@@ -417,7 +418,7 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                                                 @activeFilterClear="${this.onActiveFilterClear}">
                         </opencga-active-filters>
                       
-                        <div class="main-view">
+                        <div class="main-view" style="padding: 0px 15px">
                             <div class="row">
                                 ${!this.aggregationStatsResults ? html`
                                 <div class="alert alert-info" role="alert"><i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.</div>

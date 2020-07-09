@@ -177,7 +177,11 @@ export default class OpencgaGwasAnalysis extends LitElement {
                 }
             },
             execute: (opencgaSession, data, params) => {
-                opencgaSession.opencgaClient.variants().runGwas(data, params);
+                let body = {};
+                data.phenotype ? body.phenotype = data.phenotype[0] : null;
+                data.method ? body.method = data.method[0] : null;
+                data.fisherMode ? body.fisherMode = data.fisherMode[0] : null;
+                opencgaSession.opencgaClient.variants().runGwas(body, params);
             },
             result: {
             }

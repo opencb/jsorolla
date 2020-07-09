@@ -169,19 +169,21 @@ class VariantInterpreterQc extends LitElement {
                                                          .active="${this.activeTab["Overview"]}">
                         </variant-interpreter-qc-overview>
                     </div>
-                    <div id="${this._prefix}VariantQc" role="tabpanel" class="tab-pane content-tab">
+                    <div id="${this._prefix}VariantQc" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
                         <variant-interpreter-qc-variant .opencgaSession="${this.opencgaSession}" 
                                                         .clinicalAnalysis="${this.clinicalAnalysis}"
                                                         .active="${this.activeTab["VariantQc"]}">
                         </variant-interpreter-qc-variant>
                     </div>
+                    <!--
                     <div id="${this._prefix}AlignmentQc" role="tabpanel" class="tab-pane container content-tab">
                         <variant-interpreter-qc-alignment   .opencgaSession="${this.opencgaSession}" 
                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                                             .active="${this.activeTab["AlignmentQc"]}">
                         </variant-interpreter-qc-alignment>
                     </div>
-                    <div id="${this._prefix}GeneCoverage" role="tabpanel" class="tab-pane container content-tab">
+                    -->
+                    <div id="${this._prefix}GeneCoverage" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
                         <variant-interpreter-qc-gene-coverage   .opencgaSession="${this.opencgaSession}" 
                                                                 .cellbaseClient="${this.cellbaseClient}"
                                                                 .clinicalAnalysis="${this.clinicalAnalysis}"

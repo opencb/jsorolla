@@ -121,7 +121,10 @@ export default class OpencgaIndividualQcAnalysis extends LitElement {
                 }
             },
             execute: (opencgaSession, data, params) => {
-                opencgaSession.opencgaClient.variants().runIndividualQc(data, params);
+                let body = {};
+                data.individual ? body.individual = data.individual.join(",") : null;
+                data.sample ? body.sample = data.sample.join(",") : null;
+                opencgaSession.opencgaClient.variants().runIndividualQc(body, params);
             },
             result: {
             }

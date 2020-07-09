@@ -107,11 +107,9 @@ class VariantInterpreterQcVariant extends LitElement {
         // Variant stats are different for SINGLE, FAMILY and CANCER analysis, this does not happens with Alignment
         if (this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY") {
             return html`
-                <div class="container"></div>
-                <div class="row">
-                    <div class="col-md-10 col-md-offset-1">
-                        <tool-header title="RD Variant Stats" class="bg-white"></tool-header>
-
+                <div class="">
+                    <tool-header title="RD Variant Stats - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
+                    <div style="padding: 0px 15px">
                         <variant-interpreter-qc-variant-family  .clinicalAnalysis="${this.clinicalAnalysis}"
                                                                 .opencgaSession="${this.opencgaSession}" >
                         </variant-interpreter-qc-variant-family>
@@ -122,10 +120,9 @@ class VariantInterpreterQcVariant extends LitElement {
 
         if (this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
             return html`
-                <div class="container"></div>
-                <div class="row">
-                    <div class="col-md-10 col-md-offset-1">
-                        <tool-header title="RD Variant Stats" class="bg-white"></tool-header>
+                <div class="">
+                    <tool-header title="RD Variant Stats - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
+                    <div  style="padding: 0px 15px">
                         <variant-interpreter-qc-variant-cancer  .clinicalAnalysis="${this.clinicalAnalysis}" 
                                                                 .opencgaSession="${this.opencgaSession}" 
                                                                 ?active="${this.active}">

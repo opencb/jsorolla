@@ -43,7 +43,7 @@ export default class GeneCoverageBrowser extends LitElement {
             cellbaseClient: {
                 type: Object
             },
-            file: {
+            fileId: {
                 type: String
             }
         };
@@ -58,7 +58,7 @@ export default class GeneCoverageBrowser extends LitElement {
         this.loading = false;
         this.transcriptCoverageStatsMap = {};
         this.geneIds = [];
-        // this.file = "SonsAlignedBamFile.bam";
+        // this.fileId = "SonsAlignedBamFile.bam";
         this.geneCoverageStats = {};
     }
 
@@ -74,7 +74,7 @@ export default class GeneCoverageBrowser extends LitElement {
     }
 
     fileObserver() {
-        if (!this.file) {
+        if (!this.fileId) {
             this.errorState = "BAM file not available.";
         } else {
             this.errorState = false;
@@ -119,14 +119,14 @@ export default class GeneCoverageBrowser extends LitElement {
 
 
     async fetchData(geneId) {
-        if(this.geneCoverageStats[geneId]) {
+        if (this.geneCoverageStats[geneId]) {
             console.error("gene", geneId, "already fetched")
             return;
         }
         this.loading = true;
         //debugger
         await this.requestUpdate();
-        this.opencgaSession.opencgaClient.alignments().statsCoverage(this.file, geneId, {study: this.opencgaSession.study.fqn})
+        this.opencgaSession.opencgaClient.alignments().statsCoverage(this.fileId, geneId, {study: this.opencgaSession.study.fqn})
             .then( restResponse => {
                 this.geneCoverageStats[geneId] = restResponse.getResult(0);
                 this.geneCoverageStats = {...this.geneCoverageStats};
@@ -277,7 +277,7 @@ export default class GeneCoverageBrowser extends LitElement {
     }
 
     render() {
-        if (this._config && this.file) {
+        if (this._config && this.fileId) {
             return html`
                 <style>
                     .coverage-table-close {
@@ -304,7 +304,7 @@ export default class GeneCoverageBrowser extends LitElement {
                                 <h3>Gene Coverage</h3>
                             </div>
                             <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
-                                <div class="btn-group" role="group">
+                                <div class="btn-group pull-left" role="group">
                                     ${Object.entries(this.geneCoverageStats).map(([geneId, _]) => html`
                                         <div class="btn-group">
                                             <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab[geneId]})}" @click="${this.onClickPill}" data-id="${geneId}">

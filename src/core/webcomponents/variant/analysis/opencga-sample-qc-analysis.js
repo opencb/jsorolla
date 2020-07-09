@@ -87,7 +87,6 @@ export default class OpencgaSampleQcAnalysis extends LitElement {
                                 type: "SAMPLE_FILTER",
                                 showList: true,
                                 fileUpload: true
-                                // colspan: 6
                             }
                         ]
                     },
@@ -179,7 +178,10 @@ export default class OpencgaSampleQcAnalysis extends LitElement {
                 }
             },
             execute: (opencgaSession, data, params) => {
-                opencgaSession.opencgaClient.variants().runSampleQc(data, params);
+                let body = {};
+                data.sample ? body.sample = data.sample.join(",") : null;
+                data.genesForCoverageStats ? body.genesForCoverageStats = data.genesForCoverageStats.join(",") : null;
+                opencgaSession.opencgaClient.variants().runSampleQc(body, params);
             },
             result: {
             }
