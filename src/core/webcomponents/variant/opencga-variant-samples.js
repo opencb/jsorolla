@@ -204,8 +204,6 @@ export default class OpencgaVariantSamples extends LitElement {
                                     for (let sample of samples) {
                                         sample.attributes.OPENCGA_VARIANT = variantSampleInfo[sample.id];
                                     }
-
-                                    console.error(samples)
                                     params.success(samples);
                                 })
                                 .catch(e => {

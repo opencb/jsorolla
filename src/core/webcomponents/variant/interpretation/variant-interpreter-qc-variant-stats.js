@@ -87,6 +87,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
     }
 
     clinicalAnalysisObserver() {
+        //TODO use ClinicalAnalysisUtils
         if (this.clinicalAnalysis) {
             switch (this.clinicalAnalysis.type.toUpperCase()) {
                 case "SINGLE":
@@ -94,30 +95,30 @@ class VariantInterpreterQcVariantStats extends LitElement {
                     this.statsSelect = [
                         {
                             id: this.clinicalAnalysis.proband.samples[0].id,
-                            fields: this.clinicalAnalysis.proband.samples[0].annotationSets
-                                .map( set => ({id: this.clinicalAnalysis.proband.samples[0].id + ":" + set.id.toUpperCase(), name: set.name}))
+                            fields: this.clinicalAnalysis.proband.samples[0].qualityControl.metrics[0].variantStats
+                                .map( vStats => ({id: this.clinicalAnalysis.proband.samples[0].id + ":" + vStats.id.toUpperCase(), name: vStats.id}))
                         },
                         ...this.clinicalAnalysis?.family?.members
                             .filter(member => member.id !== this.clinicalAnalysis.proband.id)
                             .map(member => (
                                 {
                                     id: member.samples[0].id,
-                                    fields: member.samples[0].annotationSets.map( set => ({id: member.samples[0].id + ":" + set.id.toUpperCase(), name: set.name}))
+                                    fields: member.samples[0].qualityControl.metrics[0].variantStats
+                                        .map( vStats => ({id: member.samples[0].id + ":" + vStats.id.toUpperCase(), name: vStats.id}))
                                 })
                             )
                     ];
                     break;
                 case "CANCER":
-                    this.statsSelect = this.clinicalAnalysis.proband.samples[0].annotationSets.map( set => ({id: this.clinicalAnalysis.proband.samples[0].id + ":" + set.id.toUpperCase(), name: set.name}));
+                    this.statsSelect = this.clinicalAnalysis.proband.samples[0].qualityControl.metrics[0].variantStats.map( vStats => ({id: this.clinicalAnalysis.proband.samples[0].id + ":" + vStats.id.toUpperCase(), name: vStats.id}));
                     break;
-
-
             }
         }
-        // this.stats = this.clinicalAnalysis.proband.samples[0].annotationSets.find( annotationSet => annotationSet.id.toUpperCase() === "OPENCGA_SAMPLE_VARIANT_STATS");
         let sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis);
         if (sampleQc?.metrics.length > 0) {
             this.variantStats = sampleQc.metrics[0].variantStats[0];
+
+            this.selectedStat = this.clinicalAnalysis.proband.samples[0].id + ":" + this.variantStats.id.toUpperCase();
             if (!this.variantStats) {
                 console.error("Sample variant stats unavailable")
             }
@@ -126,30 +127,18 @@ class VariantInterpreterQcVariantStats extends LitElement {
     }
 
     onSampleChange(e) {
-        // let [sampleId, stats] = e.detail.value.split(":");
-        let sampleId = e.currentTarget.value;
-        console.log(sampleId)
+        this.selectedStat = e.detail.value;
+        let [sampleId, statsId] = this.selectedStat.split(":");
         this.stats = null;
         for (let member of this.clinicalAnalysis.family.members) {
-            // for (let sample of member.samples) {
-            //     if (sample.id === sampleId) {
-            //         for (let annotationSet of sample.annotationSets) {
-            //             if (annotationSet.id.toUpperCase() === stats) {
-            //                 this.stats = annotationSet;
-            //             }
-            //         }
-            //     }
-            // }
-            if (member.samples[0].id === sampleId && member.samples[0].qualityControl?.metrics[0]?.variantStats[0]?.stats) {
-                this.variantStats = member.samples[0].qualityControl.metrics[0].variantStats[0];
-                // this.stats = member.samples[0].qualityControl.metrics[0].variantStats[0].stats;
+            const vStat = member.samples[0].qualityControl?.metrics[0]?.variantStats.find( vStat => vStat.id === statsId);
+            if (member.samples[0].id === sampleId && vStat) {
+                this.variantStats = vStat;
             }
         }
-
         if (!this.variantStats) {
             console.error("No stats found");
         }
-
         this.requestUpdate();
     }
 
@@ -215,24 +204,20 @@ class VariantInterpreterQcVariantStats extends LitElement {
                         <form class="form-inline">
                             <div class="form-group gene-selector">
                                 <label>Select Stat</label>
-                                <select class="form-control" @change="${this.onSampleChange}">
-                                    ${this.statsSelect && this.statsSelect.length
-                                        ? this.statsSelect.map(sample => html`
-                                            <option value="${sample.id}">${sample.id}</option>
-                                        `)
-                                        : null
-                                    }
-                                </select>
+                                <select-field-filter .data="${this.statsSelect}" .value=${this.selectedStat} @filterChange="${this.onSampleChange}"></select-field-filter>
                             </div>
                             
                         </form>
-                        <form>
-                        <div class="form-group gene-selector">
-                            <label>Stats Query</label>
-                                <span>${this.variantStats?.query}</span>
+                        
+                        ${this.variantStats?.query ? html`
+                            <div class="form-group gene-selector">
+                                <form>
+                                    <label>Stats Query</label>
+                                        <span>${this.variantStats?.query.map( q => html`<span class="badge">${q}</span>`)}</span>
+                                    </div>
+                                </form>
                             </div>
-                        </form>
-                    </div>
+                        ` : null}
 
                     <h3>Variant Stats</h3>
                     <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" .sampleVariantStats="${this.variantStats?.stats}"> </sample-variant-stats-view>

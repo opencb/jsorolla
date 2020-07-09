@@ -87,6 +87,7 @@ export default class SelectFieldFilter extends LitElement {
         if (_changedProperties.has("data")) {
             // TODO check why lit-element execute this for all existing select-field-filter instances..wtf
             // console.log("data",this.data)
+            this.data = this.data ?? [];
             this.selectPicker.selectpicker("refresh");
         }
         if (_changedProperties.has("value")) {
@@ -135,7 +136,7 @@ export default class SelectFieldFilter extends LitElement {
                         title="${this.placeholder ? this.placeholder : "Select an option"}"
                         data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}" 
                         @change="${this.filterChange}" data-width="100%">
-                    ${this.data.map(opt => html`
+                    ${this.data?.map(opt => html`
                         ${opt.separator ? html`<option data-divider="true"></option>` : html`
                             ${opt.fields ? html`
                                 <optgroup label="${opt.id ?? opt.name}">${opt.fields.map(subopt => html`
