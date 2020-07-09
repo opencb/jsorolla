@@ -73,6 +73,19 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
         }
     }
 
+    individualIdObserver() {
+        if (this.opencgaSession && this.individualId) {
+            this.opencgaSession.opencgaClient.individuals().info(this.individualId, {study: this.opencgaSession.study.fqn})
+                .then( response => {
+                    this.individuals = response.responses[0].results;
+                    this.requestUpdate();
+                })
+                .catch(function(reason) {
+                    console.error(reason);
+                });
+        }
+    }
+
     onDownload(e) {
         let dataString = [];
         let mimeType = "";
@@ -137,19 +150,6 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
         setTimeout(function() {
             document.body.removeChild(a);
         }, 0);
-    }
-
-    individualIdObserver() {
-        if (this.opencgaSession && this.individualId) {
-            this.opencgaSession.opencgaClient.individuals().info(this.individualId, {study: this.opencgaSession.study.fqn})
-                .then( response => {
-                    this.individuals = response.responses[0].results;
-                    this.requestUpdate();
-                })
-                .catch(function(reason) {
-                    console.error(reason);
-                });
-        }
     }
 
     renderTable() {

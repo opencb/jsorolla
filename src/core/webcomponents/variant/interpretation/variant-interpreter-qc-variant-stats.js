@@ -89,6 +89,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
     clinicalAnalysisObserver() {
         if (this.clinicalAnalysis) {
             switch (this.clinicalAnalysis.type.toUpperCase()) {
+                case "SINGLE":
                 case "FAMILY":
                     this.statsSelect = [
                         {
@@ -96,7 +97,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
                             fields: this.clinicalAnalysis.proband.samples[0].annotationSets
                                 .map( set => ({id: this.clinicalAnalysis.proband.samples[0].id + ":" + set.id.toUpperCase(), name: set.name}))
                         },
-                        ...this.clinicalAnalysis.family.members
+                        ...this.clinicalAnalysis?.family?.members
                             .filter(member => member.id !== this.clinicalAnalysis.proband.id)
                             .map(member => (
                                 {
@@ -109,6 +110,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
                 case "CANCER":
                     this.statsSelect = this.clinicalAnalysis.proband.samples[0].annotationSets.map( set => ({id: this.clinicalAnalysis.proband.samples[0].id + ":" + set.id.toUpperCase(), name: set.name}));
                     break;
+
 
             }
         }
