@@ -60,6 +60,7 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
 
         this.save = {};
         this.preparedQuery = {};
+        this.loading = false;
     }
 
     connectedCallback() {
@@ -115,7 +116,9 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
         this.requestUpdate();
     }
 
-    onVariantFilterSearch(e) {
+    async onVariantFilterSearch(e) {
+        this.loading = true;
+        await this.requestUpdate();
         console.log("onVariantFilterSearch", e)
         //this.preparedQuery = this._prepareQuery(e.detail.query); //TODO check if we need to process e.detail.query
         this.query = {...e.detail.query};
@@ -159,9 +162,15 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                     }
                 }
                 this.requestUpdate();
-            });
+            })
+            .catch (restResponse => {
+                console.log(restResponse)
+            })
+            .finally( () => {
+                this.loading = false;
+                this.requestUpdate();
+            })
 
-        this.requestUpdate();
     }
 
     onActiveFilterChange(e) {
@@ -418,9 +427,12 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                                                 @activeFilterClear="${this.onActiveFilterClear}">
                         </opencga-active-filters>
                       
-                        <div class="main-view" style="padding: 0px 15px">
+                        <div class="main-view">
                             <div class="row">
-                                ${!this.aggregationStatsResults ? html`
+                                ${this.loading ? html`
+                                    <div id="loading">
+                                        <loading-spinner></loading-spinner>
+                                    </div>` : !this.aggregationStatsResults ? html`
                                 <div class="alert alert-info" role="alert"><i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.</div>
                                 ` : html`
                                     <div class="col-md-12">

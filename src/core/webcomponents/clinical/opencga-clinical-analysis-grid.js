@@ -626,7 +626,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             detailView: false,
             detailFormatter: this.detailFormatter, // function with the detail formatter
             showSelectCheckbox: false,
-            showDeleteButton: true,
+            showDeleteButton: false,
             showToolbar: true,
             header: {
                 horizontalAlign: "center",

@@ -102,7 +102,7 @@ export default class OpencgaClinicalPortal extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Clinical Interpretation Portal",
+            title: "Case Portal",
             showTitle: true,
             icon: "fas fa-window-restore"
             // grid: {

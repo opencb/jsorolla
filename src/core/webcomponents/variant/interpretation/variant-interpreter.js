@@ -153,7 +153,7 @@ class VariantInterpreter extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Variant Interpreter",
+            title: "Case Interpreter",
             icon: "fas fa-user-md",
             active: false,
             tools: [

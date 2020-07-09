@@ -189,7 +189,7 @@ class VariantInterpreterQcOverview extends LitElement {
                           data-id="GeneCoverageStats" @click="${this.onSideNavClick}">Gene Coverage Stats</button>
                 </div>
                 <div class="col-md-10">
-                    <div class="content-tab-wrapper interpreter-content-tab" style="padding: 10px 15px">
+                    <div class="content-tab-wrapper interpreter-content-tab">
                         <div id="${this._prefix}Summary" role="tabpanel" class="tab-pane content-tab active">
                             <variant-interpreter-qc-summary .opencgaSession=${this.opencgaSession}
                                                             .clinicalAnalysis=${this.clinicalAnalysis} 
@@ -212,6 +212,7 @@ class VariantInterpreterQcOverview extends LitElement {
                         </div>
                         
                         <div id="${this._prefix}VariantStats" role="tabpanel" class="tab-pane content-tab">
+                            <h3>Variant Stats</h3>
                             <variant-interpreter-qc-variant-stats     .opencgaSession=${this.opencgaSession} 
                                                                         .clinicalAnalysis="${this.clinicalAnalysis}">
                             </variant-interpreter-qc-variant-stats>
@@ -219,11 +220,10 @@ class VariantInterpreterQcOverview extends LitElement {
                         
                         <div id="${this._prefix}MendelianErrors" role="tabpanel" class="tab-pane content-tab">
                             <h3>Mendelian Errors</h3>
-                            <div style="padding: 15px 0px">
-                                <variant-interpreter-qc-mendelian-errors    .opencgaSession=${this.opencgaSession} 
-                                                                            .clinicalAnalysis="${this.clinicalAnalysis}">
-                                </variant-interpreter-qc-mendelian-errors>
-                            </div>
+                            <variant-interpreter-qc-mendelian-errors    .opencgaSession=${this.opencgaSession} 
+                                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
+                            </variant-interpreter-qc-mendelian-errors>
+                           
                         </div>
                         
                         <div id="${this._prefix}AlignmentStats" role="tabpanel" class="tab-pane content-tab">

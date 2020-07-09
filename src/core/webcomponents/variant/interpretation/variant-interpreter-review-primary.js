@@ -390,7 +390,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "RD Variant Interpreter",
+            title: "RD Case Interpreter",
             showTitle: false,
             result: {
                 grid: {

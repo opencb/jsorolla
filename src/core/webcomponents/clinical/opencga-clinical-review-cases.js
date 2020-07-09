@@ -257,7 +257,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                 pageSize: 5,
                 pageList: [5, 10, 25],
                 detailView: false,
-                multiSelection: false
+                multiSelection: false,
+                showDeleteButton: false
             }
         };
     }

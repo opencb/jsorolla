@@ -233,7 +233,7 @@ class VariantInterpreterCancerBrowser extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Cancer Variant Interpreter",
+            title: "Cancer Case Interpreter",
             icon: "fas fa-search",
             active: false,
             showOtherTools: false,

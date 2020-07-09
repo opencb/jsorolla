@@ -368,7 +368,7 @@ class VariantInterpreterRdBrowser extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "RD Variant Interpreter",
+            title: "RD Case Interpreter",
             showSaveInterpretation: true,
             showOtherTools: true,
             showTitle: false,
