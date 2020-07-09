@@ -102,11 +102,11 @@ export default class ClinvarAccessionsFilter extends LitElement {
     getDefaultConfig() {
         return {
             clinicalSignificanceValues: {
-                BB: "Benign",
-                LB: "Likely benign",
-                US: "Uncertain significance",
-                LP: "Likely pathogenic",
-                PP: "Pathogenic"
+                benign: "Benign",
+                likely_benign: "Likely benign",
+                uncertain_significance: "Uncertain significance",
+                likely_pathogenic: "Likely pathogenic",
+                pathogenic: "Pathogenic"
             }
         };
     }
