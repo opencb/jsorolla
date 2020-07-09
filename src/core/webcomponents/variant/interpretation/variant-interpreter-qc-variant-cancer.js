@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-//import Circos from "./test/circos.js";
 import "./variant-interpreter-qc-cancer-plots.js";
 import "../opencga-variant-filter.js";
 import "../../commons/opencga-active-filters.js";
@@ -40,14 +39,14 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            clinicalAnalysisId: {
+                type: String
+            },
             clinicalAnalysis: {
                 type: Object
             },
             query: {
                 type: Object
-            },
-            sampleId: {
-                type: String
             },
             active: {
                 type: Boolean
@@ -61,7 +60,6 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
     _init(){
         this._prefix = "sf-" + UtilsNew.randomString(6);
 
-        // this.base64 = "data:image/png;base64, " + Circos.base64;
         this.save = {};
         this.settings = {
             density: "MEDIUM",
@@ -76,8 +74,21 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("query") || changedProperties.has("sampleId")) {
+        if (changedProperties.has("clinicalAnalysis")) {
+            // Select the somatic sample
+            this.sample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
+        }
+
+        if (changedProperties.has("clinicalAnalysisId")) {
+            this.clinicalAnalysisIdObserver();
+        }
+
+        if (changedProperties.has("query")) {
             this.queryObserver();
+        }
+
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 
@@ -87,6 +98,21 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
             this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
         }
         this.requestUpdate();
+    }
+
+    clinicalAnalysisIdObserver() {
+        if (this.opencgaSession && this.clinicalAnalysisId) {
+            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.clinicalAnalysis = response.responses[0].results[0];
+                    // Select the somatic sample
+                    this.sample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
+                    this.requestUpdate();
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                });
+        }
     }
 
     onVariantFilterChange(e) {
@@ -119,8 +145,6 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
     }
 
     onSettingsFieldChange(e) {
-        e.detail;
-        debugger
         switch (e.detail.param) {
             case "density":
                 this.settings.id = e.detail.value;
@@ -148,24 +172,95 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
     onSettingsOk(e) {
     }
 
-    onSave(e) {
-        this.save.sampleId = this.clinicalAnalysis.proband.samples[0].id;
-        this.save.query = this.executedQuery ? this.executedQuery : {};
-        console.log(e.detail);
-        debugger
-        this.opencgaSession.opencgaClient.clinical().updateQualityControl(this.clinicalAnalysis.id, {
-            study: this.opencgaSession.study.fqn,
-            ...this.query
-        }).then( restResult => {
-            debugger
-            this.signature = restResult.getResult(0).signature;
-        }).catch( restResponse => {
-            this.signature = {
-                errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
+    /**
+     * Prepare sampleVariantStats data for the onSave function.
+     * @param e
+     */
+    onChangeAggregationStatsResults(e) {
+        // Parse aggregationStatsResults and create a sampleVariantStats
+        let aggregationStatsResults = e.detail.aggregationStatsResults;
+        if (aggregationStatsResults) {
+            this.sampleVariantStats = {
+                id: this.sample.id
             };
-        }).finally( () => {
-            this.requestUpdate();
-        })
+            for (let aggregatedResult of aggregationStatsResults) {
+                let values = {};
+                for (let bucket of aggregatedResult.buckets) {
+                    values[bucket.value] = bucket.count;
+                }
+                switch (aggregatedResult.name) {
+                    case "chromosome":
+                        this.sampleVariantStats.variantCount = aggregatedResult.count;
+                        this.sampleVariantStats.chromosomeCount = values;
+                        break;
+                    case "genotype":
+                        this.sampleVariantStats.genotypeCount = values;
+                        break;
+                    case "type":
+                        this.sampleVariantStats.typeCount = values;
+                        break;
+                    case "biotype":
+                        this.sampleVariantStats.biotypeCount = values;
+                        break;
+                    case "consequenceType":
+                        this.sampleVariantStats.consequenceTypeCount = values;
+                        break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Save signature for onSave function.
+     * @param e
+     */
+    onChangeSignature(e) {
+        this.signature = e.detail.signature;
+    }
+
+    onSave(e) {
+        // Search bamFile for the sample
+        let bamFile = this.clinicalAnalysis.files.find(file => file.format === "BAM" && file.samples.some(sample => sample.id === this.sample.id));
+        let variantStats = {
+            id: this.save.id,
+            query: this.executedQuery || {},
+            description: this.save.description || "",
+            stats: this.sampleVariantStats
+        };
+
+        // Check if a metric object for that bamFileId exists
+        let metric = this.sample?.qualityControl?.metrics.find(metric => metric.bamFileId === bamFile.id);
+        if (metric) {
+            // Push the stats and signature in the existing metric object
+            metric.variantStats.push(variantStats);
+            metric.signatures.push(this.signature);
+        } else {
+            // create a new metric
+            metric = {
+                bamFileId: bamFile.id,
+                variantStats: [variantStats],
+                signatures: [this.signature]
+            }
+            // Check if this is the first metric object
+            if (this.sample?.qualityControl?.metrics) {
+                this.sample.qualityControl.metrics.push(metric);
+            } else {
+                this.sample["qualityControl"] = {
+                    metrics: [metric]
+                };
+            }
+        }
+
+        this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})
+            .then( restResponse => {
+                console.log(restResponse);
+            })
+            .catch( restResponse => {
+                console.error(restResponse);
+            })
+            .finally( () => {
+                this.requestUpdate();
+            })
     }
 
     getSettingsConfig() {
@@ -406,8 +501,10 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                         <div class="col-md-12"> 
                             <variant-interpreter-qc-cancer-plots    .opencgaSession="${this.opencgaSession}"
                                                                     .query="${this.executedQuery}"
-                                                                     .sampleId="${this.sampleId}"
-                                                                    .active="${this.active}">
+                                                                    .sampleId="${this.sample?.id}"
+                                                                    .active="${this.active}"
+                                                                    @changeSignature="${this.onChangeSignature}"
+                                                                    @changeAggregationStatsResults="${this.onChangeAggregationStatsResults}">
                             </variant-interpreter-qc-cancer-plots>
                         </div>
                     </div>

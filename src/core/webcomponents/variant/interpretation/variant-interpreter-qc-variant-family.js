@@ -37,18 +37,21 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            query: {
+            clinicalAnalysisId: {
+                type: String
+            },
+            clinicalAnalysis: {
                 type: Object
             },
-            sampleId: {
-                type: String
+            query: {
+                type: Object
             },
             config: {
                 type: Object
             },
-            active: {
-                type: Boolean
-            }
+            // active: {
+            //     type: Boolean
+            // }
         }
     }
 
@@ -65,16 +68,22 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    firstUpdated(_changedProperties) {
-
-    }
-
     updated(changedProperties) {
-        if (changedProperties.has("sampleId")) {
-            this.sampleIdObserver();
+        if (changedProperties.has("clinicalAnalysis")) {
+            // There must be just one sample
+            this.sample = this.clinicalAnalysis.proband.samples[0];
         }
+
+        if (changedProperties.has("clinicalAnalysisId")) {
+            this.clinicalAnalysisIdObserver();
+        }
+
         if (changedProperties.has("query")) {
             this.queryObserver();
+        }
+
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 
@@ -86,19 +95,17 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
         this.requestUpdate();
     }
 
-    sampleIdObserver() {
-        if (this.opencgaSession && this.sampleId) {
-            const query = {
-                study: this.opencgaSession.study.fqn,
-                includeIndividual: true
-            };
-            this.opencgaSession.opencgaClient.samples().info(this.sampleId, query)
+    clinicalAnalysisIdObserver() {
+        if (this.opencgaSession && this.clinicalAnalysisId) {
+            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    this.sample = response.responses[0].results[0];
+                    this.clinicalAnalysis = response.responses[0].results[0];
+                    // There must be just one sample
+                    this.sample = this.clinicalAnalysis.proband.samples[0];
                     this.requestUpdate();
                 })
-                .catch(reason => {
-                    console.error(reason);
+                .catch(response => {
+                    console.error("An error occurred fetching clinicalAnalysis: ", response);
                 });
         }
     }
@@ -180,19 +187,42 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
     }
 
     onSave(e) {
+        // Search bamFile for the sample
+        let bamFile = this.clinicalAnalysis.files.find(file => file.format === "BAM" && file.samples.some(sample => sample.id === this.sample.id));
         let variantStats = {
             id: this.save.id,
-            query: this.executedQuery,
-            description: this.save.description,
+            query: this.executedQuery || {},
+            description: this.save.description || "",
             stats: this.sampleVariantStats
         };
-        this.sample.qualityControl.metrics[0].variantStats.push(variantStats);
+
+        // Check if a metric object for that bamFileId exists
+        let metric = this.sample?.qualityControl?.metrics.find(metric => metric.bamFileId === bamFile.id);
+        if (metric) {
+            // Push the stats and signature in the existing metric object
+            metric.variantStats.push(variantStats);
+        } else {
+            // create a new metric
+            metric = {
+                bamFileId: bamFile.id,
+                variantStats: [variantStats],
+            }
+            // Check if this is the first metric object
+            if (this.sample?.qualityControl?.metrics) {
+                this.sample.qualityControl.metrics.push(metric);
+            } else {
+                this.sample["qualityControl"] = {
+                    metrics: [metric]
+                };
+            }
+        }
+
         this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})
-            .then( restResult => {
-                debugger
+            .then( restResponse => {
+                console.log(restResponse);
             })
             .catch( restResponse => {
-                console.log(restResponse);
+                console.error(restResponse);
             })
             .finally( () => {
                 this.requestUpdate();

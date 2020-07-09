@@ -107,23 +107,13 @@ class VariantInterpreterQcVariant extends LitElement {
         // Variant stats are different for SINGLE, FAMILY and CANCER analysis, this does not happens with Alignment
         if (this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY") {
             return html`
-                <div class="container">
-                    
-                    <!--
-                    <div style="margin-top: 20px; float: right">
-                        <button class="btn btn-primary" @click="${this.onCloseClinicalAnalysis}">
-                            <i class="fas fa-save" style="padding-right: 10px"></i>Save
-                        </button>
-                    </div>
-                    -->
-                </div>
+                <div class="container"></div>
                 <div class="row">
                     <div class="col-md-10 col-md-offset-1">
                         <tool-header title="RD Variant Stats" class="bg-white"></tool-header>
 
-                        <variant-interpreter-qc-variant-family  .opencgaSession="${this.opencgaSession}" 
-                                                                .sampleId="${this.clinicalAnalysis.proband.samples[0].id}" 
-                                                                ?active="${this.active}">
+                        <variant-interpreter-qc-variant-family  .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                .opencgaSession="${this.opencgaSession}" >
                         </variant-interpreter-qc-variant-family>
                     </div>
                 </div>
@@ -132,21 +122,12 @@ class VariantInterpreterQcVariant extends LitElement {
 
         if (this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
             return html`
-                <div class="container">
-                    <!--
-                    <div style="margin-top: 20px; float: right">
-                        <button class="btn btn-primary" @click="${this.onCloseClinicalAnalysis}">
-                            <i class="fas fa-save" style="padding-right: 10px"></i>Save
-                        </button>
-                    </div>
-                    -->
-                </div>
+                <div class="container"></div>
                 <div class="row">
                     <div class="col-md-10 col-md-offset-1">
                         <tool-header title="RD Variant Stats" class="bg-white"></tool-header>
                         <variant-interpreter-qc-variant-cancer  .clinicalAnalysis="${this.clinicalAnalysis}" 
                                                                 .opencgaSession="${this.opencgaSession}" 
-                                                                .sampleId="${this.clinicalAnalysis.proband.samples[0].id}" 
                                                                 ?active="${this.active}">
                         </variant-interpreter-qc-variant-cancer>
                     </div>

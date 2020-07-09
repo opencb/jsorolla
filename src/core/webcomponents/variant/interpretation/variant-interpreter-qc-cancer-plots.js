@@ -90,6 +90,13 @@ export default class VariantInterpreterQcCancerPlots extends LitElement {
             ...this.query
         }).then( restResult => {
             this.signature = restResult.getResult(0).signature;
+            this.dispatchEvent(new CustomEvent("changeSignature", {
+                detail: {
+                    signature: this.signature,
+                },
+                bubbles: true,
+                composed: true
+            }));
         }).catch( restResponse => {
             this.signature = {
                 errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
@@ -109,6 +116,13 @@ export default class VariantInterpreterQcCancerPlots extends LitElement {
         this.opencgaSession.opencgaClient.variants().aggregationStats(params)
             .then(response => {
                 this.aggregationStatsResults = response.responses[0].results;
+                this.dispatchEvent(new CustomEvent("changeAggregationStatsResults", {
+                    detail: {
+                        aggregationStatsResults: this.aggregationStatsResults,
+                    },
+                    bubbles: true,
+                    composed: true
+                }));
             })
             .catch( restResponse => {
                 this.stats = {
