@@ -87,6 +87,9 @@ class VariantInterpreterCancerBrowser extends LitElement {
 
         this.query = {};
         this._config = {...this.getDefaultConfig(), ...this.config};
+
+        this.predefinedFilter = false;
+
     }
 
     connectedCallback() {
@@ -118,9 +121,14 @@ class VariantInterpreterCancerBrowser extends LitElement {
         //     this.preparedQuery = this.query;
         //     this.executedQuery = this.query;
         // }
-        if (this.opencgaSession && this.query) {
-            this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
-            this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+        if (this.opencgaSession) {
+            if (this.query) {
+                this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+                this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+            } else {
+                this.preparedQuery = {study: this.opencgaSession.study.fqn};
+                this.executedQuery = {study: this.opencgaSession.study.fqn};
+            }
         }
         this.requestUpdate();
     }
@@ -208,6 +216,11 @@ class VariantInterpreterCancerBrowser extends LitElement {
 
     onVariantFilterChange(e) {
         this.preparedQuery = e.detail.query;
+        // TODO quick fix to avoid warning message on sample
+        if (!this.predefinedFilter) {
+            this.executedQuery = e.detail.query;
+            this.predefinedFilter = true;
+        }
         this.requestUpdate();
     }
 
@@ -238,9 +251,9 @@ class VariantInterpreterCancerBrowser extends LitElement {
             active: false,
             showOtherTools: false,
             showTitle: false,
+            searchButtonText: "Search",
             filter: {
                 title: "Filter",
-                searchButtonText: "Search",
                 activeFilters: {
                     alias: {
                         // Example:
@@ -249,7 +262,8 @@ class VariantInterpreterCancerBrowser extends LitElement {
                         "ct": "Consequence Types",
                     },
                     complexFields: ["sample", "genotype"],
-                    hiddenFields: []
+                    hiddenFields: [],
+                    lockedFields: [{id:"sample"}]
                 },
                 sections: [     // sections and subsections, structure and order is respected
                     {
@@ -519,7 +533,6 @@ class VariantInterpreterCancerBrowser extends LitElement {
                     font-weight: bold;
                 }
    
-    
                 .form-section-title {
                     padding: 5px 0px;
                     width: 95%;

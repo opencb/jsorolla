@@ -93,6 +93,7 @@ class VariantInterpreterRdBrowser extends LitElement {
 
         this.activeFilterFilters = [];
 
+        this.predefinedFilter = false; // flag that hides the warning message in active-filter for predefined samples value
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -125,9 +126,14 @@ class VariantInterpreterRdBrowser extends LitElement {
         //     this.preparedQuery = this.query;
         //     this.executedQuery = this.query;
         // }
-        if (this.opencgaSession && this.query) {
-            this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
-            this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+        if (this.opencgaSession) {
+            if (this.query) {
+                this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+                this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+            } else {
+                this.preparedQuery = {study: this.opencgaSession.study.fqn};
+                this.executedQuery = {study: this.opencgaSession.study.fqn};
+            }
         }
         this.requestUpdate();
     }
@@ -343,6 +349,11 @@ class VariantInterpreterRdBrowser extends LitElement {
 
     onVariantFilterChange(e) {
         this.preparedQuery = e.detail.query;
+        // TODO quick fix to avoid warning message on sample
+        if (!this.predefinedFilter) {
+            this.executedQuery = e.detail.query;
+            this.predefinedFilter = true;
+        }
         this.requestUpdate();
     }
 
@@ -372,9 +383,9 @@ class VariantInterpreterRdBrowser extends LitElement {
             showSaveInterpretation: true,
             showOtherTools: true,
             showTitle: false,
+            searchButtonText: "Search",
             filter: {
                 title: "Filter",
-                searchButtonText: "Search",
                 activeFilters: {
                     alias: {
                         // Example:
@@ -383,7 +394,8 @@ class VariantInterpreterRdBrowser extends LitElement {
                         "ct": "Consequence Types",
                     },
                     complexFields: ["sample", "genotype"],
-                    hiddenFields: []
+                    hiddenFields: [],
+                    lockedFields: [{id:"sample"}]
                 },
                 sections: [
                     {

@@ -432,6 +432,7 @@ export default class OpencgaActiveFilters extends LitElement {
 
     getDefaultConfig() {
         return {
+            searchButtonText: "SEARCH",
             alias: {
                 "region": "Region",
                 "gene": "Gene",
@@ -464,15 +465,14 @@ export default class OpencgaActiveFilters extends LitElement {
         return html`
         ${ this.facetActive ? html`
             <div class="alert alert-warning filter-warning" role="alert" id="${this._prefix}Warning" style="">
-                <span><strong>Warning!</strong></span>&nbsp;&nbsp;Filters or Facet has changed, please click on <strong> RUN </strong> to update the results.
+                <span><strong>Warning!</strong></span>&nbsp;&nbsp;Filters or Facets have changed, please click on <strong> ${this._config.searchButtonText} </strong> to update the results.
             </div>` : html`
             <div class="alert alert-warning filter-warning" role="alert" id="${this._prefix}Warning" style="">
-                <span><strong>Warning!</strong></span>&nbsp;&nbsp;Filters has changed, please click on <strong> RUN </strong> to update the results.
+                <span><strong>Warning!</strong></span>&nbsp;&nbsp;Filters have changed, please click on <strong> ${this._config.searchButtonText} </strong> to update the results.
             </div>
         `}
         
         <!-- <div class="alert alert-info">${JSON.stringify(this.queryList)}</div> --> 
-
         <div class="panel panel-default">
             <div class="panel-body" style="padding: 8px 10px">
                 <div class="lhs">
@@ -491,7 +491,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                 </button>
                             ` : html`
                                 <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
-                                         @click="${this.onQueryFilterDelete}" title="${item.message}" disabled>
+                                         @click="${this.onQueryFilterDelete}" title="${item.message ?? ''}" disabled>
                                     ${item.text}
                                 </button>
                             `}` : html`
@@ -614,4 +614,3 @@ export default class OpencgaActiveFilters extends LitElement {
 }
 
 customElements.define("opencga-active-filters", OpencgaActiveFilters);
-
