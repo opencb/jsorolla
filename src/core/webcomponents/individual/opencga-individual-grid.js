@@ -199,10 +199,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                 onLoadSuccess: data => {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
-                onLoadError: function(status, res) {
-                    console.error(status)
-                    console.error(res)
-                },
+                onLoadError: data => this.gridCommons.onLoadError(),
                 onPageChange: (page, size) => {
                     const result = this.gridCommons.onPageChange(page, size);
                     this.from = result.from || this.from;
