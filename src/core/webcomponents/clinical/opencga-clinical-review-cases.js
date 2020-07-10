@@ -135,10 +135,14 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         this.updateInputTextMenuItem(filterId, value);
     }
 
+    onEnter(e) {
+        if (e.which === 13) this.updateQuery();
+    }
+
     updateInputTextMenuItem(filterId, value) {
         const buttonElem = PolymerUtils.getElementById(this._prefix + filterId + "Menu");
-        console.log(buttonElem);
-        console.log(filterId, value, this[filterId]);
+        //console.log(buttonElem);
+        //console.log(filterId, value, this[filterId]);
         if (UtilsNew.isNotEmpty(value)) {
             this[filterId] = value;
             buttonElem.style.color = "#333";
@@ -314,166 +318,169 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
                 <div style="">
 
-                    <div class="panel panel-default" style="margin-bottom: 10px">
-                        <!--<div class="panel-heading">Case Filters</div>-->
-                        <div class="panel-body" style="padding: 10px">
-
-                            <div class="btn-group">
-                                <p class="active-filter-label">Filters</p>
-                            </div>
-
-                            <!-- Case ID -->
-                            <div class="btn-group">
-                                <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
-                                        id="${this._prefix}caseMenu"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                    <span class="ocap-text-button">Case: <span>${this.case}</span></span>&nbsp;<span class="caret"></span>
+                    <form @submit="${() => console.log("submit")}">
+                        <div class="panel panel-default" style="margin-bottom: 10px">
+                            <!--<div class="panel-heading">Case Filters</div>-->
+                            <div class="panel-body" style="padding: 10px">
+    
+                                <div class="btn-group">
+                                    <p class="active-filter-label">Filters</p>
+                                </div>
+    
+                                <!-- Case ID -->
+                                <div class="btn-group">
+                                    <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
+                                            id="${this._prefix}caseMenu"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                        <span class="ocap-text-button">Case: <span>${this.case}</span></span>&nbsp;<span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="${this._prefix}caseMenu">
+                                        <li style="padding: 5px;">
+                                            <div style="display: inline-flex; width: 300px;">
+                                                <label class="filter-label">Case ID:</label>
+                                                <input type="text" id="${this._prefix}caseInput" class="${this._prefix}-input form-control" data-id="case" placeholder="All" @input="${this.onFilterInputText}" @keypress="${this.onEnter}">
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+    
+                                <!-- Proband -->
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-default dropdown-toggle filter-button" style="width:125px; color: rgb(153, 153, 153);"
+                                            id="${this._prefix}probandMenu" title="${this.proband}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                        <span class="ocap-text-button">Proband: <span>${this.proband}</span></span>&nbsp; <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="${this._prefix}probandMenu">
+                                        <li style="padding: 5px;">
+                                            <div style="display: inline-flex;width: 300px">
+                                                <label class="filter-label">Proband ID:</label>
+                                                <input type="text" id="${this._prefix}probandInput" class="${this._prefix}-input form-control" data-id="proband" placeholder="All" @keyup="${this.onFilterInputText}" @keypress="${this.onEnter}">
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+    
+                                <!-- Family -->
+                                <div class="btn-group">
+                                    <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
+                                            id="${this._prefix}familyMenu" title="${this.family}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                        <span class="ocap-text-button">Family: <span>${this.family}</span></span>&nbsp; <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="${this._prefix}FamilyMenu">
+                                        <li style="padding: 5px;">
+                                            <div style="display: inline-flex; width: 300px;">
+                                                <label class="filter-label">Family ID:</label>
+                                                <input type="text" id="${this._prefix}familyInput" class="${this._prefix}-input form-control" data-id="family" placeholder="All" @input="${this.onFilterInputText}" @keypress="${this.onEnter}">
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+    
+                                <!-- Disorder -->
+                                <div class="btn-group">
+                                    <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
+                                            id="${this._prefix}disorderMenu" title="${this.disorder}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                        <span class="ocap-text-button">Disorder: <span>${this.disorder}</span></span>&nbsp; <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="${this._prefix}DisorderMenu">
+                                        <li style="padding: 5px;">
+                                            <div style="display: inline-flex; width: 300px;">
+                                                <label class="filter-label">Disorder ID:</label>
+                                                <input type="text" id="${this._prefix}disorderInput" class="${this._prefix}-input form-control" data-id="disorder" placeholder="All" @input="${this.onFilterInputText}" @keypress="${this.onEnter}">
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+    
+                                <!-- Type -->
+                                <div class="btn-group">
+                                    <select class="selectpicker" data-width="125px" id="${this._prefix}-type" multiple
+                                            title="Type: All" @change="${this.updateQuery}" style="width:125px; color: rgb(153, 153, 153);">
+                                        <option value="SINGLE">Single</option>
+                                        <option value="FAMILY">Family</option>
+                                        <option value="CANCER">Cancer</option>
+                                        <option value="COHORT">Cohort</option>
+                                        <option value="AUTOCOMPARATIVE">Autocomparative</option>
+                                    </select>
+                                </div>
+    
+                                <!-- Status -->
+                                <div class="btn-group">
+                                    <select class="selectpicker" data-width="125px" id="${this._prefix}-status" multiple
+                                            title="Status: All" @change="${this.updateQuery}">
+                                        <option value="INCOMPLETE">Incomplete</option>
+                                        <option value="READY_FOR_VALIDATION">Ready for Validation</option>
+                                        <option value="READY_FOR_INTERPRETATION">Ready for Interpretation</option>
+                                        <option value="INTERPRETATION_IN_PROGRESS">Interpretation in Progress</option>
+                                        <option value="READY_FOR_INTEPRETATION_REVIEW">Ready for Interpretation Review</option>
+                                        <option value="INTERPRETATION_REVIEW_IN_PROGRESS">Interpretation Review in Progress</option>
+                                        <option value="READY_FOR_REPORT">Ready for Report</option>
+                                        <option value="REPORT_IN_PROGRESS">Report in Progress</option>
+                                        <option value="DONE">Done</option>
+                                        <option value="REVIEW_IN_PROGRESS">Final Review in Progress</option>
+                                        <option value="REJECTED">Rejected</option>
+                                        <option value="CLOSED">Closed</option>
+                                    </select>
+                                </div>
+    
+                                <!-- Priority -->
+                                <div class="btn-group">
+                                    <select class="selectpicker" data-width="125px" id="${this._prefix}-priority" multiple
+                                            title="Priority: All" @change="${this.updateQuery}">
+                                        <option style="color: red; font-weight: bold;" value="URGENT">Urgent</option>
+                                        <option style="color: orange; font-weight: bold;" value="HIGH">High</option>
+                                        <option style="color: blue; font-weight: bold;" value="MEDIUM">Medium</option>
+                                        <option style="color: green; font-weight: bold;" value="LOW">Low</option>
+                                    </select>
+                                </div>
+    
+                                <!-- Assignees -->
+                                <div class="btn-group">
+                                    <select class="selectpicker" data-width="125px" id="${this._prefix}-assigned" multiple
+                                            title="Assignee: All" @change="${this.updateQuery}">
+                                            ${this._studyUsers && this._studyUsers.length ? this._studyUsers.map( item => html`
+                                                <option value="${item}">${item}</option>
+                                            `) : null }
+                                            
+                                    </select>
+                                </div>
+    
+                                <!-- Buttons -->
+                                <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.updateQuery}">
+                                        <i class="fa fa-search" aria-hidden="true" style="padding-right: 5px"></i> Search
                                 </button>
-                                <ul class="dropdown-menu" aria-labelledby="${this._prefix}caseMenu">
-                                    <li style="padding: 5px;">
-                                        <div style="display: inline-flex; width: 300px;">
-                                            <label class="filter-label">Case ID:</label>
-                                            <input type="text" id="${this._prefix}caseInput" class="${this._prefix}-input form-control" data-id="case" placeholder="All" @input="${this.onFilterInputText}">
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <!-- Proband -->
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-default dropdown-toggle filter-button" style="width:125px; color: rgb(153, 153, 153);"
-                                        id="${this._prefix}probandMenu" title="${this.proband}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                    <span class="ocap-text-button">Proband: <span>${this.proband}</span></span>&nbsp; <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="${this._prefix}probandMenu">
-                                    <li style="padding: 5px;">
-                                        <div style="display: inline-flex;width: 300px">
-                                            <label class="filter-label">Proband ID:</label>
-                                            <input type="text" id="${this._prefix}probandInput" class="${this._prefix}-input form-control" data-id="proband" placeholder="All" @keyup="${this.onFilterInputText}">
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <!-- Family -->
-                            <div class="btn-group">
-                                <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
-                                        id="${this._prefix}familyMenu" title="${this.family}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                    <span class="ocap-text-button">Family: <span>${this.family}</span></span>&nbsp; <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="${this._prefix}FamilyMenu">
-                                    <li style="padding: 5px;">
-                                        <div style="display: inline-flex; width: 300px;">
-                                            <label class="filter-label">Family ID:</label>
-                                            <input type="text" id="${this._prefix}familyInput" class="${this._prefix}-input form-control" data-id="family" placeholder="All" @input="${this.onFilterInputText}">
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <!-- Disorder -->
-                            <div class="btn-group">
-                                <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
-                                        id="${this._prefix}disorderMenu" title="${this.disorder}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                    <span class="ocap-text-button">Disorder: <span>${this.disorder}</span></span>&nbsp; <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="${this._prefix}DisorderMenu">
-                                    <li style="padding: 5px;">
-                                        <div style="display: inline-flex; width: 300px;">
-                                            <label class="filter-label">Disorder ID:</label>
-                                            <input type="text" id="${this._prefix}disorderInput" class="${this._prefix}-input form-control" data-id="disorder" placeholder="All" @input="${this.onFilterInputText}">
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <!-- Type -->
-                            <div class="btn-group">
-                                <select class="selectpicker" data-width="125px" id="${this._prefix}-type" multiple
-                                        title="Type: All" @change="${this.updateQuery}" style="width:125px; color: rgb(153, 153, 153);">
-                                    <option value="SINGLE">Single</option>
-                                    <option value="FAMILY">Family</option>
-                                    <option value="CANCER">Cancer</option>
-                                    <option value="COHORT">Cohort</option>
-                                    <option value="AUTOCOMPARATIVE">Autocomparative</option>
-                                </select>
-                            </div>
-
-                            <!-- Status -->
-                            <div class="btn-group">
-                                <select class="selectpicker" data-width="125px" id="${this._prefix}-status" multiple
-                                        title="Status: All" @change="${this.updateQuery}">
-                                    <option value="INCOMPLETE">Incomplete</option>
-                                    <option value="READY_FOR_VALIDATION">Ready for Validation</option>
-                                    <option value="READY_FOR_INTERPRETATION">Ready for Interpretation</option>
-                                    <option value="INTERPRETATION_IN_PROGRESS">Interpretation in Progress</option>
-                                    <option value="READY_FOR_INTEPRETATION_REVIEW">Ready for Interpretation Review</option>
-                                    <option value="INTERPRETATION_REVIEW_IN_PROGRESS">Interpretation Review in Progress</option>
-                                    <option value="READY_FOR_REPORT">Ready for Report</option>
-                                    <option value="REPORT_IN_PROGRESS">Report in Progress</option>
-                                    <option value="DONE">Done</option>
-                                    <option value="REVIEW_IN_PROGRESS">Final Review in Progress</option>
-                                    <option value="REJECTED">Rejected</option>
-                                    <option value="CLOSED">Closed</option>
-                                </select>
-                            </div>
-
-                            <!-- Priority -->
-                            <div class="btn-group">
-                                <select class="selectpicker" data-width="125px" id="${this._prefix}-priority" multiple
-                                        title="Priority: All" @change="${this.updateQuery}">
-                                    <option style="color: red; font-weight: bold;" value="URGENT">Urgent</option>
-                                    <option style="color: orange; font-weight: bold;" value="HIGH">High</option>
-                                    <option style="color: blue; font-weight: bold;" value="MEDIUM">Medium</option>
-                                    <option style="color: green; font-weight: bold;" value="LOW">Low</option>
-                                </select>
-                            </div>
-
-                            <!-- Assignees -->
-                            <div class="btn-group">
-                                <select class="selectpicker" data-width="125px" id="${this._prefix}-assigned" multiple
-                                        title="Assignee: All" @change="${this.updateQuery}">
-                                        ${this._studyUsers && this._studyUsers.length ? this._studyUsers.map( item => html`
-                                            <option value="${item}">${item}</option>
-                                        `) : null }
+                                
+                                <div class="pull-right">
+                                    <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.onClearQuery}">
+                                        <i class="fa fa-times" aria-hidden="true" style="padding-right: 5px"></i> Clear
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i> Filters <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li><a style="font-weight: bold">Saved Filters</a></li>
+                                        ${this._config.filter.examples && this._config.filter.examples.length ? this._config.filter.examples.map( item => html`
+                                            <li>
+                                                ${item.active ? html`
+                                                    <a data-filter-name="${item.name}" style="cursor: pointer" @click="${this.onFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.name}</a>
+                                                ` : html`
+                                                    <a data-filter-name="${item.name}" style="cursor: pointer;color: green" @click="${this.onFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.name}</a>
+                                                `}
+                                            </li>
+                                        `) : null}
                                         
-                                </select>
-                            </div>
-
-                            <!-- Buttons -->
-                            <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.updateQuery}">
-                                    <i class="fa fa-search" aria-hidden="true" style="padding-right: 5px"></i> Search
-                            </button>
-                            
-                            <div class="pull-right">
-                                <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.onClearQuery}">
-                                    <i class="fa fa-times" aria-hidden="true" style="padding-right: 5px"></i> Clear
-                                </button>
-                                <button type="button" class="btn btn-primary btn-sm dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i> Filters <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-right">
-                                    <li><a style="font-weight: bold">Saved Filters</a></li>
-                                    ${this._config.filter.examples && this._config.filter.examples.length ? this._config.filter.examples.map( item => html`
-                                        <li>
-                                            ${item.active ? html`
-                                                <a data-filter-name="${item.name}" style="cursor: pointer" @click="${this.onFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.name}</a>
-                                            ` : html`
-                                                <a data-filter-name="${item.name}" style="cursor: pointer;color: green" @click="${this.onFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.name}</a>
-                                            `}
-                                        </li>
-                                    `) : null}
-                                    
-                                    ${this.checkSid(this.opencgaSession.opencgaClient._config) ? html`
-                                        <li role="separator" class="divider"></li>
-                                        <li>
-                                            <a style="cursor: pointer" @click="${this.launchModal}"><i class="fa fa-floppy-o" aria-hidden="true" style="padding-right: 5px"></i> Save...</a>
-                                        </li>
-                                    ` : null }
-                                </ul>
+                                        ${this.checkSid(this.opencgaSession.opencgaClient._config) ? html`
+                                            <li role="separator" class="divider"></li>
+                                            <li>
+                                                <a style="cursor: pointer" @click="${this.launchModal}"><i class="fa fa-floppy-o" aria-hidden="true" style="padding-right: 5px"></i> Save...</a>
+                                            </li>
+                                        ` : null }
+                                    </ul>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    
+                    </form>
 
                     <div>
                         <opencga-clinical-analysis-grid .opencgaSession="${this.opencgaSession}"

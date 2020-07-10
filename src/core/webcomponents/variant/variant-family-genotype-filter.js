@@ -190,7 +190,6 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
             // There is an event and no individuals have been found
             this.sampleFilters = [];
         }
-debugger
         // this.renderSampleTable();
         this.sampleFilters = $.extend([], this.sampleFilters);
         // this.requestUpdate();
@@ -205,7 +204,7 @@ debugger
      * @param query
      */
     queryObserver(query) {
-        debugger
+
         if (UtilsNew.isEmptyArray(this.sampleFilters)) {
             // console.error("this.sampleFilters or this.fileFilters is empty");
             return;
