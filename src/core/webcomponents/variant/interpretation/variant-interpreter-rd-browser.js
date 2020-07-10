@@ -102,13 +102,12 @@ class VariantInterpreterRdBrowser extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
-        }
-
+        // if (changedProperties.has("opencgaSession")) {
+        //     this._config = {...this.getDefaultConfig(), ...this.config};
+        //     this.requestUpdate();
+        // }
         if (changedProperties.has("clinicalAnalysis")) {
-            this.updateActiveFilterFilters();
+            this.clinicalAnalysisObserver();
         }
 
         if (changedProperties.has("clinicalAnalysisId")) {
@@ -117,6 +116,10 @@ class VariantInterpreterRdBrowser extends LitElement {
 
         if (changedProperties.has("query")) {
             this.queryObserver();
+        }
+
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 
@@ -146,8 +149,8 @@ class VariantInterpreterRdBrowser extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    this.updateActiveFilterFilters();
-                    this.requestUpdate();
+                    // this.clinicalAnalysisObserver();
+                    // this.requestUpdate();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -155,7 +158,33 @@ class VariantInterpreterRdBrowser extends LitElement {
         }
     }
 
-    updateActiveFilterFilters() {
+    clinicalAnalysisObserver() {
+        // If sample is not defined then we must set the default genotypes
+        if (!this.query?.sample) {
+            if (this.clinicalAnalysis.type.toUpperCase() === "SINGLE") {
+                if (this.clinicalAnalysis.proband?.samples) {
+                    if (!this.query) {
+                        this.query = {};
+                    }
+                    this.query.sample = this.clinicalAnalysis.proband.samples[0].id + ":0/1,1/1";
+                }
+            }
+
+            if (this.clinicalAnalysis.type.toUpperCase() === "FAMILY") {
+                let sampleGenotypes = [];
+                for (let member of this.clinicalAnalysis.family.members) {
+                    if (member.samples && member.samples.length > 0) {
+                        sampleGenotypes.push(member.samples[0].id + ":0/1,1/1")
+                    }
+                }
+                if (!this.query) {
+                    this.query = {};
+                }
+                this.query.sample = sampleGenotypes.join(";");
+                // this.requestUpdate();
+            }
+        }
+
         let sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis);
         let _activeFilterFilters = [];
         if (sampleQc?.metrics?.length > 0) {
@@ -171,7 +200,7 @@ class VariantInterpreterRdBrowser extends LitElement {
                 }
             }
         }
-        this.activeFilterFilters = _activeFilterFilters && _activeFilterFilters.length > 0 ? _activeFilterFilters : this._config.filter.examples;
+        this.activeFilterFilters = _activeFilterFilters.length > 0 ? _activeFilterFilters : this._config.filter.examples;
     }
 
     onSelectVariant(e) {
@@ -395,7 +424,7 @@ class VariantInterpreterRdBrowser extends LitElement {
                     },
                     complexFields: ["sample", "genotype"],
                     hiddenFields: [],
-                    lockedFields: [{id:"sample"}]
+                    lockedFields: [{id: "sample"}]
                 },
                 sections: [
                     {
@@ -411,12 +440,12 @@ class VariantInterpreterRdBrowser extends LitElement {
                                 title: "Quality Filters",
                                 tooltip: "VCF file based FILTER and QUAL filters"
                             },
-                            {
-                                id: "cohort",
-                                title: "Cohort Alternate Stats",
-                                onlyCohortAll: true,
-                                // cohorts: this.cohorts
-                            }
+                            // {
+                            //     id: "cohort",
+                            //     title: "Cohort Alternate Stats",
+                            //     onlyCohortAll: true,
+                            //     // cohorts: this.cohorts
+                            // }
                         ]
                     },
                     {
@@ -500,11 +529,11 @@ class VariantInterpreterRdBrowser extends LitElement {
                                 title: "ClinVar Accessions",
                                 tooltip: tooltips.clinvar
                             },
-                            {
-                                id: "fullTextSearch",
-                                title: "Full-text search on HPO, ClinVar, protein domains or keywords. Some OMIM and Orphanet IDs are also supported",
-                                tooltip: tooltips.fullTextSearch
-                            }
+                            // {
+                            //     id: "fullTextSearch",
+                            //     title: "Full-text search on HPO, ClinVar, protein domains or keywords. Some OMIM and Orphanet IDs are also supported",
+                            //     tooltip: tooltips.fullTextSearch
+                            // }
                         ]
                     },
                     {
@@ -705,9 +734,11 @@ class VariantInterpreterRdBrowser extends LitElement {
                             <button id="${this._prefix}InteractiveButton" type="button" class="btn btn-success variant-interpretation-view-buttons active ripple" data-view="Interactive" @click="${this.onChangeView}">
                                 <i class="fa fa-filter icon-padding" aria-hidden="true" data-view="Interactive" @click="${this.onChangeView}"></i>Table Result
                             </button>
+                            <!--
                              <button id="${this._prefix}SummaryReportButton" type="button" class="btn btn-success variant-interpretation-view-buttons ripple" data-view="SummaryReport" @click="${this.onChangeView}">
                                 <i class="fas fa-random icon-padding" aria-hidden="true" data-view="SummaryReport" @click="${this.onChangeView}"></i>Summary Report
                             </button>
+                            -->
                         </div>
                     </div>  <!-- Close toolbar -->
     

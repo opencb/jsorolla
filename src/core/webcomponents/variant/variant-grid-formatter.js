@@ -623,6 +623,95 @@ export default class VariantGridFormatter {
         return color;
     }
 
+    clinicalPhenotypeFormatter(value, row, index) {
+        let phenotypeHtml = "<span><i class='fa fa-times' style='color: red'></i></span>";
+        if (row?.annotation?.traitAssociation) {
+            // Filter the traits for this column
+            const traits = row.annotation.traitAssociation.filter(trait => trait.source.name.toUpperCase() === this.field.toUpperCase());
+            if (this.field === "clinvar") {
+                let results = [];
+                if (traits.length === 0) {
+                    return "<span title='No ClinVar record found for this variant'><i class='fa fa-times' style='color: gray'></i></span>";
+                }
+                // There are some clinvar traits
+                let clinicalSignificanceVisited = {};
+                for (let trait of traits) {
+                    let clinicalSignificance = trait?.variantClassification?.clinicalSignificance || "UNKNOWN";
+                    let code = "";
+                    let color = "";
+                    let tooltip = "";
+                    switch (clinicalSignificance.toUpperCase()) {
+                        case "BENIGN":
+                            code = "B";
+                            color = "green";
+                            tooltip = "Classified as benign following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
+                            break;
+                        case "LIKELY_BENIGN":
+                            code = "LB";
+                            color = "brown";
+                            tooltip = "Classified as likely benign following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
+                            break;
+                        case "VUS":
+                        case "UNCERTAIN_SIGNIFICANCE":
+                            code = "US";
+                            color = "darkorange";
+                            tooltip = "Classified as of uncertain significance following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
+                            break;
+                        case "LIKELY_PATHOGENIC":
+                            code = "LP";
+                            color = "darkred";
+                            tooltip = "Classified as likely pathogenic following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
+                            break;
+                        case "PATHOGENIC":
+                            code = "P";
+                            color = "red";
+                            tooltip = "Classified as pathogenic following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
+                            break;
+                        case "UNKNOWN":
+                            code = "NP";
+                            color = "grey";
+                            tooltip = "ClinVar submissions without an interpretation of clinical significance";
+                            break;
+                    }
+
+                    if (code !== "NP") {
+                        if (typeof clinicalSignificanceVisited[code] === "undefined") {
+                            if (code === "BB" || code === "LB") {
+                                results.push(`<span style="color: ${color}" title="${tooltip}">${code}</span>`)
+                            } else {
+                                results.push(`<span style="color: ${color}" title="${tooltip}">${code}</span>`)
+                            }
+                            clinicalSignificanceVisited[code] = true;
+                        }
+                    }
+                }
+
+                // This can only be shown if nothing else exists
+                if (results.length === 0) {
+                    results.push(`<span style="color: grey" title="ClinVar submissions without an interpretation of clinical significance">NP</span>`)
+                }
+                return results.join("<br>");
+            } else {
+                if (this.field === "cosmic") {
+                    if (traits.length === 0) {
+                        return "<span title='No Cosmic record found for this variant'><i class='fa fa-times' style='color: gray'></i></span>";
+                    }
+                    let tooltip = [];
+                    for (let trait of traits) {
+                        if (trait?.somaticInformation) {
+                            tooltip.push(trait?.somaticInformation?.primaryHistology);
+                        }
+                    }
+                    return `<span data-toggle="tooltip" data-placement="bottom" title="${tooltip.join(", ")}"><i class='fa fa-check' style='color: green'></i></span>`;
+
+                } else {
+                    console.error("Wrong clinical source : " + this.field)
+                }
+            }
+        }
+        return phenotypeHtml;
+    }
+
     addPhenotypesInfoTooltip(div) {
         $("#" + div).qtip({
             content: {

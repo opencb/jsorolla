@@ -115,7 +115,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                         .map(group => group.id);
                     aclIds.push(loggedUser);
                     for (let aclId of aclIds) {
-                        if (this.opencgaSession.study.acl[loggedUser]?.includes("EXECUTE_JOBS")) {
+                        if (this.opencgaSession.study?.acl[loggedUser]?.includes("EXECUTE_JOBS")) {
                             this.runnable = true;
                             break;
                         }

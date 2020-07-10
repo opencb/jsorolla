@@ -126,6 +126,23 @@ export default class VariantInterpreterGrid extends LitElement {
             if (!this.clinicalAnalysis.interpretation) {
                 this.clinicalAnalysis.interpretation = {};
             }
+
+            // if (this.clinicalAnalysis.type.toUpperCase() === "FAMILY") {
+            //     if (!this.query?.sample) {
+            //         let sampleGenotypes = [];
+            //         for (let member of this.clinicalAnalysis.family.members) {
+            //             if (member.samples && member.samples.length > 0) {
+            //                 sampleGenotypes.push(member.samples[0].id + ":0/1,1/1")
+            //             }
+            //         }
+            //         if (!this.query) {
+            //             this.query = {};
+            //         }
+            //         this.query.sample = sampleGenotypes.join(";");
+            //         this.requestUpdate();
+            //     }
+            // }
+
             if (this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
                 if (this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples
                     && this.clinicalAnalysis.proband.samples.length === 2 && this.clinicalAnalysis.proband.samples[1].somatic) {
@@ -196,9 +213,9 @@ export default class VariantInterpreterGrid extends LitElement {
                         includeSampleId: "true",
                         ...this.query
                     };
-                    if (this.clinicalAnalysis.type.toUpperCase() === "SINGLE") {
-                        filters.sample = this.clinicalAnalysis.proband.samples[0].id;
-                    }
+                    // if (this.clinicalAnalysis.type.toUpperCase() === "SINGLE") {
+                    //     filters.sample = this.clinicalAnalysis.proband.samples[0].id;
+                    // }
                     this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
                         .then(res => {
                             params.success(res);
@@ -606,35 +623,6 @@ export default class VariantInterpreterGrid extends LitElement {
         }
     }
 
-    clinicalPhenotypeFormatter(value, row, index) {
-        let phenotypeHtml = "<span><i class='fa fa-times' style='color: red'></i></span>";
-        if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-            if (UtilsNew.isNotUndefinedOrNull(row.annotation.variantTraitAssociation)) {
-                const traits = [];
-                const clinicalData = row.annotation.variantTraitAssociation[this.field];
-                if (UtilsNew.isNotEmptyArray(clinicalData)) {
-                    for (let j = 0; j < clinicalData.length; j++) {
-                        if (this.field === "clinvar" && traits.indexOf(clinicalData[j].traits[0]) === -1 &&
-                            clinicalData[j].traits[0] !== "not specified" && clinicalData[j].traits[0] !== "not provided") {
-                            traits.push(clinicalData[j].traits[0]);
-                        } else if (this.field === "cosmic" && traits.indexOf(clinicalData[j].primaryHistology) === -1) {
-                            traits.push(clinicalData[j].primaryHistology);
-                        }
-                    }
-
-                    if (traits.length > 0) {
-                        let traitText = traits[0];
-                        if (traits.length > 1) {
-                            traitText += ", ...";
-                        }
-                        phenotypeHtml = `<span data-toggle="tooltip" data-placement="bottom" title="${traitText}"><i class='fa fa-check' style='color: green'></i></span>`;
-                    }
-                }
-            }
-        }
-        return phenotypeHtml;
-    }
-
     predictionFormatter(value, row, index) {
         if (!row.evidences) {
             return "-";
@@ -760,7 +748,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "clinvar",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: this.clinicalPhenotypeFormatter,
+                    formatter: this.variantGridFormatter.clinicalPhenotypeFormatter,
                     align: "center"
                 },
                 {
@@ -768,7 +756,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "cosmic",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: this.clinicalPhenotypeFormatter,
+                    formatter: this.variantGridFormatter.clinicalPhenotypeFormatter,
                     align: "center"
                 },
                 {
@@ -845,14 +833,19 @@ export default class VariantInterpreterGrid extends LitElement {
             let samples = [];
             let sampleInfo = {};
             if (this.clinicalAnalysis.family && this.clinicalAnalysis.family.members) {
-                for (const individual of this.clinicalAnalysis.family.members) {
-                    if (individual.samples && individual.samples.length > 0) {
-                        samples.push(individual.samples[0]);
-                        sampleInfo[individual.samples[0].id] = {
-                            proband: individual.id === this.clinicalAnalysis.proband.id,
-                            affected: individual.disorders && individual.disorders.length > 0 && individual.disorders[0].id === this.clinicalAnalysis.disorder.id,
-                            role: this.clinicalAnalysis.roleToProband[individual.id].toLowerCase(),
-                            sex: individual.sex
+                for (const member of this.clinicalAnalysis.family.members) {
+                    if (member.samples && member.samples.length > 0) {
+                        // Proband must tbe the first column
+                        if (member.id === this.clinicalAnalysis.proband.id) {
+                            samples.unshift(member.samples[0]);
+                        } else {
+                            samples.push(member.samples[0]);
+                        }
+                        sampleInfo[member.samples[0].id] = {
+                            proband: member.id === this.clinicalAnalysis.proband.id,
+                            affected: member.disorders && member.disorders.length > 0 && member.disorders[0].id === this.clinicalAnalysis.disorder.id,
+                            role: this.clinicalAnalysis.roleToProband[member.id].toLowerCase(),
+                            sex: member.sex
                         };
                     }
                 }

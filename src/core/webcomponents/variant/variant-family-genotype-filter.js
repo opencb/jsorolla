@@ -105,7 +105,6 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-
         console.log("clinicalAnalysisObserver ", this.sampleFilters);
         if (!this.clinicalAnalysis) {
             console.log("clinicalAnalysis is undefined or null: ", this.clinicalAnalysis);
@@ -119,12 +118,12 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
 
         // We read Individuals from Clinical Analysis
         let individuals = [];
-
         if (this.clinicalAnalysis.family && this.clinicalAnalysis.family.members) {
-            individuals = this.clinicalAnalysis.family.members;
+            // We must use only the Individuals with samples
+            individuals = this.clinicalAnalysis.family.members.filter(member => member.samples && member.samples.length > 0);
             this.showModeOfInheritance = true;
         } else {
-            if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis.proband)) {
+            if (this.clinicalAnalysis.proband) {
                 individuals = [this.clinicalAnalysis.proband];
             }
             this.showModeOfInheritance = false;
@@ -132,7 +131,6 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
 
         // Prepare data to be easier to query
         if (individuals && individuals.length > 0) {
-
             // Set new individuals keeping the previous values selected
             const _sampleFiltersMap = {};
             console.log("sampleFilters", this.sampleFilters);
@@ -145,7 +143,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
             // We iterate the individuals copying the previous values
             const _sampleFilters = [];
             for (const individual of individuals) {
-                if (UtilsNew.isNotEmptyArray(individual.samples)) {
+                if (individual.samples && individual.samples.length > 0) {
                     // let fatherId = "-";
                     // if (individual.father !== undefined && individual.father.id !== undefined) {
                     //     fatherId = individual.father.id;
@@ -175,7 +173,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                     const _sampleFilter = {
                         id: sample.id,
                         proband: this.clinicalAnalysis.proband && individual.id === this.clinicalAnalysis.proband.id,
-                        affected: this.clinicalAnalysis.disorder && individual.disorders.length ? individual.disorders.some(disorder => disorder.id === this.clinicalAnalysis.disorder.id) : false, // some() returns either true or false, false of the ternary operator is useless
+                        affected: this.clinicalAnalysis.disorder && individual?.disorders.length ? individual?.disorders.some(disorder => disorder.id === this.clinicalAnalysis.disorder.id) : false, // some() returns either true or false, false of the ternary operator is useless
                         sex: individual.sex,
                         karyotypicSex: individual.karyotypicSex,
                         role: this.clinicalAnalysis.roleToProband[individual.id],
@@ -184,7 +182,6 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                         genotypes: (UtilsNew.isNotUndefinedOrNull(_sampleFiltersMap[sample.id])) ? _sampleFiltersMap[sample.id].genotypes : this._config.defaultGenotypes,
                         dp: (UtilsNew.isNotUndefinedOrNull(_sampleFiltersMap[sample.id])) ? _sampleFiltersMap[sample.id].dp : ""
                     };
-
                     _sampleFilters.push(_sampleFilter);
                 }
             }
@@ -193,7 +190,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
             // There is an event and no individuals have been found
             this.sampleFilters = [];
         }
-
+debugger
         // this.renderSampleTable();
         this.sampleFilters = $.extend([], this.sampleFilters);
         // this.requestUpdate();
@@ -208,7 +205,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
      * @param query
      */
     queryObserver(query) {
-        //debugger
+        debugger
         if (UtilsNew.isEmptyArray(this.sampleFilters)) {
             // console.error("this.sampleFilters or this.fileFilters is empty");
             return;

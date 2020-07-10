@@ -180,7 +180,7 @@ class VariantInterpreter extends LitElement {
                 },
                 {
                     id: "variant-browser",
-                    title: "Variant Browser",
+                    title: "Sample Variant Browser",
                     acronym: "VB",
                     description: "",
                     icon: "fa fa-search"

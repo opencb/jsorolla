@@ -108,7 +108,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
                                 .map( vStats => ({id: this.clinicalAnalysis.proband.samples[0].id + ":" + vStats.id.toUpperCase(), name: vStats.id}))
                         },
                         ...this.clinicalAnalysis?.family?.members
-                            .filter(member => member.id !== this.clinicalAnalysis.proband.id)
+                            .filter(member => member.id !== this.clinicalAnalysis.proband.id && member.samples && member.samples.length > 0)
                             .map(member => (
                                 {
                                     id: member.samples[0].id,
