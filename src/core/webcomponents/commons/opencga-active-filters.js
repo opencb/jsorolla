@@ -544,7 +544,7 @@ export default class OpencgaActiveFilters extends LitElement {
                         
                     <div class="rhs">
                         <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.clear}">
-                            <i class="fa fa-eraser" aria-hidden="true" style="padding-right: 5px"></i> Clear
+                            <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> Clear
                         </button>
                         
                         <!-- TODO we probably need a new property for this -->
@@ -552,7 +552,7 @@ export default class OpencgaActiveFilters extends LitElement {
                             <div class="dropdown">
     
                                 <button type="button" class="btn btn-primary btn-sm dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i> Filters <span class="caret"></span>
+                                    <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right">
                                     <li><a style="font-weight: bold">Saved Filters</a></li>
