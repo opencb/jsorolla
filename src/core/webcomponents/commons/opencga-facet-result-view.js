@@ -238,7 +238,7 @@ export default class OpencgaFacetResultView extends LitElement {
     _getHistogramData() {
 
         let params;
-        if (this.facetResult?.start) {
+        if (!this.facetResult?.start) {
             const field = this.facetResult;
             // let fields = field.name.split("-");
             // let title = [];
