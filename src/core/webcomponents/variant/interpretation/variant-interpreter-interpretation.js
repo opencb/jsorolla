@@ -160,9 +160,9 @@ class VariantInterpreterInterpretation extends LitElement {
                         }
                         ${this.clinicalAnalysis.type.toUpperCase() === "SINGLE"
                             ? html`
-                                                <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Upd"]})}">
-                                                    <a href="javascript: void 0" role="tab" data-id="Upd" @click="${this._changeTab}" class="tab-title disabled">UPD (coming soon)</a>
-                                                </li>`
+                                <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Upd"]})}">
+                                    <a href="javascript: void 0" role="tab" data-id="Upd" @click="${this._changeTab}" class="tab-title disabled">UPD (coming soon)</a>
+                                </li>`
                             : null
                         }                        
                         <!--<li role="presentation" class="content-pills help-pill ${classMap({active: this.activeTab["help"]})}">

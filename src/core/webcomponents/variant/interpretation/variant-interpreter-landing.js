@@ -61,7 +61,7 @@ class VariantInterpreterLanding extends LitElement {
                     show: true
                 }
             }
-        }
+        };
 
         // TODO Delete this code, just for the development purposes.
         // this.clinicalAnalysisId = "AN-12";
@@ -71,7 +71,7 @@ class VariantInterpreterLanding extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this.activeTab = {};
-        // this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {...this.getDefaultConfig(), ...this.config};
         // this.requestUpdate();
     }
 
@@ -81,7 +81,7 @@ class VariantInterpreterLanding extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-             this.opencgaSessionObserver();
+            this.opencgaSessionObserver();
         }
         // if (changedProperties.has("clinicalAnalysisId")) {
         //     this.clinicalAnalysisIdObserver();
@@ -230,7 +230,7 @@ class VariantInterpreterLanding extends LitElement {
             .then(response => {
                 //console.log(response.responses[0].results)
                 this.lastClinicalAnalysis = response.responses[0].results.map(value => value.id);
-                this.lastClinicalAnalysis = [...this.lastClinicalAnalysis]
+                this.lastClinicalAnalysis = [...this.lastClinicalAnalysis];
                 //console.log("this.lastClinicalAnalysis", this.lastClinicalAnalysis)
                 //debugger
                 this.requestUpdate();
@@ -270,13 +270,12 @@ class VariantInterpreterLanding extends LitElement {
                 infoIcon: "",
                 labelAlign: "left",
                 defaultLayout: "vertical",
-                classes: "col-md-4 col-md-offset-4",
+                classes: "col-md-4 col-md-offset-4"
             },
             sections: [
                 {
                     title: "Open Case",
-                    display: {
-                    },
+                    display: {},
                     elements: [
                         {
                             name: "Clinical Analysis ID",
@@ -296,10 +295,10 @@ class VariantInterpreterLanding extends LitElement {
                                             };
                                             this.opencgaSession.opencgaClient.clinical().search(filters).then(restResponse => {
                                                 const results = restResponse.getResults();
-                                                process(results.map( item => ({name: item.id, Type: item?.type, "Proband Id": item?.proband?.id})));
+                                                process(results.map(item => ({name: item.id, Type: item?.type, "Proband Id": item?.proband?.id})));
                                             });
                                         }
-                                    }
+                                    };
                                     return html`<clinical-analysis-id-autocomplete .config=${config} .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onClinicalAnalysisIdChange("clinicalAnalysisId", e.detail.value)}"></clinical-analysis-id-autocomplete>`;
                                 },
                                 placeholder: "eg. AN-3",
@@ -324,10 +323,10 @@ class VariantInterpreterLanding extends LitElement {
                                             };
                                             this.opencgaSession.opencgaClient.clinical().search(filters).then(restResponse => {
                                                 const results = restResponse.getResults();
-                                                process(results.map( item => ({name: item.id, Proband: item?.proband?.id})));
+                                                process(results.map(item => ({name: item.id, Proband: item?.proband?.id})));
                                             });
                                         }
-                                    }
+                                    };
                                     return html`<clinical-analysis-id-autocomplete .config=${config} .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onProbandIdChange("individualId", e.detail.value)}"></clinical-analysis-id-autocomplete>`;
                                 }
                             }
@@ -340,13 +339,18 @@ class VariantInterpreterLanding extends LitElement {
                             allowedValues: data => {
                                 return this.lastClinicalAnalysis;
                             },
-                            display: {
-                            }
-                        },
+                            display: {}
+                        }
                     ]
                 }
             ]
-        }
+        };
+    }
+
+    getDefaultConfig() {
+        return {
+            clinicalAnalysisSelector: true
+        };
     }
 
     render() {
@@ -367,7 +371,8 @@ class VariantInterpreterLanding extends LitElement {
                 }
             </style>
             <div id="variant-interpreter-landing">
-                <div>
+                ${this._config.clinicalAnalysisSelector ? html`
+                    <div>
                     <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
                         <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["landing-search"] || UtilsNew.isEmpty(this.activeTab)})}"">
                             <a href="javascript: void 0" role="tab" data-id="landing-search" @click="${this._changeTab}" class="tab-title">Select Case</a>
@@ -380,39 +385,47 @@ class VariantInterpreterLanding extends LitElement {
                         </li>-->
                     </ul>
                 </div>
+                ` : null}
+                
                 
                 <div class="content-tab-wrapper">
                     <div id="landing-search" role="tabpanel" class="tab-pane active content-tab">
-                        ${this.clinicalAnalysis 
+                        ${this.clinicalAnalysis
                             ? html`
                                 <div class="row">
                                     <div class="col-md-10 col-md-offset-1">
                                     <!--<div style="float: left">
                                         <h2>Case ${this.clinicalAnalysis.id}</h2>
                                     </div> -->
-                                    <div class="row pad5">
-                                        <div class="pull-right">
-                                            <button class="btn btn-primary ripple" @click="${this.onCloseClinicalAnalysis}">
-                                                <i class="fas fa-times" style="padding-right: 10px"></i>Close
-                                            </button>
-                                        </div>
-                                    </div>
+                                    
+                                    ${this._config.clinicalAnalysisSelector ? html`
+                                        <div class="row pad5">
+                                            <div class="pull-right">
+                                                <button class="btn btn-primary ripple" @click="${this.onCloseClinicalAnalysis}">
+                                                    <i class="fas fa-times" style="padding-right: 10px"></i>Close
+                                                </button>
+                                            </div>
+                                        </div>  
+                                    ` : null}
                                     <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
                                                                     .clinicalAnalysis="${this.clinicalAnalysis}">
                                     </opencga-clinical-analysis-view>
                                     </div>
-                                </div>` 
-                            : html`
-                                <data-form  .data="${{}}" 
-                                            .config="${this.getSearchConfig()}" 
-                                            @fieldChange="${this.onSearchFieldChange}"
-                                            @clear="${this.onClinicalAnalysisChange}"
-                                            @submit="${this.onClinicalAnalysisChange}">
-                                </data-form>`
+                                </div>`
+                            : this._config.clinicalAnalysisSelector
+                                ? html`
+                                    <data-form  .data="${{}}" 
+                                                .config="${this.getSearchConfig()}" 
+                                                @fieldChange="${this.onSearchFieldChange}"
+                                                @clear="${this.onClinicalAnalysisChange}"
+                                                @submit="${this.onClinicalAnalysisChange}">
+                                    </data-form>`
+                                : null
                         }
                     </div>
                     
-                    <div id="landing-create" role="tabpanel" class="tab-pane content-tab">
+                    ${this._config.clinicalAnalysisSelector ? html`
+                        <div id="landing-create" role="tabpanel" class="tab-pane content-tab">
                         <div class="col-md-8 col-md-offset-2">
                             <div class="row pad5">
                                 <!--<div style="float: left">
@@ -435,6 +448,8 @@ class VariantInterpreterLanding extends LitElement {
                            </div>
                         </div>
                     </div>
+                    ` : null}
+                    
                     
                     <div id="landing-help" role="tabpanel" class="tab-pane content-tab">
                         <div class="container">
