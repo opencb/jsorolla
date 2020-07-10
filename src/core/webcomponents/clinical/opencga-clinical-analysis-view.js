@@ -251,7 +251,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             type: "custom",
                             display: {
                                 labelWidth: 3,
-                                render: clinicalAnalysis => html`${moment(clinicalAnalysis.creationDate, "YYYYMMDDHHmmss").format("D MMM YY")}`
+                                render: creationDate => html`${moment(creationDate, "YYYYMMDDHHmmss").format("D MMM YY")}`
                             }
                         },
                         {
@@ -260,7 +260,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             type: "custom",
                             display: {
                                 labelWidth: 3,
-                                render: clinicalAnalysis => html`${moment(clinicalAnalysis.dueDate, "YYYYMMDDHHmmss").format("D MMM YY")}`
+                                render: dueDate => html`${moment(dueDate, "YYYYMMDDHHmmss").format("D MMM YY")}`
                             }
                         },
                     ]
@@ -345,7 +345,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                                         field: "creationDate",
                                         type: "custom", // this is not needed. feels right though
                                         display: {
-                                            render: clinicalAnalysis => html`${UtilsNew.dateFormatter(clinicalAnalysis.creationDate)}`
+                                            render: creationDate => html`${moment(creationDate, "YYYYMMDDHHmmss").format("D MMM YY")}`
                                         }
                                     },
                                     {
