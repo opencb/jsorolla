@@ -85,25 +85,23 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
             let mendelianErrorReport = this.individual.qualityControl.mendelianErrorReport;
             let sampleAggregation = mendelianErrorReport.sampleAggregation
                 .find(sampleAggregation => sampleAggregation.sample === this.individual.samples[0].id);
-            // sampleAggregation.chromAggregation = sampleAggregation.chromAggregation.sort((a, b) => {
-            //     if (Number.isInteger(a.chromosome) && !Number.isInteger(b.chromosome)) {
-            //         return true;
-            //     } else {
-            //         if (!Number.isInteger(a.chromosome) && Number.isInteger(b.chromosome)) {
-            //             return false;
-            //         } else {
-            //             if (Number.isInteger(a.chromosome) && Number.isInteger(b.chromosome)) {
-            //                 return Number.parseInt(a.chromosome) < Number.parseInt(b.chromosome);
-            //             } else {
-            //                 return a.chromosome < b.chromosome;
-            //             }
-            //         }
-            //     }
-            // });
 
-            let roles = {};
-            roles[this.individual.father?.id] = "FATHER";
-            roles[this.individual.mother?.id] = "MOTHER";
+            sampleAggregation.chromAggregation = sampleAggregation.chromAggregation.filter( ch => Boolean(parseInt(ch.chromosome)) || ["X", "Y", "MT"].includes(ch.chromosome))
+            sampleAggregation.chromAggregation.sort( (a,b) => {
+                const chA = a.chromosome;
+                const chB = b.chromosome;
+                const A = Boolean(parseInt(chA))
+                const B = Boolean(parseInt(chB))
+                if(A && !B) return -1;
+                if(!A && B) return 1;
+                if(!A && !B) return chA.length < chB.length ? -1 : chA < chB ? -1 : 1
+                return chA - chB;
+            })
+
+            let roles = {
+                [this.individual.father?.id]: "FATHER",
+                [this.individual.mother?.id]: "MOTHER"
+            };
             return html`
                 <table class="table table-hover table-no-bordered">
                     <thead>
@@ -183,7 +181,7 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
                 <div class="btn-group pull-right">
                     <button type="button" class="btn btn-default ripple btn-xs dropdown-toggle" data-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-download" aria-hidden="true" style="padding-right: 5px"></i> Download <span class="caret"></span>
+                        <i class="fa fa-download pad5" aria-hidden="true"></i> Download <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu btn-sm">
                         ${this._config.download && this._config.download.length 

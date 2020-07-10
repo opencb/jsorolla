@@ -181,13 +181,18 @@ export default class GridCommons {
         });*/
     }
 
-    onLoadError() {
+    onLoadError(e, restResponse) {
         this.context.dispatchEvent(new CustomEvent("selectrow", {
             detail: {
                 id: null,
                 row: null
             }
         }));
+        let msg = "Server Error";
+        if(restResponse.getEvents("ERROR").length) {
+            msg = restResponse.getEvents("ERROR")[0].message;
+        }
+        this.context.table.bootstrapTable("updateFormatText", "formatNoMatches", msg);
     }
 
     onPageChange(page, size) {

@@ -112,8 +112,10 @@ export default class OpencgaJobsGrid extends LitElement {
             }
 
             const _this = this;
-            $(this.table).bootstrapTable("destroy");
-            $(this.table).bootstrapTable({
+            this.table = $("#" + this.gridId);
+
+            this.table.bootstrapTable("destroy");
+            this.table.bootstrapTable({
                 // url: opencgaHostUrl,
                 columns: _this._columns,
                 method: "get",
@@ -136,10 +138,10 @@ export default class OpencgaJobsGrid extends LitElement {
                     const filters = {
                         study: this.opencgaSession.study.fqn,
                         deleted: false,
-                        count: !$(this.table).bootstrapTable("getOptions").pageNumber || $(this.table).bootstrapTable("getOptions").pageNumber === 1,
+                        count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         sort: "creationDate",
                         order: -1,
-                        limit: params.data.limit || $(this.table).bootstrapTable("getOptions").pageSize,
+                        limit: params.data.limit || this.table.bootstrapTable("getOptions").pageSize,
                         skip: params.data.offset || 0,
                         include: "id,userId,tool,priority,tags,creationDate,visited,dependsOn,outDir,internal,execution,params,input",
                         ...this.query
@@ -152,7 +154,7 @@ export default class OpencgaJobsGrid extends LitElement {
                         });
                 },
                 responseHandler: response => {
-                    const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                    const result = this.gridCommons.responseHandler(response, this.table.bootstrapTable("getOptions"));
                     this.from = result.from || this.from;
                     this.to = result.to || this.to;
                     this.numTotalResultsText = result.numTotalResultsText || this.numTotalResultsText;
@@ -166,7 +168,7 @@ export default class OpencgaJobsGrid extends LitElement {
                 onUncheck: (row, $element) => this.gridCommons.onUncheck(row.id, row),
                 onUncheckAll: rows => this.gridCommons.onUncheckAll(rows),
                 onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
-                onLoadError: data => this.gridCommons.onLoadError(),
+                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
                 onPageChange: (page, size) => {
                     const result = this.gridCommons.onPageChange(page, size);
                     this.from = result.from || this.from;

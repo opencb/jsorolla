@@ -138,14 +138,15 @@ export default class OpencgaVariantSamples extends LitElement {
         this.from = 1;
         this.to = this.config.pageSize;
 
-        $("#" + this.gridId).bootstrapTable("destroy");
-        $("#" + this.gridId).bootstrapTable({
+        this.table = $("#" + this.gridId);
+        this.table.bootstrapTable("destroy");
+        this.table.bootstrapTable({
             pagination: true,
             sidePagination: "server",
             columns: this.getColumns(),
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: params => {
-                let tableOptions = $(this.table).bootstrapTable("getOptions");
+                let tableOptions = this.table.bootstrapTable("getOptions");
                 let limit = tableOptions.pageSize || 10;
                 let skip = tableOptions.pageNumber ? tableOptions.pageNumber * limit - limit : 0;
                 let query = {
@@ -229,7 +230,7 @@ export default class OpencgaVariantSamples extends LitElement {
             onLoadSuccess: data => {
                 this.gridCommons.onLoadSuccess(data, 2);
             },
-            onLoadError: data => this.gridCommons.onLoadError()
+            onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
         });
     }
 

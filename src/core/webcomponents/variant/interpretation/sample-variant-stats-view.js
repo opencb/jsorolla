@@ -18,6 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import "../../simple-chart.js";
 import "../../commons/view/data-form.js";
+import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 
 class SampleVariantStatsView extends LitElement {
 
@@ -56,6 +57,7 @@ class SampleVariantStatsView extends LitElement {
         this._prefix = "vcis-" + UtilsNew.randomString(6);
         //this.types = ["SNV", "INDEL", "CNV", "INSERTION", "DELETION", "MNV"];
         this._config = this.getDefaultConfig();
+        this._sampleVariantStats = {};
     }
 
     connectedCallback() {
@@ -72,7 +74,7 @@ class SampleVariantStatsView extends LitElement {
             this.sampleIdObserver();
         }
         if (changedProperties.has("sampleVariantStats")) {
-            console.log("sampleVariantStats changed");
+            this.sampleVariantStatsObserver();
         }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
@@ -96,6 +98,7 @@ class SampleVariantStatsView extends LitElement {
                     this.sample = response.responses[0].results[0];
                     if (this.sample && this.sample?.qualityControl?.metrics && this.sample.qualityControl.metrics.length > 0) {
                         let _variantStats = this.sample.qualityControl.metrics[0].variantStats.find(stat => stat.id === "ALL");
+                        //_variantStats.stats.chromosomeCount.filter( ch => Boolean(parseInt(ch)) || ["X", "Y", "MT"].includes(ch))
                         this.sampleVariantStats = _variantStats.stats;
                     }
                     this.requestUpdate();
@@ -104,6 +107,14 @@ class SampleVariantStatsView extends LitElement {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
                 });
         }
+    }
+
+    sampleVariantStatsObserver() {
+        this._sampleVariantStats = {
+            ...this.sampleVariantStats,
+            chromosomeCount: ClinicalAnalysisUtils.chromosomeFilterSorter(this.sampleVariantStats.chromosomeCount)
+        }
+        this.requestUpdate();
     }
 
     getDefaultConfig() {
@@ -237,7 +248,7 @@ class SampleVariantStatsView extends LitElement {
                     margin: 25px 0
                 }
             </style>
-            <data-form .data=${this.sampleVariantStats} .config="${this.getDefaultConfig()}"></data-form>
+            <data-form .data=${this._sampleVariantStats} .config="${this.getDefaultConfig()}"></data-form>
         `;
     }
 

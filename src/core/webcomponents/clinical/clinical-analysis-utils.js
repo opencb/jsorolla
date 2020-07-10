@@ -28,4 +28,37 @@ export default class ClinicalAnalysisUtils {
         return qc;
     }
 
+    static chromosomeFilterSorter(chromosomeCount) {
+        let sorted = Object.assign({}, ...Object.entries(chromosomeCount).map( ([ch, val]) => {
+            if(Boolean(parseInt(ch)) || ["X", "Y", "MT"].includes(ch)) return {[ch]: val}
+        }))
+        let ordered = {};
+        Object.keys(sorted).sort( (a,b) => {
+            const chA = a;
+            const chB = b;
+            const A = Boolean(parseInt(chA))
+            const B = Boolean(parseInt(chB))
+            if(A && !B) return -1;
+            if(!A && B) return 1;
+            if(!A && !B) return chA.length < chB.length ? -1 : chA < chB ? -1 : 1
+            return chA - chB;
+        }).forEach(k => ordered[k] = sorted[k]);
+        return ordered;
+    }
+
+    /* TODO individual-mendelian-errors-view and sample-variant-stats-view have different data strucutres for chromosome. Adapt the method for both
+    static chromosomeFilterSorter(chromAggregation) {
+        const filtered = chromAggregation.filter( ch => Boolean(parseInt(ch.chromosome)) || ["X", "Y", "MT"].includes(ch.chromosome));
+        filtered.sort( (a,b) => {
+            const chA = a.chromosome;
+            const chB = b.chromosome;
+            const A = Boolean(parseInt(chA))
+            const B = Boolean(parseInt(chB))
+            if(A && !B) return -1;
+            if(!A && B) return 1;
+            if(!A && !B) return chA.length < chB.length ? -1 : chA < chB ? -1 : 1
+            return chA - chB;
+        })
+        return filtered;
+    }*/
 }

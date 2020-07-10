@@ -130,8 +130,9 @@ export default class GeneCoverageGrid extends LitElement {
         try {
             if (this.opencgaSession.opencgaClient && this.opencgaSession?.study?.fqn && this.geneIds) {
                 this.errorState = false;
-                $(this.table).bootstrapTable("destroy");
-                $(this.table).bootstrapTable({
+                this.table = $("#" + this.gridId);
+                this.table.bootstrapTable("destroy");
+                this.table.bootstrapTable({
                     columns: this._columns,
                     uniqueId: "id",
                     // Table properties
@@ -159,7 +160,7 @@ export default class GeneCoverageGrid extends LitElement {
                     onUncheck: (row, $element) => this.gridCommons.onUncheck(row.id, row),
                     onUncheckAll: rows => this.gridCommons.onUncheckAll(rows),
                     onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1, "id"),
-                    onLoadError: data => this.gridCommons.onLoadError(),
+                    onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
                     onPageChange: (page, size) => {
                         const result = this.gridCommons.onPageChange(page, size);
                         this.from = result.from || this.from;

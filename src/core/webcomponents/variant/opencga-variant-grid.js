@@ -276,7 +276,7 @@ export default class OpencgaVariantGrid extends LitElement {
                     }
                     this.gridCommons.onLoadSuccess(data, 2);
                 },
-                onLoadError: data => this.gridCommons.onLoadError(),
+                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
                 onPageChange: (page, size) => {
                     this.from = (page - 1) * size + 1;
                     this.to = page * size;

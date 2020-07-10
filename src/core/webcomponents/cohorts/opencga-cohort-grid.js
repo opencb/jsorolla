@@ -127,11 +127,11 @@ export default class OpencgaCohortGrid extends LitElement {
             }
             opencgaHostUrl += "/webservices/rest/v1/cohorts/search";*/
 
-            const _table = $("#" + this.gridId);
+            this.table = $("#" + this.gridId);
 
             const _this = this;
-            _table.bootstrapTable("destroy");
-            _table.bootstrapTable({
+            this.table.bootstrapTable("destroy");
+            this.table.bootstrapTable({
                 //url: opencgaHostUrl,
                 columns: _this._columns,
                 method: "get",
@@ -153,7 +153,7 @@ export default class OpencgaCohortGrid extends LitElement {
                         order: params.data.order,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
-                        count: !_table.bootstrapTable("getOptions").pageNumber || _table.bootstrapTable("getOptions").pageNumber === 1,
+                        count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         include: "id,creationDate,status,type,samples",
                         ...filters
                     };
@@ -306,7 +306,7 @@ export default class OpencgaCohortGrid extends LitElement {
                     }
                 },
                 onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
-                onLoadError: data => this.gridCommons.onLoadError(),
+                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
                 onPageChange: (page, size) => this.gridCommons.onPageChange(page, size)
             });
         } else {

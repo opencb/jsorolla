@@ -219,7 +219,11 @@ export default class VariantInterpreterGrid extends LitElement {
                     this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
                         .then(res => {
                             params.success(res);
-                        });
+                        })
+                        .catch( e => {
+                        console.error(e);
+                        params.error(e);
+                    });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
@@ -263,7 +267,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     }
                     this.gridCommons.onLoadSuccess(data, 2);
                 },
-                onLoadError: data => this.gridCommons.onLoadError(),
+                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
                 onPageChange: (page, size) => {
                     this.from = (page - 1) * size + 1;
                     this.to = page * size;

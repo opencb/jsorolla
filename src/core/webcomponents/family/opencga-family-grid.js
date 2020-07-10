@@ -197,7 +197,7 @@ export default class OpencgaFamilyGrid extends LitElement {
                 onLoadSuccess: data => {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
-                onLoadError: data => this.gridCommons.onLoadError(),
+                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
                 onPageChange: (page, size) => {
                     const result = this.gridCommons.onPageChange(page, size);
                     this.from = result.from || this.from;
