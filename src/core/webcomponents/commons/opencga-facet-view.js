@@ -413,17 +413,6 @@ export default class OpencgaFacetView extends LitElement {
 
     render() {
         return html`
-            <style include="jso-styles">
-                option:disabled {
-                    font-size: 0.85em;
-                    font-weight: bold;
-                }
-    
-                .active-filter-button:hover {
-                    text-decoration: line-through;
-                }
-            </style>
-    
             <!-- Facet Fields -->
             <div class="row" style="padding: 0px 15px">
                 <div class="col-md-12 panel panel-default">
