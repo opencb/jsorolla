@@ -93,13 +93,13 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        // if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
-        //     this.opencgaSessionObserver();
-        // }
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+        }
         // if (changedProperties.has("clinicalAnalysis")) {
         //     this.clinicalAnalysisObserver();
         // }
-        if (changedProperties.has("opencgaSession") || changedProperties.has("clinicalAnalysis") || changedProperties.has("query")) {
+        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("query")) {
             this.opencgaSessionObserver();
             this.clinicalAnalysisObserver();
             this.renderVariants();
@@ -172,6 +172,10 @@ export default class VariantInterpreterGrid extends LitElement {
     renderRemoteVariants() {
         if (this.clinicalAnalysis && this._timestamp && this.clinicalAnalysis.interpretation
             && this.clinicalAnalysis.interpretation.modificationDate === this._timestamp) {
+            return;
+        }
+
+        if (!this.query?.sample) {
             return;
         }
 
