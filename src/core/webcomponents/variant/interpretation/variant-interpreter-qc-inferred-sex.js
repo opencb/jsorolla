@@ -127,7 +127,12 @@ class VariantInterpreterQcSummary extends LitElement {
 
         // Alignment stats are the same for FAMILY and CANCER analysis
         return html`
-            <opencga-individual-inferred-sex-view .individuals="${this.individuals}" .opencgaSession="${this.opencgaSession}"></opencga-individual-inferred-sex-view>
+            <div style="margin: 20px 10px">         
+                <h4>Individual Inferred Sex</h4>
+                <opencga-individual-inferred-sex-view   .individuals="${this.individuals}" 
+                                                        .opencgaSession="${this.opencgaSession}">
+                </opencga-individual-inferred-sex-view>
+            </div>
         `;
     }
 

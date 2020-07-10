@@ -106,9 +106,12 @@ class VariantInterpreterQcMendelianErrors extends LitElement {
         }
 
         return html`
-            <opencga-individual-mendelian-errors-view   .opencgaSession="${this.opencgaSession}" 
-                                                        .individual="${this.clinicalAnalysis.proband}">
-            </opencga-individual-mendelian-errors-view>
+            <div style="margin: 20px 10px">         
+                <h4>Sample Summary</h4>
+                <opencga-individual-mendelian-errors-view   .opencgaSession="${this.opencgaSession}" 
+                                                            .individual="${this.clinicalAnalysis.proband}">
+                </opencga-individual-mendelian-errors-view>
+            </div>
         `;
     }
 

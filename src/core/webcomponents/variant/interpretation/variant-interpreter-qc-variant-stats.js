@@ -182,6 +182,10 @@ class VariantInterpreterQcVariantStats extends LitElement {
                     </div>`;
         }
 
+        if (!this.variantStats) {
+            return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>`;
+        }
+
         return html`
             <style>
                 variant-interpreter-qc-variant-stats .select-field-filter {
@@ -196,30 +200,39 @@ class VariantInterpreterQcVariantStats extends LitElement {
                     margin-right: 15px;
                 }
             </style>
-                    ${this.variantStats ? html`
-                        <h3>Select Sample Stats</h3>
-                        
-                        <div class="">
-                            <form class="form-inline">
-                                <div class="form-group gene-selector">
-                                    <label>Select Stat</label>
-                                    <select-field-filter .data="${this.statsSelect}" .value=${this.selectedStat} @filterChange="${this.onSampleChange}"></select-field-filter>
-                                </div>
-                            </form>
-                            ${this.variantStats?.query ? html`
-                                <div class="form-group gene-selector">
-                                    <form>
-                                        <label>Stats Query</label>
-                                            <span>${this.variantStats?.query.map( q => html`<span class="badge">${q}</span>`)}</span>
-                                        </div>
-                                    </form>
-                                </div>
-                            ` : null}
-    
-                        <h3>Variant Stats</h3>
-                        <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" .sampleVariantStats="${this.variantStats?.stats}"> </sample-variant-stats-view>
-                    ` : html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>`}
-                    
+            
+            <div style="margin: 20px 10px">
+                <h4>Select Sample Variant Stats</h4>
+                <div style="margin: 20px 10px">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-md-2">Select Sample Stat</label>
+                            <div class="col-md-4">
+                                <select-field-filter .data="${this.statsSelect}" .value=${this.selectedStat} @filterChange="${this.onSampleChange}"></select-field-filter>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-2">Stats Query Filters</label>
+                            <div class="col-md-4">
+                                <span>${this.variantStats?.query ? this.variantStats?.query.map( q => html`<span class="badge">${q}</span>`) : "none"}</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-2">Description</label>
+                            <div class="col-md-4">
+                                <span>${this.variantStats?.description ? this.variantStats?.description : "N/A"}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin: 20px 10px;padding-top: 10px">
+                <h4>Sample Variant Stats - ${this.variantStats?.stats.id}</h4>
+                <div style="margin: 20px 10px">
+                    <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" .sampleVariantStats="${this.variantStats?.stats}"> </sample-variant-stats-view>
+                </div>
+            </div>
         `;
     }
 

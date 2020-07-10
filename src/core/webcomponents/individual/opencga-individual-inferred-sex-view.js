@@ -178,7 +178,7 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
                                     <td>
                                         <label>${individual.id}</label>
                                     </td>
-                                    <td>${individual?.qualityControl?.sample ?? "N/A"}</td>
+                                    <td>${individual?.qualityControl?.sampleId ?? "N/A"}</td>
                                     <td>${individual.sex}</td>       
                                     <td>
                                         <span style="color: ${!inferredSex || individual.karyotypicSex === inferredSex?.inferredKaryotypicSex ? "black" : "red"}">
@@ -228,7 +228,7 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
         return html`
             <div>
                 <div class="btn-group pull-right">
-                    <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
+                    <button type="button" class="btn btn-default ripple btn-xs dropdown-toggle" data-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
                         <i class="fa fa-download pad5" aria-hidden="true"></i> Download <span class="caret"></span>
                     </button>
@@ -239,7 +239,7 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
                     </ul>
                 </div>
                 
-                <div style="margin: 20px 10px">
+                <div>
                     ${this.renderTable()}
                 </div>
             </div>

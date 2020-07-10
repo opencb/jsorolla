@@ -433,7 +433,7 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                                     <div id="loading">
                                         <loading-spinner></loading-spinner>
                                     </div>` : !this.aggregationStatsResults ? html`
-                                <div class="alert alert-info" role="alert"><i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.</div>
+                                <div class="alert alert-info" role="alert" style="margin: 0px 15px"><i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.</div>
                                 ` : html`
                                     <div class="col-md-12">
                                         <div class="pull-right">

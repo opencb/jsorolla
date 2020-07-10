@@ -105,7 +105,7 @@ class VariantInterpreterQcOverview extends LitElement {
             },
             sections: [
                 {
-                    title: "Summary",
+                    title: "",
                     collapsed: false,
                     elements: [
                         {
@@ -189,8 +189,9 @@ class VariantInterpreterQcOverview extends LitElement {
                           data-id="GeneCoverageStats" @click="${this.onSideNavClick}">Gene Coverage Stats</button>
                 </div>
                 <div class="col-md-10">
-                    <div class="content-tab-wrapper interpreter-content-tab">
+                    <div class="content-tab-wrapper interpreter-content-tab" style="margin: 0px 10px">
                         <div id="${this._prefix}Summary" role="tabpanel" class="tab-pane content-tab active">
+                            <h3>Summary</h3>
                             <variant-interpreter-qc-summary .opencgaSession=${this.opencgaSession}
                                                             .clinicalAnalysis=${this.clinicalAnalysis} 
                                                             .config="${this._config}">

@@ -132,7 +132,7 @@ class VariantInterpreterQc extends LitElement {
                             </a>
                         </li>
                         <li role="presentation" class="content-pills ${classMap({active: this.activeTab["VariantQc"]})}">
-                            <a href="javascript: void 0" role="tab" data-id="VariantQc" @click="${this._changeTab}" class="tab-title">Variant Aggregator
+                            <a href="javascript: void 0" role="tab" data-id="VariantQc" @click="${this._changeTab}" class="tab-title">Variant Aggregation Stats
                             </a>
                         </li>
                         <!--<li role="presentation" class="content-pills ${classMap({active: this.activeTab["AlignmentQc"]})}">

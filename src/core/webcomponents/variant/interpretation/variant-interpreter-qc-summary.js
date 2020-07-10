@@ -87,7 +87,7 @@ class VariantInterpreterQcSummary extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "QC Summary",
+            title: "",
             icon: "",
             display: {
                 collapsable: true,
@@ -98,7 +98,7 @@ class VariantInterpreterQcSummary extends LitElement {
             },
             sections: [
                 {
-                    title: "Summary",
+                    title: "",
                     collapsed: false,
                     elements: [
                         {
@@ -156,7 +156,7 @@ class VariantInterpreterQcSummary extends LitElement {
 
         // Alignment stats are the same for FAMILY and CANCER analysis
         return html`
-            <div class="container" style="margin-bottom: 20px">
+            <div class="container" style="margin: 20px 10px">
                 <data-form .data=${this.clinicalAnalysis} .config="${this._config}"></data-form>
             </div>
         `;

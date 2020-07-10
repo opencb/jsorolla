@@ -105,7 +105,6 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
             roles[this.individual.father?.id] = "FATHER";
             roles[this.individual.mother?.id] = "MOTHER";
             return html`
-                <h4>Sample Summary</h4>
                 <table class="table table-hover table-no-bordered">
                     <thead>
                         <tr>
@@ -182,7 +181,7 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
         return html`
             <div>
                 <div class="btn-group pull-right">
-                    <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
+                    <button type="button" class="btn btn-default ripple btn-xs dropdown-toggle" data-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
                         <i class="fa fa-download" aria-hidden="true" style="padding-right: 5px"></i> Download <span class="caret"></span>
                     </button>
@@ -194,8 +193,10 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
                         }
                     </ul>
                 </div>
-                                
-                ${this.renderTable()}
+                     
+                <div>         
+                    ${this.renderTable()}
+                </div>
             </div>
         `;
     }
