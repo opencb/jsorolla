@@ -127,55 +127,55 @@ export default class OpencgaFacetResultView extends LitElement {
         PolymerUtils.removeClass(".plots", "active");
         // this.querySelector(this._prefix + "HistogramChartButton").classList.add("active");
 
-
-        const params = this._getHistogramData();
-
-        $(this.plotDiv).highcharts({
-            credits: {
-                enabled: false
-            },
-            chart: {
-                type: "column",
-                ...this._config.chart
-            },
-            title: {
-                text: this.title || params.title || params.name,
-                ...this._config.title
-            },
-            subtitle: {
-                text: this.subtitle,
-                ...this._config.subtitle
-            },
-            xAxis: {
-                title: {
-                    text: this.xAxisTitle || ""
+        if (this.facetResult) {
+            const params = this._getHistogramData();
+            $(this.plotDiv).highcharts({
+                credits: {
+                    enabled: false
                 },
-                categories: params.categories,
-                ...this._config.xAxis
-            },
-            yAxis: {
-                min: 0,
-                title: {
-                    text: this.yAxisTitle || "Total number of Variants"
+                chart: {
+                    type: "column",
+                    ...this._config.chart
                 },
-                ...this._config.yAxis
-            },
-            tooltip: {
-                headerFormat: "<span style=\"font-size:10px\">{point.key}</span><table>",
-                pointFormat: "<tr><td style=\"color:{series.color};padding:0\">{series.name}: </td>" +
-                    "<td style=\"padding:0\"><b>{point.y:.1f} </b></td></tr>",
-                footerFormat: "</table>",
-                shared: true,
-                useHTML: true
-            },
-            plotOptions: {
-                column: {
-                    pointPadding: 0.2,
-                    borderWidth: 0
-                }
-            },
-            series: params.series
-        });
+                title: {
+                    text: this.title || params.title || params.name,
+                    ...this._config.title
+                },
+                subtitle: {
+                    text: this.subtitle,
+                    ...this._config.subtitle
+                },
+                xAxis: {
+                    title: {
+                        text: this.xAxisTitle || ""
+                    },
+                    categories: params.categories,
+                    ...this._config.xAxis
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: this.yAxisTitle || "Total number of Variants"
+                    },
+                    ...this._config.yAxis
+                },
+                tooltip: {
+                    headerFormat: "<span style=\"font-size:10px\">{point.key}</span><table>",
+                    pointFormat: "<tr><td style=\"color:{series.color};padding:0\">{series.name}: </td>" +
+                        "<td style=\"padding:0\"><b>{point.y:.1f} </b></td></tr>",
+                    footerFormat: "</table>",
+                    shared: true,
+                    useHTML: true
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    }
+                },
+                series: params.series
+            });
+        }
     }
 
     renderPieChart(div, id) {
@@ -236,8 +236,9 @@ export default class OpencgaFacetResultView extends LitElement {
     }
 
     _getHistogramData() {
+
         let params;
-        if (this.facetResult.start === undefined) {
+        if (this.facetResult?.start) {
             const field = this.facetResult;
             // let fields = field.name.split("-");
             // let title = [];
@@ -479,8 +480,8 @@ export default class OpencgaFacetResultView extends LitElement {
 
         return html`
             <div style="padding: 5px 10px">
-                ${this.showButtons 
-                    ? html`
+                ${this.showButtons
+            ? html`
                         <div class="btn-group" style="float: right">
                             <span id="${this._prefix}HistogramChartButton" class="btn btn-primary plots active" @click="${this.renderHistogramChart}">
                                 <i class="fas fa-chart-bar" style="padding-right: 5px" title="Bar Chart" data-id="${this.facetResult.name}"></i>
@@ -488,9 +489,9 @@ export default class OpencgaFacetResultView extends LitElement {
                             <span id="${this._prefix}PieChartButton" class="btn btn-primary plots" @click="${this.onPieChart}">
                                 <i class="fas fa-chart-pie" style="padding-right: 5px" title="Pie Chart" data-id="${this.facetResult.name}"></i>
                             </span>
-                        </div>` 
-                    : null
-                }
+                        </div>`
+            : null
+        }
                 
                 <div id="${this._prefix}Plot"></div>
     
