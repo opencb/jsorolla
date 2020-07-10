@@ -463,151 +463,171 @@ export default class OpencgaActiveFilters extends LitElement {
 
     render() {
         return html`
-        ${ this.facetActive ? html`
-            <div class="alert alert-warning filter-warning" role="alert" id="${this._prefix}Warning" style="">
-                <span><strong>Warning!</strong></span>&nbsp;&nbsp;Filters or Facets have changed, please click on <strong> ${this._config.searchButtonText} </strong> to update the results.
-            </div>` : html`
-            <div class="alert alert-warning filter-warning" role="alert" id="${this._prefix}Warning" style="">
-                <span><strong>Warning!</strong></span>&nbsp;&nbsp;Filters have changed, please click on <strong> ${this._config.searchButtonText} </strong> to update the results.
-            </div>
-        `}
+            ${ this.facetActive ? html`
+                <div class="alert alert-warning filter-warning" role="alert" id="${this._prefix}Warning" style="">
+                    <span><strong>Warning!</strong></span>&nbsp;&nbsp;Filters or Facets have changed, please click on <strong> ${this._config.searchButtonText} </strong> to update the results.
+                </div>` : html`
+                <div class="alert alert-warning filter-warning" role="alert" id="${this._prefix}Warning" style="">
+                    <span><strong>Warning!</strong></span>&nbsp;&nbsp;Filters have changed, please click on <strong> ${this._config.searchButtonText} </strong> to update the results.
+                </div>
+            `}
         
-        <!-- <div class="alert alert-info">${JSON.stringify(this.queryList)}</div> --> 
-        <div class="panel panel-default">
-            <div class="panel-body" style="padding: 8px 10px">
-                <div class="lhs">
-                    <p class="active-filter-label">Filters</p>
-                
-                    ${this.queryList ? html`
-                        ${this.queryList.length === 0 ? html`
-                            <label>No filters selected</label>
-                        ` : html`
-                        ${this.queryList.map(item => !this._isMultiValued(item) ? html` 
-                            ${!item.locked ? html`
-                                <!-- No multi-valued filters -->
-                                <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
-                                        @click="${this.onQueryFilterDelete}">
-                                ${item.text}
-                                </button>
-                            ` : html`
-                                <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
-                                         @click="${this.onQueryFilterDelete}" title="${item.message ?? ''}" disabled>
-                                    ${item.text}
-                                </button>
-                            `}` : html`
-                                <!-- Multi-valued filters -->
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
-                                            @click="${this.onQueryFilterDelete}">
-                                        ${item.text} <span class="badge">${item.items.length}</span>
-                                    </button>
-                                    <button type="button" class="btn btn-warning btn-sm dropdown-toggle ripple no-transform" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <span class="caret"></span>
-                                        <span class="sr-only">Toggle Dropdown</span>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        ${item.items.length && item.items.map(filterItem => html`
-                                            <li class="small active-filter-button" style="cursor: pointer">
-                                                <a @click="${this.onQueryFilterDelete}" data-filter-name="${item.name}" data-filter-value="${filterItem}">
-                                                    ${filterItem} 
-                                                </a>
-                                            </li>
-                                        `)}
-                                    </ul>
-                                </div>
-                            `
-                        )}
-                    `}
-                ` : null}
-                </div> 
+            <!-- <div class="alert alert-info">${JSON.stringify(this.queryList)}</div> --> 
+            <div class="panel panel-default">
+                <div class="panel-body" style="padding: 8px 10px">
+                    <div class="lhs">
+                        <p class="active-filter-label">Filters</p>
                     
-                <div class="rhs">
-                    <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.clear}">
-                        <i class="fa fa-eraser" aria-hidden="true" style="padding-right: 5px"></i> Clear
-                    </button>
-                    
-                    <!-- TODO we probably need a new property for this -->
-                    ${this.showSelectFilters(this.opencgaClient._config) ? html`
-                        <div class="dropdown">
-
-                            <button type="button" class="btn btn-primary btn-sm dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i> Filters <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-right">
-                                <li><a style="font-weight: bold">Saved Filters</a></li>
-                                <!--TODO check why filter is initialized (init()) but I still need to check for truthy-->
-                                ${this.filters && this.filters.length ? this.filters.map(item => html`
-                                    <li> <!-- TODO recheck and simplify!!-->
-                                        ${!item.active ? html`
-                                            <a data-filter-name="${item.name}" style="cursor: pointer" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.name}</a>` : html`
-                                            <a data-filter-name="${item.name}" style="cursor: pointer;color: green" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.name}</a>
-                                        `}
-                                    </li>
-                                `) : null}
-                                ${this.checkSid(this.opencgaClient._config) ? html`
-                                    <li role="separator" class="divider"></li>
-                                    <li>
-                                        <a style="cursor: pointer" @click="${this.launchModal}"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save...</a>
-                                    </li>
-                                ` : html``}
-                            </ul>
-                        </div>
-                    ` : null}
-                </div>
-                <!-- aggregation stat section -->
-                ${this.facetActive && Object.keys(this.facetQuery).length ? html`
-                    <div class="facet-wrapper">
-                        <p class="active-filter-label">Aggregation fields</p>
-                            <div class="button-list">
-                                ${Object.entries(this.facetQuery).map( ([name, facet]) => html`
-                                    <button type="button" class="btn btn-danger btn-sm ${name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${name}" data-filter-value=""
-                                                 @click="${this.onQueryFacetDelete}">
-                                        ${facet.formatted}
-                                    </button>
-                            `)}
-                            </div>
-                            <div class="rhs">
-                                <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.clearFacet}">
-                                    <i class="fa fa-eraser" aria-hidden="true" style="padding-right: 5px"></i> Clear
-                                </button>
-                            </div>
-                        </div>
-                ` : null }
-            </div>
-        </div>
-
-        <!-- Modal -->
-        <div class="modal fade" id="${this._prefix}SaveModal" tabindex="-1" role="dialog"
-             aria-labelledby="${this._prefix}SaveModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
+                        ${this.queryList ? html`
+                            ${this.queryList.length === 0 
+                                ? html`
+                                    <label>No filters selected</label>` 
+                                : html`
+                                    ${this.queryList.map(item => !this._isMultiValued(item) 
+                                        ? html` 
+                                            ${!item.locked 
+                                                ? html`
+                                                    <!-- No multi-valued filters -->
+                                                    <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
+                                                            @click="${this.onQueryFilterDelete}">
+                                                    ${item.text}
+                                                    </button>` 
+                                                : html`
+                                                    <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
+                                                             @click="${this.onQueryFilterDelete}" title="${item.message ?? ''}" disabled>
+                                                        ${item.text}
+                                                    </button>`
+                                            }` 
+                                        : html`
+                                            <!-- Multi-valued filters -->
+                                            <div class="btn-group">
+                                                ${item.locked 
+                                                    ? html`
+                                                        <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
+                                                                @click="${this.onQueryFilterDelete}" disabled> ${item.text} <span class="badge">${item.items.length}</span>
+                                                        </button>
+                                                        <button type="button" class="btn btn-warning btn-sm dropdown-toggle ripple no-transform" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            <span class="caret"></span>
+                                                            <span class="sr-only">Toggle Dropdown</span>
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            ${item.items.length && item.items.map(filterItem => html`
+                                                                <li class="small active-filter-button disabled" style="cursor: pointer">
+                                                                    <a>${filterItem}</a>
+                                                                </li>
+                                                            `)}
+                                                        </ul>`
+                                                    : html`
+                                                        <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
+                                                                @click="${this.onQueryFilterDelete}"> ${item.text} <span class="badge">${item.items.length}</span>
+                                                        </button>
+                                                        <button type="button" class="btn btn-warning btn-sm dropdown-toggle ripple no-transform" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            <span class="caret"></span>
+                                                            <span class="sr-only">Toggle Dropdown</span>
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            ${item.items.length && item.items.map(filterItem => html`
+                                                                <li class="small active-filter-button disabled" style="cursor: pointer">
+                                                                    <a @click="${this.onQueryFilterDelete}" data-filter-name="${item.name}" data-filter-value="${filterItem}">
+                                                                        ${filterItem} 
+                                                                    </a>
+                                                                </li>
+                                                            `)}
+                                                        </ul>`
+                                                }
+                                            </div>`
+                                    )}
+                                `}
+                            ` 
+                        : null}
+                    </div> 
+                        
+                    <div class="rhs">
+                        <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.clear}">
+                            <i class="fa fa-eraser" aria-hidden="true" style="padding-right: 5px"></i> Clear
                         </button>
-                        <h4 class="modal-title" id="${this._prefix}SaveModalLabel">Filter</h4>
+                        
+                        <!-- TODO we probably need a new property for this -->
+                        ${this.showSelectFilters(this.opencgaClient._config) ? html`
+                            <div class="dropdown">
+    
+                                <button type="button" class="btn btn-primary btn-sm dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa fa-filter" aria-hidden="true" style="padding-right: 5px"></i> Filters <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    <li><a style="font-weight: bold">Saved Filters</a></li>
+                                    <!--TODO check why filter is initialized (init()) but I still need to check for truthy-->
+                                    ${this.filters && this.filters.length ? this.filters.map(item => html`
+                                        <li> <!-- TODO recheck and simplify!!-->
+                                            ${!item.active ? html`
+                                                <a data-filter-name="${item.name}" style="cursor: pointer" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.name}</a>` : html`
+                                                <a data-filter-name="${item.name}" style="cursor: pointer;color: green" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.name}</a>
+                                            `}
+                                        </li>
+                                    `) : null}
+                                    ${this.checkSid(this.opencgaClient._config) ? html`
+                                        <li role="separator" class="divider"></li>
+                                        <li>
+                                            <a style="cursor: pointer" @click="${this.launchModal}"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save...</a>
+                                        </li>
+                                    ` : html``}
+                                </ul>
+                            </div>
+                        ` : null}
                     </div>
-                    <div class="modal-body">
-                        <div class="form-group row">
-                            <label for="filterName" class="col-xs-2 col-form-label">Name</label>
-                            <div class="col-xs-10">
-                                <input class="form-control" type="text" id="${this._prefix}filterName">
+                    <!-- aggregation stat section -->
+                    ${this.facetActive && Object.keys(this.facetQuery).length ? html`
+                        <div class="facet-wrapper">
+                            <p class="active-filter-label">Aggregation fields</p>
+                                <div class="button-list">
+                                    ${Object.entries(this.facetQuery).map( ([name, facet]) => html`
+                                        <button type="button" class="btn btn-danger btn-sm ${name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${name}" data-filter-value=""
+                                                     @click="${this.onQueryFacetDelete}">
+                                            ${facet.formatted}
+                                        </button>
+                                `)}
+                                </div>
+                                <div class="rhs">
+                                    <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.clearFacet}">
+                                        <i class="fa fa-eraser" aria-hidden="true" style="padding-right: 5px"></i> Clear
+                                    </button>
+                                </div>
+                            </div>
+                    ` : null }
+                </div>
+            </div>
+    
+            <!-- Modal -->
+            <div class="modal fade" id="${this._prefix}SaveModal" tabindex="-1" role="dialog"
+                 aria-labelledby="${this._prefix}SaveModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4 class="modal-title" id="${this._prefix}SaveModalLabel">Filter</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group row">
+                                <label for="filterName" class="col-xs-2 col-form-label">Name</label>
+                                <div class="col-xs-10">
+                                    <input class="form-control" type="text" id="${this._prefix}filterName">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="${this._prefix}filterDescription" class="col-xs-2 col-form-label">Description</label>
+                                <div class="col-xs-10">
+                                    <input class="form-control" type="text" id="${this._prefix}filterDescription">
+                                </div>
                             </div>
                         </div>
-                        <div class="form-group row">
-                            <label for="${this._prefix}filterDescription" class="col-xs-2 col-form-label">Description</label>
-                            <div class="col-xs-10">
-                                <input class="form-control" type="text" id="${this._prefix}filterDescription">
-                            </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.save}">Save</button>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.save}">Save</button>
                     </div>
                 </div>
             </div>
-        </div>
-
         `;
     }
 
