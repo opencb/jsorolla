@@ -839,7 +839,7 @@ export default class DataForm extends LitElement {
             return html`
                 <div class="row">
                     <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#${this._prefix}Help">
-                        <i class="${this.config.icon ? this.config.icon : "fas fa-info-circle"}" aria-hidden="true" style="padding-right: 5px"></i> ${this.config.title}
+                        <i class="${this.config.icon ? this.config.icon : "fas fa-info-circle"} icon-padding" aria-hidden="true"></i> ${this.config.title}
                     </button>
                     <div class="">
                         <div id="${this._prefix}Help" class="collapse">
